@@ -10,9 +10,11 @@
     "preview": "vite preview",
     "tests": "vitest",
     "audit": "better-npm-audit audit",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "tauri": "tauri"
   },
   "dependencies": {
+    "@tauri-apps/api": "^1.5.3",
     "jotai": "^2.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -21,6 +23,7 @@
     "@makerx/eslint-config": "^3.1.0",
     "@makerx/prettier-config": "^2.0.0",
     "@makerx/ts-config": "^1.0.1",
+    "@tauri-apps/cli": "^1.5.11",
     "@types/react": "^18.2.56",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
