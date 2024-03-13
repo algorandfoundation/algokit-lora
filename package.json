@@ -17,7 +17,8 @@
     "@tauri-apps/api": "^1.5.3",
     "jotai": "^2.7.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3"
   },
   "devDependencies": {
     "@makerx/eslint-config": "^3.1.0",
