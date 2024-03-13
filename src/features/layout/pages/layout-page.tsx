@@ -8,11 +8,11 @@ export interface LayoutPageProps {
 
 export function LayoutPage({ children }: LayoutPageProps) {
   return (
-    <div className="drawer lg:drawer-open">
+    <div className="drawer md:drawer-open">
       <input id="my-drawer" type="checkbox" className="drawer-toggle" />
       <div className="drawer-content p-4">
         {children}
-        <label htmlFor="my-drawer" className="btn btn-primary drawer-button lg:hidden">
+        <label htmlFor="my-drawer" className="btn btn-primary drawer-button md:hidden">
           Open drawer
         </label>
       </div>

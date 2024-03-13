@@ -14,6 +14,10 @@ export const routes = evalTemplates([
     ),
     children: [
       {
+        template: Urls.Index,
+        element: <div>Home</div>,
+      },
+      {
         template: Urls.Feature1,
         element: <div>Feature 1</div>,
       },
