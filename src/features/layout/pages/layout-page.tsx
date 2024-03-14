@@ -4,6 +4,8 @@ import { Urls } from '../../../routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { Header } from '../components/header'
+
 export interface LayoutPageProps {
   children?: ReactNode
 }
@@ -11,6 +13,7 @@ export interface LayoutPageProps {
 export function LayoutPage({ children }: LayoutPageProps) {
   return (
     <>
+      <Header />
       <NavigationMenu>
         <NavigationMenuList className={cn('flex-col items-start space-x-0')}>
           <NavigationMenuItem>
