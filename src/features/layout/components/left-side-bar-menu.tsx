@@ -9,7 +9,7 @@ type Props = {
 
 export function LeftSideBarMenu({ className }: Props) {
   return (
-    <NavigationMenu className={cn('bg-secondary', className)}>
+    <NavigationMenu className={cn('bg-card', className)}>
       <NavigationMenuList className={cn('flex-col items-start space-x-0')}>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>

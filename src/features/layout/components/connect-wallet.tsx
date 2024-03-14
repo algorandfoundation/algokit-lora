@@ -7,7 +7,7 @@ export function ConnectWallet() {
     <div className={cn('flex gap-2')}>
       {/* TODO: add search icon */}
       <Input className={cn('w-96')} />
-      <Button variant={'default'} size={'sm'}>
+      <Button variant={'default'} size={'default'}>
         Connect wallet
       </Button>
     </div>
