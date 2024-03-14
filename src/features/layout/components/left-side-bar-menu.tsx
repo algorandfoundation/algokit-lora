@@ -3,9 +3,13 @@ import { Urls } from '../../../routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/primitive/components/navigation-menu'
 import { cn } from '@/features/primitive/utils'
 
-export function LeftSideBarMenu() {
+type Props = {
+  className?: string
+}
+
+export function LeftSideBarMenu({ className }: Props) {
   return (
-    <NavigationMenu className={cn('bg-secondary w-52')}>
+    <NavigationMenu className={cn('bg-secondary', className)}>
       <NavigationMenuList className={cn('flex-col items-start space-x-0')}>
         <NavigationMenuItem className={cn('flex h-12 items-center p-4')}>
           <NavigationMenuLink asChild>
