@@ -14,13 +14,13 @@ export interface TemplatedNavLinkProps<TTemplateParams> {
 
 export const TemplatedNavLink = fixedForwardRef(
   <TTemplateArgs,>(
-    { children, urlTemplate, title, urlParams }: TemplatedNavLinkProps<TTemplateArgs>,
+    { children, urlTemplate, title, urlParams, className }: TemplatedNavLinkProps<TTemplateArgs>,
     ref: React.LegacyRef<HTMLAnchorElement>
   ) => {
     const existingParams = useParams()
 
     return (
-      <NavLink ref={ref} title={title} to={urlTemplate.build({ ...existingParams, ...urlParams } as TTemplateArgs)}>
+      <NavLink ref={ref} title={title} to={urlTemplate.build({ ...existingParams, ...urlParams } as TTemplateArgs)} className={className}>
         {children}
       </NavLink>
     )

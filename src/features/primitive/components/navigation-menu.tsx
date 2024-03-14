@@ -9,7 +9,7 @@ const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>
 >(({ className, children, ...props }, ref) => (
-  <NavigationMenuPrimitive.Root ref={ref} className={cn('relative z-10 flex', className)} {...props}>
+  <NavigationMenuPrimitive.Root ref={ref} className={cn('relative z-10', className)} {...props}>
     {children}
     <NavigationMenuViewport />
   </NavigationMenuPrimitive.Root>
@@ -19,13 +19,7 @@ NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName
 const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>
->(({ className, ...props }, ref) => (
-  <NavigationMenuPrimitive.List
-    ref={ref}
-    className={cn('group flex flex-1 list-none items-center justify-center space-x-1', className)}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => <NavigationMenuPrimitive.List ref={ref} className={cn('list-none', className)} {...props} />)
 NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName
 
 const NavigationMenuItem = NavigationMenuPrimitive.Item
