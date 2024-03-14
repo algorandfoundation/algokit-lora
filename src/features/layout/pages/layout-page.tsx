@@ -1,9 +1,9 @@
 import { ReactNode } from 'react'
 import { TemplatedNavLink } from '../../routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '../../../routes/urls'
-import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/components/ui/navigation-menu'
-import { cn } from '@/lib/utils'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/primitive/components/navigation-menu'
+import { cn } from '@/features/primitive/utils'
+import { ThemeToggle } from '@/features/theme/components/theme-toggle'
 import { Header } from '../components/header'
 
 export interface LayoutPageProps {

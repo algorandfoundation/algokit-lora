@@ -1,7 +1,7 @@
 import './App.css'
 import { routes } from './App.routes'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { ThemeProvider } from './components/theme-provider'
+import { ThemeProvider } from './features/theme/context/theme-provider'
 
 const router = createBrowserRouter(routes)
 
