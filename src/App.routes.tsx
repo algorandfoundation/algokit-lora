@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import { LayoutPage } from './features/layout/pages/layout-page'
 import { Urls } from './routes/urls'
 import { evalTemplates } from './routes/templated-route'
-import { TransactionPage } from './features/transactions/components/transaction'
 
 export const routes = evalTemplates([
   {
@@ -18,12 +17,12 @@ export const routes = evalTemplates([
         element: <div>Home</div>,
       },
       {
-        template: Urls.Feature1,
-        element: <div>Feature 1</div>,
+        template: Urls.Explore,
+        element: <div>Explore</div>,
       },
       {
-        template: Urls.Transaction.ById,
-        element: <TransactionPage />,
+        template: Urls.AppStudio,
+        element: <div>App Studio</div>,
       },
     ],
   },

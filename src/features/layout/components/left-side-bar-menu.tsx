@@ -5,21 +5,27 @@ import { cn } from '@/features/primitive/utils'
 
 export function LeftSideBarMenu() {
   return (
-    <NavigationMenu className={cn('bg-secondary')}>
+    <NavigationMenu className={cn('bg-secondary w-52')}>
       <NavigationMenuList className={cn('flex-col items-start space-x-0')}>
-        <NavigationMenuItem>
+        <NavigationMenuItem className={cn('flex h-12 items-center p-4')}>
           <NavigationMenuLink asChild>
-            <TemplatedNavLink urlTemplate={Urls.Feature1}>Home</TemplatedNavLink>
+            <TemplatedNavLink urlTemplate={Urls.Index} className={cn('[&.active]:text-primary')}>
+              Home
+            </TemplatedNavLink>
           </NavigationMenuLink>
         </NavigationMenuItem>
-        <NavigationMenuItem>
+        <NavigationMenuItem className={cn('flex h-12 items-center p-4')}>
           <NavigationMenuLink asChild>
-            <TemplatedNavLink urlTemplate={Urls.Feature1}>Explore</TemplatedNavLink>
+            <TemplatedNavLink urlTemplate={Urls.Explore} className={cn('[&.active]:text-primary')}>
+              Explore
+            </TemplatedNavLink>
           </NavigationMenuLink>
         </NavigationMenuItem>
-        <NavigationMenuItem>
+        <NavigationMenuItem className={cn('flex h-12 items-center p-4')}>
           <NavigationMenuLink asChild>
-            <TemplatedNavLink urlTemplate={Urls.Feature1}>App Studio</TemplatedNavLink>
+            <TemplatedNavLink urlTemplate={Urls.AppStudio} className={cn('[&.active]:text-primary')}>
+              App Studio
+            </TemplatedNavLink>
           </NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
