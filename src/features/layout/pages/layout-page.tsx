@@ -3,6 +3,7 @@ import { TemplatedNavLink } from '../../routing/components/templated-nav-link/te
 import { Urls } from '../../../routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
+import { ThemeToggle } from '@/components/theme-toggle'
 export interface LayoutPageProps {
   children?: ReactNode
 }
@@ -26,6 +27,7 @@ export function LayoutPage({ children }: LayoutPageProps) {
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
+      <ThemeToggle />
       {children}
     </>
   )
