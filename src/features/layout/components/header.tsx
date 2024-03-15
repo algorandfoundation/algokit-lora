@@ -1,4 +1,4 @@
-import { cn } from '@/features/primitive/utils'
+import { cn } from '@/features/common/utils'
 import { ThemeToggle } from '@/features/theme/components/theme-toggle'
 import { NetworkSelect } from './network-select'
 import { ConnectWallet } from './connect-wallet'

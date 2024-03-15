@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { Header } from '../components/header'
 import { LeftSideBarMenu } from '../components/left-side-bar-menu'
-import { cn } from '@/features/primitive/utils'
+import { cn } from '@/features/common/utils'
 
 export interface LayoutPageProps {
   children?: ReactNode

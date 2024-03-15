@@ -1,6 +1,6 @@
-import { Button } from '@/features/primitive/components/button'
-import { Input } from '@/features/primitive/components/input'
-import { cn } from '@/features/primitive/utils'
+import { Button } from '@/features/common/components/button'
+import { Input } from '@/features/common/components/input'
+import { cn } from '@/features/common/utils'
 
 export function ConnectWallet() {
   return (

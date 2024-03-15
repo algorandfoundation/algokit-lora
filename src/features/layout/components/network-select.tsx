@@ -1,6 +1,6 @@
-import { Label } from '@/features/primitive/components/label'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/features/primitive/components/select'
-import { cn } from '@/features/primitive/utils'
+import { Label } from '@/features/common/components/label'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/features/common/components/select'
+import { cn } from '@/features/common/utils'
 
 export function NetworkSelect() {
   return (

@@ -1,7 +1,7 @@
 import { Moon, Sun } from 'lucide-react'
 
-import { Button } from '@/features/primitive/components/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/primitive/components/dropdown-menu'
+import { Button } from '@/features/common/components/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 import { useTheme } from '../hooks/use-theme'
 
 export function ThemeToggle() {
