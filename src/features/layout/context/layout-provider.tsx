@@ -19,9 +19,7 @@ export const LayoutProviderContext = createContext<LayoutProviderState>(initialS
 export function LayoutProvider({ children, ...props }: LayoutProviderProps) {
   const leftSideBarExpandedKey = 'layout-config-left-side-bar-expanded'
 
-  const [isLeftSideBarExpanded, setIsLeftSideBarExpanded] = useState<boolean>(
-    () => localStorage.getItem(leftSideBarExpandedKey) === 'true' || true
-  )
+  const [isLeftSideBarExpanded, setIsLeftSideBarExpanded] = useState<boolean>(() => localStorage.getItem(leftSideBarExpandedKey) === 'true')
 
   const value = {
     isLeftSideBarExpanded,
