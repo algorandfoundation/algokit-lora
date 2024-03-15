@@ -1,7 +1,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 100;
   font-display: swap;
   src: url('/fonts/poppins-100-italic-devanagari.woff2') format('woff2');
@@ -10,7 +10,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 100;
   font-display: swap;
   src: url('/fonts/poppins-100-italic-latin-ext.woff2') format('woff2');
@@ -20,7 +20,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 100;
   font-display: swap;
   src: url('/fonts/poppins-100-italic-latin.woff2') format('woff2');
@@ -30,7 +30,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 200;
   font-display: swap;
   src: url('/fonts/poppins-200-italic-devanagari.woff2') format('woff2');
@@ -39,7 +39,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 200;
   font-display: swap;
   src: url('/fonts/poppins-200-italic-latin-ext.woff2') format('woff2');
@@ -49,7 +49,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 200;
   font-display: swap;
   src: url('/fonts/poppins-200-italic-latin.woff2') format('woff2');
@@ -59,7 +59,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 300;
   font-display: swap;
   src: url('/fonts/poppins-300-italic-devanagari.woff2') format('woff2');
@@ -68,7 +68,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 300;
   font-display: swap;
   src: url('/fonts/poppins-300-italic-latin-ext.woff2') format('woff2');
@@ -78,7 +78,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 300;
   font-display: swap;
   src: url('/fonts/poppins-300-italic-latin.woff2') format('woff2');
@@ -88,7 +88,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/poppins-400-italic-devanagari.woff2') format('woff2');
@@ -97,7 +97,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/poppins-400-italic-latin-ext.woff2') format('woff2');
@@ -107,7 +107,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 400;
   font-display: swap;
   src: url('/fonts/poppins-400-italic-latin.woff2') format('woff2');
@@ -117,7 +117,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 500;
   font-display: swap;
   src: url('/fonts/poppins-500-italic-devanagari.woff2') format('woff2');
@@ -126,7 +126,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 500;
   font-display: swap;
   src: url('/fonts/poppins-500-italic-latin-ext.woff2') format('woff2');
@@ -136,7 +136,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 500;
   font-display: swap;
   src: url('/fonts/poppins-500-italic-latin.woff2') format('woff2');
@@ -146,7 +146,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/poppins-600-italic-devanagari.woff2') format('woff2');
@@ -155,7 +155,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/poppins-600-italic-latin-ext.woff2') format('woff2');
@@ -165,7 +165,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 600;
   font-display: swap;
   src: url('/fonts/poppins-600-italic-latin.woff2') format('woff2');
@@ -175,7 +175,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/poppins-700-italic-devanagari.woff2') format('woff2');
@@ -184,7 +184,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/poppins-700-italic-latin-ext.woff2') format('woff2');
@@ -194,7 +194,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 700;
   font-display: swap;
   src: url('/fonts/poppins-700-italic-latin.woff2') format('woff2');
@@ -204,7 +204,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 800;
   font-display: swap;
   src: url('/fonts/poppins-800-italic-devanagari.woff2') format('woff2');
@@ -213,7 +213,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 800;
   font-display: swap;
   src: url('/fonts/poppins-800-italic-latin-ext.woff2') format('woff2');
@@ -223,7 +223,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 800;
   font-display: swap;
   src: url('/fonts/poppins-800-italic-latin.woff2') format('woff2');
@@ -233,7 +233,7 @@
 /* devanagari */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 900;
   font-display: swap;
   src: url('/fonts/poppins-900-italic-devanagari.woff2') format('woff2');
@@ -242,7 +242,7 @@
 /* latin-ext */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 900;
   font-display: swap;
   src: url('/fonts/poppins-900-italic-latin-ext.woff2') format('woff2');
@@ -252,7 +252,7 @@
 /* latin */
 @font-face {
   font-family: 'Poppins';
-  font-style: normal;
+  font-style: italic;
   font-weight: 900;
   font-display: swap;
   src: url('/fonts/poppins-900-italic-latin.woff2') format('woff2');
