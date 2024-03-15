@@ -40,7 +40,7 @@
     --background: 34 34 34;
     --foreground: 255 255 255;
 
-    --card: 13 13 13;
+    --card: 51 51 51;
     --card-foreground: 255 255 255;
 
     --popover: 255 255 255;
@@ -60,7 +60,7 @@
 
     --border: 30 41 59;
 
-    --input: 53 53 53;
+    --input: 65 65 65;
 
     --ring: 203 213 225;
   }
