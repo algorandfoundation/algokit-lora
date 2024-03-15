@@ -1,3 +1,6 @@
+@import './styles/fonts-normal.css';
+@import './styles/fonts-italic.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,6 +72,9 @@
 @layer base {
   * {
     @apply border-border;
+  }
+  html {
+    font-family: 'Poppins', sans-serif;
   }
   body {
     @apply bg-background text-foreground;

@@ -14,7 +14,11 @@ export const routes = evalTemplates([
     children: [
       {
         template: Urls.Index,
-        element: <div>Home</div>,
+        element: (
+          <div>
+            <h1 className="font-bold">Home</h1>
+          </div>
+        ),
       },
       {
         template: Urls.Explore,
