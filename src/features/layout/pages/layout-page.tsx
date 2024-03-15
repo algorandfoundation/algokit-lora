@@ -13,7 +13,7 @@ export function LayoutPage({ children }: LayoutPageProps) {
       <Header className={cn('mb-1')} />
       <div className={cn('flex h-full flex-shrink flex-row')}>
         <LeftSideBarMenu />
-        <div className={cn('grow p-4')}> {children}</div>
+        <div className={cn('grow pl-4 pt-4')}> {children}</div>
       </div>
     </>
   )

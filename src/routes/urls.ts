@@ -8,6 +8,10 @@ export const UrlParams = {
 
 export const Urls = {
   Index: UrlTemplate`/`,
-  Explore: UrlTemplate`/explore`,
+  Explore: UrlTemplate`/explore`.extend({
+    Transaction: UrlTemplate`/transaction`.extend({
+      ById: UrlTemplate`/${UrlParams.TransactionId}`,
+    }),
+  }),
   AppStudio: UrlTemplate`/app-studio`,
 }
