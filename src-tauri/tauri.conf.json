@@ -28,8 +28,7 @@
         ]
       },
       "fs": {
-        "all": true,
-        "scope": ["$HOME"]
+        "all": true
       },
       "dialog": {
         "all": true
@@ -38,8 +37,8 @@
     "windows": [
       {
         "title": "tauri-app",
-        "width": 800,
-        "height": 600
+        "width": 1400,
+        "height": 800
       }
     ],
     "security": {
