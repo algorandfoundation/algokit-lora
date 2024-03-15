@@ -3,3 +3,6 @@ public/_static
 /app/tailwind.css
 package-lock.json
 node_modules/
+
+src/features/common/components/svg
+src/features/common/components/icons
