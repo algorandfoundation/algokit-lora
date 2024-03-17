@@ -37,9 +37,6 @@
     --ring: 153 153 153;
 
     --radius: 0.25rem;
-
-    height: 100%;
-    overflow: hidden;
   }
 
   .dark {
@@ -81,12 +78,12 @@
   }
   body {
     @apply bg-background text-foreground;
-    height: 100%;
-    overflow: hidden;
+    /* min-height: 100vh; */
+    /* height: 100vh; */
+    /* overflow-y: scroll; */
   }
   #root {
-    height: 100%;
-    overflow: hidden;
+    /* min-height: 100vh; */
     max-width: 1400px;
     margin: 0 auto;
   }

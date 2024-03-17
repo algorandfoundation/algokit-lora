@@ -1,5 +1,7 @@
 import { Card, CardContent } from '@/features/common/components/card'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { cn } from '@/features/common/utils'
+import { dateFormatter } from '@/utils/format'
 
 type Props = {
   transaction: TransactionModel
@@ -14,6 +16,31 @@ export function Transaction({ transaction }: Props) {
     {
       dt: 'Type',
       dd: transaction.type,
+    },
+    {
+      dt: 'Timestamp',
+      // TODO: check timezone
+      dd: dateFormatter.asLongDateTime(transaction.roundTime),
+    },
+    {
+      dt: 'Block',
+      dd: (
+        <a href="#" className={cn('text-primary underline')}>
+          {transaction.confirmedRound}
+        </a>
+      ),
+    },
+    {
+      dt: 'Group',
+      dd: (
+        <a href="#" className={cn('text-primary underline')}>
+          {transaction.group}
+        </a>
+      ),
+    },
+    {
+      dt: 'Fee',
+      dd: <DisplayAlgo microAlgo={transaction.fee} />,
     },
   ]
   return (
@@ -43,7 +70,8 @@ export type TransactionModel = {
   id: string
   type: TransactionType
   confirmedRound: number
-  roundTime: number
+  roundTime: Date
   group: string
+  // The fee in micro Algo
   fee: number
 }

@@ -29,7 +29,7 @@ export function LeftSideBarMenu({ className }: Props) {
   )
 
   return (
-    <NavigationMenu className={cn('bg-card', className, 'transition-all duration-300', isLeftSideBarExpanded ? 'w-52' : 'w-10')}>
+    <NavigationMenu className={cn('bg-card transition-all duration-300 min-h-screen', className, isLeftSideBarExpanded ? 'w-52' : 'w-10')}>
       <NavigationMenuList className={cn('flex-col items-start')}>
         <NavigationMenuItem className={cn('flex justify-end')}>
           <Button variant="outline" size="icon" className={cn('text-primary')} onClick={toggleLeftSideBar}>

@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import { UrlTemplateObj } from '../../../../routes/url-template'
-import { fixedForwardRef } from '@/util/fixed-forward-ref'
+import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 
 export interface TemplatedNavLinkProps<TTemplateParams> {
   className?: string
