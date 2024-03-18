@@ -2,9 +2,11 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
+import { PaymentTransactionModel, TransactionType } from '../models/models'
+import { PaymentTransaction } from './payment-transaction'
 
 type Props = {
-  transaction: TransactionModel
+  transaction: PaymentTransactionModel
 }
 
 export function Transaction({ transaction }: Props) {
@@ -57,21 +59,8 @@ export function Transaction({ transaction }: Props) {
             ))}
           </CardContent>
         </Card>
+        {transaction.type === TransactionType.Payment && <PaymentTransaction transaction={transaction} />}
       </div>
     </div>
   )
-}
-
-export enum TransactionType {
-  Payment = 'Payment',
-}
-
-export type TransactionModel = {
-  id: string
-  type: TransactionType
-  confirmedRound: number
-  roundTime: Date
-  group: string
-  // The fee in micro Algo
-  fee: number
 }

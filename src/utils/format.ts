@@ -1,3 +1,4 @@
+import { MicroAlgo } from '@/features/transactions/models/models'
 import { format as dateFnsFormat } from 'date-fns'
 import Decimal from 'decimal.js'
 
@@ -6,5 +7,5 @@ export const dateFormatter = {
 }
 
 export const algoFormatter = {
-  asAlgo: (microAlgo: number) => new Decimal(microAlgo).dividedBy(1_000_000).toFixed(),
+  asAlgo: (microAlgo: MicroAlgo) => new Decimal(microAlgo).dividedBy(1_000_000).toFixed(),
 }
