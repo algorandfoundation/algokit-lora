@@ -9,7 +9,9 @@ export type TransactionModel = {
 
   base64Note: string
   textNote: string
-  messagePackNode: string
+  messagePackNote: string
+
+  json: string
 }
 
 export enum TransactionType {
