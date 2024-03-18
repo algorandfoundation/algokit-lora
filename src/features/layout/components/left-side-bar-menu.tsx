@@ -44,7 +44,7 @@ export function LeftSideBarMenu({ className }: Props) {
                 className={cn('[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap')}
               >
                 <div className={cn('text-primary leading-6')}>{menuItem.icon}</div>
-                <div className={cn(isLeftSideBarExpanded ? 'visible' : 'invisible delay-100')}>{menuItem.text}</div>
+                <div className={cn(isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
               </TemplatedNavLink>
             </NavigationMenuLink>
           </NavigationMenuItem>
