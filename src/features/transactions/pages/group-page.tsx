@@ -1,4 +1,12 @@
+import SvgCircle from '@/features/common/components/svg/circle'
 import { cn } from '@/features/common/utils'
+import { useMemo, useState } from 'react'
+
+type AccountFoo = {
+  account: string
+  // the status for the arrow only
+  status: 'from' | 'to' | 'middle' | 'outside'
+}
 
 type TransactionTrProps = {
   transaction: Transaction
@@ -20,6 +28,30 @@ function TransactionTr({
   indentLevel = 0,
   verticalBars,
 }: TransactionTrProps) {
+  const accountsWithStatus = useMemo(() => {
+    let a = false
+    return accounts.map<AccountFoo>((account) => {
+      if (transaction.sender === account) {
+        a = !a
+        return {
+          account: account,
+          status: 'from',
+        }
+      }
+      if (transaction.receiver === account) {
+        a = !a
+        return {
+          account: account,
+          status: 'to',
+        }
+      }
+      return {
+        account: account,
+        status: a ? 'middle' : 'outside',
+      }
+    })
+  }, [accounts, transaction.receiver, transaction.sender])
+
   return (
     <>
       <tr>
@@ -44,9 +76,25 @@ function TransactionTr({
             )}
           </div>
         </td>
-        {accounts.map((account, index) => (
+        {accountsWithStatus.map((account, index) => (
           <td key={index} className={cn('p-0 relative')}>
-            <div className={cn('h-10 border-l-2 border-muted border-dashed absolute left-[50%]')}></div>
+            {/* TODO: fix the calc, it doesn't look good */}
+            <div className={cn('h-10 border-l-2 border-muted border-dashed absolute left-[calc(50%-1px)] -z-10')}></div>
+            {account.status === 'from' && (
+              <div className={cn('h-10 absolute left-[50%] translate-x-[-50%] translate-y-[-25%] z-10')}>
+                <SvgCircle />
+              </div>
+            )}
+            {account.status === 'from' && <div className={cn('border-primary w-[50%] border-b-2 translate-x-[100%]')}></div>}
+
+            <div className={cn('flex justify-center items-center relative')}>
+              {account.status === 'to' && (
+                <div>
+                  <SvgCircle />
+                </div>
+              )}
+              {account.status === 'middle' && <div className={cn('border-primary w-full border-b-2')}></div>}
+            </div>
           </td>
         ))}
       </tr>
