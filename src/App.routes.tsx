@@ -4,6 +4,7 @@ import { Urls } from './routes/urls'
 import { evalTemplates } from './routes/templated-route'
 import { TransactionPage } from './features/transactions/pages/transaction-page'
 import { ExplorePage } from './features/explore/pages/explore-page'
+import { GroupPage } from './features/transactions/pages/group-page'
 
 export const routes = evalTemplates([
   {
@@ -32,6 +33,10 @@ export const routes = evalTemplates([
           {
             template: Urls.Explore.Transaction.ById,
             element: <TransactionPage />,
+          },
+          {
+            template: Urls.Explore.Group.ById,
+            element: <GroupPage />,
           },
         ],
       },
