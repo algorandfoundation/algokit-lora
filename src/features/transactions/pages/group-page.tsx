@@ -2,21 +2,15 @@ import SvgCircle from '@/features/common/components/svg/circle'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
 import SvgPointerRight from '@/features/common/components/svg/pointer-right'
 import { cn } from '@/features/common/utils'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
-type AccountFoo = {
-  account: string
-  // the status for the arrow only
-  status: 'from' | 'to' | 'middle' | 'outside'
-}
-
-type TransactionFooDrawing = {
+type TransactionArrow = {
   from: number
   to: number
   direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
 }
 
-type TransactionTableRowProps = {
+type TransactionRowProps = {
   transaction: Transaction
   cellHeight?: number
   lineWidth?: number
@@ -27,7 +21,7 @@ type TransactionTableRowProps = {
   indentLevel?: number
   verticalBars?: number[]
 }
-function TransactionTableRow({
+function TransactionRow({
   transaction,
   accounts,
   hasParent = false,
@@ -35,58 +29,102 @@ function TransactionTableRow({
   hasChildren = false,
   indentLevel = 0,
   verticalBars,
-}: TransactionTableRowProps) {
-  const foo = useMemo(() => calcTransactionFoo(transaction, accounts), [accounts, transaction])
+}: TransactionRowProps) {
+  const transactionArrow = useMemo(() => calcTransactionArrow(transaction, accounts), [accounts, transaction])
 
   return (
     <>
-      <tr>
-        <td className={cn('p-0 relative pr-8')}>
-          {verticalBars &&
+      <div className={cn('p-0 relative pr-8')}>
+        {
+          // The side vertical bars when there are nested items
+          verticalBars &&
             verticalBars.length &&
             verticalBars
               .filter((b) => b > 0)
-              .map((b, i) => <div key={i} className={cn('h-10 border-primary border-l-2 absolute')} style={{ marginLeft: b * 16 }}></div>)}
-          <div className={cn(`relative h-10 p-0 flex items-center`, 'px-0')} style={{ marginLeft: indentLevel * 16 }}>
-            {hasParent && (
-              <div className={cn('w-8', `border-primary border-l-2 border-b-2 rounded-bl-lg`, `h-[50%]`, `absolute top-0 left-0`)}></div>
-            )}
-            <div className={cn('inline ml-8')}>{transaction.name}</div>
-            {hasParent && hasNextSibbling && (
-              <div className={cn('w-8', 'border-primary border-l-2', 'h-[22px]', 'absolute top-[18px] left-0')}></div>
-            )}
-            {hasChildren && (
+              .map((b, i) => (
+                <div
+                  key={i}
+                  className={cn('h-full border-primary absolute')}
+                  style={{ marginLeft: b * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
+                ></div>
+              ))
+        }
+        <div
+          className={cn(`relative h-full p-0 flex items-center`, 'px-0')}
+          style={{ marginLeft: indentLevel * graphConfig.indentationWidth }}
+        >
+          {
+            // The connection between this transaction and the parent
+            hasParent && (
               <div
-                className={cn('w-2 ml-4', 'border-primary border-l-2 border-t-2 rounded-tl-lg', 'h-[22px]', 'absolute top-[18px] left-0')}
+                className={cn('w-8', `border-primary rounded-bl-lg`, `h-1/2`, `absolute top-0 left-0`)}
+                style={{ borderLeftWidth: `${graphConfig.lineWidth}px`, borderBottomWidth: `${graphConfig.lineWidth}px` }}
               ></div>
-            )}
-          </div>
-        </td>
-        {accounts.map((account, index) => {
-          if (index < foo.from || index > foo.to) return <td key={index}></td>
-          if (index === foo.from)
-            return (
-              <td key={index} colSpan={foo.to - foo.from + 1}>
-                <div className={cn('flex items-center justify-center')}>
-                  <SvgCircle width={20} height={20}></SvgCircle>
-                  <div
-                    style={{ width: `calc(${(100 - 100 / (foo.to - foo.from + 1)).toFixed(2)}% - 20px)`, height: '20px' }}
-                    className="relative text-primary"
-                  >
-                    {foo.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
-                    <div className={cn('border-primary border-b-2 h-1/2')}></div>
-                    {foo.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
-                  </div>
-                  <SvgCircle width={20} height={20}></SvgCircle>
-                </div>
-              </td>
             )
-          else return null
-        })}
-      </tr>
+          }
+          <div className={cn('inline ml-8')}>{transaction.name}</div>
+          {
+            // The connection between this transaction and the next sibbling
+            hasParent && hasNextSibbling && (
+              <div
+                className={cn('w-8', 'border-primary', 'absolute top-[18px] left-0')}
+                style={{
+                  borderLeftWidth: `${graphConfig.lineWidth}px`,
+                  height: `calc(50% + ${graphConfig.lineWidth}px)`,
+                  top: `calc(50% - ${graphConfig.lineWidth}px)`,
+                }}
+              ></div>
+            )
+          }
+          {
+            // The connection between this transaction and the children
+            hasChildren && (
+              <div
+                className={cn('w-2 ml-4', 'border-primary rounded-tl-lg', 'absolute left-0')}
+                style={{
+                  borderLeftWidth: `${graphConfig.lineWidth}px`,
+                  borderTopWidth: `${graphConfig.lineWidth}px`,
+                  height: `calc(50% + ${graphConfig.lineWidth}px)`,
+                  top: `calc(50% - ${graphConfig.lineWidth}px)`,
+                }}
+              ></div>
+            )
+          }
+        </div>
+      </div>
+      {accounts.map((_, index) => {
+        if (index < transactionArrow.from || index > transactionArrow.to) return <div key={index}></div>
+        if (index === transactionArrow.from)
+          return (
+            <div
+              className={cn('flex items-center justify-center')}
+              style={{
+                // 2 and 3 are the number to offset the name column
+                gridColumnStart: transactionArrow.from + 2,
+                gridColumnEnd: transactionArrow.to + 3,
+              }}
+            >
+              <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+              <div
+                style={{
+                  width: `calc(${(100 - 100 / (transactionArrow.to - transactionArrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+                  height: `${graphConfig.circleDimension}px`,
+                }}
+                className="relative text-primary"
+              >
+                {transactionArrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
+                <div className={cn('border-primary border-b-2 h-1/2')}></div>
+                {transactionArrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+              </div>
+              <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+            </div>
+          )
+        else return null
+      })}
+
       {hasChildren &&
         transaction.transactions?.map((childTransaction, index, arr) => (
-          <TransactionTableRow
+          <TransactionRow
             transaction={childTransaction}
             hasChildren={childTransaction.transactions && childTransaction.transactions.length > 0}
             hasParent={true}
@@ -159,56 +197,55 @@ export function GroupPage() {
       },
     ],
   }
-  const accounts = extractSendersAndReceivers(group)
-  const allTransactionCounts = 16
+  const { transactionCount, accounts } = extractSendersAndReceivers(group)
 
   return (
-    <table className={cn('relative')}>
-      <tr>
-        <th></th>
-        {accounts.map((account, index) => (
-          <th className={cn('w-32 p-2 h-10')} key={index}>
-            {account}
-          </th>
-        ))}
-      </tr>
-      <tbody className={cn('absolute top-10 right-0 -z-10')}>
-        <tr>
-          <td className={cn('p-0')}></td>
-          <td
+    <div
+      className={cn('relative grid')}
+      style={{
+        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, 1fr) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
+        gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
+      }}
+    >
+      <div>{/* The first header cell is empty */}</div>
+      {accounts.map((account, index) => (
+        <div className={cn('p-2 flex justify-center')} key={index}>
+          {account}
+        </div>
+      ))}
+      <div className={cn('absolute right-0 -z-10')} style={{ top: `${graphConfig.rowHeight}px` }}>
+        <div>
+          <div className={cn('p-0')}></div>
+          <div
             className={cn('p-0')}
-            rowSpan={allTransactionCounts}
-            colSpan={accounts.length}
-            style={{ height: `${allTransactionCounts * 40}px`, width: `${128 * accounts.length}px` }}
+            style={{ height: `${transactionCount * graphConfig.rowHeight}px`, width: `${graphConfig.colWidth * accounts.length}px` }}
           >
             <div
               className={cn('grid h-full')}
               style={{
                 gridTemplateColumns: `repeat(${accounts.length}, minmax(0, 1fr))`,
-                height: `${allTransactionCounts * 40}px`,
+                height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
-              {accounts.map((account, index) => (
+              {accounts.map((_, index) => (
                 <div key={index} className={cn('flex justify-center')}>
                   <div className={cn('border-muted border-l-2 h-full border-dashed')}></div>
                 </div>
               ))}
             </div>
-          </td>
-        </tr>
-      </tbody>
-      <tbody>
-        {group.transactions.map((transaction, index, arr) => (
-          <TransactionTableRow
-            transaction={transaction}
-            hasChildren={transaction.transactions && transaction.transactions.length > 0}
-            hasParent={false}
-            hasNextSibbling={index < arr.length - 1}
-            accounts={accounts}
-          />
-        ))}
-      </tbody>
-    </table>
+          </div>
+        </div>
+      </div>
+      {group.transactions.map((transaction, index, arr) => (
+        <TransactionRow
+          transaction={transaction}
+          hasChildren={transaction.transactions && transaction.transactions.length > 0}
+          hasParent={false}
+          hasNextSibbling={index < arr.length - 1}
+          accounts={accounts}
+        />
+      ))}
+    </div>
   )
 }
 
@@ -223,14 +260,16 @@ export type Transaction = {
   receiver: string
 }
 
-function extractSendersAndReceivers(group: Group): string[] {
-  let sendersAndReceivers: string[] = []
+function extractSendersAndReceivers(group: Group) {
+  let transactionCount = 0
+  let accounts: string[] = []
 
   function extract(transactionArr: Transaction[]) {
     if (transactionArr) {
       transactionArr.forEach((transaction) => {
-        sendersAndReceivers.push(transaction.sender)
-        sendersAndReceivers.push(transaction.receiver)
+        transactionCount++
+        accounts.push(transaction.sender)
+        accounts.push(transaction.receiver)
         if (transaction.transactions) {
           extract(transaction.transactions)
         }
@@ -241,12 +280,17 @@ function extractSendersAndReceivers(group: Group): string[] {
   extract(group.transactions)
 
   // Remove duplicates
-  sendersAndReceivers = Array.from(new Set(sendersAndReceivers))
+  accounts = Array.from(new Set(accounts))
+  // Sort
+  accounts = accounts.sort((a, b) => (a > b ? 1 : a < b ? -1 : 0))
 
-  return sendersAndReceivers.sort((a, b) => (a > b ? 1 : a < b ? -1 : 0))
+  return {
+    transactionCount: transactionCount,
+    accounts: accounts,
+  }
 }
 
-function calcTransactionFoo(transaction: Transaction, accounts: string[]): TransactionFooDrawing {
+function calcTransactionArrow(transaction: Transaction, accounts: string[]): TransactionArrow {
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
   const toAccount = accounts.findIndex((a) => transaction.receiver === a)
   const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
@@ -256,4 +300,12 @@ function calcTransactionFoo(transaction: Transaction, accounts: string[]): Trans
     to: Math.max(fromAccount, toAccount),
     direction: direction,
   }
+}
+
+const graphConfig = {
+  rowHeight: 40,
+  colWidth: 128,
+  indentationWidth: 16,
+  lineWidth: 2,
+  circleDimension: 20,
 }
