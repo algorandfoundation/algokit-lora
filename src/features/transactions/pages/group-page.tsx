@@ -8,7 +8,13 @@ type AccountFoo = {
   status: 'from' | 'to' | 'middle' | 'outside'
 }
 
-type TransactionTrProps = {
+type TransactionFooDrawing = {
+  from: number
+  to: number
+  direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
+}
+
+type TransactionTableRowProps = {
   transaction: Transaction
   cellHeight?: number
   lineWidth?: number
@@ -19,7 +25,7 @@ type TransactionTrProps = {
   indentLevel?: number
   verticalBars?: number[]
 }
-function TransactionTr({
+function TransactionTableRow({
   transaction,
   accounts,
   hasParent = false,
@@ -27,35 +33,13 @@ function TransactionTr({
   hasChildren = false,
   indentLevel = 0,
   verticalBars,
-}: TransactionTrProps) {
-  const accountsWithStatus = useMemo(() => {
-    let a = false
-    return accounts.map<AccountFoo>((account) => {
-      if (transaction.sender === account) {
-        a = !a
-        return {
-          account: account,
-          status: 'from',
-        }
-      }
-      if (transaction.receiver === account) {
-        a = !a
-        return {
-          account: account,
-          status: 'to',
-        }
-      }
-      return {
-        account: account,
-        status: a ? 'middle' : 'outside',
-      }
-    })
-  }, [accounts, transaction.receiver, transaction.sender])
+}: TransactionTableRowProps) {
+  const foo = useMemo(() => calcTransactionFoo(transaction, accounts), [accounts, transaction])
 
   return (
     <>
       <tr>
-        <td className={cn('p-0 relative')}>
+        <td className={cn('p-0 relative -z-10')}>
           {verticalBars &&
             verticalBars.length &&
             verticalBars
@@ -76,32 +60,27 @@ function TransactionTr({
             )}
           </div>
         </td>
-        {accountsWithStatus.map((account, index) => (
-          <td key={index} className={cn('p-0 relative')}>
-            {/* TODO: fix the calc, it doesn't look good */}
-            <div className={cn('h-10 border-l-2 border-muted border-dashed absolute left-[calc(50%-1px)] -z-10')}></div>
-            {account.status === 'from' && (
-              <div className={cn('h-10 absolute left-[50%] translate-x-[-50%] translate-y-[-25%] z-10')}>
-                <SvgCircle />
-              </div>
-            )}
-            {account.status === 'from' && <div className={cn('border-primary w-[50%] border-b-2 translate-x-[100%]')}></div>}
-
-            <div className={cn('flex justify-center items-center relative')}>
-              {account.status === 'to' && (
-                <div>
-                  <SvgCircle />
+        {accounts.map((account, index) => {
+          if (index < foo.from || index > foo.to) return <td key={index}></td>
+          if (index === foo.from)
+            return (
+              <td key={index} colSpan={foo.to - foo.from + 1}>
+                <div className={cn('flex items-center justify-center bg-red-200')}>
+                  <SvgCircle width={20} height={20}></SvgCircle>
+                  <div
+                    className={cn('border-primary border-b-2')}
+                    style={{ width: `calc(${(100 - 100 / (foo.to - foo.from + 1)).toFixed(2)}% - 20px)` }}
+                  ></div>
+                  <SvgCircle width={20} height={20}></SvgCircle>
                 </div>
-              )}
-              {account.status === 'middle' && <div className={cn('border-primary w-full border-b-2')}></div>}
-            </div>
-          </td>
-        ))}
+              </td>
+            )
+          else return null
+        })}
       </tr>
-
       {hasChildren &&
         transaction.transactions?.map((childTransaction, index, arr) => (
-          <TransactionTr
+          <TransactionTableRow
             transaction={childTransaction}
             hasChildren={childTransaction.transactions && childTransaction.transactions.length > 0}
             hasParent={true}
@@ -168,7 +147,7 @@ export function GroupPage() {
     ],
   }
   const accounts = extractSendersAndReceivers(group)
-
+  const allTransactionCounts = 15
   return (
     <table className={cn('w-full')}>
       <tr>
@@ -177,21 +156,43 @@ export function GroupPage() {
           <th key={index}>{account}</th>
         ))}
       </tr>
-      {group.transactions?.map((transaction, index, arr) => (
-        <TransactionTr
-          transaction={transaction}
-          hasChildren={transaction.transactions && transaction.transactions.length > 0}
-          hasParent={false}
-          hasNextSibbling={index < arr.length - 1}
-          accounts={accounts}
-        />
-      ))}
+      <tbody style={{ height: `${allTransactionCounts * 40}px` }}>
+        <tr>
+          <td></td>
+          <td rowSpan={allTransactionCounts} colSpan={accounts.length} className={cn('p-0')}>
+            <div
+              className={cn('grid h-full')}
+              style={{
+                gridTemplateColumns: `repeat(${accounts.length}, minmax(0, 1fr))`,
+                height: `${allTransactionCounts * 40}px`,
+              }}
+            >
+              {accounts.map((account, index) => (
+                <div key={index} className={cn('flex justify-center')}>
+                  <div className={cn('border-muted border-l-2 h-full border-dashed')}></div>
+                </div>
+              ))}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tbody className="relative" style={{ top: `-${15 * 40}px` }}>
+        {group.transactions.map((transaction, index, arr) => (
+          <TransactionTableRow
+            transaction={transaction}
+            hasChildren={transaction.transactions && transaction.transactions.length > 0}
+            hasParent={false}
+            hasNextSibbling={index < arr.length - 1}
+            accounts={accounts}
+          />
+        ))}
+      </tbody>
     </table>
   )
 }
 
 export type Group = {
-  transactions?: Transaction[]
+  transactions: Transaction[]
 }
 
 export type Transaction = {
@@ -204,7 +205,7 @@ export type Transaction = {
 function extractSendersAndReceivers(group: Group): string[] {
   let sendersAndReceivers: string[] = []
 
-  function extract(transactionArr: Transaction[] | undefined) {
+  function extract(transactionArr: Transaction[]) {
     if (transactionArr) {
       transactionArr.forEach((transaction) => {
         sendersAndReceivers.push(transaction.sender)
@@ -222,4 +223,16 @@ function extractSendersAndReceivers(group: Group): string[] {
   sendersAndReceivers = Array.from(new Set(sendersAndReceivers))
 
   return sendersAndReceivers
+}
+
+function calcTransactionFoo(transaction: Transaction, accounts: string[]): TransactionFooDrawing {
+  const fromAccount = accounts.findIndex((a) => transaction.sender === a)
+  const toAccount = accounts.findIndex((a) => transaction.receiver === a)
+  const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
+
+  return {
+    from: Math.min(fromAccount, toAccount),
+    to: Math.max(fromAccount, toAccount),
+    direction: direction,
+  }
 }
