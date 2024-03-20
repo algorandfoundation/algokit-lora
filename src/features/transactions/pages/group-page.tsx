@@ -1,4 +1,6 @@
 import SvgCircle from '@/features/common/components/svg/circle'
+import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
+import SvgPointerRight from '@/features/common/components/svg/pointer-right'
 import { cn } from '@/features/common/utils'
 import { useMemo, useState } from 'react'
 
@@ -65,12 +67,16 @@ function TransactionTableRow({
           if (index === foo.from)
             return (
               <td key={index} colSpan={foo.to - foo.from + 1}>
-                <div className={cn('flex items-center justify-center bg-red-200')}>
+                <div className={cn('flex items-center justify-center')}>
                   <SvgCircle width={20} height={20}></SvgCircle>
                   <div
-                    className={cn('border-primary border-b-2')}
-                    style={{ width: `calc(${(100 - 100 / (foo.to - foo.from + 1)).toFixed(2)}% - 20px)` }}
-                  ></div>
+                    style={{ width: `calc(${(100 - 100 / (foo.to - foo.from + 1)).toFixed(2)}% - 20px)`, height: '20px' }}
+                    className="relative text-primary"
+                  >
+                    {foo.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
+                    <div className={cn('border-primary border-b-2 h-1/2')}></div>
+                    {foo.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+                  </div>
                   <SvgCircle width={20} height={20}></SvgCircle>
                 </div>
               </td>
@@ -123,7 +129,14 @@ export function GroupPage() {
                 name: 'Inner 5',
                 sender: 'Account 3',
                 receiver: 'Account 1',
-                transactions: [{ name: 'Inner 10', sender: 'Account 2', receiver: 'Account 6' }],
+                transactions: [
+                  {
+                    name: 'Inner 10',
+                    sender: 'Account 2',
+                    receiver: 'Account 6',
+                    transactions: [{ name: 'Inner 12', sender: 'Account 5', receiver: 'Account 6' }],
+                  },
+                ],
               },
             ],
           },
@@ -147,21 +160,27 @@ export function GroupPage() {
     ],
   }
   const accounts = extractSendersAndReceivers(group)
-  const allTransactionCounts = 15
+  const allTransactionCounts = 16
+
   return (
-    <table className={cn('')}>
+    <table className={cn('relative')}>
       <tr>
         <th></th>
         {accounts.map((account, index) => (
-          <th className={cn('w-32 p-2')} key={index}>
+          <th className={cn('w-32 p-2 h-10')} key={index}>
             {account}
           </th>
         ))}
       </tr>
-      <tbody style={{ height: `${allTransactionCounts * 40}px` }}>
+      <tbody className={cn('absolute top-10 right-0 -z-10')}>
         <tr>
           <td className={cn('p-0')}></td>
-          <td className={cn('p-0')} rowSpan={allTransactionCounts} colSpan={accounts.length}>
+          <td
+            className={cn('p-0')}
+            rowSpan={allTransactionCounts}
+            colSpan={accounts.length}
+            style={{ height: `${allTransactionCounts * 40}px`, width: `${128 * accounts.length}px` }}
+          >
             <div
               className={cn('grid h-full')}
               style={{
@@ -178,7 +197,7 @@ export function GroupPage() {
           </td>
         </tr>
       </tbody>
-      <tbody className="relative" style={{ top: `-${15 * 40}px` }}>
+      <tbody>
         {group.transactions.map((transaction, index, arr) => (
           <TransactionTableRow
             transaction={transaction}
