@@ -39,7 +39,7 @@ function TransactionTableRow({
   return (
     <>
       <tr>
-        <td className={cn('p-0 relative -z-10')}>
+        <td className={cn('p-0 relative pr-8')}>
           {verticalBars &&
             verticalBars.length &&
             verticalBars
@@ -97,7 +97,7 @@ function TransactionTableRow({
 export function GroupPage() {
   const group: Group = {
     transactions: [
-      { name: '7VSN...', sender: 'Account 1', receiver: 'Account 2' },
+      { name: '7VSN...', sender: 'Account 4', receiver: 'Account 2' },
       {
         name: 'NDQX...',
         sender: 'Account 1',
@@ -149,17 +149,19 @@ export function GroupPage() {
   const accounts = extractSendersAndReceivers(group)
   const allTransactionCounts = 15
   return (
-    <table className={cn('w-full')}>
+    <table className={cn('')}>
       <tr>
         <th></th>
         {accounts.map((account, index) => (
-          <th key={index}>{account}</th>
+          <th className={cn('w-32 p-2')} key={index}>
+            {account}
+          </th>
         ))}
       </tr>
       <tbody style={{ height: `${allTransactionCounts * 40}px` }}>
         <tr>
-          <td></td>
-          <td rowSpan={allTransactionCounts} colSpan={accounts.length} className={cn('p-0')}>
+          <td className={cn('p-0')}></td>
+          <td className={cn('p-0')} rowSpan={allTransactionCounts} colSpan={accounts.length}>
             <div
               className={cn('grid h-full')}
               style={{
@@ -222,7 +224,7 @@ function extractSendersAndReceivers(group: Group): string[] {
   // Remove duplicates
   sendersAndReceivers = Array.from(new Set(sendersAndReceivers))
 
-  return sendersAndReceivers
+  return sendersAndReceivers.sort((a, b) => (a > b ? 1 : a < b ? -1 : 0))
 }
 
 function calcTransactionFoo(transaction: Transaction, accounts: string[]): TransactionFooDrawing {
