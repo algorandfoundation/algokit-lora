@@ -213,6 +213,7 @@ export function GroupPage() {
           {account}
         </div>
       ))}
+      {/* The below div is for drawing the background dash lines */}
       <div className={cn('absolute right-0 -z-10')} style={{ top: `${graphConfig.rowHeight}px` }}>
         <div>
           <div className={cn('p-0')}></div>
@@ -229,7 +230,7 @@ export function GroupPage() {
             >
               {accounts.map((_, index) => (
                 <div key={index} className={cn('flex justify-center')}>
-                  <div className={cn('border-muted border-l-2 h-full border-dashed')}></div>
+                  <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
                 </div>
               ))}
             </div>
