@@ -57,18 +57,30 @@ function TransactionRow({
             // The connection between this transaction and the parent
             hasParent && (
               <div
-                className={cn('w-8', `border-primary rounded-bl-lg`, `h-1/2`, `absolute top-0 left-0`)}
-                style={{ borderLeftWidth: `${graphConfig.lineWidth}px`, borderBottomWidth: `${graphConfig.lineWidth}px` }}
+                className={cn(`border-primary rounded-bl-lg`, `h-1/2`, `absolute top-0 left-0`)}
+                style={{
+                  borderLeftWidth: `${graphConfig.lineWidth}px`,
+                  borderBottomWidth: `${graphConfig.lineWidth}px`,
+                  width: `${graphConfig.indentationWidth + 8}px`,
+                }}
               ></div>
             )
           }
-          <div className={cn('inline ml-8')}>{transaction.name}</div>
+          <div
+            className={cn('inline')}
+            style={{
+              marginLeft: `${graphConfig.indentationWidth + 8}px`,
+            }}
+          >
+            {transaction.name}
+          </div>
           {
             // The connection between this transaction and the next sibbling
             hasParent && hasNextSibbling && (
               <div
-                className={cn('w-8', 'border-primary', 'absolute top-[18px] left-0')}
+                className={cn('border-primary', 'absolute left-0')}
                 style={{
+                  width: `${graphConfig.indentationWidth + 8}px`,
                   borderLeftWidth: `${graphConfig.lineWidth}px`,
                   height: `calc(50% + ${graphConfig.lineWidth}px)`,
                   top: `calc(50% - ${graphConfig.lineWidth}px)`,
@@ -307,7 +319,7 @@ function calcTransactionArrow(transaction: Transaction, accounts: string[]): Tra
 const graphConfig = {
   rowHeight: 40,
   colWidth: 128,
-  indentationWidth: 24,
+  indentationWidth: 32,
   lineWidth: 2,
   circleDimension: 20,
 }
