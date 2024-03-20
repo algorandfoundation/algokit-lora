@@ -2,6 +2,7 @@ import SvgCircle from '@/features/common/components/svg/circle'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
 import SvgPointerRight from '@/features/common/components/svg/pointer-right'
 import { cn } from '@/features/common/utils'
+import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 
 type TransactionArrow = {
@@ -12,14 +13,12 @@ type TransactionArrow = {
 
 type TransactionRowProps = {
   transaction: Transaction
-  cellHeight?: number
-  lineWidth?: number
   hasParent?: boolean
   hasNextSibbling?: boolean
   hasChildren?: boolean
   accounts: string[]
   indentLevel?: number
-  verticalBars?: number[]
+  verticalBars: (number | undefined)[]
 }
 function TransactionRow({
   transaction,
@@ -27,7 +26,7 @@ function TransactionRow({
   hasParent = false,
   hasNextSibbling = false,
   hasChildren = false,
-  indentLevel = 0,
+  indentLevel,
   verticalBars,
 }: TransactionRowProps) {
   const transactionArrow = useMemo(() => calcTransactionArrow(transaction, accounts), [accounts, transaction])
@@ -37,21 +36,17 @@ function TransactionRow({
       <div className={cn('p-0 relative pr-8')}>
         {
           // The side vertical bars when there are nested items
-          verticalBars &&
-            verticalBars.length &&
-            verticalBars
-              .filter((b) => b > 0)
-              .map((b, i) => (
-                <div
-                  key={i}
-                  className={cn('h-full border-primary absolute')}
-                  style={{ marginLeft: b * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
-                ></div>
-              ))
+          (verticalBars ?? []).filter(isDefined).map((b, i) => (
+            <div
+              key={i}
+              className={cn('h-full border-primary absolute')}
+              style={{ marginLeft: b * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
+            ></div>
+          ))
         }
         <div
           className={cn(`relative h-full p-0 flex items-center`, 'px-0')}
-          style={{ marginLeft: indentLevel * graphConfig.indentationWidth }}
+          style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {
             // The connection between this transaction and the parent
@@ -69,7 +64,7 @@ function TransactionRow({
           <div
             className={cn('inline')}
             style={{
-              marginLeft: `${graphConfig.indentationWidth + 8}px`,
+              marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
             }}
           >
             {transaction.name}
@@ -94,7 +89,7 @@ function TransactionRow({
               <div
                 className={cn('w-2', 'border-primary rounded-tl-lg', 'absolute left-0')}
                 style={{
-                  marginLeft: `${graphConfig.indentationWidth}px`,
+                  marginLeft: indentLevel != null ? `${graphConfig.indentationWidth}px` : undefined,
                   borderLeftWidth: `${graphConfig.lineWidth}px`,
                   borderTopWidth: `${graphConfig.lineWidth}px`,
                   height: `calc(50% + ${graphConfig.lineWidth}px)`,
@@ -143,8 +138,8 @@ function TransactionRow({
             hasParent={true}
             hasNextSibbling={index < arr.length - 1}
             accounts={accounts}
-            indentLevel={indentLevel + 1}
-            verticalBars={[...(verticalBars ?? []), hasNextSibbling ? indentLevel : 0]}
+            indentLevel={indentLevel == null ? 0 : indentLevel + 1}
+            verticalBars={[...(verticalBars ?? []), hasNextSibbling ? indentLevel ?? 0 : undefined]}
           />
         ))}
     </>
@@ -188,6 +183,11 @@ export function GroupPage() {
                     transactions: [{ name: 'Inner 12', sender: 'Account 5', receiver: 'Account 6' }],
                   },
                 ],
+              },
+              {
+                name: 'Inner 6',
+                sender: 'Account 3',
+                receiver: 'Account 1',
               },
             ],
           },
@@ -257,6 +257,7 @@ export function GroupPage() {
           hasParent={false}
           hasNextSibbling={index < arr.length - 1}
           accounts={accounts}
+          verticalBars={[]}
         />
       ))}
     </div>
@@ -319,7 +320,7 @@ function calcTransactionArrow(transaction: Transaction, accounts: string[]): Tra
 const graphConfig = {
   rowHeight: 40,
   colWidth: 128,
-  indentationWidth: 32,
+  indentationWidth: 20,
   lineWidth: 2,
   circleDimension: 20,
 }
