@@ -80,8 +80,9 @@ function TransactionRow({
             // The connection between this transaction and the children
             hasChildren && (
               <div
-                className={cn('w-2 ml-4', 'border-primary rounded-tl-lg', 'absolute left-0')}
+                className={cn('w-2', 'border-primary rounded-tl-lg', 'absolute left-0')}
                 style={{
+                  marginLeft: `${graphConfig.indentationWidth}px`,
                   borderLeftWidth: `${graphConfig.lineWidth}px`,
                   borderTopWidth: `${graphConfig.lineWidth}px`,
                   height: `calc(50% + ${graphConfig.lineWidth}px)`,
@@ -113,7 +114,7 @@ function TransactionRow({
                 className="relative text-primary"
               >
                 {transactionArrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
-                <div className={cn('border-primary border-b-2 h-1/2')}></div>
+                <div className={cn('border-primary h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
                 {transactionArrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
               </div>
               <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
@@ -201,7 +202,7 @@ export function GroupPage() {
 
   return (
     <div
-      className={cn('relative grid')}
+      className={cn('relative grid  overflow-x-scroll max-w-full')}
       style={{
         gridTemplateColumns: `minmax(${graphConfig.colWidth}px, 1fr) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
@@ -210,7 +211,7 @@ export function GroupPage() {
       <div>{/* The first header cell is empty */}</div>
       {accounts.map((account, index) => (
         <div className={cn('p-2 flex justify-center')} key={index}>
-          {account}
+          <h1 className={cn('text-l font-semibold')}> {account}</h1>
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
@@ -306,7 +307,7 @@ function calcTransactionArrow(transaction: Transaction, accounts: string[]): Tra
 const graphConfig = {
   rowHeight: 40,
   colWidth: 128,
-  indentationWidth: 16,
+  indentationWidth: 24,
   lineWidth: 2,
   circleDimension: 20,
 }
