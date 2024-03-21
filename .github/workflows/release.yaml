@@ -38,6 +38,8 @@ jobs:
       - ci
 
   package-tauri:
+    needs:
+      - ci
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
