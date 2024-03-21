@@ -5,10 +5,116 @@ import { cn } from '@/features/common/utils'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 
-type TransactionArrow = {
+type Arrow = {
   from: number
   to: number
   direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
+}
+
+function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
+  // The side vertical bars when there are nested items
+  return (verticalBars ?? [])
+    .filter(isDefined)
+    .map((b, i) => (
+      <div
+        key={i}
+        className={cn('h-full border-primary absolute')}
+        style={{ marginLeft: b * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
+      ></div>
+    ))
+}
+
+function ConnectionToParent() {
+  // The connection between this transaction and the parent
+  return (
+    <div
+      className={cn(`border-primary rounded-bl-lg`, `h-1/2`, `absolute top-0 left-0`)}
+      style={{
+        borderLeftWidth: `${graphConfig.lineWidth}px`,
+        borderBottomWidth: `${graphConfig.lineWidth}px`,
+        width: `${graphConfig.indentationWidth + 8}px`,
+      }}
+    ></div>
+  )
+}
+
+function TransactionName({ hasParent, name }: { hasParent: boolean; name: string }) {
+  return (
+    <div
+      className={cn('inline')}
+      style={{
+        marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
+      }}
+    >
+      {name}
+    </div>
+  )
+}
+
+function ConnectionToSibbling() {
+  // The connection between this transaction and the next sibbling
+  return (
+    <div
+      className={cn('border-primary', 'absolute left-0')}
+      style={{
+        width: `${graphConfig.indentationWidth + 8}px`,
+        borderLeftWidth: `${graphConfig.lineWidth}px`,
+        height: `calc(50% + ${graphConfig.lineWidth}px)`,
+        top: `calc(50% - ${graphConfig.lineWidth}px)`,
+      }}
+    ></div>
+  )
+}
+
+function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined }) {
+  // The connection between this transaction and the children
+  return (
+    <div
+      className={cn('w-2', 'border-primary rounded-tl-lg', 'absolute left-0')}
+      style={{
+        marginLeft: indentLevel != null ? `${graphConfig.indentationWidth}px` : undefined,
+        borderLeftWidth: `${graphConfig.lineWidth}px`,
+        borderTopWidth: `${graphConfig.lineWidth}px`,
+        height: `calc(50% + ${graphConfig.lineWidth}px)`,
+        top: `calc(50% - ${graphConfig.lineWidth}px)`,
+      }}
+    ></div>
+  )
+}
+
+function DisplayArrow({ arrow: transactionArrow }: { arrow: Arrow }) {
+  return (
+    <div
+      className={cn('flex items-center justify-center')}
+      style={{
+        // 2 and 3 are the number to offset the name column
+        gridColumnStart: transactionArrow.from + 2,
+        gridColumnEnd: transactionArrow.to + 3,
+      }}
+    >
+      <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+      <div
+        style={{
+          width: `calc(${(100 - 100 / (transactionArrow.to - transactionArrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+          height: `${graphConfig.circleDimension}px`,
+        }}
+        className="relative text-primary"
+      >
+        {transactionArrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
+        <div className={cn('border-primary h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
+        {transactionArrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+      </div>
+      <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+    </div>
+  )
+}
+
+function DisplaySelfTransaction() {
+  return (
+    <div className={cn('flex items-center justify-center')}>
+      <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+    </div>
+  )
 }
 
 type TransactionRowProps = {
@@ -29,104 +135,26 @@ function TransactionRow({
   indentLevel,
   verticalBars,
 }: TransactionRowProps) {
-  const transactionArrow = useMemo(() => calcTransactionArrow(transaction, accounts), [accounts, transaction])
+  const arrow = useMemo(() => calcArrow(transaction, accounts), [accounts, transaction])
 
   return (
     <>
       <div className={cn('p-0 relative pr-8')}>
-        {
-          // The side vertical bars when there are nested items
-          (verticalBars ?? []).filter(isDefined).map((b, i) => (
-            <div
-              key={i}
-              className={cn('h-full border-primary absolute')}
-              style={{ marginLeft: b * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
-            ></div>
-          ))
-        }
+        <VerticalBars verticalBars={verticalBars} />
         <div
           className={cn(`relative h-full p-0 flex items-center`, 'px-0')}
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
-          {
-            // The connection between this transaction and the parent
-            hasParent && (
-              <div
-                className={cn(`border-primary rounded-bl-lg`, `h-1/2`, `absolute top-0 left-0`)}
-                style={{
-                  borderLeftWidth: `${graphConfig.lineWidth}px`,
-                  borderBottomWidth: `${graphConfig.lineWidth}px`,
-                  width: `${graphConfig.indentationWidth + 8}px`,
-                }}
-              ></div>
-            )
-          }
-          <div
-            className={cn('inline')}
-            style={{
-              marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
-            }}
-          >
-            {transaction.name}
-          </div>
-          {
-            // The connection between this transaction and the next sibbling
-            hasParent && hasNextSibbling && (
-              <div
-                className={cn('border-primary', 'absolute left-0')}
-                style={{
-                  width: `${graphConfig.indentationWidth + 8}px`,
-                  borderLeftWidth: `${graphConfig.lineWidth}px`,
-                  height: `calc(50% + ${graphConfig.lineWidth}px)`,
-                  top: `calc(50% - ${graphConfig.lineWidth}px)`,
-                }}
-              ></div>
-            )
-          }
-          {
-            // The connection between this transaction and the children
-            hasChildren && (
-              <div
-                className={cn('w-2', 'border-primary rounded-tl-lg', 'absolute left-0')}
-                style={{
-                  marginLeft: indentLevel != null ? `${graphConfig.indentationWidth}px` : undefined,
-                  borderLeftWidth: `${graphConfig.lineWidth}px`,
-                  borderTopWidth: `${graphConfig.lineWidth}px`,
-                  height: `calc(50% + ${graphConfig.lineWidth}px)`,
-                  top: `calc(50% - ${graphConfig.lineWidth}px)`,
-                }}
-              ></div>
-            )
-          }
+          {hasParent && <ConnectionToParent />}
+          <TransactionName hasParent={hasParent} name={transaction.name} />
+          {hasParent && hasNextSibbling && <ConnectionToSibbling />}
+          {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
       </div>
       {accounts.map((_, index) => {
-        if (index < transactionArrow.from || index > transactionArrow.to) return <div key={index}></div>
-        if (index === transactionArrow.from)
-          return (
-            <div
-              className={cn('flex items-center justify-center')}
-              style={{
-                // 2 and 3 are the number to offset the name column
-                gridColumnStart: transactionArrow.from + 2,
-                gridColumnEnd: transactionArrow.to + 3,
-              }}
-            >
-              <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
-              <div
-                style={{
-                  width: `calc(${(100 - 100 / (transactionArrow.to - transactionArrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
-                  height: `${graphConfig.circleDimension}px`,
-                }}
-                className="relative text-primary"
-              >
-                {transactionArrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
-                <div className={cn('border-primary h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
-                {transactionArrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
-              </div>
-              <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
-            </div>
-          )
+        if (index < arrow.from || index > arrow.to) return <div key={index}></div>
+        if (index === arrow.from && index === arrow.to) return <DisplaySelfTransaction />
+        if (index === arrow.from) return <DisplayArrow arrow={arrow} />
         else return null
       })}
 
@@ -214,7 +242,7 @@ export function GroupPage() {
 
   return (
     <div
-      className={cn('relative grid  overflow-x-scroll max-w-full')}
+      className={cn('relative grid')}
       style={{
         gridTemplateColumns: `minmax(${graphConfig.colWidth}px, 1fr) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
@@ -305,7 +333,7 @@ function extractSendersAndReceivers(group: Group) {
   }
 }
 
-function calcTransactionArrow(transaction: Transaction, accounts: string[]): TransactionArrow {
+function calcArrow(transaction: Transaction, accounts: string[]): Arrow {
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
   const toAccount = accounts.findIndex((a) => transaction.receiver === a)
   const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
