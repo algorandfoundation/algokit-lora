@@ -153,14 +153,15 @@ function TransactionRow({
       </div>
       {accounts.map((_, index) => {
         if (index < arrow.from || index > arrow.to) return <div key={index}></div>
-        if (index === arrow.from && index === arrow.to) return <DisplaySelfTransaction />
-        if (index === arrow.from) return <DisplayArrow arrow={arrow} />
+        if (index === arrow.from && index === arrow.to) return <DisplaySelfTransaction key={index} />
+        if (index === arrow.from) return <DisplayArrow key={index} arrow={arrow} />
         else return null
       })}
 
       {hasChildren &&
         transaction.transactions?.map((childTransaction, index, arr) => (
           <TransactionRow
+            key={index}
             transaction={childTransaction}
             hasChildren={childTransaction.transactions && childTransaction.transactions.length > 0}
             hasParent={true}
@@ -280,6 +281,7 @@ export function GroupPage() {
       </div>
       {group.transactions.map((transaction, index, arr) => (
         <TransactionRow
+          key={index}
           transaction={transaction}
           hasChildren={transaction.transactions && transaction.transactions.length > 0}
           hasParent={false}
