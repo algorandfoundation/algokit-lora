@@ -108,6 +108,7 @@ const DisplayArrow = fixedForwardRef(({ arrow, ...rest }: { arrow: Arrow }, ref?
         <div className={cn('border-primary h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
         {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
       </div>
+      <div className={cn('absolute z-20 bg-background p-2')}>Payment</div>
       <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
     </div>
   )
