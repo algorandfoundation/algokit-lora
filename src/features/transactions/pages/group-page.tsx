@@ -1,7 +1,9 @@
 import SvgCircle from '@/features/common/components/svg/circle'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
 import SvgPointerRight from '@/features/common/components/svg/pointer-right'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 import { cn } from '@/features/common/utils'
+import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 
@@ -82,40 +84,42 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
   )
 }
 
-function DisplayArrow({ arrow: transactionArrow }: { arrow: Arrow }) {
+const DisplayArrow = fixedForwardRef(({ arrow, ...rest }: { arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
   return (
     <div
       className={cn('flex items-center justify-center')}
       style={{
         // 2 and 3 are the number to offset the name column
-        gridColumnStart: transactionArrow.from + 2,
-        gridColumnEnd: transactionArrow.to + 3,
+        gridColumnStart: arrow.from + 2,
+        gridColumnEnd: arrow.to + 3,
       }}
+      ref={ref}
+      {...rest}
     >
       <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
       <div
         style={{
-          width: `calc(${(100 - 100 / (transactionArrow.to - transactionArrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+          width: `calc(${(100 - 100 / (arrow.to - arrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
           height: `${graphConfig.circleDimension}px`,
         }}
         className="relative text-primary"
       >
-        {transactionArrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
+        {arrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
         <div className={cn('border-primary h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
-        {transactionArrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+        {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
       </div>
       <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
     </div>
   )
-}
+})
 
-function DisplaySelfTransaction() {
+const DisplaySelfTransaction = fixedForwardRef((props: object, ref?: React.LegacyRef<HTMLDivElement>) => {
   return (
-    <div className={cn('flex items-center justify-center')}>
+    <div ref={ref} className={cn('flex items-center justify-center')} {...props}>
       <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
     </div>
   )
-}
+})
 
 type TransactionRowProps = {
   transaction: Transaction
@@ -153,8 +157,28 @@ function TransactionRow({
       </div>
       {accounts.map((_, index) => {
         if (index < arrow.from || index > arrow.to) return <div key={index}></div>
-        if (index === arrow.from && index === arrow.to) return <DisplaySelfTransaction key={index} />
-        if (index === arrow.from) return <DisplayArrow key={index} arrow={arrow} />
+        if (index === arrow.from && index === arrow.to)
+          return (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <DisplaySelfTransaction />
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className={cn('p-4')}>Transaction: {transaction.name}</div>
+              </TooltipContent>
+            </Tooltip>
+          )
+        if (index === arrow.from)
+          return (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                <DisplayArrow key={index} arrow={arrow} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <div className={cn('p-4')}>Transaction: {transaction.name}</div>
+              </TooltipContent>
+            </Tooltip>
+          )
         else return null
       })}
 
