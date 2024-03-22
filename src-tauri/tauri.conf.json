@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "algokit-explorer",
-    "version": "../package.json"
+    "version": "0.0.0"
   },
   "tauri": {
     "allowlist": {
