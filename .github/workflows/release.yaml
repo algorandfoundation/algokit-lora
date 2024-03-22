@@ -83,7 +83,6 @@ jobs:
       release_id: ${{steps.get-release-id.outputs.result}}
 
   package-tauri:
-    if: false
     needs:
       - create-release
     runs-on: ${{ matrix.platform }}
