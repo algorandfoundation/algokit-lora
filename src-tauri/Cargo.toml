@@ -1,5 +1,5 @@
 [package]
-name = "tauri-app"
+name = "algokit-explorer"
 version = "0.0.0"
 description = "A Tauri App"
 authors = ["you"]
