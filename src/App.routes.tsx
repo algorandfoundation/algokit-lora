@@ -42,7 +42,7 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.AppStudio,
-        element: <div>App Studio</div>,
+        element: <div>App Studio!</div>,
       },
     ],
   },
