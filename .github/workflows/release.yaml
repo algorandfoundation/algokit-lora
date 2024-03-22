@@ -29,6 +29,7 @@ jobs:
       test-script: npm run tests
 
   build-website:
+    if: false
     name: Build Website
     uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
     with:
