@@ -76,7 +76,7 @@ jobs:
             const { data } = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag: ${{steps.get-next-version.outputs.new-release-version}}
+              tag: "v${{steps.get-next-version.outputs.new-release-version}}"
             })
             return data.id
     outputs:
