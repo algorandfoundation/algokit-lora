@@ -40,7 +40,7 @@ jobs:
     needs:
       - ci
 
-  semantic-release:
+  create-release:
     runs-on: [ubuntu-20.04]
     needs:
       - ci
@@ -58,15 +58,34 @@ jobs:
       - name: install app dependencies
         run: npm install
 
+      - run: npx semantic-release --dry-run
+        id: get-next-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
+      - name: get release ID
+        id: get-release-id
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data } = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: ${{steps.get-next-version.outputs.new-release-version}}
+            })
+            return data.id
+    outputs:
+      release_id: ${{steps.get-release-id.outputs.result}}
+
   package-tauri:
     if: false
     needs:
-      - ci
+      - create-release
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
@@ -95,12 +114,13 @@ jobs:
       - name: install app dependencies
         run: npm install
 
+      - run: npx semantic-release --dry-run
+        id: get-next-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version
-          releaseName: 'App v__VERSION__'
-          releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
