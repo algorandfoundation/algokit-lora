@@ -10,6 +10,13 @@ on:
       - '.vscode/**'
       - '.idea/**'
   workflow_dispatch:
+    inputs:
+      production_release:
+        description: 'Production release?'
+        required: true
+        default: 'true'
+
+concurrency: create-release
 
 permissions:
   contents: write # to be able to publish a GitHub release
@@ -44,7 +51,7 @@ jobs:
     runs-on: [ubuntu-20.04]
     needs:
       - ci
-    name: Test semantic release
+    name: Create release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,6 +62,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Get branch name
+        shell: bash
+        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+        id: get_branch
+
       - name: install app dependencies
         run: npm install
 
@@ -63,7 +75,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: create pre-release
+        if: steps.get_branch.outputs.branch == 'main' && inputs.production_release != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release --preid beta
+
       - name: create release
+        if: steps.get_branch.outputs.branch == 'main' && inputs.production_release == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
