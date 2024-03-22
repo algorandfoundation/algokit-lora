@@ -54,6 +54,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: install app dependencies
+        run: npm install
+
       - name: create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
