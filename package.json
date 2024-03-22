@@ -74,7 +74,13 @@
   },
   "release": {
     "branches": [
-      "main"
+      {
+        "name": "main",
+        "prerelease": "beta"
+      },
+      {
+        "name": "do-not-delete"
+      }
     ],
     "plugins": [
       [

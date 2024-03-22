@@ -75,17 +75,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: create pre-release
-        if: steps.get_branch.outputs.branch == 'main' && inputs.production_release != 'true'
+      - name: create release - beta
+        if: ${{ github.ref_name == 'main' && inputs.production_release != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release --preid beta
+        run: 'npx semantic-release'
 
-      - name: create release
-        if: steps.get_branch.outputs.branch == 'main' && inputs.production_release == 'true'
+      - name: create release - beta
+        if: ${{ github.ref_name == 'main' && inputs.production_release == 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: 'npx semantic-release --branches main'
 
       - name: get release ID
         id: get-release-id
