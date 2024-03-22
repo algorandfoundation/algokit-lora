@@ -116,7 +116,7 @@ jobs:
 
       - name: bump version in package.json
         run: |
-          sed -i '' "s/$\"version\": \"0.0.0\"/$\"version\": \"${{ needs.create-release.outputs.release_version }}\"/g" "src-tauri/tauri.conf.json"
+          sed -i '' "s/\"version\": \"0.0.0\"/\"version\": \"${{ needs.create-release.outputs.release_version }}\"/g" "src-tauri/tauri.conf.json"
 
       - name: install app dependencies
         run: npm install
