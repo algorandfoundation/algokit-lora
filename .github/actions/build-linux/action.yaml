@@ -27,26 +27,25 @@ runs:
 
     # - name: move binary to target directory
     #   run: |
-    #     mkdir -p dist-linux
-    #     mv src-tauri/target/release/algokit-explorer dist-linux
+    #     mkdir -p dist
+    #     mv src-tauri/target/release/algokit-explorer dist
     #   shell: bash
 
     - name: HACK - move binary to target directory
       run: |
-        mkdir -p dist-linux
-        mv src/assets/react.svg dist-linux/algokit-explorer
+        mkdir -p dist
+        mv src/assets/react.svg dist/algokit-explorer
       shell: bash
 
     - name: Generate snapcraft.yaml
       run: |
-        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "dist-linux"
+        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "dist"
       shell: bash
 
     - name: Upload binary as artifact
       id: upload-artifact
       uses: actions/upload-artifact@v4
       with:
-        name: algokit-explorer-linux-${{ runner.arch }}
-        path: |
-          dist-linux/algokit-explorer
-          snap/snapcraft.yaml
+        if-no-files-found: error
+        name: algokit-explorer-${{ runner.arch }}
+        path: dist

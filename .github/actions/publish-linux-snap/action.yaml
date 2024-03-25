@@ -18,7 +18,7 @@ runs:
     - name: Build snap
       uses: snapcore/action-build@v1
       with:
-        path: linux-artifacts
+        path: ${{ inputs.artifacts-path }}
         snapcraft-args: --target-arch amd64
 
     - name: Upload binary as artifact
@@ -27,7 +27,7 @@ runs:
       with:
         name: algokit-explorer-linux-snap
         path: |
-          linux-artifacts/*.snap
+          ${{ inputs.artifacts-path }}/*.snap
 
     #TODO: in this action, we only publish the snap as an artifact for testing purposes
     # once we have the release token, we will publish the snap to Snap Store

@@ -117,14 +117,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
         with:
+          name: algokit-explorer-linux
           merge-multiple: true
-          path: artifacts
+          path: linux-artifacts
 
       - name: publish Linux Snap
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/publish-linux-snap
         with:
-          artifacts-path: artifacts
+          artifacts-path: linux-artifacts
           linux-artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}
