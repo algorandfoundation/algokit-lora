@@ -14,10 +14,13 @@ inputs:
 outputs:
   release-published:
     description: 'If the release was published'
+    value: ${{ steps.get-next-version.outputs.new-release-published }}
   release-version:
     description: 'The new release version'
+    value: ${{ steps.get-next-version.outputs.new-release-version }}
   release-id:
     description: 'The new release ID'
+    value: ${{ steps.get-release-id.outputs.result }}
 
 runs:
   using: 'composite'
@@ -64,11 +67,3 @@ runs:
             tag: "v${{ steps.get-next-version.outputs.new-release-version }}"
           })
           return data.id
-
-    - name: set outputs
-      id: set-outputs
-      run: |
-        echo "::set-output release-published=${{ steps.get-next-version.outputs.new-release-published }}"
-        echo "::set-output release-version=${{ steps.get-next-version.outputs.new-release-version }}"
-        echo "::set-output release-id=${{ steps.get-release-id.outputs.result }}"
-      shell: bash
