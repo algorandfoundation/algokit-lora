@@ -15,7 +15,7 @@ runs:
     - name: bump version in tauri.conf.json
       if: ${{ inputs.release-version != '' }}
       run: |
-        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ needs.create-release.outputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
+        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
 
     - name: build tauri app
       uses: tauri-apps/tauri-action@v0
