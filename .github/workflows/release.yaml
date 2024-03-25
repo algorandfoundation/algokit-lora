@@ -122,6 +122,7 @@ jobs:
           path: artifacts
 
       - name: publish Linux Snap
+        if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/publish-linux-snap
         with:
           artifacts-path: artifacts
