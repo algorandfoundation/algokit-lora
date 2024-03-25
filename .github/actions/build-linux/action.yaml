@@ -28,7 +28,7 @@ runs:
     - name: move binary to target directory
       run: |
         mkdir -p dist-linux
-        mv src-tauri/target/debug/algokit-explorer dist-linux
+        mv src-tauri/target/release/algokit-explorer dist-linux
       shell: bash
 
     - name: Generate snapcraft.yaml
