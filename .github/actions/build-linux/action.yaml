@@ -47,5 +47,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
-        name: algokit-explorer-${{ runner.arch }}
+        name: algokit-explorer-linux-${{ runner.arch }}
         path: dist
