@@ -71,14 +71,14 @@ jobs:
       release-version: ${{ steps.create-release-action.outputs.release-version }}
       release-id: ${{ steps.create-release-action.outputs.release-id }}
 
-  package-tauri:
+  build-tauri:
+    name: Build Tauri app
     needs:
       - create-release
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        platform: [macos-latest]
-    name: Package Tauri app
+        platform: [ubuntu-20.04]
     if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
@@ -94,21 +94,13 @@ jobs:
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+      - name: install npm dependencies
+        run: npm install
 
-      - name: bump version in package.json
+      - name: bump version in tauri.conf.json
         run: |
           sed -i '' "s/\"version\": \"0.0.0\"/\"version\": \"${{ needs.create-release.outputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
 
-      - name: install app dependencies
-        run: npm install
-
-      - uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          releaseId: ${{ needs.create-release.outputs.release-id }}
+      - name: build for ubuntu
+        if: ${{ runner.os == 'Linux' }}
+        uses: ./.github/actions/build-ubuntu
