@@ -62,7 +62,7 @@ jobs:
         uses: ./.github/actions/create-release
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          production_release: ${{ inputs.production_release }}
+          production_release: ${{ github.ref_name == 'main' && inputs.production_release == 'true' }}
           node_version: 20
     outputs:
       release_published: ${{ steps.create-release-action.outputs.new-release-published }}

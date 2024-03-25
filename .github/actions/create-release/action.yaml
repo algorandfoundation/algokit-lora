@@ -39,14 +39,14 @@ runs:
       shell: bash
 
     - name: create release - beta
-      if: ${{ github.ref_name == "main" && inputs.production_release != "true" }}
+      if: ${{ inputs.production_release != 'true' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
       run: 'npx semantic-release'
       shell: bash
 
-    - name: create release - beta
-      if: ${{ github.ref_name == "main" && inputs.production_release == "true" }}
+    - name: create release
+      if: ${{ inputs.production_release == 'true' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
       run: 'npx semantic-release --branches main'
@@ -55,7 +55,7 @@ runs:
     - name: get release ID
       id: get-release-id
       uses: actions/github-script@v7
-      if: steps.get-next-version.outputs.new-release-published == "true"
+      if: steps.get-next-version.outputs.new-release-published == 'true'
       with:
         script: |
           const { data } = await github.rest.repos.getReleaseByTag({
