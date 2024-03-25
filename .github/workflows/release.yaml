@@ -97,10 +97,8 @@ jobs:
       - name: install npm dependencies
         run: npm install
 
-      - name: bump version in tauri.conf.json
-        run: |
-          sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ needs.create-release.outputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
-
       - name: build for ubuntu
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-ubuntu
+        with:
+          release-version: ${{ needs.create-release.outputs.release-version }}
