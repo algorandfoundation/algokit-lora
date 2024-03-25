@@ -27,13 +27,16 @@ runs:
       with:
         node-version: ${{ inputs.node_version }}
 
-    - name: install app dependencies
+    - name: install npm dependencies
       run: npm install
+      shell: bash
 
-    - run: npx semantic-release --dry-run
+    - name: get next version (dry run)
       id: get-next-version
+      run: npx semantic-release --dry-run
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+      shell: bash
 
     - name: create release - beta
       if: ${{ github.ref_name == "main" && inputs.production_release != "true" }}
