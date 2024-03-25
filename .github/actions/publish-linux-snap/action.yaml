@@ -10,6 +10,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: debug
+      run: |
+        ls -R ${{ inputs.artifacts-path }}
+      shell: bash
+
     - name: unzip artifacts
       run: unzip -q ${{ inputs.artifacts-path }}/${{ inputs.linux-artifact-name }}.zip -d linux-artifacts
       shell: bash
