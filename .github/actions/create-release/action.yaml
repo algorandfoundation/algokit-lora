@@ -68,7 +68,7 @@ runs:
     - name: set outputs
       id: set-outputs
       run: |
-        echo "{release-published}={${{ steps.get-next-version.outputs.new-release-published }}}" >> $GITHUB_OUTPUT
-        echo "{release-version}={${{ steps.get-next-version.outputs.new-release-version }}}" >> $GITHUB_OUTPUT
-        echo "{release-id}={${{ steps.get-release-id.outputs.result }}}" >> $GITHUB_OUTPUT
+        echo "release-published=${{ steps.get-next-version.outputs.new-release-published }}" >> $GITHUB_OUTPUT
+        echo "release-version=${{ steps.get-next-version.outputs.new-release-version }}" >> $GITHUB_OUTPUT
+        echo "release-id=${{ steps.get-release-id.outputs.result }}" >> $GITHUB_OUTPUT
       shell: bash
