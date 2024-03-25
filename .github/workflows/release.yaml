@@ -65,6 +65,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-release: ${{ github.ref_name == 'main' && inputs.production-release == 'true' }}
           node-version: 20
+
+      - name: debug
+        run: |
+          echo "${{ steps.create-release-action.outputs.release-published }}"
+          echo "${{ steps.create-release-action.outputs.release-version }}"
+          echo "${{ steps.create-release-action.outputs.release-id }}"
+
     outputs:
       release-published: ${{ steps.create-release-action.outputs.release-published }}
       release-version: ${{ steps.create-release-action.outputs.release-version }}
