@@ -16,6 +16,7 @@ runs:
       if: ${{ inputs.release-version != '' }}
       run: |
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
+      shell: bash
 
     - name: build tauri app
       uses: tauri-apps/tauri-action@v0
