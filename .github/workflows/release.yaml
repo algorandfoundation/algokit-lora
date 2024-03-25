@@ -57,52 +57,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: setup node
-        uses: actions/setup-node@v4
+      - name: create release
+        id: create-release-action
+        uses: ./.github/actions/create-release
         with:
-          node-version: 20
-
-      - name: Get branch name
-        shell: bash
-        run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-        id: get_branch
-
-      - name: install app dependencies
-        run: npm install
-
-      - run: npx semantic-release --dry-run
-        id: get-next-version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: create release - beta
-        if: ${{ github.ref_name == 'main' && inputs.production_release != 'true' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: 'npx semantic-release'
-
-      - name: create release - beta
-        if: ${{ github.ref_name == 'main' && inputs.production_release == 'true' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: 'npx semantic-release --branches main'
-
-      - name: get release ID
-        id: get-release-id
-        uses: actions/github-script@v7
-        if: steps.get-next-version.outputs.new-release-published == 'true'
-        with:
-          script: |
-            const { data } = await github.rest.repos.getReleaseByTag({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              tag: "v${{ steps.get-next-version.outputs.new-release-version }}"
-            })
-            return data.id
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          production_release: ${{ inputs.production_release }}
+          node_version: 20
     outputs:
-      release_published: ${{ steps.get-next-version.outputs.new-release-published }}
-      release_version: ${{ steps.get-next-version.outputs.new-release-version }}
-      release_id: ${{ steps.get-release-id.outputs.result }}
+      release_published: ${{ steps.create-release-action.outputs.new-release-published }}
+      release_version: ${{ steps.create-release-action.outputs.new-release-version }}
+      release_id: ${{ steps.create-release-action.outputs.result }}
 
   package-tauri:
     needs:

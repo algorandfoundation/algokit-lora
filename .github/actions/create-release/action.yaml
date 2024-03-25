@@ -1,0 +1,71 @@
+name: 'Create release'
+description: 'Create a new release'
+inputs:
+  github_token:
+    description: 'The GitHub token'
+    required: true
+  production_release:
+    description: 'Is production release?'
+    required: true
+  node_version:
+    description: 'The Node version'
+    required: true
+    default: 20
+outputs:
+  release_published:
+    description: "If the release was published"
+  release_version:
+    description: "The new release version"
+  release_id:
+    description: "The new release ID"
+
+runs:
+  using: 'composite'
+  - name: setup node
+    uses: actions/setup-node@v4
+    with:
+      node-version: ${{ inputs.node_version }}
+
+  - name: install app dependencies
+    run: npm install
+
+  - run: npx semantic-release --dry-run
+    id: get-next-version
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+
+  - name: create release - beta
+    if: ${{ github.ref_name == 'main' && inputs.production_release != 'true' }}
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+    run: 'npx semantic-release'
+    shell: bash
+
+  - name: create release - beta
+    if: ${{ github.ref_name == 'main' && inputs.production_release == 'true' }}
+    env:
+      GITHUB_TOKEN: ${{ inputs.github_token }}
+    run: 'npx semantic-release --branches main'
+    shell: bash
+
+  - name: get release ID
+    id: get-release-id
+    uses: actions/github-script@v7
+    if: steps.get-next-version.outputs.new-release-published == 'true'
+    with:
+      script: |
+        const { data } = await github.rest.repos.getReleaseByTag({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          tag: "v${{ steps.get-next-version.outputs.new-release-version }}"
+        })
+        return data.id
+
+  - name: set outputs
+    id: set-outputs
+    run:  |
+      echo "{release_published}=${{ steps.get-next-version.outputs.new-release-published }}" >> $GITHUB_OUTPUT
+      echo "{release_version}=${{ steps.get-next-version.outputs.new-release-version }}" >> $GITHUB_OUTPUT
+      echo "{release_id}=${{ steps.get-release-id.outputs.result }}" >> $GITHUB_OUTPUT
+    shell: bash
+
