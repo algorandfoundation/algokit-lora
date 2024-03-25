@@ -15,10 +15,6 @@ runs:
         ls -R ${{ inputs.artifacts-path }}
       shell: bash
 
-    - name: unzip artifacts
-      run: unzip -q ${{ inputs.artifacts-path }}/${{ inputs.linux-artifact-name }}.zip -d linux-artifacts
-      shell: bash
-
     - name: Build snap
       uses: snapcore/action-build@v1
       with:
