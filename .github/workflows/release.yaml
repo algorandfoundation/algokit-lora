@@ -11,7 +11,7 @@ on:
       - '.idea/**'
   workflow_dispatch:
     inputs:
-      production_release:
+      production-release:
         description: 'Production release?'
         required: true
         default: 'true'
@@ -40,6 +40,7 @@ jobs:
     name: Build Website
     uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
     with:
+      node-version: 20.x
       build-path: dist
       artifact-name: website
       static-site: true
@@ -57,17 +58,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: create release
+      - name: Create release
         id: create-release-action
         uses: ./.github/actions/create-release
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          production_release: ${{ github.ref_name == 'main' && inputs.production_release == 'true' }}
-          node_version: 20
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          production-release: ${{ github.ref_name == 'main' && inputs.production-release == 'true' }}
+          node-version: 20
     outputs:
-      release_published: ${{ steps.create-release-action.outputs.new-release-release_published }}
-      release_version: ${{ steps.create-release-action.outputs.new-release-release_version }}
-      release_id: ${{ steps.create-release-action.outputs.release_id }}
+      release-published: ${{ steps.create-release-action.outputs.release-published }}
+      release-version: ${{ steps.create-release-action.outputs.release-version }}
+      release-id: ${{ steps.create-release-action.outputs.release-id }}
 
   package-tauri:
     needs:
@@ -77,7 +78,7 @@ jobs:
       matrix:
         platform: [macos-latest]
     name: Package Tauri app
-    if: ${{ needs.create-release.outputs.release_published == 'true' }}
+    if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -100,7 +101,7 @@ jobs:
 
       - name: bump version in package.json
         run: |
-          sed -i '' "s/\"version\": \"0.0.0\"/\"version\": \"${{ needs.create-release.outputs.release_version }}\"/g" "src-tauri/tauri.conf.json"
+          sed -i '' "s/\"version\": \"0.0.0\"/\"version\": \"${{ needs.create-release.outputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
 
       - name: install app dependencies
         run: npm install
@@ -109,4 +110,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          releaseId: ${{ needs.create-release.outputs.release_id }}
+          releaseId: ${{ needs.create-release.outputs.release-id }}
