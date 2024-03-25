@@ -111,7 +111,7 @@ jobs:
     needs:
       - build-tauri
     runs-on: [ubuntu-20.04]
-    if: ${{ inputs.production-release == 'true' }}
+    # if: ${{ inputs.production-release == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
