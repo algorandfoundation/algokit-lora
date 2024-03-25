@@ -97,8 +97,32 @@ jobs:
       - name: install npm dependencies
         run: npm install
 
-      - name: build for ubuntu
+      - name: build for Linux
+        id: build-linux
         if: ${{ runner.os == 'Linux' }}
-        uses: ./.github/actions/build-ubuntu
+        uses: ./.github/actions/build-linux
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
+    outputs:
+      linux-artifact-name: ${{ steps.build-linux.outputs.artifact-name }}
+
+  publish:
+    name: Publish
+    needs:
+      - build-tauri
+    runs-on: [ubuntu-20.04]
+    if: ${{ inputs.production-release == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: publish Linux Snap
+        uses: ./.github/actions/publish-linux-snap
+        with:
+          artifacts-path: artifacts
+          linux-artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}

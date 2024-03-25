@@ -1,7 +1,11 @@
-name: 'Build for Ubuntu'
+name: 'Build for Linux'
 inputs:
   release-version:
     description: 'The release version'
+outputs:
+  artifact-name:
+    description: 'The name of the artifact'
+    value: algokit-explorer-linux-${{ runner.arch }}
 
 runs:
   using: 'composite'
@@ -21,9 +25,21 @@ runs:
     - name: build tauri app
       uses: tauri-apps/tauri-action@v0
 
+    - name: move binary to target directory
+      run: |
+        mkdir -p dist-linux
+        mv src-tauri/target/debug/algokit-explorer dist-linux
+      shell: bash
+
+    - name: Generate snapcraft.yaml
+      run: |
+        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "dist-linux"
+
     - name: Upload binary as artifact
+      id: upload-artifact
       uses: actions/upload-artifact@v3
       with:
         name: algokit-explorer-linux-${{ runner.arch }}
         path: |
-          src-tauri/target/release/algokit-explorer
+          dist-linux/algokit-explorer
+          snap/snapcraft.yaml

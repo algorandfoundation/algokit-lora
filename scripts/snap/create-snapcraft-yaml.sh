@@ -13,6 +13,7 @@ fi
 DESTINATION_DIR="$1"
 RELEASE_TAG="$2"
 GRADE="$3"
+SOURCE_DIR="$4"
 
 # Ensure the destination directory exists
 mkdir -p "${DESTINATION_DIR}/snap"
@@ -34,7 +35,7 @@ grade: $GRADE
 
 parts:
   algokit-explorer:
-    source: snap-dist
+    source: "$SOURCE_DIR"
     plugin: dump
     build-packages:
       - build-essential
