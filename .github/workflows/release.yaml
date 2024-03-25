@@ -65,9 +65,9 @@ jobs:
           production_release: ${{ github.ref_name == 'main' && inputs.production_release == 'true' }}
           node_version: 20
     outputs:
-      release_published: ${{ steps.create-release-action.outputs.new-release-published }}
-      release_version: ${{ steps.create-release-action.outputs.new-release-version }}
-      release_id: ${{ steps.create-release-action.outputs.result }}
+      release_published: ${{ steps.create-release-action.outputs.new-release-release_published }}
+      release_version: ${{ steps.create-release-action.outputs.new-release-release_version }}
+      release_id: ${{ steps.create-release-action.outputs.release_id }}
 
   package-tauri:
     needs:
