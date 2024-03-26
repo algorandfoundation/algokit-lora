@@ -3,11 +3,12 @@ inputs:
   release-version:
     description: 'The release version'
 
-env:
-  ARTIFACT_NAME: algokit-explorer-windows-${{ runner.arch }}
 runs:
   using: 'composite'
   steps:
+    - name: Set ARTIFACT_NAME env variable
+      run: echo "ARTIFACT_NAME=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_ENV
+
     - name: Install dependencies
       run: |
         sudo apt-get update
