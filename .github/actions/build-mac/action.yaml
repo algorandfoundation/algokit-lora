@@ -1,4 +1,4 @@
-name: 'Build for Windows'
+name: 'Build for Mac'
 inputs:
   production-release:
     description: 'Production release?'
@@ -14,15 +14,13 @@ runs:
     - name: Get artifact name
       id: set-env
       run: |
-        echo "artifact_name=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
+        echo "artifact_name=algokit-explorer-mac-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Bump version in tauri.conf.json
       if: ${{ inputs.release-version != '' }}
       run: |
-        version="${{ inputs.release-version }}"
-        version="${version/beta./}"
-        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
+        sed -i '' "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
       shell: bash
 
     - name: Build tauri app
@@ -36,4 +34,4 @@ runs:
       with:
         if-no-files-found: error
         name: ${{ steps.set-env.outputs.artifact_name }}
-        path: src-tauri/target/release/bundle/msi/algokit-explorer_*.msi
+        path: src-tauri/target/release/bundle/dmg/algokit-explorer_*.dmg

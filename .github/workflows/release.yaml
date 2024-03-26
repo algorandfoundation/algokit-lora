@@ -77,7 +77,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        platform: [ubuntu-20.04, windows-latest]
+        # macos-14 is the Apple Silicon M1 runner
+        platform: [ubuntu-20.04, windows-latest, 'macos-latest', 'macos-14']
     if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
@@ -110,9 +111,16 @@ jobs:
         with:
           production-release: ${{ inputs.production-release }}
           release-version: ${{ needs.create-release.outputs.release-version }}
+
+      - name: Build for Mac
+        id: build-mac
+        if: ${{ runner.os == 'macOS' }}
+        uses: ./.github/actions/build-mac
+        with:
+          production-release: ${{ inputs.production-release }}
+          release-version: ${{ needs.create-release.outputs.release-version }}
     outputs:
       linux-artifact-name: ${{ steps.build-linux.outputs.artifact-name }}
-      windows-artifact-name: ${{ steps.build-windows.outputs.artifact-name }}
 
   publish:
     name: Publish
