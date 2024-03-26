@@ -18,7 +18,9 @@ runs:
     - name: Bump version in tauri.conf.json
       if: ${{ inputs.release-version != '' }}
       run: |
-        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
+        version="${{ inputs.release-version }}"
+        version="${version/beta./}"
+        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
       shell: bash
 
     - name: Build tauri app
