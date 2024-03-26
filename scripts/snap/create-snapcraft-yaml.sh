@@ -53,4 +53,4 @@ apps:
       - wayland
 EOF
 
-echo "snapcraft.yaml has been created at ${DESTINATION_DIR}/snapcraft.yaml"
+echo "snapcraft.yaml has been created at ${DESTINATION_DIR}/snap/snapcraft.yaml"
