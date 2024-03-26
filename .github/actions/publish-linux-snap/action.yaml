@@ -1,4 +1,4 @@
-name: 'Build for Linux'
+name: 'Publish Linux Snap'
 inputs:
   release-version:
     description: 'The release version'
@@ -32,14 +32,14 @@ runs:
       with:
         snapcraft-args: --target-arch amd64
 
-    #TODO: in this action, we only publish the snap as an artifact for testing purposes
-    - name: Upload binary as artifact
-      id: upload-artifact
-      uses: actions/upload-artifact@v3
+    - name: Append the snap file to release
+      uses: softprops/action-gh-release@v1
       with:
-        name: algokit-explorer-linux-snap
-        path: |
+        fail_on_unmatched_files: true
+        files: |
           *.snap
+        tag_name: ${{ inputs.release-version }}
+        prerelease: ${{ contains(inputs.release-version, 'beta') }}
 
     # once we have the release token, we will publish the snap to Snap Store
     # - name: Set path to snap binary

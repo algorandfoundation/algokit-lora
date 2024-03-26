@@ -136,3 +136,8 @@ jobs:
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
           artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}
+
+      - name: Publish Windows Winget
+        uses: ./.github/actions/publish-windows-winget
+        with:
+          release-version: ${{ needs.create-release.outputs.release-version }}
