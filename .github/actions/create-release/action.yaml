@@ -25,37 +25,37 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: setup node
+    - name: Setup node
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: install npm dependencies
+    - name: Install npm dependencies
       run: npm install
       shell: bash
 
-    - name: get next version (dry run)
+    - name: Get next version (dry run)
       id: get-next-version
       run: npx semantic-release --dry-run
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       shell: bash
 
-    - name: create release - beta
+    - name: Create release - beta
       if: ${{ inputs.production-release != 'true' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: 'npx semantic-release'
       shell: bash
 
-    - name: create release
+    - name: Create release
       if: ${{ inputs.production-release == 'true' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       run: 'npx semantic-release --branches main'
       shell: bash
 
-    - name: get release ID
+    - name: Get release ID
       id: get-release-id
       uses: actions/github-script@v7
       if: steps.get-next-version.outputs.new-release-published == 'true'

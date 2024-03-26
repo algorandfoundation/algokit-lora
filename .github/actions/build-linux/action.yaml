@@ -10,22 +10,22 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: install dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
       shell: bash
 
-    - name: bump version in tauri.conf.json
+    - name: Bump version in tauri.conf.json
       if: ${{ inputs.release-version != '' }}
       run: |
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
       shell: bash
 
-    - name: build tauri app
+    - name: Build tauri app
       uses: tauri-apps/tauri-action@v0
 
-    - name: move binary to target directory
+    - name: Move binary to target directory
       run: |
         mkdir -p dist
         mv src-tauri/target/release/algokit-explorer dist/algokit-explorer

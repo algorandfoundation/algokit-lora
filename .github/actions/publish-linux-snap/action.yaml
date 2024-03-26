@@ -10,7 +10,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: debug
+    - name: Check artifacts dir
       run: |
         ls -R ${{ inputs.artifacts-path }}
       shell: bash

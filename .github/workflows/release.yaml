@@ -85,18 +85,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: setup node
+      - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: install Rust stable
+      - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
 
-      - name: install npm dependencies
+      - name: Install npm dependencies
         run: npm install
 
-      - name: build for Linux
+      - name: Build for Linux
         id: build-linux
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-linux
@@ -124,7 +124,7 @@ jobs:
           merge-multiple: true
           path: linux-artifacts
 
-      - name: publish Linux Snap
+      - name: Publish Linux Snap
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/publish-linux-snap
         with:
