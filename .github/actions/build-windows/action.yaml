@@ -1,11 +1,16 @@
 name: 'Build for Windows'
 inputs:
+  production-release:
+    description: 'Production release?'
+    required: true
   release-version:
     description: 'The release version'
 
 runs:
   using: 'composite'
   steps:
+    #  TODO: set up signing certs here when releasing to production
+
     - name: Set ARTIFACT_NAME env variable
       run: echo "ARTIFACT_NAME=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_ENV
       shell: bash
@@ -25,6 +30,13 @@ runs:
         mv src-tauri/target/release/*.msi windows-dist/
       shell: bash
 
+    # - name: HACK - move binary to target directory
+    #   run: |
+    #     mkdir -p tauri-dist
+    #     cp src/assets/react.svg tauri-dist/algokit-explorer
+    #     chmod +x tauri-dist/algokit-explorer
+    #   shell: bash
+
     - name: Upload binary as artifact
       id: upload-artifact
       uses: actions/upload-artifact@v4
@@ -32,6 +44,7 @@ runs:
         if-no-files-found: error
         name: ${{ env.ARTIFACT_NAME}}
         path: windows-dist/**/*
+
 outputs:
   artifact-name:
     description: 'The name of the artifact'

@@ -108,6 +108,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/build-windows
         with:
+          production-release: ${{ inputs.production-release }}
           release-version: ${{ needs.create-release.outputs.release-version }}
     outputs:
       linux-artifact-name: ${{ steps.build-linux.outputs.artifact-name }}
