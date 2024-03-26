@@ -39,7 +39,7 @@ runs:
 
     - name: Generate snapcraft.yaml
       run: |
-        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "dist"
+        ./scripts/snap/create-snapcraft-yaml.sh "dist" ${{ inputs.release-version }} "stable" "dist"
       shell: bash
 
     - name: Upload binary as artifact
