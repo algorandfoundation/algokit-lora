@@ -10,35 +10,35 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    # - name: Install dependencies
-    #   run: |
-    #     sudo apt-get update
-    #     sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-    #   shell: bash
-
-    # - name: Bump version in tauri.conf.json
-    #   if: ${{ inputs.release-version != '' }}
-    #   run: |
-    #     sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
-    #   shell: bash
-
-    # - name: Build tauri app
-    #   uses: tauri-apps/tauri-action@v0
-
-    # - name: Move binary to target directory
-    #   run: |
-    #     mkdir -p dist
-    #     mv src-tauri/target/release/algokit-explorer dist/algokit-explorer
-    #   shell: bash
-
-    - name: HACK - move binary to target directory
+    - name: Install dependencies
       run: |
-        mkdir -p dist
-        cp src/assets/react.svg dist/algokit-explorer
-        chmod +x dist/algokit-explorer
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
       shell: bash
 
-    - name: 'Tar files'
+    - name: Bump version in tauri.conf.json
+      if: ${{ inputs.release-version != '' }}
+      run: |
+        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
+      shell: bash
+
+    - name: Build tauri app
+      uses: tauri-apps/tauri-action@v0
+
+    - name: Move binary to target directory
+      run: |
+        mkdir -p dist
+        mv src-tauri/target/release/algokit-explorer dist/algokit-explorer
+      shell: bash
+
+    # - name: HACK - move binary to target directory
+    #   run: |
+    #     mkdir -p dist
+    #     cp src/assets/react.svg dist/algokit-explorer
+    #     chmod +x dist/algokit-explorer
+    #   shell: bash
+
+    - name: Zip to preserve permissions
       run: |
         cd dist
         tar -czvf ../algokit-explorer-linux.tar.gz .
