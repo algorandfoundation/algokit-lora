@@ -12,7 +12,7 @@ runs:
   steps:
     - name: Unzip
       run: |
-        unzip ${{ inputs.artifact-zip-file-name }} -d "artifacts"
+        tar -xzvf ${{ inputs.artifact-zip-file-name }} -d "artifacts"
       shell: bash
 
     - name: Check artifacts dir
