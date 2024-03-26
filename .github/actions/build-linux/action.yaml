@@ -48,4 +48,4 @@ runs:
       with:
         if-no-files-found: error
         name: algokit-explorer-linux-${{ runner.arch }}
-        path: dist
+        path: dist/**/*
