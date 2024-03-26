@@ -10,12 +10,6 @@ runs:
       run: echo "ARTIFACT_NAME=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_ENV
       shell: bash
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-      shell: bash
-
     - name: Bump version in tauri.conf.json
       if: ${{ inputs.release-version != '' }}
       run: |
