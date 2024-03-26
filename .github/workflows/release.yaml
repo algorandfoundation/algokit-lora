@@ -77,7 +77,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        platform: [ubuntu-20.04]
+        platform: [ubuntu-20.04, windows-latest]
     if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
@@ -102,8 +102,16 @@ jobs:
         uses: ./.github/actions/build-linux
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
+
+      - name: Build for Windows
+        id: build-windows
+        if: ${{ runner.os == 'Windows' }}
+        uses: ./.github/actions/build-windows
+        with:
+          release-version: ${{ needs.create-release.outputs.release-version }}
     outputs:
       linux-artifact-name: ${{ steps.build-linux.outputs.artifact-name }}
+      windows-artifact-name: ${{ steps.build-windows.outputs.artifact-name }}
 
   publish:
     name: Publish
@@ -123,8 +131,7 @@ jobs:
           merge-multiple: true
 
       - name: Publish Linux Snap
-        if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/publish-linux-snap
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
-          artifact-zip-file-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}
+          artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}

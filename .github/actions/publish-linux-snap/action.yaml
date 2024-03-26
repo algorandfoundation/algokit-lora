@@ -3,7 +3,7 @@ inputs:
   release-version:
     description: 'The release version'
     required: true
-  artifact-zip-file-name:
+  artifact-name:
     description: 'The name of the artifact zip file'
     required: true
 
@@ -13,7 +13,7 @@ runs:
     - name: Unzip
       run: |
         mkdir -p artifacts
-        tar -xzvf ${{ inputs.artifact-zip-file-name }} -C artifacts
+        tar -xzvf ${{ inputs.artifact-name }} -C artifacts
       shell: bash
 
     - name: Check artifacts dir
@@ -32,13 +32,13 @@ runs:
         snapcraft-args: --target-arch amd64
 
     #TODO: in this action, we only publish the snap as an artifact for testing purposes
-    # - name: Upload binary as artifact
-    #   id: upload-artifact
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: algokit-explorer-linux-snap
-    #     path: |
-    #       *.snap
+    - name: Upload binary as artifact
+      id: upload-artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: algokit-explorer-linux-snap
+        path: |
+          *.snap
 
     # once we have the release token, we will publish the snap to Snap Store
     # - name: Set path to snap binary

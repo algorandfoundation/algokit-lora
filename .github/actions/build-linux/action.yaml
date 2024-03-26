@@ -2,11 +2,9 @@ name: 'Build for Linux'
 inputs:
   release-version:
     description: 'The release version'
-outputs:
-  artifact-name:
-    description: 'The name of the artifact'
-    value: algokit-explorer-linux.tar.gz
 
+env:
+  ARTIFACT_NAME: algokit-explorer-linux-${{ runner.arch }}
 runs:
   using: 'composite'
   steps:
@@ -41,7 +39,7 @@ runs:
     - name: Zip to preserve permissions
       run: |
         cd tauri-dist
-        tar -czvf ../algokit-explorer-linux.tar.gz .
+        tar -czvf ../${{ env.ARTIFACT_NAME }}.tar.gz .
       shell: bash
 
     - name: Upload binary as artifact
@@ -49,5 +47,10 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
-        name: algokit-explorer-linux
-        path: algokit-explorer-linux.tar.gz
+        name: ${{ env.ARTIFACT_NAME }}
+        path: ${{ env.ARTIFACT_NAME }}.tar.gz
+
+outputs:
+  artifact-name:
+    description: 'The name of the artifact'
+    value: ${{ env.ARTIFACT_NAME }}.tar.gz
