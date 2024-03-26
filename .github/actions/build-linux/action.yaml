@@ -27,20 +27,20 @@ runs:
 
     - name: Move binary to target directory
       run: |
-        mkdir -p dist
-        mv src-tauri/target/release/algokit-explorer dist/algokit-explorer
+        mkdir -p tauri-dist
+        mv src-tauri/target/release/algokit-explorer tauri-dist/algokit-explorer
       shell: bash
 
     # - name: HACK - move binary to target directory
     #   run: |
-    #     mkdir -p dist
-    #     cp src/assets/react.svg dist/algokit-explorer
-    #     chmod +x dist/algokit-explorer
+    #     mkdir -p tauri-dist
+    #     cp src/assets/react.svg tauri-dist/algokit-explorer
+    #     chmod +x tauri-dist/algokit-explorer
     #   shell: bash
 
     - name: Zip to preserve permissions
       run: |
-        cd dist
+        cd tauri-dist
         tar -czvf ../algokit-explorer-linux.tar.gz .
       shell: bash
 
