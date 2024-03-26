@@ -6,8 +6,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set ARTIFACT_NAME env variable
-      run: echo "ARTIFACT_NAME=algokit-explorer-linux-${{ runner.arch }}" >> $GITHUB_ENV
+    - name: Get artifact name
+      id: set-env
+      run: |
+        echo "artifact_name=algokit-explorer-linux-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Install dependencies
@@ -41,7 +43,7 @@ runs:
     - name: Zip to preserve permissions
       run: |
         cd tauri-dist
-        tar -czvf ../${{ env.ARTIFACT_NAME }}.tar.gz .
+        tar -czvf ../${{ steps.set-env.outputs.artifact_name }}.tar.gz .
       shell: bash
 
     - name: Upload binary as artifact
@@ -49,10 +51,10 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
-        name: ${{ env.ARTIFACT_NAME }}
-        path: ${{ env.ARTIFACT_NAME }}.tar.gz
+        name: ${{ steps.set-env.outputs.artifact_name }}
+        path: ${{ steps.set-env.outputs.artifact_name }}.tar.gz
 
 outputs:
   artifact-name:
     description: 'The name of the artifact'
-    value: ${{ env.ARTIFACT_NAME }}.tar.gz
+    value: ${{ steps.set-env.outputs.artifact_name }}.tar.gz

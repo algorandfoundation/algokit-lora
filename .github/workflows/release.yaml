@@ -122,6 +122,9 @@ jobs:
     runs-on: [ubuntu-20.04]
     # if: ${{ inputs.production-release == 'true' }}
     steps:
+      - name: debug
+        run: echo ${{ needs.build-tauri.outputs.linux-artifact-name }}
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0

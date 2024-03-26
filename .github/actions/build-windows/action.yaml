@@ -11,8 +11,10 @@ runs:
   steps:
     #  TODO: set up signing certs here when releasing to production
 
-    - name: Set ARTIFACT_NAME env variable
-      run: echo "ARTIFACT_NAME=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_ENV
+    - name: Get artifact name
+      id: set-env
+      run: |
+        echo "artifact_name=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Bump version in tauri.conf.json
@@ -44,10 +46,10 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
-        name: ${{ env.ARTIFACT_NAME}}
+        name: ${{ steps.set-env.outputs.artifact_name }}
         path: src-tauri/target/release/bundle/msi/algokit-explorer_*.msi
 
 outputs:
   artifact-name:
     description: 'The name of the artifact'
-    value: ${{ env.ARTIFACT_NAME }}
+    value: ${{ steps.set-env.outputs.artifact_name }}
