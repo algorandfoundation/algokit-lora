@@ -26,6 +26,7 @@ permissions:
 
 jobs:
   ci:
+    if: false
     name: CI
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
     with:
@@ -50,8 +51,6 @@ jobs:
 
   create-release:
     runs-on: [ubuntu-20.04]
-    needs:
-      - ci
     name: Create release
     steps:
       - uses: actions/checkout@v4

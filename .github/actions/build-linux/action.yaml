@@ -37,11 +37,6 @@ runs:
         mv src/assets/react.svg dist/algokit-explorer
       shell: bash
 
-    - name: Generate snapcraft.yaml
-      run: |
-        ./scripts/snap/create-snapcraft-yaml.sh "dist" ${{ inputs.release-version }} "stable" "dist"
-      shell: bash
-
     - name: Upload binary as artifact
       id: upload-artifact
       uses: actions/upload-artifact@v4

@@ -15,10 +15,14 @@ runs:
         ls -R ${{ inputs.artifacts-path }}
       shell: bash
 
+    - name: Generate snapcraft.yaml
+      run: |
+        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "${{ inputs.artifacts-path }}"
+      shell: bash
+
     - name: Build snap
       uses: snapcore/action-build@v1
       with:
-        path: ${{ inputs.artifacts-path }}
         snapcraft-args: --target-arch amd64
 
     - name: Upload binary as artifact
@@ -27,7 +31,7 @@ runs:
       with:
         name: algokit-explorer-linux-snap
         path: |
-          ${{ inputs.artifacts-path }}/*.snap
+          *.snap
 
     #TODO: in this action, we only publish the snap as an artifact for testing purposes
     # once we have the release token, we will publish the snap to Snap Store
