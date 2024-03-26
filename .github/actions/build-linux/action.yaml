@@ -22,19 +22,13 @@ runs:
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
       shell: bash
 
-    # - name: build tauri app
-    #   uses: tauri-apps/tauri-action@v0
+    - name: build tauri app
+      uses: tauri-apps/tauri-action@v0
 
-    # - name: move binary to target directory
-    #   run: |
-    #     mkdir -p dist
-    #     mv src-tauri/target/release/algokit-explorer dist
-    #   shell: bash
-
-    - name: HACK - move binary to target directory
+    - name: move binary to target directory
       run: |
         mkdir -p dist
-        mv src/assets/react.svg dist/algokit-explorer
+        mv src-tauri/target/release/algokit-explorer dist/algokit-explorer
       shell: bash
 
     - name: Upload binary as artifact
