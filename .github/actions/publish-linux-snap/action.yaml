@@ -3,21 +3,26 @@ inputs:
   release-version:
     description: 'The release version'
     required: true
-  artifacts-path:
-    description: 'The path to the artifacts'
+  artifact-zip-file-name:
+    description: 'The name of the artifact zip file'
     required: true
 
 runs:
   using: 'composite'
   steps:
+    - name: Unzip
+      run: |
+        unzip ${{ inputs.artifact-zip-file-name }} -d "artifacts"
+      shell: bash
+
     - name: Check artifacts dir
       run: |
-        ls -R ${{ inputs.artifacts-path }}
+        ls -R "artifacts"
       shell: bash
 
     - name: Generate snapcraft.yaml
       run: |
-        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "${{ inputs.artifacts-path }}"
+        ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "artifacts"
       shell: bash
 
     - name: Build snap

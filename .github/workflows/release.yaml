@@ -120,13 +120,11 @@ jobs:
       - name: Download Linux artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: ${{ needs.build-tauri.outputs.linux-artifact-name }}
           merge-multiple: true
-          path: linux-artifacts
 
       - name: Publish Linux Snap
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/publish-linux-snap
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
-          artifacts-path: linux-artifacts
+          artifact-zip-file-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}

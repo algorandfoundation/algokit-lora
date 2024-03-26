@@ -1,0 +1,40 @@
+name: 'Build for Windows'
+inputs:
+  release-version:
+    description: 'The release version'
+outputs:
+  artifact-name:
+    description: 'The name of the artifact'
+    value: algokit-explorer-windows-${{ runner.arch }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+      shell: bash
+
+    - name: Bump version in tauri.conf.json
+      if: ${{ inputs.release-version != '' }}
+      run: |
+        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"${{ inputs.release-version }}\"/g" "src-tauri/tauri.conf.json"
+      shell: bash
+
+    - name: Build tauri app
+      uses: tauri-apps/tauri-action@v0
+
+    - name: Move binary to target directory
+      run: |
+        mkdir -p dist
+        mv src-tauri/target/release/algokit-explorer dist/algokit-explorer
+      shell: bash
+
+    - name: Upload binary as artifact
+      id: upload-artifact
+      uses: actions/upload-artifact@v4
+      with:
+        if-no-files-found: error
+        name: algokit-explorer-windows-${{ runner.arch }}
+        path: dist/**/*
