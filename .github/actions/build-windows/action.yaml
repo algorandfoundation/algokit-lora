@@ -26,11 +26,11 @@ runs:
     - name: Build tauri app
       uses: tauri-apps/tauri-action@v0
 
-    - name: Move binary to target directory
-      run: |
-        mkdir -p windows-dist
-        mv src-tauri/target/release/*.msi windows-dist/
-      shell: bash
+    # - name: Move binary to target directory
+    #   run: |
+    #     mkdir -p windows-dist
+    #     mv src-tauri/target/release/*.msi windows-dist/
+    #   shell: bash
 
     # - name: HACK - move binary to target directory
     #   run: |
@@ -45,7 +45,7 @@ runs:
       with:
         if-no-files-found: error
         name: ${{ env.ARTIFACT_NAME}}
-        path: windows-dist/**/*
+        path: src-tauri/target/release/bundle/msi/algokit-explorer_*.msi
 
 outputs:
   artifact-name:
