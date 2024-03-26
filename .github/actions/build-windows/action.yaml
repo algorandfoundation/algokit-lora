@@ -8,6 +8,7 @@ runs:
   steps:
     - name: Set ARTIFACT_NAME env variable
       run: echo "ARTIFACT_NAME=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_ENV
+      shell: bash
 
     - name: Install dependencies
       run: |
