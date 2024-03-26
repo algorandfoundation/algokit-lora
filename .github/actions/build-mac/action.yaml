@@ -1,4 +1,5 @@
 name: 'Build for Mac'
+description: 'Build for Mac'
 inputs:
   production-release:
     description: 'Production release?'

@@ -1,4 +1,5 @@
 name: 'Publish Windows Winget'
+description: 'Publish Windows Winget'
 inputs:
   release-version:
     description: 'The release version'

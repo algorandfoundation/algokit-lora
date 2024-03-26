@@ -1,4 +1,5 @@
 name: 'Build for Windows'
+description: 'Build for Windows'
 inputs:
   production-release:
     description: 'Production release?'

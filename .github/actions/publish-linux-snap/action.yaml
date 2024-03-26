@@ -1,4 +1,5 @@
 name: 'Publish Linux Snap'
+description: 'Publish Linux Snap'
 inputs:
   release-version:
     description: 'The release version'

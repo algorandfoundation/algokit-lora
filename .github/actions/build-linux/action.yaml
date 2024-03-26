@@ -1,4 +1,5 @@
 name: 'Build for Linux'
+description: 'Build for Linux'
 inputs:
   release-version:
     description: 'The release version'
