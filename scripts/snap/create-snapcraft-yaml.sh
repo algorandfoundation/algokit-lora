@@ -37,20 +37,10 @@ parts:
   algokit-explorer:
     source: "$SOURCE_DIR"
     plugin: dump
-    build-packages:
-      - build-essential
-    stage-packages:
-      - libgtk-3-0
-      - libwebkit2gtk-4.0-37
 
 apps:
   algokit-explorer:
     command: algokit-explorer
-    plugs:
-      - desktop-legacy
-      - home
-      - x11
-      - wayland
 EOF
 
 echo "snapcraft.yaml has been created at ${DESTINATION_DIR}/snap/snapcraft.yaml"
