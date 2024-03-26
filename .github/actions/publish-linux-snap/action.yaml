@@ -1,10 +1,10 @@
 name: 'Build for Linux'
 inputs:
+  release-version:
+    description: 'The release version'
+    required: true
   artifacts-path:
     description: 'The path to the artifacts'
-    required: true
-  linux-artifact-name:
-    description: 'The name of the Linux artifact'
     required: true
 
 runs:

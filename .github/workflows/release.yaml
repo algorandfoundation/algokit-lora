@@ -108,6 +108,7 @@ jobs:
   publish:
     name: Publish
     needs:
+      - create-release
       - build-tauri
     runs-on: [ubuntu-20.04]
     # if: ${{ inputs.production-release == 'true' }}
@@ -119,7 +120,7 @@ jobs:
       - name: Download Linux artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: algokit-explorer-linux-*
+          pattern: ${{ needs.build-tauri.outputs.linux-artifact-name }}
           merge-multiple: true
           path: linux-artifacts
 
@@ -127,5 +128,5 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/publish-linux-snap
         with:
+          release-version: ${{ needs.create-release.outputs.release-version }}
           artifacts-path: linux-artifacts
-          linux-artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}
