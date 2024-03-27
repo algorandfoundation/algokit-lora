@@ -1,5 +1,5 @@
-name: 'Publish Windows Winget'
-description: 'Publish Windows Winget'
+name: 'Publish to Homebrew'
+description: 'Publish the MacOS package to Homebrew'
 inputs:
   release-version:
     description: 'The release version'
@@ -13,6 +13,6 @@ runs:
       with:
         fail_on_unmatched_files: true
         files: |
-          algokit-explorer_*.msi
+          algokit-explorer_*.dmg
         tag_name: ${{ inputs.release-version }}
         prerelease: ${{ contains(inputs.release-version, 'beta') }}

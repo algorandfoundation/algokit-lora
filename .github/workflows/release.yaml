@@ -139,13 +139,18 @@ jobs:
         with:
           merge-multiple: true
 
-      - name: Publish Linux Snap
-        uses: ./.github/actions/publish-linux-snap
+      - name: Publish to Snap
+        uses: ./.github/actions/publish-to-snap
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
           artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}
 
-      - name: Publish Windows Winget
-        uses: ./.github/actions/publish-windows-winget
+      - name: Publish to Winget
+        uses: ./.github/actions/publish-to-winget
+        with:
+          release-version: ${{ needs.create-release.outputs.release-version }}
+
+      - name: Publish to Brew
+        uses: ./.github/actions/publish-to-brew
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}

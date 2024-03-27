@@ -1,5 +1,5 @@
-name: 'Publish Linux Snap'
-description: 'Publish Linux Snap'
+name: 'Publish to Snap'
+description: 'Publish the Linux package to Snap'
 inputs:
   release-version:
     description: 'The release version'
