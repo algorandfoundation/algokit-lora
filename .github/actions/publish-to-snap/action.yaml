@@ -39,7 +39,7 @@ runs:
         fail_on_unmatched_files: true
         files: |
           *.snap
-        tag_name: ${{ inputs.release-version }}
+        name: ${{ inputs.release-version }}
         prerelease: ${{ contains(inputs.release-version, 'beta') }}
 
     # once we have the release token, we will publish the snap to Snap Store

@@ -14,5 +14,5 @@ runs:
         fail_on_unmatched_files: true
         files: |
           algokit-explorer_*.msi
-        tag_name: ${{ inputs.release-version }}
+        name: ${{ inputs.release-version }}
         prerelease: ${{ contains(inputs.release-version, 'beta') }}
