@@ -7,6 +7,9 @@ inputs:
   artifact-name:
     description: 'The name of the artifact zip file'
     required: true
+  release-tag:
+    description: 'The release tag'
+    required: true
 
 runs:
   using: 'composite'
@@ -39,8 +42,8 @@ runs:
         fail_on_unmatched_files: true
         files: |
           *.snap
-        name: ${{ inputs.release-version }}
-        prerelease: ${{ contains(inputs.release-version, 'beta') }}
+        tag_name: ${{ inputs.release-tag }}
+        prerelease: ${{ contains(inputs.release-tag, 'beta') }}
 
     # once we have the release token, we will publish the snap to Snap Store
     # - name: Set path to snap binary

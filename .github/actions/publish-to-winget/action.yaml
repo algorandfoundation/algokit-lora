@@ -4,6 +4,9 @@ inputs:
   release-version:
     description: 'The release version'
     required: true
+  release-tag:
+    description: 'The release tag'
+    required: true
 
 runs:
   using: 'composite'
@@ -14,5 +17,5 @@ runs:
         fail_on_unmatched_files: true
         files: |
           algokit-explorer_*.msi
-        name: ${{ inputs.release-version }}
-        prerelease: ${{ contains(inputs.release-version, 'beta') }}
+        tag_name: ${{ inputs.release-tag }}
+        prerelease: ${{ contains(inputs.release-tag, 'beta') }}

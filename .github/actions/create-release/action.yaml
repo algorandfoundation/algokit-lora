@@ -10,7 +10,7 @@ inputs:
   node-version:
     description: 'The Node version'
     required: true
-    default: 20
+    default: '20'
 outputs:
   release-published:
     description: 'If the release was published'
@@ -18,6 +18,9 @@ outputs:
   release-version:
     description: 'The new release version'
     value: ${{ steps.get-next-version.outputs.new-release-version }}
+  release-tag:
+    description: 'The new release tag'
+    value: ${{ steps.get-release-tag.outputs.release-tag }}
   release-id:
     description: 'The new release ID'
     value: ${{ steps.get-release-id.outputs.result }}
@@ -55,6 +58,12 @@ runs:
       run: 'npx semantic-release --branches main'
       shell: bash
 
+    - name: Get release tag
+      id: get-release-tag
+      shell: bash
+      run: |
+        echo "release-tag=$(git describe --tags $(git rev-list --tags --max-count=1))" >> $GITHUB_OUTPUT
+
     - name: Get release ID
       id: get-release-id
       uses: actions/github-script@v7
@@ -64,6 +73,6 @@ runs:
           const { data } = await github.rest.repos.getReleaseByTag({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            tag: "v${{ steps.get-next-version.outputs.new-release-version }}"
+            tag: "${{ steps.get-release-tag.outputs.release-tag }}"
           })
           return data.id
