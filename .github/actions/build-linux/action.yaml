@@ -30,23 +30,10 @@ runs:
         npm run tauri build
       shell: bash
 
-    - name: Move binary to target directory
-      run: |
-        mkdir -p tauri-dist
-        mv src-tauri/target/release/algokit-explorer tauri-dist/algokit-explorer
-      shell: bash
-
-    # - name: HACK - move binary to target directory
-    #   run: |
-    #     mkdir -p tauri-dist
-    #     cp src/assets/react.svg tauri-dist/algokit-explorer
-    #     chmod +x tauri-dist/algokit-explorer
-    #   shell: bash
-
     - name: Zip to preserve permissions
       run: |
-        cd tauri-dist
-        tar -czvf ../${{ steps.set-env.outputs.artifact_name }}.tar.gz .
+        cd src-tauri/target/release
+        tar -czvf ${{ github.workspace }}/${{ steps.set-env.outputs.artifact_name }}.tar.gz --exclude=bundle .
       shell: bash
 
     - name: Upload binary as artifact
@@ -55,7 +42,7 @@ runs:
       with:
         if-no-files-found: error
         name: ${{ steps.set-env.outputs.artifact_name }}
-        path: ${{ steps.set-env.outputs.artifact_name }}.tar.gz
+        path: ${{ github.workspace }}/${{ steps.set-env.outputs.artifact_name }}.tar.gz
 
 outputs:
   artifact-name:
