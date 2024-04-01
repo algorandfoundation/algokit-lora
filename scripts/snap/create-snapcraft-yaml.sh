@@ -56,8 +56,6 @@ apps:
       - wayland
       - network
       - network-bind
-    environment:
-      LD_LIBRARY_PATH: $SNAP/usr/lib:$LD_LIBRARY_PATH
 EOF
 
 echo "snapcraft.yaml has been created at ${DESTINATION_DIR}/snap/snapcraft.yaml"
