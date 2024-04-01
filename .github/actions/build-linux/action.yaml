@@ -33,7 +33,7 @@ runs:
     - name: Zip to preserve permissions
       run: |
         cd src-tauri/target/release
-        tar -czvf ${{ github.workspace }}/${{ steps.set-env.outputs.artifact_name }}.tar.gz --exclude=bundle .
+        tar -czvf ${{ github.workspace }}/${{ steps.set-env.outputs.artifact_name }}.tar.gz --exclude=bundle --exclude=build .
       shell: bash
 
     - name: Upload binary as artifact
