@@ -20,14 +20,9 @@ runs:
         tar -xzvf ${{ inputs.artifact-name }} -C artifacts
       shell: bash
 
-    - name: Check artifacts dir
-      run: |
-        ls -R "artifacts"
-      shell: bash
-
-    # TODO: this generates a very simple snap, we need to test if it works on a fresh Ubuntu machine
     - name: Generate snapcraft.yaml
       run: |
+        chmod +x ./scripts/snap/create-snapcraft-yaml.sh
         ./scripts/snap/create-snapcraft-yaml.sh ${{ github.workspace }} ${{ inputs.release-version }} "stable" "artifacts"
       shell: bash
 
