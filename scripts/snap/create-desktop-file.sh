@@ -18,7 +18,7 @@ cat > "${RELEASE_DIR}/algokit-explorer.desktop" <<EOF
 Name=algokit-explorer
 Exec=algokit-explorer %U
 Terminal=false
-Icon=${SNAP}/icons/128x128.png
+Icon=\${SNAP}/icons/128x128.png
 Type=Application
 Comment=algokit-explorer
 EOF

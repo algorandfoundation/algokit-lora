@@ -52,6 +52,7 @@ parts:
 apps:
   algokit-explorer:
     command: algokit-explorer
+    desktop: algokit-explorer.desktop
     plugs:
       - desktop
       - desktop-legacy
