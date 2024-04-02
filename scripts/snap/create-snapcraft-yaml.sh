@@ -38,9 +38,13 @@ parts:
     source: "$SOURCE_DIR"
     plugin: dump
     stage:
+      - icons
       - algokit-explorer
+      - algokit-explorer.desktop
     prime:
+      - icons
       - algokit-explorer
+      - algokit-explorer.desktop
     stage-packages:
       - libgtk-3-0
       - libwebkit2gtk-4.0-37
