@@ -30,6 +30,13 @@ runs:
         npm run tauri build
       shell: bash
 
+    - name: Create icons and desktop file
+      run: |
+        chmod +x ./scripts/snap/create-desktop-file.sh
+        ./scripts/snap/create-desktop-file.sh ${{ github.workspace }}/src-tauri/target/release
+        cp ${{ github.workspace }}/src-tauri/icons ${{ github.workspace }}/src-tauri/target/release/icons -r
+      shell: bash
+
     - name: Zip to preserve permissions
       run: |
         cd src-tauri/target/release

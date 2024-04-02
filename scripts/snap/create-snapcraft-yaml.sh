@@ -5,7 +5,7 @@ set -e
 
 # Check if the correct number of arguments are passed
 if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 <destination_directory> <release_tag> <artifact_path> <grade>"
+  echo "Usage: $0 <destination_directory> <release_tag> <grade> <source_dir>"
   exit 1
 fi
 
