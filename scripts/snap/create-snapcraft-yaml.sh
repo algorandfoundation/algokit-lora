@@ -41,13 +41,43 @@ parts:
       - icons
       - algokit-explorer
       - algokit-explorer.desktop
+      - usr/lib/
     prime:
       - icons
       - algokit-explorer
       - algokit-explorer.desktop
+      - usr/lib/
+      - -usr/lib/x86_64-linux-gnu/libEGL_mesa.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libGLESv2.so.2.1.0
+      - -usr/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libcaca++.so.0.99.19
+      - -usr/lib/x86_64-linux-gnu/libcolordprivate.so.2.0.5
+      - -usr/lib/x86_64-linux-gnu/libdconf.so.1.0.0
+      - -usr/lib/x86_64-linux-gnu/libexslt.so.0.8.20
+      - -usr/lib/x86_64-linux-gnu/libgstcheck-1.0.so.0.2003.0
+      - -usr/lib/x86_64-linux-gnu/libgstcontroller-1.0.so.0.2003.0
+      - -usr/lib/x86_64-linux-gnu/libicuio.so.70.1
+      - -usr/lib/x86_64-linux-gnu/libicutest.so.70.1
+      - -usr/lib/x86_64-linux-gnu/libjacknet.so.0.1.0
+      - -usr/lib/x86_64-linux-gnu/libjackserver.so.0.1.0
+      - -usr/lib/x86_64-linux-gnu/liborc-test-0.4.so.0.32.0
+      - -usr/lib/x86_64-linux-gnu/libpulse-simple.so.0.1.1
+      - -usr/lib/x86_64-linux-gnu/libunwind-coredump.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libunwind-ptrace.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libunwind-x86_64.so.8.0.1
+      - -usr/lib/x86_64-linux-gnu/libwoff2enc.so.1.0.2
+      - -usr/lib/x86_64-linux-gnu/libicutu.so.70.1
+      - -usr/lib/x86_64-linux-gnu/libsamplerate.so.0.2.2
+      - -usr/lib/x86_64-linux-gnu/libxcb-dri2.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libxcb-glx.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libxcb-present.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libxcb-sync.so.1.0.0
+      - -usr/lib/x86_64-linux-gnu/libxcb-xfixes.so.0.0.0
+      - -usr/lib/x86_64-linux-gnu/libxshmfence.so.1.0.0
     stage-packages:
-      - libgtk-3-0
       - libwebkit2gtk-4.0-37
+      - freeglut3
+      - libglu1-mesa
 
 apps:
   algokit-explorer:
