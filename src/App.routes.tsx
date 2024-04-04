@@ -44,6 +44,10 @@ export const routes = evalTemplates([
         template: Urls.AppStudio,
         element: <div>App Studio</div>,
       },
+      {
+        template: Urls.TransactionDoesNotExist,
+        element: <div>Transaction does not exist</div>,
+      },
     ],
   },
 ])
