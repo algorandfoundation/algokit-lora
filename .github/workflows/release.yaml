@@ -26,7 +26,6 @@ permissions:
 
 jobs:
   ci:
-    if: false
     name: CI
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
     with:
@@ -45,11 +44,10 @@ jobs:
       artifact-name: website
       static-site: true
       static-site-env-prefix: VITE
-    # needs:
-    #   - ci
+    needs:
+      - ci
 
   create-release:
-    if: false
     runs-on: [ubuntu-20.04]
     name: Create release
     steps:
@@ -80,8 +78,7 @@ jobs:
       matrix:
         # macos-14 is the Apple Silicon M1 runner
         platform: [ubuntu-20.04, windows-latest, 'macos-latest', 'macos-14']
-    # if: ${{ needs.create-release.outputs.release-published == 'true' }}
-    if: false
+    if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
       - uses: actions/checkout@v4
