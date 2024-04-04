@@ -3,7 +3,7 @@ import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { Transaction } from '../components/transaction'
 import { PaymentTransactionModel, TransactionType } from '../models/models'
 
-export const isValidTransactionId = (TransactionId: string) => TransactionId.length === 52
+export const isValidTransactionId = (transactionId: string) => transactionId.length === 52
 
 export function TransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)

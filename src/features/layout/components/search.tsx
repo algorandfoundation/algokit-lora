@@ -10,18 +10,17 @@ export function Search() {
   const navigate = useNavigate()
 
   const handleInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event.target.value)
     setSearchQuery(event.target.value)
   }, [])
 
-  const doSearch = useCallback(async () => {
+  const doSearch = useCallback(() => {
     if (!searchQuery) {
       return
     }
     // todo: check if it's a valid transaction id
     navigate(Urls.Explore.Transaction.ById.build({ transactionId: searchQuery }))
     setSearchQuery('')
-  }, [searchQuery])
+  }, [navigate, searchQuery])
 
   return (
     <div className={cn('flex gap-2')}>
