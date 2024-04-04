@@ -50,6 +50,8 @@ jobs:
   create-release:
     runs-on: [ubuntu-20.04]
     name: Create release
+    needs:
+      - ci
     steps:
       - uses: actions/checkout@v4
         with:
