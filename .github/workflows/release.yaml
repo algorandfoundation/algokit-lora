@@ -37,7 +37,6 @@ jobs:
       test-script: npm run tests
 
   build-website:
-    if: false
     name: Build Website
     uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
     with:
@@ -80,7 +79,8 @@ jobs:
       matrix:
         # macos-14 is the Apple Silicon M1 runner
         platform: [ubuntu-20.04, windows-latest, 'macos-latest', 'macos-14']
-    if: ${{ needs.create-release.outputs.release-published == 'true' }}
+    # if: ${{ needs.create-release.outputs.release-published == 'true' }}
+    if: false
 
     steps:
       - uses: actions/checkout@v4
@@ -123,13 +123,32 @@ jobs:
     outputs:
       linux-artifact-name: ${{ steps.build-linux.outputs.artifact-name }}
 
-  publish:
+  deploy-website-staging:
+    name: Publish Website to Staging
+    needs:
+      - build-website
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: website
+          path: artifacts
+
+      - name: Deploy website to Netlify
+        run: |
+          npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --alias staging
+
+  publish-app:
     name: Publish
     needs:
       - create-release
       - build-tauri
     runs-on: [ubuntu-20.04]
-    # if: ${{ inputs.production-release == 'true' }}
+    if: ${{ inputs.production-release == 'true' }}
     steps:
       - uses: actions/checkout@v4
         with:
