@@ -9,6 +9,7 @@ export default defineConfig({
   test: {
     root: 'tests',
     environment: 'happy-dom',
+    setupFiles: ['setup/clean-up-dom.ts'],
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
