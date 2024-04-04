@@ -149,7 +149,7 @@ jobs:
         run: |
           cd artifacts
           mkdir -p website
-          tar -xzvf website.zip -C website
+          unzip website.zip -d website
 
       - name: Deploy website to Netlify
         run: |
