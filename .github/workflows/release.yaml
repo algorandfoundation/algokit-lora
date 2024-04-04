@@ -45,10 +45,11 @@ jobs:
       artifact-name: website
       static-site: true
       static-site-env-prefix: VITE
-    needs:
-      - ci
+    # needs:
+    #   - ci
 
   create-release:
+    if: false
     runs-on: [ubuntu-20.04]
     name: Create release
     steps:
