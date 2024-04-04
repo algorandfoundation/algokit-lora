@@ -18,5 +18,4 @@ export const Urls = {
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
-  TransactionDoesNotExist: UrlTemplate`/transaction-does-not-exist}`,
 }

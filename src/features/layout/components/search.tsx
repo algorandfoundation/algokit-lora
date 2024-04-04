@@ -18,12 +18,8 @@ export function Search() {
     if (!searchQuery) {
       return
     }
-    if (searchQuery.length === 52) {
-      // todo: check if it's a valid transaction id
-      navigate(Urls.Explore.Transaction.ById.build({ transactionId: searchQuery }))
-    } else {
-      navigate(Urls.TransactionDoesNotExist.build({ transactionId: searchQuery }))
-    }
+    // todo: check if it's a valid transaction id
+    navigate(Urls.Explore.Transaction.ById.build({ transactionId: searchQuery }))
     setSearchQuery('')
   }, [searchQuery])
 
