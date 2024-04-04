@@ -142,6 +142,7 @@ jobs:
 
       - name: Unzip
         run: |
+          cd artifacts
           mkdir -p website
           tar -xzvf website.zip -C website
 
