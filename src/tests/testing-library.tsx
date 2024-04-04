@@ -18,7 +18,6 @@ const customScreen = {
 
 type JotaiStore = ReturnType<typeof createStore>
 
-// eslint-disable-next-line react-refresh/only-export-components
 const Providers =
   (store?: JotaiStore) =>
   ({ children }: PropsWithChildren) => {
@@ -45,7 +44,6 @@ const customRenderHook = (
 ) => renderHook(ui, { wrapper: Providers(store), ...options })
 
 // re-export everything
-// eslint-disable-next-line react-refresh/only-export-components
 export * from '@testing-library/react'
 // override render method
 export { customRender as render, customRenderHook as renderHook, customScreen as screen }
