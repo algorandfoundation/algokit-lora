@@ -7,7 +7,8 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   test: {
-    root: 'tests',
+    environment: 'happy-dom',
+    setupFiles: ['src/tests/setup/clean-up-dom.ts'],
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

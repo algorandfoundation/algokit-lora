@@ -3,6 +3,6 @@
   "semi": false,
   "trailingComma": "es5",
   "printWidth": 140,
-  "endOfLine": "lf",
+  "endOfLine": "auto",
   "plugins": []
 }
