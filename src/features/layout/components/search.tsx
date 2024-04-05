@@ -17,14 +17,22 @@ export function Search() {
     if (!searchQuery) {
       return
     }
-    // todo: check if it's a valid transaction id
     navigate(Urls.Explore.Transaction.ById.build({ transactionId: searchQuery }))
     setSearchQuery('')
   }, [navigate, searchQuery])
 
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        doSearch()
+      }
+    },
+    [doSearch]
+  )
+
   return (
     <div className={cn('flex gap-2')}>
-      <Input className={cn('w-96')} placeholder="Search" value={searchQuery} onChange={handleInput} />
+      <Input className={cn('w-96')} placeholder="Search" value={searchQuery} onChange={handleInput} onKeyDown={handleKeyDown} />
       <Button onClick={doSearch}>search</Button>
     </div>
   )
