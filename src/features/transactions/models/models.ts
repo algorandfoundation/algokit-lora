@@ -3,13 +3,13 @@ export type TransactionModel = {
   type: TransactionType
   confirmedRound: number
   roundTime: Date
-  group: string
-  fee: MicroAlgo
+  group?: string
+  fee?: MicroAlgo
   sender: string
 
-  base64Note: string
-  textNote: string
-  messagePackNote: string
+  base64Note?: string
+  textNote?: string
+  messagePackNote?: string
 
   json: string
 }

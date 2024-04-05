@@ -10,7 +10,7 @@ export function TransactionPage() {
   return <Transaction transaction={sampleTransaction} />
 }
 
-const getSampleTransaction = (transactionId: string): PaymentTransactionModel => {
+export const getSampleTransaction = (transactionId: string): PaymentTransactionModel => {
   return {
     id: transactionId,
     type: TransactionType.Payment,
