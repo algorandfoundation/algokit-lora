@@ -50,6 +50,8 @@ jobs:
   create-release:
     runs-on: [ubuntu-20.04]
     name: Create release
+    needs:
+      - ci
     steps:
       - uses: actions/checkout@v4
         with:
@@ -147,6 +149,10 @@ jobs:
           cd artifacts
           mkdir -p website
           unzip website.zip -d website
+
+      - name: Handle Netlify redirect
+        run: |
+          echo "/* /index.html 200" > artifacts/website/_redirects
 
       - name: Deploy website to Netlify
         run: |
