@@ -1,3 +1,4 @@
+import { LatestBlocks } from '@/features/blocks/components/latest-blocks'
 import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
@@ -14,6 +15,8 @@ export function ExplorePage() {
       <TemplatedNavLink urlTemplate={Urls.Explore.Group.ById} urlParams={{ groupId: 'foo' }}>
         View sample group
       </TemplatedNavLink>
+
+      <LatestBlocks />
     </div>
   )
 }

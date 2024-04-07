@@ -1,5 +1,4 @@
 import { Card, CardContent } from '@/features/common/components/card'
-import { PaymentTransactionModel } from '../models/models'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { Button } from '@/features/common/components/button'
@@ -7,9 +6,10 @@ import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export type Props = {
-  transaction: PaymentTransactionModel
+  transaction: TransactionResult
 }
 
 export function PaymentTransaction({ transaction }: Props) {
@@ -27,16 +27,16 @@ export function PaymentTransaction({ transaction }: Props) {
         dt: 'Receiver',
         dd: (
           <a href="#" className={cn('text-primary underline')}>
-            {transaction.receiver}
+            {transaction['payment-transaction']!.receiver}
           </a>
         ),
       },
       {
         dt: 'Amount',
-        dd: <DisplayAlgo microAlgo={transaction.amount} />,
+        dd: <DisplayAlgo microAlgo={transaction['payment-transaction']!.amount} />,
       },
     ],
-    [transaction.amount, transaction.receiver, transaction.sender]
+    [transaction]
   )
 
   return (
@@ -46,7 +46,7 @@ export function PaymentTransaction({ transaction }: Props) {
         <CardContent className={cn('text-sm space-y-4')}>
           <div className={cn('space-y-2')}>
             <div className={cn('flex items-center justify-between')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>Transfer</h1>
+              <h1 className={cn('text-2xl text-primary font-bold')}>Payment</h1>
               <Button>Replay</Button>
             </div>
             {transactionCardItems.map((item, index) => (

@@ -1,12 +1,12 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { TransactionModel } from '../models/models'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export type Props = {
-  transaction: TransactionModel
+  transaction: TransactionResult
 }
 
 export function TransactionInfo({ transaction }: Props) {
@@ -18,18 +18,18 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: 'Type',
-        dd: transaction.type,
+        dd: transaction['tx-type'],
       },
       {
         dt: 'Timestamp',
         // TODO: check timezone
-        dd: dateFormatter.asLongDateTime(transaction.roundTime),
+        dd: dateFormatter.asLongDateTime(new Date(transaction['round-time']! * 1000)),
       },
       {
         dt: 'Block',
         dd: (
           <a href="#" className={cn('text-primary underline')}>
-            {transaction.confirmedRound}
+            {transaction['confirmed-round']}
           </a>
         ),
       },
@@ -46,7 +46,7 @@ export function TransactionInfo({ transaction }: Props) {
         dd: <DisplayAlgo microAlgo={transaction.fee} />,
       },
     ],
-    [transaction.confirmedRound, transaction.fee, transaction.group, transaction.id, transaction.roundTime, transaction.type]
+    [transaction]
   )
 
   return (
