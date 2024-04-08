@@ -23,6 +23,12 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
       'first-valid': randomNumber(),
       fee: randomNumber(),
       sender: randomString(52, 52),
+      'confirmed-round': randomNumber(),
+      'round-time': randomNumber(),
+      'payment-transaction': {
+        amount: randomNumber(),
+        receiver: randomString(52, 52),
+      },
     })
   }
 }

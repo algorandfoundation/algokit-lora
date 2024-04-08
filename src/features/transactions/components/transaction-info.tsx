@@ -25,7 +25,7 @@ export function TransactionInfo({ transaction }: Props) {
         },
         {
           dt: 'Timestamp',
-          dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime * 1000)),
+          dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime)),
         },
         {
           dt: 'Block',

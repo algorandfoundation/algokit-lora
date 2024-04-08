@@ -19,7 +19,7 @@ const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactio
     id: transaction.id,
     type: TransactionType.Payment,
     confirmedRound: transaction['confirmed-round'],
-    roundTime: new Date(transaction['round-time'] * 1000),
+    roundTime: transaction['round-time'] * 1000,
     group: transaction['group'],
     fee: transaction.fee.microAlgos(),
     sender: transaction.sender,

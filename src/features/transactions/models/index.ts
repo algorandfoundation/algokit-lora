@@ -13,8 +13,6 @@ type CommonTransactionProperties = {
   textNote?: string
   messagePackNote?: string
 
-  json: string
-
   transactions?: TransactionModel[]
 }
 

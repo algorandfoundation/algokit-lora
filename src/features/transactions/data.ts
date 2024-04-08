@@ -1,4 +1,4 @@
-import { atom, useAtomValue, getDefaultStore } from 'jotai'
+import { atom, useAtomValue, getDefaultStore, useStore } from 'jotai'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -15,6 +15,8 @@ const indexer = algokit.getAlgoIndexerClient({
 export const transactionsAtom = atom<TransactionResult[]>([])
 
 const useTransactionAtom = (transactionId: string) => {
+  const store = useStore()
+
   return useMemo(() => {
     const syncEffect = atomEffect((get, set) => {
       ;(async () => {
@@ -28,7 +30,6 @@ const useTransactionAtom = (transactionId: string) => {
         }
       })()
     })
-    const store = getDefaultStore()
     const transactionAtom = atom((get) => {
       // store.get prevents the atom from being subscribed to changes in transactionsAtom
       const transactions = store.get(transactionsAtom)

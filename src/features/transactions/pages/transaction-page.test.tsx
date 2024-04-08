@@ -40,13 +40,13 @@ describe('given a payment transaction', () => {
         console.log(myStore.get(transactionsAtom))
 
         await waitFor(() => expect(getByDescriptionTerm(component.container, 'Transaction ID').textContent).toBe(paymentTransaction.id))
-        // expect(getByDescriptionTerm(component.container, 'Type').textContent).toBe('Payment')
-        // expect(getByDescriptionTerm(component.container, 'Timestamp').textContent).toBe('Thu, 29 February 2024 16:52:01')
-        // expect(getByDescriptionTerm(component.container, 'Block').textContent).toBe('36570178')
-        // expect(component.queryByText('Group')).toBeNull()
-        // expect(getByDescriptionTerm(component.container, 'Fee').textContent).toBe('0.001')
+        expect(getByDescriptionTerm(component.container, 'Type').textContent).toBe('Payment')
+        expect(getByDescriptionTerm(component.container, 'Timestamp').textContent).toBe('Thu, 29 February 2024 16:52:01')
+        expect(getByDescriptionTerm(component.container, 'Block').textContent).toBe('36570178')
+        expect(component.queryByText('Group')).toBeNull()
+        expect(getByDescriptionTerm(component.container, 'Fee').textContent).toBe('0.001')
 
-        // expect(getByDescriptionTerm(component.container, 'Amount').textContent).toBe('236.07')
+        expect(getByDescriptionTerm(component.container, 'Amount').textContent).toBe('236.07')
       }
     )
   })
