@@ -1,4 +1,5 @@
-import { PaymentTransactionModel, TransactionType } from '@/features/transactions/models/models'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { PaymentTransactionModel, TransactionType } from '@/features/transactions/models'
 import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
 
 export class PaymentTransactionModelBuilder extends DataBuilder<PaymentTransactionModel> {
@@ -10,8 +11,9 @@ export class PaymentTransactionModelBuilder extends DataBuilder<PaymentTransacti
       confirmedRound: randomNumber(),
       roundTime: randomNumber(),
       receiver: randomString(52, 52),
-      amount: randomNumber(),
-      closeAmount: randomNumber(),
+      amount: new AlgoAmount({ microAlgos: randomNumber() }),
+      closeAmount: new AlgoAmount({ microAlgos: randomNumber() }),
+      fee: new AlgoAmount({ microAlgos: randomNumber() }),
     }
 
     super({

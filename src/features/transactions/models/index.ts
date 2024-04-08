@@ -1,10 +1,10 @@
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
-export type TransactionModel = {
+type CommonTransactionProperties = {
   id: string
   type: TransactionType
   confirmedRound: number
-  roundTime: Date
+  roundTime: number
   group?: string
   fee: AlgoAmount
   sender: string
@@ -30,5 +30,3 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
 }
 
 export type TransactionModel = PaymentTransactionModel
-
-export type MicroAlgo = number

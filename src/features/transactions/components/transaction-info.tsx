@@ -47,7 +47,7 @@ export function TransactionInfo({ transaction }: Props) {
           : undefined,
         {
           dt: 'Fee',
-          dd: transaction.fee ? <DisplayAlgo microAlgo={transaction.fee} /> : 'N/A',
+          dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
         },
       ].filter(isDefined),
     [transaction.confirmedRound, transaction.fee, transaction.group, transaction.id, transaction.roundTime, transaction.type]

@@ -6,7 +6,7 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { TransactionModel, TransactionType } from '../models/models'
+import { TransactionModel, TransactionType } from '../models'
 
 const graphConfig = {
   rowHeight: 40,

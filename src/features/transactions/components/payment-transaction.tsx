@@ -17,7 +17,7 @@ export type Props = {
 }
 
 export function PaymentTransaction({ transaction, rawTransaction }: Props) {
-  const transactionCardItems = useMemo(
+  const paymentTransactionItems = useMemo(
     () => [
       {
         dt: 'Sender',
