@@ -1,8 +1,8 @@
-import { paymentTransactionModelBuilder } from '../builders/transaction-model-builder'
+import { transactionResultBuilder } from '../builders/transaction-result-builder'
 
 export const transactionModelMother = {
   simplePaymentTransaction: () => {
-    return paymentTransactionModelBuilder()
+    return transactionResultBuilder()
       .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
       .withConfirmedRound(36570178)
       .withRoundTime(1709189521)
