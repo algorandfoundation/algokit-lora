@@ -6,11 +6,6 @@ import { executeComponentTest } from '@/tests/test-component'
 import { render, within } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  useParams: vi.fn(),
-}))
-
 vi.mock('./get-sample-transaction', () => ({
   getSampleTransaction: vi.fn(),
 }))
