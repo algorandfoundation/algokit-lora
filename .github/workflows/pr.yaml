@@ -18,5 +18,5 @@ jobs:
       node-version: 20.x
       audit-script: npm run audit
       compile-script: npm run check-types
-      test-script: npm run tests
+      test-script: npm run test
       run-build: false

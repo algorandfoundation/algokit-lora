@@ -1,5 +1,4 @@
 import { Card, CardContent } from '@/features/common/components/card'
-import { PaymentTransactionModel } from '../models/models'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { Button } from '@/features/common/components/button'
@@ -7,15 +6,18 @@ import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
+import { PaymentTransactionModel } from '../models'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionVisualisation } from './transaction-visualisation'
 
 export type Props = {
   transaction: PaymentTransactionModel
+  rawTransaction: TransactionResult
 }
 
-export function PaymentTransaction({ transaction }: Props) {
-  const paymentTransactionItems = useMemo(
+export function PaymentTransaction({ transaction, rawTransaction }: Props) {
+  const transactionCardItems = useMemo(
     () => [
       {
         dt: 'Sender',
@@ -35,10 +37,10 @@ export function PaymentTransaction({ transaction }: Props) {
       },
       {
         dt: 'Amount',
-        dd: <DisplayAlgo microAlgo={transaction.amount} />,
+        dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.receiver, transaction.sender]
+    [transaction.sender, transaction.receiver, transaction.amount]
   )
 
   return (
@@ -48,14 +50,14 @@ export function PaymentTransaction({ transaction }: Props) {
         <CardContent className={cn('text-sm space-y-4')}>
           <div className={cn('space-y-2')}>
             <div className={cn('flex items-center justify-between')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>Transfer</h1>
+              <h1 className={cn('text-2xl text-primary font-bold')}>Payment</h1>
               <Button>Replay</Button>
             </div>
             <DescriptionList items={paymentTransactionItems} />
           </div>
           <TransactionNote transaction={transaction} />
           <TransactionVisualisation transaction={transaction} />
-          <TransactionJson transaction={transaction} />
+          <TransactionJson transaction={rawTransaction} />
         </CardContent>
       </Card>
     </div>

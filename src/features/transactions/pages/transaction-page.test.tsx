@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { TransactionPage } from './transaction-page'
 import { getSampleTransaction } from './get-sample-transaction'
 import { executeComponentTest } from '@/tests/test-component'
+import { TransactionPage } from '@/features/transactions/pages/transaction-page'
+import { transactionPageConstants } from '@/features/theme/constant'
 import { render } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
@@ -18,7 +20,7 @@ describe('given a invalid transaction ID', () => {
     return executeComponentTest(
       () => render(<TransactionPage />),
       async (component) => {
-        expect(component.getByText('Transaction does not exist')).toBeTruthy()
+        expect(component.getByText(transactionPageConstants.transactionNotFound)).toBeTruthy()
       }
     )
   })

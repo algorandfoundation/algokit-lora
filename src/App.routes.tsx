@@ -5,13 +5,16 @@ import { evalTemplates } from './routes/templated-route'
 import { TransactionPage } from './features/transactions/pages/transaction-page'
 import { ExplorePage } from './features/explore/pages/explore-page'
 import { GroupPage } from './features/transactions/pages/group-page'
+import ErrorBoundary from './features/errors/components/error-boundary'
 
 export const routes = evalTemplates([
   {
     template: Urls.Index,
     element: (
       <LayoutPage>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </LayoutPage>
     ),
     children: [

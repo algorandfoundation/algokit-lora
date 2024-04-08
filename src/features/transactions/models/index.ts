@@ -1,10 +1,12 @@
-type CommonTransactionProperties = {
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+
+export type TransactionModel = {
   id: string
   type: TransactionType
   confirmedRound: number
-  roundTime: number
+  roundTime: Date
   group?: string
-  fee?: MicroAlgo
+  fee: AlgoAmount
   sender: string
 
   base64Note?: string
@@ -23,8 +25,8 @@ export enum TransactionType {
 export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: string
-  amount: MicroAlgo
-  closeAmount: MicroAlgo
+  amount: AlgoAmount
+  closeAmount?: AlgoAmount
 }
 
 export type TransactionModel = PaymentTransactionModel

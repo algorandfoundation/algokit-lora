@@ -1,9 +1,9 @@
 import { cn } from '@/features/common/utils'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
-import { TransactionModel } from '../models/models'
+import { PaymentTransactionModel } from '../models'
 
 export type Props = {
-  transaction: TransactionModel
+  transaction: PaymentTransactionModel
 }
 
 export function TransactionNote({ transaction }: Props) {

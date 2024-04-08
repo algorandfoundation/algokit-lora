@@ -1,14 +1,14 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { TransactionModel } from '../models/models'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
+import { PaymentTransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { isDefined } from '@/utils/is-defined'
 
 export type Props = {
-  transaction: TransactionModel
+  transaction: PaymentTransactionModel
 }
 
 export function TransactionInfo({ transaction }: Props) {
