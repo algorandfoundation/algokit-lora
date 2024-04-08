@@ -11,6 +11,19 @@ vi.mock('./get-sample-transaction', () => ({
   getSampleTransaction: vi.fn(),
 }))
 
+describe('given a invalid transaction ID', () => {
+  it('should show "Transaction does not exist"', () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: 'invalid-id' }))
+
+    return executeComponentTest(
+      () => render(<TransactionPage />),
+      async (component) => {
+        expect(component.getByText('Transaction does not exist')).toBeTruthy()
+      }
+    )
+  })
+})
+
 describe('given a payment transaction', () => {
   const paymentTransaction = transactionModelMother.simplePaymentTransaction().build()
 
