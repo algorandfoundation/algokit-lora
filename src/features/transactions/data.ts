@@ -32,6 +32,7 @@ const useTransactionAtom = (transactionId: string) => {
     const transactionAtom = atom((get) => {
       // store.get prevents the atom from being subscribed to changes in transactionsAtom
       const transactions = store.get(transactionsAtom)
+      console.log(store.get(transactionsAtom))
       const transaction = transactions.find((t) => t.id === transactionId)
       if (transaction) {
         return transaction

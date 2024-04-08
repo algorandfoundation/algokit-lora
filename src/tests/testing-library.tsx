@@ -7,6 +7,7 @@ import { Provider as JotaiProvider } from 'jotai'
 import type { PropsWithChildren } from 'react'
 import { MemoryRouter } from 'react-router'
 import * as getDescriptionQueries from './custom-queries/get-description'
+import { transactionsAtom } from '@/features/transactions/data'
 
 const allQueries = {
   ...queries,
@@ -23,6 +24,10 @@ type JotaiStore = ReturnType<typeof createStore>
 const Providers =
   (store?: JotaiStore) =>
   ({ children }: PropsWithChildren) => {
+    if (store) {
+      console.log(store.get(transactionsAtom))
+    }
+
     return (
       <JotaiProvider store={store}>
         <ThemeProvider>
