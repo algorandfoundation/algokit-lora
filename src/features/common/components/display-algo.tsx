@@ -1,15 +1,15 @@
-import { algoFormatter } from '@/utils/format'
 import SvgAlgorand from './icons/algorand'
 import { cn } from '../utils'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type Props = {
-  microAlgo: number
+  amount: AlgoAmount
 }
 
-export function DisplayAlgo({ microAlgo }: Props) {
+export function DisplayAlgo({ amount }: Props) {
   return (
     <div className={cn('flex items-center')}>
-      {algoFormatter.asAlgo(microAlgo)}
+      {amount.algos}
       <SvgAlgorand />
     </div>
   )

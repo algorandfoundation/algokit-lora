@@ -1,12 +1,12 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { TransactionModel } from '../models/models'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
+import { PaymentTransactionModel } from '../models'
 
 export type Props = {
-  transaction: TransactionModel
+  transaction: PaymentTransactionModel
 }
 
 export function TransactionInfo({ transaction }: Props) {
@@ -43,7 +43,7 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: 'Fee',
-        dd: <DisplayAlgo microAlgo={transaction.fee} />,
+        dd: <DisplayAlgo amount={transaction.fee} />,
       },
     ],
     [transaction.confirmedRound, transaction.fee, transaction.group, transaction.id, transaction.roundTime, transaction.type]
