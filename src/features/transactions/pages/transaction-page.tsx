@@ -1,15 +1,21 @@
+import invariant from 'tiny-invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { Transaction } from '../components/transaction'
 import { useLoadableTransaction } from '../data'
+import { transactionPageConstants } from '@/features/theme/constant'
+
+export const isValidTransactionId = (transactionId: string) => transactionId.length === 52
 
 export function TransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
+  invariant(isValidTransactionId(transactionId), 'transactionId is invalid')
   const loadableTransaction = useLoadableTransaction(transactionId)
 
   if (loadableTransaction.state === 'hasData') {
     return <Transaction transaction={loadableTransaction.data} />
   } else if (loadableTransaction.state === 'loading') {
+    // TODO: Make this a spinner
     return <p>Loading....</p>
   }
 
@@ -19,8 +25,8 @@ export function TransactionPage() {
     'status' in loadableTransaction.error &&
     loadableTransaction.error.status === 404
   ) {
-    return <p>Error: Transaction not found</p>
+    return <p>{transactionPageConstants.transactionNotFound}</p>
   }
 
-  return <p>Error: Transaction failed to load</p>
+  return <p>{transactionPageConstants.genericError}</p>
 }
