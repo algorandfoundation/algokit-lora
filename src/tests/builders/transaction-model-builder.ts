@@ -1,14 +1,17 @@
-import { TransactionModel, TransactionType } from '@/features/transactions/models/models'
-import { DataBuilder, dossierProxy, randomDate, randomElement, randomNumber, randomString } from '@makerx/ts-dossier'
+import { PaymentTransactionModel, TransactionType } from '@/features/transactions/models/models'
+import { DataBuilder, dossierProxy, randomDate, randomNumber, randomString } from '@makerx/ts-dossier'
 
-export class TransactionModelBuilder extends DataBuilder<TransactionModel> {
+export class PaymentTransactionModelBuilder extends DataBuilder<PaymentTransactionModel> {
   constructor() {
-    const base: Omit<TransactionModel, 'json'> = {
+    const base: Omit<PaymentTransactionModel, 'json'> = {
       id: randomString(52, 52),
       sender: randomString(52, 52),
-      type: randomElement([TransactionType.Payment]),
+      type: TransactionType.Payment,
       confirmedRound: randomNumber(),
       roundTime: randomDate(),
+      receiver: randomString(52, 52),
+      amount: randomNumber(),
+      closeAmount: randomNumber(),
     }
 
     super({
@@ -18,4 +21,6 @@ export class TransactionModelBuilder extends DataBuilder<TransactionModel> {
   }
 }
 
-export const transactionModelBuilder = dossierProxy<TransactionModelBuilder, TransactionModel>(TransactionModelBuilder)
+export const paymentTransactionModelBuilder = dossierProxy<PaymentTransactionModelBuilder, PaymentTransactionModel>(
+  PaymentTransactionModelBuilder
+)

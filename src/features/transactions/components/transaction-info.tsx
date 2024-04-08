@@ -43,7 +43,7 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: 'Fee',
-        dd: <DisplayAlgo microAlgo={transaction.fee} />,
+        dd: transaction.fee ? <DisplayAlgo microAlgo={transaction.fee} /> : 'N/A',
       },
     ],
     [transaction.confirmedRound, transaction.fee, transaction.group, transaction.id, transaction.roundTime, transaction.type]
