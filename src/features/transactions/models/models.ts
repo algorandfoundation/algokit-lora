@@ -12,6 +12,8 @@ export type TransactionModel = {
   messagePackNote?: string
 
   json: string
+
+  transactions?: TransactionModel[]
 }
 
 export enum TransactionType {
