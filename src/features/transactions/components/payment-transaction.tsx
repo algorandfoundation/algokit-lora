@@ -7,13 +7,14 @@ import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
+import { DescriptionList } from '@/features/common/components/description-list'
 
 export type Props = {
   transaction: PaymentTransactionModel
 }
 
 export function PaymentTransaction({ transaction }: Props) {
-  const transactionCardItems = useMemo(
+  const paymentTransactionItems = useMemo(
     () => [
       {
         dt: 'Sender',
@@ -49,12 +50,7 @@ export function PaymentTransaction({ transaction }: Props) {
               <h1 className={cn('text-2xl text-primary font-bold')}>Transfer</h1>
               <Button>Replay</Button>
             </div>
-            {transactionCardItems.map((item, index) => (
-              <dl className={cn('grid grid-cols-8')} key={index}>
-                <dt>{item.dt}</dt>
-                <dd className={cn('col-span-7')}>{item.dd}</dd>
-              </dl>
-            ))}
+            <DescriptionList items={paymentTransactionItems} />
           </div>
           <TransactionNote transaction={transaction} />
           <TransactionJson transaction={transaction} />

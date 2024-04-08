@@ -6,9 +6,11 @@ import type { createStore } from 'jotai'
 import { Provider as JotaiProvider } from 'jotai'
 import type { PropsWithChildren } from 'react'
 import { MemoryRouter } from 'react-router'
+import * as getDescriptionQueries from './custom-queries/get-description'
 
 const allQueries = {
   ...queries,
+  ...getDescriptionQueries,
 }
 
 const customScreen = {
