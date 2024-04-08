@@ -6,13 +6,15 @@ import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
+import { PaymentTransactionModel } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export type Props = {
-  transaction: TransactionResult
+  transaction: PaymentTransactionModel
+  rawTransaction: TransactionResult
 }
 
-export function PaymentTransaction({ transaction }: Props) {
+export function PaymentTransaction({ transaction, rawTransaction }: Props) {
   const transactionCardItems = useMemo(
     () => [
       {
@@ -27,16 +29,16 @@ export function PaymentTransaction({ transaction }: Props) {
         dt: 'Receiver',
         dd: (
           <a href="#" className={cn('text-primary underline')}>
-            {transaction['payment-transaction']!.receiver}
+            {transaction.receiver}
           </a>
         ),
       },
       {
         dt: 'Amount',
-        dd: <DisplayAlgo microAlgo={transaction['payment-transaction']!.amount} />,
+        dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction]
+    [transaction.sender, transaction.receiver, transaction.amount]
   )
 
   return (
@@ -57,7 +59,7 @@ export function PaymentTransaction({ transaction }: Props) {
             ))}
           </div>
           <TransactionNote transaction={transaction} />
-          <TransactionJson transaction={transaction} />
+          <TransactionJson transaction={rawTransaction} />
         </CardContent>
       </Card>
     </div>

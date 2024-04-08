@@ -1,16 +1,12 @@
 import { cn } from '@/features/common/utils'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
+import { PaymentTransactionModel } from '../models'
 
 export type Props = {
-  transaction: TransactionResult
+  transaction: PaymentTransactionModel
 }
 
 export function TransactionNote({ transaction }: Props) {
-  const textNote = transaction.note
-  const base64Note = transaction.note
-  const messagePackNote = transaction.note
-
   return (
     <div className={cn('space-y-2')}>
       <h2 className={cn('text-xl font-bold')}>Note</h2>
@@ -27,13 +23,13 @@ export function TransactionNote({ transaction }: Props) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="text" className={cn('border-solid border-2 border-border h-60 p-4')}>
-          {textNote}
+          {transaction.textNote}
         </TabsContent>
         <TabsContent value="base64" className={cn('border-solid border-2 border-border h-60 p-4')}>
-          {base64Note}
+          {transaction.base64Note}
         </TabsContent>
         <TabsContent value="messagePack" className={cn('border-solid border-2 border-border h-60 p-4')}>
-          {messagePackNote}
+          {transaction.messagePackNote}
         </TabsContent>
       </Tabs>
     </div>
