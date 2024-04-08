@@ -9,7 +9,7 @@ vi.mock('react-router-dom', () => ({
   useNavigate: vi.fn(),
 }))
 
-describe('Search', () => {
+describe('search', () => {
   it('should render search input and button', () => {
     return executeComponentTest(
       () => render(<Search />),
