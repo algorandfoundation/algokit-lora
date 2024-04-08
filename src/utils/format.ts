@@ -3,7 +3,7 @@ import { format as dateFnsFormat } from 'date-fns'
 import Decimal from 'decimal.js'
 
 export const dateFormatter = {
-  asLongDateTime: (date: Date) => dateFnsFormat(date, 'EEEE, dd MMMM yyyy HH:mm:ss'),
+  asLongDateTime: (date: Date) => dateFnsFormat(date, 'EEE, dd MMMM yyyy HH:mm:ss'),
 }
 
 export const algoFormatter = {

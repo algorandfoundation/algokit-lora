@@ -5,7 +5,7 @@ export const getSampleTransaction = (transactionId: string): PaymentTransactionM
     id: transactionId,
     type: TransactionType.Payment,
     confirmedRound: 36570178,
-    roundTime: new Date(1709189521),
+    roundTime: 1709189521,
     group: 'a7Qnfai3DEKS8JI5ZPl149O9P7RztrBqRvBwRebx/Ao=',
     fee: 1000,
     sender: 'IVCEEIH2Q32DZNRTS5XFVEFFAQGERNZHHQT6S4UPY7ORJMHIQDSTX7YM4E',

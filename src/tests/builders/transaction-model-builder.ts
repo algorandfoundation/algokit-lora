@@ -1,5 +1,5 @@
 import { PaymentTransactionModel, TransactionType } from '@/features/transactions/models/models'
-import { DataBuilder, dossierProxy, randomDate, randomNumber, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
 
 export class PaymentTransactionModelBuilder extends DataBuilder<PaymentTransactionModel> {
   constructor() {
@@ -8,7 +8,7 @@ export class PaymentTransactionModelBuilder extends DataBuilder<PaymentTransacti
       sender: randomString(52, 52),
       type: TransactionType.Payment,
       confirmedRound: randomNumber(),
-      roundTime: randomDate(),
+      roundTime: randomNumber(),
       receiver: randomString(52, 52),
       amount: randomNumber(),
       closeAmount: randomNumber(),

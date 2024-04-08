@@ -2,7 +2,7 @@ export type TransactionModel = {
   id: string
   type: TransactionType
   confirmedRound: number
-  roundTime: Date
+  roundTime: number
   group?: string
   fee?: MicroAlgo
   sender: string
