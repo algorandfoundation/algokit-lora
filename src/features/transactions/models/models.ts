@@ -1,4 +1,4 @@
-export type TransactionModel = {
+type CommonTransactionProperties = {
   id: string
   type: TransactionType
   confirmedRound: number
@@ -20,11 +20,13 @@ export enum TransactionType {
   Payment = 'Payment',
 }
 
-export type PaymentTransactionModel = TransactionModel & {
+export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: string
   amount: MicroAlgo
   closeAmount: MicroAlgo
 }
+
+export type TransactionModel = PaymentTransactionModel
 
 export type MicroAlgo = number

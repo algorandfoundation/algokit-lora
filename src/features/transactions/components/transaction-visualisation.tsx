@@ -6,7 +6,7 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { TransactionModel } from '../models/models'
+import { TransactionModel, TransactionType } from '../models/models'
 
 const graphConfig = {
   rowHeight: 40,
@@ -160,7 +160,7 @@ function TransactionRow({
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionName hasParent={hasParent} name={transaction.name} />
+          <TransactionName hasParent={hasParent} name={transaction.id} />
           {hasParent && hasNextSibbling && <ConnectionToSibbling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
@@ -174,7 +174,7 @@ function TransactionRow({
                 <DisplaySelfTransaction />
               </TooltipTrigger>
               <TooltipContent>
-                <div className={cn('p-4')}>Transaction: {transaction.name}</div>
+                <div className={cn('p-4')}>Transaction: {transaction.id}</div>
               </TooltipContent>
             </Tooltip>
           )
@@ -185,7 +185,7 @@ function TransactionRow({
                 <DisplayArrow key={index} arrow={arrow} />
               </TooltipTrigger>
               <TooltipContent>
-                <div className={cn('p-4')}>Transaction: {transaction.name}</div>
+                <div className={cn('p-4')}>Transaction: {transaction.id}</div>
               </TooltipContent>
             </Tooltip>
           )
@@ -218,7 +218,9 @@ function extractSendersAndReceivers(transaction: TransactionModel) {
       transactionArr.forEach((transaction) => {
         transactionCount++
         accounts.push(transaction.sender)
-        accounts.push(transaction.receiver)
+        if (transaction.type === TransactionType.Payment) {
+          accounts.push(transaction.receiver)
+        }
         if (transaction.transactions) {
           extract(transaction.transactions)
         }
@@ -226,7 +228,7 @@ function extractSendersAndReceivers(transaction: TransactionModel) {
     }
   }
 
-  extract(group.transactions)
+  extract(transaction.transactions ?? [])
 
   // Remove duplicates
   accounts = Array.from(new Set(accounts))
@@ -241,6 +243,15 @@ function extractSendersAndReceivers(transaction: TransactionModel) {
 
 function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
+
+  if (transaction.type !== TransactionType.Payment) {
+    return {
+      from: fromAccount,
+      to: fromAccount,
+      direction: 'toSelf',
+    }
+  }
+
   const toAccount = accounts.findIndex((a) => transaction.receiver === a)
   const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
 

@@ -8,6 +8,7 @@ import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { TransactionVisualisation } from './transaction-visualisation'
 
 export type Props = {
   transaction: PaymentTransactionModel
@@ -53,6 +54,7 @@ export function PaymentTransaction({ transaction }: Props) {
             <DescriptionList items={paymentTransactionItems} />
           </div>
           <TransactionNote transaction={transaction} />
+          <TransactionVisualisation transaction={transaction} />
           <TransactionJson transaction={transaction} />
         </CardContent>
       </Card>
