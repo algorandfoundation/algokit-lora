@@ -22,10 +22,10 @@ describe('given a invalid transaction ID', () => {
   })
 })
 
-describe('given a payment transaction with no children', () => {
+describe('when a payment transaction with no children', () => {
   const paymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
 
-  it('it should be rendered with the correct data', async () => {
+  it('should be rendered with the correct data', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
 
     const myStore = createStore()

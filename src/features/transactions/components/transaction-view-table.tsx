@@ -7,24 +7,18 @@ const graphConfig = {
   indentationWidth: 20,
 }
 
-function unpackTransaction(transaction: TransactionModel, indentationLevel = 0) {
-  const transactionWithIndentationLevel: {
-    indentationLevel: number
-    transaction: TransactionModel
-  }[] = []
+type FlattenedTransaction = {
+  nestingLevel: number
+  transaction: TransactionModel
+}
 
-  transactionWithIndentationLevel.push({
-    indentationLevel: indentationLevel,
-    transaction: transaction,
-  })
-
-  transaction.transactions?.forEach((transaction) => {
-    const childTransactionWithIndentationLevel = unpackTransaction(transaction, indentationLevel + 1)
-
-    transactionWithIndentationLevel.push(...childTransactionWithIndentationLevel)
-  })
-
-  return transactionWithIndentationLevel
+function flatternInnerTransactions(transaction: TransactionModel, nestingLevel = 0): FlattenedTransaction[] {
+  return [
+    {
+      nestingLevel,
+      transaction,
+    },
+  ].concat(transaction.transactions?.flatMap((transaction) => flatternInnerTransactions(transaction, nestingLevel + 1)) ?? [])
 }
 
 type Props = {
@@ -32,7 +26,7 @@ type Props = {
 }
 
 export function TransactionViewTable({ transaction }: Props) {
-  const transactionsWithIndentationLevel = unpackTransaction(transaction)
+  const flattenedTransactions = flatternInnerTransactions(transaction)
 
   return (
     <table className={cn('w-full')}>
@@ -46,12 +40,12 @@ export function TransactionViewTable({ transaction }: Props) {
         </tr>
       </thead>
       <tbody>
-        {transactionsWithIndentationLevel.map(({ transaction, indentationLevel }) => (
+        {flattenedTransactions.map(({ transaction, nestingLevel }) => (
           <tr key={transaction.id}>
             <td className={cn('p-2 border-2')}>
               <div
                 style={{
-                  marginLeft: `${graphConfig.indentationWidth * indentationLevel}px`,
+                  marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
                 }}
               >
                 {ellipseAddress(transaction.id)}
