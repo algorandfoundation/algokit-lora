@@ -24,13 +24,11 @@ describe('given a invalid transaction ID', () => {
 
 describe('given a payment transaction', () => {
   const paymentTransaction = transactionModelMother.simplePaymentTransaction().build()
+  vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
+  const myStore = createStore()
+  myStore.set(transactionsAtom, [paymentTransaction])
 
   it('it should be rendered', async () => {
-    vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
-
-    const myStore = createStore()
-    myStore.set(transactionsAtom, [paymentTransaction])
-
     return executeComponentTest(
       () => {
         return render(<TransactionPage />, undefined, myStore)
@@ -45,6 +43,20 @@ describe('given a payment transaction', () => {
         expect(getByDescriptionTerm(component.container, 'Fee').textContent).toBe('0.001')
 
         expect(getByDescriptionTerm(component.container, 'Amount').textContent).toBe('236.07')
+      }
+    )
+  })
+  it('should show multisig information', async () => {
+    return executeComponentTest(
+      () => {
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() =>
+          expect(getByDescriptionTerm(component.container, 'Subsigners').textContent).toBe(
+            'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
+          )
+        )
       }
     )
   })
