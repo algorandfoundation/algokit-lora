@@ -24,11 +24,12 @@ describe('given a invalid transaction ID', () => {
 
 describe('given a payment transaction', () => {
   const paymentTransaction = transactionModelMother.simplePaymentTransaction().build()
-  vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
-  const myStore = createStore()
-  myStore.set(transactionsAtom, [paymentTransaction])
 
   it('it should be rendered', async () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionsAtom, [paymentTransaction])
+
     return executeComponentTest(
       () => {
         return render(<TransactionPage />, undefined, myStore)
@@ -47,6 +48,10 @@ describe('given a payment transaction', () => {
     )
   })
   it('should show multisig information', async () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionsAtom, [paymentTransaction])
+
     return executeComponentTest(
       () => {
         return render(<TransactionPage />, undefined, myStore)
