@@ -20,11 +20,11 @@ export function MultiSig({ multiSig }: MultiSigProps) {
         dd: <span>{multiSig.threshold}</span>,
       },
       {
-        dt: 'Subsignatures',
-        dd: multiSig.subsignatures.map((sig, index) => <div key={index}>{sig}</div>),
+        dt: 'Subsigners',
+        dd: multiSig.subsigners.map((address, index) => <div key={index}>{address}</div>),
       },
     ],
-    [multiSig.subsignatures, multiSig.version, multiSig.threshold]
+    [multiSig.subsigners, multiSig.version, multiSig.threshold]
   )
 
   return (

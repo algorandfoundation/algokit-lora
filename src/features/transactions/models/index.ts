@@ -1,5 +1,7 @@
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
+type Address = string
+
 type CommonTransactionProperties = {
   id: string
   type: TransactionType
@@ -7,13 +9,15 @@ type CommonTransactionProperties = {
   roundTime: number
   group?: string
   fee: AlgoAmount
-  sender: string
+  sender: Address
 
   base64Note?: string
   textNote?: string
   messagePackNote?: string
 
   transactions?: TransactionModel[]
+
+  multiSig?: MultiSigModel
 }
 
 export enum TransactionType {
@@ -22,7 +26,7 @@ export enum TransactionType {
 
 export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
-  receiver: string
+  receiver: Address
   amount: AlgoAmount
   closeAmount?: AlgoAmount
 }
@@ -31,20 +35,8 @@ export type TransactionModel = PaymentTransactionModel
 
 export type MicroAlgo = number
 
-export type MultisigTransactionSubSignature = {
-  'public-key': string
-  signature?: string
-}
-
-export enum SignatureType {
-  singleSig = 'singlesig',
-  multiSig = 'multiSig',
-  logicSig = 'logicSig',
-}
-
 export type MultiSigModel = {
-  type: SignatureType.multiSig
   version: number
   threshold: number
-  subsignatures: MultisigTransactionSubSignature[]
+  subsigners: Address[]
 }

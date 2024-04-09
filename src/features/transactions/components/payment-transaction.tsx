@@ -10,6 +10,7 @@ import { PaymentTransactionModel } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionVisualisation } from './transaction-visualisation'
+import { MultiSig } from './multisig'
 
 export type Props = {
   transaction: PaymentTransactionModel
@@ -57,6 +58,7 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
           </div>
           <TransactionNote transaction={transaction} />
           <TransactionVisualisation transaction={transaction} />
+          {transaction.multiSig && <MultiSig multiSig={transaction.multiSig} />}
           <TransactionJson transaction={rawTransaction} />
         </CardContent>
       </Card>
