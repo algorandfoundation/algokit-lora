@@ -58,7 +58,7 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
             <DescriptionList items={paymentTransactionItems} />
           </div>
           <Tabs defaultValue="visual">
-            <TabsList>
+            <TabsList aria-label="View Transaction">
               <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value="visual">
                 Visual
               </TabsTrigger>
@@ -66,10 +66,10 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
                 Table
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="visual" className={cn('border-solid border-2 border-border h-60 p-4')}>
+            <TabsContent value="visual" className={cn('border-solid border-2 border-border p-4')}>
               <TransactionViewVisual transaction={transaction} />
             </TabsContent>
-            <TabsContent value="table" className={cn('border-solid border-2 border-border h-60 p-4')}>
+            <TabsContent value="table" className={cn('border-solid border-2 border-border p-4')}>
               <TransactionViewTable transaction={transaction} />
             </TabsContent>
           </Tabs>
