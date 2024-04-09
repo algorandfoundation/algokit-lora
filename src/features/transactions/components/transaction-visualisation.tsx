@@ -49,10 +49,10 @@ function ConnectionToParent() {
   )
 }
 
-function TransactionName({ hasParent, name }: { hasParent: boolean; name: string }) {
+function TransactionId({ hasParent, name }: { hasParent: boolean; name: string }) {
   return (
     <div
-      className={cn('inline')}
+      className={cn('inline truncate max-w-24')}
       style={{
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
@@ -60,6 +60,10 @@ function TransactionName({ hasParent, name }: { hasParent: boolean; name: string
       {name}
     </div>
   )
+}
+
+function AccountId({ id }: { id: string }) {
+  return <h1 className={cn('text-l font-semibold truncate')}>{id}</h1>
 }
 
 function ConnectionToSibbling() {
@@ -160,7 +164,7 @@ function TransactionRow({
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionName hasParent={hasParent} name={transaction.id} />
+          <TransactionId hasParent={hasParent} name={transaction.id} />
           {hasParent && hasNextSibbling && <ConnectionToSibbling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
@@ -174,7 +178,7 @@ function TransactionRow({
                 <DisplaySelfTransaction />
               </TooltipTrigger>
               <TooltipContent>
-                <div className={cn('p-4')}>Transaction: {transaction.id}</div>
+                <div className={cn('p-4 truncate')}>Transaction: {transaction.id}</div>
               </TooltipContent>
             </Tooltip>
           )
@@ -185,7 +189,7 @@ function TransactionRow({
                 <DisplayArrow key={index} arrow={arrow} />
               </TooltipTrigger>
               <TooltipContent>
-                <div className={cn('p-4')}>Transaction: {transaction.id}</div>
+                <div className={cn('p-4 truncate')}>Transaction: {transaction.id}</div>
               </TooltipContent>
             </Tooltip>
           )
@@ -209,35 +213,35 @@ function TransactionRow({
   )
 }
 
-function extractSendersAndReceivers(transaction: TransactionModel) {
-  let transactionCount = 0
+function extractSendersAndReceivers(transaction: TransactionModel, nestingLevel = 0) {
+  let transactionCount = 1
   let accounts: string[] = []
+  let maxNestingLevel = nestingLevel
 
-  function extract(transactionArr: TransactionModel[]) {
-    if (transactionArr) {
-      transactionArr.forEach((transaction) => {
-        transactionCount++
-        accounts.push(transaction.sender)
-        if (transaction.type === TransactionType.Payment) {
-          accounts.push(transaction.receiver)
-        }
-        if (transaction.transactions) {
-          extract(transaction.transactions)
-        }
-      })
-    }
+  accounts.push(transaction.sender)
+  if (transaction.type === TransactionType.Payment) {
+    accounts.push(transaction.receiver)
   }
 
-  extract(transaction.transactions ?? [])
+  transaction.transactions?.forEach((transaction) => {
+    const {
+      transactionCount: childTransactionCount,
+      accounts: childAccounts,
+      nestingLevel: childNestingLevel,
+    } = extractSendersAndReceivers(transaction, nestingLevel + 1)
+
+    transactionCount += childTransactionCount
+    accounts = [...accounts, ...childAccounts]
+    maxNestingLevel = Math.max(maxNestingLevel, childNestingLevel)
+  })
 
   // Remove duplicates
   accounts = Array.from(new Set(accounts))
-  // Sort
-  accounts = accounts.sort((a, b) => (a > b ? 1 : a < b ? -1 : 0))
 
   return {
     transactionCount: transactionCount,
     accounts: accounts,
+    nestingLevel: maxNestingLevel,
   }
 }
 
@@ -267,20 +271,20 @@ type Props = {
 }
 
 export function TransactionVisualisation({ transaction }: Props) {
-  const { transactionCount, accounts } = extractSendersAndReceivers(transaction)
+  const { transactionCount, accounts, nestingLevel } = extractSendersAndReceivers(transaction)
 
   return (
     <div
       className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, 1fr) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + nestingLevel * graphConfig.indentationWidth}px) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
       {accounts.map((account, index) => (
         <div className={cn('p-2 flex justify-center')} key={index}>
-          <h1 className={cn('text-l font-semibold')}> {account}</h1>
+          <AccountId id={account} />
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
@@ -307,6 +311,13 @@ export function TransactionVisualisation({ transaction }: Props) {
           </div>
         </div>
       </div>
+      <TransactionRow
+        transaction={transaction}
+        hasChildren={transaction.transactions && transaction.transactions.length > 0}
+        hasParent={false}
+        accounts={accounts}
+        verticalBars={[]}
+      />
       {transaction.transactions?.map((transaction, index, arr) => (
         <TransactionRow
           key={index}
