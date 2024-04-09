@@ -213,7 +213,7 @@ function TransactionRow({
   )
 }
 
-function extractSendersAndReceivers(transaction: TransactionModel, nestingLevel = 0) {
+function unpackTransaction(transaction: TransactionModel, nestingLevel = 0) {
   let transactionCount = 1
   let accounts: string[] = []
   let maxNestingLevel = nestingLevel
@@ -228,7 +228,7 @@ function extractSendersAndReceivers(transaction: TransactionModel, nestingLevel 
       transactionCount: childTransactionCount,
       accounts: childAccounts,
       nestingLevel: childNestingLevel,
-    } = extractSendersAndReceivers(transaction, nestingLevel + 1)
+    } = unpackTransaction(transaction, nestingLevel + 1)
 
     transactionCount += childTransactionCount
     accounts = [...accounts, ...childAccounts]
@@ -270,8 +270,8 @@ type Props = {
   transaction: TransactionModel
 }
 
-export function TransactionVisualisation({ transaction }: Props) {
-  const { transactionCount, accounts, nestingLevel } = extractSendersAndReceivers(transaction)
+export function TransactionViewVisual({ transaction }: Props) {
+  const { transactionCount, accounts, nestingLevel } = unpackTransaction(transaction)
 
   return (
     <div

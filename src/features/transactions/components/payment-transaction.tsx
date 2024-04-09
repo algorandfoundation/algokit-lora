@@ -9,8 +9,9 @@ import { useMemo } from 'react'
 import { PaymentTransactionModel } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { TransactionVisualisation } from './transaction-visualisation'
+import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { TransactionViewTable } from './transaction-view-table'
 
 export type Props = {
   transaction: PaymentTransactionModel
@@ -58,8 +59,8 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
           </div>
           <TransactionNote transaction={transaction} />
           <div className={cn('space-y-2')}>
-            <h2 className={cn('text-xl font-bold')}>Transaction</h2>
-            <Tabs defaultValue="text">
+            <h2 className={cn('text-xl font-bold')}>View</h2>
+            <Tabs defaultValue="visual">
               <TabsList>
                 <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value="visual">
                   Visual
@@ -69,10 +70,10 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="visual" className={cn('border-solid border-2 border-border h-60 p-4')}>
-                <TransactionVisualisation transaction={transaction} />
+                <TransactionViewVisual transaction={transaction} />
               </TabsContent>
               <TabsContent value="table" className={cn('border-solid border-2 border-border h-60 p-4')}>
-                {transaction.base64Note}
+                <TransactionViewTable transaction={transaction} />
               </TabsContent>
             </Tabs>
           </div>
