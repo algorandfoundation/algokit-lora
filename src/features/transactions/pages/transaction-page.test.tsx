@@ -49,7 +49,7 @@ describe('given a payment transaction', () => {
   })
 })
 
-describe('given a multisig transaction', () => {
+describe('when rendering a multisig transaction', () => {
   it('it should show multisig information with a payment transaction', async () => {
     const paymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
