@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { PaymentTransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { isDefined } from '@/utils/is-defined'
+import { transactionPageConstants } from '@/features/theme/constant'
 
 export type Props = {
   transaction: PaymentTransactionModel
@@ -16,19 +17,19 @@ export function TransactionInfo({ transaction }: Props) {
     () =>
       [
         {
-          dt: 'Transaction ID',
+          dt: transactionPageConstants.labels.transactionId,
           dd: transaction.id,
         },
         {
-          dt: 'Type',
+          dt: transactionPageConstants.labels.type,
           dd: transaction.type,
         },
         {
-          dt: 'Timestamp',
+          dt: transactionPageConstants.labels.timestamp,
           dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime)),
         },
         {
-          dt: 'Block',
+          dt: transactionPageConstants.labels.block,
           dd: (
             <a href="#" className={cn('text-primary underline')}>
               {transaction.confirmedRound}
@@ -37,7 +38,7 @@ export function TransactionInfo({ transaction }: Props) {
         },
         transaction.group
           ? {
-              dt: 'Group',
+              dt: transactionPageConstants.labels.group,
               dd: (
                 <a href="#" className={cn('text-primary underline')}>
                   {transaction.group}
@@ -46,7 +47,7 @@ export function TransactionInfo({ transaction }: Props) {
             }
           : undefined,
         {
-          dt: 'Fee',
+          dt: transactionPageConstants.labels.fee,
           dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
         },
       ].filter(isDefined),

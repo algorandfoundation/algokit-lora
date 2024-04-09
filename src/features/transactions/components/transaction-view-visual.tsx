@@ -10,6 +10,7 @@ import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { transactionPageConstants } from '@/features/theme/constant'
 
 const graphConfig = {
   rowHeight: 40,
@@ -153,23 +154,23 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Transa
   const items = useMemo(
     () => [
       {
-        dt: 'Transaction ID',
+        dt: transactionPageConstants.labels.transactionId,
         dd: transaction.id,
       },
       {
-        dt: 'Type',
+        dt: transactionPageConstants.labels.type,
         dd: 'Payment',
       },
       {
-        dt: 'Sender',
+        dt: transactionPageConstants.labels.sender,
         dd: transaction.sender,
       },
       {
-        dt: 'Receiver',
+        dt: transactionPageConstants.labels.receiver,
         dd: transaction.receiver,
       },
       {
-        dt: 'Amount',
+        dt: transactionPageConstants.labels.amount,
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
