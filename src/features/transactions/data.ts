@@ -1,4 +1,4 @@
-import { Atom, atom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
