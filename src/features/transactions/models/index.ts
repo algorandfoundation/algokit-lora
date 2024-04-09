@@ -31,6 +31,11 @@ export type TransactionModel = PaymentTransactionModel
 
 export type MicroAlgo = number
 
+export type MultisigTransactionSubSignature = {
+  'public-key': string
+  signature?: string
+}
+
 export enum SignatureType {
   singleSig = 'singlesig',
   multiSig = 'multiSig',
@@ -41,5 +46,5 @@ export type MultiSigModel = {
   type: SignatureType.multiSig
   version: number
   threshold: number
-  subsignatures: string[]
+  subsignatures: MultisigTransactionSubSignature[]
 }
