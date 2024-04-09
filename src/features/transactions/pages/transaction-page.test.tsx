@@ -47,7 +47,11 @@ describe('given a payment transaction', () => {
       }
     )
   })
-  it('should show multisig information', async () => {
+})
+
+describe('given a multisig transaction', () => {
+  it('it should show multisig information with a payment transaction', async () => {
+    const paymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
     const myStore = createStore()
     myStore.set(transactionsAtom, [paymentTransaction])
@@ -57,11 +61,13 @@ describe('given a payment transaction', () => {
         return render(<TransactionPage />, undefined, myStore)
       },
       async (component) => {
-        await waitFor(() =>
+        await waitFor(() => {
           expect(getByDescriptionTerm(component.container, 'Subsigners').textContent).toBe(
             'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
           )
-        )
+          expect(getByDescriptionTerm(component.container, 'Threshold').textContent).toBe('3')
+          expect(getByDescriptionTerm(component.container, 'Version').textContent).toBe('1')
+        })
       }
     )
   })
