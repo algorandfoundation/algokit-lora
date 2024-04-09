@@ -23,7 +23,7 @@ describe('given a invalid transaction ID', () => {
 })
 
 describe('given a payment transaction', () => {
-  const paymentTransaction = transactionModelMother.simplePaymentTransaction().build()
+  const paymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
 
   it('it should be rendered', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))

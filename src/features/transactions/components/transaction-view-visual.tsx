@@ -7,6 +7,8 @@ import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 import { TransactionModel, TransactionType } from '../models'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
+import { DescriptionList } from '@/features/common/components/description-list'
 
 const graphConfig = {
   rowHeight: 40,
@@ -14,6 +16,7 @@ const graphConfig = {
   indentationWidth: 20,
   lineWidth: 2,
   circleDimension: 20,
+  paymentTransactionColor: 'rgb(126 200 191)',
 }
 
 type Arrow = {
@@ -97,35 +100,45 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
   )
 }
 
-const DisplayArrow = fixedForwardRef(({ arrow, ...rest }: { arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
-  return (
-    <div
-      className={cn('flex items-center justify-center')}
-      style={{
-        // 2 and 3 are the number to offset the name column
-        gridColumnStart: arrow.from + 2,
-        gridColumnEnd: arrow.to + 3,
-      }}
-      ref={ref}
-      {...rest}
-    >
-      <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+const DisplayArrow = fixedForwardRef(
+  ({ transaction, arrow, ...rest }: { transaction: TransactionModel; arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
+    const color = graphConfig.paymentTransactionColor
+
+    return (
       <div
+        className={cn('flex items-center justify-center')}
         style={{
-          width: `calc(${(100 - 100 / (arrow.to - arrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
-          height: `${graphConfig.circleDimension}px`,
+          // 2 and 3 are the number to offset the name column
+          gridColumnStart: arrow.from + 2,
+          gridColumnEnd: arrow.to + 3,
+          color: color,
         }}
-        className="relative text-primary"
+        ref={ref}
+        {...rest}
       >
-        {arrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
-        <div className={cn('border-primary h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
-        {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <div
+          style={{
+            width: `calc(${(100 - 100 / (arrow.to - arrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+            height: `${graphConfig.circleDimension}px`,
+          }}
+          className="relative"
+        >
+          {arrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
+          <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
+          {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+        </div>
+        {transaction.type === TransactionType.Payment && (
+          <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
+            Payment
+            <DisplayAlgo amount={transaction.amount} />
+          </div>
+        )}
+        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
       </div>
-      <div className={cn('absolute z-20 bg-background p-2')}>Payment</div>
-      <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
-    </div>
-  )
-})
+    )
+  }
+)
 
 const DisplaySelfTransaction = fixedForwardRef((props: object, ref?: React.LegacyRef<HTMLDivElement>) => {
   return (
@@ -134,6 +147,40 @@ const DisplaySelfTransaction = fixedForwardRef((props: object, ref?: React.Legac
     </div>
   )
 })
+
+function PaymentTransactionToolTipContent({ transaction }: { transaction: TransactionModel }) {
+  const items = useMemo(
+    () => [
+      {
+        dt: 'Transaction ID',
+        dd: transaction.id,
+      },
+      {
+        dt: 'Type',
+        dd: 'Payment',
+      },
+      {
+        dt: 'Sender',
+        dd: transaction.sender,
+      },
+      {
+        dt: 'Receiver',
+        dd: transaction.receiver,
+      },
+      {
+        dt: 'Amount',
+        dd: <DisplayAlgo amount={transaction.amount} />,
+      },
+    ],
+    [transaction.amount, transaction.id, transaction.receiver, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
 
 type TransactionRowProps = {
   transaction: TransactionModel
@@ -178,7 +225,7 @@ function TransactionRow({
                 <DisplaySelfTransaction />
               </TooltipTrigger>
               <TooltipContent>
-                <div className={cn('p-4 truncate')}>Transaction: {transaction.id}</div>
+                {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -186,10 +233,10 @@ function TransactionRow({
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <DisplayArrow key={index} arrow={arrow} />
+                <DisplayArrow key={index} arrow={arrow} transaction={transaction} />
               </TooltipTrigger>
               <TooltipContent>
-                <div className={cn('p-4 truncate')}>Transaction: {transaction.id}</div>
+                {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
