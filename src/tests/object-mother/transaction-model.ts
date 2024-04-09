@@ -1,7 +1,7 @@
 import { transactionResultBuilder } from '../builders/transaction-result-builder'
 
 export const transactionModelMother = {
-  simplePaymentTransaction: () => {
+  paymentTransactionWithNoChildren: () => {
     return transactionResultBuilder()
       .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
       ['withConfirmed-round'](36570178)

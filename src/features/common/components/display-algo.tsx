@@ -3,12 +3,13 @@ import { cn } from '../utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type Props = {
+  className?: string
   amount: AlgoAmount
 }
 
-export function DisplayAlgo({ amount }: Props) {
+export function DisplayAlgo({ className, amount }: Props) {
   return (
-    <div className={cn('flex items-center')}>
+    <div className={cn(className, 'flex items-center')}>
       {amount.algos}
       <SvgAlgorand />
     </div>

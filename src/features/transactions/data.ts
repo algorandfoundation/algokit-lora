@@ -7,7 +7,7 @@ import { loadable } from 'jotai/utils'
 
 // TODO: Move this elsewhere and make it configurable once we start using it more
 const indexer = algokit.getAlgoIndexerClient({
-  server: 'https://testnet-idx.algonode.cloud/',
+  server: 'https://mainnet-idx.algonode.cloud/',
   port: 443,
 })
 
