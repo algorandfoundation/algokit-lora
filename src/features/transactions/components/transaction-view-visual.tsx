@@ -9,6 +9,7 @@ import { useMemo } from 'react'
 import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { ellipseAddress } from '@/utils/ellipse-address'
 
 const graphConfig = {
   rowHeight: 40,
@@ -52,21 +53,21 @@ function ConnectionToParent() {
   )
 }
 
-function TransactionId({ hasParent, name }: { hasParent: boolean; name: string }) {
+function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
   return (
     <div
-      className={cn('inline truncate max-w-24')}
+      className={cn('inline')}
       style={{
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {name}
+      {ellipseAddress(id)}
     </div>
   )
 }
 
 function AccountId({ id }: { id: string }) {
-  return <h1 className={cn('text-l font-semibold truncate')}>{id}</h1>
+  return <h1 className={cn('text-l font-semibold')}>{ellipseAddress(id)}</h1>
 }
 
 function ConnectionToSibbling() {
@@ -211,7 +212,7 @@ function TransactionRow({
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionId hasParent={hasParent} name={transaction.id} />
+          <TransactionId hasParent={hasParent} id={transaction.id} />
           {hasParent && hasNextSibbling && <ConnectionToSibbling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>

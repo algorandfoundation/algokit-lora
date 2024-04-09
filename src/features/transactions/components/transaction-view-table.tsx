@@ -1,6 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
+import { ellipseAddress } from '@/utils/ellipse-address'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -24,10 +25,6 @@ function unpackTransaction(transaction: TransactionModel, indentationLevel = 0) 
   })
 
   return transactionWithIndentationLevel
-}
-
-function TruncatedId({ id }: { id: string }) {
-  return <div className={cn('m-auto truncate max-w-28')}>{id}</div>
 }
 
 type Props = {
@@ -57,15 +54,11 @@ export function TransactionViewTable({ transaction }: Props) {
                   marginLeft: `${graphConfig.indentationWidth * indentationLevel}px`,
                 }}
               >
-                <TruncatedId id={transaction.id} />
+                {ellipseAddress(transaction.id)}
               </div>
             </td>
-            <td className={cn('p-2 border-2')}>
-              <TruncatedId id={transaction.sender} />
-            </td>
-            <td className={cn('p-2 border-2')}>
-              <TruncatedId id={transaction.receiver} />
-            </td>
+            <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.sender)}</td>
+            <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.receiver)}</td>
             <td className={cn('p-2 border-2 text-center')}>{transaction.type}</td>
             <td className={cn('p-2 border-2')}>
               {transaction.type === TransactionType.Payment ? (

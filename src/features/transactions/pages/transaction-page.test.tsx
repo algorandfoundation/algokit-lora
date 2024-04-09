@@ -44,6 +44,12 @@ describe('given a payment transaction', () => {
         expect(component.queryByText('Group')).toBeNull()
         expect(getByDescriptionTerm(component.container, 'Fee').textContent).toBe('0.001')
 
+        expect(getByDescriptionTerm(component.container, 'Sender').textContent).toBe(
+          'M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM'
+        )
+        expect(getByDescriptionTerm(component.container, 'Receiver').textContent).toBe(
+          'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ'
+        )
         expect(getByDescriptionTerm(component.container, 'Amount').textContent).toBe('236.07')
       }
     )

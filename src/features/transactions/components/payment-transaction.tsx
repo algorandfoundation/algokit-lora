@@ -57,26 +57,23 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
             </div>
             <DescriptionList items={paymentTransactionItems} />
           </div>
+          <Tabs defaultValue="visual">
+            <TabsList>
+              <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value="visual">
+                Visual
+              </TabsTrigger>
+              <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value="table">
+                Table
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="visual" className={cn('border-solid border-2 border-border h-60 p-4')}>
+              <TransactionViewVisual transaction={transaction} />
+            </TabsContent>
+            <TabsContent value="table" className={cn('border-solid border-2 border-border h-60 p-4')}>
+              <TransactionViewTable transaction={transaction} />
+            </TabsContent>
+          </Tabs>
           <TransactionNote transaction={transaction} />
-          <div className={cn('space-y-2')}>
-            <h2 className={cn('text-xl font-bold')}>View</h2>
-            <Tabs defaultValue="visual">
-              <TabsList>
-                <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value="visual">
-                  Visual
-                </TabsTrigger>
-                <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value="table">
-                  Table
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="visual" className={cn('border-solid border-2 border-border h-60 p-4')}>
-                <TransactionViewVisual transaction={transaction} />
-              </TabsContent>
-              <TabsContent value="table" className={cn('border-solid border-2 border-border h-60 p-4')}>
-                <TransactionViewTable transaction={transaction} />
-              </TabsContent>
-            </Tabs>
-          </div>
           <TransactionJson transaction={rawTransaction} />
         </CardContent>
       </Card>
