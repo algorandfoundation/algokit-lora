@@ -28,3 +28,18 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
 }
 
 export type TransactionModel = PaymentTransactionModel
+
+export type MicroAlgo = number
+
+export enum SignatureType {
+  singleSig = 'singlesig',
+  multiSig = 'multiSig',
+  logicSig = 'logicSig',
+}
+
+export type MultiSigModel = {
+  type: SignatureType.multiSig
+  version: number
+  threshold: number
+  subsignatures: string[]
+}
