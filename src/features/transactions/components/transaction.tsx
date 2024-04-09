@@ -3,7 +3,8 @@ import { PaymentTransaction } from './payment-transaction'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { PaymentTransactionModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
-import invariant from 'tiny-invariant'
+import { invariant } from '@/utils/invariant'
+import { transactionPageConstants } from '@/features/theme/constant'
 
 type Props = {
   transaction: TransactionResult
@@ -32,7 +33,8 @@ const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactio
 export function Transaction({ transaction }: Props) {
   return (
     <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>Transaction</h1>
+      {/* TODO: NC - Page title should probably live in the page component */}
+      <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageConstants.title}</h1>
       {transaction['tx-type'] === algosdk.TransactionType.pay && (
         <PaymentTransaction transaction={asPaymentTransaction(transaction)} rawTransaction={transaction} />
       )}

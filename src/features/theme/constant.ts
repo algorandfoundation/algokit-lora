@@ -3,6 +3,8 @@ export const themeConstants = {
 }
 
 export const transactionPageConstants = {
-  transactionNotFound: 'Transaction not found',
-  genericError: 'Error loading transaction',
+  title: 'Transaction',
+  notFoundMessage: 'Transaction not found',
+  invalidIdMessage: 'Transaction Id is invalid',
+  failedToLoadMessage: 'Transaction failed to load',
 }

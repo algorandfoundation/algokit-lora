@@ -1,32 +1,31 @@
-import invariant from 'tiny-invariant'
+import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { Transaction } from '../components/transaction'
 import { useLoadableTransaction } from '../data'
 import { transactionPageConstants } from '@/features/theme/constant'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
-export const isValidTransactionId = (transactionId: string) => transactionId.length === 52
+const isValidTransactionId = (transactionId: string) => transactionId.length === 52
+
+const transformError = (e: Error) => {
+  if ('status' in e && e.status === 404) {
+    return new Error(transactionPageConstants.notFoundMessage)
+  }
+
+  // eslint-disable-next-line no-console
+  console.error(e)
+  return new Error(transactionPageConstants.failedToLoadMessage)
+}
 
 export function TransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
-  invariant(isValidTransactionId(transactionId), 'transactionId is invalid')
+  invariant(isValidTransactionId(transactionId), transactionPageConstants.invalidIdMessage)
   const loadableTransaction = useLoadableTransaction(transactionId)
 
-  if (loadableTransaction.state === 'hasData') {
-    return <Transaction transaction={loadableTransaction.data} />
-  } else if (loadableTransaction.state === 'loading') {
-    // TODO: Make this a spinner
-    return <p>Loading....</p>
-  }
-
-  if (
-    loadableTransaction.error &&
-    typeof loadableTransaction.error === 'object' &&
-    'status' in loadableTransaction.error &&
-    loadableTransaction.error.status === 404
-  ) {
-    return <p>{transactionPageConstants.transactionNotFound}</p>
-  }
-
-  return <p>{transactionPageConstants.genericError}</p>
+  return (
+    <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
+      {(data) => <Transaction transaction={data} />}
+    </RenderLoadable>
+  )
 }
