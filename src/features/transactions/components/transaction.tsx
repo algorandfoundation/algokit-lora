@@ -4,6 +4,7 @@ import { MultisigTransactionSignature, TransactionResult } from '@algorandfounda
 import { MultiSigModel, PaymentTransactionModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
+import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 
 type Props = {
   transaction: TransactionResult
@@ -34,7 +35,7 @@ const asMultiSig = (signature: MultisigTransactionSignature): MultiSigModel => {
   return {
     version: signature.version,
     threshold: signature.threshold,
-    subsigners: signature.subsignature.map((subsignature) => `TODO${subsignature['public-key']}`),
+    subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(`${subsignature['public-key']}`)),
   } satisfies MultiSigModel
 }
 

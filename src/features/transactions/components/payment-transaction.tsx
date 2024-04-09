@@ -58,8 +58,8 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
           </div>
           <TransactionNote transaction={transaction} />
           <TransactionVisualisation transaction={transaction} />
-          {transaction.multiSig && <MultiSig multiSig={transaction.multiSig} />}
           <TransactionJson transaction={rawTransaction} />
+          {transaction.multiSig && <MultiSig multiSig={transaction.multiSig} />}
         </CardContent>
       </Card>
     </div>
