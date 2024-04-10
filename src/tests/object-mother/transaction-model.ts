@@ -34,5 +34,8 @@ export const transactionModelMother = {
           version: 1,
         },
       })
+      .withLogicSignature({
+        logicsig: 'AiAqJyYhJi',
+      })
   },
 }

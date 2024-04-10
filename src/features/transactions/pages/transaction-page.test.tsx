@@ -10,6 +10,7 @@ import { createStore } from 'jotai'
 import { transactionsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
+import { transactionModelMotherLogicsig } from '@/tests/object-mother/transaction-model-logicsig'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -114,10 +115,10 @@ describe('transaction-page', () => {
 
   describe('when rendering a multisig payment transaction', () => {
     it('should show the multisig information', async () => {
-      const multiSigPaymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: multiSigPaymentTransaction.id }))
+      const multisigPaymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: multisigPaymentTransaction.id }))
       const myStore = createStore()
-      myStore.set(transactionsAtom, [multiSigPaymentTransaction])
+      myStore.set(transactionsAtom, [multisigPaymentTransaction])
 
       return executeComponentTest(
         () => {
@@ -130,6 +131,34 @@ describe('transaction-page', () => {
             expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.subsigners).textContent).toBe(
               'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
             )
+          })
+        }
+      )
+    })
+  })
+  describe('when rendering a logicsig payment transaction', () => {
+    const logicsigPaymentTransaction = transactionModelMotherLogicsig.paymentTransactionWithNoChildren().build()
+
+    it('should show the logicsig base64', async () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: logicsigPaymentTransaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [logicsigPaymentTransaction])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            // expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.logicsig).textContent).toBe('a')
+            const base64Tab = component.getByRole('tabpanel', { name: 'Base64' })
+            const test = getAllByRole(base64Tab, 'text')
+            console.log(test)
+            console.log(base64Tab)
+            // const data = getAllByRole(base64Tab)
+            // expect(base64Tab.)
+            // const logicsigBase64Tab = getByRole(component.container, 'tab', { name: 'Base64' })
+            // expect(logicsigBase64Tab.getAttribute('data-state')).toBe('inactive')
           })
         }
       )
