@@ -18,13 +18,10 @@ export const transactionPageConstants = {
     viewTransaction: 'View Transaction',
     visual: 'Visual',
     table: 'Table',
-  },
-}
-
-export const multisigConstants = {
-  labels: {
-    version: 'Version',
-    threshold: 'Threshold',
-    subsigners: 'Subsigners',
+    multisig: {
+      version: 'Version',
+      threshold: 'Threshold',
+      subsigners: 'Subsigners',
+    },
   },
 }

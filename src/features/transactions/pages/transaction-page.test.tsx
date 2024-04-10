@@ -2,7 +2,7 @@ import { transactionModelMother } from '@/tests/object-mother/transaction-model'
 import { describe, expect, it, vi } from 'vitest'
 import { TransactionPage } from './transaction-page'
 import { executeComponentTest } from '@/tests/test-component'
-import { multisigConstants, transactionPageConstants } from '@/features/theme/constant'
+import { transactionPageConstants } from '@/features/theme/constant'
 import { getAllByRole, getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
@@ -94,9 +94,9 @@ describe('when rendering a multisig payment transaction', () => {
       },
       async (component) => {
         await waitFor(() => {
-          expect(getByDescriptionTerm(component.container, multisigConstants.labels.threshold).textContent).toBe('3')
-          expect(getByDescriptionTerm(component.container, multisigConstants.labels.version).textContent).toBe('1')
-          expect(getByDescriptionTerm(component.container, multisigConstants.labels.subsigners).textContent).toBe(
+          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.threshold).textContent).toBe('3')
+          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.version).textContent).toBe('1')
+          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.subsigners).textContent).toBe(
             'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
           )
         })
