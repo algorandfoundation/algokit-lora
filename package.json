@@ -49,6 +49,7 @@
     "@makerx/eslint-config": "^3.1.0",
     "@makerx/prettier-config": "^2.0.0",
     "@makerx/ts-config": "^1.0.1",
+    "@makerx/ts-dossier": "^3.0.0",
     "@tauri-apps/cli": "^1.5.11",
     "@testing-library/react": "^14.2.2",
     "@testing-library/user-event": "^14.5.2",
