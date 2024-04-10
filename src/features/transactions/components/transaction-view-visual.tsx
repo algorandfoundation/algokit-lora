@@ -9,6 +9,8 @@ import { useMemo } from 'react'
 import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { ellipseAddress } from '@/utils/ellipse-address'
+import { transactionPageConstants } from '@/features/theme/constant'
 
 const graphConfig = {
   rowHeight: 40,
@@ -52,21 +54,21 @@ function ConnectionToParent() {
   )
 }
 
-function TransactionId({ hasParent, name }: { hasParent: boolean; name: string }) {
+function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
   return (
     <div
-      className={cn('inline truncate max-w-24')}
+      className={cn('inline')}
       style={{
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {name}
+      {ellipseAddress(id)}
     </div>
   )
 }
 
 function AccountId({ id }: { id: string }) {
-  return <h1 className={cn('text-l font-semibold truncate')}>{id}</h1>
+  return <h1 className={cn('text-l font-semibold')}>{ellipseAddress(id)}</h1>
 }
 
 function ConnectionToSibbling() {
@@ -152,23 +154,23 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Transa
   const items = useMemo(
     () => [
       {
-        dt: 'Transaction ID',
+        dt: transactionPageConstants.labels.transactionId,
         dd: transaction.id,
       },
       {
-        dt: 'Type',
+        dt: transactionPageConstants.labels.type,
         dd: 'Payment',
       },
       {
-        dt: 'Sender',
+        dt: transactionPageConstants.labels.sender,
         dd: transaction.sender,
       },
       {
-        dt: 'Receiver',
+        dt: transactionPageConstants.labels.receiver,
         dd: transaction.receiver,
       },
       {
-        dt: 'Amount',
+        dt: transactionPageConstants.labels.amount,
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
@@ -211,7 +213,7 @@ function TransactionRow({
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionId hasParent={hasParent} name={transaction.id} />
+          <TransactionId hasParent={hasParent} id={transaction.id} />
           {hasParent && hasNextSibbling && <ConnectionToSibbling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>

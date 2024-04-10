@@ -5,10 +5,14 @@ type Props = {
 }
 
 export function DescriptionList({ items }: Props) {
-  return items.map((item, index) => (
-    <dl className={cn('grid grid-cols-10')} key={index}>
-      <dt className={cn('col-span-2')}>{item.dt}</dt>
-      <dd className={cn('col-span-8')}>{item.dd}</dd>
-    </dl>
-  ))
+  return (
+    <div className={cn('grid grid-cols-[minmax(min-content,auto)_1fr] gap-x-4')}>
+      {items.map((item, index) => (
+        <dl key={index} className={cn('grid grid-cols-subgrid col-span-2')}>
+          <dt>{item.dt}</dt>
+          <dd>{item.dd}</dd>
+        </dl>
+      ))}
+    </div>
+  )
 }
