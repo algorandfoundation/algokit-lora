@@ -47,10 +47,10 @@ export function Logicsig({ logicsig }: LogicsigProps) {
           </Card>
         </TabsContent>
         <TabsContent value={tealLogicsigTabId} className={cn('border-solid border-2 border-border p-4')}>
-          <Card className={cn('p-4')}>
+          <Card>
             <CardContent className={cn('text-sm space-y-4')}>
-              <div className={cn('space-y-2 h-96 overflow-y-scroll')}>
-                <RenderLoadable loadable={tealLoadable}>{(teal) => <pre>{teal}</pre>}</RenderLoadable>
+              <div className={cn('h-96 grid')}>
+                <RenderLoadable loadable={tealLoadable}>{(teal) => <pre className={cn('overflow-scroll p-4')}>{teal}</pre>}</RenderLoadable>
               </div>
             </CardContent>
           </Card>
