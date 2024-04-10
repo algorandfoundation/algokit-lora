@@ -9,8 +9,8 @@ export function TransactionJson({ transaction }: Props) {
   return (
     <div className={cn('space-y-2')}>
       <h2 className={cn('text-xl font-bold')}>Transction JSON</h2>
-      <div className={cn('border-solid border-2 border-border h-96 p-4 overflow-y-scroll')}>
-        <pre>{JSON.stringify(transaction, null, 4)}</pre>
+      <div className={cn('border-solid border-2 border-border h-96 grid')}>
+        <pre className={cn('overflow-scroll p-4')}>{JSON.stringify(transaction, null, 4)}</pre>
       </div>
     </div>
   )
