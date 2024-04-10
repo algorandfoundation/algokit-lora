@@ -43,7 +43,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
           },
         },
       ],
-      maxRoundsToSync: 1, // TODO: NC - Do we want this higher?
+      maxRoundsToSync: 1,
       waitForBlockWhenAtTip: true,
       syncBehaviour: 'skip-sync-newest',
       watermarkPersistence: {

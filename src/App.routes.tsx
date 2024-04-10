@@ -5,18 +5,18 @@ import { evalTemplates } from './routes/templated-route'
 import { TransactionPage } from './features/transactions/pages/transaction-page'
 import { ExplorePage } from './features/explore/pages/explore-page'
 import { GroupPage } from './features/transactions/pages/group-page'
-import ErrorBoundary from './features/errors/components/error-boundary'
+import { transactionPageConstants } from './features/theme/constant'
+import { ErrorPage } from './features/common/pages/error-page'
 
 export const routes = evalTemplates([
   {
     template: Urls.Index,
     element: (
       <LayoutPage>
-        <ErrorBoundary>
-          <Outlet />
-        </ErrorBoundary>
+        <Outlet />
       </LayoutPage>
     ),
+    errorElement: <ErrorPage />,
     children: [
       {
         template: Urls.Index,
@@ -28,6 +28,7 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Explore,
+        errorElement: <ErrorPage />,
         children: [
           {
             template: Urls.Explore,
@@ -36,6 +37,7 @@ export const routes = evalTemplates([
           {
             template: Urls.Explore.Transaction.ById,
             element: <TransactionPage />,
+            errorElement: <ErrorPage title={transactionPageConstants.title} />,
           },
           {
             template: Urls.Explore.Group.ById,
