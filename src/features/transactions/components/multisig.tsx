@@ -3,25 +3,28 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionPageConstants } from '@/features/theme/constant'
 
 type MultisigProps = {
   multisig: MultisigModel
 }
 
+export const multisigVersionLabel = 'Version'
+export const multisigThresholdLabel = 'Threshold'
+export const multisigSubsignersLabel = 'Subsigners'
+
 export function Multisig({ multisig }: MultisigProps) {
   const multisigItems = useMemo(
     () => [
       {
-        dt: transactionPageConstants.labels.multisig.version,
+        dt: multisigVersionLabel,
         dd: multisig.version,
       },
       {
-        dt: transactionPageConstants.labels.multisig.threshold,
+        dt: multisigThresholdLabel,
         dd: multisig.threshold,
       },
       {
-        dt: transactionPageConstants.labels.multisig.subsigners,
+        dt: multisigSubsignersLabel,
         dd: multisig.subsigners.map((address, index) => <div key={index}>{address}</div>),
       },
     ],

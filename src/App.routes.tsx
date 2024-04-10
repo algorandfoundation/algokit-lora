@@ -2,10 +2,9 @@ import { Outlet } from 'react-router-dom'
 import { LayoutPage } from './features/layout/pages/layout-page'
 import { Urls } from './routes/urls'
 import { evalTemplates } from './routes/templated-route'
-import { TransactionPage } from './features/transactions/pages/transaction-page'
+import { TransactionPage, transactionPageTitle } from './features/transactions/pages/transaction-page'
 import { ExplorePage } from './features/explore/pages/explore-page'
 import { GroupPage } from './features/transactions/pages/group-page'
-import { transactionPageConstants } from './features/theme/constant'
 import { ErrorPage } from './features/common/pages/error-page'
 
 export const routes = evalTemplates([
@@ -37,7 +36,7 @@ export const routes = evalTemplates([
           {
             template: Urls.Explore.Transaction.ById,
             element: <TransactionPage />,
-            errorElement: <ErrorPage title={transactionPageConstants.title} />,
+            errorElement: <ErrorPage title={transactionPageTitle} />,
           },
           {
             template: Urls.Explore.Group.ById,

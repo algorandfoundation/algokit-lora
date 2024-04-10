@@ -6,30 +6,36 @@ import { useMemo } from 'react'
 import { PaymentTransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { isDefined } from '@/utils/is-defined'
-import { transactionPageConstants } from '@/features/theme/constant'
 
-export type Props = {
+type Props = {
   transaction: PaymentTransactionModel
 }
+
+export const transactionIdLabel = 'Transaction ID'
+export const transactionTypeLabel = 'Type'
+export const transactionTimestampLabel = 'Timestamp'
+export const transactionBlockLabel = 'Block'
+export const transactionGroupLabel = 'Group'
+export const transactionFeeLabel = 'Fee'
 
 export function TransactionInfo({ transaction }: Props) {
   const transactionInfoItems = useMemo(
     () =>
       [
         {
-          dt: transactionPageConstants.labels.transactionId,
+          dt: transactionIdLabel,
           dd: transaction.id,
         },
         {
-          dt: transactionPageConstants.labels.type,
+          dt: transactionTypeLabel,
           dd: transaction.type,
         },
         {
-          dt: transactionPageConstants.labels.timestamp,
+          dt: transactionTimestampLabel,
           dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime)),
         },
         {
-          dt: transactionPageConstants.labels.block,
+          dt: transactionBlockLabel,
           dd: (
             <a href="#" className={cn('text-primary underline')}>
               {transaction.confirmedRound}
@@ -38,7 +44,7 @@ export function TransactionInfo({ transaction }: Props) {
         },
         transaction.group
           ? {
-              dt: transactionPageConstants.labels.group,
+              dt: transactionGroupLabel,
               dd: (
                 <a href="#" className={cn('text-primary underline')}>
                   {transaction.group}
@@ -47,7 +53,7 @@ export function TransactionInfo({ transaction }: Props) {
             }
           : undefined,
         {
-          dt: transactionPageConstants.labels.fee,
+          dt: transactionFeeLabel,
           dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
         },
       ].filter(isDefined),

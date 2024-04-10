@@ -9,47 +9,48 @@ type LogicsigProps = {
   logicsig: LogicsigModel
 }
 
-const tabs = {
-  base64: 'Base64',
-  teal: 'Teal',
-}
+const base64LogicsigTabId = 'base64'
+const tealLogicsigTabId = 'teal'
+export const logicsigLabel = 'View Logic Signature Details'
+export const base64LogicsigTabLabel = 'Base64'
+export const tealLogicsigTabLabel = 'Teal'
 
 export function Logicsig({ logicsig }: LogicsigProps) {
   const [tealLoadable, fetchTeal] = useLogicsigTeal(logicsig.logic)
 
   return (
     <>
-      <h1 className={cn('text-2xl text-primary font-bold')}>Logicsig</h1>
+      <h1 className={cn('text-2xl text-primary font-bold')}>Logic Signature</h1>
       <Tabs
-        defaultValue={tabs.base64}
+        defaultValue={base64LogicsigTabId}
         onValueChange={(activeTab) => {
-          if (activeTab === tabs.teal) {
+          if (activeTab === tealLogicsigTabId) {
             fetchTeal()
           }
         }}
       >
-        <TabsList aria-label="View Transaction">
-          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={tabs.base64}>
-            {tabs.base64}
+        <TabsList aria-label={logicsigLabel}>
+          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64LogicsigTabId}>
+            {base64LogicsigTabLabel}
           </TabsTrigger>
-          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={tabs.teal}>
-            {tabs.teal}
+          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={tealLogicsigTabId}>
+            {tealLogicsigTabLabel}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={tabs.base64} className={cn('border-solid border-2 border-border p-4')}>
+        <TabsContent value={base64LogicsigTabId} className={cn('border-solid border-2 border-border p-4')}>
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-4')}>
               <div className={cn('space-y-2')}>
-                <p>{logicsig.logic}</p>
+                <pre>{logicsig.logic}</pre>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value={tabs.teal} className={cn('border-solid border-2 border-border p-4')}>
+        <TabsContent value={tealLogicsigTabId} className={cn('border-solid border-2 border-border p-4')}>
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-4')}>
-              <div className={cn('space-y-2')}>
-                <RenderLoadable loadable={tealLoadable}>{(teal) => <pre className={cn('whitespace-pre-wrap')}>{teal}</pre>}</RenderLoadable>
+              <div className={cn('space-y-2 h-96 overflow-y-scroll')}>
+                <RenderLoadable loadable={tealLoadable}>{(teal) => <pre>{teal}</pre>}</RenderLoadable>
               </div>
             </CardContent>
           </Card>
