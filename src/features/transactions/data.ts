@@ -1,12 +1,12 @@
 import { atom, useAtomValue, useStore } from 'jotai'
-import * as algokit from '@algorandfoundation/algokit-utils'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
+import { getAlgoIndexerClient, lookupTransactionById } from '@algorandfoundation/algokit-utils'
 
 // TODO: Move this elsewhere and make it configurable once we start using it more
-const indexer = algokit.getAlgoIndexerClient({
+const indexer = getAlgoIndexerClient({
   server: 'https://mainnet-idx.algonode.cloud/',
   port: 443,
 })
@@ -40,7 +40,7 @@ const useTransactionAtom = (transactionId: string) => {
 
       get(syncEffect)
 
-      return algokit.lookupTransactionById(transactionId, indexer).then((result) => {
+      return lookupTransactionById(transactionId, indexer).then((result) => {
         return result.transaction
       })
     })

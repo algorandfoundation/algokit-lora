@@ -1,9 +1,8 @@
-import { cn } from '@/features/common/utils'
 import { PaymentTransaction } from './payment-transaction'
 import { MultisigTransactionSignature, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { MultisigModel, PaymentTransactionModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
-import invariant from 'tiny-invariant'
+import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 
 type Props = {
@@ -40,12 +39,9 @@ const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
 }
 
 export function Transaction({ transaction }: Props) {
-  return (
-    <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>Transaction</h1>
-      {transaction['tx-type'] === algosdk.TransactionType.pay && (
-        <PaymentTransaction transaction={asPaymentTransaction(transaction)} rawTransaction={transaction} />
-      )}
-    </div>
-  )
+  if (transaction['tx-type'] === algosdk.TransactionType.pay) {
+    return <PaymentTransaction transaction={asPaymentTransaction(transaction)} rawTransaction={transaction} />
+  }
+
+  return <></>
 }

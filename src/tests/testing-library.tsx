@@ -6,6 +6,7 @@ import type { createStore } from 'jotai'
 import { Provider as JotaiProvider } from 'jotai'
 import type { PropsWithChildren } from 'react'
 import { MemoryRouter } from 'react-router'
+import { ErrorBoundary } from './error-boundary'
 import * as getDescriptionQueries from './custom-queries/get-description'
 
 const allQueries = {
@@ -28,7 +29,9 @@ const Providers =
         <ThemeProvider>
           <TooltipProvider>
             <LayoutProvider>
-              <MemoryRouter>{children}</MemoryRouter>
+              <ErrorBoundary>
+                <MemoryRouter>{children}</MemoryRouter>
+              </ErrorBoundary>
             </LayoutProvider>
           </TooltipProvider>
         </ThemeProvider>
