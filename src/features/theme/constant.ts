@@ -20,3 +20,11 @@ export const transactionPageConstants = {
     table: 'Table',
   },
 }
+
+export const multisigConstants = {
+  labels: {
+    version: 'Version',
+    threshold: 'Threshold',
+    subsigners: 'Subsigners',
+  },
+}
