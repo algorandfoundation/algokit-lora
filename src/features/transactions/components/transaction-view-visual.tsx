@@ -71,8 +71,8 @@ function AccountId({ id }: { id: string }) {
   return <h1 className={cn('text-l font-semibold')}>{ellipseAddress(id)}</h1>
 }
 
-function ConnectionToSibbling() {
-  // The connection between this transaction and the next sibbling
+function ConnectionToSibling() {
+  // The connection between this transaction and the next sibling
   return (
     <div
       className={cn('border-primary', 'absolute left-0')}
@@ -187,7 +187,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Transa
 type TransactionRowProps = {
   transaction: TransactionModel
   hasParent?: boolean
-  hasNextSibbling?: boolean
+  hasNextSibling?: boolean
   hasChildren?: boolean
   accounts: string[]
   indentLevel?: number
@@ -197,7 +197,7 @@ function TransactionRow({
   transaction,
   accounts,
   hasParent = false,
-  hasNextSibbling = false,
+  hasNextSibling = false,
   hasChildren = false,
   indentLevel,
   verticalBars,
@@ -214,7 +214,7 @@ function TransactionRow({
         >
           {hasParent && <ConnectionToParent />}
           <TransactionId hasParent={hasParent} id={transaction.id} />
-          {hasParent && hasNextSibbling && <ConnectionToSibbling />}
+          {hasParent && hasNextSibling && <ConnectionToSibling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
       </div>
@@ -252,10 +252,10 @@ function TransactionRow({
             transaction={childTransaction}
             hasChildren={childTransaction.transactions && childTransaction.transactions.length > 0}
             hasParent={true}
-            hasNextSibbling={index < arr.length - 1}
+            hasNextSibling={index < arr.length - 1}
             accounts={accounts}
             indentLevel={indentLevel == null ? 0 : indentLevel + 1}
-            verticalBars={[...(verticalBars ?? []), hasNextSibbling ? indentLevel ?? 0 : undefined]}
+            verticalBars={[...(verticalBars ?? []), hasNextSibling ? indentLevel ?? 0 : undefined]}
           />
         ))}
     </>
@@ -373,7 +373,7 @@ export function TransactionViewVisual({ transaction }: Props) {
           transaction={transaction}
           hasChildren={transaction.transactions && transaction.transactions.length > 0}
           hasParent={false}
-          hasNextSibbling={index < arr.length - 1}
+          hasNextSibling={index < arr.length - 1}
           accounts={accounts}
           verticalBars={[]}
         />

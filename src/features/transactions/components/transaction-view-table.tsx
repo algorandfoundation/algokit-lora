@@ -12,13 +12,13 @@ type FlattenedTransaction = {
   transaction: TransactionModel
 }
 
-function flatternInnerTransactions(transaction: TransactionModel, nestingLevel = 0): FlattenedTransaction[] {
+function flattenInnerTransactions(transaction: TransactionModel, nestingLevel = 0): FlattenedTransaction[] {
   return [
     {
       nestingLevel,
       transaction,
     },
-  ].concat(transaction.transactions?.flatMap((transaction) => flatternInnerTransactions(transaction, nestingLevel + 1)) ?? [])
+  ].concat(transaction.transactions?.flatMap((transaction) => flattenInnerTransactions(transaction, nestingLevel + 1)) ?? [])
 }
 
 type Props = {
@@ -26,7 +26,7 @@ type Props = {
 }
 
 export function TransactionViewTable({ transaction }: Props) {
-  const flattenedTransactions = flatternInnerTransactions(transaction)
+  const flattenedTransactions = flattenInnerTransactions(transaction)
 
   return (
     <table className={cn('w-full')}>
