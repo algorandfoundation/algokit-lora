@@ -83,7 +83,7 @@ describe('when a payment transaction with no children', () => {
 })
 
 describe('when rendering a multisig transaction', () => {
-  it('it should show multisig information with a payment transaction', async () => {
+  it('it should show the multisig information', async () => {
     const multiSigPaymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: multiSigPaymentTransaction.id }))
     const myStore = createStore()

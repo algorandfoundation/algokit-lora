@@ -36,7 +36,7 @@ const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
     version: signature.version,
     threshold: signature.threshold,
     subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
-  } satisfies MultisigModel
+  }
 }
 
 export function Transaction({ transaction }: Props) {
