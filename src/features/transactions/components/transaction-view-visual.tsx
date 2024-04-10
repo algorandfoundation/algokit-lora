@@ -11,6 +11,7 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { transactionPageConstants } from '@/features/theme/constant'
+import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 const graphConfig = {
   rowHeight: 40,
@@ -262,38 +263,6 @@ function TransactionRow({
   )
 }
 
-function unpackTransaction(transaction: TransactionModel, nestingLevel = 0) {
-  let transactionCount = 1
-  let accounts: string[] = []
-  let maxNestingLevel = nestingLevel
-
-  accounts.push(transaction.sender)
-  if (transaction.type === TransactionType.Payment) {
-    accounts.push(transaction.receiver)
-  }
-
-  transaction.transactions?.forEach((transaction) => {
-    const {
-      transactionCount: childTransactionCount,
-      accounts: childAccounts,
-      nestingLevel: childNestingLevel,
-    } = unpackTransaction(transaction, nestingLevel + 1)
-
-    transactionCount += childTransactionCount
-    accounts = [...accounts, ...childAccounts]
-    maxNestingLevel = Math.max(maxNestingLevel, childNestingLevel)
-  })
-
-  // Remove duplicates
-  accounts = Array.from(new Set(accounts))
-
-  return {
-    transactionCount: transactionCount,
-    accounts: accounts,
-    nestingLevel: maxNestingLevel,
-  }
-}
-
 function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
 
@@ -320,13 +289,23 @@ type Props = {
 }
 
 export function TransactionViewVisual({ transaction }: Props) {
-  const { transactionCount, accounts, nestingLevel } = unpackTransaction(transaction)
+  const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
+  const transactionCount = flattenedTransactions.length
+  const accounts = Array.from(
+    new Set([
+      ...flattenedTransactions
+        .map((t) => [t.transaction.sender, t.transaction.type === TransactionType.Payment ? t.transaction.receiver : undefined])
+        .flat()
+        .filter(isDefined),
+    ])
+  )
+  const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
 
   return (
     <div
       className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + nestingLevel * graphConfig.indentationWidth}px) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >

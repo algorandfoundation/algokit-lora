@@ -2,23 +2,11 @@ import { cn } from '@/features/common/utils'
 import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { useMemo } from 'react'
 
 const graphConfig = {
   indentationWidth: 20,
-}
-
-type FlattenedTransaction = {
-  nestingLevel: number
-  transaction: TransactionModel
-}
-
-function flattenInnerTransactions(transaction: TransactionModel, nestingLevel = 0): FlattenedTransaction[] {
-  return [
-    {
-      nestingLevel,
-      transaction,
-    },
-  ].concat(transaction.transactions?.flatMap((transaction) => flattenInnerTransactions(transaction, nestingLevel + 1)) ?? [])
 }
 
 type Props = {
@@ -26,7 +14,7 @@ type Props = {
 }
 
 export function TransactionViewTable({ transaction }: Props) {
-  const flattenedTransactions = flattenInnerTransactions(transaction)
+  const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
 
   return (
     <table className={cn('w-full')}>
