@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionPageConstants } from '@/features/theme/constant'
 
-export type MultisigProps = {
+type MultisigProps = {
   multisig: MultisigModel
 }
 

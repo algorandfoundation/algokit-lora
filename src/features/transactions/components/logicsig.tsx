@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { useLogicsigTeal } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
-export type LogicsigProps = {
+type LogicsigProps = {
   logicsig: LogicsigModel
 }
 
