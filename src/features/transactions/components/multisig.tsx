@@ -13,15 +13,15 @@ export function Multisig({ multisig: multisig }: MultisigProps) {
   const multisigItems = useMemo(
     () => [
       {
-        dt: transactionPageConstants.labels.multisig.version,
+        dt: transactionPageConstants.labels.signature.multisig.version,
         dd: multisig.version,
       },
       {
-        dt: transactionPageConstants.labels.multisig.threshold,
+        dt: transactionPageConstants.labels.signature.multisig.threshold,
         dd: multisig.threshold,
       },
       {
-        dt: transactionPageConstants.labels.multisig.subsigners,
+        dt: transactionPageConstants.labels.signature.multisig.subsigners,
         dd: multisig.subsigners.map((address, index) => <div key={index}>{address}</div>),
       },
     ],

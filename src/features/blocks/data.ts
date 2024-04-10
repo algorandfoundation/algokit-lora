@@ -16,7 +16,7 @@ window.Buffer = Buffer
 
 // TODO: Move this elsewhere and make it configurable once we start using it more
 const algod = algokit.getAlgoClient({
-  server: 'https://testnet-api.algonode.cloud/',
+  server: 'https://mainnet-api.algonode.cloud/',
   port: 443,
 })
 

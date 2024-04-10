@@ -16,8 +16,7 @@ type CommonTransactionProperties = {
   messagePackNote?: string
 
   transactions?: TransactionModel[]
-
-  multisig?: MultisigModel
+  signature?: SinglesigModel | MultisigModel | LogicsigModel
 }
 
 export enum TransactionType {
@@ -35,8 +34,19 @@ export type TransactionModel = PaymentTransactionModel
 
 export type MicroAlgo = number
 
+export type SinglesigModel = {
+  type: 'Singlesig'
+  signer: Address
+}
+
 export type MultisigModel = {
+  type: 'Multisig'
   version: number
   threshold: number
   subsigners: Address[]
+}
+
+export type LogicsigModel = {
+  type: 'Logicsig'
+  logic: string
 }

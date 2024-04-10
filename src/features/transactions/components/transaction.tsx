@@ -1,7 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { PaymentTransaction } from './payment-transaction'
-import { MultisigTransactionSignature, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { MultisigModel, PaymentTransactionModel, TransactionType } from '../models'
+import { MultisigTransactionSignature, TransactionResult, LogicTransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import { LogicsigModel, MultisigModel, PaymentTransactionModel, SinglesigModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
@@ -27,15 +27,36 @@ const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactio
     receiver: transaction['payment-transaction']['receiver'],
     amount: transaction['payment-transaction']['amount'].microAlgos(),
     closeAmount: transaction['payment-transaction']['close-amount']?.microAlgos(),
-    multisig: transaction.signature?.multisig ? asMultisig(transaction.signature.multisig) : undefined,
+    signature: transaction.signature?.multisig
+      ? asMultisig(transaction.signature.multisig)
+      : transaction.signature?.logicsig
+        ? asLogicsig(transaction.signature.logicsig)
+        : transaction.signature?.sig
+          ? asSinglesig(transaction.signature.sig)
+          : undefined,
   } satisfies PaymentTransactionModel
 }
 
 const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
   return {
+    type: 'Multisig',
     version: signature.version,
     threshold: signature.threshold,
     subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+  }
+}
+
+const asLogicsig = (signature: LogicTransactionSignature): LogicsigModel => {
+  return {
+    type: 'Logicsig',
+    logic: signature.logic,
+  }
+}
+
+const asSinglesig = (signature: string): SinglesigModel => {
+  return {
+    type: 'Singlesig',
+    signer: signature,
   }
 }
 
