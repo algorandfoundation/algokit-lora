@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
 import { transactionsAtom } from '../data'
+import { MULTISIGTRANSACTION } from '@/tests/constants/multisig-transaction-constant'
 
 describe('given a invalid transaction ID', () => {
   it.skip('should show "Transaction does not exist"', () => {
@@ -62,11 +63,9 @@ describe('when rendering a multisig transaction', () => {
       },
       async (component) => {
         await waitFor(() => {
-          expect(getByDescriptionTerm(component.container, 'Subsigners').textContent).toBe(
-            'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
-          )
-          expect(getByDescriptionTerm(component.container, 'Threshold').textContent).toBe('3')
-          expect(getByDescriptionTerm(component.container, 'Version').textContent).toBe('1')
+          expect(getByDescriptionTerm(component.container, 'Threshold').textContent).toBe(MULTISIGTRANSACTION.THRESHOLD)
+          expect(getByDescriptionTerm(component.container, 'Version').textContent).toBe(MULTISIGTRANSACTION.VERSION)
+          expect(getByDescriptionTerm(component.container, 'Subsigners').textContent).toBe(MULTISIGTRANSACTION.SUBSIGNERS)
         })
       }
     )
