@@ -9,19 +9,19 @@ export type MultisigProps = {
   multisig: MultisigModel
 }
 
-export function Multisig({ multisig: multisig }: MultisigProps) {
+export function Multisig({ multisig }: MultisigProps) {
   const multisigItems = useMemo(
     () => [
       {
-        dt: transactionPageConstants.labels.signature.multisig.version,
+        dt: transactionPageConstants.labels.multisig.version,
         dd: multisig.version,
       },
       {
-        dt: transactionPageConstants.labels.signature.multisig.threshold,
+        dt: transactionPageConstants.labels.multisig.threshold,
         dd: multisig.threshold,
       },
       {
-        dt: transactionPageConstants.labels.signature.multisig.subsigners,
+        dt: transactionPageConstants.labels.multisig.subsigners,
         dd: multisig.subsigners.map((address, index) => <div key={index}>{address}</div>),
       },
     ],
