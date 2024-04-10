@@ -6,7 +6,7 @@ import { useLogicsigTeal } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type LogicsigProps = {
-  logicsig: LogicsigModel
+  signature: LogicsigModel
 }
 
 const base64LogicsigTabId = 'base64'
@@ -15,8 +15,8 @@ export const logicsigLabel = 'View Logic Signature Details'
 export const base64LogicsigTabLabel = 'Base64'
 export const tealLogicsigTabLabel = 'Teal'
 
-export function Logicsig({ logicsig }: LogicsigProps) {
-  const [tealLoadable, fetchTeal] = useLogicsigTeal(logicsig.logic)
+export function Logicsig({ signature }: LogicsigProps) {
+  const [tealLoadable, fetchTeal] = useLogicsigTeal(signature.logic)
 
   return (
     <>
@@ -41,7 +41,7 @@ export function Logicsig({ logicsig }: LogicsigProps) {
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-4')}>
               <div className={cn('space-y-2')}>
-                <pre>{logicsig.logic}</pre>
+                <pre>{signature.logic}</pre>
               </div>
             </CardContent>
           </Card>

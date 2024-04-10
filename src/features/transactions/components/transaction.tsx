@@ -1,6 +1,6 @@
 import { PaymentTransaction } from './payment-transaction'
-import { MultisigTransactionSignature, TransactionResult, LogicTransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
-import { LogicsigModel, MultisigModel, PaymentTransactionModel, SinglesigModel, TransactionType } from '../models'
+import { TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import { LogicsigModel, MultisigModel, PaymentTransactionModel, SignatureType, SinglesigModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
@@ -26,36 +26,32 @@ const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactio
     receiver: transaction['payment-transaction']['receiver'],
     amount: transaction['payment-transaction']['amount'].microAlgos(),
     closeAmount: transaction['payment-transaction']['close-amount']?.microAlgos(),
-    signature: transaction.signature?.multisig
-      ? asMultisig(transaction.signature.multisig)
-      : transaction.signature?.logicsig
-        ? asLogicsig(transaction.signature.logicsig)
-        : transaction.signature?.sig
-          ? asSinglesig(transaction.signature.sig)
-          : undefined,
+    signature: transformSignature(transaction.signature),
   } satisfies PaymentTransactionModel
 }
 
-const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
-  return {
-    type: 'Multisig',
-    version: signature.version,
-    threshold: signature.threshold,
-    subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+const transformSignature = (signature?: TransactionSignature) => {
+  if (signature?.sig) {
+    return {
+      type: SignatureType.Single,
+      signer: signature.sig,
+    } satisfies SinglesigModel
   }
-}
 
-const asLogicsig = (signature: LogicTransactionSignature): LogicsigModel => {
-  return {
-    type: 'Logicsig',
-    logic: signature.logic,
+  if (signature?.multisig) {
+    return {
+      type: SignatureType.Multi,
+      version: signature.multisig.version,
+      threshold: signature.multisig.threshold,
+      subsigners: signature.multisig.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+    } satisfies MultisigModel
   }
-}
 
-const asSinglesig = (signature: string): SinglesigModel => {
-  return {
-    type: 'Singlesig',
-    signer: signature,
+  if (signature?.logicsig) {
+    return {
+      type: SignatureType.Logic,
+      logic: signature.logicsig.logic,
+    } satisfies LogicsigModel
   }
 }
 

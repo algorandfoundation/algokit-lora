@@ -5,30 +5,30 @@ import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 
 type MultisigProps = {
-  multisig: MultisigModel
+  signature: MultisigModel
 }
 
 export const multisigVersionLabel = 'Version'
 export const multisigThresholdLabel = 'Threshold'
 export const multisigSubsignersLabel = 'Subsigners'
 
-export function Multisig({ multisig }: MultisigProps) {
+export function Multisig({ signature }: MultisigProps) {
   const multisigItems = useMemo(
     () => [
       {
         dt: multisigVersionLabel,
-        dd: multisig.version,
+        dd: signature.version,
       },
       {
         dt: multisigThresholdLabel,
-        dd: multisig.threshold,
+        dd: signature.threshold,
       },
       {
         dt: multisigSubsignersLabel,
-        dd: multisig.subsigners.map((address, index) => <div key={index}>{address}</div>),
+        dd: signature.subsigners.map((address, index) => <div key={index}>{address}</div>),
       },
     ],
-    [multisig.subsigners, multisig.version, multisig.threshold]
+    [signature.subsigners, signature.version, signature.threshold]
   )
 
   return (

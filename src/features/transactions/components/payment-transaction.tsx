@@ -5,7 +5,7 @@ import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
-import { PaymentTransactionModel } from '../models'
+import { PaymentTransactionModel, SignatureType } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionViewVisual } from './transaction-view-visual'
@@ -87,8 +87,8 @@ export function PaymentTransaction({ transaction, rawTransaction }: PaymentTrans
           </Tabs>
           <TransactionNote transaction={transaction} />
           <TransactionJson transaction={rawTransaction} />
-          {transaction.signature?.type === 'Multisig' && <Multisig multisig={transaction.signature} />}
-          {transaction.signature?.type === 'Logicsig' && <Logicsig logicsig={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}
         </CardContent>
       </Card>
     </div>
