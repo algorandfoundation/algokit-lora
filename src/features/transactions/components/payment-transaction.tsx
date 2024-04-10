@@ -12,6 +12,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionViewTable } from './transaction-view-table'
+import { Multisig } from './multisig'
 
 export type Props = {
   transaction: PaymentTransactionModel
@@ -75,6 +76,7 @@ export function PaymentTransaction({ transaction, rawTransaction }: Props) {
           </Tabs>
           <TransactionNote transaction={transaction} />
           <TransactionJson transaction={rawTransaction} />
+          {transaction.multisig && <Multisig multisig={transaction.multisig} />}
         </CardContent>
       </Card>
     </div>

@@ -27,7 +27,6 @@ describe('when a payment transaction with no children', () => {
 
   it('should be rendered with the correct data', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
-
     const myStore = createStore()
     myStore.set(transactionsAtom, [paymentTransaction])
 
@@ -77,6 +76,30 @@ describe('when a payment transaction with no children', () => {
         expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('KIZL...U5BQ')
         expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Payment')
         expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('236.07')
+      }
+    )
+  })
+})
+
+describe('when rendering a multisig payment transaction', () => {
+  it('should show the multisig information', async () => {
+    const multiSigPaymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: multiSigPaymentTransaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionsAtom, [multiSigPaymentTransaction])
+
+    return executeComponentTest(
+      () => {
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() => {
+          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.threshold).textContent).toBe('3')
+          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.version).textContent).toBe('1')
+          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.subsigners).textContent).toBe(
+            'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
+          )
+        })
       }
     )
   })
