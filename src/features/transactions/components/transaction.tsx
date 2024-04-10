@@ -1,10 +1,9 @@
-import { cn } from '@/features/common/utils'
 import { PaymentTransaction } from './payment-transaction'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { PaymentTransactionModel, TransactionType } from '../models'
+import { MultisigTransactionSignature, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { MultisigModel, PaymentTransactionModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
 import { invariant } from '@/utils/invariant'
-import { transactionPageConstants } from '@/features/theme/constant'
+import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 
 type Props = {
   transaction: TransactionResult
@@ -20,24 +19,29 @@ const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactio
     id: transaction.id,
     type: TransactionType.Payment,
     confirmedRound: transaction['confirmed-round'],
-    roundTime: new Date(transaction['round-time'] * 1000),
+    roundTime: transaction['round-time'] * 1000,
     group: transaction['group'],
     fee: transaction.fee.microAlgos(),
     sender: transaction.sender,
     receiver: transaction['payment-transaction']['receiver'],
     amount: transaction['payment-transaction']['amount'].microAlgos(),
     closeAmount: transaction['payment-transaction']['close-amount']?.microAlgos(),
+    multisig: transaction.signature?.multisig ? asMultisig(transaction.signature.multisig) : undefined,
   } satisfies PaymentTransactionModel
 }
 
+const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
+  return {
+    version: signature.version,
+    threshold: signature.threshold,
+    subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+  }
+}
+
 export function Transaction({ transaction }: Props) {
-  return (
-    <div>
-      {/* TODO: NC - Page title should probably live in the page component */}
-      <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageConstants.title}</h1>
-      {transaction['tx-type'] === algosdk.TransactionType.pay && (
-        <PaymentTransaction transaction={asPaymentTransaction(transaction)} rawTransaction={transaction} />
-      )}
-    </div>
-  )
+  if (transaction['tx-type'] === algosdk.TransactionType.pay) {
+    return <PaymentTransaction transaction={asPaymentTransaction(transaction)} rawTransaction={transaction} />
+  }
+
+  return <></>
 }

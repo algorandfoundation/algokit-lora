@@ -7,4 +7,23 @@ export const transactionPageConstants = {
   notFoundMessage: 'Transaction not found',
   invalidIdMessage: 'Transaction Id is invalid',
   failedToLoadMessage: 'Transaction failed to load',
+  labels: {
+    transactionId: 'Transaction ID',
+    type: 'Type',
+    timestamp: 'Timestamp',
+    block: 'Block',
+    group: 'Group',
+    fee: 'Fee',
+    sender: 'Sender',
+    receiver: 'Receiver',
+    amount: 'Amount',
+    viewTransaction: 'View Transaction',
+    visual: 'Visual',
+    table: 'Table',
+    multisig: {
+      version: 'Version',
+      threshold: 'Threshold',
+      subsigners: 'Subsigners',
+    },
+  },
 }

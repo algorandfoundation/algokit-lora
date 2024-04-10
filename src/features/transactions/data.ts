@@ -7,7 +7,7 @@ import { getAlgoIndexerClient, lookupTransactionById } from '@algorandfoundation
 
 // TODO: Move this elsewhere and make it configurable once we start using it more
 const indexer = getAlgoIndexerClient({
-  server: 'https://testnet-idx.algonode.cloud/',
+  server: 'https://mainnet-idx.algonode.cloud/',
   port: 443,
 })
 
@@ -16,6 +16,7 @@ export const transactionsAtom = atom<TransactionResult[]>([])
 
 const useTransactionAtom = (transactionId: string) => {
   const store = useStore()
+
   return useMemo(() => {
     const syncEffect = atomEffect((get, set) => {
       ;(async () => {

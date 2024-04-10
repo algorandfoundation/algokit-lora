@@ -9,6 +9,8 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks.ts'],
+    globals: true,
+    globalSetup: 'src/tests/setup/setup-timezone.ts',
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
