@@ -51,10 +51,10 @@ describe('given a payment transaction', () => {
 
 describe('when rendering a multisig transaction', () => {
   it('it should show multisig information with a payment transaction', async () => {
-    const paymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
-    vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
+    const multiSigPaymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: multiSigPaymentTransaction.id }))
     const myStore = createStore()
-    myStore.set(transactionsAtom, [paymentTransaction])
+    myStore.set(transactionsAtom, [multiSigPaymentTransaction])
 
     return executeComponentTest(
       () => {
