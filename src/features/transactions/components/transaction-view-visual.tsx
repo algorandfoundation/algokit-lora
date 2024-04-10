@@ -143,13 +143,49 @@ const DisplayArrow = fixedForwardRef(
   }
 )
 
-const DisplaySelfTransaction = fixedForwardRef((props: object, ref?: React.LegacyRef<HTMLDivElement>) => {
-  return (
-    <div ref={ref} className={cn('flex items-center justify-center')} {...props}>
-      <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
-    </div>
-  )
-})
+const DisplaySelfTransaction = fixedForwardRef(
+  ({ transaction, arrow, ...rest }: { transaction: TransactionModel; arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
+    const color = graphConfig.paymentTransactionColor
+
+    return (
+      <div
+        ref={ref}
+        className={cn('flex items-center justify-center relative')}
+        {...rest}
+        style={{
+          gridColumnStart: arrow.from + 2, // 2 to offset the name column
+          gridColumnEnd: arrow.to + 4, // 4 to offset the name column and make this cell span 2 columns
+          color: color,
+        }}
+      >
+        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <div
+          style={{
+            width: `calc(50% - ${graphConfig.circleDimension / 2}px)`,
+            height: `${graphConfig.circleDimension}px`,
+          }}
+        >
+          <SvgPointerLeft className={cn('relative')} style={{ left: `calc(50% + ${graphConfig.circleDimension})px` }} />
+        </div>
+        <div
+          className="absolute size-1/2"
+          style={{
+            borderWidth: graphConfig.lineWidth,
+            borderColor: color,
+            borderRadius: '4px',
+            bottom: graphConfig.lineWidth / 2,
+            right: `calc(25% - ${graphConfig.lineWidth * 2}px)`,
+          }}
+        ></div>
+        <div className={cn('absolute text-foreground right-1/4 w-[40%] flex justify-center')}>
+          {transaction.type === TransactionType.Payment && (
+            <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
+          )}
+        </div>
+      </div>
+    )
+  }
+)
 
 function PaymentTransactionToolTipContent({ transaction }: { transaction: TransactionModel }) {
   const items = useMemo(
@@ -221,22 +257,15 @@ function TransactionRow({
       </div>
       {accounts.map((_, index) => {
         if (index < arrow.from || index > arrow.to) return <div key={index}></div>
-        if (index === arrow.from && index === arrow.to)
-          return (
-            <Tooltip key={index}>
-              <TooltipTrigger asChild>
-                <DisplaySelfTransaction />
-              </TooltipTrigger>
-              <TooltipContent>
-                {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
-              </TooltipContent>
-            </Tooltip>
-          )
         if (index === arrow.from)
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                <DisplayArrow key={index} arrow={arrow} transaction={transaction} />
+                {index === arrow.to ? (
+                  <DisplaySelfTransaction key={index} arrow={arrow} transaction={transaction} />
+                ) : (
+                  <DisplayArrow key={index} arrow={arrow} transaction={transaction} />
+                )}
               </TooltipTrigger>
               <TooltipContent>
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
@@ -304,12 +333,13 @@ export function TransactionViewVisual({ transaction }: Props) {
     ])
   )
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
+  const gridAccountColumns = accounts.length + 1 // +1 is to support transactions with the same sender and receiver
 
   return (
     <div
       className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${accounts.length}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
@@ -319,6 +349,7 @@ export function TransactionViewVisual({ transaction }: Props) {
           <AccountId id={account} />
         </div>
       ))}
+      <div>{/* The last header cell is empty to support transactions with the same sender and receiver */}</div>
       {/* The below div is for drawing the background dash lines */}
       <div className={cn('absolute right-0 -z-10')} style={{ top: `${graphConfig.rowHeight}px` }}>
         <div>
