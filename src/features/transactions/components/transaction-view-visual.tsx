@@ -329,12 +329,13 @@ export function TransactionViewVisual({ transaction }: Props) {
     ])
   )
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
+  const gridAccountColumns = accounts.length + 1 // +1 is to support transactions with the same sender and receiver
 
   return (
     <div
       className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${accounts.length + 1}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
@@ -344,7 +345,7 @@ export function TransactionViewVisual({ transaction }: Props) {
           <AccountId id={account} />
         </div>
       ))}
-      <div>{/* The last header cell is empty to support transactions with same sender and receiver */}</div>
+      <div>{/* The last header cell is empty to support transactions with the same sender and receiver */}</div>
       {/* The below div is for drawing the background dash lines */}
       <div className={cn('absolute right-0 -z-10')} style={{ top: `${graphConfig.rowHeight}px` }}>
         <div>
