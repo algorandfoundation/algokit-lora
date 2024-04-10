@@ -1,7 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { PaymentTransaction } from './payment-transaction'
 import { MultisigTransactionSignature, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { MultiSigModel, PaymentTransactionModel, TransactionType } from '../models'
+import { MultisigModel, PaymentTransactionModel, TransactionType } from '../models'
 import algosdk from 'algosdk'
 import invariant from 'tiny-invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
@@ -27,16 +27,16 @@ const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactio
     receiver: transaction['payment-transaction']['receiver'],
     amount: transaction['payment-transaction']['amount'].microAlgos(),
     closeAmount: transaction['payment-transaction']['close-amount']?.microAlgos(),
-    multiSig: transaction.signature?.multisig ? asMultiSig(transaction.signature.multisig) : undefined,
+    multisig: transaction.signature?.multisig ? asMultisig(transaction.signature.multisig) : undefined,
   } satisfies PaymentTransactionModel
 }
 
-const asMultiSig = (signature: MultisigTransactionSignature): MultiSigModel => {
+const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
   return {
     version: signature.version,
     threshold: signature.threshold,
     subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
-  } satisfies MultiSigModel
+  } satisfies MultisigModel
 }
 
 export function Transaction({ transaction }: Props) {
