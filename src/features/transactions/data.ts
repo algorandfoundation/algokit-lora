@@ -3,17 +3,8 @@ import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
-import { getAlgoClient, getAlgoIndexerClient, lookupTransactionById } from '@algorandfoundation/algokit-utils'
-
-// TODO: Move this elsewhere and make it configurable once we start using it more
-const indexer = getAlgoIndexerClient({
-  server: 'https://mainnet-idx.algonode.cloud/',
-  port: 443,
-})
-const algod = getAlgoClient({
-  server: 'https://mainnet-api.algonode.cloud/',
-  port: 443,
-})
+import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
+import { algod, indexer } from '../common/data'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionsAtom = atom<TransactionResult[]>([])
