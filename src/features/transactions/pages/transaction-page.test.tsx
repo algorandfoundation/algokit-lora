@@ -1,8 +1,12 @@
 import { transactionModelMother } from '@/tests/object-mother/transaction-model'
 import { describe, expect, it, vi } from 'vitest'
-import { TransactionPage } from './transaction-page'
+import {
+  TransactionPage,
+  transactionFailedToLoadMessage,
+  transactionInvalidIdMessage,
+  transactionNotFoundMessage,
+} from './transaction-page'
 import { executeComponentTest } from '@/tests/test-component'
-import { transactionPageConstants } from '@/features/theme/constant'
 import { getAllByRole, getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
@@ -10,6 +14,23 @@ import { createStore } from 'jotai'
 import { transactionsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
+import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig'
+import { algod } from '@/features/common/data'
+import {
+  tableTransactionDetailsTabLabel,
+  transactionDetailsLabel,
+  visualTransactionDetailsTabLabel,
+} from '../components/payment-transaction'
+import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig'
+import {
+  transactionBlockLabel,
+  transactionFeeLabel,
+  transactionGroupLabel,
+  transactionIdLabel,
+  transactionTimestampLabel,
+  transactionTypeLabel,
+} from '../components/transaction-info'
+import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-visual'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -19,7 +40,7 @@ describe('transaction-page', () => {
       return executeComponentTest(
         () => render(<TransactionPage />),
         async (component) => {
-          await waitFor(() => expect(component.getByText(transactionPageConstants.invalidIdMessage)).toBeTruthy())
+          await waitFor(() => expect(component.getByText(transactionInvalidIdMessage)).toBeTruthy())
         }
       )
     })
@@ -33,7 +54,7 @@ describe('transaction-page', () => {
       return executeComponentTest(
         () => render(<TransactionPage />),
         async (component) => {
-          await waitFor(() => expect(component.getByText(transactionPageConstants.notFoundMessage)).toBeTruthy())
+          await waitFor(() => expect(component.getByText(transactionNotFoundMessage)).toBeTruthy())
         }
       )
     })
@@ -47,19 +68,30 @@ describe('transaction-page', () => {
       return executeComponentTest(
         () => render(<TransactionPage />),
         async (component) => {
-          await waitFor(() => expect(component.getByText(transactionPageConstants.failedToLoadMessage)).toBeTruthy())
+          await waitFor(() => expect(component.getByText(transactionFailedToLoadMessage)).toBeTruthy())
         }
       )
     })
   })
 
-  describe('when rendering a payment transaction with no children', () => {
-    const paymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
+  describe('when rendering a payment transaction', () => {
+    const transaction = transactionModelMother
+      .payment()
+      .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
+      ['withConfirmed-round'](36570178)
+      ['withRound-time'](1709189521)
+      .withSender('M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM')
+      ['withPayment-transaction']({
+        amount: 236070000,
+        receiver: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+      })
+      .withFee(1000)
+      .build()
 
-    it('should be rendered with the correct data', async () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: paymentTransaction.id }))
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionsAtom, [paymentTransaction])
+      myStore.set(transactionsAtom, [transaction])
 
       return executeComponentTest(
         () => {
@@ -67,37 +99,29 @@ describe('transaction-page', () => {
         },
         async (component, user) => {
           // waitFor the loading state to be finished
-          await waitFor(() =>
-            expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.transactionId).textContent).toBe(
-              paymentTransaction.id
-            )
-          )
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.type).textContent).toBe('Payment')
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.timestamp).textContent).toBe(
-            'Thu, 29 February 2024 06:52:01'
-          )
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.block).textContent).toBe('36570178')
-          expect(component.queryByText(transactionPageConstants.labels.group)).toBeNull()
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.fee).textContent).toBe('0.001')
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toBe('Payment')
+          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Thu, 29 February 2024 06:52:01')
+          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('36570178')
+          expect(component.queryByText(transactionGroupLabel)).toBeNull()
+          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
 
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.sender).textContent).toBe(
-            'M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM'
+          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(transaction.sender)
+          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
+            transaction['payment-transaction']!.receiver
           )
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.receiver).textContent).toBe(
-            'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ'
-          )
-          expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.amount).textContent).toBe('236.07')
+          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('236.07')
 
-          const viewTransactionTabList = component.getByRole('tablist', { name: transactionPageConstants.labels.viewTransaction })
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
           expect(
-            component.getByRole('tabpanel', { name: transactionPageConstants.labels.visual }).getAttribute('data-state'),
+            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
             'Visual tab should be active'
           ).toBe('active')
 
           // After click on the Table tab
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionPageConstants.labels.table }))
-          const tableViewTab = component.getByRole('tabpanel', { name: transactionPageConstants.labels.table })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
           // Test the table data
@@ -113,11 +137,11 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a multisig payment transaction', () => {
-    it('should show the multisig information', async () => {
-      const multiSigPaymentTransaction = transactionModelMother.paymentTransactionWithNoChildren().build()
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: multiSigPaymentTransaction.id }))
+    it('should show the multisig information', () => {
+      const transaction = transactionModelMother.multisig().build()
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionsAtom, [multiSigPaymentTransaction])
+      myStore.set(transactionsAtom, [transaction])
 
       return executeComponentTest(
         () => {
@@ -125,12 +149,62 @@ describe('transaction-page', () => {
         },
         async (component) => {
           await waitFor(() => {
-            expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.threshold).textContent).toBe('3')
-            expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.version).textContent).toBe('1')
-            expect(getByDescriptionTerm(component.container, transactionPageConstants.labels.multisig.subsigners).textContent).toBe(
+            expect(getByDescriptionTerm(component.container, multisigThresholdLabel).textContent).toBe('3')
+            expect(getByDescriptionTerm(component.container, multisigVersionLabel).textContent).toBe('1')
+            expect(getByDescriptionTerm(component.container, multisigSubsignersLabel).textContent).toBe(
               'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
             )
           })
+        }
+      )
+    })
+  })
+  describe('when rendering a logicsig payment transaction', () => {
+    const transaction = transactionModelMother.logicsig().build()
+
+    it('should show the logicsig base64', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const logicsigTabList = component.getByRole('tablist', { name: logicsigLabel })
+            expect(logicsigTabList).toBeTruthy()
+          })
+
+          const base64Tab = component.getByRole('tabpanel', { name: base64LogicsigTabLabel })
+          expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active')
+          expect(base64Tab.textContent).toBe(transaction.signature!.logicsig!.logic)
+        }
+      )
+    })
+
+    it('should show the logicsig teal when activated', () => {
+      const teal = '\n#pragma version 8\nint 1\nreturn\n'
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
+
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          await waitFor(async () => {
+            const logicsigTabList = component.getByRole('tablist', { name: logicsigLabel })
+            expect(logicsigTabList).toBeTruthy()
+            await user.click(getByRole(logicsigTabList, 'tab', { name: tealLogicsigTabLabel }))
+          })
+          const tealTab = component.getByRole('tabpanel', { name: tealLogicsigTabLabel })
+          await waitFor(() => expect(tealTab.getAttribute('data-state'), 'Teal tab should be active').toBe('active'))
+          expect(tealTab.textContent).toBe(teal)
         }
       )
     })

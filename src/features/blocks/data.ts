@@ -1,10 +1,10 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
-import * as algokit from '@algorandfoundation/algokit-utils'
 import { atomEffect } from 'jotai-effect'
 import { transactionsAtom } from '@/features/transactions/data'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 // import { BlockMetadata } from '@algorandfoundation/algokit-subscriber/types/subscription'
 import { Buffer } from 'buffer'
+import { algod } from '../common/data'
 
 type BlockMetadata = {
   round: number
@@ -13,12 +13,6 @@ type BlockMetadata = {
 
 // TODO: NC - Remove once https://github.com/algorandfoundation/algokit-subscriber-ts/pull/49 is merged
 window.Buffer = Buffer
-
-// TODO: Move this elsewhere and make it configurable once we start using it more
-const algod = algokit.getAlgoClient({
-  server: 'https://testnet-api.algonode.cloud/',
-  port: 443,
-})
 
 const syncedRoundAtom = atom<number | undefined>(undefined)
 
@@ -30,9 +24,6 @@ const latestBlockAtom = atom((get) => {
 })
 
 const subscribeToBlocksEffect = atomEffect((get, set) => {
-  algokit.Config.configure({
-    logger: algokit.Config.getLogger(true),
-  })
   const subscriber = new AlgorandSubscriber(
     {
       filters: [

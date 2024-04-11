@@ -10,8 +10,8 @@ import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { transactionPageConstants } from '@/features/theme/constant'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 
 const graphConfig = {
   rowHeight: 40,
@@ -191,23 +191,23 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Transa
   const items = useMemo(
     () => [
       {
-        dt: transactionPageConstants.labels.transactionId,
+        dt: transactionIdLabel,
         dd: transaction.id,
       },
       {
-        dt: transactionPageConstants.labels.type,
+        dt: transactionTypeLabel,
         dd: 'Payment',
       },
       {
-        dt: transactionPageConstants.labels.sender,
+        dt: transactionSenderLabel,
         dd: transaction.sender,
       },
       {
-        dt: transactionPageConstants.labels.receiver,
+        dt: transactionReceiverLabel,
         dd: transaction.receiver,
       },
       {
-        dt: transactionPageConstants.labels.amount,
+        dt: transactionAmountLabel,
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
@@ -316,6 +316,10 @@ function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
 type Props = {
   transaction: TransactionModel
 }
+
+export const transactionSenderLabel = 'Sender'
+export const transactionReceiverLabel = 'Receiver'
+export const transactionAmountLabel = 'Amount'
 
 export function TransactionViewVisual({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])

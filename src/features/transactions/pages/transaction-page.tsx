@@ -3,7 +3,6 @@ import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { Transaction } from '../components/transaction'
 import { useLoadableTransaction } from '../data'
-import { transactionPageConstants } from '@/features/theme/constant'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 
@@ -11,24 +10,29 @@ const isValidTransactionId = (transactionId: string) => transactionId.length ===
 
 const transformError = (e: Error) => {
   if ('status' in e && e.status === 404) {
-    return new Error(transactionPageConstants.notFoundMessage)
+    return new Error(transactionNotFoundMessage)
   }
 
   // eslint-disable-next-line no-console
   console.error(e)
-  return new Error(transactionPageConstants.failedToLoadMessage)
+  return new Error(transactionFailedToLoadMessage)
 }
+
+export const transactionPageTitle = 'Transaction'
+export const transactionNotFoundMessage = 'Transaction not found'
+export const transactionInvalidIdMessage = 'Transaction Id is invalid'
+export const transactionFailedToLoadMessage = 'Transaction failed to load'
 
 export function TransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
-  invariant(isValidTransactionId(transactionId), transactionPageConstants.invalidIdMessage)
+  invariant(isValidTransactionId(transactionId), transactionInvalidIdMessage)
   const loadableTransaction = useLoadableTransaction(transactionId)
 
   return (
     <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
       {(data) => (
         <div>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageConstants.title}</h1>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageTitle}</h1>
           <Transaction transaction={data} />
         </div>
       )}
