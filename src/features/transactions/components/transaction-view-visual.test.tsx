@@ -13,12 +13,12 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 // To update a snapshot:
 //   - Make the code changes in TransactionViewVisual
 //   - The snapshot tests will fail
-//   - Visually inspect each transactions in the describe.each list and make sure that they are rendered correctly with the new code changes
+//   - Visually inspect (by viewing in the browser) each transactions in the describe.each list and make sure that they are rendered correctly with the new code changes
 //   - Update the snapshot files by running `vitest -u`. Or if the test runner is running, press `u` to update the snapshots.
 describe('transaction-view-visual', () => {
   describe.each([
-    transactionModelMother.mainnet().FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ(),
-    transactionModelMother.mainnet().ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA(),
+    transactionModelMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ'](),
+    transactionModelMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA'](),
   ])('when rendering transaction %d', (transaction: TransactionResult) => {
     it('should match snapshot', () => {
       const model = asPaymentTransaction(transaction)

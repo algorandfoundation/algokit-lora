@@ -36,43 +36,41 @@ export const transactionModelMother = {
         logicsig: { logic: 'CIEBQw==' },
       })
   },
-  mainnet: () => {
-    return {
-      FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ: () => {
-        return JSON.parse(
-          `{
-            "id": "FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ",
-            "close-rewards": 0,
-            "closing-amount": 0,
-            "confirmed-round": 36570178,
-            "fee": 1000,
-            "first-valid": 36570176,
-            "genesis-hash": "wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=",
-            "genesis-id": "mainnet-v1.0",
-            "intra-round-offset": 86,
-            "last-valid": 36571176,
-            "note": "MTM0MDI4MzIxNDIxMjQ3NzQ6NjM5NDYxOTE2MDI4MzUwNzcxMg==",
-            "payment-transaction": {
-              "amount": 236070000,
-              "close-amount": 0,
-              "receiver": "KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ"
-            },
-            "receiver-rewards": 0,
-            "round-time": 1709189521,
-            "sender": "M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM",
-            "sender-rewards": 0,
-            "signature": {
-              "sig": "4cwwpWiOnldnkW+M8Epwg2iaJvxdIvnUa9jM+uZxRcBTESRCD/BcsvbPVYrqEf6YwGCtsupNbNo6SwdUQRa2CQ=="
-            },
-            "tx-type": "pay"
-          }`
-        ) satisfies TransactionResult
-      },
-      ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA: () => {
-        // Payment transaction:
-        //   - Same sender and receiver
-        return JSON.parse(
-          `{
+  ['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']: () => {
+    return JSON.parse(
+      `{
+        "id": "FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ",
+        "close-rewards": 0,
+        "closing-amount": 0,
+        "confirmed-round": 36570178,
+        "fee": 1000,
+        "first-valid": 36570176,
+        "genesis-hash": "wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=",
+        "genesis-id": "mainnet-v1.0",
+        "intra-round-offset": 86,
+        "last-valid": 36571176,
+        "note": "MTM0MDI4MzIxNDIxMjQ3NzQ6NjM5NDYxOTE2MDI4MzUwNzcxMg==",
+        "payment-transaction": {
+          "amount": 236070000,
+          "close-amount": 0,
+          "receiver": "KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ"
+        },
+        "receiver-rewards": 0,
+        "round-time": 1709189521,
+        "sender": "M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM",
+        "sender-rewards": 0,
+        "signature": {
+          "sig": "4cwwpWiOnldnkW+M8Epwg2iaJvxdIvnUa9jM+uZxRcBTESRCD/BcsvbPVYrqEf6YwGCtsupNbNo6SwdUQRa2CQ=="
+        },
+        "tx-type": "pay"
+      }`
+    ) satisfies TransactionResult
+  },
+  ['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']: () => {
+    // Payment transaction:
+    //   - Same sender and receiver
+    return JSON.parse(
+      `{
             "id": "ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA",
             "close-rewards": 0,
             "closing-amount": 0,
@@ -102,8 +100,6 @@ export const transactionModelMother = {
             },
             "tx-type": "pay"
           }`
-        ) satisfies TransactionResult
-      },
-    }
+    ) satisfies TransactionResult
   },
 }
