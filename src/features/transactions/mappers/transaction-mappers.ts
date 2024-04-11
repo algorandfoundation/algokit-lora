@@ -1,5 +1,5 @@
-import { MultisigTransactionSignature, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { MultisigModel, PaymentTransactionModel, TransactionType } from '../models'
+import { TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import { LogicsigModel, MultisigModel, PaymentTransactionModel, SignatureType, SinglesigModel, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
@@ -23,14 +23,31 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
     closeAmount: transaction['payment-transaction']['close-amount']
       ? algokit.microAlgos(transaction['payment-transaction']['close-amount'])
       : undefined,
-    multisig: transaction.signature?.multisig ? asMultisig(transaction.signature.multisig) : undefined,
+    signature: transformSignature(transaction.signature),
   } satisfies PaymentTransactionModel
 }
 
-export const asMultisig = (signature: MultisigTransactionSignature): MultisigModel => {
-  return {
-    version: signature.version,
-    threshold: signature.threshold,
-    subsigners: signature.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+const transformSignature = (signature?: TransactionSignature) => {
+  if (signature?.sig) {
+    return {
+      type: SignatureType.Single,
+      signer: signature.sig,
+    } satisfies SinglesigModel
+  }
+
+  if (signature?.multisig) {
+    return {
+      type: SignatureType.Multi,
+      version: signature.multisig.version,
+      threshold: signature.multisig.threshold,
+      subsigners: signature.multisig.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+    } satisfies MultisigModel
+  }
+
+  if (signature?.logicsig) {
+    return {
+      type: SignatureType.Logic,
+      logic: signature.logicsig.logic,
+    } satisfies LogicsigModel
   }
 }

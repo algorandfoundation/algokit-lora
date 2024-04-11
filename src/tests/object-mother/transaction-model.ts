@@ -69,6 +69,8 @@ export const transactionModelMother = {
         ) satisfies TransactionResult
       },
       ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA: () => {
+        // Payment transaction:
+        //   - Same sender and receiver
         return JSON.parse(
           `{
             "id": "ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA",
