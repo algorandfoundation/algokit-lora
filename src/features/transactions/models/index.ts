@@ -15,6 +15,7 @@ type CommonTransactionProperties = {
   textNote?: string
   messagePackNote?: string
 
+  transactions?: TransactionModel[]
   signature?: SinglesigModel | MultisigModel | LogicsigModel
 }
 
