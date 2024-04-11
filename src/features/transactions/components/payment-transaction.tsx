@@ -85,7 +85,7 @@ export function PaymentTransaction({ transaction, rawTransaction }: PaymentTrans
               <TransactionViewTable transaction={transaction} />
             </TabsContent>
           </Tabs>
-          <TransactionNote transaction={transaction} />
+          {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson transaction={rawTransaction} />
           {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
           {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}

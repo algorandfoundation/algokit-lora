@@ -10,11 +10,7 @@ type CommonTransactionProperties = {
   group?: string
   fee: AlgoAmount
   sender: Address
-
-  base64Note?: string
-  textNote?: string
-  messagePackNote?: string
-
+  note?: string
   transactions?: TransactionModel[]
   signature?: SinglesigModel | MultisigModel | LogicsigModel
 }
