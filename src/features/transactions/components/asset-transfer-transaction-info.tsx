@@ -2,23 +2,20 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { AssetTransferTransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabel } from './transaction-view-table'
+import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 type Props = {
   transaction: AssetTransferTransactionModel
 }
 
-export const transactionIdLabel = 'Transaction ID'
-export const transactionTypeLabel = 'Type'
-export const transactionTimestampLabel = 'Timestamp'
-export const transactionBlockLabel = 'Block'
-export const transactionGroupLabel = 'Group'
-export const transactionFeeLabel = 'Fee'
+export const assetLabel = 'Asset'
 
 export function AssetTransferTransactionInfo({ transaction }: Props) {
   const items = useMemo(
     () => [
       {
-        dt: 'Sender',
+        dt: transactionSenderLabel,
         dd: (
           <a href="#" className={cn('text-primary underline')}>
             {transaction.sender}
@@ -26,7 +23,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         ),
       },
       {
-        dt: 'Receiver',
+        dt: transactionReceiverLabel,
         dd: (
           <a href="#" className={cn('text-primary underline')}>
             {transaction.receiver}
@@ -34,7 +31,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         ),
       },
       {
-        dt: 'Asset',
+        dt: assetLabel,
         dd: (
           <a href="#" className={cn('text-primary underline')}>
             {transaction.asset.id} {`${transaction.asset.name ? `(${transaction.asset.name})` : ''}`}
@@ -42,11 +39,12 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         ),
       },
       {
-        dt: 'Amount',
-        dd: `${transaction.amount} ${transaction.asset.unitName ?? ''}`,
+        dt: transactionAmountLabel,
+        dd: <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />,
       },
+      // TODO: close amount
     ],
-    [transaction.sender, transaction.receiver, transaction.asset.id, transaction.asset.name, transaction.asset.unitName, transaction.amount]
+    [transaction.sender, transaction.receiver, transaction.asset, transaction.amount]
   )
 
   return (

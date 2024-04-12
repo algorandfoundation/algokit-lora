@@ -1,4 +1,4 @@
-import { transactionModelMother } from '@/tests/object-mother/transaction-model'
+import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { describe, expect, it } from 'vitest'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { executeComponentTest } from '@/tests/test-component'
@@ -17,8 +17,8 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 //   - Update the snapshot files by running `vitest -u`. Or if the test runner is running, press `u` to update the snapshots.
 describe('transaction-view-visual', () => {
   describe.each([
-    transactionModelMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']().build(),
-    transactionModelMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']().build(),
+    transactionResultMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']().build(),
+    transactionResultMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']().build(),
   ])('when rendering transaction $id', (transaction: TransactionResult) => {
     it('should match snapshot', () => {
       const model = asPaymentTransaction(transaction)

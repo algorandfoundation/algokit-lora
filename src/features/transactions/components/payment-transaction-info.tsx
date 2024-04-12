@@ -9,12 +9,6 @@ type Props = {
   transaction: PaymentTransactionModel
 }
 
-export const transactionIdLabel = 'Transaction ID'
-export const transactionTypeLabel = 'Type'
-export const transactionTimestampLabel = 'Timestamp'
-export const transactionBlockLabel = 'Block'
-export const transactionGroupLabel = 'Group'
-export const transactionFeeLabel = 'Fee'
 export const transactionCloseRemainderToLabel = 'Close Remainder To'
 export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 

@@ -2,7 +2,7 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
 import { TransactionType } from 'algosdk'
 
-export const transactionModelMother = {
+export const transactionResultMother = {
   payment: () => {
     return transactionResultBuilder().paymentTransaction()
   },
@@ -98,6 +98,37 @@ export const transactionModelMother = {
         },
       },
       'tx-type': TransactionType.pay,
+    } satisfies TransactionResult)
+  },
+  ['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']: () => {
+    // Asset transfer transaction
+    return new TransactionResultBuilder({
+      id: 'JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA',
+      'asset-transfer-transaction': {
+        amount: 300000,
+        'asset-id': 523683256,
+        'close-amount': 0,
+        receiver: 'OCD5PQECXPYOVTLWVS3FHIODQX5FOV4QNNVMU22BSVDMP2FAJD52OV4IFA',
+      },
+      'auth-addr': 'P5F3CASEUYS5MBY56CZCKZM4EMJRG5MTYXIGVK6EHEB6FXRYMLE5VCTSUU',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 37351572,
+      fee: 1000,
+      'first-valid': 37351570,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      'intra-round-offset': 114,
+      'last-valid': 37352570,
+      note: 'AEYAcgBhAGMAYwB0AGEAbAAgAEEAbABlAHIAdAA6ACAAQQBjAHQAaQB2AGUAIABQAGwAYQB5AGUAcgAgAFIAZQB3AGEAcgBkAC4AIABUAGgAYQBuAGsAcwAgAGYAbwByACAAcABsAGEAeQBpAG4AZwAh',
+      'receiver-rewards': 0,
+      'round-time': 1711438129,
+      sender: '6MO6VE4DBZ2ZKNHHY747LABB5QGSH6V6IQ4EZZW2HXDFXHHQVKRIVRHSJM',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'hk4FtHwulzfGDFq13MFsJfVS4UVdQAGhqFvsp9CjF9F6dD3V/P0XtW4V3cv2l8u0M1TDQoUsNbueW+SaQbD7DA==',
+      },
+      'tx-type': TransactionType.axfer,
     } satisfies TransactionResult)
   },
 }

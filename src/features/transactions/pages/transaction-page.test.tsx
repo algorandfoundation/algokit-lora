@@ -1,4 +1,4 @@
-import { transactionModelMother } from '@/tests/object-mother/transaction-model'
+import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   TransactionPage,
@@ -34,6 +34,9 @@ import {
 } from '../components/transaction-info'
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
+import { assetResultMother } from '@/tests/object-mother/asset-result'
+import { assetsAtom } from '@/features/assets/data'
+import { assetLabel } from '../components/asset-transfer-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -78,7 +81,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a payment transaction', () => {
-    const transaction = transactionModelMother
+    const transaction = transactionResultMother
       .payment()
       .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
       ['withConfirmed-round'](36570178)
@@ -146,7 +149,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a multisig payment transaction', () => {
-    const transaction = transactionModelMother.multisig().build()
+    const transaction = transactionResultMother.multisig().build()
 
     beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -174,7 +177,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a logicsig payment transaction', () => {
-    const transaction = transactionModelMother.logicsig().build()
+    const transaction = transactionResultMother.logicsig().build()
 
     beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -228,7 +231,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rending a transaction with a note', () => {
-    const transactionBuilder = transactionModelMother.payment()
+    const transactionBuilder = transactionResultMother.payment()
 
     describe('and the note is text', () => {
       const note = 'Здравейте, world!'
@@ -417,6 +420,67 @@ describe('transaction-page', () => {
           }
         )
       })
+    })
+  })
+
+  describe('when rendering a asset transfer transaction', () => {
+    const transaction = transactionResultMother['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']().build()
+    const asset = assetResultMother['mainnet-523683256']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+      myStore.set(assetsAtom, [asset])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toBe('Asset Transfer')
+          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Tue, 26 March 2024 07:28:49')
+          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('37351572')
+          expect(component.queryByText(transactionGroupLabel)).toBeNull()
+          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
+
+          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
+            '6MO6VE4DBZ2ZKNHHY747LABB5QGSH6V6IQ4EZZW2HXDFXHHQVKRIVRHSJM'
+          )
+          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
+            'OCD5PQECXPYOVTLWVS3FHIODQX5FOV4QNNVMU22BSVDMP2FAJD52OV4IFA'
+          )
+          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('523683256 (AKITA INU)')
+          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('0.3 AKTA')
+
+          // expect(getByDescriptionTerm(component.container, transactionCloseRemainderToLabel).textContent).toBe(
+          //   'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ'
+          // )
+          // expect(getByDescriptionTerm(component.container, transactionCloseRemainderAmountLabel).textContent).toBe('345.071234')
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          expect(viewTransactionTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+
+          // Test the table data
+          const dataRow = getAllByRole(tableViewTab, 'row')[1]
+          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('JBDSQEI...')
+          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('6MO6...HSJM')
+          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('OCD5...4IFA')
+          expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
+          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('0.3 AKTA')
+        }
+      )
     })
   })
 })

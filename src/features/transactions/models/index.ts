@@ -18,7 +18,7 @@ type CommonTransactionProperties = {
 
 export enum TransactionType {
   Payment = 'Payment',
-  AssetTransfer = 'AssetTransfer',
+  AssetTransfer = 'Asset Transfer',
 }
 
 export type CloseRemainder = {
