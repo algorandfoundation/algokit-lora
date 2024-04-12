@@ -7,7 +7,7 @@ import { SignatureType } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionViewTable, transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
+import { TransactionViewTable } from './transaction-view-table'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
 import { useLoadablePaymentTransaction } from '../data'
@@ -59,7 +59,7 @@ export function PaymentTransaction({ transactionResult }: PaymentTransactionProp
                   <TransactionViewTable transaction={paymentTransaction} />
                 </TabsContent>
               </Tabs>
-              <TransactionNote transaction={paymentTransaction} />
+              {paymentTransaction.note && <TransactionNote note={paymentTransaction.note} />}
               <TransactionJson transaction={transactionResult} />
               {paymentTransaction.signature?.type === SignatureType.Multi && <Multisig signature={paymentTransaction.signature} />}
               {paymentTransaction.signature?.type === SignatureType.Logic && <Logicsig signature={paymentTransaction.signature} />}

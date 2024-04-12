@@ -57,7 +57,7 @@ export function AssetTranserTransaction({ transactionResult }: AssetTransaferTra
                   <TransactionViewTable transaction={assetTransferTransaction} />
                 </TabsContent>
               </Tabs>
-              <TransactionNote transaction={assetTransferTransaction} />
+              {assetTransferTransaction.note && <TransactionNote note={assetTransferTransaction.note} />}
               <TransactionJson transaction={transactionResult} />
               {assetTransferTransaction.signature?.type === SignatureType.Multi && (
                 <Multisig signature={assetTransferTransaction.signature} />
