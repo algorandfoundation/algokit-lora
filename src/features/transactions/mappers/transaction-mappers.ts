@@ -90,9 +90,11 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     amount: calculateAmount(
       transaction['asset-transfer-transaction'].amount.toString() // the amount is uint64, should be safe to be .toString()
     ),
-    closeAmount: transaction['asset-transfer-transaction']['close-amount']
-      ? calculateAmount(transaction['asset-transfer-transaction']['close-amount'].toString()) // the amount is uint64, should be safe to be .toString()
-      : undefined,
+    closeAmount:
+      transaction['asset-transfer-transaction']['close-amount'] != null
+        ? calculateAmount(transaction['asset-transfer-transaction']['close-amount'].toString()) // the amount is uint64, should be safe to be .toString()
+        : undefined,
+    closeTo: transaction['asset-transfer-transaction']['close-to'],
     signature: transformSignature(transaction.signature),
   }
 }

@@ -38,6 +38,7 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
   receiver: Address
   amount: number
   closeAmount?: number
+  closeTo?: Address
   asset: AssetModel
 }
 

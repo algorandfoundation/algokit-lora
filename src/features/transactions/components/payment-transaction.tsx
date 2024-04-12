@@ -23,8 +23,6 @@ const tableTransactionDetailsTabId = 'table'
 export const transactionDetailsLabel = 'View Transaction Details'
 export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
-export const transactionCloseRemainderToLabel = 'Close Remainder To'
-export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 
 export function PaymentTransaction({ transactionResult }: PaymentTransactionProps) {
   const loadablePaymentTransaction = useLoadablePaymentTransaction(transactionResult)

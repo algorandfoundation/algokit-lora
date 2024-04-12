@@ -18,8 +18,6 @@ import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../
 import { algod } from '@/features/common/data'
 import {
   tableTransactionDetailsTabLabel,
-  transactionCloseRemainderAmountLabel,
-  transactionCloseRemainderToLabel,
   transactionDetailsLabel,
   visualTransactionDetailsTabLabel,
 } from '../components/payment-transaction'
@@ -36,7 +34,8 @@ import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, text
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { assetsAtom } from '@/features/assets/data'
-import { assetLabel } from '../components/asset-transfer-transaction-info'
+import { assetLabel, transactionCloseAmountLabel, transactionCloseToLabel } from '../components/asset-transfer-transaction-info'
+import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -424,8 +423,8 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a asset transfer transaction', () => {
-    const transaction = transactionResultMother['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']().build()
-    const asset = assetResultMother['mainnet-523683256']().build()
+    const transaction = transactionResultMother['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']().build()
+    const asset = assetResultMother['mainnet-140479105']().build()
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -441,24 +440,24 @@ describe('transaction-page', () => {
           // waitFor the loading state to be finished
           await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
           expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toBe('Asset Transfer')
-          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Tue, 26 March 2024 07:28:49')
-          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('37351572')
+          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Thu, 20 July 2023 19:08:03')
+          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('30666726')
           expect(component.queryByText(transactionGroupLabel)).toBeNull()
           expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
 
           expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
-            '6MO6VE4DBZ2ZKNHHY747LABB5QGSH6V6IQ4EZZW2HXDFXHHQVKRIVRHSJM'
+            'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ'
           )
           expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
-            'OCD5PQECXPYOVTLWVS3FHIODQX5FOV4QNNVMU22BSVDMP2FAJD52OV4IFA'
+            'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
           )
-          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('523683256 (AKITA INU)')
-          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('0.3 AKTA')
+          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('140479105 (Clyders)')
+          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('0 CLY')
 
-          // expect(getByDescriptionTerm(component.container, transactionCloseRemainderToLabel).textContent).toBe(
-          //   'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ'
-          // )
-          // expect(getByDescriptionTerm(component.container, transactionCloseRemainderAmountLabel).textContent).toBe('345.071234')
+          expect(getByDescriptionTerm(component.container, transactionCloseToLabel).textContent).toBe(
+            'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
+          )
+          expect(getByDescriptionTerm(component.container, transactionCloseAmountLabel).textContent).toBe('0 CLY')
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
@@ -474,11 +473,11 @@ describe('transaction-page', () => {
 
           // Test the table data
           const dataRow = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('JBDSQEI...')
-          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('6MO6...HSJM')
-          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('OCD5...4IFA')
+          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('V7GQPE5...')
+          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('J2WK...FLBQ')
+          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('LINT...CQE4')
           expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
-          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('0.3 AKTA')
+          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('0 CLY')
         }
       )
     })

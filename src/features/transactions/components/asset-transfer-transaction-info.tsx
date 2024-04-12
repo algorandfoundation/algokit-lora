@@ -10,6 +10,8 @@ type Props = {
 }
 
 export const assetLabel = 'Asset'
+export const transactionCloseToLabel = 'Close To'
+export const transactionCloseAmountLabel = 'Close Amount'
 
 export function AssetTransferTransactionInfo({ transaction }: Props) {
   const items = useMemo(
@@ -42,9 +44,24 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         dt: transactionAmountLabel,
         dd: <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />,
       },
-      // TODO: close amount
+      ...(transaction.closeTo && transaction.closeAmount != null
+        ? [
+            {
+              dt: transactionCloseToLabel,
+              dd: (
+                <a href="#" className={cn('text-primary underline')}>
+                  {transaction.closeTo}
+                </a>
+              ),
+            },
+            {
+              dt: transactionCloseAmountLabel,
+              dd: <DisplayAssetAmount amount={transaction.closeAmount} asset={transaction.asset} />,
+            },
+          ]
+        : []),
     ],
-    [transaction.sender, transaction.receiver, transaction.asset, transaction.amount]
+    [transaction.sender, transaction.receiver, transaction.asset, transaction.amount, transaction.closeTo, transaction.closeAmount]
   )
 
   return (
