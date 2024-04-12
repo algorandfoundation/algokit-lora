@@ -20,6 +20,7 @@ function parseJson(maybeJson: string) {
   }
 }
 
+// Based on the ARC-2 spec https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md#specification
 const arc2Regex = /^([a-zA-Z0-9][a-zA-Z0-9_/@.-]{4,31}):([mjbu]{1})(.*)$/
 function parseArc2(maybeArc2: string) {
   const result = maybeArc2.match(arc2Regex)

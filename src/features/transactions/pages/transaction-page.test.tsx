@@ -1,5 +1,5 @@
 import { transactionModelMother } from '@/tests/object-mother/transaction-model'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   TransactionPage,
   transactionFailedToLoadMessage,
@@ -138,9 +138,13 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a multisig payment transaction', () => {
-    it('should show the multisig information', () => {
-      const transaction = transactionModelMother.multisig().build()
+    const transaction = transactionModelMother.multisig().build()
+
+    beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    })
+
+    it('should show the multisig information', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
@@ -160,11 +164,15 @@ describe('transaction-page', () => {
       )
     })
   })
+
   describe('when rendering a logicsig payment transaction', () => {
     const transaction = transactionModelMother.logicsig().build()
 
-    it('should show 2 tabs with the logicsig base64 as default', () => {
+    beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    })
+
+    it('should show 2 tabs with the logicsig base64 as default', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
@@ -188,7 +196,6 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
 
       const myStore = createStore()
@@ -222,9 +229,11 @@ describe('transaction-page', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
-      it('should show 2 tabs with the note base64 as default', () => {
+      beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      })
 
+      it('should show 2 tabs with the note base64 as default', () => {
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -244,8 +253,6 @@ describe('transaction-page', () => {
       })
 
       it('should show the utf-8 text when activated', () => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
-
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -272,9 +279,11 @@ describe('transaction-page', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
-      it('should show 3 tabs with the note json as default', () => {
+      beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      })
 
+      it('should show 3 tabs with the note json as default', () => {
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -294,8 +303,6 @@ describe('transaction-page', () => {
       })
 
       it('should show the note base64 when activated', () => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
-
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -314,8 +321,6 @@ describe('transaction-page', () => {
       })
 
       it('should show the utf-8 text when activated', () => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
-
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -341,9 +346,11 @@ describe('transaction-page', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
-      it('should show 3 tabs with the note arc-2 as default', () => {
+      beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      })
 
+      it('should show 3 tabs with the note arc-2 as default', () => {
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -368,8 +375,6 @@ describe('transaction-page', () => {
       })
 
       it('should show the note base64 when activated', () => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
-
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
@@ -388,8 +393,6 @@ describe('transaction-page', () => {
       })
 
       it('should show the utf-8 text when activated', () => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
-
         return executeComponentTest(
           () => {
             return render(<TransactionPage />, undefined, myStore)
