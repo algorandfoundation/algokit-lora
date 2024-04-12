@@ -6,7 +6,7 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { TransactionModel, TransactionType } from '../models'
+import { PaymentTransactionModel, TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
@@ -187,7 +187,7 @@ const DisplaySelfTransaction = fixedForwardRef(
   }
 )
 
-function PaymentTransactionToolTipContent({ transaction }: { transaction: TransactionModel }) {
+function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransactionModel }) {
   const items = useMemo(
     () => [
       {
@@ -327,7 +327,12 @@ export function TransactionViewVisual({ transaction }: Props) {
   const accounts = Array.from(
     new Set([
       ...flattenedTransactions
-        .map((t) => [t.transaction.sender, t.transaction.type === TransactionType.Payment ? t.transaction.receiver : undefined])
+        .map((t) => [
+          t.transaction.sender,
+          t.transaction.type === TransactionType.Payment || t.transaction.type === TransactionType.AssetTransfer
+            ? t.transaction.receiver
+            : undefined,
+        ])
         .flat()
         .filter(isDefined),
     ])

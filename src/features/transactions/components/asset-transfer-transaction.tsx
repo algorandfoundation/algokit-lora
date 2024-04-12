@@ -12,6 +12,7 @@ import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { useLoadableAssetTransferTransaction } from '../data'
+import { AssetTransferTransactionInfo } from './asset-transfer-transaction-info'
 
 type AssetTransaferTransactionProps = {
   transactionResult: TransactionResult
@@ -33,6 +34,7 @@ export function AssetTranserTransaction({ transactionResult }: AssetTransaferTra
           <TransactionInfo transaction={assetTransferTransaction} />
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-4')}>
+              <AssetTransferTransactionInfo transaction={assetTransferTransaction} />
               <Tabs defaultValue={visualTransactionDetailsTabId}>
                 <TabsList aria-label={transactionDetailsLabel}>
                   <TabsTrigger

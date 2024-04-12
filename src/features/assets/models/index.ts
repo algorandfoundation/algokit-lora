@@ -3,4 +3,5 @@ export type AssetModel = {
   name?: string
   total: number | bigint
   decimals: number | bigint
+  unitName?: string
 }
