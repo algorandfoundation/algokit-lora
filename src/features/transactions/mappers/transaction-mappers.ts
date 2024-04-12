@@ -12,6 +12,7 @@ import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { Decimal } from 'decimal.js'
+import { asAsset } from '@/features/assets/mappers/asset-mappers'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -76,6 +77,7 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   return {
     id: transaction.id,
     type: TransactionType.AssetTransfer,
+    asset: asAsset(asset),
     confirmedRound: transaction['confirmed-round'],
     roundTime: transaction['round-time'] * 1000,
     group: transaction['group'],

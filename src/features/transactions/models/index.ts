@@ -1,3 +1,4 @@
+import { AssetModel } from '@/features/assets/models'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 type Address = string
@@ -36,9 +37,10 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
   receiver: Address
   amount: number
   closeAmount?: number
+  asset: AssetModel
 }
 
-export type TransactionModel = PaymentTransactionModel
+export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel
 
 export type MicroAlgo = number
 

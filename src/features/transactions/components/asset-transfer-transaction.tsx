@@ -1,22 +1,22 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { useMemo } from 'react'
-import { PaymentTransactionModel, SignatureType } from '../models'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { SignatureType } from '../models'
+import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionViewTable } from './transaction-view-table'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
+import { invariant } from '@/utils/invariant'
+import algosdk from 'algosdk'
 
 type AssetTransaferTransactionProps = {
-  transaction: PaymentTransactionModel
-  rawTransaction: TransactionResult
+  transaction: TransactionResult
 }
 
 const visualTransactionDetailsTabId = 'visual'
@@ -25,8 +25,10 @@ export const transactionDetailsLabel = 'View Transaction Details'
 export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
 
-export function PaymentTransaction({ transaction, rawTransaction }: AssetTransaferTransactionProps) {
-  const paymentTransactionItems = useMemo(
+export function AssetTranserTransaction({ transaction }: AssetTransaferTransactionProps) {
+  invariant(transaction['tx-type'] === algosdk.TransactionType.axfer, 'The transaction must be an asset transfer transaction')
+
+  const assetTransferTransactionItems = useMemo(
     () => [
       {
         dt: 'Sender',
@@ -46,10 +48,10 @@ export function PaymentTransaction({ transaction, rawTransaction }: AssetTransaf
       },
       {
         dt: 'Amount',
-        dd: <DisplayAlgo amount={transaction.amount} />,
+        dd: 'Foo',
       },
     ],
-    [transaction.sender, transaction.receiver, transaction.amount]
+    [transaction.sender, transaction.receiver]
   )
 
   return (
@@ -61,7 +63,7 @@ export function PaymentTransaction({ transaction, rawTransaction }: AssetTransaf
             <div className={cn('flex items-center justify-between')}>
               <h1 className={cn('text-2xl text-primary font-bold')}>Payment</h1>
             </div>
-            <DescriptionList items={paymentTransactionItems} />
+            <DescriptionList items={assetTransferTransactionItems} />
           </div>
           <Tabs defaultValue={visualTransactionDetailsTabId}>
             <TabsList aria-label={transactionDetailsLabel}>

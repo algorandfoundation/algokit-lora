@@ -3,12 +3,12 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
-import { PaymentTransactionModel } from '../models'
+import { TransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { isDefined } from '@/utils/is-defined'
 
 type Props = {
-  transaction: PaymentTransactionModel
+  transaction: TransactionModel
 }
 
 export const transactionIdLabel = 'Transaction ID'
