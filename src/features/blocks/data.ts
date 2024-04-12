@@ -3,14 +3,19 @@ import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 // import { BlockMetadata } from '@algorandfoundation/algokit-subscriber/types/subscription'
 import { Buffer } from 'buffer'
-import { algod } from '../common/data'
+import { algod, indexer } from '../common/data'
 import { loadable } from 'jotai/utils'
 import { useMemo } from 'react'
 import { transactionsAtom } from '../transactions/data'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { isDefined } from '@/utils/is-defined'
+import { SubscribedTransaction } from '@algorandfoundation/algokit-subscriber/types/subscription'
 
-type BlockMetadata = {
+export type BlockMetadata = {
   round: number
+  timestamp: string
   parentTransactionCount: number
+  transactionIds: string[]
 }
 
 // TODO: NC - Remove once https://github.com/algorandfoundation/algokit-subscriber-ts/pull/49 is merged
@@ -19,11 +24,10 @@ window.Buffer = Buffer
 const syncedRoundAtom = atom<number | undefined>(undefined)
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
-const blocksAtom = atom<BlockMetadata[]>([])
+// The number key is the round
+export const blocksAtom = atom<Map<number, BlockMetadata>>(new Map())
 
-const latestBlockAtom = atom((get) => {
-  return get(blocksAtom).slice(0, 5)
-})
+// TODO: NC - There is some duplication that will be cleaned up in the block refactor PR
 
 const subscribeToBlocksEffect = atomEffect((get, set) => {
   const subscriber = new AlgorandSubscriber(
@@ -52,21 +56,30 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
   subscriber.onPoll(async (result) => {
     // TODO: NC - Add this back in once subscriber supports it
     // const blocks = result.blockMetadata
-    const blocks = [
-      {
-        round: result.syncedRoundRange[0],
-        parentTransactionCount: result.subscribedTransactions.length,
-      } satisfies BlockMetadata,
-    ]
+    const transactions = result.subscribedTransactions.reduce((acc, t) => {
+      if (!t.parentTransactionId) {
+        // Filter out filtersMatched and balanceChanges, as we don't need them
+        const { filtersMatched, balanceChanges, ...transaction } = t
+        return acc.concat(transaction)
+      }
+      return acc
+    }, [] as SubscribedTransaction[])
 
-    if (blocks) {
-      set(blocksAtom, (previous) => {
-        return blocks.concat(previous)
+    const block = {
+      round: result.syncedRoundRange[0],
+      timestamp: new Date().toISOString(), // This is temporary
+      parentTransactionCount: transactions.length,
+      transactionIds: transactions.map((t) => t.id),
+    } satisfies BlockMetadata
+
+    if (block) {
+      set(blocksAtom, (prev) => {
+        return new Map([...prev, [block.round, block] as const])
       })
     }
 
-    set(transactionsAtom, (previous) => {
-      return result.subscribedTransactions.concat(previous)
+    set(transactionsAtom, (prev) => {
+      return new Map([...prev, ...transactions.map((t) => [t.id, t] as const)])
     })
   })
 
@@ -77,12 +90,28 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
   }
 })
 
+export const useSyncedRound = () => {
+  return useAtomValue(syncedRoundAtom)
+}
+
 export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
 }
 
 export const useLatestBlocks = () => {
-  return useAtomValue(latestBlockAtom)
+  const store = useStore()
+  const syncedRound = useAtomValue(syncedRoundAtom)
+
+  return useMemo(() => {
+    if (!syncedRound) {
+      return []
+    }
+    const blocks = store.get(blocksAtom)
+    return Array.from({ length: 5 }, (_, i) => {
+      const round = syncedRound - i
+      return blocks.has(round) ? blocks.get(round) : undefined
+    }).filter(isDefined)
+  }, [store, syncedRound])
 }
 
 const useBlockAtom = (round: number) => {
@@ -92,36 +121,56 @@ const useBlockAtom = (round: number) => {
     const syncEffect = atomEffect((get, set) => {
       ;(async () => {
         try {
-          const block = await get(blockAtom)
+          const block = await get(fetchBlockAtom)
           set(blocksAtom, (prev) => {
-            return prev.concat(block)
+            return new Map([
+              ...prev,
+              [
+                block.round,
+                {
+                  round: block.round,
+                  timestamp: new Date(block.timestamp * 1000).toISOString(),
+                  parentTransactionCount: block.transactions?.length ?? 0,
+                  transactionIds: block.transactions?.map((t: TransactionResult) => t.id) ?? [],
+                } satisfies BlockMetadata,
+              ] as const,
+            ])
           })
+
+          if (block.transactions && block.transactions.length > 0) {
+            set(transactionsAtom, (prev) => {
+              return new Map([...prev, ...block.transactions.map((t: TransactionResult) => [t.id, t] as const)])
+            })
+          }
         } catch (e) {
           // Ignore any errors as there is nothing to sync
         }
       })()
     })
-    const blockAtom = atom((get) => {
+
+    const fetchBlockAtom = atom(() => {
+      return indexer.lookupBlock(round).do()
+    })
+
+    return atom((get) => {
       // store.get prevents the atom from being subscribed to changes in transactionsAtom
       const blocks = store.get(blocksAtom)
-      const block = blocks.find((t) => t.round === round)
+      const block = blocks.has(round) ? blocks.get(round) : undefined
       if (block) {
         return block
       }
 
       get(syncEffect)
 
-      return algod
-        .block(round)
-        .do()
-        .then((result) => {
-          return {
-            round: result.block!.rnd as number,
-            parentTransactionCount: (result.block!.txns?.length as number) ?? 0,
-          } satisfies BlockMetadata
-        })
+      return get(fetchBlockAtom).then((result) => {
+        return {
+          round: result.round as number,
+          timestamp: new Date(result.timestamp * 1000).toISOString(),
+          parentTransactionCount: (result.transactions?.length as number) ?? 0,
+          transactionIds: result.transactions?.map((t: TransactionResult) => t.id) ?? [],
+        } satisfies BlockMetadata
+      })
     })
-    return blockAtom
   }, [store, round])
 }
 

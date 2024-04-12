@@ -4,6 +4,7 @@ import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { useLoadableBlock } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
+import { Block } from '../components/block'
 
 const validRoundRegex = /^\d+$/
 const isValidRound = (round: string) => round.match(validRoundRegex)
@@ -34,7 +35,7 @@ export function BlockPage() {
       {(data) => (
         <div>
           <h1 className={cn('text-2xl text-primary font-bold')}>{blockPageTitle}</h1>
-          <p>{data.round}</p>
+          <Block block={data} />
         </div>
       )}
     </RenderLoadable>

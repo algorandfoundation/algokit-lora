@@ -7,7 +7,24 @@ import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '../common/data'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
-export const transactionsAtom = atom<TransactionResult[]>([])
+// The string key is the transaction id
+export const transactionsAtom = atom<Map<string, TransactionResult>>(new Map())
+
+// TODO: NC - This will likely be removed as part of the block refactor
+export const useTransactions = (filterIds?: string[]) => {
+  const transactions = useAtomValue(transactionsAtom)
+  return useMemo(() => {
+    const filteredTransactions = filterIds
+      ? filterIds.reduce((acc, id) => {
+          if (transactions.has(id)) {
+            return acc.concat(transactions.get(id)!)
+          }
+          return acc
+        }, [] as TransactionResult[])
+      : Array.from(transactions.values())
+    return filteredTransactions
+  }, [filterIds, transactions])
+}
 
 const useTransactionAtom = (transactionId: string) => {
   const store = useStore()
@@ -18,7 +35,7 @@ const useTransactionAtom = (transactionId: string) => {
         try {
           const transaction = await get(transactionAtom)
           set(transactionsAtom, (prev) => {
-            return prev.concat(transaction)
+            return new Map([...prev, [transaction.id, transaction]])
           })
         } catch (e) {
           // Ignore any errors as there is nothing to sync
@@ -28,7 +45,7 @@ const useTransactionAtom = (transactionId: string) => {
     const transactionAtom = atom((get) => {
       // store.get prevents the atom from being subscribed to changes in transactionsAtom
       const transactions = store.get(transactionsAtom)
-      const transaction = transactions.find((t) => t.id === transactionId)
+      const transaction = transactions.has(transactionId) ? transactions.get(transactionId) : undefined
       if (transaction) {
         return transaction
       }

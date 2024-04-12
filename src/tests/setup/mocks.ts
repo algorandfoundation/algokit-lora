@@ -23,5 +23,11 @@ vi.mock('@/features/common/data', async () => {
         do: vi.fn(),
       }),
     },
+    indexer: {
+      ...(original.indexer as algosdk.Indexer),
+      lookupBlock: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
   }
 })
