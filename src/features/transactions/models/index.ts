@@ -19,11 +19,16 @@ export enum TransactionType {
   Payment = 'Payment',
 }
 
+export type CloseRemainder = {
+  to: Address
+  amount: AlgoAmount
+}
+
 export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
-  closeAmount?: AlgoAmount
+  closeRemainder?: CloseRemainder
 }
 
 export type TransactionModel = PaymentTransactionModel

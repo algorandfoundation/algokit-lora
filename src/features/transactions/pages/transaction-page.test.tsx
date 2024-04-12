@@ -18,6 +18,8 @@ import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../
 import { algod } from '@/features/common/data'
 import {
   tableTransactionDetailsTabLabel,
+  transactionCloseRemainderAmountLabel,
+  transactionCloseRemainderToLabel,
   transactionDetailsLabel,
   visualTransactionDetailsTabLabel,
 } from '../components/payment-transaction'
@@ -30,8 +32,8 @@ import {
   transactionTimestampLabel,
   transactionTypeLabel,
 } from '../components/transaction-info'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-visual'
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
+import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -85,6 +87,8 @@ describe('transaction-page', () => {
       ['withPayment-transaction']({
         amount: 236070000,
         receiver: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+        'close-amount': 345071234,
+        'close-remainder-to': 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
       })
       .withFee(1000)
       .build()
@@ -112,6 +116,10 @@ describe('transaction-page', () => {
             transaction['payment-transaction']!.receiver
           )
           expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('236.07')
+          expect(getByDescriptionTerm(component.container, transactionCloseRemainderToLabel).textContent).toBe(
+            'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ'
+          )
+          expect(getByDescriptionTerm(component.container, transactionCloseRemainderAmountLabel).textContent).toBe('345.071234')
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
@@ -127,7 +135,7 @@ describe('transaction-page', () => {
 
           // Test the table data
           const dataRow = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('FBOR...YBBQ')
+          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('FBORGSD...')
           expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('M3IA...OXXM')
           expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('KIZL...U5BQ')
           expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Payment')
