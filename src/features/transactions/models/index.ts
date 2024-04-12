@@ -21,6 +21,7 @@ type CommonTransactionProperties = {
 
 export enum TransactionType {
   Payment = 'Payment',
+  AssetTransfer = 'AssetTransfer',
 }
 
 export type PaymentTransactionModel = CommonTransactionProperties & {
@@ -28,6 +29,13 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
   receiver: Address
   amount: AlgoAmount
   closeAmount?: AlgoAmount
+}
+
+export type AssetTransferTransactionModel = CommonTransactionProperties & {
+  type: TransactionType.AssetTransfer
+  receiver: Address
+  amount: number
+  closeAmount?: number
 }
 
 export type TransactionModel = PaymentTransactionModel
