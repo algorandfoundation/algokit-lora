@@ -21,8 +21,8 @@ export function TransactionViewTable({ transaction }: Props) {
       <thead>
         <tr>
           <th className={cn('border-2')}>Transaction ID</th>
-          <th className={cn('p-2 border-2')}>From</th>
-          <th className={cn('p-2 border-2')}>To</th>
+          <th className={cn('p-2 border-2')}>Sender</th>
+          <th className={cn('p-2 border-2')}>Receiver</th>
           <th className={cn('p-2 border-2')}>Type</th>
           <th className={cn('p-2 border-2')}>Amount</th>
         </tr>
