@@ -7,7 +7,7 @@ import { SignatureType } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionViewTable } from './transaction-view-table'
+import { TransactionViewTable, transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
 import { useLoadablePaymentTransaction } from '../data'
@@ -23,6 +23,8 @@ const tableTransactionDetailsTabId = 'table'
 export const transactionDetailsLabel = 'View Transaction Details'
 export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
+export const transactionCloseRemainderToLabel = 'Close Remainder To'
+export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 
 export function PaymentTransaction({ transactionResult }: PaymentTransactionProps) {
   const loadablePaymentTransaction = useLoadablePaymentTransaction(transactionResult)

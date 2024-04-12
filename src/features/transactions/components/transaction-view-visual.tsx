@@ -12,6 +12,8 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
+import { ellipseId } from '@/utils/ellipse-id'
+import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 
 const graphConfig = {
   rowHeight: 40,
@@ -63,7 +65,7 @@ function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {ellipseAddress(id)}
+      {ellipseId(id)}
     </div>
   )
 }
@@ -316,10 +318,6 @@ function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
 type Props = {
   transaction: TransactionModel
 }
-
-export const transactionSenderLabel = 'Sender'
-export const transactionReceiverLabel = 'Receiver'
-export const transactionAmountLabel = 'Amount'
 
 export function TransactionViewVisual({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])

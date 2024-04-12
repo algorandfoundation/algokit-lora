@@ -11,11 +11,7 @@ type CommonTransactionProperties = {
   group?: string
   fee: AlgoAmount
   sender: Address
-
-  base64Note?: string
-  textNote?: string
-  messagePackNote?: string
-
+  note?: string
   transactions?: TransactionModel[]
   signature?: SinglesigModel | MultisigModel | LogicsigModel
 }
@@ -25,11 +21,16 @@ export enum TransactionType {
   AssetTransfer = 'AssetTransfer',
 }
 
+export type CloseRemainder = {
+  to: Address
+  amount: AlgoAmount
+}
+
 export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
-  closeAmount?: AlgoAmount
+  closeRemainder?: CloseRemainder
 }
 
 export type AssetTransferTransactionModel = CommonTransactionProperties & {

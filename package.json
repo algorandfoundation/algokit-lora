@@ -14,10 +14,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
     "audit": "better-npm-audit audit",
     "check-types": "tsc --noEmit && npx --yes madge src/App.tsx --circular",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "pre-commit": "run-s check-types lint:fix audit test"
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^1.2.0",

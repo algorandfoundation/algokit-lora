@@ -4,6 +4,7 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useMemo } from 'react'
+import { ellipseId } from '@/utils/ellipse-id'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -13,6 +14,10 @@ type Props = {
   transaction: TransactionModel
 }
 
+export const transactionSenderLabel = 'Sender'
+export const transactionReceiverLabel = 'Receiver'
+export const transactionAmountLabel = 'Amount'
+
 export function TransactionViewTable({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
 
@@ -21,10 +26,10 @@ export function TransactionViewTable({ transaction }: Props) {
       <thead>
         <tr>
           <th className={cn('border-2')}>Transaction ID</th>
-          <th className={cn('p-2 border-2')}>From</th>
-          <th className={cn('p-2 border-2')}>To</th>
+          <th className={cn('p-2 border-2')}>{transactionSenderLabel}</th>
+          <th className={cn('p-2 border-2')}>{transactionReceiverLabel}</th>
           <th className={cn('p-2 border-2')}>Type</th>
-          <th className={cn('p-2 border-2')}>Amount</th>
+          <th className={cn('p-2 border-2')}>{transactionAmountLabel}</th>
         </tr>
       </thead>
       <tbody>
@@ -36,7 +41,7 @@ export function TransactionViewTable({ transaction }: Props) {
                   marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
                 }}
               >
-                {ellipseAddress(transaction.id)}
+                {ellipseId(transaction.id)}
               </div>
             </td>
             <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.sender)}</td>

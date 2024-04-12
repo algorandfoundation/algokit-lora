@@ -17,9 +17,9 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 //   - Update the snapshot files by running `vitest -u`. Or if the test runner is running, press `u` to update the snapshots.
 describe('transaction-view-visual', () => {
   describe.each([
-    transactionModelMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ'](),
-    transactionModelMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA'](),
-  ])('when rendering transaction %d', (transaction: TransactionResult) => {
+    transactionModelMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']().build(),
+    transactionModelMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']().build(),
+  ])('when rendering transaction $id', (transaction: TransactionResult) => {
     it('should match snapshot', () => {
       const model = asPaymentTransaction(transaction)
 
