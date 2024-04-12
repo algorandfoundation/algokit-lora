@@ -11,21 +11,25 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import algosdk from 'algosdk'
 
 export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
-  constructor() {
+  constructor(initialState?: TransactionResult) {
     const now = new Date()
-    super({
-      id: randomString(52, 52),
-      'tx-type': randomElement(Object.values(algosdk.TransactionType)),
-      'last-valid': randomNumber(),
-      'first-valid': randomNumber(),
-      fee: randomNumberBetween(1_000, 100_000),
-      sender: randomString(52, 52),
-      'confirmed-round': randomNumber(),
-      'round-time': randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000,
-      signature: {
-        sig: randomString(88, 88),
-      },
-    })
+    super(
+      initialState
+        ? initialState
+        : {
+            id: randomString(52, 52),
+            'tx-type': randomElement(Object.values(algosdk.TransactionType)),
+            'last-valid': randomNumber(),
+            'first-valid': randomNumber(),
+            fee: randomNumberBetween(1_000, 100_000),
+            sender: randomString(52, 52),
+            'confirmed-round': randomNumber(),
+            'round-time': randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000,
+            signature: {
+              sig: randomString(88, 88),
+            },
+          }
+    )
   }
 
   public paymentTransaction() {
