@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { PaymentTransactionModel, SignatureType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
+import { BlockLink } from '@/features/blocks/components/block-link'
 
 type Props = {
   transaction: PaymentTransactionModel
@@ -49,11 +50,7 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: transactionBlockLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.confirmedRound}
-          </a>
-        ),
+        dd: <BlockLink round={transaction.confirmedRound} />,
       },
       ...(transaction.group
         ? [

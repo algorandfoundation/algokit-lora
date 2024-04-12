@@ -65,7 +65,7 @@ export const useLogicsigTeal = (logic: string) => {
         algod
           .disassemble(program)
           .do()
-          .then((result) => result.result)
+          .then((result) => result.result as string)
       )
     })
     return [tealAtom, fetchTealAtom] as const

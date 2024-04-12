@@ -1,10 +1,12 @@
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { atomEffect } from 'jotai-effect'
-import { transactionsAtom } from '@/features/transactions/data'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 // import { BlockMetadata } from '@algorandfoundation/algokit-subscriber/types/subscription'
 import { Buffer } from 'buffer'
 import { algod } from '../common/data'
+import { loadable } from 'jotai/utils'
+import { useMemo } from 'react'
+import { transactionsAtom } from '../transactions/data'
 
 type BlockMetadata = {
   round: number
@@ -81,4 +83,52 @@ export const useSubscribeToBlocksEffect = () => {
 
 export const useLatestBlocks = () => {
   return useAtomValue(latestBlockAtom)
+}
+
+const useBlockAtom = (round: number) => {
+  const store = useStore()
+
+  return useMemo(() => {
+    const syncEffect = atomEffect((get, set) => {
+      ;(async () => {
+        try {
+          const block = await get(blockAtom)
+          set(blocksAtom, (prev) => {
+            return prev.concat(block)
+          })
+        } catch (e) {
+          // Ignore any errors as there is nothing to sync
+        }
+      })()
+    })
+    const blockAtom = atom((get) => {
+      // store.get prevents the atom from being subscribed to changes in transactionsAtom
+      const blocks = store.get(blocksAtom)
+      const block = blocks.find((t) => t.round === round)
+      if (block) {
+        return block
+      }
+
+      get(syncEffect)
+
+      return algod
+        .block(round)
+        .do()
+        .then((result) => {
+          return {
+            round: result.block!.rnd as number,
+            parentTransactionCount: (result.block!.txns?.length as number) ?? 0,
+          } satisfies BlockMetadata
+        })
+    })
+    return blockAtom
+  }, [store, round])
+}
+
+export const useLoadableBlock = (round: number) => {
+  return useAtomValue(
+    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
+    // https://github.com/facebook/react/issues/20877
+    loadable(useBlockAtom(round))
+  )
 }
