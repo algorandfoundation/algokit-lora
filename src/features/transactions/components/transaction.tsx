@@ -10,11 +10,11 @@ type Props = {
 
 export function Transaction({ transaction }: Props) {
   if (transaction['tx-type'] === algosdk.TransactionType.pay) {
-    return <PaymentTransaction transaction={asPaymentTransaction(transaction)} rawTransaction={transaction} />
+    return <PaymentTransaction transactionResult={transaction} />
   }
-  if (transaction['tx-type'] === algosdk.TransactionType.axfer) {
-    return <AssetTranserTransaction transaction={asAssetTransferTransaction(transaction, a)} rawTransaction={transaction} />
-  }
+  // if (transaction['tx-type'] === algosdk.TransactionType.axfer) {
+  //   return <AssetTranserTransaction transaction={asAssetTransferTransaction(transaction, a)} rawTransaction={transaction} />
+  // }
 
   return <></>
 }

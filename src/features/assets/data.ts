@@ -8,7 +8,7 @@ import { indexer } from '../common/data'
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const assetsAtom = atom<AssetResult[]>([])
 
-const useAssetAtom = (assetIndex: number) => {
+export const useAssetAtom = (assetIndex: number) => {
   const store = useStore()
 
   return useMemo(() => {
