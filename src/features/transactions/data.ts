@@ -1,14 +1,13 @@
 import { atom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { useMemo } from 'react'
-import { AssetLookupResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '../common/data'
 import { asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
-import { assetsAtom, useAssetAtom, useLoadableAsset } from '../assets/data'
+import { useAssetAtom } from '../assets/data'
 import { invariant } from '@/utils/invariant'
-import { AssetTransferTransactionModel } from './models'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionsAtom = atom<TransactionResult[]>([])
@@ -81,10 +80,12 @@ export const useLogicsigTeal = (logic: string) => {
 const usePaymentTransctionAtom = (transaction: TransactionResult) => {
   invariant(transaction['payment-transaction'], 'payment-transaction is not set')
 
-  const transactionAtom = atom(() => {
-    return asPaymentTransaction(transaction)
-  })
-  return transactionAtom
+  return useMemo(() => {
+    const transactionAtom = atom(() => {
+      return asPaymentTransaction(transaction)
+    })
+    return transactionAtom
+  }, [transaction])
 }
 
 const useAssetTransferTransactionAtom = (transaction: TransactionResult) => {
@@ -92,13 +93,15 @@ const useAssetTransferTransactionAtom = (transaction: TransactionResult) => {
   const assetId = transaction['asset-transfer-transaction']['asset-id']
   const assetAtom = useAssetAtom(assetId)
 
-  const assetTransferTransactionAtom = atom(async (get) => {
-    return asAssetTransferTransaction(transaction, await get(assetAtom))
-  })
-  return assetTransferTransactionAtom
+  return useMemo(() => {
+    const assetTransferTransactionAtom = atom(async (get) => {
+      return asAssetTransferTransaction(transaction, await get(assetAtom))
+    })
+    return assetTransferTransactionAtom
+  }, [transaction, assetAtom])
 }
 
-const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
+export const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
   return useAtomValue(
     // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
     // https://github.com/facebook/react/issues/20877
