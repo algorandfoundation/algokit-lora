@@ -3,9 +3,10 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
-import { PaymentTransactionModel } from '../models'
+import { PaymentTransactionModel, SignatureType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { isDefined } from '@/utils/is-defined'
+import { Badge } from '@/features/common/components/badge'
 
 type Props = {
   transaction: PaymentTransactionModel
@@ -28,7 +29,21 @@ export function TransactionInfo({ transaction }: Props) {
         },
         {
           dt: transactionTypeLabel,
-          dd: transaction.type,
+          dd: (
+            <>
+              {transaction.type}
+              {transaction.signature?.type === SignatureType.Multi && (
+                <Badge className={cn('ml-2')} variant="outline">
+                  Multisig
+                </Badge>
+              )}
+              {transaction.signature?.type === SignatureType.Logic && (
+                <Badge className={cn('ml-2')} variant="outline">
+                  LogicSig
+                </Badge>
+              )}
+            </>
+          ),
         },
         {
           dt: transactionTimestampLabel,
@@ -57,7 +72,15 @@ export function TransactionInfo({ transaction }: Props) {
           dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
         },
       ].filter(isDefined),
-    [transaction.confirmedRound, transaction.fee, transaction.group, transaction.id, transaction.roundTime, transaction.type]
+    [
+      transaction.confirmedRound,
+      transaction.fee,
+      transaction.group,
+      transaction.id,
+      transaction.roundTime,
+      transaction.signature?.type,
+      transaction.type,
+    ]
   )
 
   return (
