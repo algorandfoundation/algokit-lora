@@ -12,6 +12,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
+import { ellipseId } from '@/utils/ellipse-id'
 
 const graphConfig = {
   rowHeight: 40,
@@ -63,7 +64,7 @@ function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {ellipseAddress(id)}
+      {ellipseId(id)}
     </div>
   )
 }

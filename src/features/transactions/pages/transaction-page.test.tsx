@@ -127,7 +127,7 @@ describe('transaction-page', () => {
 
           // Test the table data
           const dataRow = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('FBOR...YBBQ')
+          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('FBORGSD...')
           expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('M3IA...OXXM')
           expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('KIZL...U5BQ')
           expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Payment')

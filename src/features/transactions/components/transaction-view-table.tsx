@@ -4,6 +4,7 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useMemo } from 'react'
+import { ellipseId } from '@/utils/ellipse-id'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -36,7 +37,7 @@ export function TransactionViewTable({ transaction }: Props) {
                   marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
                 }}
               >
-                {ellipseAddress(transaction.id)}
+                {ellipseId(transaction.id)}
               </div>
             </td>
             <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.sender)}</td>
