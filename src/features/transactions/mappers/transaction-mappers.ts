@@ -9,7 +9,6 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
   invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['payment-transaction'], 'payment-transaction is not set')
 
-  // TODO: Handle notes
   return {
     id: transaction.id,
     type: TransactionType.Payment,
@@ -24,6 +23,7 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
       ? algokit.microAlgos(transaction['payment-transaction']['close-amount'])
       : undefined,
     signature: transformSignature(transaction.signature),
+    note: transaction.note,
   } satisfies PaymentTransactionModel
 }
 

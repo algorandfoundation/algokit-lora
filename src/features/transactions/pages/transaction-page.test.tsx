@@ -1,5 +1,5 @@
 import { transactionModelMother } from '@/tests/object-mother/transaction-model'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   TransactionPage,
   transactionFailedToLoadMessage,
@@ -31,6 +31,7 @@ import {
   transactionTypeLabel,
 } from '../components/transaction-info'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-visual'
+import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -137,9 +138,13 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a multisig payment transaction', () => {
-    it('should show the multisig information', () => {
-      const transaction = transactionModelMother.multisig().build()
+    const transaction = transactionModelMother.multisig().build()
+
+    beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    })
+
+    it('should show the multisig information', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
@@ -159,11 +164,15 @@ describe('transaction-page', () => {
       )
     })
   })
+
   describe('when rendering a logicsig payment transaction', () => {
     const transaction = transactionModelMother.logicsig().build()
 
-    it('should show the logicsig base64', () => {
+    beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    })
+
+    it('should show 2 tabs with the logicsig base64 as default', () => {
       const myStore = createStore()
       myStore.set(transactionsAtom, [transaction])
 
@@ -175,6 +184,7 @@ describe('transaction-page', () => {
           await waitFor(() => {
             const logicsigTabList = component.getByRole('tablist', { name: logicsigLabel })
             expect(logicsigTabList).toBeTruthy()
+            expect(logicsigTabList.children.length).toBe(2)
           })
 
           const base64Tab = component.getByRole('tabpanel', { name: base64LogicsigTabLabel })
@@ -186,7 +196,6 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
 
       const myStore = createStore()
@@ -207,6 +216,199 @@ describe('transaction-page', () => {
           expect(tealTab.textContent).toBe(teal)
         }
       )
+    })
+  })
+
+  describe('when rending a transaction with a note', () => {
+    const transactionBuilder = transactionModelMother.payment()
+
+    describe('and the note is text', () => {
+      const note = 'Здравейте, world!'
+      const base64Note = Buffer.from(note).toString('base64')
+      const transaction = transactionBuilder.withNote(base64Note).build()
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+
+      beforeEach(() => {
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      })
+
+      it('should show 2 tabs with the note base64 as default', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component) => {
+            await waitFor(() => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              expect(noteTabList.children.length).toBe(2)
+            })
+
+            const base64Tab = component.getByRole('tabpanel', { name: base64NoteTabLabel })
+            expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active')
+            expect(base64Tab.textContent).toBe(base64Note)
+          }
+        )
+      })
+
+      it('should show the utf-8 text when activated', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            await waitFor(async () => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+            })
+            const textTab = component.getByRole('tabpanel', { name: textNoteTabLabel })
+            await waitFor(() => expect(textTab.getAttribute('data-state'), 'UTF-8 tab should be active').toBe('active'))
+            expect(textTab.textContent).toBe(note)
+          }
+        )
+      })
+    })
+
+    describe('and the note is json', () => {
+      const jsonNote = { hello: 'world' }
+      const note = JSON.stringify(jsonNote)
+      const base64Note = Buffer.from(note).toString('base64')
+      const transaction = transactionBuilder.withNote(base64Note).build()
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+
+      beforeEach(() => {
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      })
+
+      it('should show 3 tabs with the note json as default', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component) => {
+            await waitFor(() => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              expect(noteTabList.children.length).toBe(3)
+            })
+
+            const jsonTab = component.getByRole('tabpanel', { name: jsonNoteTabLabel })
+            expect(jsonTab.getAttribute('data-state'), 'JSON tab should be active').toBe('active')
+            expect(jsonTab.textContent).toBe(JSON.stringify(jsonNote, null, 2))
+          }
+        )
+      })
+
+      it('should show the note base64 when activated', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            await waitFor(async () => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              await user.click(getByRole(noteTabList, 'tab', { name: base64NoteTabLabel }))
+            })
+            const base64Tab = component.getByRole('tabpanel', { name: base64NoteTabLabel })
+            await waitFor(() => expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active'))
+            expect(base64Tab.textContent).toBe(base64Note)
+          }
+        )
+      })
+
+      it('should show the utf-8 text when activated', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            await waitFor(async () => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+            })
+            const textTab = component.getByRole('tabpanel', { name: textNoteTabLabel })
+            await waitFor(() => expect(textTab.getAttribute('data-state'), 'UTF-8 tab should be active').toBe('active'))
+            expect(textTab.textContent).toBe(note)
+          }
+        )
+      })
+    })
+
+    describe('and the note is arc-2 formatted', () => {
+      const note = 'algoCityTemp:j{"city":"Singapore","temp":35}'
+      const base64Note = Buffer.from(note).toString('base64')
+      const transaction = transactionBuilder.withNote(base64Note).build()
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+
+      beforeEach(() => {
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      })
+
+      it('should show 3 tabs with the note arc-2 as default', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component) => {
+            await waitFor(() => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              expect(noteTabList.children.length).toBe(3)
+            })
+
+            const arc2Tab = component.getByRole('tabpanel', { name: arc2NoteTabLabel })
+            expect(arc2Tab.getAttribute('data-state'), 'ARC-2 tab should be active').toBe('active')
+            expect(arc2Tab.textContent).toMatchInlineSnapshot(`
+              "DApp NamealgoCityTempFormatJSON{
+                "city": "Singapore",
+                "temp": 35
+              }"
+            `)
+          }
+        )
+      })
+
+      it('should show the note base64 when activated', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            await waitFor(async () => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              await user.click(getByRole(noteTabList, 'tab', { name: base64NoteTabLabel }))
+            })
+            const base64Tab = component.getByRole('tabpanel', { name: base64NoteTabLabel })
+            await waitFor(() => expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active'))
+            expect(base64Tab.textContent).toBe(base64Note)
+          }
+        )
+      })
+
+      it('should show the utf-8 text when activated', () => {
+        return executeComponentTest(
+          () => {
+            return render(<TransactionPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            await waitFor(async () => {
+              const noteTabList = component.getByRole('tablist', { name: noteLabel })
+              expect(noteTabList).toBeTruthy()
+              await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+            })
+            const textTab = component.getByRole('tabpanel', { name: textNoteTabLabel })
+            await waitFor(() => expect(textTab.getAttribute('data-state'), 'UTF-8 tab should be active').toBe('active'))
+            expect(textTab.textContent).toBe(note)
+          }
+        )
+      })
     })
   })
 })
