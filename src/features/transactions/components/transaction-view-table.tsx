@@ -14,6 +14,10 @@ type Props = {
   transaction: TransactionModel
 }
 
+export const transactionSenderLabel = 'Sender'
+export const transactionReceiverLabel = 'Receiver'
+export const transactionAmountLabel = 'Amount'
+
 export function TransactionViewTable({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
 
@@ -22,10 +26,10 @@ export function TransactionViewTable({ transaction }: Props) {
       <thead>
         <tr>
           <th className={cn('border-2')}>Transaction ID</th>
-          <th className={cn('p-2 border-2')}>Sender</th>
-          <th className={cn('p-2 border-2')}>Receiver</th>
+          <th className={cn('p-2 border-2')}>{transactionSenderLabel}</th>
+          <th className={cn('p-2 border-2')}>{transactionReceiverLabel}</th>
           <th className={cn('p-2 border-2')}>Type</th>
-          <th className={cn('p-2 border-2')}>Amount</th>
+          <th className={cn('p-2 border-2')}>{transactionAmountLabel}</th>
         </tr>
       </thead>
       <tbody>

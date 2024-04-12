@@ -5,7 +5,6 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
 import { PaymentTransactionModel, SignatureType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { isDefined } from '@/utils/is-defined'
 import { Badge } from '@/features/common/components/badge'
 
 type Props = {
@@ -21,57 +20,58 @@ export const transactionFeeLabel = 'Fee'
 
 export function TransactionInfo({ transaction }: Props) {
   const transactionInfoItems = useMemo(
-    () =>
-      [
-        {
-          dt: transactionIdLabel,
-          dd: transaction.id,
-        },
-        {
-          dt: transactionTypeLabel,
-          dd: (
-            <>
-              {transaction.type}
-              {transaction.signature?.type === SignatureType.Multi && (
-                <Badge className={cn('ml-2')} variant="outline">
-                  Multisig
-                </Badge>
-              )}
-              {transaction.signature?.type === SignatureType.Logic && (
-                <Badge className={cn('ml-2')} variant="outline">
-                  LogicSig
-                </Badge>
-              )}
-            </>
-          ),
-        },
-        {
-          dt: transactionTimestampLabel,
-          dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime)),
-        },
-        {
-          dt: transactionBlockLabel,
-          dd: (
-            <a href="#" className={cn('text-primary underline')}>
-              {transaction.confirmedRound}
-            </a>
-          ),
-        },
-        transaction.group
-          ? {
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: (
+          <>
+            {transaction.type}
+            {transaction.signature?.type === SignatureType.Multi && (
+              <Badge className={cn('ml-2')} variant="outline">
+                Multisig
+              </Badge>
+            )}
+            {transaction.signature?.type === SignatureType.Logic && (
+              <Badge className={cn('ml-2')} variant="outline">
+                LogicSig
+              </Badge>
+            )}
+          </>
+        ),
+      },
+      {
+        dt: transactionTimestampLabel,
+        dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime)),
+      },
+      {
+        dt: transactionBlockLabel,
+        dd: (
+          <a href="#" className={cn('text-primary underline')}>
+            {transaction.confirmedRound}
+          </a>
+        ),
+      },
+      ...(transaction.group
+        ? [
+            {
               dt: transactionGroupLabel,
               dd: (
                 <a href="#" className={cn('text-primary underline')}>
                   {transaction.group}
                 </a>
               ),
-            }
-          : undefined,
-        {
-          dt: transactionFeeLabel,
-          dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
-        },
-      ].filter(isDefined),
+            },
+          ]
+        : []),
+      {
+        dt: transactionFeeLabel,
+        dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
+      },
+    ],
     [
       transaction.confirmedRound,
       transaction.fee,

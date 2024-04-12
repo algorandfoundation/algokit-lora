@@ -10,7 +10,7 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionViewTable } from './transaction-view-table'
+import { TransactionViewTable, transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
 
@@ -24,12 +24,14 @@ const tableTransactionDetailsTabId = 'table'
 export const transactionDetailsLabel = 'View Transaction Details'
 export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
+export const transactionCloseRemainderToLabel = 'Close Remainder To'
+export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 
 export function PaymentTransaction({ transaction, rawTransaction }: PaymentTransactionProps) {
   const paymentTransactionItems = useMemo(
     () => [
       {
-        dt: 'Sender',
+        dt: transactionSenderLabel,
         dd: (
           <a href="#" className={cn('text-primary underline')}>
             {transaction.sender}
@@ -37,7 +39,7 @@ export function PaymentTransaction({ transaction, rawTransaction }: PaymentTrans
         ),
       },
       {
-        dt: 'Receiver',
+        dt: transactionReceiverLabel,
         dd: (
           <a href="#" className={cn('text-primary underline')}>
             {transaction.receiver}
@@ -45,11 +47,27 @@ export function PaymentTransaction({ transaction, rawTransaction }: PaymentTrans
         ),
       },
       {
-        dt: 'Amount',
+        dt: transactionAmountLabel,
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
+      ...(transaction.closeRemainder
+        ? [
+            {
+              dt: transactionCloseRemainderToLabel,
+              dd: (
+                <a href="#" className={cn('text-primary underline')}>
+                  {transaction.closeRemainder.to}
+                </a>
+              ),
+            },
+            {
+              dt: transactionCloseRemainderAmountLabel,
+              dd: <DisplayAlgo amount={transaction.closeRemainder.amount} />,
+            },
+          ]
+        : []),
     ],
-    [transaction.sender, transaction.receiver, transaction.amount]
+    [transaction.sender, transaction.receiver, transaction.amount, transaction.closeRemainder]
   )
 
   return (
