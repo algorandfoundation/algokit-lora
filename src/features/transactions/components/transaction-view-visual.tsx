@@ -6,7 +6,7 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { PaymentTransactionModel, TransactionModel, TransactionType } from '../models'
+import { AssetTransferTransactionModel, PaymentTransactionModel, TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
@@ -14,6 +14,7 @@ import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { ellipseId } from '@/utils/ellipse-id'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
+import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 const graphConfig = {
   rowHeight: 40,
@@ -139,6 +140,12 @@ const DisplayArrow = fixedForwardRef(
             <DisplayAlgo amount={transaction.amount} />
           </div>
         )}
+        {transaction.type === TransactionType.AssetTransfer && (
+          <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
+            Transfer
+            <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
+          </div>
+        )}
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
       </div>
     )
@@ -223,6 +230,40 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
   )
 }
 
+function AssetTransferTransactionToolTipContent({ transaction }: { transaction: AssetTransferTransactionModel }) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: 'Asset Transfer',
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+      {
+        dt: transactionReceiverLabel,
+        dd: transaction.receiver,
+      },
+      {
+        dt: transactionAmountLabel,
+        dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
+      },
+    ],
+    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
+
 type TransactionRowProps = {
   transaction: TransactionModel
   hasParent?: boolean
@@ -271,6 +312,7 @@ function TransactionRow({
               </TooltipTrigger>
               <TooltipContent>
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -295,9 +337,12 @@ function TransactionRow({
 }
 
 function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
+  const supportedTransactionTypes = [TransactionType.Payment, TransactionType.AssetTransfer]
+
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
 
-  if (transaction.type !== TransactionType.Payment) {
+  if (!supportedTransactionTypes.includes(transaction.type)) {
+    // For types that we don't support yet, return a self arrow
     return {
       from: fromAccount,
       to: fromAccount,
