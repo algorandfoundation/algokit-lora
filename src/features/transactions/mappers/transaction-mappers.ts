@@ -1,6 +1,7 @@
 import { AssetResult, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
   AssetTransferTransactionModel,
+  AssetTransferTransactionSubType,
   LogicsigModel,
   MultisigModel,
   PaymentTransactionModel,
@@ -69,9 +70,31 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
+  const subType = () => {
+    if (transaction['asset-transfer-transaction']!['close-to']) {
+      return AssetTransferTransactionSubType.OptOut
+    }
+    if (
+      transaction.sender === transaction['asset-transfer-transaction']!.receiver &&
+      transaction['asset-transfer-transaction']!.amount.toString() === '0'
+    ) {
+      return AssetTransferTransactionSubType.OptIn
+    }
+    if (
+      transaction.sender === asset.params.clawback &&
+      transaction['asset-transfer-transaction']!.sender &&
+      transaction['asset-transfer-transaction']!.sender !== '0'
+    ) {
+      return AssetTransferTransactionSubType.Clawback
+    }
+
+    return AssetTransferTransactionSubType.Transaction
+  }
+
   return {
     id: transaction.id,
     type: TransactionType.AssetTransfer,
+    subType: subType(),
     asset: asAsset(asset),
     confirmedRound: transaction['confirmed-round'],
     roundTime: transaction['round-time'] * 1000,
@@ -87,5 +110,6 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
         }
       : undefined,
     signature: transformSignature(transaction.signature),
+    clawbackFrom: transaction['asset-transfer-transaction'].sender,
   }
 }

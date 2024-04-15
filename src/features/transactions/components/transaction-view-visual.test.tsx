@@ -43,6 +43,10 @@ describe('asset-transfer-transaction-view-visual', () => {
       transactionResult: transactionResultMother['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']().build(),
       assetResult: assetResultMother['mainnet-523683256']().build(),
     },
+    {
+      transactionResult: transactionResultMother['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']().build(),
+      assetResult: assetResultMother['mainnet-312769']().build(),
+    },
   ])(
     'when rendering transaction $id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {

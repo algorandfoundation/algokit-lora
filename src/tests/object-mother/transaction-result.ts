@@ -132,7 +132,7 @@ export const transactionResultMother = {
     } satisfies TransactionResult)
   },
   ['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']: () => {
-    // Asset transfer transaction
+    // Asset transfer transaction with close remainder. It is an asset opt-out transaction.
     return new TransactionResultBuilder({
       'asset-transfer-transaction': {
         amount: 0,
@@ -157,6 +157,64 @@ export const transactionResultMother = {
       signature: {
         sig: 'fK9vks0Sk2Sfa0PN+9wHSYYh2OKCFxSGBN2B4agVmVNoui17XcwXj4DbLJZWoknbVH/0gaKweKEYMIz4Oe8tDw==',
       },
+      'tx-type': TransactionType.axfer,
+    } satisfies TransactionResult)
+  },
+  ['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']: () => {
+    // Asset opt-in
+    return new TransactionResultBuilder({
+      'asset-transfer-transaction': {
+        amount: 0,
+        'asset-id': 312769,
+        'close-amount': 0,
+        receiver: 'SMO6HD4QPUGP2PI5HVE6SXQPBXGXOHB6HFKXY4RMUWM56S7BVDK2U7ALKU',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 6325026,
+      fee: 1000,
+      'first-valid': 6324488,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: '563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA',
+      'intra-round-offset': 0,
+      'last-valid': 6325488,
+      note: 'MTU4ODAxMjcyNjU5OTgzNDM2OA==',
+      'receiver-rewards': 0,
+      'round-time': 1588015047,
+      sender: 'SMO6HD4QPUGP2PI5HVE6SXQPBXGXOHB6HFKXY4RMUWM56S7BVDK2U7ALKU',
+      'sender-rewards': 0,
+      signature: { sig: 'eXs6In2s6DdoRIBHLesRRS9BX+UWykWX4YGPuTdOLJTn33NXM5paD7kZiB+4FQ27a+F7W2QEWJYU8QEzDHTVAQ==' },
+      'tx-type': TransactionType.axfer,
+    } satisfies TransactionResult)
+  },
+
+  ['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']: () => {
+    // Asset clawback
+    return new TransactionResultBuilder({
+      'asset-transfer-transaction': {
+        amount: 5,
+        'asset-id': 642327435,
+        'close-amount': 0,
+        receiver: 'ATSGPNTPGMJ2U3GQRSEXA2OZGFPMKPO66NNPIKFD4LHETHYIYRIRIN6GJE',
+        sender: 'AT3QNHSO7VZ2CPEZGI4BG7M3TIUG7YE5KZXNAE55Z4QHHAGBEU6K2LCJUA',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 39050091,
+      fee: 1000,
+      'first-valid': 39050089,
+      'genesis-hash': 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+      'genesis-id': 'testnet-v1.0',
+      id: 'VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ',
+      'intra-round-offset': 9,
+      'last-valid': 39051089,
+      note: 'VHJhbnNmZXIgNSBhc3NldHMgd2l0IGlkICQ2NDIzMjc0MzU=',
+      'receiver-rewards': 0,
+      'round-time': 1713177404,
+      sender: 'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY',
+      'sender-rewards': 0,
+      signature: { sig: 'LYTng1fmA+JQ8AocqDfp/OBvrds/WXa936muT3b4Ym98qIzouEnbMf7cOj099GV+ABecBzmw6+JrzOH/WU7TDQ==' },
       'tx-type': TransactionType.axfer,
     } satisfies TransactionResult)
   },

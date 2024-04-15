@@ -38,6 +38,7 @@ import {
   assetLabel,
   transactionCloseRemainderAmountLabel as assetTransactionCloseRemainderAmountLabel,
   transactionCloseRemainderToLabel as assetTransactionCloseRemainderToLabel,
+  transactionClawbackAddressLabel,
 } from '../components/asset-transfer-transaction-info'
 import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
 
@@ -443,7 +444,9 @@ describe('transaction-page', () => {
         async (component, user) => {
           // waitFor the loading state to be finished
           await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
-          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toBe('Asset Transfer')
+          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
+          expect(transactionTypeDescription).toContain('Asset Transfer')
+          expect(transactionTypeDescription).toContain('Opt-Out')
           expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Thu, 20 July 2023 19:08:03')
           expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('30666726')
           expect(component.queryByText(transactionGroupLabel)).toBeNull()
@@ -482,6 +485,66 @@ describe('transaction-page', () => {
           expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('LINT...CQE4')
           expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
           expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('0 CLY')
+        }
+      )
+    })
+  })
+
+  describe('when rendering a asset opt-in transaction', () => {
+    const transaction = transactionResultMother['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']().build()
+    const asset = assetResultMother['mainnet-312769']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+      myStore.set(assetsAtom, [asset])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
+          expect(transactionTypeDescription).toContain('Asset Transfer')
+          expect(transactionTypeDescription).toContain('Opt-In')
+        }
+      )
+    })
+  })
+
+  describe('when rendering a asset clawback transaction', () => {
+    const transaction = transactionResultMother['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']().build()
+    const asset = assetResultMother['testnet-642327435']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+      myStore.set(assetsAtom, [asset])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
+          expect(transactionTypeDescription).toContain('Asset Transfer')
+          expect(transactionTypeDescription).toContain('Clawback')
+
+          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
+            'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY'
+          )
+          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
+            'ATSGPNTPGMJ2U3GQRSEXA2OZGFPMKPO66NNPIKFD4LHETHYIYRIRIN6GJE'
+          )
+          expect(getByDescriptionTerm(component.container, transactionClawbackAddressLabel).textContent).toBe(
+            'AT3QNHSO7VZ2CPEZGI4BG7M3TIUG7YE5KZXNAE55Z4QHHAGBEU6K2LCJUA'
+          )
         }
       )
     })

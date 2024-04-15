@@ -3,7 +3,7 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
-import { TransactionModel, SignatureType } from '../models'
+import { TransactionModel, SignatureType, TransactionType, AssetTransferTransactionSubType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
 
@@ -30,6 +30,11 @@ export function TransactionInfo({ transaction }: Props) {
         dd: (
           <>
             {transaction.type}
+            {transaction.type === TransactionType.AssetTransfer && transaction.subType !== AssetTransferTransactionSubType.Transaction && (
+              <Badge className={cn('ml-2')} variant="outline">
+                {transaction.subType}
+              </Badge>
+            )}
             {transaction.signature?.type === SignatureType.Multi && (
               <Badge className={cn('ml-2')} variant="outline">
                 Multisig
@@ -72,15 +77,7 @@ export function TransactionInfo({ transaction }: Props) {
         dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
       },
     ],
-    [
-      transaction.confirmedRound,
-      transaction.fee,
-      transaction.group,
-      transaction.id,
-      transaction.roundTime,
-      transaction.signature?.type,
-      transaction.type,
-    ]
+    [transaction]
   )
 
   return (
