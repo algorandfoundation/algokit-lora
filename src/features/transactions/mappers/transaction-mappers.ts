@@ -76,7 +76,6 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     return new Decimal(amount).div(new Decimal(10).pow(decimals)).toNumber()
   }
 
-  // TODO: Handle notes
   return {
     id: transaction.id,
     type: TransactionType.AssetTransfer,

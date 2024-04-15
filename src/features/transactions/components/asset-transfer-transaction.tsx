@@ -25,10 +25,10 @@ export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
 
 export function AssetTranserTransaction({ transactionResult }: AssetTransaferTransactionProps) {
-  const loadablePaymentTransaction = useLoadableAssetTransferTransaction(transactionResult)
+  const loadableAssetTransferTransction = useLoadableAssetTransferTransaction(transactionResult)
 
   return (
-    <RenderLoadable loadable={loadablePaymentTransaction}>
+    <RenderLoadable loadable={loadableAssetTransferTransction}>
       {(assetTransferTransaction) => (
         <div className={cn('space-y-6 pt-7')}>
           <TransactionInfo transaction={assetTransferTransaction} />

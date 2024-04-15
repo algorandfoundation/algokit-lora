@@ -44,8 +44,6 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
 
 export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel
 
-export type MicroAlgo = number
-
 export enum SignatureType {
   Single = 'Single',
   Multi = 'Multi',
