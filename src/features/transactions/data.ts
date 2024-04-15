@@ -77,7 +77,7 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-const usePaymentTransctionAtom = (transaction: TransactionResult) => {
+const usePaymentTransactionAtom = (transaction: TransactionResult) => {
   invariant(transaction['payment-transaction'], 'payment-transaction is not set')
 
   return useMemo(() => {
@@ -109,10 +109,10 @@ export const useLoadableAssetTransferTransaction = (transaction: TransactionResu
   )
 }
 
-export const useLoadablePaymentTransaction = (transaction: TransactionResult) => {
+export const usePaymentTransaction = (transaction: TransactionResult) => {
   return useAtomValue(
     // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
     // https://github.com/facebook/react/issues/20877
-    loadable(usePaymentTransctionAtom(transaction))
+    usePaymentTransactionAtom(transaction)
   )
 }

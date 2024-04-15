@@ -70,11 +70,13 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
-  const calculateAmount = (amount?: string) => {
+  const calculateAmount = (amount?: number | bigint) => {
     if (!amount) return 0
     // asset decimals value must be from 0 to 19 so it is safe to use .toString() here
     const decimals = asset.params.decimals.toString()
-    return new Decimal(amount).div(new Decimal(10).pow(decimals)).toNumber()
+    // the amount is uint64, should be safe to be .toString()
+    const amountAsString = amount.toString()
+    return new Decimal(amountAsString).div(new Decimal(10).pow(decimals)).toNumber()
   }
 
   return {
@@ -87,13 +89,11 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
     receiver: transaction['asset-transfer-transaction'].receiver,
-    amount: calculateAmount(
-      transaction['asset-transfer-transaction'].amount.toString() // the amount is uint64, should be safe to be .toString()
-    ),
+    amount: calculateAmount(transaction['asset-transfer-transaction'].amount),
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
       ? {
           to: transaction['asset-transfer-transaction']['close-to'],
-          amount: calculateAmount(transaction['asset-transfer-transaction']['close-amount']?.toString()), // the amount is uint64, should be safe to be .toString()
+          amount: calculateAmount(transaction['asset-transfer-transaction']['close-amount']),
         }
       : undefined,
     signature: transformSignature(transaction.signature),
