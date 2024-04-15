@@ -1,6 +1,5 @@
 import { AssetModel } from '@/features/assets/models'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import Decimal from 'decimal.js'
 
 type Address = string
 
@@ -29,7 +28,7 @@ export type CloseAlgoRemainder = {
 
 export type CloseAssetRemainder = {
   to: Address
-  amount: Decimal
+  amount: number | bigint | undefined
 }
 
 export type PaymentTransactionModel = CommonTransactionProperties & {
@@ -42,7 +41,7 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
 export type AssetTransferTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   receiver: Address
-  amount: Decimal
+  amount: number | bigint
   closeRemainder?: CloseAssetRemainder
   asset: AssetModel
 }

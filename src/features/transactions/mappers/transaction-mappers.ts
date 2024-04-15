@@ -11,7 +11,6 @@ import {
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
-import { Decimal } from 'decimal.js'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
@@ -70,15 +69,6 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
-  const calculateAmount = (amount?: number | bigint) => {
-    if (!amount) return new Decimal(0)
-    // asset decimals value must be from 0 to 19 so it is safe to use .toString() here
-    const decimals = asset.params.decimals.toString()
-    // the amount is uint64, should be safe to be .toString()
-    const amountAsString = amount.toString()
-    return new Decimal(amountAsString).div(new Decimal(10).pow(decimals))
-  }
-
   return {
     id: transaction.id,
     type: TransactionType.AssetTransfer,
@@ -89,11 +79,11 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
     receiver: transaction['asset-transfer-transaction'].receiver,
-    amount: calculateAmount(transaction['asset-transfer-transaction'].amount),
+    amount: transaction['asset-transfer-transaction'].amount,
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
       ? {
           to: transaction['asset-transfer-transaction']['close-to'],
-          amount: calculateAmount(transaction['asset-transfer-transaction']['close-amount']),
+          amount: transaction['asset-transfer-transaction']['close-amount'],
         }
       : undefined,
     signature: transformSignature(transaction.signature),
