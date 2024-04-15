@@ -1,14 +1,15 @@
 import { AssetModel } from '@/features/assets/models'
+import Decimal from 'decimal.js'
 
 type Props = {
-  amount: number
+  amount: Decimal
   asset: AssetModel
 }
 
 export const DisplayAssetAmount = ({ amount, asset }: Props) => {
   return (
     <div>
-      {amount} {asset.unitName ?? ''}
+      {amount.toString()} {asset.unitName ?? ''}
     </div>
   )
 }

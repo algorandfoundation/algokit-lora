@@ -71,12 +71,12 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const calculateAmount = (amount?: number | bigint) => {
-    if (!amount) return 0
+    if (!amount) return new Decimal(0)
     // asset decimals value must be from 0 to 19 so it is safe to use .toString() here
     const decimals = asset.params.decimals.toString()
     // the amount is uint64, should be safe to be .toString()
     const amountAsString = amount.toString()
-    return new Decimal(amountAsString).div(new Decimal(10).pow(decimals)).toNumber()
+    return new Decimal(amountAsString).div(new Decimal(10).pow(decimals))
   }
 
   return {
