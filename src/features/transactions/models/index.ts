@@ -21,24 +21,28 @@ export enum TransactionType {
   AssetTransfer = 'Asset Transfer',
 }
 
-export type CloseRemainder = {
+export type CloseAlgoRemainder = {
   to: Address
   amount: AlgoAmount
+}
+
+export type CloseAssetRemainder = {
+  to: Address
+  amount: number
 }
 
 export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
-  closeRemainder?: CloseRemainder
+  closeRemainder?: CloseAlgoRemainder
 }
 
 export type AssetTransferTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   receiver: Address
   amount: number
-  closeAmount?: number
-  closeTo?: Address
+  closeRemainder?: CloseAssetRemainder
   asset: AssetModel
 }
 

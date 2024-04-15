@@ -34,7 +34,11 @@ import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, text
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { assetsAtom } from '@/features/assets/data'
-import { assetLabel, transactionCloseAmountLabel, transactionCloseToLabel } from '../components/asset-transfer-transaction-info'
+import {
+  assetLabel,
+  transactionCloseRemainderAmountLabel as assetTransactionCloseRemainderAmountLabel,
+  transactionCloseRemainderToLabel as assetTransactionCloseRemainderToLabel,
+} from '../components/asset-transfer-transaction-info'
 import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
 
 describe('transaction-page', () => {
@@ -454,10 +458,10 @@ describe('transaction-page', () => {
           expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('140479105 (Clyders)')
           expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('0 CLY')
 
-          expect(getByDescriptionTerm(component.container, transactionCloseToLabel).textContent).toBe(
+          expect(getByDescriptionTerm(component.container, assetTransactionCloseRemainderToLabel).textContent).toBe(
             'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
           )
-          expect(getByDescriptionTerm(component.container, transactionCloseAmountLabel).textContent).toBe('0 CLY')
+          expect(getByDescriptionTerm(component.container, assetTransactionCloseRemainderAmountLabel).textContent).toBe('0 CLY')
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
