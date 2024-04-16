@@ -102,7 +102,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       return executeComponentTest(
         () => {
@@ -160,7 +160,7 @@ describe('transaction-page', () => {
 
     it('should show the multisig information', () => {
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       return executeComponentTest(
         () => {
@@ -188,7 +188,7 @@ describe('transaction-page', () => {
 
     it('should show 2 tabs with the logicsig base64 as default', () => {
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       return executeComponentTest(
         () => {
@@ -213,7 +213,7 @@ describe('transaction-page', () => {
       vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
 
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       return executeComponentTest(
         () => {
@@ -241,7 +241,7 @@ describe('transaction-page', () => {
       const base64Note = Buffer.from(note).toString('base64')
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -291,7 +291,7 @@ describe('transaction-page', () => {
       const base64Note = Buffer.from(note).toString('base64')
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -358,7 +358,7 @@ describe('transaction-page', () => {
       const base64Note = Buffer.from(note).toString('base64')
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -433,7 +433,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionsAtom, [transaction])
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
       myStore.set(assetsAtom, [asset])
 
       return executeComponentTest(

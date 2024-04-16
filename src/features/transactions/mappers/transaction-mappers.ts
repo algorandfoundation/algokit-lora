@@ -27,7 +27,8 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
     receiver: transaction['payment-transaction']['receiver'],
-    amount: algokit.microAlgos(transaction['payment-transaction']['amount']),
+    // TODO: NC - Remove isNaN check once this fix is merged and released. https://github.com/algorandfoundation/algokit-subscriber-ts/pull/49
+    amount: algokit.microAlgos(!isNaN(transaction['payment-transaction']['amount']) ? transaction['payment-transaction']['amount'] : 0),
     closeRemainder: transaction['payment-transaction']['close-remainder-to']
       ? {
           to: transaction['payment-transaction']['close-remainder-to'],
@@ -83,7 +84,7 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
       ? {
           to: transaction['asset-transfer-transaction']['close-to'],
-          amount: transaction['asset-transfer-transaction']['close-amount'],
+          amount: transaction['asset-transfer-transaction']['close-amount'] ?? 0,
         }
       : undefined,
     signature: transformSignature(transaction.signature),

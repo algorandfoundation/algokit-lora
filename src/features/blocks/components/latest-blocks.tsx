@@ -1,4 +1,5 @@
 import { useLatestBlocks } from '../data'
+import { BlockLink } from './block-link'
 
 export function LatestBlocks() {
   const latestBlocks = useLatestBlocks()
@@ -8,7 +9,7 @@ export function LatestBlocks() {
       <h3>Latest Blocks:</h3>
       {latestBlocks.map((block, i) => (
         <p key={i}>
-          {block.round} - {block.parentTransactionCount}
+          <BlockLink round={block.round} />
         </p>
       ))}
     </div>

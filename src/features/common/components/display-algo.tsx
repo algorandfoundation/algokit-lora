@@ -9,9 +9,9 @@ export type Props = {
 
 export function DisplayAlgo({ className, amount }: Props) {
   return (
-    <div className={cn(className, 'flex items-center')}>
+    <div className={cn(className, 'inline-flex gap-0.5')}>
       {amount.algos}
-      <SvgAlgorand />
+      <SvgAlgorand className="h-auto w-2.5" />
     </div>
   )
 }

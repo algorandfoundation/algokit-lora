@@ -5,6 +5,7 @@ export type UrlParameterValue = `${string}:${string}`
 export const UrlParams = {
   TransactionId: 'transactionId:string',
   GroupId: 'groupId:string',
+  Round: 'round:string',
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
@@ -15,6 +16,9 @@ export const Urls = {
     }),
     Group: UrlTemplate`/group`.extend({
       ById: UrlTemplate`/${UrlParams.GroupId}`,
+    }),
+    Block: UrlTemplate`/block`.extend({
+      ById: UrlTemplate`/${UrlParams.Round}`,
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
