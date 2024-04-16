@@ -1,6 +1,6 @@
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { AssetTransferTransactionModel } from '../models'
+import { AssetTransferTransactionModel, AssetTransferTransactionSubType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
@@ -12,6 +12,7 @@ type Props = {
 export const assetLabel = 'Asset'
 export const transactionCloseRemainderToLabel = 'Close Remainder To'
 export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
+export const transactionClawbackAddressLabel = 'Clawback From'
 
 export function AssetTransferTransactionInfo({ transaction }: Props) {
   const items = useMemo(
@@ -32,6 +33,18 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
           </a>
         ),
       },
+      ...(transaction.subType === AssetTransferTransactionSubType.Clawback
+        ? [
+            {
+              dt: transactionClawbackAddressLabel,
+              dd: (
+                <a href="#" className={cn('text-primary underline')}>
+                  {transaction.clawbackFrom}
+                </a>
+              ),
+            },
+          ]
+        : []),
       {
         dt: assetLabel,
         dd: (
@@ -61,7 +74,15 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
           ]
         : []),
     ],
-    [transaction.sender, transaction.receiver, transaction.asset, transaction.amount, transaction.closeRemainder]
+    [
+      transaction.amount,
+      transaction.asset,
+      transaction.clawbackFrom,
+      transaction.closeRemainder,
+      transaction.receiver,
+      transaction.sender,
+      transaction.subType,
+    ]
   )
 
   return (
