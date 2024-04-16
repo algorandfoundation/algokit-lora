@@ -98,6 +98,7 @@ export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
 }
 
+const maxBlocksToDisplay = 5
 export const useLatestBlocks = () => {
   const store = useStore()
   const syncedRound = useAtomValue(syncedRoundAtom)
@@ -107,7 +108,7 @@ export const useLatestBlocks = () => {
       return []
     }
     const blocks = store.get(blocksAtom)
-    return Array.from({ length: 5 }, (_, i) => {
+    return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
       const round = syncedRound - i
       return blocks.has(round) ? blocks.get(round) : undefined
     }).filter(isDefined)

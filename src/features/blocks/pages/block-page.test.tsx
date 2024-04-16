@@ -11,7 +11,7 @@ import { blocksAtom } from '../data'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block'
 import { transactionsAtom } from '@/features/transactions/data'
-import { transactionModelMother } from '@/tests/object-mother/transaction-model'
+import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 
 describe('block-page', () => {
   describe('when rending a block using an invalid round number', () => {
@@ -62,7 +62,7 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blocksAtom, new Map([[block.round, block] as const]))
+        myStore.set(blocksAtom, new Map([[block.round, block]]))
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
@@ -81,7 +81,7 @@ describe('block-page', () => {
     })
 
     describe('and has transactions', () => {
-      const transaction1 = transactionModelMother
+      const transaction1 = transactionResultMother
         .payment()
         .withId('zP5UBQ5K7ZHMbJVUAKF5BpdQfwZy4PbhKsDaHMMfOvl3bQoQqrKZ')
         .withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=')
@@ -101,8 +101,8 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blocksAtom, new Map([[block.round, block] as const]))
-        myStore.set(transactionsAtom, new Map([[transaction1.id, transaction1] as const]))
+        myStore.set(blocksAtom, new Map([[block.round, block]]))
+        myStore.set(transactionsAtom, new Map([[transaction1.id, transaction1]]))
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),

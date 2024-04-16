@@ -84,7 +84,7 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
       ? {
           to: transaction['asset-transfer-transaction']['close-to'],
-          amount: transaction['asset-transfer-transaction']['close-amount'],
+          amount: transaction['asset-transfer-transaction']['close-amount'] ?? 0,
         }
       : undefined,
     signature: transformSignature(transaction.signature),
