@@ -1,4 +1,5 @@
 import { AssetResult, StateSchema, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import {
   AppCallTransactionModel,
   AssetTransferTransactionModel,
@@ -119,7 +120,7 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   }
 }
 
-export const asAppCallTransaction = (transaction: TransactionResult): AppCallTransactionModel => {
+export const asAppCallTransaction = (transaction: TransactionResult, assetResults: AssetResult[]): AppCallTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
   invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['application-transaction'], 'application-transaction is not set')
@@ -140,7 +141,25 @@ export const asAppCallTransaction = (transaction: TransactionResult): AppCallTra
     globalStateSchema: asStateSchema(transaction['application-transaction']['global-state-schema']),
     localStateSchema: asStateSchema(transaction['application-transaction']['local-state-schema']),
     // TODO: the inner transactions don't have id
-    innerTransactions: transaction['inner-txns']?.map((innerTransaction) => asAppCallTransaction(innerTransaction)) ?? [],
+    innerTransactions:
+      transaction['inner-txns']?.map((innerTransaction) => {
+        if (innerTransaction['tx-type'] === AlgoSdkTransactionType.pay) {
+          return asPaymentTransaction(innerTransaction)
+        }
+        if (innerTransaction['tx-type'] === AlgoSdkTransactionType.axfer) {
+          invariant(innerTransaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+          const asset = assetResults.find((asset) => asset.index === innerTransaction['asset-transfer-transaction']!['asset-id'])
+          invariant(asset, `Asset index ${innerTransaction['asset-transfer-transaction']!['asset-id']} not found in cache`)
+
+          return asAssetTransferTransaction(innerTransaction, asset)
+        }
+        if (innerTransaction['tx-type'] === AlgoSdkTransactionType.appl) {
+          return asAppCallTransaction(innerTransaction, assetResults)
+        }
+
+        // This could be dangerous as we haven't implemented all the transaction types
+        throw new Error(`Unsupported inner transaction type: ${innerTransaction['tx-type']}`)
+      }) ?? [],
   }
 }
 

@@ -45,10 +45,53 @@ export const useAssetAtom = (assetIndex: number) => {
   }, [store, assetIndex])
 }
 
-export const useLoadableAsset = (assetId: number) => {
+export const useAssetsAtom = (assetIndexes: number[]) => {
+  // const foo = useAssetAtom(1)
+  // return assetIndexes.map((assetIndex) => {
+  //   return useAssetAtom(assetIndex)
+  // })
+  const store = useStore()
+
+  return useMemo(() => {
+    return assetIndexes.map((assetIndex) => {
+      const syncEffect = atomEffect((get, set) => {
+        ;(async () => {
+          try {
+            const asset = await get(assetAtom)
+            set(assetsAtom, (prev) => {
+              return prev.concat(asset)
+            })
+          } catch (e) {
+            // Ignore any errors as there is nothing to sync
+          }
+        })()
+      })
+      const assetAtom = atom((get) => {
+        // store.get prevents the atom from being subscribed to changes in assetsAtom
+        const assets = store.get(assetsAtom)
+        const asset = assets.find((a) => a.index === assetIndex)
+        if (asset) {
+          return asset
+        }
+
+        get(syncEffect)
+
+        return indexer
+          .lookupAssetByID(assetIndex)
+          .do()
+          .then((result) => {
+            return (result as AssetLookupResult).asset
+          })
+      })
+      return assetAtom
+    })
+  }, [store, assetIndexes])
+}
+
+export const useLoadableAsset = (assetIndex: number) => {
   return useAtomValue(
     // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
     // https://github.com/facebook/react/issues/20877
-    loadable(useAssetAtom(assetId))
+    loadable(useAssetAtom(assetIndex))
   )
 }

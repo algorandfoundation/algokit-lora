@@ -1,4 +1,4 @@
-import { TransactionModel } from '@/features/transactions/models'
+import { TransactionModel, TransactionType } from '@/features/transactions/models'
 
 export type FlattenedTransaction = {
   nestingLevel: number
@@ -6,10 +6,22 @@ export type FlattenedTransaction = {
 }
 
 export function flattenInnerTransactions(transaction: TransactionModel, nestingLevel = 0): FlattenedTransaction[] {
-  return [
+  if (transaction.type !== TransactionType.ApplicationCall) {
+    return [
+      {
+        nestingLevel,
+        transaction,
+      },
+    ]
+  }
+
+  const inners: FlattenedTransaction[] =
+    transaction.innerTransactions.flatMap((transaction) => flattenInnerTransactions(transaction, nestingLevel + 1)) ?? []
+
+  return inners.concat([
     {
       nestingLevel,
       transaction,
-    },
-  ].concat(transaction.transactions?.flatMap((transaction) => flattenInnerTransactions(transaction, nestingLevel + 1)) ?? [])
+    } satisfies FlattenedTransaction,
+  ])
 }

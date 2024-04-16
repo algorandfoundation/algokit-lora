@@ -6,7 +6,7 @@ import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '../common/data'
 import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
-import { useAssetAtom } from '../assets/data'
+import { useAssetAtom, useAssetsAtom } from '../assets/data'
 import { invariant } from '@/utils/invariant'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
@@ -94,17 +94,6 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-const useAppCallTransactionAtom = (transaction: TransactionResult) => {
-  invariant(transaction['application-transaction'], 'application-transaction is not set')
-
-  return useMemo(() => {
-    const transactionAtom = atom(() => {
-      return asAppCallTransaction(transaction)
-    })
-    return transactionAtom
-  }, [transaction])
-}
-
 export const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
   const assetId = transaction['asset-transfer-transaction']['asset-id']
@@ -137,6 +126,33 @@ export const usePaymentTransaction = (transaction: TransactionResult) => {
   return useAtomValue(modelAtom)
 }
 
-export const useAppCallTransction = (transaction: TransactionResult) => {
-  return useAtomValue(useAppCallTransactionAtom(transaction))
+export const useLoadableAppCallTransction = (transaction: TransactionResult) => {
+  invariant(transaction['application-transaction'], 'application-transaction is not set')
+
+  const assetIds = getAssetIdsForAppCallTransaction(transaction)
+  const assets = useAssetsAtom(assetIds)
+
+  const modelAtom = useMemo(() => {
+    const transactionAtom = atom(async (get) => {
+      const foos = assets.map((a) => get(a))
+      const bar = await Promise.all(foos)
+      return asAppCallTransaction(transaction, bar)
+    })
+    return transactionAtom
+  }, [assets, transaction])
+
+  return useAtomValue(loadable(modelAtom))
+}
+
+const getAssetIdsForAppCallTransaction = (transaction: TransactionResult) => {
+  invariant(transaction['application-transaction'], 'application-transaction is not set')
+
+  const assetIds = transaction['application-transaction']['foreign-assets'] ?? []
+  transaction['inner-txns']?.flatMap((innerTxn) => {
+    if (innerTxn['asset-transfer-transaction']) {
+      assetIds.push(...getAssetIdsForAppCallTransaction(innerTxn))
+    }
+  })
+
+  return assetIds
 }
