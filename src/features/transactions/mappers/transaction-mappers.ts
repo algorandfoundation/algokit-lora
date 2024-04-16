@@ -71,19 +71,21 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const subType = () => {
-    if (transaction['asset-transfer-transaction']!['close-to']) {
+    invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+
+    if (transaction['asset-transfer-transaction']['close-to']) {
       return AssetTransferTransactionSubType.OptOut
     }
     if (
-      transaction.sender === transaction['asset-transfer-transaction']!.receiver &&
-      transaction['asset-transfer-transaction']!.amount.toString() === '0'
+      transaction.sender === transaction['asset-transfer-transaction'].receiver &&
+      transaction['asset-transfer-transaction'].amount.toString() === '0'
     ) {
       return AssetTransferTransactionSubType.OptIn
     }
     if (
       transaction.sender === asset.params.clawback &&
-      transaction['asset-transfer-transaction']!.sender &&
-      transaction['asset-transfer-transaction']!.sender !== '0'
+      transaction['asset-transfer-transaction'].sender &&
+      transaction['asset-transfer-transaction'].sender !== '0'
     ) {
       return AssetTransferTransactionSubType.Clawback
     }
