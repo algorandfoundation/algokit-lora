@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { TransactionModel, SignatureType, TransactionType, AssetTransferTransactionSubType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
+import { BlockLink } from '@/features/blocks/components/block-link'
 
 type Props = {
   transaction: TransactionModel
@@ -31,20 +32,10 @@ export function TransactionInfo({ transaction }: Props) {
           <>
             {transaction.type}
             {transaction.type === TransactionType.AssetTransfer && transaction.subType !== AssetTransferTransactionSubType.Transaction && (
-              <Badge className={cn('ml-2')} variant="outline">
-                {transaction.subType}
-              </Badge>
+              <Badge variant="outline">{transaction.subType}</Badge>
             )}
-            {transaction.signature?.type === SignatureType.Multi && (
-              <Badge className={cn('ml-2')} variant="outline">
-                Multisig
-              </Badge>
-            )}
-            {transaction.signature?.type === SignatureType.Logic && (
-              <Badge className={cn('ml-2')} variant="outline">
-                LogicSig
-              </Badge>
-            )}
+            {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
+            {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
           </>
         ),
       },
@@ -54,11 +45,7 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: transactionBlockLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.confirmedRound}
-          </a>
-        ),
+        dd: <BlockLink round={transaction.confirmedRound} />,
       },
       ...(transaction.group
         ? [

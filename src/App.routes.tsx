@@ -6,6 +6,7 @@ import { TransactionPage, transactionPageTitle } from './features/transactions/p
 import { ExplorePage } from './features/explore/pages/explore-page'
 import { GroupPage } from './features/transactions/pages/group-page'
 import { ErrorPage } from './features/common/pages/error-page'
+import { BlockPage, blockPageTitle } from './features/blocks/pages/block-page'
 
 export const routes = evalTemplates([
   {
@@ -41,6 +42,11 @@ export const routes = evalTemplates([
           {
             template: Urls.Explore.Group.ById,
             element: <GroupPage />,
+          },
+          {
+            template: Urls.Explore.Block.ById,
+            element: <BlockPage />,
+            errorElement: <ErrorPage title={blockPageTitle} />,
           },
         ],
       },

@@ -43,7 +43,7 @@ export const base64NoteTabLabel = 'Base64'
 export const textNoteTabLabel = 'UTF-8'
 export const jsonNoteTabLabel = 'JSON'
 export const arc2NoteTabLabel = 'ARC-2'
-export const arc2FormatLabels = {
+const arc2FormatLabels = {
   m: 'MsgPack',
   b: 'bytes',
   u: textNoteTabLabel,

@@ -1,3 +1,4 @@
+import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
 import { ellipseId } from '@/utils/ellipse-id'
@@ -8,9 +9,13 @@ type Props = PropsWithChildren<{
   short?: boolean
 }>
 
-export function TransactionIdLink({ transactionId, short = false, children }: Props) {
+export function TransactionLink({ transactionId, short = false, children }: Props) {
   return (
-    <TemplatedNavLink urlTemplate={Urls.Explore.Transaction.ById} urlParams={{ transactionId: transactionId }}>
+    <TemplatedNavLink
+      className={cn('text-primary underline')}
+      urlTemplate={Urls.Explore.Transaction.ById}
+      urlParams={{ transactionId: transactionId }}
+    >
       {children ? children : short ? ellipseId(transactionId) : transactionId}
     </TemplatedNavLink>
   )
