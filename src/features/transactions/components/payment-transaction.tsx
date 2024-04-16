@@ -1,22 +1,20 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { useMemo } from 'react'
-import { PaymentTransactionModel, SignatureType } from '../models'
+import { SignatureType } from '../models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionViewTable, transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
+import { TransactionViewTable } from './transaction-view-table'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
+import { usePaymentTransaction } from '../data'
+import { PaymentTransactionInfo } from './payment-transaction-info'
 
 type PaymentTransactionProps = {
-  transaction: PaymentTransactionModel
-  rawTransaction: TransactionResult
+  transactionResult: TransactionResult
 }
 
 const visualTransactionDetailsTabId = 'visual'
@@ -24,63 +22,16 @@ const tableTransactionDetailsTabId = 'table'
 export const transactionDetailsLabel = 'View Transaction Details'
 export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
-export const transactionCloseRemainderToLabel = 'Close Remainder To'
-export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 
-export function PaymentTransaction({ transaction, rawTransaction }: PaymentTransactionProps) {
-  const paymentTransactionItems = useMemo(
-    () => [
-      {
-        dt: transactionSenderLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.sender}
-          </a>
-        ),
-      },
-      {
-        dt: transactionReceiverLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.receiver}
-          </a>
-        ),
-      },
-      {
-        dt: transactionAmountLabel,
-        dd: <DisplayAlgo amount={transaction.amount} />,
-      },
-      ...(transaction.closeRemainder
-        ? [
-            {
-              dt: transactionCloseRemainderToLabel,
-              dd: (
-                <a href="#" className={cn('text-primary underline')}>
-                  {transaction.closeRemainder.to}
-                </a>
-              ),
-            },
-            {
-              dt: transactionCloseRemainderAmountLabel,
-              dd: <DisplayAlgo amount={transaction.closeRemainder.amount} />,
-            },
-          ]
-        : []),
-    ],
-    [transaction.sender, transaction.receiver, transaction.amount, transaction.closeRemainder]
-  )
+export function PaymentTransaction({ transactionResult }: PaymentTransactionProps) {
+  const paymentTransaction = usePaymentTransaction(transactionResult)
 
   return (
     <div className={cn('space-y-6 pt-7')}>
-      <TransactionInfo transaction={transaction} />
+      <TransactionInfo transaction={paymentTransaction} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
-          <div className={cn('space-y-2')}>
-            <div className={cn('flex items-center justify-between')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>Payment</h1>
-            </div>
-            <DescriptionList items={paymentTransactionItems} />
-          </div>
+          <PaymentTransactionInfo transaction={paymentTransaction} />
           <Tabs defaultValue={visualTransactionDetailsTabId}>
             <TabsList aria-label={transactionDetailsLabel}>
               <TabsTrigger
@@ -97,16 +48,16 @@ export function PaymentTransaction({ transaction, rawTransaction }: PaymentTrans
               </TabsTrigger>
             </TabsList>
             <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
-              <TransactionViewVisual transaction={transaction} />
+              <TransactionViewVisual transaction={paymentTransaction} />
             </TabsContent>
             <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
-              <TransactionViewTable transaction={transaction} />
+              <TransactionViewTable transaction={paymentTransaction} />
             </TabsContent>
           </Tabs>
-          {transaction.note && <TransactionNote note={transaction.note} />}
-          <TransactionJson transaction={rawTransaction} />
-          {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
-          {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}
+          {paymentTransaction.note && <TransactionNote note={paymentTransaction.note} />}
+          <TransactionJson transaction={transactionResult} />
+          {paymentTransaction.signature?.type === SignatureType.Multi && <Multisig signature={paymentTransaction.signature} />}
+          {paymentTransaction.signature?.type === SignatureType.Logic && <Logicsig signature={paymentTransaction.signature} />}
         </CardContent>
       </Card>
     </div>

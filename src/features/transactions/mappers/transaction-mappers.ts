@@ -1,8 +1,17 @@
-import { TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
-import { LogicsigModel, MultisigModel, PaymentTransactionModel, SignatureType, SinglesigModel, TransactionType } from '../models'
+import { AssetResult, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import {
+  AssetTransferTransactionModel,
+  LogicsigModel,
+  MultisigModel,
+  PaymentTransactionModel,
+  SignatureType,
+  SinglesigModel,
+  TransactionType,
+} from '../models'
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
+import { asAsset } from '@/features/assets/mappers/asset-mappers'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -53,5 +62,31 @@ const transformSignature = (signature?: TransactionSignature) => {
       type: SignatureType.Logic,
       logic: signature.logicsig.logic,
     } satisfies LogicsigModel
+  }
+}
+
+export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
+  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
+  invariant(transaction['round-time'], 'round-time is not set')
+  invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+
+  return {
+    id: transaction.id,
+    type: TransactionType.AssetTransfer,
+    asset: asAsset(asset),
+    confirmedRound: transaction['confirmed-round'],
+    roundTime: transaction['round-time'] * 1000,
+    group: transaction['group'],
+    fee: algokit.microAlgos(transaction.fee),
+    sender: transaction.sender,
+    receiver: transaction['asset-transfer-transaction'].receiver,
+    amount: transaction['asset-transfer-transaction'].amount,
+    closeRemainder: transaction['asset-transfer-transaction']['close-to']
+      ? {
+          to: transaction['asset-transfer-transaction']['close-to'],
+          amount: transaction['asset-transfer-transaction']['close-amount'],
+        }
+      : undefined,
+    signature: transformSignature(transaction.signature),
   }
 }

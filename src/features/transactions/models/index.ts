@@ -1,3 +1,4 @@
+import { AssetModel } from '@/features/assets/models'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 type Address = string
@@ -17,23 +18,35 @@ type CommonTransactionProperties = {
 
 export enum TransactionType {
   Payment = 'Payment',
+  AssetTransfer = 'Asset Transfer',
 }
 
-export type CloseRemainder = {
+export type CloseAlgoRemainder = {
   to: Address
   amount: AlgoAmount
+}
+
+export type CloseAssetRemainder = {
+  to: Address
+  amount: number | bigint | undefined
 }
 
 export type PaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
-  closeRemainder?: CloseRemainder
+  closeRemainder?: CloseAlgoRemainder
 }
 
-export type TransactionModel = PaymentTransactionModel
+export type AssetTransferTransactionModel = CommonTransactionProperties & {
+  type: TransactionType.AssetTransfer
+  receiver: Address
+  amount: number | bigint
+  closeRemainder?: CloseAssetRemainder
+  asset: AssetModel
+}
 
-export type MicroAlgo = number
+export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel
 
 export enum SignatureType {
   Single = 'Single',

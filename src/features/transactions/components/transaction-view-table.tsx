@@ -5,6 +5,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useMemo } from 'react'
 import { ellipseId } from '@/utils/ellipse-id'
+import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -47,11 +48,10 @@ export function TransactionViewTable({ transaction }: Props) {
             <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.sender)}</td>
             <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.receiver)}</td>
             <td className={cn('p-2 border-2 text-center')}>{transaction.type}</td>
-            <td className={cn('p-2 border-2')}>
-              {transaction.type === TransactionType.Payment ? (
-                <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />
-              ) : (
-                'N/A'
+            <td className={cn('p-2 border-2 text-center')}>
+              {transaction.type === TransactionType.Payment && <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />}
+              {transaction.type === TransactionType.AssetTransfer && (
+                <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
               )}
             </td>
           </tr>

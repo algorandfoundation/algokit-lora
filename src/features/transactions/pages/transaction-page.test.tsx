@@ -1,4 +1,4 @@
-import { transactionModelMother } from '@/tests/object-mother/transaction-model'
+import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   TransactionPage,
@@ -18,8 +18,6 @@ import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../
 import { algod } from '@/features/common/data'
 import {
   tableTransactionDetailsTabLabel,
-  transactionCloseRemainderAmountLabel,
-  transactionCloseRemainderToLabel,
   transactionDetailsLabel,
   visualTransactionDetailsTabLabel,
 } from '../components/payment-transaction'
@@ -34,6 +32,14 @@ import {
 } from '../components/transaction-info'
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
+import { assetResultMother } from '@/tests/object-mother/asset-result'
+import { assetsAtom } from '@/features/assets/data'
+import {
+  assetLabel,
+  transactionCloseRemainderAmountLabel as assetTransactionCloseRemainderAmountLabel,
+  transactionCloseRemainderToLabel as assetTransactionCloseRemainderToLabel,
+} from '../components/asset-transfer-transaction-info'
+import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -78,7 +84,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a payment transaction', () => {
-    const transaction = transactionModelMother
+    const transaction = transactionResultMother
       .payment()
       .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
       ['withConfirmed-round'](36570178)
@@ -146,7 +152,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a multisig payment transaction', () => {
-    const transaction = transactionModelMother.multisig().build()
+    const transaction = transactionResultMother.multisig().build()
 
     beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -174,7 +180,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a logicsig payment transaction', () => {
-    const transaction = transactionModelMother.logicsig().build()
+    const transaction = transactionResultMother.logicsig().build()
 
     beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -228,7 +234,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rending a transaction with a note', () => {
-    const transactionBuilder = transactionModelMother.payment()
+    const transactionBuilder = transactionResultMother.payment()
 
     describe('and the note is text', () => {
       const note = 'Здравейте, world!'
@@ -417,6 +423,67 @@ describe('transaction-page', () => {
           }
         )
       })
+    })
+  })
+
+  describe('when rendering a asset transfer transaction', () => {
+    const transaction = transactionResultMother['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']().build()
+    const asset = assetResultMother['mainnet-140479105']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, [transaction])
+      myStore.set(assetsAtom, [asset])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toBe('Asset Transfer')
+          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Thu, 20 July 2023 19:08:03')
+          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('30666726')
+          expect(component.queryByText(transactionGroupLabel)).toBeNull()
+          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
+
+          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
+            'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ'
+          )
+          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
+            'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
+          )
+          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('140479105 (Clyders)')
+          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('0 CLY')
+
+          expect(getByDescriptionTerm(component.container, assetTransactionCloseRemainderToLabel).textContent).toBe(
+            'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
+          )
+          expect(getByDescriptionTerm(component.container, assetTransactionCloseRemainderAmountLabel).textContent).toBe('0 CLY')
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          expect(viewTransactionTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+
+          // Test the table data
+          const dataRow = getAllByRole(tableViewTab, 'row')[1]
+          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('V7GQPE5...')
+          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('J2WK...FLBQ')
+          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('LINT...CQE4')
+          expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
+          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('0 CLY')
+        }
+      )
     })
   })
 })

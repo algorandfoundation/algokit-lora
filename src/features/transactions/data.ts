@@ -5,6 +5,9 @@ import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '../common/data'
+import { asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
+import { useAssetAtom } from '../assets/data'
+import { invariant } from '@/utils/invariant'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 // The string key is the transaction id
@@ -89,4 +92,44 @@ export const useLogicsigTeal = (logic: string) => {
   }, [logic])
 
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
+}
+
+const usePaymentTransactionAtom = (transaction: TransactionResult) => {
+  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+
+  return useMemo(() => {
+    const transactionAtom = atom(() => {
+      return asPaymentTransaction(transaction)
+    })
+    return transactionAtom
+  }, [transaction])
+}
+
+const useAssetTransferTransactionAtom = (transaction: TransactionResult) => {
+  invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+  const assetId = transaction['asset-transfer-transaction']['asset-id']
+  const assetAtom = useAssetAtom(assetId)
+
+  return useMemo(() => {
+    const assetTransferTransactionAtom = atom(async (get) => {
+      return asAssetTransferTransaction(transaction, await get(assetAtom))
+    })
+    return assetTransferTransactionAtom
+  }, [transaction, assetAtom])
+}
+
+export const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
+  return useAtomValue(
+    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
+    // https://github.com/facebook/react/issues/20877
+    loadable(useAssetTransferTransactionAtom(transaction))
+  )
+}
+
+export const usePaymentTransaction = (transaction: TransactionResult) => {
+  return useAtomValue(
+    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
+    // https://github.com/facebook/react/issues/20877
+    usePaymentTransactionAtom(transaction)
+  )
 }
