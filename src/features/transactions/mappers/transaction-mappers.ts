@@ -13,6 +13,7 @@ import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
+import { ZERO_ADDRESS } from '@/features/common/constants'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -79,19 +80,19 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
     }
     if (
       transaction.sender === transaction['asset-transfer-transaction'].receiver &&
-      transaction['asset-transfer-transaction'].amount.toString() === '0'
+      transaction['asset-transfer-transaction'].amount === 0
     ) {
       return AssetTransferTransactionSubType.OptIn
     }
     if (
       transaction.sender === asset.params.clawback &&
       transaction['asset-transfer-transaction'].sender &&
-      transaction['asset-transfer-transaction'].sender !== '0'
+      transaction['asset-transfer-transaction'].sender !== ZERO_ADDRESS
     ) {
       return AssetTransferTransactionSubType.Clawback
     }
 
-    return AssetTransferTransactionSubType.Transaction
+    undefined
   }
 
   return {

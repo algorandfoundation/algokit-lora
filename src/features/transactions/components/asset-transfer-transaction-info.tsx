@@ -74,7 +74,15 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
           ]
         : []),
     ],
-    [transaction]
+    [
+      transaction.amount,
+      transaction.asset,
+      transaction.clawbackFrom,
+      transaction.closeRemainder,
+      transaction.receiver,
+      transaction.sender,
+      transaction.subType,
+    ]
   )
 
   return (

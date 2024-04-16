@@ -22,7 +22,6 @@ export enum TransactionType {
 }
 
 export enum AssetTransferTransactionSubType {
-  Transaction = 'Transaction',
   OptIn = 'Opt-In',
   Clawback = 'Clawback',
   OptOut = 'Opt-Out',
@@ -43,11 +42,12 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
   receiver: Address
   amount: AlgoAmount
   closeRemainder?: CloseAlgoRemainder
+  subType?: undefined
 }
 
 export type AssetTransferTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
-  subType: AssetTransferTransactionSubType
+  subType?: AssetTransferTransactionSubType
   receiver: Address
   amount: number | bigint
   closeRemainder?: CloseAssetRemainder
