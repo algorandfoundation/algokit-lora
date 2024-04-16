@@ -94,30 +94,6 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-const usePaymentTransactionAtom = (transaction: TransactionResult) => {
-  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
-
-  return useMemo(() => {
-    const transactionAtom = atom(() => {
-      return asPaymentTransaction(transaction)
-    })
-    return transactionAtom
-  }, [transaction])
-}
-
-const useAssetTransferTransactionAtom = (transaction: TransactionResult) => {
-  invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-  const assetId = transaction['asset-transfer-transaction']['asset-id']
-  const assetAtom = useAssetAtom(assetId)
-
-  return useMemo(() => {
-    const assetTransferTransactionAtom = atom(async (get) => {
-      return asAssetTransferTransaction(transaction, await get(assetAtom))
-    })
-    return assetTransferTransactionAtom
-  }, [transaction, assetAtom])
-}
-
 const useAppCallTransactionAtom = (transaction: TransactionResult) => {
   invariant(transaction['application-transaction'], 'application-transaction is not set')
 
@@ -130,19 +106,35 @@ const useAppCallTransactionAtom = (transaction: TransactionResult) => {
 }
 
 export const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
+  invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+  const assetId = transaction['asset-transfer-transaction']['asset-id']
+  const assetAtom = useAssetAtom(assetId)
+
+  const modelAtom = useMemo(() => {
+    const assetTransferTransactionAtom = atom(async (get) => {
+      return asAssetTransferTransaction(transaction, await get(assetAtom))
+    })
+    return assetTransferTransactionAtom
+  }, [transaction, assetAtom])
+
   return useAtomValue(
     // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
     // https://github.com/facebook/react/issues/20877
-    loadable(useAssetTransferTransactionAtom(transaction))
+    loadable(modelAtom)
   )
 }
 
 export const usePaymentTransaction = (transaction: TransactionResult) => {
-  return useAtomValue(
-    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
-    // https://github.com/facebook/react/issues/20877
-    usePaymentTransactionAtom(transaction)
-  )
+  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+
+  const modelAtom = useMemo(() => {
+    const transactionAtom = atom(() => {
+      return asPaymentTransaction(transaction)
+    })
+    return transactionAtom
+  }, [transaction])
+
+  return useAtomValue(modelAtom)
 }
 
 export const useAppCallTransction = (transaction: TransactionResult) => {

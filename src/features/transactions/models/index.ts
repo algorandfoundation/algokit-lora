@@ -93,5 +93,6 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   globalStateSchema: AppCallStateSchema
   localStateSchema: AppCallStateSchema
   innerTransactions: TransactionModel[]
+  subType?: undefined
   // TODO: on completion
 }

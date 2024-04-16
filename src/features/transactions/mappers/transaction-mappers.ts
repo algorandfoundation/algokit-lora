@@ -139,6 +139,7 @@ export const asAppCallTransaction = (transaction: TransactionResult): AppCallTra
     foreignApps: transaction['application-transaction']['foreign-apps'] ?? [],
     globalStateSchema: asStateSchema(transaction['application-transaction']['global-state-schema']),
     localStateSchema: asStateSchema(transaction['application-transaction']['local-state-schema']),
+    // TODO: the inner transactions don't have id
     innerTransactions: transaction['inner-txns']?.map((innerTransaction) => asAppCallTransaction(innerTransaction)) ?? [],
   }
 }
