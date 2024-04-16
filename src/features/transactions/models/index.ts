@@ -35,7 +35,7 @@ export type CloseAlgoRemainder = {
 
 export type CloseAssetRemainder = {
   to: Address
-  amount: number | bigint | undefined
+  amount: number | bigint
 }
 
 export type PaymentTransactionModel = CommonTransactionProperties & {
