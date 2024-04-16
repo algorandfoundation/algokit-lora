@@ -136,6 +136,7 @@ export const useLoadableAppCallTransction = (transaction: TransactionResult) => 
     const transactionAtom = atom(async (get) => {
       const foos = assets.map((a) => get(a))
       const bar = await Promise.all(foos)
+      console.log(bar)
       return asAppCallTransaction(transaction, bar)
     })
     return transactionAtom

@@ -46,10 +46,6 @@ export const useAssetAtom = (assetIndex: number) => {
 }
 
 export const useAssetsAtom = (assetIndexes: number[]) => {
-  // const foo = useAssetAtom(1)
-  // return assetIndexes.map((assetIndex) => {
-  //   return useAssetAtom(assetIndex)
-  // })
   const store = useStore()
 
   return useMemo(() => {
