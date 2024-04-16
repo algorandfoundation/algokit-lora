@@ -2,6 +2,7 @@ import { AssetResult, StateSchema, TransactionResult, TransactionSignature } fro
 import {
   AppCallTransactionModel,
   AssetTransferTransactionModel,
+  AssetTransferTransactionSubType,
   LogicsigModel,
   MultisigModel,
   PaymentTransactionModel,
@@ -13,6 +14,7 @@ import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
+import { ZERO_ADDRESS } from '@/features/common/constants'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -71,9 +73,33 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
+  const subType = () => {
+    invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+
+    if (transaction['asset-transfer-transaction']['close-to']) {
+      return AssetTransferTransactionSubType.OptOut
+    }
+    if (
+      transaction.sender === transaction['asset-transfer-transaction'].receiver &&
+      transaction['asset-transfer-transaction'].amount === 0
+    ) {
+      return AssetTransferTransactionSubType.OptIn
+    }
+    if (
+      transaction.sender === asset.params.clawback &&
+      transaction['asset-transfer-transaction'].sender &&
+      transaction['asset-transfer-transaction'].sender !== ZERO_ADDRESS
+    ) {
+      return AssetTransferTransactionSubType.Clawback
+    }
+
+    undefined
+  }
+
   return {
     id: transaction.id,
     type: TransactionType.AssetTransfer,
+    subType: subType(),
     asset: asAsset(asset),
     confirmedRound: transaction['confirmed-round'],
     roundTime: transaction['round-time'] * 1000,
@@ -89,6 +115,7 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
         }
       : undefined,
     signature: transformSignature(transaction.signature),
+    clawbackFrom: transaction['asset-transfer-transaction'].sender,
   }
 }
 
