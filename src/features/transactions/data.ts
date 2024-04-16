@@ -5,7 +5,7 @@ import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '../common/data'
-import { asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
+import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
 import { useAssetAtom } from '../assets/data'
 import { invariant } from '@/utils/invariant'
 
@@ -118,6 +118,17 @@ const useAssetTransferTransactionAtom = (transaction: TransactionResult) => {
   }, [transaction, assetAtom])
 }
 
+const useAppCallTransactionAtom = (transaction: TransactionResult) => {
+  invariant(transaction['application-transaction'], 'application-transaction is not set')
+
+  return useMemo(() => {
+    const transactionAtom = atom(() => {
+      return asAppCallTransaction(transaction)
+    })
+    return transactionAtom
+  }, [transaction])
+}
+
 export const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
   return useAtomValue(
     // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
@@ -132,4 +143,8 @@ export const usePaymentTransaction = (transaction: TransactionResult) => {
     // https://github.com/facebook/react/issues/20877
     usePaymentTransactionAtom(transaction)
   )
+}
+
+export const useAppCallTransction = (transaction: TransactionResult) => {
+  return useAtomValue(useAppCallTransactionAtom(transaction))
 }

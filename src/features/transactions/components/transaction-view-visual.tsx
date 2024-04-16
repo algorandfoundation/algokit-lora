@@ -278,11 +278,14 @@ function TransactionRow({
   accounts,
   hasParent = false,
   hasNextSibling = false,
-  hasChildren = false,
   indentLevel,
   verticalBars,
 }: TransactionRowProps) {
   const arrow = useMemo(() => calcArrow(transaction, accounts), [accounts, transaction])
+  const hasChildren = useMemo(
+    () => transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0,
+    [transaction]
+  )
 
   return (
     <>
@@ -320,11 +323,11 @@ function TransactionRow({
       })}
 
       {hasChildren &&
-        transaction.transactions?.map((childTransaction, index, arr) => (
+        transaction.type === TransactionType.ApplicationCall &&
+        transaction.innerTransactions?.map((childTransaction, index, arr) => (
           <TransactionRow
             key={index}
             transaction={childTransaction}
-            hasChildren={childTransaction.transactions && childTransaction.transactions.length > 0}
             hasParent={true}
             hasNextSibling={index < arr.length - 1}
             accounts={accounts}
@@ -337,20 +340,13 @@ function TransactionRow({
 }
 
 function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
-  const supportedTransactionTypes = [TransactionType.Payment, TransactionType.AssetTransfer]
-
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
-
-  if (!supportedTransactionTypes.includes(transaction.type)) {
-    // For types that we don't support yet, return a self arrow
-    return {
-      from: fromAccount,
-      to: fromAccount,
-      direction: 'toSelf',
-    }
-  }
-
-  const toAccount = accounts.findIndex((a) => transaction.receiver === a)
+  // TODO: PD - This is yuck, maybe refactor
+  const toAccount = accounts.findIndex((a) =>
+    transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment
+      ? transaction.receiver === a
+      : transaction.applicationId.toString() === a
+  )
   const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
 
   return {
@@ -422,24 +418,18 @@ export function TransactionViewVisual({ transaction }: Props) {
           </div>
         </div>
       </div>
-      <TransactionRow
-        transaction={transaction}
-        hasChildren={transaction.transactions && transaction.transactions.length > 0}
-        hasParent={false}
-        accounts={accounts}
-        verticalBars={[]}
-      />
-      {transaction.transactions?.map((transaction, index, arr) => (
-        <TransactionRow
-          key={index}
-          transaction={transaction}
-          hasChildren={transaction.transactions && transaction.transactions.length > 0}
-          hasParent={false}
-          hasNextSibling={index < arr.length - 1}
-          accounts={accounts}
-          verticalBars={[]}
-        />
-      ))}
+      <TransactionRow transaction={transaction} hasParent={false} accounts={accounts} verticalBars={[]} />
+      {transaction.type === TransactionType.ApplicationCall &&
+        transaction.innerTransactions.map((transaction, index, arr) => (
+          <TransactionRow
+            key={index}
+            transaction={transaction}
+            hasParent={false}
+            hasNextSibling={index < arr.length - 1}
+            accounts={accounts}
+            verticalBars={[]}
+          />
+        ))}
     </div>
   )
 }

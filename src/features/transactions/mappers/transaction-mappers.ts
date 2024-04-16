@@ -1,5 +1,6 @@
-import { AssetResult, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetResult, StateSchema, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
+  AppCallTransactionModel,
   AssetTransferTransactionModel,
   LogicsigModel,
   MultisigModel,
@@ -88,5 +89,43 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
         }
       : undefined,
     signature: transformSignature(transaction.signature),
+  }
+}
+
+export const asAppCallTransaction = (transaction: TransactionResult): AppCallTransactionModel => {
+  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
+  invariant(transaction['round-time'], 'round-time is not set')
+  invariant(transaction['application-transaction'], 'application-transaction is not set')
+
+  return {
+    id: transaction.id,
+    type: TransactionType.ApplicationCall,
+    confirmedRound: transaction['confirmed-round'],
+    roundTime: transaction['round-time'] * 1000,
+    group: transaction['group'],
+    fee: algokit.microAlgos(transaction.fee),
+    sender: transaction.sender,
+    signature: transformSignature(transaction.signature),
+    note: transaction.note,
+    applicationId: transaction['application-transaction']['application-id'],
+    applicationArgs: transaction['application-transaction']['application-args'] ?? [],
+    foreignApps: transaction['application-transaction']['foreign-apps'] ?? [],
+    globalStateSchema: asStateSchema(transaction['application-transaction']['global-state-schema']),
+    localStateSchema: asStateSchema(transaction['application-transaction']['local-state-schema']),
+    innerTransactions: transaction['inner-txns']?.map((innerTransaction) => asAppCallTransaction(innerTransaction)) ?? [],
+  }
+}
+
+export const asStateSchema = (stateSchema?: StateSchema) => {
+  if (!stateSchema) {
+    return {
+      numByteSlice: 0,
+      numUint: 0,
+    }
+  }
+
+  return {
+    numByteSlice: stateSchema['num-byte-slice'] ?? 0,
+    numUint: stateSchema['num-uint'] ?? 0,
   }
 }

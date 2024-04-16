@@ -12,13 +12,13 @@ type CommonTransactionProperties = {
   fee: AlgoAmount
   sender: Address
   note?: string
-  transactions?: TransactionModel[]
   signature?: SinglesigModel | MultisigModel | LogicsigModel
 }
 
 export enum TransactionType {
   Payment = 'Payment',
   AssetTransfer = 'Asset Transfer',
+  ApplicationCall = 'Application Call',
 }
 
 export type CloseAlgoRemainder = {
@@ -46,7 +46,7 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
   asset: AssetModel
 }
 
-export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel
+export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel | AppCallTransactionModel
 
 export enum SignatureType {
   Single = 'Single',
@@ -69,4 +69,20 @@ export type MultisigModel = {
 export type LogicsigModel = {
   type: SignatureType.Logic
   logic: string
+}
+
+export type AppCallStateSchema = {
+  numByteSlice: number
+  numUint: number
+}
+
+export type AppCallTransactionModel = CommonTransactionProperties & {
+  type: TransactionType.ApplicationCall
+  applicationId: number
+  applicationArgs: string[]
+  foreignApps: number[]
+  globalStateSchema: AppCallStateSchema
+  localStateSchema: AppCallStateSchema
+  innerTransactions: TransactionModel[]
+  // TODO: on completion
 }

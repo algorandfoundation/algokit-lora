@@ -28,7 +28,7 @@ export const columns: ColumnDef<TransactionModel>[] = [
   },
   {
     header: 'To',
-    accessorFn: (transaction) => ellipseAddress(transaction.receiver),
+    accessorFn: (transaction) => ('receiver' in transaction ? ellipseAddress(transaction.receiver) : 'N/A'),
   },
   {
     accessorKey: 'type',
