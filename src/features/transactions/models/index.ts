@@ -95,6 +95,8 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   foreignAssets: number[]
   applicationAccounts: Address[]
   globalStateDeltas: StateDelta[]
+  // TODO: test this
+  localStateDeltas: StateDelta[]
   innerTransactions: TransactionModel[]
   subType?: undefined
   // TODO: on completion

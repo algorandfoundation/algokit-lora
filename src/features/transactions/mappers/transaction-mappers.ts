@@ -144,6 +144,7 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
     foreignApps: getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'),
     foreignAssets: getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'),
     globalStateDeltas: asStateDelta(transaction['global-state-delta']),
+    localStateDeltas: asStateDelta(transaction['local-state-delta']),
     // TODO: the inner transactions don't have id
     innerTransactions:
       transaction['inner-txns']?.map((innerTransaction) => {

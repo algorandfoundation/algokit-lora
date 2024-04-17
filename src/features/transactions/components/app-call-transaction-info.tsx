@@ -51,12 +51,12 @@ export function AppCallTransactionInfo({ transaction }: Props) {
       {
         id: globalStateSchemaTabId,
         label: globalStateSchemaTabLabel,
-        element: <GlobalStateDelta transaction={transaction} />,
+        element: <GlobalStateDeltas transaction={transaction} />,
       },
       {
         id: localStateSchemaTabId,
         label: localStateSchemaTabLabel,
-        element: <>{localStateSchemaTabLabel}</>,
+        element: <LocalStateDeltas transaction={transaction} />,
       },
     ],
     [transaction]
@@ -139,6 +139,10 @@ export const globalStateDeltaTableColumns: ColumnDef<StateDelta>[] = [
   },
 ]
 
-function GlobalStateDelta({ transaction }: Props) {
+function GlobalStateDeltas({ transaction }: Props) {
   return <DataTable columns={globalStateDeltaTableColumns} data={transaction.globalStateDeltas} />
+}
+
+function LocalStateDeltas({ transaction }: Props) {
+  return <DataTable columns={globalStateDeltaTableColumns} data={transaction.localStateDeltas} />
 }
