@@ -383,13 +383,21 @@ function TransactionRow({
 }
 
 function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
+  const calculateToAccount = () => {
+    if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
+      return accounts.findIndex((a) => transaction.receiver === a)
+    }
+
+    if (transaction.type === TransactionType.ApplicationCall) {
+      return accounts.findIndex((a) => transaction.applicationId.toString() === a)
+    }
+
+    throw new Error('Not supported transaction type')
+  }
+
   const fromAccount = accounts.findIndex((a) => transaction.sender === a)
-  // TODO: PD - This is yuck, maybe refactor
-  const toAccount = accounts.findIndex((a) =>
-    transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment
-      ? transaction.receiver === a
-      : transaction.applicationId.toString() === a
-  )
+  const toAccount = calculateToAccount()
+
   const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
 
   return {
@@ -409,18 +417,10 @@ export function TransactionViewVisual({ transaction }: Props) {
   const accounts = Array.from(
     new Set([
       ...flattenedTransactions
-        .map((t) => [
-          t.transaction.sender,
-          // TODO: refactor, this is yuck
-          t.transaction.type === TransactionType.Payment || t.transaction.type === TransactionType.AssetTransfer
-            ? t.transaction.receiver
-            : t.transaction.type === TransactionType.ApplicationCall
-              ? t.transaction.applicationId.toString()
-              : undefined,
-        ])
+        .map((t) => getTransactionAccounts(t.transaction))
         .flat()
         .filter(isDefined),
-      '', // an empty account to support transactions with the same sender and receiver
+      '', // an empty account to make room to show transactions with the same sender and receiver
     ])
   )
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
@@ -470,4 +470,15 @@ export function TransactionViewVisual({ transaction }: Props) {
       <TransactionRow transaction={transaction} hasParent={false} accounts={accounts} verticalBars={[]} />
     </div>
   )
+}
+
+const getTransactionAccounts = (transaction: TransactionModel) => {
+  const accounts = [transaction.sender]
+  if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
+    accounts.push(transaction.receiver)
+  }
+  if (transaction.type === TransactionType.ApplicationCall) {
+    accounts.push(transaction.applicationId.toString())
+  }
+  return accounts
 }
