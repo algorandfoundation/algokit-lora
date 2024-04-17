@@ -41,6 +41,7 @@ import {
   transactionClawbackAddressLabel,
 } from '../components/asset-transfer-transaction-info'
 import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
+import { actionLabel, applicationIdLabel, onCompletionLabel } from '../components/app-call-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -545,6 +546,41 @@ describe('transaction-page', () => {
           expect(getByDescriptionTerm(component.container, transactionClawbackAddressLabel).textContent).toBe(
             'AT3QNHSO7VZ2CPEZGI4BG7M3TIUG7YE5KZXNAE55Z4QHHAGBEU6K2LCJUA'
           )
+        }
+      )
+    })
+  })
+
+  describe('when rendering a app call transaction', () => {
+    const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+      myStore.set(assetsAtom, [])
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toContain('Application Call')
+          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Fri, 01 March 2024 00:07:53')
+          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('36591812')
+          expect(getByDescriptionTerm(component.container, transactionGroupLabel).textContent).toBe(
+            'Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30='
+          )
+          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.005')
+
+          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
+            'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY'
+          )
+          expect(getByDescriptionTerm(component.container, applicationIdLabel).textContent).toBe('971368268')
+          expect(getByDescriptionTerm(component.container, actionLabel).textContent).toBe('Call')
+          expect(getByDescriptionTerm(component.container, onCompletionLabel).textContent).toBe('NoOp')
         }
       )
     })

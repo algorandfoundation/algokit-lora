@@ -1,4 +1,4 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
 import { TransactionType } from 'algosdk'
 
@@ -188,7 +188,6 @@ export const transactionResultMother = {
       'tx-type': TransactionType.axfer,
     } satisfies TransactionResult)
   },
-
   ['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']: () => {
     // Asset clawback
     return new TransactionResultBuilder({
@@ -217,5 +216,138 @@ export const transactionResultMother = {
       signature: { sig: 'LYTng1fmA+JQ8AocqDfp/OBvrds/WXa936muT3b4Ym98qIzouEnbMf7cOj099GV+ABecBzmw6+JrzOH/WU7TDQ==' },
       'tx-type': TransactionType.axfer,
     } satisfies TransactionResult)
+  },
+  ['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']: () => {
+    // App Call transaction with 2 inner transactions
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': ['6r6CnQ==', 'AAAAAAAAAAA=', 'AA==', 'AA==', 'AQ==', 'AQ=='],
+        'application-id': 971368268,
+        'foreign-apps': [971350278],
+        'foreign-assets': [0, 971381860],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': ApplicationOnComplete.noop,
+      },
+      'auth-addr': '7ML3SONQTSKIPPWPFVVKBSEIKJS5FZXY3ABGPT43C3PP4SEKV3W7FAJOTE',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 36591812,
+      fee: 5000,
+      'first-valid': 36591738,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      'global-state-delta': [
+        {
+          key: 'aQ==',
+          value: {
+            action: 1,
+            bytes: 'AAONfqTGgAAAAAkYTnKgAAAca/UmNAAAAABZC8sUiKAAARg1PuJHngAAYtCCAWTGAAAAAGXhHFY=',
+            uint: 0,
+          },
+        },
+        {
+          key: 'cw==',
+          value: {
+            action: 1,
+            bytes:
+              'AADMouUTEAAAAMyi5RMQAABHDeTfggAAAAqoe+5TgAAABxr9SY0AAAAf+XPK+oAAABHDeTfggAAABxr9SY0AAAAAAQXS3+IfAAR2O9R9MEEAAAAABGJpIfE2cs7Vt0ol',
+            uint: 0,
+          },
+        },
+        {
+          key: 'dg==',
+          value: {
+            action: 1,
+            bytes: 'AAC15iD0gAAAAzKLlExAAABHDeTfggAAAAAoa8i0brcAApIbjWwBBgAAZ/7Fy4wR',
+            uint: 0,
+          },
+        },
+      ],
+      group: 'Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30=',
+      id: 'KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ',
+      'inner-txns': [
+        {
+          'close-rewards': 0,
+          'closing-amount': 0,
+          'confirmed-round': 36591812,
+          fee: 0,
+          'first-valid': 36591738,
+          'intra-round-offset': 93,
+          'last-valid': 36592738,
+          'payment-transaction': {
+            amount: 236706032,
+            'close-amount': 0,
+            receiver: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY',
+          },
+          'receiver-rewards': 0,
+          'round-time': 1709251673,
+          sender: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
+          'sender-rewards': 0,
+          'tx-type': TransactionType.pay,
+          id: 'Inner 1',
+        },
+        {
+          'application-transaction': {
+            accounts: [],
+            'application-args': ['NFDStA==', 'AA==', 'AAKSG41sAQY=', 'AABn/sXLjBE=', 'AAEYNT7iR54=', 'AABi0IIBZMY='],
+            'application-id': 971350278,
+            'foreign-apps': [],
+            'foreign-assets': [],
+            'global-state-schema': {
+              'num-byte-slice': 0,
+              'num-uint': 0,
+            },
+            'local-state-schema': {
+              'num-byte-slice': 0,
+              'num-uint': 0,
+            },
+            'on-completion': ApplicationOnComplete.noop,
+          },
+          'close-rewards': 0,
+          'closing-amount': 0,
+          'confirmed-round': 36591812,
+          fee: 0,
+          'first-valid': 36591738,
+          'global-state-delta': [
+            {
+              key: 'AA==',
+              value: {
+                action: 1,
+                bytes:
+                  'AAA55edMAAKSG41sAQYAAGf+xcuMEQABGDU+4keeAABi0IIBZMZl4RxWAAA55e5xAAAAAAAAAAAAAFrzEHpAAAAAAAAAAAAAAABa8xB6QABl4RwiAAA55fbNAATYpqnWEogAAGMuFh/4DQADIOTd7ygiAABfpOnjsPJl4RxW',
+                uint: 0,
+              },
+            },
+          ],
+          'intra-round-offset': 93,
+          'last-valid': 36592738,
+          'receiver-rewards': 0,
+          'round-time': 1709251673,
+          sender: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
+          'sender-rewards': 0,
+          'tx-type': TransactionType.appl,
+          id: 'Inner 2',
+        },
+      ],
+      'intra-round-offset': 93,
+      'last-valid': 36592738,
+      logs: ['FR98dQAAAAAOG9jw'],
+      'receiver-rewards': 0,
+      'round-time': 1709251673,
+      sender: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'trh33yIw7Tp52x0vgBmXhDB8um8QbIo6ncEL47vlzEt8DFZkVIeRYDwwiIPFipWTe99JEGK/T/fjYp9PGNRaCQ==',
+      },
+      'tx-type': TransactionType.appl,
+    } as unknown as TransactionResult) // The type definition for App Call transaction in indexer seems to be wrong
   },
 }

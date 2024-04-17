@@ -130,7 +130,7 @@ export const usePaymentTransaction = (transaction: TransactionResult) => {
 export const useLoadableAppCallTransction = (transaction: TransactionResult) => {
   invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-  const assetIds = getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
+  const assetIds: number[] = [] //getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
   const assetsAtom = useAssetsAtom(assetIds)
 
   const modelAtom = useMemo(() => {
