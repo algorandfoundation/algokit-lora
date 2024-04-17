@@ -41,7 +41,17 @@ import {
   transactionClawbackAddressLabel,
 } from '../components/asset-transfer-transaction-info'
 import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
-import { actionLabel, applicationIdLabel, onCompletionLabel } from '../components/app-call-transaction-info'
+import {
+  actionLabel,
+  appCallTransactionDetailsLabel,
+  applicationAccountsTabLabel,
+  applicationArgsTabLabel,
+  applicationIdLabel,
+  foreignApplicationsTabLabel,
+  foreignAssetsTabLabel,
+  globalStateDeltaTabLabel,
+  onCompletionLabel,
+} from '../components/app-call-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -581,6 +591,69 @@ describe('transaction-page', () => {
           expect(getByDescriptionTerm(component.container, applicationIdLabel).textContent).toBe('971368268')
           expect(getByDescriptionTerm(component.container, actionLabel).textContent).toBe('Call')
           expect(getByDescriptionTerm(component.container, onCompletionLabel).textContent).toBe('NoOp')
+
+          const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          expect(component.getByRole('tabpanel', { name: applicationArgsTabLabel }).textContent).toMatch(
+            '6r6CnQ==AAAAAAAAAAA=AA==AA==AQ==AQ=='
+          )
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: applicationAccountsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: applicationAccountsTabLabel }).textContent).toMatch('')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignApplicationsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignApplicationsTabLabel }).textContent).toMatch('971350278')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignAssetsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignAssetsTabLabel }).textContent).toMatch('0971381860')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: globalStateDeltaTabLabel }))
+          const globalStateDeltaTab = component.getByRole('tabpanel', { name: globalStateDeltaTabLabel })
+          const globalStateDeltaDataRow1 = getAllByRole(globalStateDeltaTab, 'row')[1]
+          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[0].textContent).toBe('i')
+          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[1].textContent).toBe('Bytes')
+          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[2].textContent).toBe('Set')
+          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[3].textContent).toBe(
+            'AAONfqTGgAAAAAkYTnKgAAAca/UmNAAAAABZC8sUiKAAARg1PuJHngAAYtCCAWTGAAAAAGXhHFY='
+          )
+          const globalStateDeltaDataRow2 = getAllByRole(globalStateDeltaTab, 'row')[2]
+          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[0].textContent).toBe('s')
+          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[1].textContent).toBe('Bytes')
+          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[2].textContent).toBe('Set')
+          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[3].textContent).toBe(
+            'AADMouUTEAAAAMyi5RMQAABHDeTfggAAAAqoe+5TgAAABxr9SY0AAAAf+XPK+oAAABHDeTfggAAABxr9SY0AAAAAAQXS3+IfAAR2O9R9MEEAAAAABGJpIfE2cs7Vt0ol'
+          )
+          const globalStateDeltaDataRow3 = getAllByRole(globalStateDeltaTab, 'row')[3]
+          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[0].textContent).toBe('v')
+          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[1].textContent).toBe('Bytes')
+          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[2].textContent).toBe('Set')
+          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[3].textContent).toBe(
+            'AAC15iD0gAAAAzKLlExAAABHDeTfggAAAAAoa8i0brcAApIbjWwBBgAAZ/7Fy4wR'
+          )
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+
+          const transactionTableDataRow1 = getAllByRole(tableViewTab, 'row')[1]
+          expect(getAllByRole(transactionTableDataRow1, 'cell')[0].textContent).toBe('KMNBSQ4...')
+          expect(getAllByRole(transactionTableDataRow1, 'cell')[1].textContent).toBe('W2IZ...NCEY')
+          expect(getAllByRole(transactionTableDataRow1, 'cell')[2].textContent).toBe('971368268')
+          expect(getAllByRole(transactionTableDataRow1, 'cell')[3].textContent).toBe('Application Call')
+
+          const transactionTableDataRow2 = getAllByRole(tableViewTab, 'row')[2]
+          expect(getAllByRole(transactionTableDataRow2, 'cell')[0].textContent).toBe('Inner 1')
+          expect(getAllByRole(transactionTableDataRow2, 'cell')[1].textContent).toBe('2ZPN...DJJ4')
+          expect(getAllByRole(transactionTableDataRow2, 'cell')[2].textContent).toBe('W2IZ...NCEY')
+          expect(getAllByRole(transactionTableDataRow2, 'cell')[3].textContent).toBe('Payment')
+          expect(getAllByRole(transactionTableDataRow2, 'cell')[4].textContent).toBe('236.706032')
+
+          const transactionTableDataRow3 = getAllByRole(tableViewTab, 'row')[3]
+          expect(getAllByRole(transactionTableDataRow3, 'cell')[0].textContent).toBe('Inner 2')
+          expect(getAllByRole(transactionTableDataRow3, 'cell')[1].textContent).toBe('2ZPN...DJJ4')
+          expect(getAllByRole(transactionTableDataRow3, 'cell')[2].textContent).toBe('971350278')
+          expect(getAllByRole(transactionTableDataRow3, 'cell')[3].textContent).toBe('Application Call')
         }
       )
     })

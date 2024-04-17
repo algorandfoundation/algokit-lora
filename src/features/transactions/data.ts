@@ -130,16 +130,16 @@ export const usePaymentTransaction = (transaction: TransactionResult) => {
 export const useLoadableAppCallTransction = (transaction: TransactionResult) => {
   invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-  const assetIds: number[] = [] //getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
-  const assetsAtom = useAssetsAtom(assetIds)
+  // const assetIds = getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
+  // const assetsAtom = useAssetsAtom(assetIds)
 
   const modelAtom = useMemo(() => {
     const transactionAtom = atom(async (get) => {
-      const assets = await Promise.all(assetsAtom.map((a) => get(a)))
-      return asAppCallTransaction(transaction, assets)
+      // const assets = await Promise.all(assetsAtom.map((a) => get(a)))
+      return asAppCallTransaction(transaction, [])
     })
     return transactionAtom
-  }, [assetsAtom, transaction])
+  }, [transaction])
 
   return useAtomValue(loadable(modelAtom))
 }

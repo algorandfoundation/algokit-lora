@@ -46,7 +46,11 @@ export function TransactionViewTable({ transaction }: Props) {
               </div>
             </td>
             <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.sender)}</td>
-            <td className={cn('p-2 border-2 text-center')}>{'receiver' in transaction ? ellipseAddress(transaction.receiver) : 'N/A'}</td>
+            <td className={cn('p-2 border-2 text-center')}>
+              {(transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) &&
+                ellipseAddress(transaction.receiver)}
+              {transaction.type === TransactionType.ApplicationCall && transaction.applicationId}
+            </td>
             <td className={cn('p-2 border-2 text-center')}>{transaction.type}</td>
             <td className={cn('p-2 border-2 text-center')}>
               {transaction.type === TransactionType.Payment && <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />}

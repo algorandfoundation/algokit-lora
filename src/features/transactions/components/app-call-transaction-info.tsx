@@ -15,17 +15,17 @@ const applicationArgsTabId = 'application-args'
 const applicationAccountsTabId = 'application-accounts'
 const foreignApplicationsTabId = 'foreign-applications'
 const foreignAssetsTabId = 'foreign-assets'
-const globalStateSchemaTabId = 'global-state'
-const localStateSchemaTabId = 'local-state'
+const globalStateDeltaTabId = 'global-state'
+const localStateDeltaTabId = 'local-state'
 
-const applicationArgsTabLabel = 'Application Args'
-const applicationAccountsTabLabel = 'Application Accounts'
-const foreignApplicationsTabLabel = 'Foreign Applications'
-const foreignAssetsTabLabel = 'Foreign Assets'
-const globalStateSchemaTabLabel = 'Global State Schema'
-const localStateSchemaTabLabel = 'Local State Schema'
+export const applicationArgsTabLabel = 'Application Args'
+export const applicationAccountsTabLabel = 'Application Accounts'
+export const foreignApplicationsTabLabel = 'Foreign Applications'
+export const foreignAssetsTabLabel = 'Foreign Assets'
+export const globalStateDeltaTabLabel = 'Global State Delta'
+export const localStateDeltaTabLabel = 'Local State Delta'
 
-const appCallTransactionDetailsLabel = 'App Call Transaction Details'
+export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 export const actionLabel = 'Action'
 export const applicationIdLabel = 'Application Id'
@@ -83,13 +83,13 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         element: <ForeignAssets transaction={transaction} />,
       },
       {
-        id: globalStateSchemaTabId,
-        label: globalStateSchemaTabLabel,
+        id: globalStateDeltaTabId,
+        label: globalStateDeltaTabLabel,
         element: <GlobalStateDeltas transaction={transaction} />,
       },
       {
-        id: localStateSchemaTabId,
-        label: localStateSchemaTabLabel,
+        id: localStateDeltaTabId,
+        label: localStateDeltaTabLabel,
         element: <LocalStateDeltas transaction={transaction} />,
       },
     ],
