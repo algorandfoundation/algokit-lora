@@ -3,11 +3,11 @@ import { useMemo } from 'react'
 import { AssetLookupResult, AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
-import { indexer } from '../common/data'
-import { JotaiStore } from '../common/data/types'
+import { JotaiStore } from '@/features/common/data/types'
+import { indexer } from '@/features/common/data'
+import { AssetIndex } from './types'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
-type AssetIndex = number
 export const assetsAtom = atom<Map<AssetIndex, AssetResult>>(new Map())
 
 export const fetchAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {

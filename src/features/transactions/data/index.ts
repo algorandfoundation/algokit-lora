@@ -4,19 +4,19 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
-import { algod, indexer } from '../common/data'
-import { asTransactionModel } from './mappers/transaction-mappers'
-import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '../assets/data'
 import { invariant } from '@/utils/invariant'
 import { TransactionType } from 'algosdk'
-import { JotaiStore } from '../common/data/types'
 import { Buffer } from 'buffer'
+import { TransactionId } from './types'
+import { indexer, algod } from '@/features/common/data'
+import { JotaiStore } from '@/features/common/data/types'
+import { asTransactionModel } from '../mappers/transaction-mappers'
+import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '@/features/assets/data'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
-// The string key is the transaction id
-export const transactionsAtom = atom<Map<string, TransactionResult>>(new Map())
+export const transactionsAtom = atom<Map<TransactionId, TransactionResult>>(new Map())
 
-export const fetchTransactionAtomBuilder = (store: JotaiStore, transactionId: string) => {
+export const fetchTransactionAtomBuilder = (store: JotaiStore, transactionId: TransactionId) => {
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
       try {
@@ -45,7 +45,7 @@ export const fetchTransactionAtomBuilder = (store: JotaiStore, transactionId: st
   return transactionAtom
 }
 
-export const fetchTransactionsAtomBuilder = (store: JotaiStore, transactionIds: string[]) => {
+export const fetchTransactionsAtomBuilder = (store: JotaiStore, transactionIds: TransactionId[]) => {
   return atom(async (get) => {
     return await Promise.all(transactionIds.map((transactionId) => get(fetchTransactionAtomBuilder(store, transactionId))))
   })
@@ -97,7 +97,7 @@ export const fetchTransactionModelAtomBuilder = (
   })
 }
 
-const useTransactionAtom = (transactionId: string) => {
+const useTransactionAtom = (transactionId: TransactionId) => {
   const store = useStore()
 
   return useMemo(() => {
@@ -128,6 +128,6 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-export const useLoadableTransactionAtom = (transactionId: string) => {
+export const useLoadableTransactionAtom = (transactionId: TransactionId) => {
   return useAtomValue(loadable(useTransactionAtom(transactionId)))
 }

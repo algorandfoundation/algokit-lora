@@ -3,3 +3,5 @@ export type BlockResult = {
   timestamp: string
   transactionIds: string[]
 }
+
+export type Round = number
