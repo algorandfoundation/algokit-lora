@@ -1,74 +1,108 @@
-import { atom, useAtomValue, useSetAtom, useStore } from 'jotai'
+import { Atom, atom, useAtomValue, useSetAtom, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '../common/data'
-import { asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
-import { useAssetAtom } from '../assets/data'
+import { asTransactionModel } from './mappers/transaction-mappers'
+import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '../assets/data'
 import { invariant } from '@/utils/invariant'
+import { TransactionType } from 'algosdk'
+import { JotaiStore } from '../common/data/types'
+import { Buffer } from 'buffer'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 // The string key is the transaction id
 export const transactionsAtom = atom<Map<string, TransactionResult>>(new Map())
 
-// TODO: NC - This will likely be removed as part of the block refactor
-export const useTransactions = (filterIds?: string[]) => {
-  const transactions = useAtomValue(transactionsAtom)
-  return useMemo(() => {
-    const filteredTransactions = filterIds
-      ? filterIds.reduce((acc, id) => {
-          if (transactions.has(id)) {
-            return acc.concat(transactions.get(id)!)
+export const fetchTransactionAtomBuilder = (store: JotaiStore, transactionId: string) => {
+  const syncEffect = atomEffect((get, set) => {
+    ;(async () => {
+      try {
+        const transaction = await get(transactionAtom)
+        set(transactionsAtom, (prev) => {
+          return new Map([...prev, [transaction.id, transaction]])
+        })
+      } catch (e) {
+        // Ignore any errors as there is nothing to sync
+      }
+    })()
+  })
+  const transactionAtom = atom((get) => {
+    const transactions = store.get(transactionsAtom)
+    const cachedTransaction = transactions.get(transactionId)
+    if (cachedTransaction) {
+      return cachedTransaction
+    }
+
+    get(syncEffect)
+
+    return lookupTransactionById(transactionId, indexer).then((result) => {
+      return result.transaction
+    })
+  })
+  return transactionAtom
+}
+
+export const fetchTransactionsAtomBuilder = (store: JotaiStore, transactionIds: string[]) => {
+  return atom(async (get) => {
+    return await Promise.all(transactionIds.map((transactionId) => get(fetchTransactionAtomBuilder(store, transactionId))))
+  })
+}
+
+export const fetchTransactionsModelAtomBuilder = (
+  store: JotaiStore,
+  transactions: TransactionResult[] | Atom<TransactionResult[] | Promise<TransactionResult[]>>
+) => {
+  return atom(async (get) => {
+    const txns = Array.isArray(transactions) ? transactions : await get(transactions)
+    const assetIds = Array.from(
+      txns.reduce((acc, txn) => {
+        if (txn['tx-type'] === TransactionType.axfer && txn['asset-transfer-transaction']) {
+          const assetId = txn['asset-transfer-transaction']['asset-id']
+          if (!acc.has(assetId)) {
+            return new Set(acc).add(assetId)
           }
-          return acc
-        }, [] as TransactionResult[])
-      : Array.from(transactions.values())
-    return filteredTransactions
-  }, [filterIds, transactions])
+        }
+        return acc
+      }, new Set<number>())
+    )
+
+    const assets = new Map(
+      (await get(fetchAssetsAtomBuilder(store, assetIds))).map((a) => {
+        return [a.index, a] as const
+      })
+    )
+
+    return await Promise.all(
+      txns.map((transaction) => {
+        return asTransactionModel(transaction, (assetId: number) => {
+          const asset = assets.get(assetId)
+          invariant(asset, 'asset could not be retrieved')
+          return asset
+        })
+      })
+    )
+  })
+}
+
+export const fetchTransactionModelAtomBuilder = (
+  store: JotaiStore,
+  transaction: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>
+) => {
+  return atom(async (get) => {
+    const txn = 'id' in transaction ? transaction : await get(transaction)
+    return await asTransactionModel(txn, (assetId: number) => get(fetchAssetAtomBuilder(store, assetId)))
+  })
 }
 
 const useTransactionAtom = (transactionId: string) => {
   const store = useStore()
 
   return useMemo(() => {
-    const syncEffect = atomEffect((get, set) => {
-      ;(async () => {
-        try {
-          const transaction = await get(transactionAtom)
-          set(transactionsAtom, (prev) => {
-            return new Map([...prev, [transaction.id, transaction]])
-          })
-        } catch (e) {
-          // Ignore any errors as there is nothing to sync
-        }
-      })()
-    })
-    const transactionAtom = atom((get) => {
-      // store.get prevents the atom from being subscribed to changes in transactionsAtom
-      const transactions = store.get(transactionsAtom)
-      const transaction = transactions.has(transactionId) ? transactions.get(transactionId) : undefined
-      if (transaction) {
-        return transaction
-      }
-
-      get(syncEffect)
-
-      return lookupTransactionById(transactionId, indexer).then((result) => {
-        return result.transaction
-      })
-    })
-    return transactionAtom
+    return fetchTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId))
   }, [store, transactionId])
-}
-
-export const useLoadableTransaction = (transactionId: string) => {
-  return useAtomValue(
-    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
-    // https://github.com/facebook/react/issues/20877
-    loadable(useTransactionAtom(transactionId))
-  )
 }
 
 export const useLogicsigTeal = (logic: string) => {
@@ -94,42 +128,6 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-const usePaymentTransactionAtom = (transaction: TransactionResult) => {
-  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
-
-  return useMemo(() => {
-    const transactionAtom = atom(() => {
-      return asPaymentTransaction(transaction)
-    })
-    return transactionAtom
-  }, [transaction])
-}
-
-const useAssetTransferTransactionAtom = (transaction: TransactionResult) => {
-  invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-  const assetId = transaction['asset-transfer-transaction']['asset-id']
-  const assetAtom = useAssetAtom(assetId)
-
-  return useMemo(() => {
-    const assetTransferTransactionAtom = atom(async (get) => {
-      return asAssetTransferTransaction(transaction, await get(assetAtom))
-    })
-    return assetTransferTransactionAtom
-  }, [transaction, assetAtom])
-}
-
-export const useLoadableAssetTransferTransaction = (transaction: TransactionResult) => {
-  return useAtomValue(
-    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
-    // https://github.com/facebook/react/issues/20877
-    loadable(useAssetTransferTransactionAtom(transaction))
-  )
-}
-
-export const usePaymentTransaction = (transaction: TransactionResult) => {
-  return useAtomValue(
-    // Unfortunately we can't leverage Suspense here, as react doesn't support async useMemo inside the Suspense component
-    // https://github.com/facebook/react/issues/20877
-    usePaymentTransactionAtom(transaction)
-  )
+export const useLoadableTransactionAtom = (transactionId: string) => {
+  return useAtomValue(loadable(useTransactionAtom(transactionId)))
 }

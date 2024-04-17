@@ -3,18 +3,16 @@ import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { SignatureType } from '../models'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { SignatureType, PaymentTransactionModel } from '../models'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionViewTable } from './transaction-view-table'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
-import { usePaymentTransaction } from '../data'
 import { PaymentTransactionInfo } from './payment-transaction-info'
 
 type PaymentTransactionProps = {
-  transactionResult: TransactionResult
+  transaction: PaymentTransactionModel
 }
 
 const visualTransactionDetailsTabId = 'visual'
@@ -23,15 +21,13 @@ export const transactionDetailsLabel = 'View Transaction Details'
 export const visualTransactionDetailsTabLabel = 'Visual'
 export const tableTransactionDetailsTabLabel = 'Table'
 
-export function PaymentTransaction({ transactionResult }: PaymentTransactionProps) {
-  const paymentTransaction = usePaymentTransaction(transactionResult)
-
+export function PaymentTransaction({ transaction }: PaymentTransactionProps) {
   return (
     <div className={cn('space-y-6 pt-7')}>
-      <TransactionInfo transaction={paymentTransaction} />
+      <TransactionInfo transaction={transaction} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
-          <PaymentTransactionInfo transaction={paymentTransaction} />
+          <PaymentTransactionInfo transaction={transaction} />
           <Tabs defaultValue={visualTransactionDetailsTabId}>
             <TabsList aria-label={transactionDetailsLabel}>
               <TabsTrigger
@@ -48,16 +44,16 @@ export function PaymentTransaction({ transactionResult }: PaymentTransactionProp
               </TabsTrigger>
             </TabsList>
             <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
-              <TransactionViewVisual transaction={paymentTransaction} />
+              <TransactionViewVisual transaction={transaction} />
             </TabsContent>
             <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
-              <TransactionViewTable transaction={paymentTransaction} />
+              <TransactionViewTable transaction={transaction} />
             </TabsContent>
           </Tabs>
-          {paymentTransaction.note && <TransactionNote note={paymentTransaction.note} />}
-          <TransactionJson transaction={transactionResult} />
-          {paymentTransaction.signature?.type === SignatureType.Multi && <Multisig signature={paymentTransaction.signature} />}
-          {paymentTransaction.signature?.type === SignatureType.Logic && <Logicsig signature={paymentTransaction.signature} />}
+          {transaction.note && <TransactionNote note={transaction.note} />}
+          <TransactionJson json={transaction.json} />
+          {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}
         </CardContent>
       </Card>
     </div>

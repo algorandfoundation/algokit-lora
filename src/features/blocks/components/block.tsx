@@ -1,5 +1,3 @@
-import { asBlockModel } from '../mappers'
-import { BlockMetadata } from '../data'
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
@@ -7,12 +5,11 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { BlockLink } from './block-link'
 import { TransactionsTable } from './transactions'
-import { useTransactions } from '@/features/transactions/data'
-import { asPaymentTransaction } from '@/features/transactions/mappers/transaction-mappers'
-import { TransactionType } from 'algosdk'
+import { BlockModel } from '../models'
+import { Badge } from '@/features/common/components/badge'
 
 type Props = {
-  block: BlockMetadata
+  block: BlockModel
 }
 
 export const roundLabel = 'Round'
@@ -22,49 +19,54 @@ export const previousRoundLabel = 'Previous Round'
 export const nextRoundLabel = 'Next Round'
 
 export function Block({ block }: Props) {
-  const blockModel = asBlockModel(block)
-  // TODO: NC - Remove filter once we support other transaction types
-  // TODO: NC - Currently we re-render this view when new transactions are added, which results in the table pagination loosing it's position. A future block refactor will fix this issue.
-  const transactions = useTransactions(blockModel.transactionIds)
-    .filter((t) => t['tx-type'] === TransactionType.pay)
-    .map(asPaymentTransaction)
-
   const blockItems = useMemo(
     () => [
       {
         dt: roundLabel,
-        dd: blockModel.round,
+        dd: block.round,
       },
       {
         dt: timestampLabel,
-        dd: dateFormatter.asLongDateTime(new Date(blockModel.timestamp)),
+        dd: dateFormatter.asLongDateTime(new Date(block.timestamp)),
       },
       {
         dt: transactionsLabel,
         dd: (
           <>
-            {blockModel.transactionCount}
-            {/* TODO: NC - Badges will be added as part of a subsequent PR, once block refactoring has been done. */}
-            {/* <Badge>Pay=12</Badge>
-            <Badge variant="destructive">Transfer=12</Badge> */}
+            {block.transactionsSummary.count}
+            {block.transactionsSummary.countByType.map(([type, count]) => (
+              <Badge key={type} variant="outline">
+                {type}={count}
+              </Badge>
+            ))}
           </>
         ),
       },
-      ...(blockModel.round > 0
+      ...(block.previousRound
         ? [
             {
               dt: previousRoundLabel,
-              dd: <BlockLink round={blockModel.round - 1} />,
+              dd: <BlockLink round={block.previousRound} />,
             },
           ]
         : []),
-      // TODO: NC - Only display this link if the next round is available
-      {
-        dt: nextRoundLabel,
-        dd: <BlockLink round={blockModel.round + 1} />,
-      },
+      ...(block.nextRound
+        ? [
+            {
+              dt: nextRoundLabel,
+              dd: <BlockLink round={block.nextRound} />,
+            },
+          ]
+        : []),
     ],
-    [blockModel.round, blockModel.timestamp, blockModel.transactionCount]
+    [
+      block.nextRound,
+      block.previousRound,
+      block.round,
+      block.timestamp,
+      block.transactionsSummary.count,
+      block.transactionsSummary.countByType,
+    ]
   )
 
   return (
@@ -77,7 +79,7 @@ export function Block({ block }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{transactionsLabel}</h1>
-          <TransactionsTable transactions={transactions} />
+          <TransactionsTable transactions={block.transactions} />
         </CardContent>
       </Card>
     </div>
