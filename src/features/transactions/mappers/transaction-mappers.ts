@@ -1,6 +1,13 @@
-import { AssetResult, EvalDelta, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import {
+  ApplicationOnComplete,
+  AssetResult,
+  EvalDelta,
+  TransactionResult,
+  TransactionSignature,
+} from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionType as AlgoSdkTransactionType, encodeAddress } from 'algosdk'
 import {
+  AppCallOnComplete,
   AppCallTransactionModel,
   AssetTransferTransactionModel,
   AssetTransferTransactionSubType,
@@ -166,6 +173,8 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
         // This could be dangerous as we haven't implemented all the transaction types
         throw new Error(`Unsupported inner transaction type: ${innerTransaction['tx-type']}`)
       }) ?? [],
+    onCompletion: asAppCallOnComplete(transaction['application-transaction']['on-completion']),
+    action: transaction['application-transaction']['application-id'] ? 'Call' : 'Create',
   }
 }
 
@@ -235,4 +244,21 @@ const asStateDelta = (stateDelta: IndexerStateDelta[] | undefined): StateDelta[]
       value: getValue(state),
     }
   })
+}
+
+const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnComplete => {
+  switch (indexerEnum) {
+    case ApplicationOnComplete.noop:
+      return AppCallOnComplete.NoOp
+    case ApplicationOnComplete.optin:
+      return AppCallOnComplete.OptIn
+    case ApplicationOnComplete.closeout:
+      return AppCallOnComplete.CloseOut
+    case ApplicationOnComplete.clear:
+      return AppCallOnComplete.ClearState
+    case ApplicationOnComplete.update:
+      return AppCallOnComplete.Update
+    case ApplicationOnComplete.delete:
+      return AppCallOnComplete.Delete
+  }
 }

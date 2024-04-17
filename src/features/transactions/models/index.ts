@@ -99,5 +99,15 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   localStateDeltas: StateDelta[]
   innerTransactions: TransactionModel[]
   subType?: undefined
-  // TODO: on completion
+  onCompletion: AppCallOnComplete
+  action: 'Create' | 'Call'
+}
+
+export enum AppCallOnComplete {
+  NoOp = 'NoOp',
+  OptIn = 'Opt-In',
+  CloseOut = 'Close Out',
+  ClearState = 'Clear State',
+  Update = 'Update',
+  Delete = 'Delete',
 }

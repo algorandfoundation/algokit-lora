@@ -37,7 +37,7 @@ type Arrow = {
   direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
 }
 
-export const ApplicationIdLabel = 'Application Id'
+export const applicationIdLabel = 'Application Id'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items
@@ -296,7 +296,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
         dd: transaction.sender,
       },
       {
-        dt: ApplicationIdLabel,
+        dt: applicationIdLabel,
         dd: transaction.applicationId,
       },
     ],

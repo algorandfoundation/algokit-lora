@@ -4,6 +4,8 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
+import { transactionSenderLabel } from './transaction-view-table'
+import { DescriptionList } from '@/features/common/components/description-list'
 
 type Props = {
   transaction: AppCallTransactionModel
@@ -24,8 +26,40 @@ const globalStateSchemaTabLabel = 'Global State Schema'
 const localStateSchemaTabLabel = 'Local State Schema'
 
 const appCallTransactionDetailsLabel = 'App Call Transaction Details'
+export const onCompletionLabel = 'On Completion'
+export const actionLabel = 'Action'
+export const applicationIdLabel = 'Application Id'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionSenderLabel,
+        dd: (
+          <a href="#" className={cn('text-primary underline')}>
+            {transaction.sender}
+          </a>
+        ),
+      },
+      {
+        dt: applicationIdLabel,
+        dd: (
+          <a href="#" className={cn('text-primary underline')}>
+            {transaction.applicationId}
+          </a>
+        ),
+      },
+      {
+        dt: actionLabel,
+        dd: transaction.action,
+      },
+      {
+        dt: onCompletionLabel,
+        dd: transaction.onCompletion,
+      },
+    ],
+    [transaction.action, transaction.applicationId, transaction.onCompletion, transaction.sender]
+  )
   const tabs = useMemo(
     () => [
       {
@@ -63,20 +97,28 @@ export function AppCallTransactionInfo({ transaction }: Props) {
   )
 
   return (
-    <Tabs defaultValue={applicationArgsTabId}>
-      <TabsList aria-label={appCallTransactionDetailsLabel}>
+    <>
+      <DescriptionList items={items} />
+
+      <Tabs defaultValue={applicationArgsTabId}>
+        <TabsList aria-label={appCallTransactionDetailsLabel}>
+          {tabs.map((tab) => (
+            <TabsTrigger
+              key={tab.id}
+              className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
+              value={tab.id}
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')} value={tab.id}>
-            {tab.label}
-          </TabsTrigger>
+          <TabsContent key={tab.id} value={tab.id} className={cn('border-solid border-2 border-border p-4')}>
+            {tab.element}
+          </TabsContent>
         ))}
-      </TabsList>
-      {tabs.map((tab) => (
-        <TabsContent key={tab.id} value={tab.id} className={cn('border-solid border-2 border-border p-4')}>
-          {tab.element}
-        </TabsContent>
-      ))}
-    </Tabs>
+      </Tabs>
+    </>
   )
 }
 
