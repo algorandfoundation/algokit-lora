@@ -1,7 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { AppCallTransactionModel } from '../models'
+import { AppCallTransactionModel, StateDelta } from '../models'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
+import { ColumnDef } from '@tanstack/react-table'
+import { DataTable } from '@/features/common/components/data-table'
 
 type Props = {
   transaction: AppCallTransactionModel
@@ -49,7 +51,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
       {
         id: globalStateSchemaTabId,
         label: globalStateSchemaTabLabel,
-        element: <>{globalStateSchemaTabLabel}</>,
+        element: <GlobalStateDelta transaction={transaction} />,
       },
       {
         id: localStateSchemaTabId,
@@ -116,4 +118,27 @@ function ForeignAssets({ transaction }: Props) {
       ))}
     </div>
   )
+}
+
+export const globalStateDeltaTableColumns: ColumnDef<StateDelta>[] = [
+  {
+    accessorKey: 'key',
+    header: 'Key',
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+  },
+  {
+    accessorKey: 'action',
+    header: 'Action',
+  },
+  {
+    accessorKey: 'value',
+    header: 'Value',
+  },
+]
+
+function GlobalStateDelta({ transaction }: Props) {
+  return <DataTable columns={globalStateDeltaTableColumns} data={transaction.globalStateDeltas} />
 }
