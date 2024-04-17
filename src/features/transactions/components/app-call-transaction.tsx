@@ -10,6 +10,7 @@ import { TransactionJson } from './transaction-json'
 import { TransactionNote } from './transaction-note'
 import { SignatureType } from '../models'
 import { TransactionViewTabs } from './transaction-view-tabs'
+import { AppCallTransactionInfo } from './app-call-transaction-info'
 
 type ApplicationCallTransaction = {
   transactionResult: TransactionResult
@@ -25,6 +26,7 @@ export function AppCallTransaction({ transactionResult }: ApplicationCallTransac
           <TransactionInfo transaction={appCallTransaction} />
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-4')}>
+              <AppCallTransactionInfo transaction={appCallTransaction} />
               <TransactionViewTabs transaction={appCallTransaction} />
               {appCallTransaction.note && <TransactionNote note={appCallTransaction.note} />}
               <TransactionJson transaction={transactionResult} />

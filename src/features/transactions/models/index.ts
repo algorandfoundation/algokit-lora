@@ -90,6 +90,8 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   applicationId: number
   applicationArgs: string[]
   foreignApps: number[]
+  foreignAssets: number[]
+  applicationAccounts: Address[]
   globalStateSchema: AppCallStateSchema
   localStateSchema: AppCallStateSchema
   innerTransactions: TransactionModel[]

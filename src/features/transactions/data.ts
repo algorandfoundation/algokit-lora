@@ -8,6 +8,7 @@ import { algod, indexer } from '../common/data'
 import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from './mappers/transaction-mappers'
 import { useAssetAtom, useAssetsAtom } from '../assets/data'
 import { invariant } from '@/utils/invariant'
+import { getRecursiveDataForAppCallTransaction } from './utils/get-recursive-data-for-app-call-transaction'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 // The string key is the transaction id
@@ -129,31 +130,16 @@ export const usePaymentTransaction = (transaction: TransactionResult) => {
 export const useLoadableAppCallTransction = (transaction: TransactionResult) => {
   invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-  const assetIds = getAssetIdsForAppCallTransaction(transaction)
-  const assets = useAssetsAtom(assetIds)
+  const assetIds = getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
+  const assetsAtom = useAssetsAtom(assetIds)
 
   const modelAtom = useMemo(() => {
     const transactionAtom = atom(async (get) => {
-      const foos = assets.map((a) => get(a))
-      const bar = await Promise.all(foos)
-      console.log(bar)
-      return asAppCallTransaction(transaction, bar)
+      const assets = await Promise.all(assetsAtom.map((a) => get(a)))
+      return asAppCallTransaction(transaction, assets)
     })
     return transactionAtom
-  }, [assets, transaction])
+  }, [assetsAtom, transaction])
 
   return useAtomValue(loadable(modelAtom))
-}
-
-const getAssetIdsForAppCallTransaction = (transaction: TransactionResult) => {
-  invariant(transaction['application-transaction'], 'application-transaction is not set')
-
-  const assetIds = transaction['application-transaction']['foreign-assets'] ?? []
-  transaction['inner-txns']?.flatMap((innerTxn) => {
-    if (innerTxn['asset-transfer-transaction']) {
-      assetIds.push(...getAssetIdsForAppCallTransaction(innerTxn))
-    }
-  })
-
-  return assetIds
 }

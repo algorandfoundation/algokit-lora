@@ -16,6 +16,7 @@ import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
+import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -137,7 +138,9 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
     note: transaction.note,
     applicationId: transaction['application-transaction']['application-id'],
     applicationArgs: transaction['application-transaction']['application-args'] ?? [],
-    foreignApps: transaction['application-transaction']['foreign-apps'] ?? [],
+    applicationAccounts: getRecursiveDataForAppCallTransaction(transaction, 'accounts'),
+    foreignApps: getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'),
+    foreignAssets: getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'),
     globalStateSchema: asStateSchema(transaction['application-transaction']['global-state-schema']),
     localStateSchema: asStateSchema(transaction['application-transaction']['local-state-schema']),
     // TODO: the inner transactions don't have id
@@ -163,7 +166,7 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
   }
 }
 
-export const asStateSchema = (stateSchema?: StateSchema) => {
+const asStateSchema = (stateSchema?: StateSchema) => {
   if (!stateSchema) {
     return {
       numByteSlice: 0,
