@@ -6,7 +6,13 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { AssetTransferTransactionModel, PaymentTransactionModel, TransactionModel, TransactionType } from '../models'
+import {
+  AppCallTransactionModel,
+  AssetTransferTransactionModel,
+  PaymentTransactionModel,
+  TransactionModel,
+  TransactionType,
+} from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
@@ -30,6 +36,8 @@ type Arrow = {
   to: number
   direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
 }
+
+export const ApplicationIdLabel = 'Application Id'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items
@@ -134,18 +142,23 @@ const DisplayArrow = fixedForwardRef(
           <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
           {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
         </div>
-        {transaction.type === TransactionType.Payment && (
-          <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
-            Payment
-            <DisplayAlgo amount={transaction.amount} />
-          </div>
-        )}
-        {transaction.type === TransactionType.AssetTransfer && (
-          <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
-            Transfer
-            <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
-          </div>
-        )}
+        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
+          {transaction.type === TransactionType.Payment && (
+            <>
+              Payment
+              <DisplayAlgo amount={transaction.amount} />
+            </>
+          )}
+
+          {transaction.type === TransactionType.AssetTransfer && (
+            <>
+              Transfer
+              <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
+            </>
+          )}
+          {transaction.type === TransactionType.ApplicationCall && <>App Call</>}
+        </div>
+
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
       </div>
     )
@@ -267,6 +280,36 @@ function AssetTransferTransactionToolTipContent({ transaction }: { transaction: 
   )
 }
 
+function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransactionModel }) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: 'Application Call',
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+      {
+        dt: ApplicationIdLabel,
+        dd: transaction.applicationId,
+      },
+    ],
+    [transaction.applicationId, transaction.id, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
+
 type TransactionRowProps = {
   transaction: TransactionModel
   hasParent?: boolean
@@ -316,6 +359,7 @@ function TransactionRow({
               <TooltipContent>
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )

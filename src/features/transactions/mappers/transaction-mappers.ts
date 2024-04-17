@@ -143,8 +143,8 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
     applicationAccounts: getRecursiveDataForAppCallTransaction(transaction, 'accounts'),
     foreignApps: getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'),
     foreignAssets: getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'),
-    globalStateDeltas: asStateDelta(transaction['global-state-delta']),
-    localStateDeltas: asStateDelta(transaction['local-state-delta']),
+    globalStateDeltas: asStateDelta(transaction['global-state-delta'] as unknown as IndexerStateDelta[]),
+    localStateDeltas: asStateDelta(transaction['local-state-delta'] as unknown as IndexerStateDelta[]),
     innerTransactions:
       transaction['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
@@ -169,7 +169,14 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
   }
 }
 
-const asStateDelta = (stateDelta: Record<string, EvalDelta>[] | undefined): StateDelta[] => {
+// I am very certain that the Record<string, EvalDelta> type in indexer is wrong
+// This is to fix it
+type IndexerStateDelta = {
+  key: string
+  value: EvalDelta
+}
+
+const asStateDelta = (stateDelta: IndexerStateDelta[] | undefined): StateDelta[] => {
   if (!stateDelta) {
     return []
   }
@@ -178,7 +185,7 @@ const asStateDelta = (stateDelta: Record<string, EvalDelta>[] | undefined): Stat
     const buffer = Buffer.from(key, 'base64')
 
     if (isUtf8(buffer)) {
-      return key.toString()
+      return buffer.toString()
     } else {
       return `0x${buffer.toString('hex')}`
     }
@@ -217,9 +224,9 @@ const asStateDelta = (stateDelta: Record<string, EvalDelta>[] | undefined): Stat
     return state.uint?.toString() ?? ''
   }
 
-  return stateDelta.map((delta): StateDelta => {
-    const key = Object.keys(delta)[0]
-    const state = delta.value
+  return stateDelta.map((record): StateDelta => {
+    const key = record.key
+    const state = record.value
 
     return {
       key: getKey(key),
