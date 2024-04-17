@@ -80,9 +80,11 @@ export type LogicsigModel = {
   logic: string
 }
 
-export type AppCallStateSchema = {
-  numByteSlice: number
-  numUint: number
+export type StateDelta = {
+  key: string
+  type: 'Bytes' | 'Uint'
+  action: 'Set' | 'Delete'
+  value: string
 }
 
 export type AppCallTransactionModel = CommonTransactionProperties & {
@@ -92,8 +94,7 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   foreignApps: number[]
   foreignAssets: number[]
   applicationAccounts: Address[]
-  globalStateSchema: AppCallStateSchema
-  localStateSchema: AppCallStateSchema
+  globalStateSchema: StateDelta[]
   innerTransactions: TransactionModel[]
   subType?: undefined
   // TODO: on completion

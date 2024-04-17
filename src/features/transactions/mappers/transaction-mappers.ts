@@ -1,5 +1,5 @@
-import { AssetResult, StateSchema, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+import { AssetResult, EvalDelta, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionType as AlgoSdkTransactionType, encodeAddress } from 'algosdk'
 import {
   AppCallTransactionModel,
   AssetTransferTransactionModel,
@@ -9,6 +9,7 @@ import {
   PaymentTransactionModel,
   SignatureType,
   SinglesigModel,
+  StateDelta,
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
@@ -17,6 +18,7 @@ import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
+import isUtf8 from 'isutf8'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -141,8 +143,7 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
     applicationAccounts: getRecursiveDataForAppCallTransaction(transaction, 'accounts'),
     foreignApps: getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'),
     foreignAssets: getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'),
-    globalStateSchema: asStateSchema(transaction['application-transaction']['global-state-schema']),
-    localStateSchema: asStateSchema(transaction['application-transaction']['local-state-schema']),
+    globalStateSchema: asStateDelta(transaction['global-state-delta']),
     // TODO: the inner transactions don't have id
     innerTransactions:
       transaction['inner-txns']?.map((innerTransaction) => {
@@ -166,16 +167,63 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
   }
 }
 
-const asStateSchema = (stateSchema?: StateSchema) => {
-  if (!stateSchema) {
-    return {
-      numByteSlice: 0,
-      numUint: 0,
-    }
+const asStateDelta = (stateDelta: Record<string, EvalDelta>[] | undefined): StateDelta[] => {
+  if (!stateDelta) {
+    return []
   }
 
-  return {
-    numByteSlice: stateSchema['num-byte-slice'] ?? 0,
-    numUint: stateSchema['num-uint'] ?? 0,
+  const getKey = (key: string): string => {
+    const buffer = Buffer.from(key, 'base64')
+
+    if (isUtf8(buffer)) {
+      return key.toString()
+    } else {
+      return `0x${buffer.toString('hex')}`
+    }
   }
+  const getAction = (state: EvalDelta) => {
+    if (state.action === 1 || state.action === 2) {
+      return 'Set'
+    }
+    if (state.action === 3) {
+      return 'Delete'
+    }
+    throw new Error(`Unsupported state action: ${state.action}`)
+  }
+  const getType = (state: EvalDelta) => {
+    if (state.action === 1) return 'Bytes'
+    if (state.action === 2) return 'Uint'
+    if (state.action === 3) {
+      if (state.bytes) return 'Bytes'
+      return 'Uint'
+    }
+    throw new Error(`Unsupported state action: ${state.action}`)
+  }
+  const getValue = (state: EvalDelta) => {
+    if (state.bytes) {
+      const buf = Buffer.from(state.bytes, 'base64')
+      if (buf.length === 32) {
+        return encodeAddress(new Uint8Array(buf))
+      } else {
+        if (isUtf8(buf)) {
+          return buf.toString('utf8')
+        } else {
+          return buf.toString('base64')
+        }
+      }
+    }
+    return state.uint?.toString() ?? ''
+  }
+
+  return stateDelta.map((delta): StateDelta => {
+    const key = Object.keys(delta)[0]
+    const state = delta.value
+
+    return {
+      key: getKey(key),
+      type: getType(state),
+      action: getAction(state),
+      value: getValue(state),
+    }
+  })
 }
