@@ -112,7 +112,7 @@ const DisplayArrow = fixedForwardRef(
 
     return (
       <div
-        className={cn('flex items-center justify-center')}
+        className={cn('flex items-center justify-center z-10')}
         style={{
           // 2 and 3 are the number to offset the name column
           gridColumnStart: arrow.from + 2,
@@ -159,7 +159,7 @@ const DisplaySelfTransaction = fixedForwardRef(
     return (
       <div
         ref={ref}
-        className={cn('flex items-center justify-center relative')}
+        className={cn('flex items-center justify-center relative z-10')}
         {...rest}
         style={{
           gridColumnStart: arrow.from + 2, // 2 to offset the name column
@@ -170,7 +170,7 @@ const DisplaySelfTransaction = fixedForwardRef(
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
         <div
           style={{
-            width: `calc(50% - ${graphConfig.circleDimension / 2}px)`,
+            width: `50%`,
             height: `${graphConfig.circleDimension}px`,
           }}
         >
@@ -183,7 +183,7 @@ const DisplaySelfTransaction = fixedForwardRef(
             borderColor: color,
             borderRadius: '4px',
             bottom: graphConfig.lineWidth / 2,
-            right: `calc(25% - ${graphConfig.lineWidth * 2}px)`,
+            right: `25%`,
           }}
         ></div>
         <div className={cn('absolute text-foreground right-1/4 w-[40%] flex justify-center')}>
@@ -285,10 +285,7 @@ function TransactionRow({
   verticalBars,
 }: TransactionRowProps) {
   const arrow = useMemo(() => calcArrow(transaction, accounts), [accounts, transaction])
-  const hasChildren = useMemo(
-    () => transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0,
-    [transaction]
-  )
+  const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
   return (
     <>
@@ -322,12 +319,11 @@ function TransactionRow({
               </TooltipContent>
             </Tooltip>
           )
-        else return null
+        return null
       })}
 
       {hasChildren &&
-        transaction.type === TransactionType.ApplicationCall &&
-        transaction.innerTransactions?.map((childTransaction, index, arr) => (
+        transaction.innerTransactions.map((childTransaction, index, arr) => (
           <TransactionRow
             key={index}
             transaction={childTransaction}
@@ -371,16 +367,20 @@ export function TransactionViewVisual({ transaction }: Props) {
       ...flattenedTransactions
         .map((t) => [
           t.transaction.sender,
+          // TODO: refactor, this is yuck
           t.transaction.type === TransactionType.Payment || t.transaction.type === TransactionType.AssetTransfer
             ? t.transaction.receiver
-            : undefined,
+            : t.transaction.type === TransactionType.ApplicationCall
+              ? t.transaction.applicationId.toString()
+              : undefined,
         ])
         .flat()
         .filter(isDefined),
+      '', // an empty account to support transactions with the same sender and receiver
     ])
   )
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
-  const gridAccountColumns = accounts.length + 1 // +1 is to support transactions with the same sender and receiver
+  const gridAccountColumns = accounts.length
 
   return (
     <div
@@ -396,43 +396,34 @@ export function TransactionViewVisual({ transaction }: Props) {
           <AccountId id={account} />
         </div>
       ))}
-      <div>{/* The last header cell is empty to support transactions with the same sender and receiver */}</div>
       {/* The below div is for drawing the background dash lines */}
-      <div className={cn('absolute right-0 -z-10')} style={{ top: `${graphConfig.rowHeight}px` }}>
+      <div className={cn('absolute left-0')} style={{ top: `${graphConfig.rowHeight}px` }}>
         <div>
           <div className={cn('p-0')}></div>
           <div
             className={cn('p-0')}
-            style={{ height: `${transactionCount * graphConfig.rowHeight}px`, width: `${graphConfig.colWidth * accounts.length}px` }}
+            style={{ height: `${transactionCount * graphConfig.rowHeight}px`, width: `${graphConfig.colWidth * gridAccountColumns}px` }}
           >
             <div
               className={cn('grid h-full')}
               style={{
-                gridTemplateColumns: `repeat(${accounts.length}, minmax(0, 1fr))`,
+                gridTemplateColumns: `minmax(${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
                 height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
-              {accounts.map((_, index) => (
-                <div key={index} className={cn('flex justify-center')}>
-                  <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
-                </div>
-              ))}
+              <div></div>
+              {accounts
+                .filter((a) => a) // Don't need to draw for the empty account
+                .map((_, index) => (
+                  <div key={index} className={cn('flex justify-center')}>
+                    <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
       </div>
       <TransactionRow transaction={transaction} hasParent={false} accounts={accounts} verticalBars={[]} />
-      {transaction.type === TransactionType.ApplicationCall &&
-        transaction.innerTransactions.map((transaction, index, arr) => (
-          <TransactionRow
-            key={index}
-            transaction={transaction}
-            hasParent={false}
-            hasNextSibling={index < arr.length - 1}
-            accounts={accounts}
-            verticalBars={[]}
-          />
-        ))}
     </div>
   )
 }

@@ -145,9 +145,10 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
     foreignAssets: getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'),
     globalStateDeltas: asStateDelta(transaction['global-state-delta']),
     localStateDeltas: asStateDelta(transaction['local-state-delta']),
-    // TODO: the inner transactions don't have id
     innerTransactions:
-      transaction['inner-txns']?.map((innerTransaction) => {
+      transaction['inner-txns']?.map((innerTransaction, index) => {
+        // Generate a unique id for the inner transaction
+        innerTransaction.id = `Inner ${index + 1}`
         if (innerTransaction['tx-type'] === AlgoSdkTransactionType.pay) {
           return asPaymentTransaction(innerTransaction)
         }

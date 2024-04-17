@@ -48,7 +48,7 @@ describe('asset-transfer-transaction-view-visual', () => {
       assetResult: assetResultMother['mainnet-312769']().build(),
     },
   ])(
-    'when rendering transaction $id',
+    'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
         const transaction = asAssetTransferTransaction(transactionResult, assetResult)

@@ -13,9 +13,15 @@
         TDV4...QNHM
       </h1>
     </div>
-    <div />
     <div
-      class="absolute right-0 -z-10"
+      class="p-2 flex justify-center"
+    >
+      <h1
+        class="text-l font-semibold"
+      />
+    </div>
+    <div
+      class="absolute left-0"
       style="top: 40px;"
     >
       <div>
@@ -24,12 +30,13 @@
         />
         <div
           class="p-0"
-          style="height: 40px; width: 128px;"
+          style="height: 40px; width: 256px;"
         >
           <div
             class="grid h-full"
-            style="grid-template-columns: repeat(1, minmax(0, 1fr)); height: 40px;"
+            style="grid-template-columns: minmax(128px, 128px) repeat(2, 128px); height: 40px;"
           >
+            <div />
             <div
               class="flex justify-center"
             >
@@ -58,7 +65,7 @@
       </div>
     </div>
     <div
-      class="flex items-center justify-center relative"
+      class="flex items-center justify-center relative z-10"
       data-state="closed"
       style="grid-column-start: 2; grid-column-end: 4; color: rgb(126 200 191);"
     >
@@ -81,7 +88,7 @@
         </g>
       </svg>
       <div
-        style="width: calc(50% - 10px); height: 20px;"
+        style="width: 50%; height: 20px;"
       >
         <svg
           class="relative"
@@ -103,7 +110,7 @@
       </div>
       <div
         class="absolute size-1/2"
-        style="border-width: 2px; border-radius: 4px; bottom: 1px; right: calc(25% - 4px);"
+        style="border-width: 2px; border-radius: 4px; bottom: 1px; right: 25%;"
       />
       <div
         class="absolute text-foreground right-1/4 w-[40%] flex justify-center"
@@ -135,5 +142,6 @@
         </div>
       </div>
     </div>
+    <div />
   </div>
 </div>
