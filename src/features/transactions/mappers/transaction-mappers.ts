@@ -2,6 +2,7 @@ import { AssetResult, TransactionResult, TransactionSignature } from '@algorandf
 import {
   AssetTransferTransactionModel,
   AssetTransferTransactionSubType,
+  CommonTransactionProperties,
   LogicsigModel,
   MultisigModel,
   PaymentTransactionModel,
@@ -16,19 +17,29 @@ import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import algosdk from 'algosdk'
 
-export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
+const asCommonTransaction = (transaction: TransactionResult): Omit<CommonTransactionProperties, 'type' | 'transactions'> => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
   invariant(transaction['round-time'], 'round-time is not set')
-  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
 
   return {
     id: transaction.id,
-    type: TransactionType.Payment,
     confirmedRound: transaction['confirmed-round'],
     roundTime: transaction['round-time'] * 1000,
     group: transaction['group'],
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
+    note: transaction.note,
+    signature: transformSignature(transaction.signature),
+    json: asJson(transaction),
+  }
+}
+
+export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
+  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+
+  return {
+    ...asCommonTransaction(transaction),
+    type: TransactionType.Payment,
     receiver: transaction['payment-transaction']['receiver'],
     amount: algokit.microAlgos(transaction['payment-transaction']['amount']),
     closeRemainder: transaction['payment-transaction']['close-remainder-to']
@@ -37,9 +48,6 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
           amount: algokit.microAlgos(transaction['payment-transaction']['close-amount'] ?? 0),
         }
       : undefined,
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
-    json: asJson(transaction),
   }
 }
 
@@ -71,8 +79,6 @@ const transformSignature = (signature?: TransactionSignature) => {
 const asJson = (transaction: TransactionResult) => JSON.stringify(transaction, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
 
 export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
-  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
-  invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const subType = () => {
@@ -99,15 +105,10 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   }
 
   return {
-    id: transaction.id,
+    ...asCommonTransaction(transaction),
     type: TransactionType.AssetTransfer,
     subType: subType(),
     asset: asAsset(asset),
-    confirmedRound: transaction['confirmed-round'],
-    roundTime: transaction['round-time'] * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
     receiver: transaction['asset-transfer-transaction'].receiver,
     amount: transaction['asset-transfer-transaction'].amount,
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
@@ -116,9 +117,7 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
           amount: transaction['asset-transfer-transaction']['close-amount'] ?? 0,
         }
       : undefined,
-    signature: transformSignature(transaction.signature),
     clawbackFrom: transaction['asset-transfer-transaction'].sender,
-    json: asJson(transaction),
   }
 }
 
@@ -126,17 +125,10 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
 // TODO: Remove this code, once we support all transaction types
 export const asPlaceholderTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   return {
-    id: transaction.id,
+    ...asCommonTransaction(transaction),
     type: TransactionType.Payment,
-    confirmedRound: transaction['confirmed-round']!,
-    roundTime: transaction['round-time']! * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
     receiver: ZERO_ADDRESS,
     amount: algokit.microAlgos(3141592),
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
     json: '{ "placeholder": true }',
   }
 }

@@ -3,7 +3,7 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 type Address = string
 
-type CommonTransactionProperties = {
+export type CommonTransactionProperties = {
   id: string
   type: TransactionType
   confirmedRound: number
@@ -12,7 +12,7 @@ type CommonTransactionProperties = {
   fee: AlgoAmount
   sender: Address
   note?: string
-  transactions?: TransactionModel[]
+  transactions?: TransactionModel[] // TODO: This should be moved to an application call transaction
   signature?: SinglesigModel | MultisigModel | LogicsigModel
   json: string
 }
