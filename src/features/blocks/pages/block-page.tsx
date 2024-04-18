@@ -5,12 +5,13 @@ import { useLoadableBlockModel } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Block } from '../components/block'
+import { is404 } from '@/utils/error'
 
 const validRoundRegex = /^\d+$/
 const isValidRound = (round: string) => round.match(validRoundRegex)
 
 const transformError = (e: Error) => {
-  if ('status' in e && e.status === 404) {
+  if (is404(e)) {
     return new Error(blockNotFoundMessage)
   }
 
