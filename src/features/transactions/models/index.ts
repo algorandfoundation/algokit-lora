@@ -81,7 +81,15 @@ export type LogicsigModel = {
   logic: string
 }
 
-export type StateDelta = {
+export type GlobalStateDelta = {
+  key: string
+  type: 'Bytes' | 'Uint'
+  action: 'Set' | 'Delete'
+  value: string
+}
+
+export type LocalStateDelta = {
+  address: Address
   key: string
   type: 'Bytes' | 'Uint'
   action: 'Set' | 'Delete'
@@ -95,9 +103,8 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   foreignApps: number[]
   foreignAssets: number[]
   applicationAccounts: Address[]
-  globalStateDeltas: StateDelta[]
-  // TODO: test this
-  localStateDeltas: StateDelta[]
+  globalStateDeltas: GlobalStateDelta[]
+  localStateDeltas: LocalStateDelta[]
   innerTransactions: TransactionModel[]
   subType?: undefined
   onCompletion: AppCallOnComplete

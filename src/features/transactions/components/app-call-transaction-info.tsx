@@ -1,11 +1,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { AppCallTransactionModel, StateDelta } from '../models'
+import { AppCallTransactionModel, GlobalStateDelta, LocalStateDelta } from '../models'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { transactionSenderLabel } from './transaction-view-table'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { ellipseAddress } from '@/utils/ellipse-address'
 
 type Props = {
   transaction: AppCallTransactionModel
@@ -162,7 +163,7 @@ function ForeignAssets({ transaction }: Props) {
   )
 }
 
-export const globalStateDeltaTableColumns: ColumnDef<StateDelta>[] = [
+export const globalStateDeltaTableColumns: ColumnDef<GlobalStateDelta>[] = [
   {
     accessorKey: 'key',
     header: 'Key',
@@ -185,6 +186,34 @@ function GlobalStateDeltas({ transaction }: Props) {
   return <DataTable columns={globalStateDeltaTableColumns} data={transaction.globalStateDeltas} />
 }
 
+export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
+  {
+    accessorKey: 'address',
+    header: 'Address',
+    accessorFn: (item) => item.address,
+    cell: (c) => {
+      const address = c.getValue<string>()
+      return ellipseAddress(address)
+    },
+  },
+  {
+    accessorKey: 'key',
+    header: 'Key',
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+  },
+  {
+    accessorKey: 'action',
+    header: 'Action',
+  },
+  {
+    accessorKey: 'value',
+    header: 'Value',
+  },
+]
+
 function LocalStateDeltas({ transaction }: Props) {
-  return <DataTable columns={globalStateDeltaTableColumns} data={transaction.localStateDeltas} />
+  return <DataTable columns={localStateDeltaTableColumns} data={transaction.localStateDeltas} />
 }
