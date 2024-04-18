@@ -97,7 +97,7 @@ export const fetchTransactionModelAtomBuilder = (
   })
 }
 
-const useTransactionAtom = (transactionId: TransactionId) => {
+const useTransactionModelAtom = (transactionId: TransactionId) => {
   const store = useStore()
 
   return useMemo(() => {
@@ -128,6 +128,6 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-export const useLoadableTransactionAtom = (transactionId: TransactionId) => {
-  return useAtomValue(loadable(useTransactionAtom(transactionId)))
+export const useLoadableTransactionModelAtom = (transactionId: TransactionId) => {
+  return useAtomValue(loadable(useTransactionModelAtom(transactionId)))
 }
