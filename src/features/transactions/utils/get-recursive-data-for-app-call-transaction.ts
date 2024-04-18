@@ -9,14 +9,16 @@ export const getRecursiveDataForAppCallTransaction = <TKey extends keyof Support
 ): NonNullable<SupportedType[TKey]> => {
   // Make sure that it is an application call transaction
   invariant(transaction['application-transaction'], 'application-transaction is not set')
-  const results: NonNullable<SupportedType[TKey]> = transaction['application-transaction'][key] ?? []
 
-  transaction['inner-txns']?.flatMap((innerTxn) => {
-    if (innerTxn['application-transaction']) {
-      // I don't know why we had to cast this to never[]
-      results.push(...(getRecursiveDataForAppCallTransaction(innerTxn, key) as never[]))
-    }
-  })
-
-  return results
+  const innerTransactions = transaction['inner-txns'] ?? []
+  return innerTransactions.reduce(
+    (acc, innerTxn) => {
+      if (innerTxn['application-transaction']) {
+        const innerResult = getRecursiveDataForAppCallTransaction<TKey>(innerTxn, key)
+        return acc.concat(innerResult) as NonNullable<SupportedType[TKey]>
+      }
+      return acc
+    },
+    transaction['application-transaction'][key] ?? ([] as NonNullable<SupportedType[TKey]>)
+  )
 }
