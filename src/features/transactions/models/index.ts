@@ -14,6 +14,7 @@ type CommonTransactionProperties = {
   note?: string
   transactions?: TransactionModel[]
   signature?: SinglesigModel | MultisigModel | LogicsigModel
+  json: string
 }
 
 export enum TransactionType {

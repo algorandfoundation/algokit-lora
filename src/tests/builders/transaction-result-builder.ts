@@ -7,7 +7,7 @@ import {
   randomDateBetween,
   randomNumberBetween,
 } from '@makerx/ts-dossier'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import algosdk from 'algosdk'
 
 export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
@@ -36,6 +36,17 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
     this.thing['tx-type'] = algosdk.TransactionType.pay
     this.thing['payment-transaction'] = {
       amount: randomNumberBetween(10_000, 23_6070_000),
+      receiver: randomString(52, 52),
+    }
+    return this
+  }
+
+  public transferTransaction(asset: AssetResult) {
+    this.thing['tx-type'] = algosdk.TransactionType.axfer
+    this.thing['asset-transfer-transaction'] = {
+      amount: randomNumberBetween(10_000, 23_6070_000),
+      'asset-id': asset.index,
+      'close-amount': 0,
       receiver: randomString(52, 52),
     }
     return this

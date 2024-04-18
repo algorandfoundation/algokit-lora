@@ -14,6 +14,7 @@ import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
+import algosdk from 'algosdk'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -29,8 +30,7 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
     receiver: transaction['payment-transaction']['receiver'],
-    // TODO: NC - Remove isNaN check once this fix is merged and released. https://github.com/algorandfoundation/algokit-subscriber-ts/pull/49
-    amount: algokit.microAlgos(!isNaN(transaction['payment-transaction']['amount']) ? transaction['payment-transaction']['amount'] : 0),
+    amount: algokit.microAlgos(transaction['payment-transaction']['amount']),
     closeRemainder: transaction['payment-transaction']['close-remainder-to']
       ? {
           to: transaction['payment-transaction']['close-remainder-to'],
@@ -39,7 +39,8 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
       : undefined,
     signature: transformSignature(transaction.signature),
     note: transaction.note,
-  } satisfies PaymentTransactionModel
+    json: asJson(transaction),
+  }
 }
 
 const transformSignature = (signature?: TransactionSignature) => {
@@ -66,6 +67,8 @@ const transformSignature = (signature?: TransactionSignature) => {
     } satisfies LogicsigModel
   }
 }
+
+const asJson = (transaction: TransactionResult) => JSON.stringify(transaction, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
 
 export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -115,5 +118,45 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
       : undefined,
     signature: transformSignature(transaction.signature),
     clawbackFrom: transaction['asset-transfer-transaction'].sender,
+    json: asJson(transaction),
+  }
+}
+
+// This creates a placeholder transaction for transactions that we don't support yet
+// TODO: Remove this code, once we support all transaction types
+export const asPlaceholderTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
+  return {
+    id: transaction.id,
+    type: TransactionType.Payment,
+    confirmedRound: transaction['confirmed-round']!,
+    roundTime: transaction['round-time']! * 1000,
+    group: transaction['group'],
+    fee: algokit.microAlgos(transaction.fee),
+    sender: transaction.sender,
+    receiver: ZERO_ADDRESS,
+    amount: algokit.microAlgos(3141592),
+    signature: transformSignature(transaction.signature),
+    note: transaction.note,
+    json: '{ "placeholder": true }',
+  }
+}
+
+export const asTransactionModel = async (
+  transaction: TransactionResult,
+  assetResolver: (assetId: number) => Promise<AssetResult> | AssetResult
+) => {
+  switch (transaction['tx-type']) {
+    case algosdk.TransactionType.pay:
+      return asPaymentTransaction(transaction)
+    case algosdk.TransactionType.axfer: {
+      invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+      const assetId = transaction['asset-transfer-transaction']['asset-id']
+      const asset = await assetResolver(assetId)
+      return asAssetTransferTransaction(transaction, asset)
+    }
+    default:
+      // TODO: Once we support all transaction types, we should throw an error instead
+      return asPlaceholderTransaction(transaction)
+    // throw new Error(`${transaction['tx-type']} is not supported`)
   }
 }

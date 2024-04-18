@@ -1,12 +1,11 @@
-import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ellipseId } from '@/utils/ellipse-id'
-import { TransactionModel } from '@/features/transactions/models'
+import { TransactionModel, TransactionType } from '@/features/transactions/models'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 type Props = {
   transactions: TransactionModel[]
@@ -35,9 +34,18 @@ export const columns: ColumnDef<TransactionModel>[] = [
     header: 'Type',
   },
   {
-    accessorKey: 'amount',
     header: 'Amount',
-    cell: (c) => <DisplayAlgo className={cn('justify-center')} amount={c.getValue<AlgoAmount>()} />,
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const value = c.getValue<TransactionModel>()
+      if (value.type === TransactionType.Payment) {
+        return <DisplayAlgo amount={value.amount} />
+      }
+      if (value.type === TransactionType.AssetTransfer) {
+        return <DisplayAssetAmount amount={value.amount} asset={value.asset} />
+      }
+      return <></>
+    },
   },
 ]
 

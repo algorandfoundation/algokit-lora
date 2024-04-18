@@ -1,7 +1,7 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { useLoadableBlock } from '../data'
+import { useLoadableBlockModel } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Block } from '../components/block'
@@ -28,7 +28,7 @@ export function BlockPage() {
   const { round } = useRequiredParam(UrlParams.Round)
   invariant(isValidRound(round), blockInvalidRoundMessage)
   const roundNumber = parseInt(round, 10)
-  const loadableTransaction = useLoadableBlock(roundNumber)
+  const loadableTransaction = useLoadableBlockModel(roundNumber)
 
   return (
     <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
