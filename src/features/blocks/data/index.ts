@@ -156,7 +156,7 @@ const fetchBlockModelAtomBuilder = (store: JotaiStore, round: Round) => {
   })
 }
 
-const useBlockAtom = (round: Round) => {
+const useBlockModelAtom = (round: Round) => {
   const store = useStore()
 
   return useMemo(() => {
@@ -184,6 +184,6 @@ export const useLatestBlocks = () => {
   }, [store, syncedRound])
 }
 
-export const useLoadableBlock = (round: Round) => {
-  return useAtomValue(loadable(useBlockAtom(round)))
+export const useLoadableBlockModel = (round: Round) => {
+  return useAtomValue(loadable(useBlockModelAtom(round)))
 }
