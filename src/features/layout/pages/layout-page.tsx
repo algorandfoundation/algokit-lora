@@ -14,9 +14,9 @@ export function LayoutPage({ children }: LayoutPageProps) {
   return (
     <div className="m-auto max-w-[1400px]">
       <Header className={cn('mb-1')} />
-      <div className={cn('flex h-full flex-row')}>
+      <div className={cn('grid grid-flow-col')}>
         <LeftSideBarMenu />
-        <div className={cn('pl-4 pt-4 w-screen')}>{children}</div>
+        <div className={cn('pl-4 pt-4')}>{children}</div>
       </div>
     </div>
   )
