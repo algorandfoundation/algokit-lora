@@ -16,7 +16,7 @@ describe('search', () => {
       async (component) => {
         await waitFor(() => {
           expect(component.getByPlaceholderText('Search')).not.toBeNull()
-          expect(component.getByRole('button', { name: 'search' })).not.toBeNull()
+          expect(component.getByRole('button', { name: 'Search' })).not.toBeNull()
         })
       }
     )
@@ -31,7 +31,7 @@ describe('search', () => {
       async (component, user) => {
         await waitFor(async () => {
           const input = component.getByPlaceholderText('Search')
-          const button = component.getByRole('button', { name: 'search' })
+          const button = component.getByRole('button', { name: 'Search' })
 
           await user.type(input, '123456')
           await user.click(button)
@@ -51,7 +51,7 @@ describe('search', () => {
       () => render(<Search />),
       async (component, user) => {
         await waitFor(async () => {
-          const button = component.getByRole('button', { name: 'search' })
+          const button = component.getByRole('button', { name: 'Search' })
 
           await user.click(button)
 
