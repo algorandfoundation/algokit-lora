@@ -74,13 +74,15 @@ function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {ellipseId(id)}
+      {!hasParent ? ellipseId(id) : id}
     </div>
   )
 }
 
 function AccountId({ id }: { id: string }) {
-  return <h1 className={cn('text-l font-semibold')}>{ellipseAddress(id)}</h1>
+  // When the length is 58, it's an address, so we need to ellipse it
+  // Otherwise, display it
+  return <h1 className={cn('text-l font-semibold')}>{id.length === 58 ? ellipseAddress(id) : id}</h1>
 }
 
 function ConnectionToSibling() {
