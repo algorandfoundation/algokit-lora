@@ -2,10 +2,12 @@ import { cn } from '@/features/common/utils'
 import { TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { FlattenedTransaction, flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useMemo } from 'react'
 import { ellipseId } from '@/utils/ellipse-id'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
+import { ColumnDef } from '@tanstack/react-table'
+import { DataTable } from '@/features/common/components/data-table'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -19,48 +21,60 @@ export const transactionSenderLabel = 'Sender'
 export const transactionReceiverLabel = 'Receiver'
 export const transactionAmountLabel = 'Amount'
 
+export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
+  {
+    header: 'Transaction Id',
+    accessorFn: (transaction) => transaction,
+
+    cell: (c) => {
+      const { nestingLevel, transaction } = c.getValue<FlattenedTransaction>()
+      return (
+        <div
+          style={{
+            marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
+          }}
+        >
+          {ellipseId(transaction.id)}
+        </div>
+      )
+    },
+  },
+  {
+    header: 'From',
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const { transaction } = c.getValue<FlattenedTransaction>()
+      ellipseAddress(transaction.sender)
+    },
+  },
+  {
+    header: 'To',
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const { transaction } = c.getValue<FlattenedTransaction>()
+      if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
+        return ellipseAddress(transaction.receiver)
+      if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
+    },
+  },
+  {
+    accessorKey: 'type',
+    header: 'Type',
+  },
+  {
+    header: 'To',
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const { transaction } = c.getValue<FlattenedTransaction>()
+      if (transaction.type === TransactionType.Payment) return <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />
+      if (transaction.type === TransactionType.AssetTransfer)
+        return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
+    },
+  },
+]
+
 export function TransactionViewTable({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
 
-  return (
-    <table className={cn('w-full')}>
-      <thead>
-        <tr>
-          <th className={cn('border-2')}>Transaction ID</th>
-          <th className={cn('p-2 border-2')}>{transactionSenderLabel}</th>
-          <th className={cn('p-2 border-2')}>{transactionReceiverLabel}</th>
-          <th className={cn('p-2 border-2')}>Type</th>
-          <th className={cn('p-2 border-2')}>{transactionAmountLabel}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {flattenedTransactions.map(({ transaction, nestingLevel }) => (
-          <tr key={transaction.id}>
-            <td className={cn('p-2 border-2')}>
-              <div
-                style={{
-                  marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
-                }}
-              >
-                {ellipseId(transaction.id)}
-              </div>
-            </td>
-            <td className={cn('p-2 border-2 text-center')}>{ellipseAddress(transaction.sender)}</td>
-            <td className={cn('p-2 border-2 text-center')}>
-              {(transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) &&
-                ellipseAddress(transaction.receiver)}
-              {transaction.type === TransactionType.ApplicationCall && transaction.applicationId}
-            </td>
-            <td className={cn('p-2 border-2 text-center')}>{transaction.type}</td>
-            <td className={cn('p-2 border-2 text-center')}>
-              {transaction.type === TransactionType.Payment && <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />}
-              {transaction.type === TransactionType.AssetTransfer && (
-                <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
-              )}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )
+  return <DataTable columns={tableColumns} data={flattenedTransactions} />
 }

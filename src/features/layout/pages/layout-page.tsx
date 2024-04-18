@@ -12,11 +12,11 @@ export function LayoutPage({ children }: LayoutPageProps) {
   useSubscribeToBlocksEffect()
 
   return (
-    <div className="inline-block max-w-[1400px]">
+    <div className="max-w-[1400px]">
       <Header className={cn('mb-1')} />
       <div className={cn('flex h-full flex-row')}>
         <LeftSideBarMenu />
-        <div className={cn('pl-4 pt-4 w-screen')}>{children}</div>
+        <div className={cn('pl-4 pt-4')}>{children}</div>
       </div>
     </div>
   )

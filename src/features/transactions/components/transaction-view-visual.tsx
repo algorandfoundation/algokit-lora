@@ -428,7 +428,7 @@ export function TransactionViewVisual({ transaction }: Props) {
 
   return (
     <div
-      className={cn('relative grid')}
+      className={cn('relative grid overflow-auto')}
       style={{
         gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,

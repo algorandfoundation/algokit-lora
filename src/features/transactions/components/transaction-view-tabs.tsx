@@ -32,10 +32,14 @@ export function TransactionViewTabs({ transaction }: Props) {
         </TabsTrigger>
       </TabsList>
       <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 p-4')}>
-        <TransactionViewVisual transaction={transaction} />
+        <div className="grid overflow-auto">
+          <TransactionViewVisual transaction={transaction} />
+        </div>
       </TabsContent>
       <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 p-4')}>
-        <TransactionViewTable transaction={transaction} />
+        <div className="grid overflow-auto">
+          <TransactionViewTable transaction={transaction} />
+        </div>
       </TabsContent>
     </Tabs>
   )
