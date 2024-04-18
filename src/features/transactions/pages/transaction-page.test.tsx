@@ -446,7 +446,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, [asset])
+      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
@@ -509,7 +509,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, [asset])
+      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
@@ -534,7 +534,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, [asset])
+      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
@@ -568,7 +568,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, [])
+      // myStore.set(assetsAtom, [])
 
       return executeComponentTest(
         () => {

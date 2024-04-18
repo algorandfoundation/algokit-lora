@@ -13,6 +13,7 @@ type CommonTransactionProperties = {
   sender: Address
   note?: string
   signature?: SinglesigModel | MultisigModel | LogicsigModel
+  json: string
 }
 
 export enum TransactionType {

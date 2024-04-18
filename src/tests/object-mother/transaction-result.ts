@@ -1,10 +1,13 @@
-import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationOnComplete, AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
 import { TransactionType } from 'algosdk'
 
 export const transactionResultMother = {
   payment: () => {
     return transactionResultBuilder().paymentTransaction()
+  },
+  transfer: (asset: AssetResult) => {
+    return transactionResultBuilder().transferTransaction(asset)
   },
   multisig: () => {
     return transactionResultBuilder()
