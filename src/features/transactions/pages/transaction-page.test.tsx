@@ -15,7 +15,7 @@ import { transactionsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig'
-import { algod } from '@/features/common/data'
+import { algod, indexer } from '@/features/common/data'
 import {
   tableTransactionDetailsTabLabel,
   transactionDetailsLabel,
@@ -427,7 +427,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a asset transfer transaction', () => {
+  describe('when rendering an asset transfer transaction', () => {
     const transaction = transactionResultMother['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']().build()
     const asset = assetResultMother['mainnet-140479105']().build()
 
@@ -490,7 +490,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a asset opt-in transaction', () => {
+  describe('when rendering an asset opt-in transaction', () => {
     const transaction = transactionResultMother['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']().build()
     const asset = assetResultMother['mainnet-312769']().build()
 
@@ -515,7 +515,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a asset clawback transaction', () => {
+  describe('when rendering an asset clawback transaction', () => {
     const transaction = transactionResultMother['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']().build()
     const asset = assetResultMother['testnet-642327435']().build()
 
@@ -545,6 +545,66 @@ describe('transaction-page', () => {
           expect(getByDescriptionTerm(component.container, transactionClawbackAddressLabel).textContent).toBe(
             'AT3QNHSO7VZ2CPEZGI4BG7M3TIUG7YE5KZXNAE55Z4QHHAGBEU6K2LCJUA'
           )
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset transfer transaction for a deleted asset', () => {
+    const transaction = transactionResultMother['mainnet-UFYPQDLWCVK3L5XVVHE7WBQWTW4YMHHKZSDIWXXV2AGCS646HTQA']().build()
+    // const asset = assetResultMother['mainnet-140479105']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(indexer.lookupAssetByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
+          expect(transactionTypeDescription).toContain('Asset Transfer')
+          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Wed, 17 April 2024 05:39:26')
+          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('38008738')
+          expect(getByDescriptionTerm(component.container, transactionGroupLabel).textContent).toBe(
+            'XeNQmhxvtoWpue/7SAk6RNfuu/8Fp8tw8Nfn+HnIz00='
+          )
+
+          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
+
+          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
+            'QUESTA6XV2JZ2XAV3EK3GKBHYCJO57JWUX6L6ENHGNLR6UE3OPCUCT2WLI'
+          )
+          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
+            'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54'
+          )
+          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('1753701469 (DELETED)')
+          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('1 DELETED')
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          expect(viewTransactionTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+
+          // Test the table data
+          const dataRow = getAllByRole(tableViewTab, 'row')[1]
+          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('UFYPQDL...')
+          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('QUES...2WLI')
+          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('JQ76...RS54')
+          expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
+          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('1 DELETED')
         }
       )
     })

@@ -5,11 +5,12 @@ import { Transaction } from '../components/transaction'
 import { useLoadableTransactionModelAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
+import { is404 } from '@/utils/error'
 
 const isValidTransactionId = (transactionId: string) => transactionId.length === 52
 
 const transformError = (e: Error) => {
-  if ('status' in e && e.status === 404) {
+  if (is404(e)) {
     return new Error(transactionNotFoundMessage)
   }
 
