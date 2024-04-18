@@ -563,12 +563,13 @@ describe('transaction-page', () => {
 
   describe('when rendering a app call transaction', () => {
     const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
+    const asset = assetResultMother['mainnet-971381860']().build()
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      // myStore.set(assetsAtom, [])
+      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
