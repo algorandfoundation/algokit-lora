@@ -31,10 +31,10 @@ export function TransactionViewTabs({ transaction }: Props) {
           {tableTransactionDetailsTabLabel}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
+      <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 p-4')}>
         <TransactionViewVisual transaction={transaction} />
       </TabsContent>
-      <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
+      <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 p-4')}>
         <TransactionViewTable transaction={transaction} />
       </TabsContent>
     </Tabs>
