@@ -27,6 +27,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import algosdk from 'algosdk'
 import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
 import isUtf8 from 'isutf8'
+import { Buffer } from 'buffer'
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
@@ -165,6 +166,12 @@ export const asTransactionModel = async (
       const assetId = transaction['asset-transfer-transaction']['asset-id']
       const asset = await assetResolver(assetId)
       return asAssetTransferTransaction(transaction, asset)
+    }
+    case algosdk.TransactionType.appl: {
+      invariant(transaction['application-transaction'], 'application-transaction is not set')
+      const assetIds = getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
+      const assets = await Promise.all(assetIds.map((assetId) => assetResolver(assetId)))
+      return asAppCallTransaction(transaction, assets)
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
