@@ -1,4 +1,4 @@
-import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
 import { TransactionType } from 'algosdk'
 
@@ -66,7 +66,7 @@ export const transactionResultMother = {
         sig: '4cwwpWiOnldnkW+M8Epwg2iaJvxdIvnUa9jM+uZxRcBTESRCD/BcsvbPVYrqEf6YwGCtsupNbNo6SwdUQRa2CQ==',
       },
       'tx-type': TransactionType.pay,
-    } satisfies TransactionResult)
+    })
   },
   ['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']: () => {
     // Payment transaction:
@@ -101,7 +101,7 @@ export const transactionResultMother = {
         },
       },
       'tx-type': TransactionType.pay,
-    } satisfies TransactionResult)
+    })
   },
   ['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']: () => {
     // Asset transfer transaction
@@ -132,7 +132,7 @@ export const transactionResultMother = {
         sig: 'hk4FtHwulzfGDFq13MFsJfVS4UVdQAGhqFvsp9CjF9F6dD3V/P0XtW4V3cv2l8u0M1TDQoUsNbueW+SaQbD7DA==',
       },
       'tx-type': TransactionType.axfer,
-    } satisfies TransactionResult)
+    })
   },
   ['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']: () => {
     // Asset transfer transaction with close remainder. It is an asset opt-out transaction.
@@ -161,7 +161,7 @@ export const transactionResultMother = {
         sig: 'fK9vks0Sk2Sfa0PN+9wHSYYh2OKCFxSGBN2B4agVmVNoui17XcwXj4DbLJZWoknbVH/0gaKweKEYMIz4Oe8tDw==',
       },
       'tx-type': TransactionType.axfer,
-    } satisfies TransactionResult)
+    })
   },
   ['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']: () => {
     // Asset opt-in
@@ -189,9 +189,38 @@ export const transactionResultMother = {
       'sender-rewards': 0,
       signature: { sig: 'eXs6In2s6DdoRIBHLesRRS9BX+UWykWX4YGPuTdOLJTn33NXM5paD7kZiB+4FQ27a+F7W2QEWJYU8QEzDHTVAQ==' },
       'tx-type': TransactionType.axfer,
-    } satisfies TransactionResult)
+    })
   },
-
+  ['mainnet-UFYPQDLWCVK3L5XVVHE7WBQWTW4YMHHKZSDIWXXV2AGCS646HTQA']: () => {
+    return new TransactionResultBuilder({
+      'asset-transfer-transaction': {
+        amount: 1,
+        'asset-id': 1753701469,
+        'close-amount': 0,
+        receiver: 'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54',
+      },
+      'auth-addr': '7R7I3FN4ACXN2CEU5WPDZJZR475OYQP43QESNXA3NDC4SUQZZSI5OGCVME',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 38008738,
+      fee: 1000,
+      'first-valid': 38008732,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: 'XeNQmhxvtoWpue/7SAk6RNfuu/8Fp8tw8Nfn+HnIz00=',
+      id: 'UFYPQDLWCVK3L5XVVHE7WBQWTW4YMHHKZSDIWXXV2AGCS646HTQA',
+      'intra-round-offset': 16,
+      'last-valid': 38009732,
+      'receiver-rewards': 0,
+      'round-time': 1713332366,
+      sender: 'QUESTA6XV2JZ2XAV3EK3GKBHYCJO57JWUX6L6ENHGNLR6UE3OPCUCT2WLI',
+      'sender-rewards': 0,
+      signature: {
+        sig: '2+WUUuw7ZHKjBFx3/ct+rdGQK/sv0u5ZSCN3+cnEE2KtvSbAMN3HYJaId9+tCWTlThGwHU0po4aCn1zFSh8hBg==',
+      },
+      'tx-type': TransactionType.axfer,
+    })
+  },
   ['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']: () => {
     // Asset clawback
     return new TransactionResultBuilder({
@@ -219,6 +248,6 @@ export const transactionResultMother = {
       'sender-rewards': 0,
       signature: { sig: 'LYTng1fmA+JQ8AocqDfp/OBvrds/WXa936muT3b4Ym98qIzouEnbMf7cOj099GV+ABecBzmw6+JrzOH/WU7TDQ==' },
       'tx-type': TransactionType.axfer,
-    } satisfies TransactionResult)
+    })
   },
 }
