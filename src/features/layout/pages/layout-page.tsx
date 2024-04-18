@@ -12,7 +12,7 @@ export function LayoutPage({ children }: LayoutPageProps) {
   useSubscribeToBlocksEffect()
 
   return (
-    <div className="sm:w-full xl:min-w-[1280px] xl:max-w-screen-xl">
+    <div className="w-full xl:max-w-screen-xl">
       <Header className={cn('mb-1')} />
       <div className={cn('grid grid-flow-col')}>
         <LeftSideBarMenu />
