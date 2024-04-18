@@ -425,12 +425,13 @@ export function TransactionViewVisual({ transaction }: Props) {
   )
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
   const gridAccountColumns = accounts.length
+  const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
 
   return (
     <div
       className={cn('relative grid overflow-auto')}
       style={{
-        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
@@ -451,7 +452,7 @@ export function TransactionViewVisual({ transaction }: Props) {
             <div
               className={cn('grid h-full')}
               style={{
-                gridTemplateColumns: `minmax(${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
+                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
                 height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
