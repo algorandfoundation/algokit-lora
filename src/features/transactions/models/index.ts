@@ -109,6 +109,7 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   subType?: undefined
   onCompletion: AppCallOnComplete
   action: 'Create' | 'Call'
+  logs: string[]
 }
 
 export enum AppCallOnComplete {

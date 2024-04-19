@@ -223,6 +223,7 @@ export const asAppCallTransaction = (transaction: TransactionResult, assetResult
     onCompletion: asAppCallOnComplete(transaction['application-transaction']['on-completion']),
     action: transaction['application-transaction']['application-id'] ? 'Call' : 'Create',
     json: asJson(transaction),
+    logs: transaction['logs'] ?? [],
   }
 }
 
