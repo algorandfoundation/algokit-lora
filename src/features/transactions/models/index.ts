@@ -110,7 +110,6 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   onCompletion: AppCallOnComplete
   action: 'Create' | 'Call'
   logs: string[]
-  // flattenInnerTransactions: InnerTransactionModel[]
 }
 
 export enum AppCallOnComplete {
@@ -123,6 +122,9 @@ export enum AppCallOnComplete {
 }
 
 export type InnerTransactionId = {
+  // id: INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2-1
+  // innerId: 2-1 when display, shows "Inner 2-1"
+  // delete the rest
   index: string
   longDisplayId: string
   shortDisplayId: string
@@ -130,5 +132,5 @@ export type InnerTransactionId = {
 
 export type InnerPaymentTransactionModel = Omit<PaymentTransactionModel, 'id'> & InnerTransactionId
 export type InnerAssetTransferTransactionModel = Omit<AssetTransferTransactionModel, 'id'> & InnerTransactionId
-export type InnerAppCallTransactionModel = Omit<AppCallTransactionModel, 'id' | 'flattenInnerTransactions'> & InnerTransactionId
+export type InnerAppCallTransactionModel = Omit<AppCallTransactionModel, 'id'> & InnerTransactionId
 export type InnerTransactionModel = InnerPaymentTransactionModel | InnerAssetTransferTransactionModel | InnerAppCallTransactionModel

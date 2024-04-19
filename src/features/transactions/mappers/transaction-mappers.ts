@@ -14,7 +14,6 @@ import {
   InnerAssetTransferTransactionModel,
   InnerPaymentTransactionModel,
   InnerTransactionId,
-  InnerTransactionModel,
   LogicsigModel,
   MultisigModel,
   PaymentTransactionModel,
