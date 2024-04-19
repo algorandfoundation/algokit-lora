@@ -324,6 +324,6 @@ const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnCompl
 const asInnerTransactionId = (networkTransactionId: string, index: string): InnerTransactionId => {
   return {
     id: `${networkTransactionId}-${index}`,
-    innerId: index, // TODO: fix this
+    innerId: index,
   }
 }

@@ -133,8 +133,6 @@ export enum AppCallOnComplete {
 }
 
 export type InnerTransactionId = {
-  // id: INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2-1
-  // innerId: 2-1 when display, shows "Inner 2-1"
   id: string
   innerId: string
 }

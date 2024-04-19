@@ -118,7 +118,7 @@ export const fetchInnerTransactionModelAtomBuilder = (
     if (transactionModel.type !== TransactionTypeModel.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
-    // TODO: unit test this
+    // TODO: PD unit test this
     const indexes = index.split('-').map((s) => parseInt(s))
     let current: TransactionModel | InnerTransactionModel = transactionModel
     for (const i of indexes) {
