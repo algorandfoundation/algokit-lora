@@ -1,12 +1,12 @@
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { AssetTransferTransactionModel, AssetTransferTransactionSubType } from '../models'
+import { AssetTransferTransactionModel, AssetTransferTransactionSubType, InnerAssetTransferTransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 type Props = {
-  transaction: AssetTransferTransactionModel
+  transaction: AssetTransferTransactionModel | InnerAssetTransferTransactionModel
 }
 
 export const assetLabel = 'Asset'

@@ -27,11 +27,8 @@ export function InnerTransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
   invariant(isValidTransactionId(transactionId), transactionInvalidIdMessage)
 
-  // TODO: can we get innerId to be type number?
   const { innerTransactionId } = useRequiredParam(UrlParams.InnerTransactionId)
-  invariant(!isNaN(parseInt(innerTransactionId)), 'Inner transaction Id is invalid')
-
-  const loadableTransaction = useLoadableInnerTransactionModelAtom(transactionId, parseInt(innerTransactionId))
+  const loadableTransaction = useLoadableInnerTransactionModelAtom(transactionId, innerTransactionId)
 
   return (
     <RenderLoadable loadable={loadableTransaction} transformError={transformError}>

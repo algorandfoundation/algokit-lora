@@ -2,10 +2,10 @@ import { cn } from '@/features/common/utils'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
 import { TransactionViewTable } from './transaction-view-table'
 import { TransactionViewVisual } from './transaction-view-visual'
-import { TransactionModel } from '../models'
+import { InnerTransactionModel, TransactionModel } from '../models'
 
 type Props = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
 }
 
 const visualTransactionDetailsTabId = 'visual'

@@ -1,10 +1,10 @@
 import { PaymentTransaction } from './payment-transaction'
 import { AssetTranserTransaction } from './asset-transfer-transaction'
-import { TransactionModel, TransactionType } from '../models'
+import { InnerTransactionModel, TransactionModel, TransactionType } from '../models'
 import { AppCallTransaction } from './app-call-transaction'
 
 type Props = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
 }
 
 export function Transaction({ transaction }: Props) {

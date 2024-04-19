@@ -13,7 +13,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { asTransactionModel } from '../mappers/transaction-mappers'
 import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '@/features/assets/data'
 import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
-import { TransactionType as TransactionTypeModel } from '../models'
+import { AppCallTransactionModel, InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionsAtom = atom<Map<TransactionId, TransactionResult>>(new Map())
@@ -111,7 +111,7 @@ export const fetchTransactionModelAtomBuilder = (
 export const fetchInnerTransactionModelAtomBuilder = (
   store: JotaiStore,
   transaction: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
-  innerId: number
+  index: string
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transaction ? transaction : await get(transaction)
@@ -119,7 +119,19 @@ export const fetchInnerTransactionModelAtomBuilder = (
     if (transactionModel.type !== TransactionTypeModel.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
-    return transactionModel.innerTransactions[innerId]
+    // TODO: unit test this
+    const indexes = index
+      .split('-')
+      .slice(1)
+      .map((s) => parseInt(s))
+    let current: TransactionModel | InnerTransactionModel = transactionModel
+    for (const i of indexes) {
+      if (current.type === TransactionTypeModel.ApplicationCall) {
+        current = current.innerTransactions[i - 1]
+      }
+    }
+
+    return current
   })
 }
 
@@ -131,12 +143,12 @@ const useTransactionModelAtom = (transactionId: TransactionId) => {
   }, [store, transactionId])
 }
 
-const useInnerTransactionModelAtom = (transactionId: TransactionId, innerId: number) => {
+const useInnerTransactionModelAtom = (transactionId: TransactionId, index: string) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchInnerTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId), innerId)
-  }, [store, transactionId, innerId])
+    return fetchInnerTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId), index)
+  }, [store, transactionId, index])
 }
 
 export const useLogicsigTeal = (logic: string) => {
@@ -166,6 +178,6 @@ export const useLoadableTransactionModelAtom = (transactionId: TransactionId) =>
   return useAtomValue(loadable(useTransactionModelAtom(transactionId)))
 }
 
-export const useLoadableInnerTransactionModelAtom = (transactionId: TransactionId, innerId: number) => {
-  return useAtomValue(loadable(useInnerTransactionModelAtom(transactionId, innerId)))
+export const useLoadableInnerTransactionModelAtom = (transactionId: TransactionId, index: string) => {
+  return useAtomValue(loadable(useInnerTransactionModelAtom(transactionId, index)))
 }

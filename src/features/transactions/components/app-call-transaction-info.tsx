@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { AppCallTransactionModel, GlobalStateDelta, LocalStateDelta } from '../models'
+import { AppCallTransactionModel, GlobalStateDelta, InnerAppCallTransactionModel, LocalStateDelta } from '../models'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
@@ -9,7 +9,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 
 type Props = {
-  transaction: AppCallTransactionModel
+  transaction: AppCallTransactionModel | InnerAppCallTransactionModel
 }
 
 const applicationArgsTabId = 'application-args'

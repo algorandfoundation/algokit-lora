@@ -1,5 +1,5 @@
 import { cn } from '@/features/common/utils'
-import { TransactionModel, TransactionType } from '../models'
+import { InnerTransactionModel, TransactionModel, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { FlattenedTransaction, flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -14,7 +14,7 @@ const graphConfig = {
 }
 
 type Props = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
 }
 
 export const transactionSenderLabel = 'Sender'
@@ -34,7 +34,7 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
             marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
           }}
         >
-          {nestingLevel === 0 ? ellipseId(transaction.id) : transaction.id}
+          {'id' in transaction ? ellipseId(transaction.id) : transaction.shortDisplayId}
         </div>
       )
     },

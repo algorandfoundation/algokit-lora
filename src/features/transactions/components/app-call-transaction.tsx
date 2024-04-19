@@ -5,13 +5,13 @@ import { Logicsig } from './logicsig'
 import { Multisig } from './multisig'
 import { TransactionJson } from './transaction-json'
 import { TransactionNote } from './transaction-note'
-import { AppCallTransactionModel, SignatureType } from '../models'
+import { AppCallTransactionModel, InnerAppCallTransactionModel, SignatureType } from '../models'
 import { TransactionViewTabs } from './transaction-view-tabs'
 import { AppCallTransactionInfo } from './app-call-transaction-info'
 import { AppCallTransactionLogs } from './all-calltransaction-log'
 
 type Props = {
-  transaction: AppCallTransactionModel
+  transaction: AppCallTransactionModel | InnerAppCallTransactionModel
 }
 
 export function AppCallTransaction({ transaction }: Props) {

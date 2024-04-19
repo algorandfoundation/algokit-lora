@@ -105,11 +105,12 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   applicationAccounts: Address[]
   globalStateDeltas: GlobalStateDelta[]
   localStateDeltas: LocalStateDelta[]
-  innerTransactions: TransactionModel[]
+  innerTransactions: InnerTransactionModel[]
   subType?: undefined
   onCompletion: AppCallOnComplete
   action: 'Create' | 'Call'
   logs: string[]
+  // flattenInnerTransactions: InnerTransactionModel[]
 }
 
 export enum AppCallOnComplete {
@@ -120,3 +121,14 @@ export enum AppCallOnComplete {
   Update = 'Update',
   Delete = 'Delete',
 }
+
+export type InnerTransactionId = {
+  index: string
+  longDisplayId: string
+  shortDisplayId: string
+}
+
+export type InnerPaymentTransactionModel = Omit<PaymentTransactionModel, 'id'> & InnerTransactionId
+export type InnerAssetTransferTransactionModel = Omit<AssetTransferTransactionModel, 'id'> & InnerTransactionId
+export type InnerAppCallTransactionModel = Omit<AppCallTransactionModel, 'id' | 'flattenInnerTransactions'> & InnerTransactionId
+export type InnerTransactionModel = InnerPaymentTransactionModel | InnerAssetTransferTransactionModel | InnerAppCallTransactionModel

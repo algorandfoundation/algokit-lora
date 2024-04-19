@@ -9,6 +9,10 @@ import { useMemo } from 'react'
 import {
   AppCallTransactionModel,
   AssetTransferTransactionModel,
+  InnerAppCallTransactionModel,
+  InnerAssetTransferTransactionModel,
+  InnerPaymentTransactionModel,
+  InnerTransactionModel,
   PaymentTransactionModel,
   TransactionModel,
   TransactionType,
@@ -21,6 +25,8 @@ import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { ellipseId } from '@/utils/ellipse-id'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
+import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
+import { Urls } from '@/routes/urls'
 
 const graphConfig = {
   rowHeight: 40,
@@ -66,7 +72,16 @@ function ConnectionToParent() {
   )
 }
 
-function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
+function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: TransactionModel | InnerTransactionModel }) {
+  const component = useMemo(() => {
+    if ('id' in transaction) return ellipseId(transaction.id)
+    return (
+      <TemplatedNavLink urlTemplate={Urls.Explore.Transaction.ById.Inner.ById} urlParams={{ innerTransactionId: transaction.index }}>
+        {transaction.shortDisplayId}
+      </TemplatedNavLink>
+    )
+  }, [transaction])
+
   return (
     <div
       className={cn('inline')}
@@ -74,7 +89,7 @@ function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {!hasParent ? ellipseId(id) : id}
+      {component}
     </div>
   )
 }
@@ -117,7 +132,10 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
 }
 
 const DisplayArrow = fixedForwardRef(
-  ({ transaction, arrow, ...rest }: { transaction: TransactionModel; arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
+  (
+    { transaction, arrow, ...rest }: { transaction: TransactionModel | InnerTransactionModel; arrow: Arrow },
+    ref?: React.LegacyRef<HTMLDivElement>
+  ) => {
     const color = graphConfig.paymentTransactionColor
 
     return (
@@ -168,7 +186,10 @@ const DisplayArrow = fixedForwardRef(
 )
 
 const DisplaySelfTransaction = fixedForwardRef(
-  ({ transaction, arrow, ...rest }: { transaction: TransactionModel; arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
+  (
+    { transaction, arrow, ...rest }: { transaction: TransactionModel | InnerTransactionModel; arrow: Arrow },
+    ref?: React.LegacyRef<HTMLDivElement>
+  ) => {
     const color = graphConfig.paymentTransactionColor
 
     return (
@@ -214,12 +235,12 @@ const DisplaySelfTransaction = fixedForwardRef(
   }
 )
 
-function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransactionModel }) {
+function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransactionModel | InnerPaymentTransactionModel }) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
       },
       {
         dt: transactionTypeLabel,
@@ -238,7 +259,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.id, transaction.receiver, transaction.sender]
+    [transaction]
   )
 
   return (
@@ -248,12 +269,16 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
   )
 }
 
-function AssetTransferTransactionToolTipContent({ transaction }: { transaction: AssetTransferTransactionModel }) {
+function AssetTransferTransactionToolTipContent({
+  transaction,
+}: {
+  transaction: AssetTransferTransactionModel | InnerAssetTransferTransactionModel
+}) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
       },
       {
         dt: transactionTypeLabel,
@@ -272,7 +297,7 @@ function AssetTransferTransactionToolTipContent({ transaction }: { transaction: 
         dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.sender]
+    [transaction]
   )
 
   return (
@@ -282,12 +307,12 @@ function AssetTransferTransactionToolTipContent({ transaction }: { transaction: 
   )
 }
 
-function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransactionModel }) {
+function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransactionModel | InnerAppCallTransactionModel }) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
       },
       {
         dt: transactionTypeLabel,
@@ -302,7 +327,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
         dd: transaction.applicationId,
       },
     ],
-    [transaction.applicationId, transaction.id, transaction.sender]
+    [transaction]
   )
 
   return (
@@ -313,7 +338,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
 }
 
 type TransactionRowProps = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
   hasParent?: boolean
   hasNextSibling?: boolean
   hasChildren?: boolean
@@ -341,7 +366,7 @@ function TransactionRow({
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionId hasParent={hasParent} id={transaction.id} />
+          <TransactionId hasParent={hasParent} transaction={transaction} />
           {hasParent && hasNextSibling && <ConnectionToSibling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
@@ -384,7 +409,7 @@ function TransactionRow({
   )
 }
 
-function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
+function calcArrow(transaction: TransactionModel | InnerTransactionModel, accounts: string[]): Arrow {
   const calculateToAccount = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
       return accounts.findIndex((a) => transaction.receiver === a)
@@ -410,7 +435,7 @@ function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
 }
 
 type Props = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
 }
 
 export function TransactionViewVisual({ transaction }: Props) {
@@ -475,7 +500,7 @@ export function TransactionViewVisual({ transaction }: Props) {
   )
 }
 
-const getTransactionAccounts = (transaction: TransactionModel) => {
+const getTransactionAccounts = (transaction: TransactionModel | InnerTransactionModel) => {
   const accounts = [transaction.sender]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
     accounts.push(transaction.receiver)
