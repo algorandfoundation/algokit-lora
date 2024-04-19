@@ -34,7 +34,7 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
             marginLeft: `${graphConfig.indentationWidth * nestingLevel}px`,
           }}
         >
-          {ellipseId(transaction.id)}
+          {nestingLevel === 0 ? ellipseId(transaction.id) : transaction.id}
         </div>
       )
     },
