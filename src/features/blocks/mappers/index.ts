@@ -1,12 +1,10 @@
-import { TransactionModel, TransactionType } from '@/features/transactions/models'
-import { BlockModel } from '../models'
+import { TransactionModel, TransactionSummary, TransactionType } from '@/features/transactions/models'
+import { BlockDetails, BlockSummary, CommonBlockProperties } from '../models'
 import { BlockResult } from '../data/types'
 
-export const asBlock = (block: BlockResult, transactions: TransactionModel[], nextRoundAvailable: boolean): BlockModel => {
+const asCommonBlock = (block: BlockResult, transactions: Pick<TransactionModel, 'type'>[]): CommonBlockProperties => {
   return {
     round: block.round,
-    previousRound: block.round > 0 ? block.round - 1 : undefined,
-    nextRound: nextRoundAvailable ? block.round + 1 : undefined,
     timestamp: block.timestamp,
     transactionsSummary: {
       count: transactions.length,
@@ -19,6 +17,18 @@ export const asBlock = (block: BlockResult, transactions: TransactionModel[], ne
           .entries()
       ),
     },
+  }
+}
+
+export const asBlockSummary = (block: BlockResult, transactions: TransactionSummary[]): BlockSummary => {
+  return { ...asCommonBlock(block, transactions), transactions }
+}
+
+export const asBlockDetails = (block: BlockResult, transactions: TransactionModel[], nextRoundAvailable: boolean): BlockDetails => {
+  return {
+    ...asCommonBlock(block, transactions),
+    previousRound: block.round > 0 ? block.round - 1 : undefined,
+    nextRound: nextRoundAvailable ? block.round + 1 : undefined,
     transactions,
   }
 }

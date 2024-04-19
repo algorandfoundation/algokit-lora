@@ -1,5 +1,5 @@
 import { BlockResult } from '@/features/blocks/data/types'
-import { DataBuilder, dossierProxy, randomDate, randomNumberBetween, randomString } from '@makerx/ts-dossier'
+import { DataBuilder, dossierProxy, incrementedNumber, randomDate, randomNumberBetween, randomString } from '@makerx/ts-dossier'
 
 export class BlockResultBuilder extends DataBuilder<BlockResult> {
   constructor(initialState?: BlockResult) {
@@ -7,7 +7,7 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
       initialState
         ? initialState
         : {
-            round: randomNumberBetween(0, 47959369),
+            round: incrementedNumber('round'),
             timestamp: randomDate().toISOString(),
             transactionIds: Array.from({ length: randomNumberBetween(1, 1000) }, () => randomString(52, 52)),
           }

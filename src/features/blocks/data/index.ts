@@ -4,16 +4,14 @@ import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { loadable } from 'jotai/utils'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { isDefined } from '@/utils/is-defined'
 import { BlockResult, Round } from './types'
 import { fetchTransactionsAtomBuilder, fetchTransactionsModelAtomBuilder, transactionsAtom } from '@/features/transactions/data'
 import { algod, indexer } from '@/features/common/data'
-import { asBlock } from '../mappers'
+import { asBlockDetails } from '../mappers'
 import { JotaiStore } from '@/features/common/data/types'
 import { TransactionId } from '@/features/transactions/data/types'
 
-const maxBlocksToDisplay = 5
-const syncedRoundAtom = atom<Round | undefined>(undefined)
+export const syncedRoundAtom = atom<Round | undefined>(undefined)
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const blocksAtom = atom<Map<Round, BlockResult>>(new Map())
@@ -75,12 +73,12 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       ] as const
     })
 
-    set(blocksAtom, (prev) => {
-      return new Map([...prev, ...blocks])
-    })
-
     set(transactionsAtom, (prev) => {
       return new Map([...prev, ...transactions])
+    })
+
+    set(blocksAtom, (prev) => {
+      return new Map([...prev, ...blocks])
     })
   })
 
@@ -100,8 +98,8 @@ const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
   })
 }
 
-const fetchBlockModelAtomBuilder = (store: JotaiStore, round: Round) => {
-  const fetchBlockAtom = atom(async (_get) => {
+const fetchBlockAtomBuilder = (round: Round) => {
+  return atom(async (_get) => {
     return await indexer
       .lookupBlock(round)
       .do()
@@ -116,6 +114,10 @@ const fetchBlockModelAtomBuilder = (store: JotaiStore, round: Round) => {
         ] as const
       })
   })
+}
+
+const getBlockDetailsAtomBuilder = (store: JotaiStore, round: Round) => {
+  const fetchBlockAtom = fetchBlockAtomBuilder(round)
 
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
@@ -145,22 +147,22 @@ const fetchBlockModelAtomBuilder = (store: JotaiStore, round: Round) => {
       const transactions = await get(
         fetchTransactionsModelAtomBuilder(store, fetchTransactionsAtomBuilder(store, cachedBlock.transactionIds))
       )
-      return asBlock(cachedBlock, transactions, nextRoundAvailable)
+      return asBlockDetails(cachedBlock, transactions, nextRoundAvailable)
     }
 
     get(syncEffect)
 
     const [fetchedBlock, fetchedBlockTransactions] = await get(fetchBlockAtom)
     const transactions = await get(fetchTransactionsModelAtomBuilder(store, fetchedBlockTransactions))
-    return asBlock(fetchedBlock, transactions, nextRoundAvailable)
+    return asBlockDetails(fetchedBlock, transactions, nextRoundAvailable)
   })
 }
 
-const useBlockModelAtom = (round: Round) => {
+const useBlockDetailsAtom = (round: Round) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchBlockModelAtomBuilder(store, round)
+    return getBlockDetailsAtomBuilder(store, round)
   }, [store, round])
 }
 
@@ -168,22 +170,6 @@ export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
 }
 
-export const useLatestBlocks = () => {
-  const store = useStore()
-  const syncedRound = useAtomValue(syncedRoundAtom)
-
-  return useMemo(() => {
-    if (!syncedRound) {
-      return []
-    }
-    const blocks = store.get(blocksAtom)
-    return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
-      const round = syncedRound - i
-      return blocks.get(round)
-    }).filter(isDefined)
-  }, [store, syncedRound])
-}
-
-export const useLoadableBlockModel = (round: Round) => {
-  return useAtomValue(loadable(useBlockModelAtom(round)))
+export const useLoadableBlockDetails = (round: Round) => {
+  return useAtomValue(loadable(useBlockDetailsAtom(round)))
 }
