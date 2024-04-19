@@ -64,15 +64,14 @@ export const fetchTransactionsModelAtomBuilder = (
         if (txn['tx-type'] === TransactionType.axfer && txn['asset-transfer-transaction']) {
           const assetId = txn['asset-transfer-transaction']['asset-id']
           if (!acc.has(assetId)) {
-            return new Set(acc).add(assetId)
+            acc.add(assetId)
           }
         }
-        // TODO: test a block that has app call transactions
         if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
           const assetIds = getRecursiveDataForAppCallTransaction(txn, 'foreign-assets').filter((assetId) => assetId !== 0)
           assetIds.forEach((assetId) => {
             if (!acc.has(assetId)) {
-              return new Set(acc).add(assetId)
+              acc.add(assetId)
             }
           })
         }
@@ -90,7 +89,7 @@ export const fetchTransactionsModelAtomBuilder = (
       txns.map((transaction) => {
         return asTransactionModel(transaction, (assetId: number) => {
           const asset = assets.get(assetId)
-          invariant(asset, 'asset could not be retrieved')
+          invariant(asset, `when mapping ${transaction.id}, asset with id ${assetId} could not be retrieved`)
           return asset
         })
       })
