@@ -1,11 +1,11 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { useLoadableBlockDetails } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Block } from '../components/block'
 import { is404 } from '@/utils/error'
+import { useLoadableBlockDetails } from '../data/block-details'
 
 const validRoundRegex = /^\d+$/
 const isValidRound = (round: string) => round.match(validRoundRegex)
