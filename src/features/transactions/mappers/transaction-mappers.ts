@@ -167,7 +167,8 @@ export const asTransactionModel = async (
     case algosdk.TransactionType.appl: {
       invariant(transaction['application-transaction'], 'application-transaction is not set')
       const assetIds = getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets').filter((assetId) => assetId !== 0)
-      const assets = await Promise.all(assetIds.map((assetId) => assetResolver(assetId)))
+      const uniqueAssetIds = Array.from(new Set(assetIds))
+      const assets = await Promise.all(uniqueAssetIds.map((assetId) => assetResolver(assetId)))
       return asAppCallTransaction(transaction, assets)
     }
     default:
