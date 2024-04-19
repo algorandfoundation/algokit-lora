@@ -4,7 +4,6 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 type Address = string
 
 type CommonTransactionProperties = {
-  id: string
   type: TransactionType
   confirmedRound: number
   roundTime: number
@@ -38,7 +37,7 @@ export type CloseAssetRemainder = {
   amount: number | bigint
 }
 
-export type PaymentTransactionModel = CommonTransactionProperties & {
+export type BasePaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
@@ -46,7 +45,11 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
   subType?: undefined
 }
 
-export type AssetTransferTransactionModel = CommonTransactionProperties & {
+export type PaymentTransactionModel = BasePaymentTransactionModel & {
+  id: string
+}
+
+export type BaseAssetTransferTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   subType?: AssetTransferTransactionSubType
   receiver: Address
@@ -54,6 +57,10 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
   closeRemainder?: CloseAssetRemainder
   asset: AssetModel
   clawbackFrom?: Address
+}
+
+export type AssetTransferTransactionModel = BaseAssetTransferTransactionModel & {
+  id: string
 }
 
 export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel | AppCallTransactionModel
@@ -96,7 +103,7 @@ export type LocalStateDelta = {
   value: string
 }
 
-export type AppCallTransactionModel = CommonTransactionProperties & {
+export type BaseAppCallTransactionModel = CommonTransactionProperties & {
   type: TransactionType.ApplicationCall
   applicationId: number
   applicationArgs: string[]
@@ -112,6 +119,10 @@ export type AppCallTransactionModel = CommonTransactionProperties & {
   logs: string[]
 }
 
+export type AppCallTransactionModel = BaseAppCallTransactionModel & {
+  id: string
+}
+
 export enum AppCallOnComplete {
   NoOp = 'NoOp',
   OptIn = 'Opt-In',
@@ -124,13 +135,11 @@ export enum AppCallOnComplete {
 export type InnerTransactionId = {
   // id: INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2-1
   // innerId: 2-1 when display, shows "Inner 2-1"
-  // delete the rest
-  index: string
-  longDisplayId: string
-  shortDisplayId: string
+  id: string
+  innerId: string
 }
 
-export type InnerPaymentTransactionModel = Omit<PaymentTransactionModel, 'id'> & InnerTransactionId
-export type InnerAssetTransferTransactionModel = Omit<AssetTransferTransactionModel, 'id'> & InnerTransactionId
-export type InnerAppCallTransactionModel = Omit<AppCallTransactionModel, 'id'> & InnerTransactionId
+export type InnerPaymentTransactionModel = BasePaymentTransactionModel & InnerTransactionId
+export type InnerAssetTransferTransactionModel = BaseAssetTransferTransactionModel & InnerTransactionId
+export type InnerAppCallTransactionModel = BaseAppCallTransactionModel & InnerTransactionId
 export type InnerTransactionModel = InnerPaymentTransactionModel | InnerAssetTransferTransactionModel | InnerAppCallTransactionModel

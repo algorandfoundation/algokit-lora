@@ -13,7 +13,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { asTransactionModel } from '../mappers/transaction-mappers'
 import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '@/features/assets/data'
 import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
-import { AppCallTransactionModel, InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
+import { InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionsAtom = atom<Map<TransactionId, TransactionResult>>(new Map())
@@ -120,10 +120,7 @@ export const fetchInnerTransactionModelAtomBuilder = (
       throw new Error('Only application call transactions have inner transactions')
     }
     // TODO: unit test this
-    const indexes = index
-      .split('-')
-      .slice(1)
-      .map((s) => parseInt(s))
+    const indexes = index.split('-').map((s) => parseInt(s))
     let current: TransactionModel | InnerTransactionModel = transactionModel
     for (const i of indexes) {
       if (current.type === TransactionTypeModel.ApplicationCall) {

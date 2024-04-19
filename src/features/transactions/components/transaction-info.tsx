@@ -24,7 +24,7 @@ export function TransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionIdLabel,
-        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
+        dd: transaction.id,
       },
       {
         dt: transactionTypeLabel,
@@ -64,7 +64,16 @@ export function TransactionInfo({ transaction }: Props) {
         dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
       },
     ],
-    [transaction]
+    [
+      transaction.confirmedRound,
+      transaction.fee,
+      transaction.group,
+      transaction.id,
+      transaction.roundTime,
+      transaction.signature?.type,
+      transaction.subType,
+      transaction.type,
+    ]
   )
 
   return (

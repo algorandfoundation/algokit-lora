@@ -74,12 +74,14 @@ function ConnectionToParent() {
 
 function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: TransactionModel | InnerTransactionModel }) {
   const component = useMemo(() => {
-    if ('id' in transaction) return ellipseId(transaction.id)
-    return (
-      <TemplatedNavLink urlTemplate={Urls.Explore.Transaction.ById.Inner.ById} urlParams={{ innerTransactionId: transaction.index }}>
-        {transaction.shortDisplayId}
-      </TemplatedNavLink>
-    )
+    if ('innerId' in transaction)
+      return (
+        <TemplatedNavLink urlTemplate={Urls.Explore.Transaction.ById.Inner.ById} urlParams={{ innerTransactionId: transaction.innerId }}>
+          Inner {transaction.innerId}
+        </TemplatedNavLink>
+      )
+
+    return ellipseId(transaction.id)
   }, [transaction])
 
   return (
@@ -240,7 +242,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
     () => [
       {
         dt: transactionIdLabel,
-        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
+        dd: transaction.id,
       },
       {
         dt: transactionTypeLabel,
@@ -259,7 +261,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction]
+    [transaction.amount, transaction.id, transaction.receiver, transaction.sender]
   )
 
   return (
@@ -278,7 +280,7 @@ function AssetTransferTransactionToolTipContent({
     () => [
       {
         dt: transactionIdLabel,
-        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
+        dd: transaction.id,
       },
       {
         dt: transactionTypeLabel,
@@ -297,7 +299,7 @@ function AssetTransferTransactionToolTipContent({
         dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
       },
     ],
-    [transaction]
+    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.sender]
   )
 
   return (
@@ -312,7 +314,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
     () => [
       {
         dt: transactionIdLabel,
-        dd: 'id' in transaction ? transaction.id : transaction.longDisplayId,
+        dd: transaction.id,
       },
       {
         dt: transactionTypeLabel,
@@ -327,7 +329,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
         dd: transaction.applicationId,
       },
     ],
-    [transaction]
+    [transaction.applicationId, transaction.id, transaction.sender]
   )
 
   return (

@@ -10,6 +10,9 @@ import {
   AppCallTransactionModel,
   AssetTransferTransactionModel,
   AssetTransferTransactionSubType,
+  BaseAppCallTransactionModel,
+  BaseAssetTransferTransactionModel,
+  BasePaymentTransactionModel,
   InnerAppCallTransactionModel,
   InnerAssetTransferTransactionModel,
   InnerPaymentTransactionModel,
@@ -53,7 +56,7 @@ const mapCommonPaymentTransactionProperties = (transaction: TransactionResult) =
     signature: transformSignature(transaction.signature),
     note: transaction.note,
     json: asJson(transaction),
-  } satisfies Omit<PaymentTransactionModel, 'id'>
+  } satisfies BasePaymentTransactionModel
 }
 
 export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
@@ -149,7 +152,7 @@ const mapCommonAssetTransferTransactionProperties = (transaction: TransactionRes
     signature: transformSignature(transaction.signature),
     clawbackFrom: transaction['asset-transfer-transaction'].sender,
     json: asJson(transaction),
-  } satisfies Omit<AssetTransferTransactionModel, 'id'>
+  } satisfies BaseAssetTransferTransactionModel
 }
 
 export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
@@ -245,7 +248,7 @@ const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transaction: TransactionResult,
   assetResults: AssetResult[],
-  indexPrefix: string
+  indexPrefix?: string
 ) => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
   invariant(transaction['round-time'], 'round-time is not set')
@@ -270,18 +273,18 @@ const mapCommonAppCallTransactionProperties = (
     innerTransactions:
       transaction['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
-        const innerIndex = `${indexPrefix}-${index + 1}`
+        const innerIndex = indexPrefix ? `${indexPrefix}-${index + 1}` : `${index + 1}`
         return asInnerTransactionMode(networkTransactionId, innerIndex, innerTransaction, assetResults)
       }) ?? [],
     onCompletion: asAppCallOnComplete(transaction['application-transaction']['on-completion']),
     action: transaction['application-transaction']['application-id'] ? 'Call' : 'Create',
     json: asJson(transaction),
     logs: transaction['logs'] ?? [],
-  } satisfies Omit<AppCallTransactionModel, 'id' | 'flattenInnerTransactions'>
+  } satisfies BaseAppCallTransactionModel
 }
 
 export const asAppCallTransaction = (transaction: TransactionResult, assetResults: AssetResult[]): AppCallTransactionModel => {
-  const commonProperties = mapCommonAppCallTransactionProperties(transaction.id, transaction, assetResults, 'Inner')
+  const commonProperties = mapCommonAppCallTransactionProperties(transaction.id, transaction, assetResults)
 
   return {
     id: transaction.id,
@@ -320,8 +323,7 @@ const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnCompl
 
 const asInnerTransactionId = (networkTransactionId: string, index: string): InnerTransactionId => {
   return {
-    index,
-    longDisplayId: `${networkTransactionId}-${index}`,
-    shortDisplayId: index, // TODO: fix this
+    id: `${networkTransactionId}-${index}`,
+    innerId: index, // TODO: fix this
   }
 }
