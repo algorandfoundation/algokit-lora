@@ -27,6 +27,7 @@ import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabe
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
+import { isValidAddress } from 'algosdk'
 
 const graphConfig = {
   rowHeight: 40,
@@ -97,9 +98,7 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
 }
 
 function AccountId({ id }: { id: string }) {
-  // When the length is 58, it's an address, so we need to ellipse it
-  // Otherwise, display it
-  return <h1 className={cn('text-l font-semibold')}>{id.length === 58 ? ellipseAddress(id) : id}</h1>
+  return <h1 className={cn('text-l font-semibold')}>{isValidAddress(id) ? ellipseAddress(id) : id}</h1>
 }
 
 function ConnectionToSibling() {
