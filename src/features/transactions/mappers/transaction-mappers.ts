@@ -33,18 +33,28 @@ import algosdk from 'algosdk'
 import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
 import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 
-const mapCommonPaymentTransactionProperties = (transaction: TransactionResult) => {
+const mapCommonTransactionProperties = (transaction: TransactionResult) => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
   invariant(transaction['round-time'], 'round-time is not set')
-  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
 
   return {
-    type: TransactionType.Payment,
     confirmedRound: transaction['confirmed-round'],
     roundTime: transaction['round-time'] * 1000,
     group: transaction['group'],
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
+    signature: transformSignature(transaction.signature),
+    note: transaction.note,
+    json: asJson(transaction),
+  }
+}
+
+const mapCommonPaymentTransactionProperties = (transaction: TransactionResult) => {
+  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+
+  return {
+    ...mapCommonTransactionProperties(transaction),
+    type: TransactionType.Payment,
     receiver: transaction['payment-transaction']['receiver'],
     amount: algokit.microAlgos(transaction['payment-transaction']['amount']),
     closeRemainder: transaction['payment-transaction']['close-remainder-to']
@@ -53,9 +63,6 @@ const mapCommonPaymentTransactionProperties = (transaction: TransactionResult) =
           amount: algokit.microAlgos(transaction['payment-transaction']['close-amount'] ?? 0),
         }
       : undefined,
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
-    json: asJson(transaction),
   } satisfies BasePaymentTransactionModel
 }
 
@@ -105,8 +112,6 @@ const transformSignature = (signature?: TransactionSignature) => {
 const asJson = (transaction: TransactionResult) => JSON.stringify(transaction, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
 
 const mapCommonAssetTransferTransactionProperties = (transaction: TransactionResult, asset: AssetResult) => {
-  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
-  invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const subType = () => {
@@ -133,14 +138,10 @@ const mapCommonAssetTransferTransactionProperties = (transaction: TransactionRes
   }
 
   return {
+    ...mapCommonTransactionProperties(transaction),
     type: TransactionType.AssetTransfer,
     subType: subType(),
     asset: asAsset(asset),
-    confirmedRound: transaction['confirmed-round'],
-    roundTime: transaction['round-time'] * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
     receiver: transaction['asset-transfer-transaction'].receiver,
     amount: transaction['asset-transfer-transaction'].amount,
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
@@ -149,9 +150,7 @@ const mapCommonAssetTransferTransactionProperties = (transaction: TransactionRes
           amount: transaction['asset-transfer-transaction']['close-amount'] ?? 0,
         }
       : undefined,
-    signature: transformSignature(transaction.signature),
     clawbackFrom: transaction['asset-transfer-transaction'].sender,
-    json: asJson(transaction),
   } satisfies BaseAssetTransferTransactionModel
 }
 
@@ -250,19 +249,11 @@ const mapCommonAppCallTransactionProperties = (
   assetResults: AssetResult[],
   indexPrefix?: string
 ) => {
-  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
-  invariant(transaction['round-time'], 'round-time is not set')
   invariant(transaction['application-transaction'], 'application-transaction is not set')
 
   return {
+    ...mapCommonTransactionProperties(transaction),
     type: TransactionType.ApplicationCall,
-    confirmedRound: transaction['confirmed-round'],
-    roundTime: transaction['round-time'] * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
     applicationId: transaction['application-transaction']['application-id'],
     applicationArgs: transaction['application-transaction']['application-args'] ?? [],
     applicationAccounts: getRecursiveDataForAppCallTransaction(transaction, 'accounts'),
@@ -278,7 +269,6 @@ const mapCommonAppCallTransactionProperties = (
       }) ?? [],
     onCompletion: asAppCallOnComplete(transaction['application-transaction']['on-completion']),
     action: transaction['application-transaction']['application-id'] ? 'Call' : 'Create',
-    json: asJson(transaction),
     logs: transaction['logs'] ?? [],
   } satisfies BaseAppCallTransactionModel
 }

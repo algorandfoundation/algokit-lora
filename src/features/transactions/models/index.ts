@@ -3,7 +3,7 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 type Address = string
 
-type CommonTransactionProperties = {
+export type CommonTransactionProperties = {
   type: TransactionType
   confirmedRound: number
   roundTime: number
