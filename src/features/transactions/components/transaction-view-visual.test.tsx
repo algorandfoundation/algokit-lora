@@ -1,11 +1,12 @@
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
 import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from '../mappers/transaction-mappers'
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
+import { useParams } from 'react-router-dom'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -73,6 +74,8 @@ describe('application-call-view-visual', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult: transaction }: { transactionResult: TransactionResult }) => {
       it('should match snapshot', () => {
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
         const model = asAppCallTransaction(transaction, [])
 
         return executeComponentTest(
