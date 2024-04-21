@@ -5,6 +5,7 @@ import { Transaction } from '../components/transaction'
 import { useLoadableInnerTransactionModelAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
+import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-id'
 
 const isValidTransactionId = (transactionId: string) => transactionId.length === 52
 
@@ -28,6 +29,8 @@ export function InnerTransactionPage() {
   invariant(isValidTransactionId(transactionId), transactionInvalidIdMessage)
 
   const { innerTransactionId } = useRequiredParam(UrlParams.InnerTransactionId)
+  invariant(isValidInnerTransactionId(innerTransactionId), `Invalid inner transaction id: ${innerTransactionId}`)
+
   const loadableTransaction = useLoadableInnerTransactionModelAtom(transactionId, innerTransactionId)
 
   return (

@@ -110,7 +110,7 @@ export const fetchTransactionModelAtomBuilder = (
 export const fetchInnerTransactionModelAtomBuilder = (
   store: JotaiStore,
   transaction: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
-  index: string
+  innerId: string
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transaction ? transaction : await get(transaction)
@@ -118,8 +118,8 @@ export const fetchInnerTransactionModelAtomBuilder = (
     if (transactionModel.type !== TransactionTypeModel.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
-    // TODO: PD unit test this
-    const indexes = index.split('-').map((s) => parseInt(s))
+
+    const indexes = innerId.split('-').map((s) => parseInt(s))
     let current: TransactionModel | InnerTransactionModel = transactionModel
     for (const i of indexes) {
       if (current.type === TransactionTypeModel.ApplicationCall) {
@@ -139,12 +139,12 @@ const useTransactionModelAtom = (transactionId: TransactionId) => {
   }, [store, transactionId])
 }
 
-const useInnerTransactionModelAtom = (transactionId: TransactionId, index: string) => {
+const useInnerTransactionModelAtom = (transactionId: TransactionId, innerId: string) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchInnerTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId), index)
-  }, [store, transactionId, index])
+    return fetchInnerTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId), innerId)
+  }, [store, transactionId, innerId])
 }
 
 export const useLogicsigTeal = (logic: string) => {
@@ -174,6 +174,6 @@ export const useLoadableTransactionModelAtom = (transactionId: TransactionId) =>
   return useAtomValue(loadable(useTransactionModelAtom(transactionId)))
 }
 
-export const useLoadableInnerTransactionModelAtom = (transactionId: TransactionId, index: string) => {
-  return useAtomValue(loadable(useInnerTransactionModelAtom(transactionId, index)))
+export const useLoadableInnerTransactionModelAtom = (transactionId: TransactionId, innerId: string) => {
+  return useAtomValue(loadable(useInnerTransactionModelAtom(transactionId, innerId)))
 }

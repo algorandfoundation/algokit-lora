@@ -273,8 +273,8 @@ const mapCommonAppCallTransactionProperties = (
     innerTransactions:
       transaction['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
-        const innerIndex = indexPrefix ? `${indexPrefix}-${index + 1}` : `${index + 1}`
-        return asInnerTransactionMode(networkTransactionId, innerIndex, innerTransaction, assetResults)
+        const innerId = indexPrefix ? `${indexPrefix}-${index + 1}` : `${index + 1}`
+        return asInnerTransactionMode(networkTransactionId, innerId, innerTransaction, assetResults)
       }) ?? [],
     onCompletion: asAppCallOnComplete(transaction['application-transaction']['on-completion']),
     action: transaction['application-transaction']['application-id'] ? 'Call' : 'Create',
