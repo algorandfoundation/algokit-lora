@@ -34,13 +34,11 @@ export function InnerTransactionPage() {
   const loadableTransaction = useLoadableInnerTransactionModelAtom(transactionId, innerTransactionId)
 
   return (
-    <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
-      {(data) => (
-        <div>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageTitle}</h1>
-          <Transaction transaction={data} />
-        </div>
-      )}
-    </RenderLoadable>
+    <div>
+      <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageTitle}</h1>
+      <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
+        {(data) => <Transaction transaction={data} />}
+      </RenderLoadable>
+    </div>
   )
 }
