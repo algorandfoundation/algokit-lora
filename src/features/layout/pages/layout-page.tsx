@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { Header } from '../components/header'
 import { LeftSideBarMenu } from '../components/left-side-bar-menu'
 import { cn } from '@/features/common/utils'
-import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
+import { useSubscribeToBlocksEffect } from '@/features/blocks/data/latest-blocks'
 
 export interface LayoutPageProps {
   children?: ReactNode

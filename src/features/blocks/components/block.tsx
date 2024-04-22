@@ -5,11 +5,11 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { BlockLink } from './block-link'
 import { TransactionsTable } from './transactions'
-import { BlockModel } from '../models'
+import { BlockDetails } from '../models'
 import { Badge } from '@/features/common/components/badge'
 
 type Props = {
-  block: BlockModel
+  block: BlockDetails
 }
 
 export const roundLabel = 'Round'

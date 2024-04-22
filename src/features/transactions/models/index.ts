@@ -57,6 +57,10 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
 }
 
 export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel
+export type TransactionSummary = Pick<CommonTransactionProperties, 'id' | 'type'> & {
+  from: Address
+  to: Address | number
+}
 
 export enum SignatureType {
   Single = 'Single',

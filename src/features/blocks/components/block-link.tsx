@@ -5,12 +5,13 @@ import { PropsWithChildren } from 'react'
 
 type Props = PropsWithChildren<{
   round: number
+  className?: string
 }>
 
-export function BlockLink({ round, children }: Props) {
+export function BlockLink({ round, className, children }: Props) {
   return (
     <TemplatedNavLink
-      className={cn('text-primary underline')}
+      className={cn(!children && 'text-primary underline', className)}
       urlTemplate={Urls.Explore.Block.ById}
       urlParams={{ round: round.toString() }}
     >

@@ -1,11 +1,11 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { useLoadableBlockModel } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Block } from '../components/block'
 import { is404 } from '@/utils/error'
+import { useLoadableBlockDetails } from '../data/block-details'
 
 const validRoundRegex = /^\d+$/
 const isValidRound = (round: string) => round.match(validRoundRegex)
@@ -29,16 +29,14 @@ export function BlockPage() {
   const { round } = useRequiredParam(UrlParams.Round)
   invariant(isValidRound(round), blockInvalidRoundMessage)
   const roundNumber = parseInt(round, 10)
-  const loadableTransaction = useLoadableBlockModel(roundNumber)
+  const loadableBlock = useLoadableBlockDetails(roundNumber)
 
   return (
-    <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
-      {(data) => (
-        <div>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{blockPageTitle}</h1>
-          <Block block={data} />
-        </div>
-      )}
-    </RenderLoadable>
+    <div>
+      <h1 className={cn('text-2xl text-primary font-bold')}>{blockPageTitle}</h1>
+      <RenderLoadable loadable={loadableBlock} transformError={transformError}>
+        {(block) => <Block block={block} />}
+      </RenderLoadable>
+    </div>
   )
 }

@@ -6,7 +6,7 @@ type Props = {
 
 export function DescriptionList({ items }: Props) {
   return (
-    <div className={cn('grid grid-cols-[minmax(min-content,auto)_1fr] gap-x-4')}>
+    <div className={cn('grid grid-cols-[minmax(min-content,auto)_1fr] gap-x-3')}>
       {items.map((item, index) => (
         <dl key={index} className={cn('grid grid-cols-subgrid col-span-2')}>
           <dt>{item.dt}</dt>
