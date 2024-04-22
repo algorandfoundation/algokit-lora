@@ -7,7 +7,7 @@ import {
   transactionNotFoundMessage,
 } from './transaction-page'
 import { executeComponentTest } from '@/tests/test-component'
-import { getAllByRole, getByRole, render, waitFor } from '@/tests/testing-library'
+import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
@@ -41,6 +41,8 @@ import {
   transactionClawbackAddressLabel,
 } from '../components/asset-transfer-transaction-info'
 import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
+import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
+import { tableAssertion } from '@/tests/assertions/table-assertion'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -111,22 +113,25 @@ describe('transaction-page', () => {
         },
         async (component, user) => {
           // waitFor the loading state to be finished
-          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
-          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toBe('Payment')
-          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Thu, 29 February 2024 06:52:01')
-          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('36570178')
-          expect(component.queryByText(transactionGroupLabel)).toBeNull()
-          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Payment' },
+                { term: transactionTimestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                { term: transactionBlockLabel, description: '36570178' },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionSenderLabel, description: transaction.sender },
+                { term: transactionReceiverLabel, description: transaction['payment-transaction']!.receiver },
+                { term: transactionAmountLabel, description: '236.07' },
+                { term: transactionCloseRemainderToLabel, description: 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ' },
+                { term: transactionCloseRemainderAmountLabel, description: '345.071234' },
+              ],
+            })
+          })
 
-          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(transaction.sender)
-          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
-            transaction['payment-transaction']!.receiver
-          )
-          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('236.07')
-          expect(getByDescriptionTerm(component.container, transactionCloseRemainderToLabel).textContent).toBe(
-            'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ'
-          )
-          expect(getByDescriptionTerm(component.container, transactionCloseRemainderAmountLabel).textContent).toBe('345.071234')
+          expect(component.queryByText(transactionGroupLabel)).toBeNull()
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
@@ -140,13 +145,14 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          // Test the table data
-          const dataRow = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('FBORGSD...')
-          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('M3IA...OXXM')
-          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('KIZL...U5BQ')
-          expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Payment')
-          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('236.07')
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['FBORGSD...', 'M3IA...OXXM', 'KIZL...U5BQ', 'Payment', '236.07'],
+              },
+            ],
+          })
         }
       )
     })
@@ -169,11 +175,24 @@ describe('transaction-page', () => {
         },
         async (component) => {
           await waitFor(() => {
-            expect(getByDescriptionTerm(component.container, multisigThresholdLabel).textContent).toBe('3')
-            expect(getByDescriptionTerm(component.container, multisigVersionLabel).textContent).toBe('1')
-            expect(getByDescriptionTerm(component.container, multisigSubsignersLabel).textContent).toBe(
-              'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4'
-            )
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                {
+                  term: multisigThresholdLabel,
+                  description: '3',
+                },
+                {
+                  term: multisigVersionLabel,
+                  description: '1',
+                },
+                {
+                  term: multisigSubsignersLabel,
+                  description:
+                    'QWEQQN7CGK3W5O7GV6L3TDBIAM6BD4A5B7L3LE2QKGMJ7DT2COFI6WBPGU4QUFAFCF4IOWJXS6QJBEOKMNT7FOMEACIDDJNIUC5YYCEBY2HA27ZYJ46QIY2D3V7M55ROTKZ6N5KDQQYN7BU6KHLPWSBFREIIEV3G7IUOS4ESEUHPM4',
+                },
+              ],
+            })
           })
         }
       )
@@ -443,28 +462,25 @@ describe('transaction-page', () => {
         },
         async (component, user) => {
           // waitFor the loading state to be finished
-          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
-          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
-          expect(transactionTypeDescription).toContain('Asset Transfer')
-          expect(transactionTypeDescription).toContain('Opt-Out')
-          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Thu, 20 July 2023 19:08:03')
-          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('30666726')
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBeTruthy())
+
+          descriptionListAssertion({
+            container: component.container,
+            items: [
+              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionTypeLabel, description: 'Asset TransferOpt-Out' },
+              { term: transactionTimestampLabel, description: 'Thu, 20 July 2023 19:08:03' },
+              { term: transactionBlockLabel, description: '30666726' },
+              { term: transactionFeeLabel, description: '0.001' },
+              { term: transactionSenderLabel, description: 'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ' },
+              { term: transactionReceiverLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
+              { term: assetLabel, description: '140479105 (Clyders)' },
+              { term: transactionAmountLabel, description: '0 CLY' },
+              { term: assetTransactionCloseRemainderToLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
+              { term: assetTransactionCloseRemainderAmountLabel, description: '0 CLY' },
+            ],
+          })
           expect(component.queryByText(transactionGroupLabel)).toBeNull()
-          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
-
-          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
-            'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ'
-          )
-          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
-            'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
-          )
-          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('140479105 (Clyders)')
-          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('0 CLY')
-
-          expect(getByDescriptionTerm(component.container, assetTransactionCloseRemainderToLabel).textContent).toBe(
-            'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4'
-          )
-          expect(getByDescriptionTerm(component.container, assetTransactionCloseRemainderAmountLabel).textContent).toBe('0 CLY')
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
@@ -478,13 +494,14 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          // Test the table data
-          const dataRow = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('V7GQPE5...')
-          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('J2WK...FLBQ')
-          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('LINT...CQE4')
-          expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
-          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('0 CLY')
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['V7GQPE5...', 'J2WK...FLBQ', 'LINT...CQE4', 'Asset Transfer', '0 CLY'],
+              },
+            ],
+          })
         }
       )
     })
@@ -531,20 +548,18 @@ describe('transaction-page', () => {
         },
         async (component) => {
           // waitFor the loading state to be finished
-          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
-          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
-          expect(transactionTypeDescription).toContain('Asset Transfer')
-          expect(transactionTypeDescription).toContain('Clawback')
-
-          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
-            'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY'
-          )
-          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
-            'ATSGPNTPGMJ2U3GQRSEXA2OZGFPMKPO66NNPIKFD4LHETHYIYRIRIN6GJE'
-          )
-          expect(getByDescriptionTerm(component.container, transactionClawbackAddressLabel).textContent).toBe(
-            'AT3QNHSO7VZ2CPEZGI4BG7M3TIUG7YE5KZXNAE55Z4QHHAGBEU6K2LCJUA'
-          )
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Asset TransferClawback' },
+                { term: transactionSenderLabel, description: 'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY' },
+                { term: transactionReceiverLabel, description: 'ATSGPNTPGMJ2U3GQRSEXA2OZGFPMKPO66NNPIKFD4LHETHYIYRIRIN6GJE' },
+                { term: transactionClawbackAddressLabel, description: 'AT3QNHSO7VZ2CPEZGI4BG7M3TIUG7YE5KZXNAE55Z4QHHAGBEU6K2LCJUA' },
+              ],
+            })
+          })
         }
       )
     })
@@ -566,25 +581,23 @@ describe('transaction-page', () => {
         },
         async (component, user) => {
           // waitFor the loading state to be finished
-          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
-          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
-          expect(transactionTypeDescription).toContain('Asset Transfer')
-          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Wed, 17 April 2024 05:39:26')
-          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('38008738')
-          expect(getByDescriptionTerm(component.container, transactionGroupLabel).textContent).toBe(
-            'XeNQmhxvtoWpue/7SAk6RNfuu/8Fp8tw8Nfn+HnIz00='
-          )
-
-          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.001')
-
-          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
-            'QUESTA6XV2JZ2XAV3EK3GKBHYCJO57JWUX6L6ENHGNLR6UE3OPCUCT2WLI'
-          )
-          expect(getByDescriptionTerm(component.container, transactionReceiverLabel).textContent).toBe(
-            'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54'
-          )
-          expect(getByDescriptionTerm(component.container, assetLabel).textContent).toBe('1753701469 (DELETED)')
-          expect(getByDescriptionTerm(component.container, transactionAmountLabel).textContent).toBe('1 DELETED')
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Asset Transfer' },
+                { term: transactionTimestampLabel, description: 'Wed, 17 April 2024 05:39:26' },
+                { term: transactionBlockLabel, description: '38008738' },
+                { term: transactionGroupLabel, description: 'XeNQmhxvtoWpue/7SAk6RNfuu/8Fp8tw8Nfn+HnIz00=' },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionSenderLabel, description: 'QUESTA6XV2JZ2XAV3EK3GKBHYCJO57JWUX6L6ENHGNLR6UE3OPCUCT2WLI' },
+                { term: transactionReceiverLabel, description: 'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54' },
+                { term: assetLabel, description: '1753701469 (DELETED)' },
+                { term: transactionAmountLabel, description: '1 DELETED' },
+              ],
+            })
+          })
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
@@ -598,13 +611,14 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          // Test the table data
-          const dataRow = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(dataRow, 'cell')[0].textContent).toBe('UFYPQDL...')
-          expect(getAllByRole(dataRow, 'cell')[1].textContent).toBe('QUES...2WLI')
-          expect(getAllByRole(dataRow, 'cell')[2].textContent).toBe('JQ76...RS54')
-          expect(getAllByRole(dataRow, 'cell')[3].textContent).toBe('Asset Transfer')
-          expect(getAllByRole(dataRow, 'cell')[4].textContent).toBe('1 DELETED')
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['UFYPQDL...', 'QUES...2WLI', 'JQ76...RS54', 'Asset Transfer', '1 DELETED'],
+              },
+            ],
+          })
         }
       )
     })

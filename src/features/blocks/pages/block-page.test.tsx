@@ -8,7 +8,6 @@ import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
 import { blocksAtom } from '../data'
-import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block'
 import { transactionsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
@@ -16,6 +15,8 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { assetsAtom } from '@/features/assets/data'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { tableAssertion } from '@/tests/assertions/table-assertion'
+import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 
 describe('block-page', () => {
   describe('when rending a block using an invalid round number', () => {
@@ -71,12 +72,18 @@ describe('block-page', () => {
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
           async (component) => {
-            await waitFor(() => expect(getByDescriptionTerm(component.container, roundLabel).textContent).toBe(block.round.toString()))
-            expect(getByDescriptionTerm(component.container, timestampLabel).textContent).toBe('Thu, 29 February 2024 06:52:01')
-            expect(getByDescriptionTerm(component.container, transactionsLabel).textContent).toBe('0')
-            expect(getByDescriptionTerm(component.container, previousRoundLabel).textContent).toBe((block.round - 1).toString())
-            expect(getByDescriptionTerm(component.container, nextRoundLabel).textContent).toBe((block.round + 1).toString())
-
+            await waitFor(() =>
+              descriptionListAssertion({
+                container: component.container,
+                items: [
+                  { term: roundLabel, description: block.round.toString() },
+                  { term: timestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                  { term: transactionsLabel, description: '0' },
+                  { term: previousRoundLabel, description: (block.round - 1).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                ],
+              })
+            )
             const transactionsRow = getAllByRole(component.container, 'row')[1]
             expect(transactionsRow.textContent).toBe('No results.')
           }
@@ -101,31 +108,47 @@ describe('block-page', () => {
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
           async (component) => {
-            await waitFor(() => expect(getByDescriptionTerm(component.container, roundLabel).textContent).toBe(block.round.toString()))
-            expect(getByDescriptionTerm(component.container, timestampLabel).textContent).toBe('Thu, 29 February 2024 06:52:01')
-            expect(getByDescriptionTerm(component.container, transactionsLabel).textContent).toBe('2Payment=1Asset Transfer=1')
-            expect(getByDescriptionTerm(component.container, previousRoundLabel).textContent).toBe((block.round - 1).toString())
-            expect(getByDescriptionTerm(component.container, nextRoundLabel).textContent).toBe((block.round + 1).toString())
+            await waitFor(() =>
+              descriptionListAssertion({
+                container: component.container,
+                items: [
+                  { term: roundLabel, description: block.round.toString() },
+                  { term: timestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                  { term: transactionsLabel, description: '2Payment=1Asset Transfer=1' },
+                  { term: previousRoundLabel, description: (block.round - 1).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                ],
+              })
+            )
 
             const rows = getAllByRole(component.container, 'row')
             expect(rows.length).toBe(3)
-            const transactionsRow1 = rows[1]
-            const row1Cells = getAllByRole(transactionsRow1, 'cell')
-            expect(row1Cells[0].textContent).toBe(ellipseId(transaction1.id))
-            expect(row1Cells[1].textContent).toBe(ellipseId(transaction1.group))
-            expect(row1Cells[2].textContent).toBe(ellipseAddress(transaction1.sender))
-            expect(row1Cells[3].textContent).toBe(ellipseAddress(transaction1['payment-transaction']!.receiver))
-            expect(row1Cells[4].textContent).toBe('Payment')
-            expect(row1Cells[5].textContent).toBe((transaction1['payment-transaction']!.amount / 1e6).toString())
 
-            const transactionsRow2 = rows[2]
-            const row2Cells = getAllByRole(transactionsRow2, 'cell')
-            expect(row2Cells[0].textContent).toBe(ellipseId(transaction2.id))
-            expect(row2Cells[1].textContent).toBe(ellipseId(transaction2.group))
-            expect(row2Cells[2].textContent).toBe(ellipseAddress(transaction2.sender))
-            expect(row2Cells[3].textContent).toBe(ellipseAddress(transaction2['asset-transfer-transaction']!.receiver))
-            expect(row2Cells[4].textContent).toBe('Asset Transfer')
-            expect(row2Cells[5].textContent).toBe(`${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`)
+            tableAssertion({
+              container: component.container,
+              rows: [
+                {
+                  cells: [
+                    ellipseId(transaction1.id),
+                    ellipseId(transaction1.group),
+                    ellipseAddress(transaction1.sender),
+                    ellipseAddress(transaction1['payment-transaction']!.receiver),
+                    'Payment',
+                    (transaction1['payment-transaction']!.amount / 1e6).toString(),
+                  ],
+                },
+                {
+                  cells: [
+                    ellipseId(transaction2.id),
+                    ellipseId(transaction2.group),
+                    ellipseAddress(transaction2.sender),
+                    ellipseAddress(transaction2['asset-transfer-transaction']!.receiver),
+                    'Asset Transfer',
+                    `${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`,
+                  ],
+                },
+              ],
+            })
           }
         )
       })
