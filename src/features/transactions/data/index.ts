@@ -63,14 +63,14 @@ export const fetchTransactionsModelAtomBuilder = (
         if (txn['tx-type'] === TransactionType.axfer && txn['asset-transfer-transaction']) {
           const assetId = txn['asset-transfer-transaction']['asset-id']
           if (!acc.has(assetId)) {
-            acc.add(assetId)
+            return new Set(acc).add(assetId)
           }
         }
         if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
           const assetIds = txn['application-transaction']['foreign-assets'] ?? []
           assetIds.forEach((assetId) => {
             if (!acc.has(assetId)) {
-              acc.add(assetId)
+              return new Set(acc).add(assetId)
             }
           })
         }
