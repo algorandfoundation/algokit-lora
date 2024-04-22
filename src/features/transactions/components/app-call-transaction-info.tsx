@@ -190,10 +190,7 @@ export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
   {
     accessorKey: 'address',
     header: 'Address',
-    cell: (c) => {
-      const address = c.getValue<string>()
-      return ellipseAddress(address)
-    },
+    cell: (c) => ellipseAddress(c.getValue<string>()),
   },
   {
     accessorKey: 'key',

@@ -50,12 +50,9 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     },
   },
   {
+    accessorKey: 'transaction.sender',
     header: 'From',
-    accessorFn: (item) => item.transaction,
-    cell: (c) => {
-      const transaction = c.getValue<TransactionModel>()
-      return ellipseAddress(transaction.sender)
-    },
+    cell: (c) => ellipseAddress(c.getValue<string>()),
   },
   {
     header: 'To',
@@ -68,8 +65,8 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     },
   },
   {
+    accessorKey: 'transaction.type',
     header: 'Type',
-    accessorFn: (item) => item.transaction.type,
   },
   {
     header: 'Amount',
