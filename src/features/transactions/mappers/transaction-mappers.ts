@@ -22,6 +22,7 @@ import {
   PaymentTransactionModel,
   SignatureType,
   SinglesigModel,
+  TransactionSummary,
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
@@ -214,8 +215,41 @@ export const asTransactionModel = async (
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
+      // throw new Error(`${transaction['tx-type']} is not supported`)
       return asPlaceholderTransaction(transaction)
-    // throw new Error(`${transaction['tx-type']} is not supported`)
+  }
+}
+
+export const asTransactionSummary = (transaction: TransactionResult): TransactionSummary => {
+  const common = {
+    id: transaction.id,
+    from: transaction.sender,
+  }
+
+  switch (transaction['tx-type']) {
+    case algosdk.TransactionType.pay:
+      invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.Payment,
+        to: transaction['payment-transaction']['receiver'],
+      }
+    case algosdk.TransactionType.axfer: {
+      invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.AssetTransfer,
+        to: transaction['asset-transfer-transaction']['receiver'],
+      }
+    }
+    default:
+      // TODO: Once we support all transaction types, we should throw an error instead
+      // throw new Error(`${transaction['tx-type']} is not supported`)
+      return {
+        ...common,
+        type: TransactionType.Payment,
+        to: ZERO_ADDRESS,
+      }
   }
 }
 

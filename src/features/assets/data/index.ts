@@ -6,6 +6,22 @@ import { loadable } from 'jotai/utils'
 import { JotaiStore } from '@/features/common/data/types'
 import { indexer } from '@/features/common/data'
 import { AssetIndex } from './types'
+import { ZERO_ADDRESS } from '@/features/common/constants'
+import { asError, is404 } from '@/utils/error'
+
+const deletedAssetBuilder = (assetIndex: AssetIndex) => {
+  return {
+    index: assetIndex,
+    deleted: true,
+    params: {
+      creator: ZERO_ADDRESS,
+      decimals: 0,
+      total: 0,
+      name: 'DELETED',
+      'unit-name': 'DELETED',
+    },
+  } as AssetResult
+}
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const assetsAtom = atom<Map<AssetIndex, AssetResult>>(new Map())
@@ -37,6 +53,12 @@ export const fetchAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex)
       .do()
       .then((result) => {
         return (result as AssetLookupResult).asset
+      })
+      .catch((e: unknown) => {
+        if (is404(asError(e))) {
+          return deletedAssetBuilder(assetIndex)
+        }
+        throw e
       })
   })
   return assetAtom
