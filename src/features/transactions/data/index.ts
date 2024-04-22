@@ -68,7 +68,7 @@ export const fetchTransactionsModelAtomBuilder = (
           }
         }
         if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
-          const assetIds = getRecursiveDataForAppCallTransaction(txn, 'foreign-assets').filter((assetId) => assetId !== 0)
+          const assetIds = getRecursiveDataForAppCallTransaction(txn, 'foreign-assets')
           assetIds.forEach((assetId) => {
             if (!acc.has(assetId)) {
               acc.add(assetId)
