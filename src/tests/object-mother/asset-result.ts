@@ -86,4 +86,21 @@ export const assetResultMother = {
       },
     } satisfies AssetResult)
   },
+  ['mainnet-971381860']: () => {
+    const encoder = new TextEncoder()
+    return new AssetResultBuilder({
+      index: 971381860,
+      params: {
+        creator: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
+        decimals: 6,
+        'default-frozen': false,
+        name: 'Folks V2 Algo',
+        'name-b64': encoder.encode('Rm9sa3MgVjIgQWxnbw=='),
+        reserve: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
+        total: 10000000000000000,
+        'unit-name': 'fALGO',
+        'unit-name-b64': encoder.encode('ZkFMR08='),
+      },
+    } satisfies AssetResult)
+  },
 }

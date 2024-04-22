@@ -78,13 +78,5 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* min-height: 100vh; */
-    /* height: 100vh; */
-    /* overflow-y: scroll; */
-  }
-  #root {
-    /* min-height: 100vh; */
-    max-width: 1400px;
-    margin: 0 auto;
   }
 }

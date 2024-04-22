@@ -38,6 +38,7 @@
     "clsx": "^2.1.0",
     "date-fns": "^3.5.0",
     "decimal.js": "^10.4.3",
+    "isutf8": "^4.0.0",
     "jotai": "^2.7.2",
     "jotai-effect": "^0.6.0",
     "lucide-react": "^0.356.0",

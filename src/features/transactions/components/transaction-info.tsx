@@ -3,13 +3,13 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
-import { TransactionModel, SignatureType, TransactionType } from '../models'
+import { TransactionModel, SignatureType, TransactionType, InnerTransactionModel } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
 
 type Props = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
 }
 
 export const transactionIdLabel = 'Transaction ID'

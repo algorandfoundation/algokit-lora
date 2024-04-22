@@ -3,8 +3,7 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 type Address = string
 
-type CommonTransactionProperties = {
-  id: string
+export type CommonTransactionProperties = {
   type: TransactionType
   confirmedRound: number
   roundTime: number
@@ -12,7 +11,6 @@ type CommonTransactionProperties = {
   fee: AlgoAmount
   sender: Address
   note?: string
-  transactions?: TransactionModel[]
   signature?: SinglesigModel | MultisigModel | LogicsigModel
   json: string
 }
@@ -20,6 +18,7 @@ type CommonTransactionProperties = {
 export enum TransactionType {
   Payment = 'Payment',
   AssetTransfer = 'Asset Transfer',
+  ApplicationCall = 'Application Call',
 }
 
 export enum AssetTransferTransactionSubType {
@@ -38,7 +37,7 @@ export type CloseAssetRemainder = {
   amount: number | bigint
 }
 
-export type PaymentTransactionModel = CommonTransactionProperties & {
+export type BasePaymentTransactionModel = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
@@ -46,7 +45,11 @@ export type PaymentTransactionModel = CommonTransactionProperties & {
   subType?: undefined
 }
 
-export type AssetTransferTransactionModel = CommonTransactionProperties & {
+export type PaymentTransactionModel = BasePaymentTransactionModel & {
+  id: string
+}
+
+export type BaseAssetTransferTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   subType?: AssetTransferTransactionSubType
   receiver: Address
@@ -56,8 +59,14 @@ export type AssetTransferTransactionModel = CommonTransactionProperties & {
   clawbackFrom?: Address
 }
 
-export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel
-export type TransactionSummary = Pick<CommonTransactionProperties, 'id' | 'type'> & {
+export type AssetTransferTransactionModel = BaseAssetTransferTransactionModel & {
+  id: string
+}
+
+export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel | AppCallTransactionModel
+
+export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
+  id: string
   from: Address
   to: Address | number
 }
@@ -84,3 +93,57 @@ export type LogicsigModel = {
   type: SignatureType.Logic
   logic: string
 }
+
+export type GlobalStateDelta = {
+  key: string
+  type: 'Bytes' | 'Uint'
+  action: 'Set' | 'Delete'
+  value: string
+}
+
+export type LocalStateDelta = {
+  address: Address
+  key: string
+  type: 'Bytes' | 'Uint'
+  action: 'Set' | 'Delete'
+  value: string
+}
+
+export type BaseAppCallTransactionModel = CommonTransactionProperties & {
+  type: TransactionType.ApplicationCall
+  applicationId: number
+  applicationArgs: string[]
+  foreignApps: number[]
+  foreignAssets: number[]
+  applicationAccounts: Address[]
+  globalStateDeltas: GlobalStateDelta[]
+  localStateDeltas: LocalStateDelta[]
+  innerTransactions: InnerTransactionModel[]
+  subType?: undefined
+  onCompletion: AppCallOnComplete
+  action: 'Create' | 'Call'
+  logs: string[]
+}
+
+export type AppCallTransactionModel = BaseAppCallTransactionModel & {
+  id: string
+}
+
+export enum AppCallOnComplete {
+  NoOp = 'NoOp',
+  OptIn = 'Opt-In',
+  CloseOut = 'Close Out',
+  ClearState = 'Clear State',
+  Update = 'Update',
+  Delete = 'Delete',
+}
+
+export type InnerTransactionId = {
+  id: string
+  innerId: string
+}
+
+export type InnerPaymentTransactionModel = BasePaymentTransactionModel & InnerTransactionId
+export type InnerAssetTransferTransactionModel = BaseAssetTransferTransactionModel & InnerTransactionId
+export type InnerAppCallTransactionModel = BaseAppCallTransactionModel & InnerTransactionId
+export type InnerTransactionModel = InnerPaymentTransactionModel | InnerAssetTransferTransactionModel | InnerAppCallTransactionModel

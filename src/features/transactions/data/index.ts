@@ -12,6 +12,7 @@ import { indexer, algod } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransactionModel } from '../mappers/transaction-mappers'
 import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '@/features/assets/data'
+import { InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionsAtom = atom<Map<TransactionId, TransactionResult>>(new Map())
@@ -65,6 +66,14 @@ export const fetchTransactionsModelAtomBuilder = (
             return new Set(acc).add(assetId)
           }
         }
+        if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
+          const assetIds = txn['application-transaction']['foreign-assets'] ?? []
+          assetIds.forEach((assetId) => {
+            if (!acc.has(assetId)) {
+              return new Set(acc).add(assetId)
+            }
+          })
+        }
         return acc
       }, new Set<number>())
     )
@@ -79,7 +88,7 @@ export const fetchTransactionsModelAtomBuilder = (
       txns.map((transaction) => {
         return asTransactionModel(transaction, (assetId: number) => {
           const asset = assets.get(assetId)
-          invariant(asset, 'asset could not be retrieved')
+          invariant(asset, `when mapping ${transaction.id}, asset with id ${assetId} could not be retrieved`)
           return asset
         })
       })
@@ -97,12 +106,44 @@ export const fetchTransactionModelAtomBuilder = (
   })
 }
 
+export const fetchInnerTransactionModelAtomBuilder = (
+  store: JotaiStore,
+  transaction: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
+  innerId: string
+) => {
+  return atom(async (get) => {
+    const txn = 'id' in transaction ? transaction : await get(transaction)
+    const transactionModel = await asTransactionModel(txn, (assetId: number) => get(fetchAssetAtomBuilder(store, assetId)))
+    if (transactionModel.type !== TransactionTypeModel.ApplicationCall) {
+      throw new Error('Only application call transactions have inner transactions')
+    }
+
+    const indexes = innerId.split('-').map((s) => parseInt(s))
+    let current: TransactionModel | InnerTransactionModel = transactionModel
+    for (const i of indexes) {
+      if (current.type === TransactionTypeModel.ApplicationCall) {
+        current = current.innerTransactions[i - 1]
+      }
+    }
+
+    return current
+  })
+}
+
 const useTransactionModelAtom = (transactionId: TransactionId) => {
   const store = useStore()
 
   return useMemo(() => {
     return fetchTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId))
   }, [store, transactionId])
+}
+
+const useInnerTransactionModelAtom = (transactionId: TransactionId, innerId: string) => {
+  const store = useStore()
+
+  return useMemo(() => {
+    return fetchInnerTransactionModelAtomBuilder(store, fetchTransactionAtomBuilder(store, transactionId), innerId)
+  }, [store, transactionId, innerId])
 }
 
 export const useLogicsigTeal = (logic: string) => {
@@ -130,4 +171,8 @@ export const useLogicsigTeal = (logic: string) => {
 
 export const useLoadableTransactionModelAtom = (transactionId: TransactionId) => {
   return useAtomValue(loadable(useTransactionModelAtom(transactionId)))
+}
+
+export const useLoadableInnerTransactionModelAtom = (transactionId: TransactionId, innerId: string) => {
+  return useAtomValue(loadable(useInnerTransactionModelAtom(transactionId, innerId)))
 }

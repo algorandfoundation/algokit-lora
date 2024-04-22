@@ -20,7 +20,7 @@ import {
   tableTransactionDetailsTabLabel,
   transactionDetailsLabel,
   visualTransactionDetailsTabLabel,
-} from '../components/payment-transaction'
+} from '../components/transaction-view-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig'
 import {
   transactionBlockLabel,
@@ -43,6 +43,17 @@ import {
 import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel } from '../components/payment-transaction-info'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
+import {
+  actionLabel,
+  appCallTransactionDetailsLabel,
+  foreignAccountsTabLabel,
+  applicationArgsTabLabel,
+  applicationIdLabel,
+  foreignApplicationsTabLabel,
+  foreignAssetsTabLabel,
+  globalStateDeltaTabLabel,
+  onCompletionLabel,
+} from '../components/app-call-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -617,6 +628,95 @@ describe('transaction-page', () => {
               {
                 cells: ['UFYPQDL...', 'QUES...2WLI', 'JQ76...RS54', 'Asset Transfer', '1 DELETED'],
               },
+            ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering a app call transaction', () => {
+    const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
+    const asset = assetResultMother['mainnet-971381860']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Application Call' },
+                { term: transactionTimestampLabel, description: 'Fri, 01 March 2024 00:07:53' },
+                { term: transactionBlockLabel, description: '36591812' },
+                { term: transactionGroupLabel, description: 'Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30=' },
+                { term: transactionFeeLabel, description: '0.005' },
+                { term: transactionSenderLabel, description: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY' },
+                { term: applicationIdLabel, description: '971368268' },
+                { term: actionLabel, description: 'Call' },
+                { term: onCompletionLabel, description: 'NoOp' },
+              ],
+            })
+          })
+
+          const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          expect(component.getByRole('tabpanel', { name: applicationArgsTabLabel }).textContent).toMatch(
+            '6r6CnQ==AAAAAAAAAAA=AA==AA==AQ==AQ=='
+          )
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignAccountsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignAccountsTabLabel }).textContent).toMatch('')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignApplicationsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignApplicationsTabLabel }).textContent).toMatch('971350278')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignAssetsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignAssetsTabLabel }).textContent).toMatch('0971381860')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: globalStateDeltaTabLabel }))
+          const globalStateDeltaTab = component.getByRole('tabpanel', { name: globalStateDeltaTabLabel })
+          tableAssertion({
+            container: globalStateDeltaTab,
+            rows: [
+              {
+                cells: ['i', 'Bytes', 'Set', 'AAONfqTGgAAAAAkYTnKgAAAca/UmNAAAAABZC8sUiKAAARg1PuJHngAAYtCCAWTGAAAAAGXhHFY='],
+              },
+              {
+                cells: [
+                  's',
+                  'Bytes',
+                  'Set',
+                  'AADMouUTEAAAAMyi5RMQAABHDeTfggAAAAqoe+5TgAAABxr9SY0AAAAf+XPK+oAAABHDeTfggAAABxr9SY0AAAAAAQXS3+IfAAR2O9R9MEEAAAAABGJpIfE2cs7Vt0ol',
+                ],
+              },
+              {
+                cells: ['v', 'Bytes', 'Set', 'AAC15iD0gAAAAzKLlExAAABHDeTfggAAAAAoa8i0brcAApIbjWwBBgAAZ/7Fy4wR'],
+              },
+            ],
+          })
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              { cells: ['KMNBSQ4...', 'W2IZ...NCEY', '971368268', 'Application Call'] },
+              { cells: ['Inner 1', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
+              { cells: ['Inner 2', '2ZPN...DJJ4', '971350278', 'Application Call'] },
             ],
           })
         }

@@ -31,9 +31,9 @@ export function Search() {
   )
 
   return (
-    <div className={cn('flex gap-2')}>
-      <Input className={cn('w-96')} placeholder="Search" value={searchQuery} onChange={handleInput} onKeyDown={handleKeyDown} />
-      <Button onClick={doSearch}>search</Button>
+    <div className={cn('flex gap-2 flex-grow justify-end')}>
+      <Input className={cn('max-w-96')} placeholder="Search" value={searchQuery} onChange={handleInput} onKeyDown={handleKeyDown} />
+      <Button onClick={doSearch}>Search</Button>
     </div>
   )
 }

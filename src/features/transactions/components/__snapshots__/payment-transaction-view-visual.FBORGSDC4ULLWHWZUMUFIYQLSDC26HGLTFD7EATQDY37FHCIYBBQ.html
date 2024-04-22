@@ -1,6 +1,6 @@
 <div>
   <div
-    class="relative grid"
+    class="relative grid overflow-auto"
     style="grid-template-columns: minmax(128px, 128px) repeat(3, 128px); grid-template-rows: repeat(2, 40px);"
   >
     <div />
@@ -22,9 +22,15 @@
         KIZL...U5BQ
       </h1>
     </div>
-    <div />
     <div
-      class="absolute right-0 -z-10"
+      class="p-2 flex justify-center"
+    >
+      <h1
+        class="text-l font-semibold"
+      />
+    </div>
+    <div
+      class="absolute left-0"
       style="top: 40px;"
     >
       <div>
@@ -33,12 +39,13 @@
         />
         <div
           class="p-0"
-          style="height: 40px; width: 256px;"
+          style="height: 40px; width: 384px;"
         >
           <div
             class="grid h-full"
-            style="grid-template-columns: repeat(2, minmax(0, 1fr)); height: 40px;"
+            style="grid-template-columns: minmax(128px, 128px) repeat(3, 128px); height: 40px;"
           >
+            <div />
             <div
               class="flex justify-center"
             >
@@ -75,7 +82,7 @@
       </div>
     </div>
     <div
-      class="flex items-center justify-center"
+      class="flex items-center justify-center z-10"
       data-state="closed"
       style="grid-column-start: 2; grid-column-end: 4; color: rgb(126 200 191);"
     >
@@ -171,5 +178,6 @@
         </g>
       </svg>
     </div>
+    <div />
   </div>
 </div>

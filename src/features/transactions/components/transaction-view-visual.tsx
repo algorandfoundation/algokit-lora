@@ -6,7 +6,17 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { AssetTransferTransactionModel, PaymentTransactionModel, TransactionModel, TransactionType } from '../models'
+import {
+  AppCallTransactionModel,
+  AssetTransferTransactionModel,
+  InnerAppCallTransactionModel,
+  InnerAssetTransferTransactionModel,
+  InnerPaymentTransactionModel,
+  InnerTransactionModel,
+  PaymentTransactionModel,
+  TransactionModel,
+  TransactionType,
+} from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
@@ -15,6 +25,8 @@ import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { ellipseId } from '@/utils/ellipse-id'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
+import { isValidAddress } from 'algosdk'
+import { InnerTransactionLink } from './inner-transaction-link'
 
 const graphConfig = {
   rowHeight: 40,
@@ -30,6 +42,8 @@ type Arrow = {
   to: number
   direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
 }
+
+export const applicationIdLabel = 'Application Id'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items
@@ -58,7 +72,14 @@ function ConnectionToParent() {
   )
 }
 
-function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
+function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: TransactionModel | InnerTransactionModel }) {
+  const component = useMemo(() => {
+    if ('innerId' in transaction) {
+      return <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
+    }
+    return ellipseId(transaction.id)
+  }, [transaction])
+
   return (
     <div
       className={cn('inline')}
@@ -66,13 +87,13 @@ function TransactionId({ hasParent, id }: { hasParent: boolean; id: string }) {
         marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
       }}
     >
-      {ellipseId(id)}
+      {component}
     </div>
   )
 }
 
 function AccountId({ id }: { id: string }) {
-  return <h1 className={cn('text-l font-semibold')}>{ellipseAddress(id)}</h1>
+  return <h1 className={cn('text-l font-semibold')}>{isValidAddress(id) ? ellipseAddress(id) : id}</h1>
 }
 
 function ConnectionToSibling() {
@@ -107,12 +128,15 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
 }
 
 const DisplayArrow = fixedForwardRef(
-  ({ transaction, arrow, ...rest }: { transaction: TransactionModel; arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
+  (
+    { transaction, arrow, ...rest }: { transaction: TransactionModel | InnerTransactionModel; arrow: Arrow },
+    ref?: React.LegacyRef<HTMLDivElement>
+  ) => {
     const color = graphConfig.paymentTransactionColor
 
     return (
       <div
-        className={cn('flex items-center justify-center')}
+        className={cn('flex items-center justify-center z-10')}
         style={{
           // 2 and 3 are the number to offset the name column
           gridColumnStart: arrow.from + 2,
@@ -134,18 +158,23 @@ const DisplayArrow = fixedForwardRef(
           <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
           {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
         </div>
-        {transaction.type === TransactionType.Payment && (
-          <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
-            Payment
-            <DisplayAlgo amount={transaction.amount} />
-          </div>
-        )}
-        {transaction.type === TransactionType.AssetTransfer && (
-          <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
-            Transfer
-            <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
-          </div>
-        )}
+        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
+          {transaction.type === TransactionType.Payment && (
+            <>
+              Payment
+              <DisplayAlgo amount={transaction.amount} />
+            </>
+          )}
+
+          {transaction.type === TransactionType.AssetTransfer && (
+            <>
+              Transfer
+              <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
+            </>
+          )}
+          {transaction.type === TransactionType.ApplicationCall && <>App Call</>}
+        </div>
+
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
       </div>
     )
@@ -153,13 +182,16 @@ const DisplayArrow = fixedForwardRef(
 )
 
 const DisplaySelfTransaction = fixedForwardRef(
-  ({ transaction, arrow, ...rest }: { transaction: TransactionModel; arrow: Arrow }, ref?: React.LegacyRef<HTMLDivElement>) => {
+  (
+    { transaction, arrow, ...rest }: { transaction: TransactionModel | InnerTransactionModel; arrow: Arrow },
+    ref?: React.LegacyRef<HTMLDivElement>
+  ) => {
     const color = graphConfig.paymentTransactionColor
 
     return (
       <div
         ref={ref}
-        className={cn('flex items-center justify-center relative')}
+        className={cn('flex items-center justify-center relative z-10')}
         {...rest}
         style={{
           gridColumnStart: arrow.from + 2, // 2 to offset the name column
@@ -170,7 +202,7 @@ const DisplaySelfTransaction = fixedForwardRef(
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
         <div
           style={{
-            width: `calc(50% - ${graphConfig.circleDimension / 2}px)`,
+            width: `50%`,
             height: `${graphConfig.circleDimension}px`,
           }}
         >
@@ -183,7 +215,7 @@ const DisplaySelfTransaction = fixedForwardRef(
             borderColor: color,
             borderRadius: '4px',
             bottom: graphConfig.lineWidth / 2,
-            right: `calc(25% - ${graphConfig.lineWidth * 2}px)`,
+            right: `25%`,
           }}
         ></div>
         <div className={cn('absolute text-foreground right-1/4 w-[40%] flex justify-center')}>
@@ -199,7 +231,7 @@ const DisplaySelfTransaction = fixedForwardRef(
   }
 )
 
-function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransactionModel }) {
+function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransactionModel | InnerPaymentTransactionModel }) {
   const items = useMemo(
     () => [
       {
@@ -233,7 +265,11 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
   )
 }
 
-function AssetTransferTransactionToolTipContent({ transaction }: { transaction: AssetTransferTransactionModel }) {
+function AssetTransferTransactionToolTipContent({
+  transaction,
+}: {
+  transaction: AssetTransferTransactionModel | InnerAssetTransferTransactionModel
+}) {
   const items = useMemo(
     () => [
       {
@@ -267,8 +303,38 @@ function AssetTransferTransactionToolTipContent({ transaction }: { transaction: 
   )
 }
 
+function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransactionModel | InnerAppCallTransactionModel }) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: 'Application Call',
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+      {
+        dt: applicationIdLabel,
+        dd: transaction.applicationId,
+      },
+    ],
+    [transaction.applicationId, transaction.id, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
+
 type TransactionRowProps = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
   hasParent?: boolean
   hasNextSibling?: boolean
   hasChildren?: boolean
@@ -281,11 +347,11 @@ function TransactionRow({
   accounts,
   hasParent = false,
   hasNextSibling = false,
-  hasChildren = false,
   indentLevel,
   verticalBars,
 }: TransactionRowProps) {
   const arrow = useMemo(() => calcArrow(transaction, accounts), [accounts, transaction])
+  const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
   return (
     <>
@@ -296,7 +362,7 @@ function TransactionRow({
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionId hasParent={hasParent} id={transaction.id} />
+          <TransactionId hasParent={hasParent} transaction={transaction} />
           {hasParent && hasNextSibling && <ConnectionToSibling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
@@ -316,18 +382,18 @@ function TransactionRow({
               <TooltipContent>
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
-        else return null
+        return null
       })}
 
       {hasChildren &&
-        transaction.transactions?.map((childTransaction, index, arr) => (
+        transaction.innerTransactions.map((childTransaction, index, arr) => (
           <TransactionRow
             key={index}
             transaction={childTransaction}
-            hasChildren={childTransaction.transactions && childTransaction.transactions.length > 0}
             hasParent={true}
             hasNextSibling={index < arr.length - 1}
             accounts={accounts}
@@ -339,21 +405,22 @@ function TransactionRow({
   )
 }
 
-function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
-  const supportedTransactionTypes = [TransactionType.Payment, TransactionType.AssetTransfer]
-
-  const fromAccount = accounts.findIndex((a) => transaction.sender === a)
-
-  if (!supportedTransactionTypes.includes(transaction.type)) {
-    // For types that we don't support yet, return a self arrow
-    return {
-      from: fromAccount,
-      to: fromAccount,
-      direction: 'toSelf',
+function calcArrow(transaction: TransactionModel | InnerTransactionModel, accounts: string[]): Arrow {
+  const calculateToAccount = () => {
+    if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
+      return accounts.findIndex((a) => transaction.receiver === a)
     }
+
+    if (transaction.type === TransactionType.ApplicationCall) {
+      return accounts.findIndex((a) => transaction.applicationId.toString() === a)
+    }
+
+    throw new Error('Not supported transaction type')
   }
 
-  const toAccount = accounts.findIndex((a) => transaction.receiver === a)
+  const fromAccount = accounts.findIndex((a) => transaction.sender === a)
+  const toAccount = calculateToAccount()
+
   const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
 
   return {
@@ -364,7 +431,7 @@ function calcArrow(transaction: TransactionModel, accounts: string[]): Arrow {
 }
 
 type Props = {
-  transaction: TransactionModel
+  transaction: TransactionModel | InnerTransactionModel
 }
 
 export function TransactionViewVisual({ transaction }: Props) {
@@ -373,24 +440,21 @@ export function TransactionViewVisual({ transaction }: Props) {
   const accounts = Array.from(
     new Set([
       ...flattenedTransactions
-        .map((t) => [
-          t.transaction.sender,
-          t.transaction.type === TransactionType.Payment || t.transaction.type === TransactionType.AssetTransfer
-            ? t.transaction.receiver
-            : undefined,
-        ])
+        .map((t) => getTransactionAccounts(t.transaction))
         .flat()
         .filter(isDefined),
+      '', // an empty account to make room to show transactions with the same sender and receiver
     ])
   )
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
-  const gridAccountColumns = accounts.length + 1 // +1 is to support transactions with the same sender and receiver
+  const gridAccountColumns = accounts.length
+  const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
 
   return (
     <div
-      className={cn('relative grid')}
+      className={cn('relative grid overflow-auto')}
       style={{
-        gridTemplateColumns: `minmax(${graphConfig.colWidth}px, ${graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
@@ -400,49 +464,45 @@ export function TransactionViewVisual({ transaction }: Props) {
           <AccountId id={account} />
         </div>
       ))}
-      <div>{/* The last header cell is empty to support transactions with the same sender and receiver */}</div>
       {/* The below div is for drawing the background dash lines */}
-      <div className={cn('absolute right-0 -z-10')} style={{ top: `${graphConfig.rowHeight}px` }}>
+      <div className={cn('absolute left-0')} style={{ top: `${graphConfig.rowHeight}px` }}>
         <div>
           <div className={cn('p-0')}></div>
           <div
             className={cn('p-0')}
-            style={{ height: `${transactionCount * graphConfig.rowHeight}px`, width: `${graphConfig.colWidth * accounts.length}px` }}
+            style={{ height: `${transactionCount * graphConfig.rowHeight}px`, width: `${graphConfig.colWidth * gridAccountColumns}px` }}
           >
             <div
               className={cn('grid h-full')}
               style={{
-                gridTemplateColumns: `repeat(${accounts.length}, minmax(0, 1fr))`,
+                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
                 height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
-              {accounts.map((_, index) => (
-                <div key={index} className={cn('flex justify-center')}>
-                  <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
-                </div>
-              ))}
+              <div></div>
+              {accounts
+                .filter((a) => a) // Don't need to draw for the empty account
+                .map((_, index) => (
+                  <div key={index} className={cn('flex justify-center')}>
+                    <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
       </div>
-      <TransactionRow
-        transaction={transaction}
-        hasChildren={transaction.transactions && transaction.transactions.length > 0}
-        hasParent={false}
-        accounts={accounts}
-        verticalBars={[]}
-      />
-      {transaction.transactions?.map((transaction, index, arr) => (
-        <TransactionRow
-          key={index}
-          transaction={transaction}
-          hasChildren={transaction.transactions && transaction.transactions.length > 0}
-          hasParent={false}
-          hasNextSibling={index < arr.length - 1}
-          accounts={accounts}
-          verticalBars={[]}
-        />
-      ))}
+      <TransactionRow transaction={transaction} hasParent={false} accounts={accounts} verticalBars={[]} />
     </div>
   )
+}
+
+const getTransactionAccounts = (transaction: TransactionModel | InnerTransactionModel) => {
+  const accounts = [transaction.sender]
+  if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
+    accounts.push(transaction.receiver)
+  }
+  if (transaction.type === TransactionType.ApplicationCall) {
+    accounts.push(transaction.applicationId.toString())
+  }
+  return accounts
 }

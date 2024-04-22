@@ -3,23 +3,15 @@ import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { AssetTransferTransactionModel, SignatureType } from '../models'
-import { TransactionViewVisual } from './transaction-view-visual'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionViewTable } from './transaction-view-table'
+import { AssetTransferTransactionModel, InnerAssetTransferTransactionModel, SignatureType } from '../models'
 import { Multisig } from './multisig'
 import { Logicsig } from './logicsig'
 import { AssetTransferTransactionInfo } from './asset-transfer-transaction-info'
+import { TransactionViewTabs } from './transaction-view-tabs'
 
 type AssetTransaferTransactionProps = {
-  transaction: AssetTransferTransactionModel
+  transaction: AssetTransferTransactionModel | InnerAssetTransferTransactionModel
 }
-
-const visualTransactionDetailsTabId = 'visual'
-const tableTransactionDetailsTabId = 'table'
-export const transactionDetailsLabel = 'View Transaction Details'
-export const visualTransactionDetailsTabLabel = 'Visual'
-export const tableTransactionDetailsTabLabel = 'Table'
 
 export function AssetTranserTransaction({ transaction }: AssetTransaferTransactionProps) {
   return (
@@ -28,28 +20,7 @@ export function AssetTranserTransaction({ transaction }: AssetTransaferTransacti
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
           <AssetTransferTransactionInfo transaction={transaction} />
-          <Tabs defaultValue={visualTransactionDetailsTabId}>
-            <TabsList aria-label={transactionDetailsLabel}>
-              <TabsTrigger
-                className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
-                value={visualTransactionDetailsTabId}
-              >
-                {visualTransactionDetailsTabLabel}
-              </TabsTrigger>
-              <TabsTrigger
-                className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
-                value={tableTransactionDetailsTabId}
-              >
-                {tableTransactionDetailsTabLabel}
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
-              <TransactionViewVisual transaction={transaction} />
-            </TabsContent>
-            <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 border-border p-4')}>
-              <TransactionViewTable transaction={transaction} />
-            </TabsContent>
-          </Tabs>
+          <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}

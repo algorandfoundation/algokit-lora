@@ -1,11 +1,12 @@
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
-import { asAssetTransferTransaction, asPaymentTransaction } from '../mappers/transaction-mappers'
+import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from '../mappers/transaction-mappers'
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
+import { useParams } from 'react-router-dom'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -16,6 +17,8 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 //   - The snapshot tests will fail
 //   - Visually inspect (by viewing in the browser) each transactions in the describe.each list and make sure that they are rendered correctly with the new code changes
 //   - Update the snapshot files by running `vitest -u`. Or if the test runner is running, press `u` to update the snapshots.
+
+const prettyDomMaxLength = 200000
 
 describe('payment-transaction-view-visual', () => {
   describe.each([
@@ -28,7 +31,7 @@ describe('payment-transaction-view-visual', () => {
       return executeComponentTest(
         () => render(<TransactionViewVisual transaction={model} />),
         async (component) => {
-          expect(prettyDOM(component.container, undefined, { highlight: false })).toMatchFileSnapshot(
+          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-view-visual.${transaction.id}.html`
           )
         }
@@ -48,7 +51,7 @@ describe('asset-transfer-transaction-view-visual', () => {
       assetResult: assetResultMother['mainnet-312769']().build(),
     },
   ])(
-    'when rendering transaction $id',
+    'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
         const transaction = asAssetTransferTransaction(transactionResult, assetResult)
@@ -56,8 +59,30 @@ describe('asset-transfer-transaction-view-visual', () => {
         return executeComponentTest(
           () => render(<TransactionViewVisual transaction={transaction} />),
           async (component) => {
-            expect(prettyDOM(component.container, undefined, { highlight: false })).toMatchFileSnapshot(
+            expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-view-visual.${transaction.id}.html`
+            )
+          }
+        )
+      })
+    }
+  )
+})
+
+describe('application-call-view-visual', () => {
+  describe.each([{ transactionResult: transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build() }])(
+    'when rendering transaction $transactionResult.id',
+    ({ transactionResult: transaction }: { transactionResult: TransactionResult }) => {
+      it('should match snapshot', () => {
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+        const model = asAppCallTransaction(transaction, [])
+
+        return executeComponentTest(
+          () => render(<TransactionViewVisual transaction={model} />),
+          async (component) => {
+            expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+              `__snapshots__/application-transaction-view-visual.${transaction.id}.html`
             )
           }
         )

@@ -7,6 +7,7 @@ import { ExplorePage, explorePageTitle } from './features/explore/pages/explore-
 import { GroupPage } from './features/transactions/pages/group-page'
 import { ErrorPage } from './features/common/pages/error-page'
 import { BlockPage, blockPageTitle } from './features/blocks/pages/block-page'
+import { InnerTransactionPage } from './features/transactions/pages/inner-transaction-page'
 
 export const routes = evalTemplates([
   {
@@ -37,8 +38,17 @@ export const routes = evalTemplates([
           },
           {
             template: Urls.Explore.Transaction.ById,
-            element: <TransactionPage />,
             errorElement: <ErrorPage title={transactionPageTitle} />,
+            children: [
+              {
+                template: Urls.Explore.Transaction.ById,
+                element: <TransactionPage />,
+              },
+              {
+                template: Urls.Explore.Transaction.ById.Inner.ById,
+                element: <InnerTransactionPage />,
+              },
+            ],
           },
           {
             template: Urls.Explore.Group.ById,

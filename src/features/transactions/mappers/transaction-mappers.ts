@@ -1,7 +1,22 @@
-import { AssetResult, TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
+  ApplicationOnComplete,
+  AssetResult,
+  TransactionResult,
+  TransactionSignature,
+} from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+import {
+  AppCallOnComplete,
+  AppCallTransactionModel,
   AssetTransferTransactionModel,
   AssetTransferTransactionSubType,
+  BaseAppCallTransactionModel,
+  BaseAssetTransferTransactionModel,
+  BasePaymentTransactionModel,
+  InnerAppCallTransactionModel,
+  InnerAssetTransferTransactionModel,
+  InnerPaymentTransactionModel,
+  InnerTransactionId,
   LogicsigModel,
   MultisigModel,
   PaymentTransactionModel,
@@ -16,20 +31,30 @@ import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import algosdk from 'algosdk'
+import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 
-export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
+const mapCommonTransactionProperties = (transaction: TransactionResult) => {
   invariant(transaction['confirmed-round'], 'confirmed-round is not set')
   invariant(transaction['round-time'], 'round-time is not set')
-  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
 
   return {
-    id: transaction.id,
-    type: TransactionType.Payment,
     confirmedRound: transaction['confirmed-round'],
     roundTime: transaction['round-time'] * 1000,
     group: transaction['group'],
     fee: algokit.microAlgos(transaction.fee),
     sender: transaction.sender,
+    signature: transformSignature(transaction.signature),
+    note: transaction.note,
+    json: asJson(transaction),
+  }
+}
+
+const mapCommonPaymentTransactionProperties = (transaction: TransactionResult) => {
+  invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+
+  return {
+    ...mapCommonTransactionProperties(transaction),
+    type: TransactionType.Payment,
     receiver: transaction['payment-transaction']['receiver'],
     amount: algokit.microAlgos(transaction['payment-transaction']['amount']),
     closeRemainder: transaction['payment-transaction']['close-remainder-to']
@@ -38,9 +63,24 @@ export const asPaymentTransaction = (transaction: TransactionResult): PaymentTra
           amount: algokit.microAlgos(transaction['payment-transaction']['close-amount'] ?? 0),
         }
       : undefined,
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
-    json: asJson(transaction),
+  } satisfies BasePaymentTransactionModel
+}
+
+export const asPaymentTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
+  return {
+    id: transaction.id,
+    ...mapCommonPaymentTransactionProperties(transaction),
+  }
+}
+
+export const asInnerPaymentTransaction = (
+  networkTransactionId: string,
+  index: string,
+  transaction: TransactionResult
+): InnerPaymentTransactionModel => {
+  return {
+    ...asInnerTransactionId(networkTransactionId, index),
+    ...mapCommonPaymentTransactionProperties(transaction),
   }
 }
 
@@ -71,9 +111,7 @@ const transformSignature = (signature?: TransactionSignature) => {
 
 const asJson = (transaction: TransactionResult) => JSON.stringify(transaction, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
 
-export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
-  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
-  invariant(transaction['round-time'], 'round-time is not set')
+const mapCommonAssetTransferTransactionProperties = (transaction: TransactionResult, asset: AssetResult) => {
   invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const subType = () => {
@@ -100,15 +138,10 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
   }
 
   return {
-    id: transaction.id,
+    ...mapCommonTransactionProperties(transaction),
     type: TransactionType.AssetTransfer,
     subType: subType(),
     asset: asAsset(asset),
-    confirmedRound: transaction['confirmed-round'],
-    roundTime: transaction['round-time'] * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
     receiver: transaction['asset-transfer-transaction'].receiver,
     amount: transaction['asset-transfer-transaction'].amount,
     closeRemainder: transaction['asset-transfer-transaction']['close-to']
@@ -117,9 +150,26 @@ export const asAssetTransferTransaction = (transaction: TransactionResult, asset
           amount: transaction['asset-transfer-transaction']['close-amount'] ?? 0,
         }
       : undefined,
-    signature: transformSignature(transaction.signature),
     clawbackFrom: transaction['asset-transfer-transaction'].sender,
-    json: asJson(transaction),
+  } satisfies BaseAssetTransferTransactionModel
+}
+
+export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
+  return {
+    id: transaction.id,
+    ...mapCommonAssetTransferTransactionProperties(transaction, asset),
+  }
+}
+
+export const asInnerAssetTransferTransactionModel = (
+  networkTransactionId: string,
+  index: string,
+  transaction: TransactionResult,
+  asset: AssetResult
+): InnerAssetTransferTransactionModel => {
+  return {
+    ...asInnerTransactionId(networkTransactionId, index),
+    ...mapCommonAssetTransferTransactionProperties(transaction, asset),
   }
 }
 
@@ -154,6 +204,13 @@ export const asTransactionModel = async (
       const assetId = transaction['asset-transfer-transaction']['asset-id']
       const asset = await assetResolver(assetId)
       return asAssetTransferTransaction(transaction, asset)
+    }
+    case algosdk.TransactionType.appl: {
+      invariant(transaction['application-transaction'], 'application-transaction is not set')
+      const assetIds = transaction['application-transaction']['foreign-assets'] ?? []
+      const uniqueAssetIds = Array.from(new Set(assetIds))
+      const assets = await Promise.all(uniqueAssetIds.map((assetId) => assetResolver(assetId)))
+      return asAppCallTransaction(transaction, assets)
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
@@ -192,5 +249,104 @@ export const asTransactionSummary = (transaction: TransactionResult): Transactio
         type: TransactionType.Payment,
         to: ZERO_ADDRESS,
       }
+  }
+}
+
+export const asInnerTransactionMode = (
+  networkTransactionId: string,
+  index: string,
+  transaction: TransactionResult,
+  assetResults: AssetResult[]
+) => {
+  if (transaction['tx-type'] === AlgoSdkTransactionType.pay) {
+    return asInnerPaymentTransaction(networkTransactionId, index, transaction)
+  }
+  if (transaction['tx-type'] === AlgoSdkTransactionType.axfer) {
+    invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+    const assetResult = assetResults.find((asset) => asset.index === transaction['asset-transfer-transaction']!['asset-id'])
+    invariant(assetResult, `Asset index ${transaction['asset-transfer-transaction']!['asset-id']} not found in cache`)
+
+    return asInnerAssetTransferTransactionModel(networkTransactionId, index, transaction, assetResult)
+  }
+  if (transaction['tx-type'] === AlgoSdkTransactionType.appl) {
+    return asInnerAppCallTransaction(networkTransactionId, index, transaction, assetResults)
+  }
+
+  // This could be dangerous as we haven't implemented all the transaction types
+  throw new Error(`Unsupported inner transaction type: ${transaction['tx-type']}`)
+}
+
+const mapCommonAppCallTransactionProperties = (
+  networkTransactionId: string,
+  transaction: TransactionResult,
+  assetResults: AssetResult[],
+  indexPrefix?: string
+) => {
+  invariant(transaction['application-transaction'], 'application-transaction is not set')
+
+  return {
+    ...mapCommonTransactionProperties(transaction),
+    type: TransactionType.ApplicationCall,
+    applicationId: transaction['application-transaction']['application-id'],
+    applicationArgs: transaction['application-transaction']['application-args'] ?? [],
+    applicationAccounts: transaction['application-transaction'].accounts ?? [],
+    foreignApps: transaction['application-transaction']['foreign-apps'] ?? [],
+    foreignAssets: transaction['application-transaction']['foreign-assets'] ?? [],
+    globalStateDeltas: asGlobalStateDelta(transaction['global-state-delta'] as unknown as IndexerGlobalStateDelta[]),
+    localStateDeltas: asLocalStateDelta(transaction['local-state-delta'] as unknown as IndexerLocalStateDelta[]),
+    innerTransactions:
+      transaction['inner-txns']?.map((innerTransaction, index) => {
+        // Generate a unique id for the inner transaction
+        const innerId = indexPrefix ? `${indexPrefix}-${index + 1}` : `${index + 1}`
+        return asInnerTransactionMode(networkTransactionId, innerId, innerTransaction, assetResults)
+      }) ?? [],
+    onCompletion: asAppCallOnComplete(transaction['application-transaction']['on-completion']),
+    action: transaction['application-transaction']['application-id'] ? 'Call' : 'Create',
+    logs: transaction['logs'] ?? [],
+  } satisfies BaseAppCallTransactionModel
+}
+
+export const asAppCallTransaction = (transaction: TransactionResult, assetResults: AssetResult[]): AppCallTransactionModel => {
+  const commonProperties = mapCommonAppCallTransactionProperties(transaction.id, transaction, assetResults)
+
+  return {
+    id: transaction.id,
+    ...commonProperties,
+  }
+}
+
+export const asInnerAppCallTransaction = (
+  networkTransactionId: string,
+  index: string,
+  transaction: TransactionResult,
+  assetResults: AssetResult[]
+): InnerAppCallTransactionModel => {
+  return {
+    ...asInnerTransactionId(networkTransactionId, index),
+    ...mapCommonAppCallTransactionProperties(networkTransactionId, transaction, assetResults, `${index}`),
+  }
+}
+
+const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnComplete => {
+  switch (indexerEnum) {
+    case ApplicationOnComplete.noop:
+      return AppCallOnComplete.NoOp
+    case ApplicationOnComplete.optin:
+      return AppCallOnComplete.OptIn
+    case ApplicationOnComplete.closeout:
+      return AppCallOnComplete.CloseOut
+    case ApplicationOnComplete.clear:
+      return AppCallOnComplete.ClearState
+    case ApplicationOnComplete.update:
+      return AppCallOnComplete.Update
+    case ApplicationOnComplete.delete:
+      return AppCallOnComplete.Delete
+  }
+}
+
+const asInnerTransactionId = (networkTransactionId: string, index: string): InnerTransactionId => {
+  return {
+    id: `${networkTransactionId}-${index}`,
+    innerId: index,
   }
 }
