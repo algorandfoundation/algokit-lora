@@ -8,8 +8,7 @@ import { ellipseId } from '@/utils/ellipse-id'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
-import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
-import { Urls } from '@/routes/urls'
+import { InnerTransactionLink } from './inner-transaction-link'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -36,12 +35,7 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
           }}
         >
           {'innerId' in transaction ? (
-            <TemplatedNavLink
-              urlTemplate={Urls.Explore.Transaction.ById.Inner.ById}
-              urlParams={{ innerTransactionId: transaction.innerId }}
-            >
-              Inner {transaction.innerId}
-            </TemplatedNavLink>
+            <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
           ) : (
             ellipseId(transaction.id)
           )}

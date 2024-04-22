@@ -25,9 +25,8 @@ import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { ellipseId } from '@/utils/ellipse-id'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
-import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
-import { Urls } from '@/routes/urls'
 import { isValidAddress } from 'algosdk'
+import { InnerTransactionLink } from './inner-transaction-link'
 
 const graphConfig = {
   rowHeight: 40,
@@ -75,13 +74,9 @@ function ConnectionToParent() {
 
 function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: TransactionModel | InnerTransactionModel }) {
   const component = useMemo(() => {
-    if ('innerId' in transaction)
-      return (
-        <TemplatedNavLink urlTemplate={Urls.Explore.Transaction.ById.Inner.ById} urlParams={{ innerTransactionId: transaction.innerId }}>
-          Inner {transaction.innerId}
-        </TemplatedNavLink>
-      )
-
+    if ('innerId' in transaction) {
+      return <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
+    }
     return ellipseId(transaction.id)
   }, [transaction])
 
