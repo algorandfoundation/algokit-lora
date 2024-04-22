@@ -103,4 +103,64 @@ export const assetResultMother = {
       },
     } satisfies AssetResult)
   },
+  ['mainnet-31566704']: () => {
+    const encoder = new TextEncoder()
+    return new AssetResultBuilder({
+      index: 31566704,
+      params: {
+        creator: '2UEQTE5QDNXPI7M3TU44G6SYKLFWLPQO7EBZM7K7MHMQQMFI4QJPLHQFHM',
+        decimals: 6,
+        'default-frozen': false,
+        freeze: '3ERES6JFBIJ7ZPNVQJNH2LETCBQWUPGTO4ROA6VFUR25WFSYKGX3WBO5GE',
+        manager: '37XL3M57AXBUJARWMT5R7M35OERXMH3Q22JMMEFLBYNDXXADGFN625HAL4',
+        name: 'USDC',
+        'name-b64': encoder.encode('VVNEQw=='),
+        reserve: '2UEQTE5QDNXPI7M3TU44G6SYKLFWLPQO7EBZM7K7MHMQQMFI4QJPLHQFHM',
+        total: 18446744073709552000,
+        'unit-name': 'USDC',
+        'unit-name-b64': encoder.encode('VVNEQw=='),
+        url: 'https://www.centre.io/usdc',
+        'url-b64': encoder.encode('aHR0cHM6Ly93d3cuY2VudHJlLmlvL3VzZGM='),
+      },
+    } satisfies AssetResult)
+  },
+  ['mainnet-386195940']: () => {
+    const encoder = new TextEncoder()
+    return new AssetResultBuilder({
+      index: 386195940,
+      params: {
+        creator: 'ETGSQKACKC56JWGMDAEP5S2JVQWRKTQUVKCZTMPNUGZLDVCWPY63LSI3H4',
+        decimals: 8,
+        'default-frozen': false,
+        manager: 'PXLRHMSOTI5LDPRNMMM5F4NDPLCBTHNDLLSZSWFU722PNPMNKBZ2V3ONT4',
+        'metadata-hash': encoder.encode('NGI5MjRiOWM0ZTU5NmUxMDU5OWNkZDg5YjkxZDQyMzk='),
+        name: 'goETH',
+        'name-b64': encoder.encode('Z29FVEg='),
+        reserve: 'NLTFR6Y7AAQ6BFFE7NMNJRK3CIZ5U7KSSD6UDMVZ3WOW2TPALOEV57MEEA',
+        total: 15000000000000000,
+        'unit-name': 'goETH',
+        'unit-name-b64': encoder.encode('Z29FVEg='),
+        url: 'https://algomint.io',
+        'url-b64': encoder.encode('aHR0cHM6Ly9hbGdvbWludC5pbw=='),
+      },
+    } satisfies AssetResult)
+  },
+  ['mainnet-408898501']: () => {
+    const encoder = new TextEncoder()
+    return new AssetResultBuilder({
+      index: 408898501,
+      params: {
+        creator: 'LOOTHTGZ5LIF6M5P6URZMW4BX5UO4IS7KBELOVQDTOJFPS4VGLGD2GA5I4',
+        decimals: 1,
+        'default-frozen': false,
+        manager: 'QZWWSDFQA6PMVEZF6MTNXHKGLT7KOWG62SFU2W4XQOUK7ENDHDZUVRBCYU',
+        name: 'Loot Box',
+        'name-b64': encoder.encode('TG9vdCBCb3g='),
+        reserve: 'LOOTHTGZ5LIF6M5P6URZMW4BX5UO4IS7KBELOVQDTOJFPS4VGLGD2GA5I4',
+        total: 100000000,
+        'unit-name': 'LTBX',
+        'unit-name-b64': encoder.encode('TFRCWA=='),
+      },
+    } satisfies AssetResult)
+  },
 }
