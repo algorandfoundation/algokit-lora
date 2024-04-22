@@ -7,7 +7,7 @@ import {
   transactionNotFoundMessage,
 } from './transaction-page'
 import { executeComponentTest } from '@/tests/test-component'
-import { getAllByRole, getByRole, render, waitFor } from '@/tests/testing-library'
+import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
