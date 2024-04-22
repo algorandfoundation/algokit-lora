@@ -12,7 +12,6 @@ import { indexer, algod } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransactionModel } from '../mappers/transaction-mappers'
 import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '@/features/assets/data'
-import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
 import { InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
@@ -68,7 +67,7 @@ export const fetchTransactionsModelAtomBuilder = (
           }
         }
         if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
-          const assetIds = getRecursiveDataForAppCallTransaction(txn, 'foreign-assets')
+          const assetIds = txn['application-transaction']['foreign-assets'] ?? []
           assetIds.forEach((assetId) => {
             if (!acc.has(assetId)) {
               acc.add(assetId)

@@ -31,7 +31,6 @@ import * as algokit from '@algorandfoundation/algokit-utils'
 import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import algosdk from 'algosdk'
-import { getRecursiveDataForAppCallTransaction } from '../utils/get-recursive-data-for-app-call-transaction'
 import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 
 const mapCommonTransactionProperties = (transaction: TransactionResult) => {
@@ -208,7 +207,7 @@ export const asTransactionModel = async (
     }
     case algosdk.TransactionType.appl: {
       invariant(transaction['application-transaction'], 'application-transaction is not set')
-      const assetIds = getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets')
+      const assetIds = transaction['application-transaction']['foreign-assets'] ?? []
       const uniqueAssetIds = Array.from(new Set(assetIds))
       const assets = await Promise.all(uniqueAssetIds.map((assetId) => assetResolver(assetId)))
       return asAppCallTransaction(transaction, assets)
@@ -290,9 +289,9 @@ const mapCommonAppCallTransactionProperties = (
     type: TransactionType.ApplicationCall,
     applicationId: transaction['application-transaction']['application-id'],
     applicationArgs: transaction['application-transaction']['application-args'] ?? [],
-    applicationAccounts: Array.from(new Set(getRecursiveDataForAppCallTransaction(transaction, 'accounts'))),
-    foreignApps: Array.from(new Set(getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'))),
-    foreignAssets: Array.from(new Set(getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'))),
+    applicationAccounts: transaction['application-transaction'].accounts ?? [],
+    foreignApps: transaction['application-transaction']['foreign-apps'] ?? [],
+    foreignAssets: transaction['application-transaction']['foreign-assets'] ?? [],
     globalStateDeltas: asGlobalStateDelta(transaction['global-state-delta'] as unknown as IndexerGlobalStateDelta[]),
     localStateDeltas: asLocalStateDelta(transaction['local-state-delta'] as unknown as IndexerLocalStateDelta[]),
     innerTransactions:
