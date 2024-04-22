@@ -1,33 +1,33 @@
 import { cn } from '@/features/common/utils'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
 import { useMemo } from 'react'
-import { Buffer } from 'buffer'
+import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 
 type Props = {
   logs: string[]
 }
 
-const logLabel = 'View Logs'
+export const logsLabel = 'View Logs'
 const base64LogTabId = 'base64'
-const base64LogTabLabel = 'Base64'
+export const base64LogsTabLabel = 'Base64'
 const textLogTabId = 'text'
-const textLogTabLabel = 'UTF-8'
+export const textLogsTabLabel = 'UTF-8'
 
 export function AppCallTransactionLogs({ logs }: Props) {
   const texts = useMemo(() => {
-    return logs.map((log) => Buffer.from(log, 'base64').toString('utf-8'))
+    return logs.map((log) => base64ToUtf8(log))
   }, [logs])
 
   return (
     <div className={cn('space-y-2')}>
       <h2 className={cn('text-xl font-bold')}>Logs</h2>
       <Tabs defaultValue={base64LogTabId}>
-        <TabsList aria-label={logLabel}>
+        <TabsList aria-label={logsLabel}>
           <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64LogTabId}>
-            {base64LogTabLabel}
+            {base64LogsTabLabel}
           </TabsTrigger>
           <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={textLogTabId}>
-            {textLogTabLabel}
+            {textLogsTabLabel}
           </TabsTrigger>
         </TabsList>
         <TabsContent value={base64LogTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>

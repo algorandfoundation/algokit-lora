@@ -8,7 +8,7 @@ import { TransactionNote } from './transaction-note'
 import { AppCallTransactionModel, InnerAppCallTransactionModel, SignatureType } from '../models'
 import { TransactionViewTabs } from './transaction-view-tabs'
 import { AppCallTransactionInfo } from './app-call-transaction-info'
-import { AppCallTransactionLogs } from './app-call-transaction-log'
+import { AppCallTransactionLogs } from './app-call-transaction-logs'
 
 type Props = {
   transaction: AppCallTransactionModel | InnerAppCallTransactionModel
