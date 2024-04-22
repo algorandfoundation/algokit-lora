@@ -65,7 +65,8 @@ export type AssetTransferTransactionModel = BaseAssetTransferTransactionModel & 
 
 export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel | AppCallTransactionModel
 
-export type TransactionSummary = Pick<CommonTransactionProperties, 'id' | 'type'> & {
+export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
+  id: string
   from: Address
   to: Address | number
 }
