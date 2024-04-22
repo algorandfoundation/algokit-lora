@@ -16,6 +16,7 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { assetsAtom } from '@/features/assets/data'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { tableAssertion } from '@/tests/assertions/table-assertion'
 
 describe('block-page', () => {
   describe('when rending a block using an invalid round number', () => {
@@ -109,23 +110,32 @@ describe('block-page', () => {
 
             const rows = getAllByRole(component.container, 'row')
             expect(rows.length).toBe(3)
-            const transactionsRow1 = rows[1]
-            const row1Cells = getAllByRole(transactionsRow1, 'cell')
-            expect(row1Cells[0].textContent).toBe(ellipseId(transaction1.id))
-            expect(row1Cells[1].textContent).toBe(ellipseId(transaction1.group))
-            expect(row1Cells[2].textContent).toBe(ellipseAddress(transaction1.sender))
-            expect(row1Cells[3].textContent).toBe(ellipseAddress(transaction1['payment-transaction']!.receiver))
-            expect(row1Cells[4].textContent).toBe('Payment')
-            expect(row1Cells[5].textContent).toBe((transaction1['payment-transaction']!.amount / 1e6).toString())
 
-            const transactionsRow2 = rows[2]
-            const row2Cells = getAllByRole(transactionsRow2, 'cell')
-            expect(row2Cells[0].textContent).toBe(ellipseId(transaction2.id))
-            expect(row2Cells[1].textContent).toBe(ellipseId(transaction2.group))
-            expect(row2Cells[2].textContent).toBe(ellipseAddress(transaction2.sender))
-            expect(row2Cells[3].textContent).toBe(ellipseAddress(transaction2['asset-transfer-transaction']!.receiver))
-            expect(row2Cells[4].textContent).toBe('Asset Transfer')
-            expect(row2Cells[5].textContent).toBe(`${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`)
+            tableAssertion({
+              container: component.container,
+              rows: [
+                {
+                  cells: [
+                    ellipseId(transaction1.id),
+                    ellipseId(transaction1.group),
+                    ellipseAddress(transaction1.sender),
+                    ellipseAddress(transaction1['payment-transaction']!.receiver),
+                    'Payment',
+                    (transaction1['payment-transaction']!.amount / 1e6).toString(),
+                  ],
+                },
+                {
+                  cells: [
+                    ellipseId(transaction2.id),
+                    ellipseId(transaction2.group),
+                    ellipseAddress(transaction2.sender),
+                    ellipseAddress(transaction2['asset-transfer-transaction']!.receiver),
+                    'Asset Transfer',
+                    `${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`,
+                  ],
+                },
+              ],
+            })
           }
         )
       })
