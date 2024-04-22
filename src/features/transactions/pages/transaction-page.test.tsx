@@ -450,17 +450,17 @@ describe('transaction-page', () => {
           descriptionListAssertion({
             container: component.container,
             items: [
-              { title: transactionIdLabel, label: transaction.id },
-              { title: transactionTypeLabel, label: 'Asset TransferOpt-Out' },
-              { title: transactionTimestampLabel, label: 'Thu, 20 July 2023 19:08:03' },
-              { title: transactionBlockLabel, label: '30666726' },
-              { title: transactionFeeLabel, label: '0.001' },
-              { title: transactionSenderLabel, label: 'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ' },
-              { title: transactionReceiverLabel, label: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
-              { title: assetLabel, label: '140479105 (Clyders)' },
-              { title: transactionAmountLabel, label: '0 CLY' },
-              { title: assetTransactionCloseRemainderToLabel, label: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
-              { title: assetTransactionCloseRemainderAmountLabel, label: '0 CLY' },
+              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionTypeLabel, description: 'Asset TransferOpt-Out' },
+              { term: transactionTimestampLabel, description: 'Thu, 20 July 2023 19:08:03' },
+              { term: transactionBlockLabel, description: '30666726' },
+              { term: transactionFeeLabel, description: '0.001' },
+              { term: transactionSenderLabel, description: 'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ' },
+              { term: transactionReceiverLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
+              { term: assetLabel, description: '140479105 (Clyders)' },
+              { term: transactionAmountLabel, description: '0 CLY' },
+              { term: assetTransactionCloseRemainderToLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
+              { term: assetTransactionCloseRemainderAmountLabel, description: '0 CLY' },
             ],
           })
           expect(component.queryByText(transactionGroupLabel)).toBeNull()

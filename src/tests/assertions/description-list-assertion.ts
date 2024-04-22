@@ -7,12 +7,12 @@ export type DescriptionListAssertionInput = {
 }
 
 export type DescriptionListAssertionItem = {
-  title: string
-  label: string
+  term: string
+  description: string
 }
 
 export const descriptionListAssertion = ({ container, items }: DescriptionListAssertionInput) => {
   items.forEach((item) => {
-    expect(getByDescriptionTerm(container, item.title).textContent).toBe(item.label)
+    expect(getByDescriptionTerm(container, item.term).textContent).toBe(item.description)
   })
 }
