@@ -7,7 +7,7 @@ import {
   transactionNotFoundMessage,
 } from './transaction-page'
 import { executeComponentTest } from '@/tests/test-component'
-import { getAllByRole, getByRole, render, waitFor } from '@/tests/testing-library'
+import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
@@ -58,6 +58,7 @@ import {
 import { base64LogsTabLabel, logsLabel, textLogsTabLabel } from '../components/app-call-transaction-logs'
 import { InnerTransactionPage } from './inner-transaction-page'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { textListAssertion } from '@/tests/assertions/text-list-assertion'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -814,33 +815,37 @@ describe('transaction-page', () => {
 
           const logTabList = component.getByRole('tablist', { name: logsLabel })
           const base64LogViewTab = component.getByRole('tabpanel', { name: base64LogsTabLabel })
-          const base64Logs = [...base64LogViewTab.querySelectorAll('div')].map((div) => div.textContent)
-          expect(base64Logs).toEqual([
-            'aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA==',
-            'aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0=',
-            'c3dhcF9hbW91bnQgJWkAAAAAACokBw==',
-            'Y2hhbmdlICVpAAAAAAAAAAA=',
-            'b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A=',
-            'b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW',
-            'cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0=',
-            'cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp',
-            'dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2',
-          ])
+          textListAssertion({
+            container: base64LogViewTab,
+            expectedTexts: [
+              'aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA==',
+              'aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0=',
+              'c3dhcF9hbW91bnQgJWkAAAAAACokBw==',
+              'Y2hhbmdlICVpAAAAAAAAAAA=',
+              'b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A=',
+              'b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW',
+              'cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0=',
+              'cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp',
+              'dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2',
+            ],
+          })
 
           await user.click(getByRole(logTabList, 'tab', { name: textLogsTabLabel }))
           const textLogViewTab = component.getByRole('tabpanel', { name: textLogsTabLabel })
-          const utf8Logs = [...textLogViewTab.querySelectorAll('div')].map((div) => div.textContent)
-          expect(utf8Logs).toEqual([
-            base64ToUtf8('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA=='),
-            base64ToUtf8('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0='),
-            base64ToUtf8('c3dhcF9hbW91bnQgJWkAAAAAACokBw=='),
-            base64ToUtf8('Y2hhbmdlICVpAAAAAAAAAAA='),
-            base64ToUtf8('b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A='),
-            base64ToUtf8('b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW'),
-            base64ToUtf8('cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0='),
-            base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp'),
-            base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2'),
-          ])
+          textListAssertion({
+            container: textLogViewTab,
+            expectedTexts: [
+              base64ToUtf8('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA=='),
+              base64ToUtf8('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0='),
+              base64ToUtf8('c3dhcF9hbW91bnQgJWkAAAAAACokBw=='),
+              base64ToUtf8('Y2hhbmdlICVpAAAAAAAAAAA='),
+              base64ToUtf8('b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A='),
+              base64ToUtf8('b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW'),
+              base64ToUtf8('cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0='),
+              base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp'),
+              base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2'),
+            ],
+          })
         }
       )
     })
