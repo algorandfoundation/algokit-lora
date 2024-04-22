@@ -13,14 +13,14 @@ type Props = {
 }
 
 const applicationArgsTabId = 'application-args'
-const applicationAccountsTabId = 'application-accounts'
+const foreignAccountsTabId = 'foreign-accounts'
 const foreignApplicationsTabId = 'foreign-applications'
 const foreignAssetsTabId = 'foreign-assets'
 const globalStateDeltaTabId = 'global-state'
 const localStateDeltaTabId = 'local-state'
 
 export const applicationArgsTabLabel = 'Application Args'
-export const applicationAccountsTabLabel = 'Application Accounts'
+export const foreignAccountsTabLabel = 'Foreign Accounts'
 export const foreignApplicationsTabLabel = 'Foreign Applications'
 export const foreignAssetsTabLabel = 'Foreign Assets'
 export const globalStateDeltaTabLabel = 'Global State Delta'
@@ -66,32 +66,32 @@ export function AppCallTransactionInfo({ transaction }: Props) {
       {
         id: applicationArgsTabId,
         label: applicationArgsTabLabel,
-        element: <ApplicationArgs transaction={transaction} />,
+        children: <ApplicationArgs transaction={transaction} />,
       },
       {
-        id: applicationAccountsTabId,
-        label: applicationAccountsTabLabel,
-        element: <ApplicationAccounts transaction={transaction} />,
+        id: foreignAccountsTabId,
+        label: foreignAccountsTabLabel,
+        children: <ForeignAccounts transaction={transaction} />,
       },
       {
         id: foreignApplicationsTabId,
         label: foreignApplicationsTabLabel,
-        element: <ForeignApplications transaction={transaction} />,
+        children: <ForeignApplications transaction={transaction} />,
       },
       {
         id: foreignAssetsTabId,
         label: foreignAssetsTabLabel,
-        element: <ForeignAssets transaction={transaction} />,
+        children: <ForeignAssets transaction={transaction} />,
       },
       {
         id: globalStateDeltaTabId,
         label: globalStateDeltaTabLabel,
-        element: <GlobalStateDeltas transaction={transaction} />,
+        children: <GlobalStateDeltas transaction={transaction} />,
       },
       {
         id: localStateDeltaTabId,
         label: localStateDeltaTabLabel,
-        element: <LocalStateDeltas transaction={transaction} />,
+        children: <LocalStateDeltas transaction={transaction} />,
       },
     ],
     [transaction]
@@ -115,7 +115,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         </TabsList>
         {tabs.map((tab) => (
           <TabsContent key={tab.id} value={tab.id} className={cn('border-solid border-2 border-border p-4')}>
-            {tab.element}
+            {tab.children}
           </TabsContent>
         ))}
       </Tabs>
@@ -133,7 +133,7 @@ function ApplicationArgs({ transaction }: Props) {
   )
 }
 
-function ApplicationAccounts({ transaction }: Props) {
+function ForeignAccounts({ transaction }: Props) {
   return (
     <div>
       {transaction.applicationAccounts.map((data, index) => (
@@ -190,7 +190,6 @@ export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
   {
     accessorKey: 'address',
     header: 'Address',
-    accessorFn: (item) => item.address,
     cell: (c) => {
       const address = c.getValue<string>()
       return ellipseAddress(address)

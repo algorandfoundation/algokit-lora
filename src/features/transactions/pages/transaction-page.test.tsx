@@ -46,7 +46,7 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import {
   actionLabel,
   appCallTransactionDetailsLabel,
-  applicationAccountsTabLabel,
+  foreignAccountsTabLabel,
   applicationArgsTabLabel,
   applicationIdLabel,
   foreignApplicationsTabLabel,
@@ -676,8 +676,8 @@ describe('transaction-page', () => {
             '6r6CnQ==AAAAAAAAAAA=AA==AA==AQ==AQ=='
           )
 
-          await user.click(getByRole(detailsTabList, 'tab', { name: applicationAccountsTabLabel }))
-          expect(component.getByRole('tabpanel', { name: applicationAccountsTabLabel }).textContent).toMatch('')
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignAccountsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignAccountsTabLabel }).textContent).toMatch('')
 
           await user.click(getByRole(detailsTabList, 'tab', { name: foreignApplicationsTabLabel }))
           expect(component.getByRole('tabpanel', { name: foreignApplicationsTabLabel }).textContent).toMatch('971350278')

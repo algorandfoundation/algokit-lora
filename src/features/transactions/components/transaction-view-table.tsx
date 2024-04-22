@@ -25,7 +25,6 @@ export const transactionAmountLabel = 'Amount'
 
 export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
   {
-    accessorKey: 'id',
     header: 'Transaction Id',
     accessorFn: (item) => item,
     cell: (c) => {
@@ -51,7 +50,6 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     },
   },
   {
-    accessorKey: 'from',
     header: 'From',
     accessorFn: (item) => item.transaction,
     cell: (c) => {
@@ -60,7 +58,6 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     },
   },
   {
-    accessorKey: 'to',
     header: 'To',
     accessorFn: (item) => item.transaction,
     cell: (c) => {
@@ -71,12 +68,10 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     },
   },
   {
-    accessorKey: 'type',
     header: 'Type',
     accessorFn: (item) => item.transaction.type,
   },
   {
-    accessorKey: 'amount',
     header: 'Amount',
     accessorFn: (item) => item.transaction,
     cell: (c) => {
