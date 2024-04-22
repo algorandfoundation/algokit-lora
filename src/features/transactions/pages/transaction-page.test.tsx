@@ -651,21 +651,23 @@ describe('transaction-page', () => {
         },
         async (component, user) => {
           // waitFor the loading state to be finished
-          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
-          expect(getByDescriptionTerm(component.container, transactionTypeLabel).textContent).toContain('Application Call')
-          expect(getByDescriptionTerm(component.container, transactionTimestampLabel).textContent).toBe('Fri, 01 March 2024 00:07:53')
-          expect(getByDescriptionTerm(component.container, transactionBlockLabel).textContent).toBe('36591812')
-          expect(getByDescriptionTerm(component.container, transactionGroupLabel).textContent).toBe(
-            'Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30='
-          )
-          expect(getByDescriptionTerm(component.container, transactionFeeLabel).textContent).toBe('0.005')
-
-          expect(getByDescriptionTerm(component.container, transactionSenderLabel).textContent).toBe(
-            'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY'
-          )
-          expect(getByDescriptionTerm(component.container, applicationIdLabel).textContent).toBe('971368268')
-          expect(getByDescriptionTerm(component.container, actionLabel).textContent).toBe('Call')
-          expect(getByDescriptionTerm(component.container, onCompletionLabel).textContent).toBe('NoOp')
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Application Call' },
+                { term: transactionTimestampLabel, description: 'Fri, 01 March 2024 00:07:53' },
+                { term: transactionBlockLabel, description: '36591812' },
+                { term: transactionGroupLabel, description: 'Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30=' },
+                { term: transactionFeeLabel, description: '0.005' },
+                { term: transactionSenderLabel, description: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY' },
+                { term: applicationIdLabel, description: '971368268' },
+                { term: actionLabel, description: 'Call' },
+                { term: onCompletionLabel, description: 'NoOp' },
+              ],
+            })
+          })
 
           const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
           expect(detailsTabList).toBeTruthy()
@@ -685,50 +687,38 @@ describe('transaction-page', () => {
 
           await user.click(getByRole(detailsTabList, 'tab', { name: globalStateDeltaTabLabel }))
           const globalStateDeltaTab = component.getByRole('tabpanel', { name: globalStateDeltaTabLabel })
-          const globalStateDeltaDataRow1 = getAllByRole(globalStateDeltaTab, 'row')[1]
-          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[0].textContent).toBe('i')
-          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[1].textContent).toBe('Bytes')
-          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[2].textContent).toBe('Set')
-          expect(getAllByRole(globalStateDeltaDataRow1, 'cell')[3].textContent).toBe(
-            'AAONfqTGgAAAAAkYTnKgAAAca/UmNAAAAABZC8sUiKAAARg1PuJHngAAYtCCAWTGAAAAAGXhHFY='
-          )
-          const globalStateDeltaDataRow2 = getAllByRole(globalStateDeltaTab, 'row')[2]
-          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[0].textContent).toBe('s')
-          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[1].textContent).toBe('Bytes')
-          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[2].textContent).toBe('Set')
-          expect(getAllByRole(globalStateDeltaDataRow2, 'cell')[3].textContent).toBe(
-            'AADMouUTEAAAAMyi5RMQAABHDeTfggAAAAqoe+5TgAAABxr9SY0AAAAf+XPK+oAAABHDeTfggAAABxr9SY0AAAAAAQXS3+IfAAR2O9R9MEEAAAAABGJpIfE2cs7Vt0ol'
-          )
-          const globalStateDeltaDataRow3 = getAllByRole(globalStateDeltaTab, 'row')[3]
-          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[0].textContent).toBe('v')
-          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[1].textContent).toBe('Bytes')
-          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[2].textContent).toBe('Set')
-          expect(getAllByRole(globalStateDeltaDataRow3, 'cell')[3].textContent).toBe(
-            'AAC15iD0gAAAAzKLlExAAABHDeTfggAAAAAoa8i0brcAApIbjWwBBgAAZ/7Fy4wR'
-          )
+          tableAssertion({
+            container: globalStateDeltaTab,
+            rows: [
+              {
+                cells: ['i', 'Bytes', 'Set', 'AAONfqTGgAAAAAkYTnKgAAAca/UmNAAAAABZC8sUiKAAARg1PuJHngAAYtCCAWTGAAAAAGXhHFY='],
+              },
+              {
+                cells: [
+                  's',
+                  'Bytes',
+                  'Set',
+                  'AADMouUTEAAAAMyi5RMQAABHDeTfggAAAAqoe+5TgAAABxr9SY0AAAAf+XPK+oAAABHDeTfggAAABxr9SY0AAAAAAQXS3+IfAAR2O9R9MEEAAAAABGJpIfE2cs7Vt0ol',
+                ],
+              },
+              {
+                cells: ['v', 'Bytes', 'Set', 'AAC15iD0gAAAAzKLlExAAABHDeTfggAAAAAoa8i0brcAApIbjWwBBgAAZ/7Fy4wR'],
+              },
+            ],
+          })
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
           const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
 
-          const transactionTableDataRow1 = getAllByRole(tableViewTab, 'row')[1]
-          expect(getAllByRole(transactionTableDataRow1, 'cell')[0].textContent).toBe('KMNBSQ4...')
-          expect(getAllByRole(transactionTableDataRow1, 'cell')[1].textContent).toBe('W2IZ...NCEY')
-          expect(getAllByRole(transactionTableDataRow1, 'cell')[2].textContent).toBe('971368268')
-          expect(getAllByRole(transactionTableDataRow1, 'cell')[3].textContent).toBe('Application Call')
-
-          const transactionTableDataRow2 = getAllByRole(tableViewTab, 'row')[2]
-          expect(getAllByRole(transactionTableDataRow2, 'cell')[0].textContent).toBe('Inner 1')
-          expect(getAllByRole(transactionTableDataRow2, 'cell')[1].textContent).toBe('2ZPN...DJJ4')
-          expect(getAllByRole(transactionTableDataRow2, 'cell')[2].textContent).toBe('W2IZ...NCEY')
-          expect(getAllByRole(transactionTableDataRow2, 'cell')[3].textContent).toBe('Payment')
-          expect(getAllByRole(transactionTableDataRow2, 'cell')[4].textContent).toBe('236.706032')
-
-          const transactionTableDataRow3 = getAllByRole(tableViewTab, 'row')[3]
-          expect(getAllByRole(transactionTableDataRow3, 'cell')[0].textContent).toBe('Inner 2')
-          expect(getAllByRole(transactionTableDataRow3, 'cell')[1].textContent).toBe('2ZPN...DJJ4')
-          expect(getAllByRole(transactionTableDataRow3, 'cell')[2].textContent).toBe('971350278')
-          expect(getAllByRole(transactionTableDataRow3, 'cell')[3].textContent).toBe('Application Call')
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              { cells: ['KMNBSQ4...', 'W2IZ...NCEY', '971368268', 'Application Call'] },
+              { cells: ['Inner 1', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
+              { cells: ['Inner 2', '2ZPN...DJJ4', '971350278', 'Application Call'] },
+            ],
+          })
         }
       )
     })
