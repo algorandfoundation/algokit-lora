@@ -7,12 +7,13 @@ import { PropsWithChildren } from 'react'
 type Props = PropsWithChildren<{
   transactionId: string
   short?: boolean
+  className?: string
 }>
 
-export function TransactionLink({ transactionId, short = false, children }: Props) {
+export function TransactionLink({ transactionId, short = false, className, children }: Props) {
   return (
     <TemplatedNavLink
-      className={cn('text-primary underline')}
+      className={cn(!children && 'text-primary underline', className)}
       urlTemplate={Urls.Explore.Transaction.ById}
       urlParams={{ transactionId: transactionId }}
     >

@@ -46,8 +46,8 @@ export const fetchTransactionAtomBuilder = (store: JotaiStore, transactionId: Tr
 }
 
 export const fetchTransactionsAtomBuilder = (store: JotaiStore, transactionIds: TransactionId[]) => {
-  return atom(async (get) => {
-    return await Promise.all(transactionIds.map((transactionId) => get(fetchTransactionAtomBuilder(store, transactionId))))
+  return atom((get) => {
+    return Promise.all(transactionIds.map((transactionId) => get(fetchTransactionAtomBuilder(store, transactionId))))
   })
 }
 

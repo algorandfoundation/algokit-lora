@@ -61,7 +61,7 @@ describe('block-page', () => {
 
   describe('when rending a block that exists', () => {
     describe('and has no transactions', () => {
-      const block = blockResultMother.blockWithoutTransactions().withTimestamp('2024-02-29T06:52:01Z').build()
+      const block = blockResultMother.blockWithoutTransactions().withRound(12345).withTimestamp('2024-02-29T06:52:01Z').build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
@@ -110,28 +110,22 @@ describe('block-page', () => {
             const rows = getAllByRole(component.container, 'row')
             expect(rows.length).toBe(3)
             const transactionsRow1 = rows[1]
-            expect(getAllByRole(transactionsRow1, 'cell')[0].textContent).toBe(ellipseId(transaction1.id))
-            expect(getAllByRole(transactionsRow1, 'cell')[1].textContent).toBe(ellipseId(transaction1.group))
-            expect(getAllByRole(transactionsRow1, 'cell')[2].textContent).toBe(ellipseAddress(transaction1.sender))
-            expect(getAllByRole(transactionsRow1, 'cell')[3].textContent).toBe(
-              ellipseAddress(transaction1['payment-transaction']!.receiver)
-            )
-            expect(getAllByRole(transactionsRow1, 'cell')[4].textContent).toBe('Payment')
-            expect(getAllByRole(transactionsRow1, 'cell')[5].textContent).toBe(
-              (transaction1['payment-transaction']!.amount / 1e6).toString()
-            )
+            const row1Cells = getAllByRole(transactionsRow1, 'cell')
+            expect(row1Cells[0].textContent).toBe(ellipseId(transaction1.id))
+            expect(row1Cells[1].textContent).toBe(ellipseId(transaction1.group))
+            expect(row1Cells[2].textContent).toBe(ellipseAddress(transaction1.sender))
+            expect(row1Cells[3].textContent).toBe(ellipseAddress(transaction1['payment-transaction']!.receiver))
+            expect(row1Cells[4].textContent).toBe('Payment')
+            expect(row1Cells[5].textContent).toBe((transaction1['payment-transaction']!.amount / 1e6).toString())
 
             const transactionsRow2 = rows[2]
-            expect(getAllByRole(transactionsRow2, 'cell')[0].textContent).toBe(ellipseId(transaction2.id))
-            expect(getAllByRole(transactionsRow2, 'cell')[1].textContent).toBe(ellipseId(transaction2.group))
-            expect(getAllByRole(transactionsRow2, 'cell')[2].textContent).toBe(ellipseAddress(transaction2.sender))
-            expect(getAllByRole(transactionsRow2, 'cell')[3].textContent).toBe(
-              ellipseAddress(transaction2['asset-transfer-transaction']!.receiver)
-            )
-            expect(getAllByRole(transactionsRow2, 'cell')[4].textContent).toBe('Asset Transfer')
-            expect(getAllByRole(transactionsRow2, 'cell')[5].textContent).toBe(
-              `${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`
-            )
+            const row2Cells = getAllByRole(transactionsRow2, 'cell')
+            expect(row2Cells[0].textContent).toBe(ellipseId(transaction2.id))
+            expect(row2Cells[1].textContent).toBe(ellipseId(transaction2.group))
+            expect(row2Cells[2].textContent).toBe(ellipseAddress(transaction2.sender))
+            expect(row2Cells[3].textContent).toBe(ellipseAddress(transaction2['asset-transfer-transaction']!.receiver))
+            expect(row2Cells[4].textContent).toBe('Asset Transfer')
+            expect(row2Cells[5].textContent).toBe(`${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`)
           }
         )
       })
