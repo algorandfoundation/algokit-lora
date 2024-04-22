@@ -290,9 +290,9 @@ const mapCommonAppCallTransactionProperties = (
     type: TransactionType.ApplicationCall,
     applicationId: transaction['application-transaction']['application-id'],
     applicationArgs: transaction['application-transaction']['application-args'] ?? [],
-    applicationAccounts: getRecursiveDataForAppCallTransaction(transaction, 'accounts'),
-    foreignApps: getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'),
-    foreignAssets: getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'),
+    applicationAccounts: Array.from(new Set(getRecursiveDataForAppCallTransaction(transaction, 'accounts'))),
+    foreignApps: Array.from(new Set(getRecursiveDataForAppCallTransaction(transaction, 'foreign-apps'))),
+    foreignAssets: Array.from(new Set(getRecursiveDataForAppCallTransaction(transaction, 'foreign-assets'))),
     globalStateDeltas: asGlobalStateDelta(transaction['global-state-delta'] as unknown as IndexerGlobalStateDelta[]),
     localStateDeltas: asLocalStateDelta(transaction['local-state-delta'] as unknown as IndexerLocalStateDelta[]),
     innerTransactions:
