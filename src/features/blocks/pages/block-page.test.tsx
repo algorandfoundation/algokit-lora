@@ -8,7 +8,6 @@ import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
 import { blocksAtom } from '../data'
-import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block'
 import { transactionsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
@@ -17,6 +16,7 @@ import { assetsAtom } from '@/features/assets/data'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
+import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 
 describe('block-page', () => {
   describe('when rending a block using an invalid round number', () => {
@@ -72,12 +72,18 @@ describe('block-page', () => {
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
           async (component) => {
-            await waitFor(() => expect(getByDescriptionTerm(component.container, roundLabel).textContent).toBe(block.round.toString()))
-            expect(getByDescriptionTerm(component.container, timestampLabel).textContent).toBe('Thu, 29 February 2024 06:52:01')
-            expect(getByDescriptionTerm(component.container, transactionsLabel).textContent).toBe('0')
-            expect(getByDescriptionTerm(component.container, previousRoundLabel).textContent).toBe((block.round - 1).toString())
-            expect(getByDescriptionTerm(component.container, nextRoundLabel).textContent).toBe((block.round + 1).toString())
-
+            await waitFor(() =>
+              descriptionListAssertion({
+                container: component.container,
+                items: [
+                  { term: roundLabel, description: block.round.toString() },
+                  { term: timestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                  { term: transactionsLabel, description: '0' },
+                  { term: previousRoundLabel, description: (block.round - 1).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                ],
+              })
+            )
             const transactionsRow = getAllByRole(component.container, 'row')[1]
             expect(transactionsRow.textContent).toBe('No results.')
           }
@@ -102,11 +108,18 @@ describe('block-page', () => {
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
           async (component) => {
-            await waitFor(() => expect(getByDescriptionTerm(component.container, roundLabel).textContent).toBe(block.round.toString()))
-            expect(getByDescriptionTerm(component.container, timestampLabel).textContent).toBe('Thu, 29 February 2024 06:52:01')
-            expect(getByDescriptionTerm(component.container, transactionsLabel).textContent).toBe('2Payment=1Asset Transfer=1')
-            expect(getByDescriptionTerm(component.container, previousRoundLabel).textContent).toBe((block.round - 1).toString())
-            expect(getByDescriptionTerm(component.container, nextRoundLabel).textContent).toBe((block.round + 1).toString())
+            await waitFor(() =>
+              descriptionListAssertion({
+                container: component.container,
+                items: [
+                  { term: roundLabel, description: block.round.toString() },
+                  { term: timestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                  { term: transactionsLabel, description: '2Payment=1Asset Transfer=1' },
+                  { term: previousRoundLabel, description: (block.round - 1).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                ],
+              })
+            )
 
             const rows = getAllByRole(component.container, 'row')
             expect(rows.length).toBe(3)
