@@ -98,7 +98,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
   )
 
   return (
-    <>
+    <div className={cn('space-y-2')}>
       <DescriptionList items={items} />
 
       <Tabs defaultValue={applicationArgsTabId}>
@@ -114,52 +114,54 @@ export function AppCallTransactionInfo({ transaction }: Props) {
           ))}
         </TabsList>
         {tabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id} className={cn('border-solid border-2 border-border p-4')}>
-            {tab.children}
+          <TabsContent key={tab.id} value={tab.id} className={cn('border-solid border-2 border-border')}>
+            <div className="grid">
+              <div className="overflow-auto p-4">{tab.children}</div>
+            </div>
           </TabsContent>
         ))}
       </Tabs>
-    </>
+    </div>
   )
 }
 
 function ApplicationArgs({ transaction }: Props) {
   return (
-    <div>
+    <>
       {transaction.applicationArgs.map((data, index) => (
         <div key={index}>{data}</div>
       ))}
-    </div>
+    </>
   )
 }
 
 function ForeignAccounts({ transaction }: Props) {
   return (
-    <div>
+    <>
       {transaction.applicationAccounts.map((data, index) => (
         <div key={index}>{data}</div>
       ))}
-    </div>
+    </>
   )
 }
 
 function ForeignApplications({ transaction }: Props) {
   return (
-    <div>
+    <>
       {transaction.foreignApps.map((data, index) => (
         <div key={index}>{data}</div>
       ))}
-    </div>
+    </>
   )
 }
 
 function ForeignAssets({ transaction }: Props) {
   return (
-    <div>
+    <>
       {transaction.foreignAssets.map((data, index) => (
         <div key={index}>{data}</div>
       ))}
-    </div>
+    </>
   )
 }
 

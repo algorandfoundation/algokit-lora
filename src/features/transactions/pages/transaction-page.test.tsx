@@ -59,6 +59,7 @@ import { base64LogsTabLabel, logsLabel, textLogsTabLabel } from '../components/a
 import { InnerTransactionPage } from './inner-transaction-page'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { textListAssertion } from '@/tests/assertions/text-list-assertion'
+import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -688,7 +689,10 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, innerTransactionId: '2' }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, new Map(assets.map((a) => [a.index, a])))
+      myStore.set(
+        assetsAtom,
+        new Map([[algoAssetResult.index, algoAssetResult], ...assets.map<[number, AssetResult]>((a) => [a.index, a])])
+      )
 
       return executeComponentTest(
         () => {
@@ -792,6 +796,39 @@ describe('transaction-page', () => {
               base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp'),
               base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2'),
             ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an app call transaction that has no foreign assets but has an inner asset transfer transaction', () => {
+    const asset = assetResultMother['mainnet-312769']().build()
+    const innerAssetTransferTransaction = transactionResultMother.transfer(asset).build()
+    const transaction = transactionResultMother.appCall()['withInner-txns']([innerAssetTransferTransaction]).build()
+
+    it('should be rendered without error', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+      myStore.set(
+        assetsAtom,
+        new Map([
+          [algoAssetResult.index, algoAssetResult],
+          [asset.index, asset],
+        ])
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [{ term: transactionIdLabel, description: transaction.id }],
+            })
           })
         }
       )

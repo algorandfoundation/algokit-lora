@@ -8,6 +8,7 @@ import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers
 import { asPaymentTransaction } from './payment-transaction-mappers'
 import { asPlaceholderTransaction } from './placeholder-transaction-mappers'
 import { Asset } from '@/features/assets/models'
+import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
 
 export const asTransactionModel = async (
   transactionResult: TransactionResult,
@@ -24,9 +25,8 @@ export const asTransactionModel = async (
     }
     case algosdk.TransactionType.appl: {
       invariant(transactionResult['application-transaction'], 'application-transaction is not set')
-      const assetIds = transactionResult['application-transaction']['foreign-assets'] ?? []
-      const uniqueAssetIds = Array.from(new Set(assetIds))
-      const assets = await Promise.all(uniqueAssetIds.map((assetId) => assetResolver(assetId)))
+      const assetIds = Array.from(new Set(getAssetIdsForTransaction(transactionResult)))
+      const assets = await Promise.all(assetIds.map((assetId) => assetResolver(assetId)))
       return asAppCallTransaction(transactionResult, assets)
     }
     default:

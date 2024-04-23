@@ -13,6 +13,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { asTransactionModel } from '../mappers/transaction-mappers'
 import { getAssetAtomBuilder, getAssetsAtomBuilder } from '@/features/assets/data'
 import { InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
+import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionsAtom = atom<Map<TransactionId, TransactionResult>>(new Map())
@@ -67,7 +68,7 @@ export const fetchTransactionsModelAtomBuilder = (
           }
         }
         if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
-          const assetIds = txn['application-transaction']['foreign-assets'] ?? []
+          const assetIds = getAssetIdsForTransaction(txn)
           assetIds.forEach((assetId) => {
             if (!acc.has(assetId)) {
               acc.add(assetId)
