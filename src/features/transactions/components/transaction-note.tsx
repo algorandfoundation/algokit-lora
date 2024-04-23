@@ -2,8 +2,8 @@ import { cn } from '@/features/common/utils'
 import { Arc2TransactionNote } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
 import { useMemo } from 'react'
-import { Buffer } from 'buffer'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 
 type TransactionNoteProps = {
   note: string
@@ -52,7 +52,7 @@ const arc2FormatLabels = {
 
 export function TransactionNote({ note }: TransactionNoteProps) {
   const [text, json, arc2, activeTabId] = useMemo(() => {
-    const text = Buffer.from(note, 'base64').toString('utf-8')
+    const text = base64ToUtf8(note)
     const maybeJson = parseJson(text)
     const maybeArc2 = parseArc2(text)
     const activeTabId = maybeArc2 ? arc2NoteTabId : maybeJson ? jsonNoteTabId : base64NoteTabId

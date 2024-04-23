@@ -53,7 +53,12 @@ import {
   foreignAssetsTabLabel,
   globalStateDeltaTabLabel,
   onCompletionLabel,
+  localStateDeltaTabLabel,
 } from '../components/app-call-transaction-info'
+import { base64LogsTabLabel, logsLabel, textLogsTabLabel } from '../components/app-call-transaction-logs'
+import { InnerTransactionPage } from './inner-transaction-page'
+import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { textListAssertion } from '@/tests/assertions/text-list-assertion'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -635,7 +640,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a app call transaction', () => {
+  describe('when rendering an app call transaction', () => {
     const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
     const asset = assetResultMother['mainnet-971381860']().build()
 
@@ -717,6 +722,128 @@ describe('transaction-page', () => {
               { cells: ['KMNBSQ4...', 'W2IZ...NCEY', '971368268', 'Application Call'] },
               { cells: ['Inner 1', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
               { cells: ['Inner 2', '2ZPN...DJJ4', '971350278', 'Application Call'] },
+            ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an inner transaction of an app call transaction', () => {
+    const transaction = transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build()
+    const assets = [
+      assetResultMother['mainnet-31566704']().build(),
+      assetResultMother['mainnet-386195940']().build(),
+      assetResultMother['mainnet-408898501']().build(),
+    ]
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, innerTransactionId: '2' }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+      myStore.set(assetsAtom, new Map(assets.map((a) => [a.index, a])))
+
+      return executeComponentTest(
+        () => {
+          return render(<InnerTransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA-2' },
+                { term: transactionTypeLabel, description: 'Application Call' },
+                { term: transactionTimestampLabel, description: 'Fri, 01 March 2024 00:07:53' },
+                { term: transactionBlockLabel, description: '36591812' },
+                { term: transactionGroupLabel, description: 'aWpPwlog0oZYHQe9uDlwReKzIgb9HVKLv8Z4GX0wMO0=' },
+                { term: transactionFeeLabel, description: '0.002' },
+                { term: transactionSenderLabel, description: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A' },
+                { term: applicationIdLabel, description: '1002541853' },
+                { term: actionLabel, description: 'Call' },
+                { term: onCompletionLabel, description: 'NoOp' },
+              ],
+            })
+          })
+
+          const detailsTabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          expect(component.getByRole('tabpanel', { name: applicationArgsTabLabel }).textContent).toMatch(
+            'c3dhcA==Zml4ZWQtaW5wdXQ=AAAAAAAAAAA='
+          )
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignAccountsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignAccountsTabLabel }).textContent).toMatch(
+            '2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM'
+          )
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignApplicationsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignApplicationsTabLabel }).textContent).toMatch('')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: foreignAssetsTabLabel }))
+          expect(component.getByRole('tabpanel', { name: foreignAssetsTabLabel }).textContent).toMatch('31566704')
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: localStateDeltaTabLabel }))
+          const localStateDeltaTab = component.getByRole('tabpanel', { name: localStateDeltaTabLabel })
+          tableAssertion({
+            container: localStateDeltaTab,
+            rows: [
+              {
+                cells: ['2PIF...RNMM', 'asset_1_reserves', 'Uint', 'Set', '1624171900529'],
+              },
+              {
+                cells: ['2PIF...RNMM', 'asset_2_protocol_fees', 'Uint', 'Set', '177107130743'],
+              },
+              {
+                cells: ['2PIF...RNMM', 'asset_2_reserves', 'Uint', 'Set', '7646891725226'],
+              },
+            ],
+          })
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              { cells: ['Inner 2', 'AACC...EN4A', '1002541853', 'Application Call'] },
+              { cells: ['Inner 2-1', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582 USDC'] },
+            ],
+          })
+
+          const logTabList = component.getByRole('tablist', { name: logsLabel })
+          const base64LogViewTab = component.getByRole('tabpanel', { name: base64LogsTabLabel })
+          textListAssertion({
+            container: base64LogViewTab,
+            expectedTexts: [
+              'aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA==',
+              'aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0=',
+              'c3dhcF9hbW91bnQgJWkAAAAAACokBw==',
+              'Y2hhbmdlICVpAAAAAAAAAAA=',
+              'b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A=',
+              'b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW',
+              'cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0=',
+              'cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp',
+              'dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2',
+            ],
+          })
+
+          await user.click(getByRole(logTabList, 'tab', { name: textLogsTabLabel }))
+          const textLogViewTab = component.getByRole('tabpanel', { name: textLogsTabLabel })
+          textListAssertion({
+            container: textLogViewTab,
+            expectedTexts: [
+              base64ToUtf8('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA=='),
+              base64ToUtf8('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0='),
+              base64ToUtf8('c3dhcF9hbW91bnQgJWkAAAAAACokBw=='),
+              base64ToUtf8('Y2hhbmdlICVpAAAAAAAAAAA='),
+              base64ToUtf8('b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A='),
+              base64ToUtf8('b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW'),
+              base64ToUtf8('cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0='),
+              base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp'),
+              base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2'),
             ],
           })
         }

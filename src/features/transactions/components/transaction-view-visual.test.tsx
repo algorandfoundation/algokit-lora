@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
-import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from '../mappers/transaction-mappers'
+import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from '../mappers'
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
@@ -70,19 +70,32 @@ describe('asset-transfer-transaction-view-visual', () => {
 })
 
 describe('application-call-view-visual', () => {
-  describe.each([{ transactionResult: transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build() }])(
+  describe.each([
+    {
+      transactionResult: transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build(),
+      assetResults: [],
+    },
+    {
+      transactionResult: transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build(),
+      assetResults: [
+        assetResultMother['mainnet-31566704']().build(),
+        assetResultMother['mainnet-386195940']().build(),
+        assetResultMother['mainnet-408898501']().build(),
+      ],
+    },
+  ])(
     'when rendering transaction $transactionResult.id',
-    ({ transactionResult: transaction }: { transactionResult: TransactionResult }) => {
+    ({ transactionResult, assetResults }: { transactionResult: TransactionResult; assetResults: AssetResult[] }) => {
       it('should match snapshot', () => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transaction, [])
+        const model = asAppCallTransaction(transactionResult, assetResults)
 
         return executeComponentTest(
           () => render(<TransactionViewVisual transaction={model} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-              `__snapshots__/application-transaction-view-visual.${transaction.id}.html`
+              `__snapshots__/application-transaction-view-visual.${transactionResult.id}.html`
             )
           }
         )
