@@ -15,10 +15,10 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
 
   // TODO: how about delete?
   const subType = transactionResult['asset-config-transaction']['asset-id']
-    ? AssetConfigTransactionSubType.Update
+    ? AssetConfigTransactionSubType.Reconfigure
     : AssetConfigTransactionSubType.Create
   const assetId =
-    subType === AssetConfigTransactionSubType.Update
+    subType === AssetConfigTransactionSubType.Reconfigure
       ? transactionResult['asset-config-transaction']['asset-id']
       : transactionResult['created-asset-index']
 
@@ -32,6 +32,10 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
     decimals: transactionResult['asset-config-transaction']['params']['decimals'] ?? undefined,
     clawback: transactionResult['asset-config-transaction']['params']['clawback'] ?? undefined,
     subType: subType,
+    manager: transactionResult['asset-config-transaction']['params']['manager'] ?? undefined,
+    reserve: transactionResult['asset-config-transaction']['params']['reserve'] ?? undefined,
+    freeze: transactionResult['asset-config-transaction']['params']['freeze'] ?? undefined,
+    defaultFrozen: transactionResult['asset-config-transaction']['params']['default-frozen'] ?? false,
   } satisfies BaseAssetConfigTransactionModel
 }
 

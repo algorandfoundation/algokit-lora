@@ -166,7 +166,10 @@ export type BaseAssetConfigTransactionModel = CommonTransactionProperties & {
   unitName?: string
   clawback?: string
   subType: AssetConfigTransactionSubType
-  // TODO: the rest
+  manager?: string
+  reserve?: string
+  freeze?: string
+  defaultFrozen: boolean
 }
 
 export type AssetConfigTransactionModel = BaseAssetConfigTransactionModel & {
@@ -178,6 +181,6 @@ export type InnerAssetConfigTransactionModel = BaseAssetConfigTransactionModel &
 // TODO: check the names
 export enum AssetConfigTransactionSubType {
   Create = 'Create',
-  Update = 'Update',
+  Reconfigure = 'Reconfigure',
   Destroy = 'Destroy',
 }
