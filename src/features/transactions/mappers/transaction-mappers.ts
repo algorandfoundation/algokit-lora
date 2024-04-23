@@ -1,4 +1,4 @@
-import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionSummary, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { ZERO_ADDRESS } from '@/features/common/constants'
@@ -7,54 +7,55 @@ import { asAppCallTransaction } from './app-call-transaction-mappers'
 import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { asPaymentTransaction } from './payment-transaction-mappers'
 import { asPlaceholderTransaction } from './placeholder-transaction-mappers'
+import { Asset } from '@/features/assets/models'
 
 export const asTransactionModel = async (
-  transaction: TransactionResult,
-  assetResolver: (assetId: number) => Promise<AssetResult> | AssetResult
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => Promise<Asset> | Asset
 ) => {
-  switch (transaction['tx-type']) {
+  switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
-      return asPaymentTransaction(transaction)
+      return asPaymentTransaction(transactionResult)
     case algosdk.TransactionType.axfer: {
-      invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-      const assetId = transaction['asset-transfer-transaction']['asset-id']
+      invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+      const assetId = transactionResult['asset-transfer-transaction']['asset-id']
       const asset = await assetResolver(assetId)
-      return asAssetTransferTransaction(transaction, asset)
+      return asAssetTransferTransaction(transactionResult, asset)
     }
     case algosdk.TransactionType.appl: {
-      invariant(transaction['application-transaction'], 'application-transaction is not set')
-      const assetIds = transaction['application-transaction']['foreign-assets'] ?? []
+      invariant(transactionResult['application-transaction'], 'application-transaction is not set')
+      const assetIds = transactionResult['application-transaction']['foreign-assets'] ?? []
       const uniqueAssetIds = Array.from(new Set(assetIds))
       const assets = await Promise.all(uniqueAssetIds.map((assetId) => assetResolver(assetId)))
-      return asAppCallTransaction(transaction, assets)
+      return asAppCallTransaction(transactionResult, assets)
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
       // throw new Error(`${transaction['tx-type']} is not supported`)
-      return asPlaceholderTransaction(transaction)
+      return asPlaceholderTransaction(transactionResult)
   }
 }
 
-export const asTransactionSummary = (transaction: TransactionResult): TransactionSummary => {
+export const asTransactionSummary = (transactionResult: TransactionResult): TransactionSummary => {
   const common = {
-    id: transaction.id,
-    from: transaction.sender,
+    id: transactionResult.id,
+    from: transactionResult.sender,
   }
 
-  switch (transaction['tx-type']) {
+  switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
-      invariant(transaction['payment-transaction'], 'payment-transaction is not set')
+      invariant(transactionResult['payment-transaction'], 'payment-transaction is not set')
       return {
         ...common,
         type: TransactionType.Payment,
-        to: transaction['payment-transaction']['receiver'],
+        to: transactionResult['payment-transaction']['receiver'],
       }
     case algosdk.TransactionType.axfer: {
-      invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+      invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
       return {
         ...common,
         type: TransactionType.AssetTransfer,
-        to: transaction['asset-transfer-transaction']['receiver'],
+        to: transactionResult['asset-transfer-transaction']['receiver'],
       }
     }
     default:

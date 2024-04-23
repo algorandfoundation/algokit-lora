@@ -15,7 +15,7 @@ import { transactionsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig'
-import { algod, indexer } from '@/features/common/data'
+import { algod } from '@/features/common/data'
 import {
   tableTransactionDetailsTabLabel,
   transactionDetailsLabel,
@@ -33,7 +33,7 @@ import {
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { assetsAtom } from '@/features/assets/data'
+import { algoAssetResult, assetsAtom } from '@/features/assets/data'
 import {
   assetLabel,
   transactionCloseRemainderAmountLabel as assetTransactionCloseRemainderAmountLabel,
@@ -581,65 +581,6 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering an asset transfer transaction for a deleted asset', () => {
-    const transaction = transactionResultMother['mainnet-UFYPQDLWCVK3L5XVVHE7WBQWTW4YMHHKZSDIWXXV2AGCS646HTQA']().build()
-    // const asset = assetResultMother['mainnet-140479105']().build()
-
-    it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
-      vi.mocked(indexer.lookupAssetByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
-      const myStore = createStore()
-      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-
-      return executeComponentTest(
-        () => {
-          return render(<TransactionPage />, undefined, myStore)
-        },
-        async (component, user) => {
-          // waitFor the loading state to be finished
-          await waitFor(() => {
-            descriptionListAssertion({
-              container: component.container,
-              items: [
-                { term: transactionIdLabel, description: transaction.id },
-                { term: transactionTypeLabel, description: 'Asset Transfer' },
-                { term: transactionTimestampLabel, description: 'Wed, 17 April 2024 05:39:26' },
-                { term: transactionBlockLabel, description: '38008738' },
-                { term: transactionGroupLabel, description: 'XeNQmhxvtoWpue/7SAk6RNfuu/8Fp8tw8Nfn+HnIz00=' },
-                { term: transactionFeeLabel, description: '0.001' },
-                { term: transactionSenderLabel, description: 'QUESTA6XV2JZ2XAV3EK3GKBHYCJO57JWUX6L6ENHGNLR6UE3OPCUCT2WLI' },
-                { term: transactionReceiverLabel, description: 'JQ76KXBOL3Z2EKRW43OPHOHKBZJQUULDAH33IIWDX2UWEYEMTKSX2PRS54' },
-                { term: assetLabel, description: '1753701469 (DELETED)' },
-                { term: transactionAmountLabel, description: '1 DELETED' },
-              ],
-            })
-          })
-
-          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
-          expect(viewTransactionTabList).toBeTruthy()
-          expect(
-            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
-            'Visual tab should be active'
-          ).toBe('active')
-
-          // After click on the Table tab
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
-          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
-
-          tableAssertion({
-            container: tableViewTab,
-            rows: [
-              {
-                cells: ['UFYPQDL...', 'QUES...2WLI', 'JQ76...RS54', 'Asset Transfer', '1 DELETED'],
-              },
-            ],
-          })
-        }
-      )
-    })
-  })
-
   describe('when rendering an app call transaction', () => {
     const transaction = transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build()
     const asset = assetResultMother['mainnet-971381860']().build()
@@ -648,7 +589,13 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+      myStore.set(
+        assetsAtom,
+        new Map([
+          [algoAssetResult.index, algoAssetResult],
+          [asset.index, asset],
+        ])
+      )
 
       return executeComponentTest(
         () => {

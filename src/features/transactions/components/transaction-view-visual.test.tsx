@@ -7,6 +7,7 @@ import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction 
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
+import { asAsset } from '@/features/assets/mappers'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -24,15 +25,15 @@ describe('payment-transaction-view-visual', () => {
   describe.each([
     transactionResultMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']().build(),
     transactionResultMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']().build(),
-  ])('when rendering transaction $id', (transaction: TransactionResult) => {
+  ])('when rendering transaction $id', (transactionResult: TransactionResult) => {
     it('should match snapshot', () => {
-      const model = asPaymentTransaction(transaction)
+      const model = asPaymentTransaction(transactionResult)
 
       return executeComponentTest(
         () => render(<TransactionViewVisual transaction={model} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-            `__snapshots__/payment-transaction-view-visual.${transaction.id}.html`
+            `__snapshots__/payment-transaction-view-visual.${transactionResult.id}.html`
           )
         }
       )
@@ -54,7 +55,7 @@ describe('asset-transfer-transaction-view-visual', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
-        const transaction = asAssetTransferTransaction(transactionResult, assetResult)
+        const transaction = asAssetTransferTransaction(transactionResult, asAsset(assetResult))
 
         return executeComponentTest(
           () => render(<TransactionViewVisual transaction={transaction} />),
@@ -89,7 +90,7 @@ describe('application-call-view-visual', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, assetResults)
+        const model = asAppCallTransaction(transactionResult, assetResults.map(asAsset))
 
         return executeComponentTest(
           () => render(<TransactionViewVisual transaction={model} />),

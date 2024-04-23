@@ -4,19 +4,19 @@ import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
 
-export const mapCommonTransactionProperties = (transaction: TransactionResult) => {
-  invariant(transaction['confirmed-round'], 'confirmed-round is not set')
-  invariant(transaction['round-time'], 'round-time is not set')
+export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
+  invariant(transactionResult['confirmed-round'], 'confirmed-round is not set')
+  invariant(transactionResult['round-time'], 'round-time is not set')
 
   return {
-    confirmedRound: transaction['confirmed-round'],
-    roundTime: transaction['round-time'] * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
-    json: asJson(transaction),
+    confirmedRound: transactionResult['confirmed-round'],
+    roundTime: transactionResult['round-time'] * 1000,
+    group: transactionResult['group'],
+    fee: algokit.microAlgos(transactionResult.fee),
+    sender: transactionResult.sender,
+    signature: transformSignature(transactionResult.signature),
+    note: transactionResult.note,
+    json: asJson(transactionResult),
   }
 }
 
@@ -45,7 +45,8 @@ export const transformSignature = (signature?: TransactionSignature) => {
   }
 }
 
-const asJson = (transaction: TransactionResult) => JSON.stringify(transaction, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
+const asJson = (transactionResult: TransactionResult) =>
+  JSON.stringify(transactionResult, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
 
 export const asInnerTransactionId = (networkTransactionId: string, index: string): InnerTransactionId => {
   return {
