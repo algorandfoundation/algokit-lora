@@ -802,7 +802,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering an app call transaction that has no foreign assets but has an inner asset transaction', () => {
+  describe('when rendering an app call transaction that has no foreign assets but has an inner asset transfer transaction', () => {
     const asset = assetResultMother['mainnet-312769']().build()
     const innerAssetTransferTransaction = transactionResultMother.transfer(asset).build()
     const transaction = transactionResultMother.appCall()['withInner-txns']([innerAssetTransferTransaction]).build()
