@@ -98,7 +98,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
   )
 
   return (
-    <div className={cn('space-y-2 grid')}>
+    <div className={cn('space-y-2')}>
       <DescriptionList items={items} />
 
       <Tabs defaultValue={applicationArgsTabId}>
