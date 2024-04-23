@@ -5,11 +5,11 @@ import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { BlockLink } from './block-link'
 import { TransactionsTable } from './transactions'
-import { BlockDetails } from '../models'
+import { Block } from '../models'
 import { Badge } from '@/features/common/components/badge'
 
 type Props = {
-  block: BlockDetails
+  block: Block
 }
 
 export const roundLabel = 'Round'
@@ -18,7 +18,7 @@ export const transactionsLabel = 'Transactions'
 export const previousRoundLabel = 'Previous Round'
 export const nextRoundLabel = 'Next Round'
 
-export function Block({ block }: Props) {
+export function BlockDetails({ block }: Props) {
   const blockItems = useMemo(
     () => [
       {

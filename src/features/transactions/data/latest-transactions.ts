@@ -1,4 +1,4 @@
-import { useLatestBlockSummariesAtom } from '@/features/blocks/data/latest-blocks'
+import { useLatestBlockSummariesAtom } from '@/features/blocks/data'
 import { atom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 
