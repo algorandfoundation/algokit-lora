@@ -5,7 +5,7 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Block } from '../components/block'
 import { is404 } from '@/utils/error'
-import { useLoadableBlockDetails } from '../data/block-details'
+import { useLoadableBlockDetails } from '../data/block'
 
 const validRoundRegex = /^\d+$/
 const isValidRound = (round: string) => round.match(validRoundRegex)
