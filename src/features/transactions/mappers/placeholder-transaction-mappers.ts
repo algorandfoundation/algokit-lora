@@ -6,19 +6,19 @@ import { transformSignature } from './transaction-common-properties-mappers'
 
 // This creates a placeholder transaction for transactions that we don't support yet
 // TODO: Remove this code, once we support all transaction types
-export const asPlaceholderTransaction = (transaction: TransactionResult): PaymentTransactionModel => {
+export const asPlaceholderTransaction = (transactionResult: TransactionResult): PaymentTransactionModel => {
   return {
-    id: transaction.id,
+    id: transactionResult.id,
     type: TransactionType.Payment,
-    confirmedRound: transaction['confirmed-round']!,
-    roundTime: transaction['round-time']! * 1000,
-    group: transaction['group'],
-    fee: algokit.microAlgos(transaction.fee),
-    sender: transaction.sender,
+    confirmedRound: transactionResult['confirmed-round']!,
+    roundTime: transactionResult['round-time']! * 1000,
+    group: transactionResult['group'],
+    fee: algokit.microAlgos(transactionResult.fee),
+    sender: transactionResult.sender,
     receiver: ZERO_ADDRESS,
     amount: algokit.microAlgos(3141592),
-    signature: transformSignature(transaction.signature),
-    note: transaction.note,
+    signature: transformSignature(transactionResult.signature),
+    note: transactionResult.note,
     json: '{ "placeholder": true }',
   }
 }

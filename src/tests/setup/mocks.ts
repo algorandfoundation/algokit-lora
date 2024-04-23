@@ -29,7 +29,9 @@ vi.mock('@/features/common/data', async () => {
         do: vi.fn(),
       }),
       lookupAssetByID: vi.fn().mockReturnValue({
-        do: vi.fn(),
+        includeAll: vi.fn().mockReturnValue({
+          do: vi.fn().mockReturnValue({ then: vi.fn() }),
+        }),
       }),
     },
   }

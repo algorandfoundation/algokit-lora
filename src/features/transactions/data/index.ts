@@ -11,7 +11,7 @@ import { TransactionId } from './types'
 import { indexer, algod } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransactionModel } from '../mappers/transaction-mappers'
-import { fetchAssetAtomBuilder, fetchAssetsAtomBuilder } from '@/features/assets/data'
+import { getAssetAtomBuilder, getAssetsAtomBuilder } from '@/features/assets/data'
 import { InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
@@ -79,8 +79,8 @@ export const fetchTransactionsModelAtomBuilder = (
     )
 
     const assets = new Map(
-      (await get(fetchAssetsAtomBuilder(store, assetIds))).map((a) => {
-        return [a.index, a] as const
+      (await get(getAssetsAtomBuilder(store, assetIds))).map((a) => {
+        return [a.id, a] as const
       })
     )
 
@@ -98,22 +98,22 @@ export const fetchTransactionsModelAtomBuilder = (
 
 export const fetchTransactionModelAtomBuilder = (
   store: JotaiStore,
-  transaction: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>
+  transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>
 ) => {
   return atom(async (get) => {
-    const txn = 'id' in transaction ? transaction : await get(transaction)
-    return await asTransactionModel(txn, (assetId: number) => get(fetchAssetAtomBuilder(store, assetId)))
+    const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
+    return await asTransactionModel(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
   })
 }
 
 export const fetchInnerTransactionModelAtomBuilder = (
   store: JotaiStore,
-  transaction: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
+  transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
   innerId: string
 ) => {
   return atom(async (get) => {
-    const txn = 'id' in transaction ? transaction : await get(transaction)
-    const transactionModel = await asTransactionModel(txn, (assetId: number) => get(fetchAssetAtomBuilder(store, assetId)))
+    const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
+    const transactionModel = await asTransactionModel(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
     if (transactionModel.type !== TransactionTypeModel.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }

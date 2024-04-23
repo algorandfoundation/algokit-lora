@@ -1,4 +1,4 @@
-import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
   AssetTransferTransactionModel,
   AssetTransferTransactionSubType,
@@ -7,29 +7,29 @@ import {
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
-import { asAsset } from '@/features/assets/mappers/asset-mappers'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
+import { Asset } from '@/features/assets/models'
 
-const mapCommonAssetTransferTransactionProperties = (transaction: TransactionResult, asset: AssetResult) => {
-  invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+const mapCommonAssetTransferTransactionProperties = (transactionResult: TransactionResult, asset: Asset) => {
+  invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const subType = () => {
-    invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+    invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
-    if (transaction['asset-transfer-transaction']['close-to']) {
+    if (transactionResult['asset-transfer-transaction']['close-to']) {
       return AssetTransferTransactionSubType.OptOut
     }
     if (
-      transaction.sender === transaction['asset-transfer-transaction'].receiver &&
-      transaction['asset-transfer-transaction'].amount === 0
+      transactionResult.sender === transactionResult['asset-transfer-transaction'].receiver &&
+      transactionResult['asset-transfer-transaction'].amount === 0
     ) {
       return AssetTransferTransactionSubType.OptIn
     }
     if (
-      transaction.sender === asset.params.clawback &&
-      transaction['asset-transfer-transaction'].sender &&
-      transaction['asset-transfer-transaction'].sender !== ZERO_ADDRESS
+      transactionResult.sender === asset.clawback &&
+      transactionResult['asset-transfer-transaction'].sender &&
+      transactionResult['asset-transfer-transaction'].sender !== ZERO_ADDRESS
     ) {
       return AssetTransferTransactionSubType.Clawback
     }
@@ -38,37 +38,37 @@ const mapCommonAssetTransferTransactionProperties = (transaction: TransactionRes
   }
 
   return {
-    ...mapCommonTransactionProperties(transaction),
+    ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetTransfer,
     subType: subType(),
-    asset: asAsset(asset),
-    receiver: transaction['asset-transfer-transaction'].receiver,
-    amount: transaction['asset-transfer-transaction'].amount,
-    closeRemainder: transaction['asset-transfer-transaction']['close-to']
+    asset,
+    receiver: transactionResult['asset-transfer-transaction'].receiver,
+    amount: transactionResult['asset-transfer-transaction'].amount,
+    closeRemainder: transactionResult['asset-transfer-transaction']['close-to']
       ? {
-          to: transaction['asset-transfer-transaction']['close-to'],
-          amount: transaction['asset-transfer-transaction']['close-amount'] ?? 0,
+          to: transactionResult['asset-transfer-transaction']['close-to'],
+          amount: transactionResult['asset-transfer-transaction']['close-amount'] ?? 0,
         }
       : undefined,
-    clawbackFrom: transaction['asset-transfer-transaction'].sender,
+    clawbackFrom: transactionResult['asset-transfer-transaction'].sender,
   } satisfies BaseAssetTransferTransactionModel
 }
 
-export const asAssetTransferTransaction = (transaction: TransactionResult, asset: AssetResult): AssetTransferTransactionModel => {
+export const asAssetTransferTransaction = (transactionResult: TransactionResult, asset: Asset): AssetTransferTransactionModel => {
   return {
-    id: transaction.id,
-    ...mapCommonAssetTransferTransactionProperties(transaction, asset),
+    id: transactionResult.id,
+    ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),
   }
 }
 
 export const asInnerAssetTransferTransactionModel = (
   networkTransactionId: string,
   index: string,
-  transaction: TransactionResult,
-  asset: AssetResult
+  transactionResult: TransactionResult,
+  asset: Asset
 ): InnerAssetTransferTransactionModel => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAssetTransferTransactionProperties(transaction, asset),
+    ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),
   }
 }
