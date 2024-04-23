@@ -158,7 +158,7 @@ const DisplayArrow = fixedForwardRef(
           <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
           {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
         </div>
-        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
+        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs text-center')}>
           {transaction.type === TransactionType.Payment && (
             <>
               Payment
