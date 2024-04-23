@@ -2,6 +2,7 @@ import { PaymentTransaction } from './payment-transaction'
 import { AssetTranserTransaction } from './asset-transfer-transaction'
 import { InnerTransactionModel, TransactionModel, TransactionType } from '../models'
 import { AppCallTransaction } from './app-call-transaction'
+import { AssetConfigTransaction } from './asset-config-transaction'
 
 type Props = {
   transaction: TransactionModel | InnerTransactionModel
@@ -15,6 +16,8 @@ export function Transaction({ transaction }: Props) {
       return <AssetTranserTransaction transaction={transaction} />
     case TransactionType.ApplicationCall:
       return <AppCallTransaction transaction={transaction} />
+    case TransactionType.AssetConfig:
+      return <AssetConfigTransaction transaction={transaction} />
     default:
       return <></>
   }
