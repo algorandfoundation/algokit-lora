@@ -30,12 +30,12 @@ export function AppCallTransactionLogs({ logs }: Props) {
             {textLogsTabLabel}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={base64LogTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>
+        <TabsContent value={base64LogTabId} className={cn('border-solid border-2 p-4')}>
           {logs.map((log, index) => (
             <div key={index}>{log}</div>
           ))}
         </TabsContent>
-        <TabsContent value={textLogTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>
+        <TabsContent value={textLogTabId} className={cn('border-solid border-2 p-4')}>
           {texts.map((text, index) => (
             <div key={index}>{text}</div>
           ))}

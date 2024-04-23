@@ -9,6 +9,9 @@ export const transactionResultMother = {
   transfer: (asset: AssetResult) => {
     return transactionResultBuilder().transferTransaction(asset)
   },
+  appCall: () => {
+    return transactionResultBuilder().appCallTransaction()
+  },
   multisig: () => {
     return transactionResultBuilder()
       .paymentTransaction()
