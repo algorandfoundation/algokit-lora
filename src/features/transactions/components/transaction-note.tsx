@@ -1,9 +1,9 @@
 import { cn } from '@/features/common/utils'
 import { Arc2TransactionNote } from '@algorandfoundation/algokit-utils/types/transaction'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
 import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 
 type TransactionNoteProps = {
   note: string
@@ -81,19 +81,15 @@ export function TransactionNote({ note }: TransactionNoteProps) {
             </TabsTrigger>
           )}
         </TabsList>
-        <TabsContent value={base64NoteTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>
-          {note}
-        </TabsContent>
-        <TabsContent value={textNoteTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>
-          {text}
-        </TabsContent>
+        <OverflowAutoTabsContent value={base64NoteTabId}>{note}</OverflowAutoTabsContent>
+        <OverflowAutoTabsContent value={textNoteTabId}>{text}</OverflowAutoTabsContent>
         {json && (
-          <TabsContent value={jsonNoteTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>
+          <OverflowAutoTabsContent value={jsonNoteTabId}>
             <pre>{JSON.stringify(json, null, 2)}</pre>
-          </TabsContent>
+          </OverflowAutoTabsContent>
         )}
         {arc2 && (
-          <TabsContent value={arc2NoteTabId} className={cn('border-solid border-2 border-border h-60 p-4')}>
+          <OverflowAutoTabsContent value={arc2NoteTabId}>
             <DescriptionList
               items={[
                 { dt: 'DApp Name', dd: arc2.dAppName },
@@ -105,7 +101,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
             ) : (
               <pre>{arc2.data}</pre>
             )}
-          </TabsContent>
+          </OverflowAutoTabsContent>
         )}
       </Tabs>
     </div>

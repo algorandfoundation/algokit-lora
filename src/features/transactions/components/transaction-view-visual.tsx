@@ -8,8 +8,10 @@ import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 import {
   AppCallTransactionModel,
+  AssetConfigTransactionModel,
   AssetTransferTransactionModel,
   InnerAppCallTransactionModel,
+  InnerAssetConfigTransactionModel,
   InnerAssetTransferTransactionModel,
   InnerPaymentTransactionModel,
   InnerTransactionModel,
@@ -27,6 +29,7 @@ import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabe
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { isValidAddress } from 'algosdk'
 import { InnerTransactionLink } from './inner-transaction-link'
+import { assetIdLabel } from './asset-config-transaction-info'
 
 const graphConfig = {
   rowHeight: 40,
@@ -333,7 +336,39 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
   )
 }
 
-// TODO: asset config tooltip content
+function AssetConfigTransactionToolTipContent({
+  transaction,
+}: {
+  transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
+}) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: 'Asset Config',
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+      {
+        dt: assetIdLabel,
+        dd: transaction.assetId,
+      },
+    ],
+    [transaction.assetId, transaction.id, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
 
 type TransactionRowProps = {
   transaction: TransactionModel | InnerTransactionModel
@@ -385,6 +420,7 @@ function TransactionRow({
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -458,7 +494,7 @@ export function TransactionViewVisual({ transaction }: Props) {
 
   return (
     <div
-      className={cn('relative grid overflow-auto')}
+      className={cn('relative grid')}
       style={{
         gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,

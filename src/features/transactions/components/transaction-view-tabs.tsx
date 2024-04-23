@@ -1,8 +1,8 @@
 import { cn } from '@/features/common/utils'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
 import { TransactionViewTable } from './transaction-view-table'
 import { TransactionViewVisual } from './transaction-view-visual'
 import { InnerTransactionModel, TransactionModel } from '../models'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 
 type Props = {
   transaction: TransactionModel | InnerTransactionModel
@@ -31,16 +31,12 @@ export function TransactionViewTabs({ transaction }: Props) {
           {tableTransactionDetailsTabLabel}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value={visualTransactionDetailsTabId} className={cn('border-solid border-2 p-4')}>
-        <div className="grid overflow-auto">
-          <TransactionViewVisual transaction={transaction} />
-        </div>
-      </TabsContent>
-      <TabsContent value={tableTransactionDetailsTabId} className={cn('border-solid border-2 p-4')}>
-        <div className="grid overflow-auto">
-          <TransactionViewTable transaction={transaction} />
-        </div>
-      </TabsContent>
+      <OverflowAutoTabsContent value={visualTransactionDetailsTabId}>
+        <TransactionViewVisual transaction={transaction} />
+      </OverflowAutoTabsContent>
+      <OverflowAutoTabsContent value={tableTransactionDetailsTabId}>
+        <TransactionViewTable transaction={transaction} />
+      </OverflowAutoTabsContent>
     </Tabs>
   )
 }
