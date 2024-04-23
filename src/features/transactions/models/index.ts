@@ -159,6 +159,14 @@ export type InnerTransactionModel =
 
 export type BaseAssetConfigTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
+  assetId: number
+  name?: string
+  total: number | bigint
+  decimals: number | bigint
+  unitName?: string
+  clawback?: string
+  subType: AssetConfigTransactionSubType
+  // TODO: the rest
 }
 
 export type AssetConfigTransactionModel = BaseAssetConfigTransactionModel & {
@@ -166,3 +174,10 @@ export type AssetConfigTransactionModel = BaseAssetConfigTransactionModel & {
 }
 
 export type InnerAssetConfigTransactionModel = BaseAssetConfigTransactionModel & InnerTransactionId
+
+// TODO: check the names
+export enum AssetConfigTransactionSubType {
+  Create = 'Create',
+  Update = 'Update',
+  Destroy = 'Destroy',
+}

@@ -165,7 +165,6 @@ const DisplayArrow = fixedForwardRef(
               <DisplayAlgo amount={transaction.amount} />
             </>
           )}
-
           {transaction.type === TransactionType.AssetTransfer && (
             <>
               Transfer
@@ -173,6 +172,7 @@ const DisplayArrow = fixedForwardRef(
             </>
           )}
           {transaction.type === TransactionType.ApplicationCall && <>App Call</>}
+          {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
         </div>
 
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
@@ -333,6 +333,8 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
   )
 }
 
+// TODO: asset config tooltip content
+
 type TransactionRowProps = {
   transaction: TransactionModel | InnerTransactionModel
   hasParent?: boolean
@@ -413,6 +415,10 @@ function calcArrow(transaction: TransactionModel | InnerTransactionModel, accoun
 
     if (transaction.type === TransactionType.ApplicationCall) {
       return accounts.findIndex((a) => transaction.applicationId.toString() === a)
+    }
+
+    if (transaction.type === TransactionType.AssetConfig) {
+      return accounts.findIndex((a) => transaction.assetId.toString() === a)
     }
 
     throw new Error('Not supported transaction type')
@@ -503,6 +509,9 @@ const getTransactionAccounts = (transaction: TransactionModel | InnerTransaction
   }
   if (transaction.type === TransactionType.ApplicationCall) {
     accounts.push(transaction.applicationId.toString())
+  }
+  if (transaction.type === TransactionType.AssetConfig) {
+    accounts.push(transaction.assetId.toString())
   }
   return accounts
 }
