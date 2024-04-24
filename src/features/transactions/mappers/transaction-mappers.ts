@@ -76,7 +76,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       return {
         ...common,
         type: TransactionType.AssetConfig,
-        to: 'TODO: PD',
+        to: transactionResult['asset-config-transaction']['asset-id'] ?? transactionResult['created-asset-index'],
       }
     }
     default:
