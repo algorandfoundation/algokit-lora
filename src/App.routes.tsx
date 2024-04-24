@@ -8,6 +8,9 @@ import { GroupPage } from './features/transactions/pages/group-page'
 import { ErrorPage } from './features/common/pages/error-page'
 import { BlockPage, blockPageTitle } from './features/blocks/pages/block-page'
 import { InnerTransactionPage } from './features/transactions/pages/inner-transaction-page'
+import { AccountPage, accountPageTitle } from './features/accounts/pages/account-page'
+import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
+import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 
 export const routes = evalTemplates([
   {
@@ -58,6 +61,21 @@ export const routes = evalTemplates([
             template: Urls.Explore.Block.ById,
             element: <BlockPage />,
             errorElement: <ErrorPage title={blockPageTitle} />,
+          },
+          {
+            template: Urls.Explore.Account.ById,
+            element: <AccountPage />,
+            errorElement: <ErrorPage title={accountPageTitle} />,
+          },
+          {
+            template: Urls.Explore.Asset.ById,
+            element: <AssetPage />,
+            errorElement: <ErrorPage title={assetPageTitle} />,
+          },
+          {
+            template: Urls.Explore.Application.ById,
+            element: <ApplicationPage />,
+            errorElement: <ErrorPage title={applicationPageTitle} />,
           },
         ],
       },

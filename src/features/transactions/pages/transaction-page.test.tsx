@@ -33,7 +33,7 @@ import {
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { algoAssetResult, assetsAtom } from '@/features/assets/data/core'
+import { algoAssetResult, assetResultsAtom } from '@/features/assets/data/core'
 import {
   assetLabel,
   transactionCloseRemainderAmountLabel as assetTransactionCloseRemainderAmountLabel,
@@ -481,7 +481,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
@@ -542,7 +542,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
@@ -567,7 +567,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
-      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, asset]]))
 
       return executeComponentTest(
         () => {
@@ -601,7 +601,7 @@ describe('transaction-page', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
       myStore.set(
-        assetsAtom,
+        assetResultsAtom,
         new Map([
           [algoAssetResult.index, algoAssetResult],
           [asset.index, asset],
@@ -700,7 +700,7 @@ describe('transaction-page', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
       myStore.set(
-        assetsAtom,
+        assetResultsAtom,
         new Map([[algoAssetResult.index, algoAssetResult], ...assets.map<[number, AssetResult]>((a) => [a.index, a])])
       )
 
@@ -822,7 +822,7 @@ describe('transaction-page', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
       myStore.set(
-        assetsAtom,
+        assetResultsAtom,
         new Map([
           [algoAssetResult.index, algoAssetResult],
           [asset.index, asset],
