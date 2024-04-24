@@ -8,6 +8,7 @@ import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { Asset } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
+import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
@@ -83,16 +84,23 @@ const asInnerTransaction = (networkTransactionId: string, index: string, transac
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.axfer) {
     invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-    const assetResult = assets.find((asset) => asset.id === transactionResult['asset-transfer-transaction']!['asset-id'])
-    invariant(assetResult, `Asset index ${transactionResult['asset-transfer-transaction']!['asset-id']} not found in cache`)
+    const asset = assets.find((asset) => asset.id === transactionResult['asset-transfer-transaction']!['asset-id'])
+    invariant(asset, `Asset index ${transactionResult['asset-transfer-transaction']!['asset-id']} not found in cache`)
 
-    return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResult)
+    return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, asset)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
     return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assets)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)
+  }
+  if (transactionResult['tx-type'] === AlgoSdkTransactionType.afrz) {
+    invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
+    const asset = assets.find((asset) => asset.id === transactionResult['asset-freeze-transaction']!['asset-id'])
+    invariant(asset, `Asset index ${transactionResult['asset-freeze-transaction']!['asset-id']} not found in cache`)
+
+    return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, asset)
   }
 
   // This could be dangerous as we haven't implemented all the transaction types

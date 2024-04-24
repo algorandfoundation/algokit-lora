@@ -21,6 +21,16 @@ export const getAssetIdsForTransaction = (transaction: TransactionResult): numbe
       transaction['application-transaction']['foreign-assets'] ?? ([] as number[])
     )
   }
+  if (transaction['tx-type'] === algosdk.TransactionType.acfg) {
+    invariant(transaction['asset-config-transaction'], 'asset-config-transaction is not set')
+
+    return [transaction['asset-config-transaction']['asset-id'] ?? transaction['created-asset-index']]
+  }
+  if (transaction['tx-type'] === algosdk.TransactionType.afrz) {
+    invariant(transaction['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
+
+    return [transaction['asset-freeze-transaction']['asset-id']]
+  }
 
   return []
 }

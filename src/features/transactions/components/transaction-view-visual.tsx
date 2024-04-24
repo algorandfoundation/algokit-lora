@@ -9,9 +9,11 @@ import { useMemo } from 'react'
 import {
   AppCallTransaction,
   AssetConfigTransaction,
+  AssetFreezeTransaction,
   AssetTransferTransaction,
   InnerAppCallTransaction,
   InnerAssetConfigTransaction,
+  InnerAssetFreezeTransaction,
   InnerAssetTransferTransaction,
   InnerPaymentTransaction,
   InnerTransaction,
@@ -29,6 +31,7 @@ import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabe
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
+import { assetFreezeAddressLabel } from './asset-freeze-transaction-info'
 
 const graphConfig = {
   rowHeight: 40,
@@ -180,6 +183,7 @@ const DisplayArrow = fixedForwardRef(
           )}
           {transaction.type === TransactionType.ApplicationCall && <>App Call</>}
           {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
+          {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
         </div>
 
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
@@ -370,6 +374,40 @@ function AssetConfigTransactionToolTipContent({ transaction }: { transaction: As
   )
 }
 
+function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction }) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: TransactionType.AssetFreeze,
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+      {
+        dt: assetIdLabel,
+        dd: transaction.assetId,
+      },
+      {
+        dt: assetFreezeAddressLabel,
+        dd: transaction.address,
+      },
+    ],
+    [transaction.address, transaction.assetId, transaction.id, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
+
 type TransactionRowProps = {
   transaction: Transaction | InnerTransaction
   hasParent?: boolean
@@ -421,6 +459,7 @@ function TransactionRow({
                 {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -454,6 +493,10 @@ function calcArrow(transaction: Transaction | InnerTransaction, collaborators: C
     }
 
     if (transaction.type === TransactionType.AssetConfig) {
+      return collaborators.findIndex((a) => transaction.assetId.toString() === a.id)
+    }
+
+    if (transaction.type === TransactionType.AssetFreeze) {
       return collaborators.findIndex((a) => transaction.assetId.toString() === a.id)
     }
 
@@ -571,6 +614,12 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
+    collaborators.push({
+      type: 'Asset',
+      id: transaction.assetId.toString(),
+    })
+  }
+  if (transaction.type === TransactionType.AssetFreeze) {
     collaborators.push({
       type: 'Asset',
       id: transaction.assetId.toString(),
