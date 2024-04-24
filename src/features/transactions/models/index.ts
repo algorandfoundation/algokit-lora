@@ -194,6 +194,7 @@ export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   assetId: number
   assetName?: string
   newFreezeStatus: boolean
+  subType?: undefined
 }
 
 export type AssetFreezeTransaction = BaseAssetFreezeTransaction & {
