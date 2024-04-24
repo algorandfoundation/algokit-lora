@@ -16,6 +16,7 @@ import { Loader } from 'lucide-react'
 import { Badge } from '@/features/common/components/badge'
 
 export const searchPlaceholderLabel = 'Search by ID or Address'
+export const noSearchResultsMessage = 'No results.'
 
 export function Search() {
   const navigate = useNavigate()
@@ -53,13 +54,13 @@ export function Search() {
               return <></>
             }
             if (!results || results.length === 0) {
-              return <CommandEmpty>No results.</CommandEmpty>
+              return <CommandEmpty>{noSearchResultsMessage}</CommandEmpty>
             }
             return (
               <CommandGroup heading="Results">
                 {results.map((result) => {
                   return (
-                    <CommandItem key={result.id} value={result.url} onSelect={handleSelection}>
+                    <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
                       <span>{result.label}</span>
                       <Badge className={cn('ml-auto')} variant="outline">
                         {result.type}

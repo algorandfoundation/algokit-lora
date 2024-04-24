@@ -1,22 +1,109 @@
-import { Search, searchPlaceholderLabel } from './search'
+import { Search, noSearchResultsMessage, searchPlaceholderLabel } from './search'
 import { describe, it, expect, vi } from 'vitest'
 import { render, waitFor } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
-
-vi.mock('react-router-dom', () => ({
-  ...vi.importActual('react-router-dom'),
-  useNavigate: vi.fn(),
-}))
+import { createStore } from 'jotai'
+import { assetResultsAtom } from '@/features/assets/data/core'
+import { assetResultMother } from '@/tests/object-mother/asset-result'
+import { applicationResultsAtom } from '@/features/applications/data/core'
+import { applicationResultMother } from '@/tests/object-mother/application-result'
+import { blockResultMother } from '@/tests/object-mother/block-result'
+import { blockResultsAtom } from '@/features/blocks/data/core'
+import { useNavigate } from 'react-router-dom'
+import { SearchResultType } from '../models'
 
 describe('search', () => {
-  it('should render search input', () => {
-    return executeComponentTest(
-      () => render(<Search />),
-      async (component) => {
-        await waitFor(() => {
-          expect(component.getByPlaceholderText(searchPlaceholderLabel)).not.toBeNull()
-        })
-      }
-    )
+  describe('when no search results have been returned', () => {
+    it('should render the no results message', () => {
+      return executeComponentTest(
+        () => render(<Search />),
+        async (component, user) => {
+          await waitFor(async () => {
+            const input = component.getByPlaceholderText(searchPlaceholderLabel)
+            await user.type(input, 'nothing')
+            const result = await component.findByText(noSearchResultsMessage)
+
+            expect(result).toBeDefined()
+          })
+        }
+      )
+    })
+  })
+
+  describe('when search results have been returned', () => {
+    const assetResult = assetResultMother['mainnet-140479105']().build()
+    const applicationResult = applicationResultMother.basic().withId(assetResult.index).build()
+    const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
+
+    const myStore = createStore()
+    myStore.set(blockResultsAtom, new Map([[blockResult.round, blockResult]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, applicationResult]]))
+
+    describe.each([
+      {
+        type: SearchResultType.Block,
+        id: blockResult.round.toString(),
+        label: blockResult.round.toString(),
+      },
+      {
+        type: SearchResultType.Transaction,
+        id: 'FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ',
+        label: 'FBORGSD...',
+      },
+      {
+        type: SearchResultType.Account,
+        id: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+        label: 'KIZL...U5BQ',
+      },
+      {
+        type: SearchResultType.Asset,
+        id: assetResult.index.toString(),
+        label: `${assetResult.index} (${assetResult.params.name!})`,
+      },
+      {
+        type: SearchResultType.Application,
+        id: applicationResult.id.toString(),
+        label: applicationResult.id.toString(),
+      },
+    ])('and the $type result is selected', ({ type, id, label }: { type: SearchResultType; id: string; label: string }) => {
+      it(`should navigate to the ${type.toLowerCase()} page`, () => {
+        const mockNavigate = vi.fn()
+        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
+        return executeComponentTest(
+          () => render(<Search />, undefined, myStore),
+          async (component, user) => {
+            await waitFor(async () => {
+              const input = component.getByPlaceholderText(searchPlaceholderLabel)
+              await user.type(input, id)
+              const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
+              const result = results.find((result) => result!.textContent!.includes(type))!
+              await user.click(result)
+              expect(mockNavigate).toHaveBeenCalledWith(`/explore/${type.toLowerCase()}/${id}`)
+            })
+          }
+        )
+      })
+
+      it('should clear the search input', () => {
+        const mockNavigate = vi.fn()
+        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
+        return executeComponentTest(
+          () => render(<Search />, undefined, myStore),
+          async (component, user) => {
+            await waitFor(async () => {
+              const input = component.getByPlaceholderText(searchPlaceholderLabel)
+              await user.type(input, id)
+              const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
+              const result = results.find((result) => result!.textContent!.includes(type))!
+              await user.click(result)
+              expect(input).toHaveProperty('value', '')
+            })
+          }
+        )
+      })
+    })
   })
 })
