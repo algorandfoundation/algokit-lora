@@ -12,7 +12,7 @@ export const multisigVersionLabel = 'Version'
 export const multisigThresholdLabel = 'Threshold'
 export const multisigSubsignersLabel = 'Subsigners'
 
-export function Multisig({ signature }: MultisigProps) {
+export function MultisigDetails({ signature }: MultisigProps) {
   const multisigItems = useMemo(
     () => [
       {

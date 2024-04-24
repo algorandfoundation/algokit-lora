@@ -4,8 +4,8 @@ import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
 import { AssetTransferTransactionModel, InnerAssetTransferTransactionModel, SignatureType } from '../models'
-import { Multisig } from './multisig'
-import { Logicsig } from './logicsig'
+import { MultisigDetails } from './multisig-details'
+import { LogicsigDetails } from './logicsig-details'
 import { AssetTransferTransactionInfo } from './asset-transfer-transaction-info'
 import { TransactionViewTabs } from './transaction-view-tabs'
 
@@ -13,7 +13,7 @@ type AssetTransaferTransactionProps = {
   transaction: AssetTransferTransactionModel | InnerAssetTransferTransactionModel
 }
 
-export function AssetTranserTransaction({ transaction }: AssetTransaferTransactionProps) {
+export function AssetTranserTransactionDetails({ transaction }: AssetTransaferTransactionProps) {
   return (
     <div className={cn('space-y-6 pt-7')}>
       <TransactionInfo transaction={transaction} />
@@ -23,8 +23,8 @@ export function AssetTranserTransaction({ transaction }: AssetTransaferTransacti
           <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />
-          {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
-          {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
         </CardContent>
       </Card>
     </div>

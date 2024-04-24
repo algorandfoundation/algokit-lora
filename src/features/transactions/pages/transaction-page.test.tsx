@@ -14,14 +14,14 @@ import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
-import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig'
+import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig-details'
 import { algod } from '@/features/common/data'
 import {
   tableTransactionDetailsTabLabel,
   transactionDetailsLabel,
   visualTransactionDetailsTabLabel,
 } from '../components/transaction-view-tabs'
-import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig'
+import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
 import {
   transactionBlockLabel,
   transactionFeeLabel,

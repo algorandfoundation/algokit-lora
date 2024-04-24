@@ -1,7 +1,7 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { Transaction } from '../components/transaction'
+import { TransactionDetails } from '../components/transaction-details'
 import { useLoadableInnerTransactionModelAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
@@ -37,7 +37,7 @@ export function InnerTransactionPage() {
     <div>
       <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageTitle}</h1>
       <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
-        {(data) => <Transaction transaction={data} />}
+        {(data) => <TransactionDetails transaction={data} />}
       </RenderLoadable>
     </div>
   )

@@ -15,7 +15,7 @@ export const logicsigLabel = 'View Logic Signature Details'
 export const base64LogicsigTabLabel = 'Base64'
 export const tealLogicsigTabLabel = 'Teal'
 
-export function Logicsig({ signature }: LogicsigProps) {
+export function LogicsigDetails({ signature }: LogicsigProps) {
   const [tealLoadable, fetchTeal] = useLogicsigTeal(signature.logic)
 
   return (

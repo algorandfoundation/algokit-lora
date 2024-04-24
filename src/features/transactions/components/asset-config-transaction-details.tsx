@@ -3,28 +3,28 @@ import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { SignatureType, PaymentTransactionModel, InnerPaymentTransactionModel } from '../models'
-import { Multisig } from './multisig'
-import { Logicsig } from './logicsig'
-import { PaymentTransactionInfo } from './payment-transaction-info'
+import { SignatureType, AssetConfigTransactionModel, InnerAssetConfigTransactionModel } from '../models'
+import { MultisigDetails } from './multisig-details'
+import { LogicsigDetails } from './logicsig-details'
 import { TransactionViewTabs } from './transaction-view-tabs'
+import { AssetConfigTransactionInfo } from './asset-config-transaction-info'
 
-type PaymentTransactionProps = {
-  transaction: PaymentTransactionModel | InnerPaymentTransactionModel
+type Props = {
+  transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
 }
 
-export function PaymentTransaction({ transaction }: PaymentTransactionProps) {
+export function AssetConfigTransactionDetails({ transaction }: Props) {
   return (
     <div className={cn('space-y-6 pt-7')}>
       <TransactionInfo transaction={transaction} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
-          <PaymentTransactionInfo transaction={transaction} />
+          <AssetConfigTransactionInfo transaction={transaction} />
           <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />
-          {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
-          {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
         </CardContent>
       </Card>
     </div>
