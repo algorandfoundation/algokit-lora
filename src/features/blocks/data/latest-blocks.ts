@@ -3,7 +3,7 @@ import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { transactionsAtom } from '@/features/transactions/data'
+import { transactionResultsAtom } from '@/features/transactions/data'
 import { asTransactionSummary } from '@/features/transactions/mappers/transaction-mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
@@ -22,7 +22,7 @@ const latestBlockSummariesAtomBuilder = (store: JotaiStore) => {
       return []
     }
     const blocks = store.get(blocksAtom)
-    const transactions = store.get(transactionsAtom)
+    const transactions = store.get(transactionResultsAtom)
 
     return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
       const round = syncedRound - i
@@ -105,7 +105,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       ] as const
     })
 
-    set(transactionsAtom, (prev) => {
+    set(transactionResultsAtom, (prev) => {
       transactions.forEach((value, key) => {
         prev.set(key, value)
       })

@@ -9,7 +9,7 @@ import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
 import { blocksAtom } from '../data/core'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block-details'
-import { transactionsAtom } from '@/features/transactions/data'
+import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { assetsAtom } from '@/features/assets/data/core'
@@ -102,7 +102,7 @@ describe('block-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blocksAtom, new Map([[block.round, block]]))
-        myStore.set(transactionsAtom, new Map(transactions.map((x) => [x.id, x])))
+        myStore.set(transactionResultsAtom, new Map(transactions.map((x) => [x.id, x])))
         myStore.set(assetsAtom, new Map([[asset.index, asset]]))
 
         return executeComponentTest(
