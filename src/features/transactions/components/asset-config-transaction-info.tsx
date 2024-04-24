@@ -36,7 +36,8 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
           dt: assetIdLabel,
           dd: (
             <a href="#" className={cn('text-primary underline')}>
-              {transaction.assetId} {transaction.name && `(${transaction.name})`}
+              {transaction.assetId}
+              {transaction.name && ` (${transaction.name})`}
             </a>
           ),
         },

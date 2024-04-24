@@ -785,4 +785,30 @@ export const transactionResultMother = {
       'tx-type': 'appl',
     } as unknown as TransactionResult) // The type definition for App Call transaction in indexer seems to be wrong
   },
+  ['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']: () => {
+    // Asset config destroy asset
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 917559,
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 6354625,
+      fee: 1000,
+      'first-valid': 6354623,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      id: 'U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A',
+      'intra-round-offset': 0,
+      'last-valid': 6355623,
+      note: 'fSaN7lZKDoU=',
+      'receiver-rewards': 0,
+      'round-time': 1588143174,
+      sender: 'MBX2M6J44LQ22L3FROYRBKUAG4FWENPSLPTI7EBR4ECQ2APDMI6XTENHWQ',
+      'sender-rewards': 0,
+      signature: {
+        sig: '54NGN00vwOQdEeoev5qb7NFV5a8JNY+L/GgNgQrCVjWQtb2rzlO+/OMOY3o984zs2zOYY75Hdy0SXD25GmJvCw==',
+      },
+      'tx-type': TransactionType.acfg,
+    })
+  },
 }
