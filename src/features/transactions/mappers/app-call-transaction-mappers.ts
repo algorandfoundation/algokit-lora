@@ -5,7 +5,7 @@ import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, as
 import { mapCommonTransactionProperties, asInnerTransactionId } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
-import { asInnerAssetTransferTransaction as asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
+import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { Asset } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 
