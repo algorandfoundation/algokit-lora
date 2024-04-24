@@ -18,11 +18,7 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.sender}
-          </a>
-        ),
+        dd: <AccountLink address={transaction.sender}></AccountLink>,
       },
       {
         dt: assetFreezeAddressLabel,

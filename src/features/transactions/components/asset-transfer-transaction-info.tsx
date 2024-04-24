@@ -4,6 +4,7 @@ import { AssetTransferTransaction, AssetTransferTransactionSubType, InnerAssetTr
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
@@ -19,11 +20,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.sender}
-          </a>
-        ),
+        dd: <AccountLink address={transaction.sender}></AccountLink>,
       },
       {
         dt: transactionReceiverLabel,
