@@ -1,9 +1,10 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { AssetResultBuilder } from '../builders/asset-result-builder'
 
+const encoder = new TextEncoder()
+
 export const assetResultMother = {
   ['mainnet-140479105']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 140479105,
       params: {
@@ -25,7 +26,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['mainnet-523683256']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 523683256,
       params: {
@@ -45,7 +45,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['mainnet-312769']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 312769,
       params: {
@@ -67,7 +66,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['testnet-642327435']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 642327435,
       params: {
@@ -87,7 +85,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['mainnet-971381860']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 971381860,
       params: {
@@ -104,7 +101,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['mainnet-31566704']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 31566704,
       params: {
@@ -125,7 +121,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['mainnet-386195940']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 386195940,
       params: {
@@ -146,7 +141,6 @@ export const assetResultMother = {
     } satisfies AssetResult)
   },
   ['mainnet-408898501']: () => {
-    const encoder = new TextEncoder()
     return new AssetResultBuilder({
       index: 408898501,
       params: {
@@ -160,6 +154,26 @@ export const assetResultMother = {
         total: 100000000,
         'unit-name': 'LTBX',
         'unit-name-b64': encoder.encode('TFRCWA=='),
+      },
+    } satisfies AssetResult)
+  },
+  ['mainnet-1707148495']: () => {
+    return new AssetResultBuilder({
+      index: 1707148495,
+      params: {
+        creator: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY',
+        manager: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY',
+        name: 'Verification Lofty #29297',
+        'name-b64': encoder.encode('VmVyaWZpY2F0aW9uIExvZnR5ICMyOTI5Nw=='),
+        reserve: '3XAU3CYHZ3QX4M2DSTEMHPVKKJXSSDMMHADPM6SYRGQDCDQOAAYL3SQY5I',
+        total: 1,
+        'unit-name': 'VL029297',
+        'unit-name-b64': encoder.encode('VkwwMjkyOTc='),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
       },
     } satisfies AssetResult)
   },

@@ -70,6 +70,7 @@ import {
   assetUnitLabel,
   assetUrlLabel,
 } from '../components/asset-config-transaction-info'
+import { assetFreezeAddressLabel, assetNewFreezeStatusLabel } from '../components/asset-freeze-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -890,7 +891,7 @@ describe('transaction-page', () => {
         () => {
           return render(<TransactionPage />, undefined, myStore)
         },
-        async (component) => {
+        async (component, user) => {
           // waitFor the loading state to be finished
           await waitFor(() => {
             descriptionListAssertion({
@@ -912,6 +913,27 @@ describe('transaction-page', () => {
                 { term: assetDefaultFrozenLabel, description: 'No' },
               ],
             })
+          })
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          expect(viewTransactionTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['ZXQMOO6...', 'EHYQ...KBPU', '1781083085', 'Asset Config'],
+              },
+            ],
           })
         }
       )
@@ -941,6 +963,65 @@ describe('transaction-page', () => {
                 { term: transactionTimestampLabel, description: 'Mon, 01 April 2024 18:05:37' },
               ],
             })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset freeze transaction', () => {
+    const transaction = transactionResultMother['mainnet-2XFGVOHMFYLAWBHOSIOI67PBT5LDRHBTD3VLX5EYBDTFNVKMCJIA']().build()
+    const asset = assetResultMother['mainnet-1707148495']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
+      myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBeTruthy())
+
+          descriptionListAssertion({
+            container: component.container,
+            items: [
+              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionTypeLabel, description: 'Asset Freeze' },
+              { term: transactionTimestampLabel, description: 'Sat, 30 March 2024 01:03:28' },
+              { term: transactionBlockLabel, description: '37463564' },
+              { term: transactionGroupLabel, description: 'xERjxVTlNb8jeHa16qmpxDMh4+dcDCokO69QnNESbFk=' },
+              { term: transactionFeeLabel, description: '0.001' },
+              { term: transactionSenderLabel, description: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY' },
+              { term: assetFreezeAddressLabel, description: 'ZJU3X2B2QN3BUBIJ64JZ565V363ANGBUDOLXAJHDXGIIMYK6WV3NSNCBQQ' },
+              { term: assetLabel, description: '1707148495(Verification Lofty #29297)' },
+              { term: assetNewFreezeStatusLabel, description: 'True' },
+            ],
+          })
+
+          const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+          expect(viewTransactionTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+
+          tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['2XFGVOH...', 'E4A6...VZHY', '1707148495', 'Asset Freeze'],
+              },
+            ],
           })
         }
       )
