@@ -33,7 +33,7 @@ import {
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { algoAssetResult, assetsAtom } from '@/features/assets/data'
+import { algoAssetResult, assetsAtom } from '@/features/assets/data/core'
 import {
   assetLabel,
   transactionCloseRemainderAmountLabel as assetTransactionCloseRemainderAmountLabel,

@@ -3,7 +3,7 @@ import { BlockLink } from './block-link'
 import { Card, CardContent } from '@/features/common/components/card'
 import { dateFormatter } from '@/utils/format'
 import SvgBlock from '@/features/common/components/icons/block'
-import { useLatestBlockSummaries } from '../data/latest-blocks'
+import { useLatestBlockSummaries } from '../data'
 
 export const latestBlocksTitle = 'Latest Blocks'
 

@@ -1,14 +1,14 @@
 import { JotaiStore } from '@/features/common/data/types'
 import { atom, useAtomValue, useStore } from 'jotai'
-import { BlockResult, Round } from './types'
-import { blocksAtom, syncedRoundAtom } from '.'
 import { indexer } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
 import { fetchTransactionsAtomBuilder, fetchTransactionsModelAtomBuilder, transactionsAtom } from '@/features/transactions/data'
-import { asBlockDetails } from '../mappers'
+import { asBlock } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
+import { blocksAtom, syncedRoundAtom } from './core'
+import { BlockResult, Round } from './types'
 
 const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
   // This atom conditionally subscribes to updates on the syncedRoundAtom
@@ -19,7 +19,7 @@ const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
   })
 }
 
-const fetchBlockAtomBuilder = (round: Round) => {
+const fetchBlockResultAtomBuilder = (round: Round) => {
   return atom(async (_get) => {
     return await indexer
       .lookupBlock(round)
@@ -37,22 +37,25 @@ const fetchBlockAtomBuilder = (round: Round) => {
   })
 }
 
-const getBlockDetailsAtomBuilder = (store: JotaiStore, round: Round) => {
-  const fetchBlockAtom = fetchBlockAtomBuilder(round)
+const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
+  const fetchBlockResultAtom = fetchBlockResultAtomBuilder(round)
 
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
       try {
-        const [block, transactions] = await get(fetchBlockAtom)
+        const [blockResult, transactionResults] = await get(fetchBlockResultAtom)
 
-        if (transactions && transactions.length > 0) {
+        if (transactionResults && transactionResults.length > 0) {
           set(transactionsAtom, (prev) => {
-            return new Map([...prev, ...transactions.map((t: TransactionResult) => [t.id, t] as const)])
+            transactionResults.forEach((t) => {
+              prev.set(t.id, t)
+            })
+            return prev
           })
         }
 
         set(blocksAtom, (prev) => {
-          return new Map([...prev, [block.round, block]])
+          return prev.set(blockResult.round, blockResult)
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
@@ -62,31 +65,31 @@ const getBlockDetailsAtomBuilder = (store: JotaiStore, round: Round) => {
 
   return atom(async (get) => {
     const blocks = store.get(blocksAtom)
-    const cachedBlock = blocks.get(round)
+    const cachedBlockResult = blocks.get(round)
     const nextRoundAvailable = get(nextRoundAvailableAtomBuilder(store, round))
-    if (cachedBlock) {
+    if (cachedBlockResult) {
       const transactions = await get(
-        fetchTransactionsModelAtomBuilder(store, fetchTransactionsAtomBuilder(store, cachedBlock.transactionIds))
+        fetchTransactionsModelAtomBuilder(store, fetchTransactionsAtomBuilder(store, cachedBlockResult.transactionIds))
       )
-      return asBlockDetails(cachedBlock, transactions, nextRoundAvailable)
+      return asBlock(cachedBlockResult, transactions, nextRoundAvailable)
     }
 
     get(syncEffect)
 
-    const [fetchedBlock, fetchedBlockTransactions] = await get(fetchBlockAtom)
-    const transactions = await get(fetchTransactionsModelAtomBuilder(store, fetchedBlockTransactions))
-    return asBlockDetails(fetchedBlock, transactions, nextRoundAvailable)
+    const [blockResult, transactionResults] = await get(fetchBlockResultAtom)
+    const transactions = await get(fetchTransactionsModelAtomBuilder(store, transactionResults))
+    return asBlock(blockResult, transactions, nextRoundAvailable)
   })
 }
 
-const useBlockDetailsAtom = (round: Round) => {
+const useBlockAtom = (round: Round) => {
   const store = useStore()
 
   return useMemo(() => {
-    return getBlockDetailsAtomBuilder(store, round)
+    return getBlockAtomBuilder(store, round)
   }, [store, round])
 }
 
-export const useLoadableBlockDetails = (round: Round) => {
-  return useAtomValue(loadable(useBlockDetailsAtom(round)))
+export const useLoadableBlock = (round: Round) => {
+  return useAtomValue(loadable(useBlockAtom(round)))
 }

@@ -1,7 +1,6 @@
 import { JotaiStore } from '@/features/common/data/types'
 import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
-import { blocksAtom, syncedRoundAtom } from '.'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
 import { transactionsAtom } from '@/features/transactions/data'
@@ -9,9 +8,10 @@ import { asTransactionSummary } from '@/features/transactions/mappers/transactio
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { algod } from '@/features/common/data'
-import { BlockResult, Round } from './types'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { blocksAtom, syncedRoundAtom } from './core'
+import { BlockResult, Round } from './types'
 
 const maxBlocksToDisplay = 5
 
@@ -86,10 +86,8 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
           const { filtersMatched, balanceChanges, ...transaction } = t
           const round = transaction['confirmed-round']!
 
-          return [
-            new Map<Round, string[]>([...acc[0], [round, (acc[0].get(round) ?? []).concat(transaction.id)]]),
-            new Map<TransactionId, TransactionResult>([...acc[1], [transaction.id, transaction]]),
-          ] as const
+          acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
+          acc[1].set(transaction.id, transaction)
         }
         return acc
       },
@@ -108,11 +106,17 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     })
 
     set(transactionsAtom, (prev) => {
-      return new Map([...prev, ...transactions])
+      transactions.forEach((value, key) => {
+        prev.set(key, value)
+      })
+      return prev
     })
 
     set(blocksAtom, (prev) => {
-      return new Map([...prev, ...blocks])
+      blocks.forEach(([key, value]) => {
+        prev.set(key, value)
+      })
+      return prev
     })
   })
 
