@@ -22,7 +22,7 @@ const latestBlockSummariesAtomBuilder = (store: JotaiStore) => {
       return []
     }
     const blocks = store.get(blocksAtom)
-    const transactions = store.get(transactionResultsAtom)
+    const transactionResults = store.get(transactionResultsAtom)
 
     return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
       const round = syncedRound - i
@@ -30,7 +30,7 @@ const latestBlockSummariesAtomBuilder = (store: JotaiStore) => {
 
       if (block) {
         const transactionSummaries = block.transactionIds.map((transactionId) => {
-          return asTransactionSummary(transactions.get(transactionId)!)
+          return asTransactionSummary(transactionResults.get(transactionId)!)
         })
 
         return asBlockSummary(block, transactionSummaries)

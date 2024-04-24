@@ -93,16 +93,16 @@ describe('block-page', () => {
 
     describe('and has transactions', () => {
       const asset = assetResultMother['mainnet-312769']().build()
-      const transaction1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
-      const transaction2 = transactionResultMother.transfer(asset).build()
-      const transactions = [transaction1, transaction2]
-      const block = blockResultMother.blockWithTransactions(transactions).withTimestamp('2024-02-29T06:52:01Z').build()
+      const transactionResult1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
+      const transactionResult2 = transactionResultMother.transfer(asset).build()
+      const transactionResults = [transactionResult1, transactionResult2]
+      const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blocksAtom, new Map([[block.round, block]]))
-        myStore.set(transactionResultsAtom, new Map(transactions.map((x) => [x.id, x])))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
         myStore.set(assetsAtom, new Map([[asset.index, asset]]))
 
         return executeComponentTest(
@@ -129,22 +129,22 @@ describe('block-page', () => {
               rows: [
                 {
                   cells: [
-                    ellipseId(transaction1.id),
-                    ellipseId(transaction1.group),
-                    ellipseAddress(transaction1.sender),
-                    ellipseAddress(transaction1['payment-transaction']!.receiver),
+                    ellipseId(transactionResult1.id),
+                    ellipseId(transactionResult1.group),
+                    ellipseAddress(transactionResult1.sender),
+                    ellipseAddress(transactionResult1['payment-transaction']!.receiver),
                     'Payment',
-                    (transaction1['payment-transaction']!.amount / 1e6).toString(),
+                    (transactionResult1['payment-transaction']!.amount / 1e6).toString(),
                   ],
                 },
                 {
                   cells: [
-                    ellipseId(transaction2.id),
-                    ellipseId(transaction2.group),
-                    ellipseAddress(transaction2.sender),
-                    ellipseAddress(transaction2['asset-transfer-transaction']!.receiver),
+                    ellipseId(transactionResult2.id),
+                    ellipseId(transactionResult2.group),
+                    ellipseAddress(transactionResult2.sender),
+                    ellipseAddress(transactionResult2['asset-transfer-transaction']!.receiver),
                     'Asset Transfer',
-                    `${(transaction2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`,
+                    `${(transactionResult2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`,
                   ],
                 },
               ],
