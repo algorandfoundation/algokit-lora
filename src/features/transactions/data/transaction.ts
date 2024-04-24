@@ -5,14 +5,14 @@ import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { invariant } from '@/utils/invariant'
-import { TransactionType } from 'algosdk'
+import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { Buffer } from 'buffer'
 import { TransactionId } from './types'
 import { indexer, algod } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
-import { asTransactionModel } from '../mappers/transaction-mappers'
+import { asTransaction } from '../mappers/transaction-mappers'
 import { getAssetAtomBuilder, getAssetsAtomBuilder } from '@/features/assets/data'
-import { InnerTransactionModel, TransactionModel, TransactionType as TransactionTypeModel } from '../models'
+import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
 import { transactionResultsAtom } from './core'
 
@@ -51,7 +51,7 @@ export const fetchTransactionResultsAtomBuilder = (store: JotaiStore, transactio
   })
 }
 
-export const fetchTransactionsModelAtomBuilder = (
+export const fetchTransactionsAtomBuilder = (
   store: JotaiStore,
   transactionResults: TransactionResult[] | Atom<TransactionResult[] | Promise<TransactionResult[]>>
 ) => {
@@ -59,13 +59,13 @@ export const fetchTransactionsModelAtomBuilder = (
     const txns = Array.isArray(transactionResults) ? transactionResults : await get(transactionResults)
     const assetIds = Array.from(
       txns.reduce((acc, txn) => {
-        if (txn['tx-type'] === TransactionType.axfer && txn['asset-transfer-transaction']) {
+        if (txn['tx-type'] === AlgoSdkTransactionType.axfer && txn['asset-transfer-transaction']) {
           const assetId = txn['asset-transfer-transaction']['asset-id']
           if (!acc.has(assetId)) {
             acc.add(assetId)
           }
         }
-        if (txn['tx-type'] === TransactionType.appl && txn['application-transaction']) {
+        if (txn['tx-type'] === AlgoSdkTransactionType.appl && txn['application-transaction']) {
           const assetIds = getAssetIdsForTransaction(txn)
           assetIds.forEach((assetId) => {
             if (!acc.has(assetId)) {
@@ -85,7 +85,7 @@ export const fetchTransactionsModelAtomBuilder = (
 
     return await Promise.all(
       txns.map((transactionResult) => {
-        return asTransactionModel(transactionResult, (assetId: number) => {
+        return asTransaction(transactionResult, (assetId: number) => {
           const asset = assets.get(assetId)
           invariant(asset, `when mapping ${transactionResult.id}, asset with id ${assetId} could not be retrieved`)
           return asset
@@ -95,32 +95,32 @@ export const fetchTransactionsModelAtomBuilder = (
   })
 }
 
-export const fetchTransactionModelAtomBuilder = (
+export const fetchTransactionAtomBuilder = (
   store: JotaiStore,
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return await asTransactionModel(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
+    return await asTransaction(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
   })
 }
 
-export const fetchInnerTransactionModelAtomBuilder = (
+export const fetchInnerTransactionAtomBuilder = (
   store: JotaiStore,
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
   innerId: string
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    const transactionModel = await asTransactionModel(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
-    if (transactionModel.type !== TransactionTypeModel.ApplicationCall) {
+    const transaction = await asTransaction(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
+    if (transaction.type !== TransactionType.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
 
     const indexes = innerId.split('-').map((s) => parseInt(s))
-    let current: TransactionModel | InnerTransactionModel = transactionModel
+    let current: Transaction | InnerTransaction = transaction
     for (const i of indexes) {
-      if (current.type === TransactionTypeModel.ApplicationCall) {
+      if (current.type === TransactionType.ApplicationCall) {
         current = current.innerTransactions[i - 1]
       }
     }
@@ -129,19 +129,19 @@ export const fetchInnerTransactionModelAtomBuilder = (
   })
 }
 
-const useTransactionModelAtom = (transactionId: TransactionId) => {
+const useTransactionAtom = (transactionId: TransactionId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchTransactionModelAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId))
+    return fetchTransactionAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId))
   }, [store, transactionId])
 }
 
-const useInnerTransactionModelAtom = (transactionId: TransactionId, innerId: string) => {
+const useInnerTransactionAtom = (transactionId: TransactionId, innerId: string) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchInnerTransactionModelAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId), innerId)
+    return fetchInnerTransactionAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId), innerId)
   }, [store, transactionId, innerId])
 }
 
@@ -168,10 +168,10 @@ export const useLogicsigTeal = (logic: string) => {
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
 
-export const useLoadableTransactionModelAtom = (transactionId: TransactionId) => {
-  return useAtomValue(loadable(useTransactionModelAtom(transactionId)))
+export const useLoadableTransactionAtom = (transactionId: TransactionId) => {
+  return useAtomValue(loadable(useTransactionAtom(transactionId)))
 }
 
-export const useLoadableInnerTransactionModelAtom = (transactionId: TransactionId, innerId: string) => {
-  return useAtomValue(loadable(useInnerTransactionModelAtom(transactionId, innerId)))
+export const useLoadableInnerTransactionAtom = (transactionId: TransactionId, innerId: string) => {
+  return useAtomValue(loadable(useInnerTransactionAtom(transactionId, innerId)))
 }

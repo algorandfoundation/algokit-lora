@@ -1,5 +1,5 @@
 import { cn } from '@/features/common/utils'
-import { InnerTransactionModel, TransactionModel, TransactionType } from '../models'
+import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { FlattenedTransaction, flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -15,7 +15,7 @@ const graphConfig = {
 }
 
 type Props = {
-  transaction: TransactionModel | InnerTransactionModel
+  transaction: Transaction | InnerTransaction
 }
 
 export const transactionSenderLabel = 'Sender'
@@ -52,7 +52,7 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     header: 'To',
     accessorFn: (item) => item.transaction,
     cell: (c) => {
-      const transaction = c.getValue<TransactionModel>()
+      const transaction = c.getValue<Transaction>()
       if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
         return ellipseAddress(transaction.receiver)
       if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
@@ -66,7 +66,7 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
     header: 'Amount',
     accessorFn: (item) => item.transaction,
     cell: (c) => {
-      const transaction = c.getValue<TransactionModel>()
+      const transaction = c.getValue<Transaction>()
       if (transaction.type === TransactionType.Payment) return <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />
       if (transaction.type === TransactionType.AssetTransfer)
         return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />

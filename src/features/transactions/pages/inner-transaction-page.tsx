@@ -2,7 +2,7 @@ import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { TransactionDetails } from '../components/transaction-details'
-import { useLoadableInnerTransactionModelAtom } from '../data'
+import { useLoadableInnerTransactionAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-id'
@@ -31,7 +31,7 @@ export function InnerTransactionPage() {
   const { innerTransactionId } = useRequiredParam(UrlParams.InnerTransactionId)
   invariant(isValidInnerTransactionId(innerTransactionId), `Invalid inner transaction id: ${innerTransactionId}`)
 
-  const loadableTransaction = useLoadableInnerTransactionModelAtom(transactionId, innerTransactionId)
+  const loadableTransaction = useLoadableInnerTransactionAtom(transactionId, innerTransactionId)
 
   return (
     <div>

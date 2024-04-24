@@ -11,7 +11,7 @@ export type CommonTransactionProperties = {
   fee: AlgoAmount
   sender: Address
   note?: string
-  signature?: SinglesigModel | MultisigModel | LogicsigModel
+  signature?: Singlesig | Multisig | Logicsig
   json: string
 }
 
@@ -38,7 +38,7 @@ export type CloseAssetRemainder = {
   amount: number | bigint
 }
 
-export type BasePaymentTransactionModel = CommonTransactionProperties & {
+export type BasePaymentTransaction = CommonTransactionProperties & {
   type: TransactionType.Payment
   receiver: Address
   amount: AlgoAmount
@@ -46,11 +46,11 @@ export type BasePaymentTransactionModel = CommonTransactionProperties & {
   subType?: undefined
 }
 
-export type PaymentTransactionModel = BasePaymentTransactionModel & {
+export type PaymentTransaction = BasePaymentTransaction & {
   id: string
 }
 
-export type BaseAssetTransferTransactionModel = CommonTransactionProperties & {
+export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   subType?: AssetTransferTransactionSubType
   receiver: Address
@@ -60,15 +60,11 @@ export type BaseAssetTransferTransactionModel = CommonTransactionProperties & {
   clawbackFrom?: Address
 }
 
-export type AssetTransferTransactionModel = BaseAssetTransferTransactionModel & {
+export type AssetTransferTransaction = BaseAssetTransferTransaction & {
   id: string
 }
 
-export type TransactionModel =
-  | PaymentTransactionModel
-  | AssetTransferTransactionModel
-  | AppCallTransactionModel
-  | AssetConfigTransactionModel
+export type Transaction = PaymentTransaction | AssetTransferTransaction | AppCallTransaction | AssetConfigTransaction
 
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
   id: string
@@ -82,19 +78,19 @@ export enum SignatureType {
   Logic = 'Logic',
 }
 
-export type SinglesigModel = {
+export type Singlesig = {
   type: SignatureType.Single
   signer: Address
 }
 
-export type MultisigModel = {
+export type Multisig = {
   type: SignatureType.Multi
   version: number
   threshold: number
   subsigners: Address[]
 }
 
-export type LogicsigModel = {
+export type Logicsig = {
   type: SignatureType.Logic
   logic: string
 }
@@ -114,7 +110,7 @@ export type LocalStateDelta = {
   value: string
 }
 
-export type BaseAppCallTransactionModel = CommonTransactionProperties & {
+export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.ApplicationCall
   applicationId: number
   applicationArgs: string[]
@@ -123,14 +119,14 @@ export type BaseAppCallTransactionModel = CommonTransactionProperties & {
   applicationAccounts: Address[]
   globalStateDeltas: GlobalStateDelta[]
   localStateDeltas: LocalStateDelta[]
-  innerTransactions: InnerTransactionModel[]
+  innerTransactions: InnerTransaction[]
   subType?: undefined
   onCompletion: AppCallOnComplete
   action: 'Create' | 'Call'
   logs: string[]
 }
 
-export type AppCallTransactionModel = BaseAppCallTransactionModel & {
+export type AppCallTransaction = BaseAppCallTransaction & {
   id: string
 }
 
@@ -148,16 +144,16 @@ export type InnerTransactionId = {
   innerId: string
 }
 
-export type InnerPaymentTransactionModel = BasePaymentTransactionModel & InnerTransactionId
-export type InnerAssetTransferTransactionModel = BaseAssetTransferTransactionModel & InnerTransactionId
-export type InnerAppCallTransactionModel = BaseAppCallTransactionModel & InnerTransactionId
-export type InnerTransactionModel =
-  | InnerPaymentTransactionModel
-  | InnerAssetTransferTransactionModel
-  | InnerAppCallTransactionModel
-  | InnerAssetConfigTransactionModel
+export type InnerPaymentTransaction = BasePaymentTransaction & InnerTransactionId
+export type InnerAssetTransferTransaction = BaseAssetTransferTransaction & InnerTransactionId
+export type InnerAppCallTransaction = BaseAppCallTransaction & InnerTransactionId
+export type InnerTransaction =
+  | InnerPaymentTransaction
+  | InnerAssetTransferTransaction
+  | InnerAppCallTransaction
+  | InnerAssetConfigTransaction
 
-export type BaseAssetConfigTransactionModel = CommonTransactionProperties & {
+export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
   assetId: number
   url?: string
@@ -173,11 +169,11 @@ export type BaseAssetConfigTransactionModel = CommonTransactionProperties & {
   defaultFrozen?: boolean
 }
 
-export type AssetConfigTransactionModel = BaseAssetConfigTransactionModel & {
+export type AssetConfigTransaction = BaseAssetConfigTransaction & {
   id: string
 }
 
-export type InnerAssetConfigTransactionModel = BaseAssetConfigTransactionModel & InnerTransactionId
+export type InnerAssetConfigTransaction = BaseAssetConfigTransaction & InnerTransactionId
 
 export enum AssetConfigTransactionSubType {
   Create = 'Create',

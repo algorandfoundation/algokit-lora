@@ -1,4 +1,4 @@
-import { TransactionModel, TransactionSummary, TransactionType } from '@/features/transactions/models'
+import { Transaction, TransactionSummary, TransactionType } from '@/features/transactions/models'
 
 export type TransactionsSummary = {
   count: number
@@ -14,7 +14,7 @@ export type CommonBlockProperties = {
 export type Block = CommonBlockProperties & {
   previousRound?: number
   nextRound?: number
-  transactions: TransactionModel[]
+  transactions: Transaction[]
 }
 
 export type BlockSummary = CommonBlockProperties & {

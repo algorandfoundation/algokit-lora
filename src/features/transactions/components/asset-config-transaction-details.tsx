@@ -3,14 +3,14 @@ import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { SignatureType, AssetConfigTransactionModel, InnerAssetConfigTransactionModel } from '../models'
+import { SignatureType, AssetConfigTransaction, InnerAssetConfigTransaction } from '../models'
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { TransactionViewTabs } from './transaction-view-tabs'
 import { AssetConfigTransactionInfo } from './asset-config-transaction-info'
 
 type Props = {
-  transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
+  transaction: AssetConfigTransaction | InnerAssetConfigTransaction
 }
 
 export function AssetConfigTransactionDetails({ transaction }: Props) {

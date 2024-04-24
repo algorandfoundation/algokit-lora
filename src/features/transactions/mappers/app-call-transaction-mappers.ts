@@ -1,17 +1,11 @@
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import {
-  AppCallOnComplete,
-  AppCallTransactionModel,
-  BaseAppCallTransactionModel,
-  InnerAppCallTransactionModel,
-  TransactionType,
-} from '../models'
+import { AppCallOnComplete, AppCallTransaction, BaseAppCallTransaction, InnerAppCallTransaction, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { mapCommonTransactionProperties, asInnerTransactionId } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
-import { asInnerAssetTransferTransactionModel } from './asset-transfer-transaction-mappers'
+import { asInnerAssetTransferTransaction as asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { Asset } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 
@@ -37,15 +31,15 @@ const mapCommonAppCallTransactionProperties = (
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}-${index + 1}` : `${index + 1}`
-        return asInnerTransactionModel(networkTransactionId, innerId, innerTransaction, assets)
+        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assets)
       }) ?? [],
     onCompletion: asAppCallOnComplete(transactionResult['application-transaction']['on-completion']),
     action: transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create',
     logs: transactionResult['logs'] ?? [],
-  } satisfies BaseAppCallTransactionModel
+  } satisfies BaseAppCallTransaction
 }
 
-export const asAppCallTransaction = (transactionResult: TransactionResult, assets: Asset[]): AppCallTransactionModel => {
+export const asAppCallTransaction = (transactionResult: TransactionResult, assets: Asset[]): AppCallTransaction => {
   const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assets)
 
   return {
@@ -59,7 +53,7 @@ export const asInnerAppCallTransaction = (
   index: string,
   transactionResult: TransactionResult,
   assets: Asset[]
-): InnerAppCallTransactionModel => {
+): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
     ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assets, `${index}`),
@@ -83,7 +77,7 @@ const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnCompl
   }
 }
 
-const asInnerTransactionModel = (networkTransactionId: string, index: string, transactionResult: TransactionResult, assets: Asset[]) => {
+const asInnerTransaction = (networkTransactionId: string, index: string, transactionResult: TransactionResult, assets: Asset[]) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
   }
@@ -92,7 +86,7 @@ const asInnerTransactionModel = (networkTransactionId: string, index: string, tr
     const assetResult = assets.find((asset) => asset.id === transactionResult['asset-transfer-transaction']!['asset-id'])
     invariant(assetResult, `Asset index ${transactionResult['asset-transfer-transaction']!['asset-id']} not found in cache`)
 
-    return asInnerAssetTransferTransactionModel(networkTransactionId, index, transactionResult, assetResult)
+    return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResult)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
     return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assets)

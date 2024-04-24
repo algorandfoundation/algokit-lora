@@ -1,4 +1,4 @@
-import { LogicsigModel } from '../models'
+import { Logicsig } from '../models'
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
@@ -6,7 +6,7 @@ import { useLogicsigTeal } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type LogicsigProps = {
-  signature: LogicsigModel
+  signature: Logicsig
 }
 
 const base64LogicsigTabId = 'base64'

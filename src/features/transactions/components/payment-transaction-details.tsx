@@ -3,14 +3,14 @@ import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { SignatureType, PaymentTransactionModel, InnerPaymentTransactionModel } from '../models'
+import { SignatureType, PaymentTransaction, InnerPaymentTransaction } from '../models'
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { PaymentTransactionInfo } from './payment-transaction-info'
 import { TransactionViewTabs } from './transaction-view-tabs'
 
 type PaymentTransactionProps = {
-  transaction: PaymentTransactionModel | InnerPaymentTransactionModel
+  transaction: PaymentTransaction | InnerPaymentTransaction
 }
 
 export function PaymentTransactionDetails({ transaction }: PaymentTransactionProps) {

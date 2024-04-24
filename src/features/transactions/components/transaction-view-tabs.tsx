@@ -1,11 +1,11 @@
 import { cn } from '@/features/common/utils'
 import { TransactionViewTable } from './transaction-view-table'
 import { TransactionViewVisual } from './transaction-view-visual'
-import { InnerTransactionModel, TransactionModel } from '../models'
+import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 
 type Props = {
-  transaction: TransactionModel | InnerTransactionModel
+  transaction: Transaction | InnerTransaction
 }
 
 const visualTransactionDetailsTabId = 'visual'
