@@ -845,7 +845,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a asset destroy transaction', () => {
+  describe('when rendering an asset config destroy transaction', () => {
     const transaction = transactionResultMother['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']().build()
 
     it('should be rendered with the correct data', () => {
@@ -878,7 +878,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a asset creation transaction', () => {
+  describe('when rendering an asset config creation transaction', () => {
     const transaction = transactionResultMother['mainnet-ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ']().build()
 
     it('should be rendered with the correct data', () => {
@@ -918,7 +918,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a asset reconfigure transaction', () => {
+  describe('when rendering an asset config reconfigure transaction', () => {
     const transaction = transactionResultMother['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']().build()
 
     it('should be rendered with the correct data', () => {
