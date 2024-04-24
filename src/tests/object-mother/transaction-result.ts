@@ -2,6 +2,8 @@ import { ApplicationOnComplete, AssetResult, TransactionResult } from '@algorand
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
 import { TransactionType } from 'algosdk'
 
+const encoder = new TextEncoder()
+
 export const transactionResultMother = {
   payment: () => {
     return transactionResultBuilder().paymentTransaction()
@@ -807,6 +809,85 @@ export const transactionResultMother = {
       'sender-rewards': 0,
       signature: {
         sig: '54NGN00vwOQdEeoev5qb7NFV5a8JNY+L/GgNgQrCVjWQtb2rzlO+/OMOY3o984zs2zOYY75Hdy0SXD25GmJvCw==',
+      },
+      'tx-type': TransactionType.acfg,
+    })
+  },
+  ['mainnet-ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ']: () => {
+    // Asset config creation
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 0,
+        params: {
+          creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          name: 'DHM: M5+ Quake us6000mt40',
+          'name-b64': encoder.encode('REhNOiBNNSsgUXVha2UgdXM2MDAwbXQ0MA=='),
+          reserve: 'VHHSUDWVVP43DUTX5ILBU2C5MGTHOKL2KVM2WBHNJK4B5YTBRQGZ5SW6QQ',
+          total: 1,
+          'unit-name': 'QUAKE',
+          'unit-name-b64': encoder.encode('UVVBS0U='),
+          url: 'https://assets.datahistory.org/quake/us6000mt40.png#i',
+          'url-b64': encoder.encode('aHR0cHM6Ly9hc3NldHMuZGF0YWhpc3Rvcnkub3JnL3F1YWtlL3VzNjAwMG10NDAucG5nI2k='),
+        },
+      },
+      'auth-addr': '5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 38185488,
+      'created-asset-index': 1781083085,
+      fee: 1000,
+      'first-valid': 38185486,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: 'ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ',
+      'intra-round-offset': 152,
+      'last-valid': 38186486,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGEgdmVyaWZpYWJseSBhdXRoZW50aWMgZGlnaXRhbCBoaXN0b3JpY2FsIGFydGlmYWN0IG1pbnRlZCBieSBUaGUgRGF0YSBIaXN0b3J5IE11c2V1bS4gSXQgcmVwcmVzZW50cyBhIE1hZ25pdHVkZSA1LjIgZWFydGhxdWFrZSB3aXRoIElEIHVzNjAwMG10NDAgd2hpY2ggaGFzIGFuIGVwaWNlbnRyZSAxNCBrbSBTIG9mIEh1YWxpZW4gQ2l0eSwgVGFpd2FuIGFuZCBvY2N1cnJlZCBhdCBUdWUsIDIzIEFwciAyMDI0IDAyOjIxOjAwIEdNVC4gVGhlIHZlcmlmaWVkIHNvdXJjZSBvZiB0aGlzIGRhdGEgYXJ0aWZhY3Qgd2FzIHRoZSBVbml0ZWQgU3RhdGVzIEdlb2xvZ2ljYWwgU3VydmV5IChVU0dTKS4gRm9yIG1vcmUgaW5mb3JtYXRpb24gdmlzaXQgaHR0cHM6Ly9kYXRhaGlzdG9yeS5vcmcvLiIsImV4dGVybmFsX3VybCI6Imh0dHBzOi8vbXVzZXVtLmRhdGFoaXN0b3J5Lm9yZy9ldmVudC9RVUFLRS91czYwMDBtdDQwIiwicHJvcGVydGllcyI6eyJtYWduaXR1ZGUiOjUuMiwiY2xhc3MiOiJNNSIsImRlcHRoIjoxMCwibGF0aXR1ZGUiOjIzLjg0MywibG9uZ2l0dWRlIjoxMjEuNTksInBsYWNlIjoiMTQga20gUyBvZiBIdWFsaWVuIENpdHksIFRhaXdhbiIsInNvdXJjZSI6IlVTR1MiLCJzdWJUeXBlIjoiZWFydGhxdWFrZSIsInRpbWUiOiIyMDI0LTA0LTIzVDAyOjIxOjAwLjcwNVoiLCJ0eXBlIjoicXVha2UiLCJ1cmwiOiJodHRwczovL2VhcnRocXVha2UudXNncy5nb3YvZWFydGhxdWFrZXMvZXZlbnRwYWdlL3VzNjAwMG10NDAifSwibWltZV90eXBlIjoiaW1hZ2UvcG5nIiwiaWQiOiJ1czYwMDBtdDQwIiwidGl0bGUiOiJNIDUuMiAtIDE0IGttIFMgb2YgSHVhbGllbiBDaXR5LCBUYWl3YW4ifQ==',
+      'receiver-rewards': 0,
+      'round-time': 1713840133,
+      sender: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'NpftYxI2D/QWlIk3D8sxnfA2fVA4g4iX6Da5xiwl9kOOtVxlSkheJGqyc9Dp/ggBFxmqB7fKEAKmadIaXRuxBA==',
+      },
+      'tx-type': TransactionType.acfg,
+    })
+  },
+  ['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']: () => {
+    // Asset config reconfigure
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 1715458296,
+        params: {
+          creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          reserve: 'POMY37RQ5PYG2NHKEFVDVDKGWZLZ4NHUWUW57CVGZVIPZCTNAFE2JM7XQU',
+          total: 0,
+        },
+      },
+      'auth-addr': '5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 37544845,
+      fee: 1000,
+      'first-valid': 37544842,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: 'GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ',
+      'intra-round-offset': 1,
+      'last-valid': 37545842,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGEgdmVyaWZpYWJseSBhdXRoZW50aWMgZGlnaXRhbCBoaXN0b3JpY2FsIGFydGlmYWN0IG1pbnRlZCBieSBUaGUgRGF0YSBIaXN0b3J5IE11c2V1bS4gSXQgcmVwcmVzZW50cyBhIE1hZ25pdHVkZSA1LjMgZWFydGhxdWFrZSB3aXRoIElEIHVzNzAwMG05NzYgd2hpY2ggaGFzIGFuIGVwaWNlbnRyZSBub3J0aGVybiBFYXN0IFBhY2lmaWMgUmlzZSBhbmQgb2NjdXJyZWQgYXQgTW9uLCAwMSBBcHIgMjAyNCAxNDo0NToxNiBHTVQuIFRoZSB2ZXJpZmllZCBzb3VyY2Ugb2YgdGhpcyBkYXRhIGFydGlmYWN0IHdhcyB0aGUgVW5pdGVkIFN0YXRlcyBHZW9sb2dpY2FsIFN1cnZleSAoVVNHUykuIEZvciBtb3JlIGluZm9ybWF0aW9uIHZpc2l0IGh0dHBzOi8vZGF0YWhpc3Rvcnkub3JnLy4iLCJleHRlcm5hbF91cmwiOiJodHRwczovL211c2V1bS5kYXRhaGlzdG9yeS5vcmcvZXZlbnQvUVVBS0UvdXM3MDAwbTk3NiIsInByb3BlcnRpZXMiOnsibWFnbml0dWRlIjo1LjMsImNsYXNzIjoiTTUiLCJkZXB0aCI6MTAsImxhdGl0dWRlIjo4LjI1MSwibG9uZ2l0dWRlIjotMTAzLjIyNiwicGxhY2UiOiJub3J0aGVybiBFYXN0IFBhY2lmaWMgUmlzZSIsInNvdXJjZSI6IlVTR1MiLCJzdWJUeXBlIjoiZWFydGhxdWFrZSIsInRpbWUiOiIyMDI0LTA0LTAxVDE0OjQ1OjE2LjEwOVoiLCJ0eXBlIjoicXVha2UiLCJ1cmwiOiJodHRwczovL2VhcnRocXVha2UudXNncy5nb3YvZWFydGhxdWFrZXMvZXZlbnRwYWdlL3VzNzAwMG05NzYifSwibWltZV90eXBlIjoiaW1hZ2UvcG5nIiwiaWQiOiJ1czcwMDBtOTc2IiwidGl0bGUiOiJNIDUuMyAtIG5vcnRoZXJuIEVhc3QgUGFjaWZpYyBSaXNlIn0=',
+      'receiver-rewards': 0,
+      'round-time': 1711994737,
+      sender: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'B9QPA7n9QGK0uAHja5g2rK0tkPoWM1h4usQUVgZTffkNVMBGgpe2XtpQBrhjDSbTW5GbCHEKr44ckI6RUu2YDg==',
       },
       'tx-type': TransactionType.acfg,
     })
