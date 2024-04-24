@@ -3,7 +3,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { indexer } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
-import { fetchTransactionsAtomBuilder, fetchTransactionsModelAtomBuilder, transactionsAtom } from '@/features/transactions/data'
+import { fetchTransactionResultsAtomBuilder, fetchTransactionsAtomBuilder, transactionResultsAtom } from '@/features/transactions/data'
 import { asBlock } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
@@ -46,7 +46,7 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
         const [blockResult, transactionResults] = await get(fetchBlockResultAtom)
 
         if (transactionResults && transactionResults.length > 0) {
-          set(transactionsAtom, (prev) => {
+          set(transactionResultsAtom, (prev) => {
             transactionResults.forEach((t) => {
               prev.set(t.id, t)
             })
@@ -69,7 +69,7 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
     const nextRoundAvailable = get(nextRoundAvailableAtomBuilder(store, round))
     if (cachedBlockResult) {
       const transactions = await get(
-        fetchTransactionsModelAtomBuilder(store, fetchTransactionsAtomBuilder(store, cachedBlockResult.transactionIds))
+        fetchTransactionsAtomBuilder(store, fetchTransactionResultsAtomBuilder(store, cachedBlockResult.transactionIds))
       )
       return asBlock(cachedBlockResult, transactions, nextRoundAvailable)
     }
@@ -77,7 +77,7 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
     get(syncEffect)
 
     const [blockResult, transactionResults] = await get(fetchBlockResultAtom)
-    const transactions = await get(fetchTransactionsModelAtomBuilder(store, transactionResults))
+    const transactions = await get(fetchTransactionsAtomBuilder(store, transactionResults))
     return asBlock(blockResult, transactions, nextRoundAvailable)
   })
 }

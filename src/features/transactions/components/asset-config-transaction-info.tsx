@@ -1,13 +1,13 @@
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { AssetConfigTransactionModel, InnerAssetConfigTransactionModel } from '../models'
+import { AssetConfigTransaction, InnerAssetConfigTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel } from './transaction-view-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
 
 type Props = {
-  transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
+  transaction: AssetConfigTransaction | InnerAssetConfigTransaction
 }
 
 export const assetIdLabel = 'Asset ID'

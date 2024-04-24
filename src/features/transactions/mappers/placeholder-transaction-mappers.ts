@@ -1,12 +1,12 @@
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { PaymentTransactionModel, TransactionType } from '../models'
+import { PaymentTransaction, TransactionType } from '../models'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { transformSignature } from './transaction-common-properties-mappers'
 
 // This creates a placeholder transaction for transactions that we don't support yet
 // TODO: Remove this code, once we support all transaction types
-export const asPlaceholderTransaction = (transactionResult: TransactionResult): PaymentTransactionModel => {
+export const asPlaceholderTransaction = (transactionResult: TransactionResult): PaymentTransaction => {
   return {
     id: transactionResult.id,
     type: TransactionType.Payment,

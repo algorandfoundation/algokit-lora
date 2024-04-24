@@ -1,15 +1,15 @@
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
-  AssetConfigTransactionModel,
+  AssetConfigTransaction,
   AssetConfigTransactionSubType,
-  BaseAssetConfigTransactionModel,
-  InnerAssetConfigTransactionModel,
+  BaseAssetConfigTransaction,
+  InnerAssetConfigTransaction,
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 
-const mapCommonAssetConfigTransactionProperties = (transactionResult: TransactionResult): BaseAssetConfigTransactionModel => {
+const mapCommonAssetConfigTransactionProperties = (transactionResult: TransactionResult): BaseAssetConfigTransaction => {
   invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
 
   if (!transactionResult['asset-config-transaction']['params']) {
@@ -47,7 +47,7 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
   }
 }
 
-export const asAssetConfigTransaction = (transactionResult: TransactionResult): AssetConfigTransactionModel => {
+export const asAssetConfigTransaction = (transactionResult: TransactionResult): AssetConfigTransaction => {
   return {
     id: transactionResult.id,
     ...mapCommonAssetConfigTransactionProperties(transactionResult),
@@ -58,7 +58,7 @@ export const asInnerAssetConfigTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult
-): InnerAssetConfigTransactionModel => {
+): InnerAssetConfigTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
     ...mapCommonAssetConfigTransactionProperties(transactionResult),

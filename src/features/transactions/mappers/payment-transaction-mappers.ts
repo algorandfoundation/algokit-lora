@@ -1,5 +1,5 @@
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { BasePaymentTransactionModel, InnerPaymentTransactionModel, PaymentTransactionModel, TransactionType } from '../models'
+import { BasePaymentTransaction, InnerPaymentTransaction, PaymentTransaction, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
@@ -18,10 +18,10 @@ const mapCommonPaymentTransactionProperties = (transactionResult: TransactionRes
           amount: algokit.microAlgos(transactionResult['payment-transaction']['close-amount'] ?? 0),
         }
       : undefined,
-  } satisfies BasePaymentTransactionModel
+  } satisfies BasePaymentTransaction
 }
 
-export const asPaymentTransaction = (transactionResult: TransactionResult): PaymentTransactionModel => {
+export const asPaymentTransaction = (transactionResult: TransactionResult): PaymentTransaction => {
   return {
     id: transactionResult.id,
     ...mapCommonPaymentTransactionProperties(transactionResult),
@@ -32,7 +32,7 @@ export const asInnerPaymentTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult
-): InnerPaymentTransactionModel => {
+): InnerPaymentTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
     ...mapCommonPaymentTransactionProperties(transactionResult),

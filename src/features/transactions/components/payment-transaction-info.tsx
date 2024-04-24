@@ -1,12 +1,12 @@
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
-import { InnerPaymentTransactionModel, PaymentTransactionModel } from '../models'
+import { InnerPaymentTransaction, PaymentTransaction } from '../models'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DescriptionList } from '@/features/common/components/description-list'
 
 type Props = {
-  transaction: PaymentTransactionModel | InnerPaymentTransactionModel
+  transaction: PaymentTransaction | InnerPaymentTransaction
 }
 
 export const transactionCloseRemainderToLabel = 'Close Remainder To'

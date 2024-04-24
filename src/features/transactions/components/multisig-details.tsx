@@ -1,18 +1,18 @@
-import { MultisigModel } from '../models'
+import { Multisig } from '../models'
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 
 type MultisigProps = {
-  signature: MultisigModel
+  signature: Multisig
 }
 
 export const multisigVersionLabel = 'Version'
 export const multisigThresholdLabel = 'Threshold'
 export const multisigSubsignersLabel = 'Subsigners'
 
-export function Multisig({ signature }: MultisigProps) {
+export function MultisigDetails({ signature }: MultisigProps) {
   const multisigItems = useMemo(
     () => [
       {

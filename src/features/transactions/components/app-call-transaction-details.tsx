@@ -1,20 +1,20 @@
 import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { Card, CardContent } from '@/features/common/components/card'
-import { Logicsig } from './logicsig'
-import { Multisig } from './multisig'
+import { LogicsigDetails } from './logicsig-details'
+import { MultisigDetails } from './multisig-details'
 import { TransactionJson } from './transaction-json'
 import { TransactionNote } from './transaction-note'
-import { AppCallTransactionModel, InnerAppCallTransactionModel, SignatureType } from '../models'
+import { AppCallTransaction, InnerAppCallTransaction, SignatureType } from '../models'
 import { TransactionViewTabs } from './transaction-view-tabs'
 import { AppCallTransactionInfo } from './app-call-transaction-info'
 import { AppCallTransactionLogs } from './app-call-transaction-logs'
 
 type Props = {
-  transaction: AppCallTransactionModel | InnerAppCallTransactionModel
+  transaction: AppCallTransaction | InnerAppCallTransaction
 }
 
-export function AppCallTransaction({ transaction }: Props) {
+export function AppCallTransactionDetails({ transaction }: Props) {
   return (
     <div className={cn('space-y-6 pt-7')}>
       <TransactionInfo transaction={transaction} />
@@ -25,8 +25,8 @@ export function AppCallTransaction({ transaction }: Props) {
           {transaction.note && <TransactionNote note={transaction.note} />}
           {transaction.logs.length > 0 && <AppCallTransactionLogs logs={transaction.logs} />}
           <TransactionJson json={transaction.json} />
-          {transaction.signature?.type === SignatureType.Multi && <Multisig signature={transaction.signature} />}
-          {transaction.signature?.type === SignatureType.Logic && <Logicsig signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
+          {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
         </CardContent>
       </Card>
     </div>

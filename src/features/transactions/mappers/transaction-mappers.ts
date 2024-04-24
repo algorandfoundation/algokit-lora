@@ -11,10 +11,7 @@ import { Asset } from '@/features/assets/models'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
 import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 
-export const asTransactionModel = async (
-  transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Promise<Asset> | Asset
-) => {
+export const asTransaction = async (transactionResult: TransactionResult, assetResolver: (assetId: number) => Promise<Asset> | Asset) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
       return asPaymentTransaction(transactionResult)

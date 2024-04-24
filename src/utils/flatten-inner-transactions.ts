@@ -1,13 +1,13 @@
-import { InnerTransactionModel, TransactionModel, TransactionType } from '@/features/transactions/models'
+import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 
 export type FlattenedTransaction = {
   nestingLevel: number
-  transaction: TransactionModel | InnerTransactionModel
+  transaction: Transaction | InnerTransaction
 }
 
 // The name is not great
 // This function returns the transaction + all inner transactions (including nested)
-export function flattenInnerTransactions(transaction: TransactionModel | InnerTransactionModel, nestingLevel = 0): FlattenedTransaction[] {
+export function flattenInnerTransactions(transaction: Transaction | InnerTransaction, nestingLevel = 0): FlattenedTransaction[] {
   const results = [
     {
       nestingLevel,

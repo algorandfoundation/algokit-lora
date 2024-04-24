@@ -1,17 +1,17 @@
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ellipseId } from '@/utils/ellipse-id'
-import { TransactionModel, TransactionType } from '@/features/transactions/models'
+import { Transaction, TransactionType } from '@/features/transactions/models'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 type Props = {
-  transactions: TransactionModel[]
+  transactions: Transaction[]
 }
 
-export const columns: ColumnDef<TransactionModel>[] = [
+export const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'id',
     header: 'Transaction ID',
@@ -42,7 +42,7 @@ export const columns: ColumnDef<TransactionModel>[] = [
     header: 'Amount',
     accessorFn: (transaction) => transaction,
     cell: (c) => {
-      const value = c.getValue<TransactionModel>()
+      const value = c.getValue<Transaction>()
       if (value.type === TransactionType.Payment) {
         return <DisplayAlgo amount={value.amount} />
       }

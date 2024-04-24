@@ -1,9 +1,9 @@
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
-  AssetTransferTransactionModel,
+  AssetTransferTransaction,
   AssetTransferTransactionSubType,
-  BaseAssetTransferTransactionModel,
-  InnerAssetTransferTransactionModel,
+  BaseAssetTransferTransaction,
+  InnerAssetTransferTransaction,
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
@@ -51,22 +51,22 @@ const mapCommonAssetTransferTransactionProperties = (transactionResult: Transact
         }
       : undefined,
     clawbackFrom: transactionResult['asset-transfer-transaction'].sender,
-  } satisfies BaseAssetTransferTransactionModel
+  } satisfies BaseAssetTransferTransaction
 }
 
-export const asAssetTransferTransaction = (transactionResult: TransactionResult, asset: Asset): AssetTransferTransactionModel => {
+export const asAssetTransferTransaction = (transactionResult: TransactionResult, asset: Asset): AssetTransferTransaction => {
   return {
     id: transactionResult.id,
     ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),
   }
 }
 
-export const asInnerAssetTransferTransactionModel = (
+export const asInnerAssetTransferTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
   asset: Asset
-): InnerAssetTransferTransactionModel => {
+): InnerAssetTransferTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
     ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),

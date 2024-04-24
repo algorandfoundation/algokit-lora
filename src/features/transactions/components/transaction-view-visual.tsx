@@ -7,16 +7,16 @@ import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 import {
-  AppCallTransactionModel,
-  AssetConfigTransactionModel,
-  AssetTransferTransactionModel,
-  InnerAppCallTransactionModel,
-  InnerAssetConfigTransactionModel,
-  InnerAssetTransferTransactionModel,
-  InnerPaymentTransactionModel,
-  InnerTransactionModel,
-  PaymentTransactionModel,
-  TransactionModel,
+  AppCallTransaction,
+  AssetConfigTransaction,
+  AssetTransferTransaction,
+  InnerAppCallTransaction,
+  InnerAssetConfigTransaction,
+  InnerAssetTransferTransaction,
+  InnerPaymentTransaction,
+  InnerTransaction,
+  PaymentTransaction,
+  Transaction,
   TransactionType,
 } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
@@ -74,7 +74,7 @@ function ConnectionToParent() {
   )
 }
 
-function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: TransactionModel | InnerTransactionModel }) {
+function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
   const component = useMemo(() => {
     if ('innerId' in transaction) {
       return <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
@@ -136,7 +136,7 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
 
 const DisplayArrow = fixedForwardRef(
   (
-    { transaction, arrow, ...rest }: { transaction: TransactionModel | InnerTransactionModel; arrow: Arrow },
+    { transaction, arrow, ...rest }: { transaction: Transaction | InnerTransaction; arrow: Arrow },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -190,7 +190,7 @@ const DisplayArrow = fixedForwardRef(
 
 const DisplaySelfTransaction = fixedForwardRef(
   (
-    { transaction, arrow, ...rest }: { transaction: TransactionModel | InnerTransactionModel; arrow: Arrow },
+    { transaction, arrow, ...rest }: { transaction: Transaction | InnerTransaction; arrow: Arrow },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -238,7 +238,7 @@ const DisplaySelfTransaction = fixedForwardRef(
   }
 )
 
-function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransactionModel | InnerPaymentTransactionModel }) {
+function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransaction | InnerPaymentTransaction }) {
   const items = useMemo(
     () => [
       {
@@ -275,7 +275,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
 function AssetTransferTransactionToolTipContent({
   transaction,
 }: {
-  transaction: AssetTransferTransactionModel | InnerAssetTransferTransactionModel
+  transaction: AssetTransferTransaction | InnerAssetTransferTransaction
 }) {
   const items = useMemo(
     () => [
@@ -310,7 +310,7 @@ function AssetTransferTransactionToolTipContent({
   )
 }
 
-function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransactionModel | InnerAppCallTransactionModel }) {
+function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
   const items = useMemo(
     () => [
       {
@@ -340,11 +340,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
   )
 }
 
-function AssetConfigTransactionToolTipContent({
-  transaction,
-}: {
-  transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
-}) {
+function AssetConfigTransactionToolTipContent({ transaction }: { transaction: AssetConfigTransaction | InnerAssetConfigTransaction }) {
   const items = useMemo(
     () => [
       {
@@ -375,7 +371,7 @@ function AssetConfigTransactionToolTipContent({
 }
 
 type TransactionRowProps = {
-  transaction: TransactionModel | InnerTransactionModel
+  transaction: Transaction | InnerTransaction
   hasParent?: boolean
   hasNextSibling?: boolean
   hasChildren?: boolean
@@ -447,7 +443,7 @@ function TransactionRow({
   )
 }
 
-function calcArrow(transaction: TransactionModel | InnerTransactionModel, collaborators: Collaborator[]): Arrow {
+function calcArrow(transaction: Transaction | InnerTransaction, collaborators: Collaborator[]): Arrow {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
       return collaborators.findIndex((a) => transaction.receiver === a.id)
@@ -477,7 +473,7 @@ function calcArrow(transaction: TransactionModel | InnerTransactionModel, collab
 }
 
 type Props = {
-  transaction: TransactionModel | InnerTransactionModel
+  transaction: Transaction | InnerTransaction
 }
 
 export function TransactionViewVisual({ transaction }: Props) {
@@ -543,7 +539,7 @@ export function TransactionViewVisual({ transaction }: Props) {
   )
 }
 
-const getTransactionsCollaborators = (transactions: TransactionModel[]): Collaborator[] => {
+const getTransactionsCollaborators = (transactions: Transaction[]): Collaborator[] => {
   return transactions.reduce((acc, transaction) => {
     const collaborators = getTransactionCollaborators(transaction)
     collaborators.forEach((collaborator) => {
@@ -555,7 +551,7 @@ const getTransactionsCollaborators = (transactions: TransactionModel[]): Collabo
   }, new Array<Collaborator>())
 }
 
-const getTransactionCollaborators = (transaction: TransactionModel | InnerTransactionModel): Collaborator[] => {
+const getTransactionCollaborators = (transaction: Transaction | InnerTransaction): Collaborator[] => {
   const collaborators: Collaborator[] = [
     {
       type: 'Account',

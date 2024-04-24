@@ -1,5 +1,5 @@
 import { TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
-import { InnerTransactionId, LogicsigModel, MultisigModel, SignatureType, SinglesigModel } from '../models'
+import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from '../models'
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
@@ -25,7 +25,7 @@ export const transformSignature = (signature?: TransactionSignature) => {
     return {
       type: SignatureType.Single,
       signer: signature.sig,
-    } satisfies SinglesigModel
+    } satisfies Singlesig
   }
 
   if (signature?.multisig) {
@@ -34,14 +34,14 @@ export const transformSignature = (signature?: TransactionSignature) => {
       version: signature.multisig.version,
       threshold: signature.multisig.threshold,
       subsigners: signature.multisig.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
-    } satisfies MultisigModel
+    } satisfies Multisig
   }
 
   if (signature?.logicsig) {
     return {
       type: SignatureType.Logic,
       logic: signature.logicsig.logic,
-    } satisfies LogicsigModel
+    } satisfies Logicsig
   }
 }
 
