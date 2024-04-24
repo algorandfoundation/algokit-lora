@@ -9,11 +9,18 @@ import {
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 
-const mapCommonAssetConfigTransactionProperties = (transactionResult: TransactionResult) => {
+const mapCommonAssetConfigTransactionProperties = (transactionResult: TransactionResult): BaseAssetConfigTransactionModel => {
   invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
-  invariant(transactionResult['asset-config-transaction']['params'], 'asset-config-transaction.params is not set')
 
-  // TODO: how about delete?
+  if (!transactionResult['asset-config-transaction']['params']) {
+    return {
+      ...mapCommonTransactionProperties(transactionResult),
+      type: TransactionType.AssetConfig,
+      subType: AssetConfigTransactionSubType.Destroy,
+      assetId: transactionResult['asset-config-transaction']['asset-id'],
+    }
+  }
+
   const subType = transactionResult['asset-config-transaction']['asset-id']
     ? AssetConfigTransactionSubType.Reconfigure
     : AssetConfigTransactionSubType.Create
@@ -36,7 +43,7 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
     reserve: transactionResult['asset-config-transaction']['params']['reserve'] ?? undefined,
     freeze: transactionResult['asset-config-transaction']['params']['freeze'] ?? undefined,
     defaultFrozen: transactionResult['asset-config-transaction']['params']['default-frozen'] ?? false,
-  } satisfies BaseAssetConfigTransactionModel
+  }
 }
 
 export const asAssetConfigTransaction = (transactionResult: TransactionResult): AssetConfigTransactionModel => {

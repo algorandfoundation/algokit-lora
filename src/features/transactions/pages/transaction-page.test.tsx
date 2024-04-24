@@ -835,3 +835,5 @@ describe('transaction-page', () => {
     })
   })
 })
+
+//U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A asset destroy

@@ -4,6 +4,7 @@ import { AssetConfigTransactionModel, InnerAssetConfigTransactionModel } from '.
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel } from './transaction-view-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { isDefined } from '@/utils/is-defined'
 
 type Props = {
   transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
@@ -21,76 +22,75 @@ export const assetDefaultFrozenLabel = 'Default Frozen'
 
 export function AssetConfigTransactionInfo({ transaction }: Props) {
   const items = useMemo(
-    () => [
-      {
-        dt: transactionSenderLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.sender}
-          </a>
-        ),
-      },
-      {
-        dt: assetIdLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.assetId} {transaction.name && `(${transaction.name})`}
-          </a>
-        ),
-      },
-      ...(transaction.unitName
-        ? [
-            {
-              dt: assetUnitLabel,
-              dd: transaction.unitName,
-            },
-          ]
-        : []),
-      {
-        dt: assetDecimalsLabel,
-        dd: transaction.decimals.toString(),
-      },
-      {
-        dt: assetTotalSupplyLabel,
-        dd: transaction.total.toString(), // TODO: test a large number
-      },
-      ...(transaction.manager
-        ? [
-            {
+    () =>
+      [
+        {
+          dt: transactionSenderLabel,
+          dd: (
+            <a href="#" className={cn('text-primary underline')}>
+              {transaction.sender}
+            </a>
+          ),
+        },
+        {
+          dt: assetIdLabel,
+          dd: (
+            <a href="#" className={cn('text-primary underline')}>
+              {transaction.assetId} {transaction.name && `(${transaction.name})`}
+            </a>
+          ),
+        },
+        ...(transaction.unitName
+          ? [
+              {
+                dt: assetUnitLabel,
+                dd: transaction.unitName,
+              },
+            ]
+          : []),
+        transaction.decimals != null
+          ? {
+              dt: assetDecimalsLabel,
+              dd: transaction.decimals.toString(),
+            }
+          : undefined,
+        transaction.total != null
+          ? {
+              dt: assetTotalSupplyLabel,
+              dd: transaction.total.toString(), // TODO: test a large number
+            }
+          : undefined,
+        transaction.manager
+          ? {
               dt: assetManagerLabel,
               dd: <AccountLink accountId={transaction.manager} />,
-            },
-          ]
-        : []),
-      ...(transaction.reserve
-        ? [
-            {
+            }
+          : undefined,
+        transaction.reserve
+          ? {
               dt: assetReserveLabel,
               dd: <AccountLink accountId={transaction.reserve} />,
-            },
-          ]
-        : []),
-      ...(transaction.freeze
-        ? [
-            {
+            }
+          : undefined,
+        transaction.freeze
+          ? {
               dt: assetFreezeLabel,
               dd: <AccountLink accountId={transaction.freeze} />,
-            },
-          ]
-        : []),
-      ...(transaction.clawback
-        ? [
-            {
+            }
+          : undefined,
+        transaction.clawback
+          ? {
               dt: assetClawbackLabel,
               dd: <AccountLink accountId={transaction.clawback} />,
-            },
-          ]
-        : []),
-      {
-        dt: assetDefaultFrozenLabel,
-        dd: transaction.defaultFrozen ? 'Yes' : 'No',
-      },
-    ],
+            }
+          : undefined,
+        transaction.defaultFrozen != null
+          ? {
+              dt: assetDefaultFrozenLabel,
+              dd: transaction.defaultFrozen ? 'Yes' : 'No',
+            }
+          : undefined,
+      ].filter(isDefined),
     [
       transaction.assetId,
       transaction.clawback,

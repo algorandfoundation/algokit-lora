@@ -161,15 +161,15 @@ export type BaseAssetConfigTransactionModel = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
   assetId: number
   name?: string
-  total: number | bigint
-  decimals: number | bigint
+  total?: number | bigint
+  decimals?: number | bigint
   unitName?: string
   clawback?: string
   subType: AssetConfigTransactionSubType
   manager?: string
   reserve?: string
   freeze?: string
-  defaultFrozen: boolean
+  defaultFrozen?: boolean
 }
 
 export type AssetConfigTransactionModel = BaseAssetConfigTransactionModel & {
