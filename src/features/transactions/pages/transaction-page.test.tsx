@@ -60,6 +60,16 @@ import { InnerTransactionPage } from './inner-transaction-page'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { textListAssertion } from '@/tests/assertions/text-list-assertion'
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import {
+  assetDecimalsLabel,
+  assetDefaultFrozenLabel,
+  assetIdLabel,
+  assetManagerLabel,
+  assetReserveLabel,
+  assetTotalSupplyLabel,
+  assetUnitLabel,
+  assetUrlLabel,
+} from '../components/asset-config-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -828,6 +838,108 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [{ term: transactionIdLabel, description: transaction.id }],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset config destroy transaction', () => {
+    const transaction = transactionResultMother['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Asset ConfigDestroy' },
+                { term: transactionTimestampLabel, description: 'Wed, 29 April 2020 06:52:54' },
+                { term: transactionBlockLabel, description: '6354625' },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionSenderLabel, description: 'MBX2M6J44LQ22L3FROYRBKUAG4FWENPSLPTI7EBR4ECQ2APDMI6XTENHWQ' },
+                { term: assetIdLabel, description: '917559' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset config creation transaction', () => {
+    const transaction = transactionResultMother['mainnet-ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Asset ConfigCreate' },
+                { term: transactionTimestampLabel, description: 'Tue, 23 April 2024 02:42:13' },
+                { term: transactionBlockLabel, description: '38185488' },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionSenderLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
+                { term: assetIdLabel, description: '1781083085 (DHM: M5+ Quake us6000mt40)' },
+                { term: assetUrlLabel, description: 'https://assets.datahistory.org/quake/us6000mt40.png#i' },
+                { term: assetUnitLabel, description: 'QUAKE' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetTotalSupplyLabel, description: '1' },
+                { term: assetManagerLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
+                { term: assetReserveLabel, description: 'VHHSUDWVVP43DUTX5ILBU2C5MGTHOKL2KVM2WBHNJK4B5YTBRQGZ5SW6QQ' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset config reconfigure transaction', () => {
+    const transaction = transactionResultMother['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionsAtom, new Map([[transaction.id, transaction]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Asset ConfigReconfigure' },
+                { term: transactionTimestampLabel, description: 'Mon, 01 April 2024 18:05:37' },
+              ],
             })
           })
         }

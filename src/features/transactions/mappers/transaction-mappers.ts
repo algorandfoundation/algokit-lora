@@ -9,6 +9,7 @@ import { asPaymentTransaction } from './payment-transaction-mappers'
 import { asPlaceholderTransaction } from './placeholder-transaction-mappers'
 import { Asset } from '@/features/assets/models'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
+import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 
 export const asTransactionModel = async (
   transactionResult: TransactionResult,
@@ -28,6 +29,10 @@ export const asTransactionModel = async (
       const assetIds = Array.from(new Set(getAssetIdsForTransaction(transactionResult)))
       const assets = await Promise.all(assetIds.map((assetId) => assetResolver(assetId)))
       return asAppCallTransaction(transactionResult, assets)
+    }
+    case algosdk.TransactionType.acfg: {
+      invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
+      return asAssetConfigTransaction(transactionResult)
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
@@ -56,6 +61,22 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         ...common,
         type: TransactionType.AssetTransfer,
         to: transactionResult['asset-transfer-transaction']['receiver'],
+      }
+    }
+    case algosdk.TransactionType.appl: {
+      invariant(transactionResult['application-transaction'], 'application-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.ApplicationCall,
+        to: transactionResult['application-transaction']['application-id'],
+      }
+    }
+    case algosdk.TransactionType.acfg: {
+      invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.AssetConfig,
+        to: transactionResult['asset-config-transaction']['asset-id'] ?? transactionResult['created-asset-index'],
       }
     }
     default:

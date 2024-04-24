@@ -8,8 +8,10 @@ import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
 import {
   AppCallTransactionModel,
+  AssetConfigTransactionModel,
   AssetTransferTransactionModel,
   InnerAppCallTransactionModel,
+  InnerAssetConfigTransactionModel,
   InnerAssetTransferTransactionModel,
   InnerPaymentTransactionModel,
   InnerTransactionModel,
@@ -25,8 +27,8 @@ import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { ellipseId } from '@/utils/ellipse-id'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
-import { isValidAddress } from 'algosdk'
 import { InnerTransactionLink } from './inner-transaction-link'
+import { assetIdLabel } from './asset-config-transaction-info'
 
 const graphConfig = {
   rowHeight: 40,
@@ -92,8 +94,13 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
   )
 }
 
-function AccountId({ id }: { id: string }) {
-  return <h1 className={cn('text-l font-semibold')}>{isValidAddress(id) ? ellipseAddress(id) : id}</h1>
+function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
+  return (
+    <h1 className={cn('text-l font-semibold')}>
+      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
+      {collaborator.type !== 'Account' && collaborator.id}
+    </h1>
+  )
 }
 
 function ConnectionToSibling() {
@@ -158,14 +165,13 @@ const DisplayArrow = fixedForwardRef(
           <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
           {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
         </div>
-        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs')}>
+        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs text-center')}>
           {transaction.type === TransactionType.Payment && (
             <>
               Payment
               <DisplayAlgo amount={transaction.amount} />
             </>
           )}
-
           {transaction.type === TransactionType.AssetTransfer && (
             <>
               Transfer
@@ -173,6 +179,7 @@ const DisplayArrow = fixedForwardRef(
             </>
           )}
           {transaction.type === TransactionType.ApplicationCall && <>App Call</>}
+          {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
         </div>
 
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
@@ -333,24 +340,58 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
   )
 }
 
+function AssetConfigTransactionToolTipContent({
+  transaction,
+}: {
+  transaction: AssetConfigTransactionModel | InnerAssetConfigTransactionModel
+}) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: 'Asset Config',
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+      {
+        dt: assetIdLabel,
+        dd: transaction.assetId,
+      },
+    ],
+    [transaction.assetId, transaction.id, transaction.sender]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
+
 type TransactionRowProps = {
   transaction: TransactionModel | InnerTransactionModel
   hasParent?: boolean
   hasNextSibling?: boolean
   hasChildren?: boolean
-  accounts: string[]
+  collaborators: Collaborator[]
   indentLevel?: number
   verticalBars: (number | undefined)[]
 }
 function TransactionRow({
   transaction,
-  accounts,
+  collaborators,
   hasParent = false,
   hasNextSibling = false,
   indentLevel,
   verticalBars,
 }: TransactionRowProps) {
-  const arrow = useMemo(() => calcArrow(transaction, accounts), [accounts, transaction])
+  const arrow = useMemo(() => calcArrow(transaction, collaborators), [collaborators, transaction])
   const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
   return (
@@ -367,7 +408,7 @@ function TransactionRow({
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
       </div>
-      {accounts.map((_, index) => {
+      {collaborators.map((_, index) => {
         if (index < arrow.from || index > arrow.to) return <div key={index}></div>
         if (index === arrow.from)
           return (
@@ -383,6 +424,7 @@ function TransactionRow({
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -396,7 +438,7 @@ function TransactionRow({
             transaction={childTransaction}
             hasParent={true}
             hasNextSibling={index < arr.length - 1}
-            accounts={accounts}
+            collaborators={collaborators}
             indentLevel={indentLevel == null ? 0 : indentLevel + 1}
             verticalBars={[...(verticalBars ?? []), hasNextSibling ? indentLevel ?? 0 : undefined]}
           />
@@ -405,27 +447,31 @@ function TransactionRow({
   )
 }
 
-function calcArrow(transaction: TransactionModel | InnerTransactionModel, accounts: string[]): Arrow {
-  const calculateToAccount = () => {
+function calcArrow(transaction: TransactionModel | InnerTransactionModel, collaborators: Collaborator[]): Arrow {
+  const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return accounts.findIndex((a) => transaction.receiver === a)
+      return collaborators.findIndex((a) => transaction.receiver === a.id)
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
-      return accounts.findIndex((a) => transaction.applicationId.toString() === a)
+      return collaborators.findIndex((a) => transaction.applicationId.toString() === a.id)
+    }
+
+    if (transaction.type === TransactionType.AssetConfig) {
+      return collaborators.findIndex((a) => transaction.assetId.toString() === a.id)
     }
 
     throw new Error('Not supported transaction type')
   }
 
-  const fromAccount = accounts.findIndex((a) => transaction.sender === a)
-  const toAccount = calculateToAccount()
+  const from = collaborators.findIndex((a) => transaction.sender === a.id)
+  const to = calculateTo()
 
-  const direction = fromAccount < toAccount ? 'leftToRight' : fromAccount > toAccount ? 'rightToLeft' : 'toSelf'
+  const direction = from < to ? 'leftToRight' : from > to ? 'rightToLeft' : 'toSelf'
 
   return {
-    from: Math.min(fromAccount, toAccount),
-    to: Math.max(fromAccount, toAccount),
+    from: Math.min(from, to),
+    to: Math.max(from, to),
     direction: direction,
   }
 }
@@ -437,31 +483,29 @@ type Props = {
 export function TransactionViewVisual({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
   const transactionCount = flattenedTransactions.length
-  const accounts = Array.from(
-    new Set([
-      ...flattenedTransactions
-        .map((t) => getTransactionAccounts(t.transaction))
-        .flat()
-        .filter(isDefined),
-      '', // an empty account to make room to show transactions with the same sender and receiver
-    ])
-  )
+  const collaborators: Collaborator[] = [
+    ...getTransactionsCollaborators(flattenedTransactions.map((t) => t.transaction)),
+    {
+      type: 'Account',
+      id: '',
+    }, // an empty account to make room to show transactions with the same sender and receiver
+  ]
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
-  const gridAccountColumns = accounts.length
+  const gridCollaboratorColumns = collaborators.length
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
 
   return (
     <div
-      className={cn('relative grid overflow-auto')}
+      className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridCollaboratorColumns}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
-      {accounts.map((account, index) => (
+      {collaborators.map((collaborator, index) => (
         <div className={cn('p-2 flex justify-center')} key={index}>
-          <AccountId id={account} />
+          <CollaboratorId collaborator={collaborator} />
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
@@ -470,18 +514,21 @@ export function TransactionViewVisual({ transaction }: Props) {
           <div className={cn('p-0')}></div>
           <div
             className={cn('p-0')}
-            style={{ height: `${transactionCount * graphConfig.rowHeight}px`, width: `${graphConfig.colWidth * gridAccountColumns}px` }}
+            style={{
+              height: `${transactionCount * graphConfig.rowHeight}px`,
+              width: `${graphConfig.colWidth * gridCollaboratorColumns}px`,
+            }}
           >
             <div
               className={cn('grid h-full')}
               style={{
-                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridAccountColumns}, ${graphConfig.colWidth}px)`,
+                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridCollaboratorColumns}, ${graphConfig.colWidth}px)`,
                 height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
               <div></div>
-              {accounts
-                .filter((a) => a) // Don't need to draw for the empty account
+              {collaborators
+                .filter((a) => a.id) // Don't need to draw for the empty collaborator
                 .map((_, index) => (
                   <div key={index} className={cn('flex justify-center')}>
                     <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
@@ -491,18 +538,52 @@ export function TransactionViewVisual({ transaction }: Props) {
           </div>
         </div>
       </div>
-      <TransactionRow transaction={transaction} hasParent={false} accounts={accounts} verticalBars={[]} />
+      <TransactionRow transaction={transaction} hasParent={false} collaborators={collaborators} verticalBars={[]} />
     </div>
   )
 }
 
-const getTransactionAccounts = (transaction: TransactionModel | InnerTransactionModel) => {
-  const accounts = [transaction.sender]
+const getTransactionsCollaborators = (transactions: TransactionModel[]): Collaborator[] => {
+  return transactions.reduce((acc, transaction) => {
+    const collaborators = getTransactionCollaborators(transaction)
+    collaborators.forEach((collaborator) => {
+      if (!acc.some((c) => c.type === collaborator.type && c.id === collaborator.id)) {
+        acc.push(collaborator)
+      }
+    })
+    return acc
+  }, new Array<Collaborator>())
+}
+
+const getTransactionCollaborators = (transaction: TransactionModel | InnerTransactionModel): Collaborator[] => {
+  const collaborators: Collaborator[] = [
+    {
+      type: 'Account',
+      id: transaction.sender,
+    },
+  ]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
-    accounts.push(transaction.receiver)
+    collaborators.push({
+      type: 'Account',
+      id: transaction.receiver,
+    })
   }
   if (transaction.type === TransactionType.ApplicationCall) {
-    accounts.push(transaction.applicationId.toString())
+    collaborators.push({
+      type: 'Application',
+      id: transaction.applicationId.toString(),
+    })
   }
-  return accounts
+  if (transaction.type === TransactionType.AssetConfig) {
+    collaborators.push({
+      type: 'Asset',
+      id: transaction.assetId.toString(),
+    })
+  }
+  return collaborators
+}
+
+type Collaborator = {
+  type: 'Account' | 'Application' | 'Asset'
+  id: string
 }

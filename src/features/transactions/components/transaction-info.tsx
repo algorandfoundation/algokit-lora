@@ -34,6 +34,9 @@ export function TransactionInfo({ transaction }: Props) {
             {transaction.type === TransactionType.AssetTransfer && transaction.subType && (
               <Badge variant="outline">{transaction.subType}</Badge>
             )}
+            {transaction.type === TransactionType.AssetConfig && transaction.subType && (
+              <Badge variant="outline">{transaction.subType}</Badge>
+            )}
             {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
             {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
           </>

@@ -19,6 +19,7 @@ export enum TransactionType {
   Payment = 'Payment',
   AssetTransfer = 'Asset Transfer',
   ApplicationCall = 'Application Call',
+  AssetConfig = 'Asset Config',
 }
 
 export enum AssetTransferTransactionSubType {
@@ -63,7 +64,11 @@ export type AssetTransferTransactionModel = BaseAssetTransferTransactionModel & 
   id: string
 }
 
-export type TransactionModel = PaymentTransactionModel | AssetTransferTransactionModel | AppCallTransactionModel
+export type TransactionModel =
+  | PaymentTransactionModel
+  | AssetTransferTransactionModel
+  | AppCallTransactionModel
+  | AssetConfigTransactionModel
 
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
   id: string
@@ -146,4 +151,36 @@ export type InnerTransactionId = {
 export type InnerPaymentTransactionModel = BasePaymentTransactionModel & InnerTransactionId
 export type InnerAssetTransferTransactionModel = BaseAssetTransferTransactionModel & InnerTransactionId
 export type InnerAppCallTransactionModel = BaseAppCallTransactionModel & InnerTransactionId
-export type InnerTransactionModel = InnerPaymentTransactionModel | InnerAssetTransferTransactionModel | InnerAppCallTransactionModel
+export type InnerTransactionModel =
+  | InnerPaymentTransactionModel
+  | InnerAssetTransferTransactionModel
+  | InnerAppCallTransactionModel
+  | InnerAssetConfigTransactionModel
+
+export type BaseAssetConfigTransactionModel = CommonTransactionProperties & {
+  type: TransactionType.AssetConfig
+  assetId: number
+  url?: string
+  name?: string
+  total?: number | bigint
+  decimals?: number | bigint
+  unitName?: string
+  clawback?: string
+  subType: AssetConfigTransactionSubType
+  manager?: string
+  reserve?: string
+  freeze?: string
+  defaultFrozen?: boolean
+}
+
+export type AssetConfigTransactionModel = BaseAssetConfigTransactionModel & {
+  id: string
+}
+
+export type InnerAssetConfigTransactionModel = BaseAssetConfigTransactionModel & InnerTransactionId
+
+export enum AssetConfigTransactionSubType {
+  Create = 'Create',
+  Reconfigure = 'Reconfigure',
+  Destroy = 'Destroy',
+}

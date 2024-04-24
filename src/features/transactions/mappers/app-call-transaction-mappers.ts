@@ -13,6 +13,7 @@ import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransactionModel } from './asset-transfer-transaction-mappers'
 import { Asset } from '@/features/assets/models'
+import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
@@ -95,6 +96,9 @@ const asInnerTransactionModel = (networkTransactionId: string, index: string, tr
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
     return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assets)
+  }
+  if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
+    return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)
   }
 
   // This could be dangerous as we haven't implemented all the transaction types
