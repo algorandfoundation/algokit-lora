@@ -34,6 +34,7 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
     type: TransactionType.AssetConfig,
     assetId: assetId!,
     name: transactionResult['asset-config-transaction']['params']['name'] ?? undefined,
+    url: transactionResult['asset-config-transaction']['params']['url'] ?? undefined,
     unitName: transactionResult['asset-config-transaction']['params']['unit-name'] ?? undefined,
     total: transactionResult['asset-config-transaction']['params']['total'] ?? undefined,
     decimals: transactionResult['asset-config-transaction']['params']['decimals'] ?? undefined,

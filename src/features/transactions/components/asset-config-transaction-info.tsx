@@ -11,6 +11,7 @@ type Props = {
 }
 
 export const assetIdLabel = 'Asset ID'
+export const assetUrlLabel = 'URL'
 export const assetUnitLabel = 'Unit'
 export const assetDecimalsLabel = 'Decimals'
 export const assetTotalSupplyLabel = 'Total Supply'
@@ -26,11 +27,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       [
         {
           dt: transactionSenderLabel,
-          dd: (
-            <a href="#" className={cn('text-primary underline')}>
-              {transaction.sender}
-            </a>
-          ),
+          dd: <AccountLink address={transaction.sender} />,
         },
         {
           dt: assetIdLabel,
@@ -41,14 +38,22 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
             </a>
           ),
         },
-        ...(transaction.unitName
-          ? [
-              {
-                dt: assetUnitLabel,
-                dd: transaction.unitName,
-              },
-            ]
-          : []),
+        transaction.url
+          ? {
+              dt: assetUrlLabel,
+              dd: (
+                <a href={transaction.url} className={cn('text-primary underline')}>
+                  {transaction.url}
+                </a>
+              ),
+            }
+          : undefined,
+        transaction.unitName
+          ? {
+              dt: assetUnitLabel,
+              dd: transaction.unitName,
+            }
+          : undefined,
         transaction.decimals != null
           ? {
               dt: assetDecimalsLabel,
@@ -58,31 +63,31 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
         transaction.total != null
           ? {
               dt: assetTotalSupplyLabel,
-              dd: transaction.total.toString(), // TODO: test a large number
+              dd: transaction.total.toString(),
             }
           : undefined,
         transaction.manager
           ? {
               dt: assetManagerLabel,
-              dd: <AccountLink accountId={transaction.manager} />,
+              dd: <AccountLink address={transaction.manager} />,
             }
           : undefined,
         transaction.reserve
           ? {
               dt: assetReserveLabel,
-              dd: <AccountLink accountId={transaction.reserve} />,
+              dd: <AccountLink address={transaction.reserve} />,
             }
           : undefined,
         transaction.freeze
           ? {
               dt: assetFreezeLabel,
-              dd: <AccountLink accountId={transaction.freeze} />,
+              dd: <AccountLink address={transaction.freeze} />,
             }
           : undefined,
         transaction.clawback
           ? {
               dt: assetClawbackLabel,
-              dd: <AccountLink accountId={transaction.clawback} />,
+              dd: <AccountLink address={transaction.clawback} />,
             }
           : undefined,
         transaction.defaultFrozen != null
@@ -104,6 +109,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       transaction.sender,
       transaction.total,
       transaction.unitName,
+      transaction.url,
     ]
   )
 

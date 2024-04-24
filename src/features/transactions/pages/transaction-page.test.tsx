@@ -68,6 +68,7 @@ import {
   assetReserveLabel,
   assetTotalSupplyLabel,
   assetUnitLabel,
+  assetUrlLabel,
 } from '../components/asset-config-transaction-info'
 
 describe('transaction-page', () => {
@@ -902,6 +903,7 @@ describe('transaction-page', () => {
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
                 { term: assetIdLabel, description: '1781083085 (DHM: M5+ Quake us6000mt40)' },
+                { term: assetUrlLabel, description: 'https://assets.datahistory.org/quake/us6000mt40.png#i' },
                 { term: assetUnitLabel, description: 'QUAKE' },
                 { term: assetDecimalsLabel, description: '0' },
                 { term: assetTotalSupplyLabel, description: '1' },
