@@ -11,7 +11,7 @@ export type CommonBlockProperties = {
   transactionsSummary: TransactionsSummary
 }
 
-export type BlockDetails = CommonBlockProperties & {
+export type Block = CommonBlockProperties & {
   previousRound?: number
   nextRound?: number
   transactions: TransactionModel[]
