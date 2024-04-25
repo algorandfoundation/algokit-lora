@@ -4,11 +4,11 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { FlattenedTransaction, flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useMemo } from 'react'
-import { ellipseId } from '@/utils/ellipse-id'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { InnerTransactionLink } from './inner-transaction-link'
+import { TransactionLink } from './transaction-link'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -35,9 +35,9 @@ export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
           }}
         >
           {'innerId' in transaction ? (
-            <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
+            <InnerTransactionLink innerTransactionId={transaction.innerId} />
           ) : (
-            ellipseId(transaction.id)
+            <TransactionLink transactionId={transaction.id} short={true} />
           )}
         </div>
       )

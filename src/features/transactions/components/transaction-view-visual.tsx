@@ -26,12 +26,12 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
-import { ellipseId } from '@/utils/ellipse-id'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel } from './asset-freeze-transaction-info'
+import { TransactionLink } from './transaction-link'
 
 const graphConfig = {
   rowHeight: 40,
@@ -80,9 +80,9 @@ function ConnectionToParent() {
 function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
   const component = useMemo(() => {
     if ('innerId' in transaction) {
-      return <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
+      return <InnerTransactionLink innerTransactionId={transaction.innerId} />
     }
-    return ellipseId(transaction.id)
+    return <TransactionLink transactionId={transaction.id} short={true} />
   }, [transaction])
 
   return (

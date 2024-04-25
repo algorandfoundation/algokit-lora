@@ -15,7 +15,7 @@ export function InnerTransactionLink({ innerTransactionId, className, children }
       urlTemplate={Urls.Explore.Transaction.ById.Inner.ById}
       urlParams={{ innerTransactionId: innerTransactionId }}
     >
-      {children ? children : innerTransactionId}
+      {children ? children : `Inner ${innerTransactionId}`}
     </TemplatedNavLink>
   )
 }
