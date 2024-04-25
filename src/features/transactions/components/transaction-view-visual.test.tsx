@@ -1,6 +1,5 @@
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { describe, expect, it, vi } from 'vitest'
-import { TransactionViewVisual } from './transaction-view-visual'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
 import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from '../mappers'
@@ -8,6 +7,7 @@ import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-util
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAsset } from '@/features/assets/mappers'
+import { TransactionsGraph } from './transaction-graph'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -30,7 +30,7 @@ describe('payment-transaction-view-visual', () => {
       const model = asPaymentTransaction(transactionResult)
 
       return executeComponentTest(
-        () => render(<TransactionViewVisual transaction={model} />),
+        () => render(<TransactionsGraph transactions={[model]} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-view-visual.${transactionResult.id}.html`
@@ -58,7 +58,7 @@ describe('asset-transfer-transaction-view-visual', () => {
         const transaction = asAssetTransferTransaction(transactionResult, asAsset(assetResult))
 
         return executeComponentTest(
-          () => render(<TransactionViewVisual transaction={transaction} />),
+          () => render(<TransactionsGraph transactions={[transaction]} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-view-visual.${transaction.id}.html`
@@ -93,7 +93,7 @@ describe('application-call-view-visual', () => {
         const model = asAppCallTransaction(transactionResult, assetResults.map(asAsset))
 
         return executeComponentTest(
-          () => render(<TransactionViewVisual transaction={model} />),
+          () => render(<TransactionsGraph transactions={[model]} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-view-visual.${transactionResult.id}.html`

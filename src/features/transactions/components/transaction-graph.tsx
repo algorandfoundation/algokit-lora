@@ -23,24 +23,17 @@ import {
 } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { ellipseAddress } from '@/utils/ellipse-address'
-import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
+import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transactions-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel } from './asset-freeze-transaction-info'
 import { TransactionLink } from './transaction-link'
-
-const graphConfig = {
-  rowHeight: 40,
-  colWidth: 128,
-  indentationWidth: 20,
-  lineWidth: 2,
-  circleDimension: 20,
-  paymentTransactionColor: 'rgb(126 200 191)',
-}
+import { Collaborator, getTransactionsCollaborators } from '../utils/get-transactions-collaborators'
+import { graphConfig } from '../utils/graph-config'
+import { ellipseAddress } from '@/utils/ellipse-address'
+import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 type Arrow = {
   from: number
@@ -94,15 +87,6 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
     >
       {component}
     </div>
-  )
-}
-
-function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
-  return (
-    <h1 className={cn('text-l font-semibold')}>
-      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
-      {collaborator.type !== 'Account' && collaborator.id}
-    </h1>
   )
 }
 
@@ -408,7 +392,7 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
   )
 }
 
-type TransactionRowProps = {
+type TransactionGraphProps = {
   transaction: Transaction | InnerTransaction
   hasParent?: boolean
   hasNextSibling?: boolean
@@ -417,15 +401,14 @@ type TransactionRowProps = {
   indentLevel?: number
   verticalBars: (number | undefined)[]
 }
-// TODO: rename this
-export function TransactionRow({
+function TransactionGraph({
   transaction,
   collaborators,
   hasParent = false,
   hasNextSibling = false,
   indentLevel,
   verticalBars,
-}: TransactionRowProps) {
+}: TransactionGraphProps) {
   const arrow = useMemo(() => calcArrow(transaction, collaborators), [collaborators, transaction])
   const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
@@ -475,7 +458,7 @@ export function TransactionRow({
 
       {hasChildren &&
         transaction.innerTransactions.map((childTransaction, index, arr) => (
-          <TransactionRow
+          <TransactionGraph
             key={index}
             transaction={childTransaction}
             hasParent={true}
@@ -523,11 +506,21 @@ function calcArrow(transaction: Transaction | InnerTransaction, collaborators: C
 }
 
 type Props = {
-  transaction: Transaction | InnerTransaction
+  transactions: Transaction[] | InnerTransaction[]
 }
 
-export function TransactionViewVisual({ transaction }: Props) {
-  const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
+function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
+  return (
+    <h1 className={cn('text-l font-semibold')}>
+      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
+      {collaborator.type !== 'Account' && collaborator.id}
+    </h1>
+  )
+}
+
+export function TransactionsGraph({ transactions }: Props) {
+  const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
+
   const transactionCount = flattenedTransactions.length
   const collaborators: Collaborator[] = [
     ...getTransactionsCollaborators(flattenedTransactions.map((t) => t.transaction)),
@@ -584,58 +577,9 @@ export function TransactionViewVisual({ transaction }: Props) {
           </div>
         </div>
       </div>
-      <TransactionRow transaction={transaction} hasParent={false} collaborators={collaborators} verticalBars={[]} />
+      {transactions.map((transaction, index) => (
+        <TransactionGraph key={index} transaction={transaction} hasParent={false} collaborators={collaborators} verticalBars={[]} />
+      ))}
     </div>
   )
-}
-
-const getTransactionsCollaborators = (transactions: Transaction[]): Collaborator[] => {
-  return transactions.reduce((acc, transaction) => {
-    const collaborators = getTransactionCollaborators(transaction)
-    collaborators.forEach((collaborator) => {
-      if (!acc.some((c) => c.type === collaborator.type && c.id === collaborator.id)) {
-        acc.push(collaborator)
-      }
-    })
-    return acc
-  }, new Array<Collaborator>())
-}
-
-const getTransactionCollaborators = (transaction: Transaction | InnerTransaction): Collaborator[] => {
-  const collaborators: Collaborator[] = [
-    {
-      type: 'Account',
-      id: transaction.sender,
-    },
-  ]
-  if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
-    collaborators.push({
-      type: 'Account',
-      id: transaction.receiver,
-    })
-  }
-  if (transaction.type === TransactionType.ApplicationCall) {
-    collaborators.push({
-      type: 'Application',
-      id: transaction.applicationId.toString(),
-    })
-  }
-  if (transaction.type === TransactionType.AssetConfig) {
-    collaborators.push({
-      type: 'Asset',
-      id: transaction.assetId.toString(),
-    })
-  }
-  if (transaction.type === TransactionType.AssetFreeze) {
-    collaborators.push({
-      type: 'Asset',
-      id: transaction.assetId.toString(),
-    })
-  }
-  return collaborators
-}
-
-type Collaborator = {
-  type: 'Account' | 'Application' | 'Asset'
-  id: string
 }

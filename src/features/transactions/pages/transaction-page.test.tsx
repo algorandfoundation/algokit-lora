@@ -17,10 +17,10 @@ import { HttpError } from '@/tests/errors'
 import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig-details'
 import { algod } from '@/features/common/data'
 import {
-  tableTransactionDetailsTabLabel,
+  transactionVisualTableTableLabel,
   transactionDetailsLabel,
-  visualTransactionDetailsTabLabel,
-} from '../components/transaction-view-tabs'
+  transactionVisualGraphTabLabel,
+} from '../components/transaction-visual-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
 import {
   transactionBlockLabel,
@@ -31,7 +31,7 @@ import {
   transactionTypeLabel,
 } from '../components/transaction-info'
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-view-table'
+import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transactions-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { algoAssetResult, assetsAtom } from '@/features/assets/data/core'
 import {
@@ -171,13 +171,13 @@ describe('transaction-page', () => {
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
           expect(
-            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            component.getByRole('tabpanel', { name: transactionVisualGraphTabLabel }).getAttribute('data-state'),
             'Visual tab should be active'
           ).toBe('active')
 
           // After click on the Table tab
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTableLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
           tableAssertion({
@@ -520,13 +520,13 @@ describe('transaction-page', () => {
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
           expect(
-            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            component.getByRole('tabpanel', { name: transactionVisualGraphTabLabel }).getAttribute('data-state'),
             'Visual tab should be active'
           ).toBe('active')
 
           // After click on the Table tab
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTableLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
           tableAssertion({
@@ -679,8 +679,8 @@ describe('transaction-page', () => {
           })
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTableLabel })
 
           tableAssertion({
             container: tableViewTab,
@@ -772,8 +772,8 @@ describe('transaction-page', () => {
           })
 
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTableLabel })
           tableAssertion({
             container: tableViewTab,
             rows: [
@@ -925,13 +925,13 @@ describe('transaction-page', () => {
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
           expect(
-            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            component.getByRole('tabpanel', { name: transactionVisualGraphTabLabel }).getAttribute('data-state'),
             'Visual tab should be active'
           ).toBe('active')
 
           // After click on the Table tab
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTableLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
           tableAssertion({
@@ -1013,13 +1013,13 @@ describe('transaction-page', () => {
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           expect(viewTransactionTabList).toBeTruthy()
           expect(
-            component.getByRole('tabpanel', { name: visualTransactionDetailsTabLabel }).getAttribute('data-state'),
+            component.getByRole('tabpanel', { name: transactionVisualGraphTabLabel }).getAttribute('data-state'),
             'Visual tab should be active'
           ).toBe('active')
 
           // After click on the Table tab
-          await user.click(getByRole(viewTransactionTabList, 'tab', { name: tableTransactionDetailsTabLabel }))
-          const tableViewTab = component.getByRole('tabpanel', { name: tableTransactionDetailsTabLabel })
+          await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTableLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
           tableAssertion({

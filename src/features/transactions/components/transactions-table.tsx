@@ -9,13 +9,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { TransactionLink } from './transaction-link'
-
-const graphConfig = {
-  indentationWidth: 20,
-}
+import { graphConfig } from '../utils/graph-config'
 
 type Props = {
-  transaction: Transaction | InnerTransaction
+  transactions: Transaction[] | InnerTransaction[]
 }
 
 export const transactionSenderLabel = 'Sender'
@@ -75,8 +72,8 @@ export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
   },
 ]
 
-export function TransactionViewTable({ transaction }: Props) {
-  const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
+export function TransactionsTable({ transactions }: Props) {
+  const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
 
   return <DataTable columns={transactionsTableColumns} data={flattenedTransactions} />
 }
