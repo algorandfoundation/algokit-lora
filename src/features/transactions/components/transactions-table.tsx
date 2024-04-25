@@ -9,7 +9,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { TransactionLink } from './transaction-link'
-import { graphConfig } from '../utils/graph-config'
+
+const graphConfig = {
+  indentationWidth: 20,
+}
 
 type Props = {
   transactions: Transaction[] | InnerTransaction[]

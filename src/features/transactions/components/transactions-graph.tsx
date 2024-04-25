@@ -30,9 +30,17 @@ import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel } from './asset-freeze-transaction-info'
 import { TransactionLink } from './transaction-link'
-import { graphConfig } from '../utils/graph-config'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+
+const graphConfig = {
+  rowHeight: 40,
+  colWidth: 128,
+  indentationWidth: 20,
+  lineWidth: 2,
+  circleDimension: 20,
+  paymentTransactionColor: 'rgb(126 200 191)',
+}
 
 type Arrow = {
   from: number
