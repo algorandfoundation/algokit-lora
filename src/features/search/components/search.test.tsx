@@ -85,25 +85,6 @@ describe('search', () => {
           }
         )
       })
-
-      it('should clear the search input', () => {
-        const mockNavigate = vi.fn()
-        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-
-        return executeComponentTest(
-          () => render(<Search />, undefined, myStore),
-          async (component, user) => {
-            await waitFor(async () => {
-              const input = component.getByPlaceholderText(searchPlaceholderLabel)
-              await user.type(input, id)
-              const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
-              const result = results.find((result) => result!.textContent!.includes(type))!
-              await user.click(result)
-              expect(input).toHaveProperty('value', '')
-            })
-          }
-        )
-      })
     })
   })
 })

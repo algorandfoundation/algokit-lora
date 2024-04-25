@@ -36,7 +36,7 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
+  <div className="flex items-center px-3" cmdk-input-wrapper="">
     <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
@@ -63,14 +63,18 @@ CommandList.displayName = CommandPrimitive.List.displayName
 const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
->((props, ref) => <CommandPrimitive.Empty ref={ref} className="py-6 text-center text-sm" {...props} />)
+>(({ className, ...props }, ref) => (
+  <CommandPrimitive.Empty ref={ref} className={cn('py-6 text-center text-sm border-t', className)} {...props} />
+))
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName
 
 const CommandLoading = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Loading>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Loading>
->((props, ref) => <CommandPrimitive.Loading ref={ref} className="py-6 text-center text-sm" {...props} />)
+>(({ className, ...props }, ref) => (
+  <CommandPrimitive.Loading ref={ref} className={cn('py-6 text-center text-sm border-t', className)} {...props} />
+))
 
 CommandLoading.displayName = CommandPrimitive.Loading.displayName
 

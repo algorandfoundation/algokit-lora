@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../data'
 import { Loader } from 'lucide-react'
 import { Badge } from '@/features/common/components/badge'
+import { useLocationChange } from '@/features/common/hooks/use-location-change'
 
 export const searchPlaceholderLabel = 'Search by ID or Address'
 export const noSearchResultsMessage = 'No results.'
@@ -31,11 +32,14 @@ export function Search() {
 
   const handleSelection = useCallback(
     (url: string) => {
-      setTerm('')
       navigate(url)
     },
-    [navigate, setTerm]
+    [navigate]
   )
+
+  const clearTerm = useCallback(() => term && setTerm(''), [setTerm, term])
+
+  useLocationChange(clearTerm)
 
   return (
     <Command className={cn('bg-card text-card-foreground w-80 h-auto z-20 border')} shouldFilter={false} loop>
@@ -57,7 +61,7 @@ export function Search() {
               return <CommandEmpty>{noSearchResultsMessage}</CommandEmpty>
             }
             return (
-              <CommandGroup heading="Results">
+              <CommandGroup heading="Results" className={cn('border-t')}>
                 {results.map((result) => {
                   return (
                     <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
