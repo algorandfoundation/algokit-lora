@@ -22,7 +22,7 @@ export const transactionSenderLabel = 'Sender'
 export const transactionReceiverLabel = 'Receiver'
 export const transactionAmountLabel = 'Amount'
 
-export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
+export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
   {
     header: 'Transaction Id',
     accessorFn: (item) => item,
@@ -78,5 +78,5 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
 export function TransactionViewTable({ transaction }: Props) {
   const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
 
-  return <DataTable columns={tableColumns} data={flattenedTransactions} />
+  return <DataTable columns={transactionsTableColumns} data={flattenedTransactions} />
 }
