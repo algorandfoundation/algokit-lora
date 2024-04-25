@@ -7,7 +7,7 @@ import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-util
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAsset } from '@/features/assets/mappers'
-import { TransactionsGraph } from './transaction-graph'
+import { TransactionsGraph } from './transactions-graph'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:

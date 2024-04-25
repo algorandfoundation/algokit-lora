@@ -90,6 +90,15 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
   )
 }
 
+function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
+  return (
+    <h1 className={cn('text-l font-semibold')}>
+      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
+      {collaborator.type !== 'Account' && collaborator.id}
+    </h1>
+  )
+}
+
 function ConnectionToSibling() {
   // The connection between this transaction and the next sibling
   return (
@@ -507,15 +516,6 @@ function calcArrow(transaction: Transaction | InnerTransaction, collaborators: C
 
 type Props = {
   transactions: Transaction[] | InnerTransaction[]
-}
-
-function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
-  return (
-    <h1 className={cn('text-l font-semibold')}>
-      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
-      {collaborator.type !== 'Account' && collaborator.id}
-    </h1>
-  )
 }
 
 export function TransactionsGraph({ transactions }: Props) {
