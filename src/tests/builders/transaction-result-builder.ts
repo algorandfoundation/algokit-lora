@@ -7,7 +7,12 @@ import {
   randomDateBetween,
   randomNumberBetween,
 } from '@makerx/ts-dossier'
-import { ApplicationTransactionResult, AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import {
+  ApplicationTransactionResult,
+  AssetResult,
+  StateProofTransactionResult,
+  TransactionResult,
+} from '@algorandfoundation/algokit-utils/types/indexer'
 import algosdk from 'algosdk'
 
 export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
@@ -57,6 +62,13 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
     this.thing['application-transaction'] = {
       'application-id': randomNumber(),
     } as ApplicationTransactionResult
+    return this
+  }
+
+  public stateProofTransaction() {
+    this.thing['tx-type'] = algosdk.TransactionType.stpf
+    // HACK: do this because the type StateProofTransactionResult is very big
+    this.thing['state-proof-transaction'] = {} as StateProofTransactionResult
     return this
   }
 }

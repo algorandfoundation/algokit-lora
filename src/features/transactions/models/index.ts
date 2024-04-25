@@ -21,6 +21,7 @@ export enum TransactionType {
   ApplicationCall = 'Application Call',
   AssetConfig = 'Asset Config',
   AssetFreeze = 'Asset Freeze',
+  StateProof = 'State Proof',
 }
 
 export enum AssetTransferTransactionSubType {
@@ -71,6 +72,7 @@ export type Transaction =
   | AppCallTransaction
   | AssetConfigTransaction
   | AssetFreezeTransaction
+  | StateProofTransaction
 
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
   id: string
@@ -202,3 +204,9 @@ export type AssetFreezeTransaction = BaseAssetFreezeTransaction & {
 }
 
 export type InnerAssetFreezeTransaction = BaseAssetFreezeTransaction & InnerTransactionId
+
+export type StateProofTransaction = CommonTransactionProperties & {
+  type: TransactionType.StateProof
+  id: string
+  subType?: undefined
+}

@@ -1027,4 +1027,38 @@ describe('transaction-page', () => {
       )
     })
   })
+
+  describe('when rendering a state proof transaction', () => {
+    const transaction = transactionResultMother
+      .stateProof()
+      ['withRound-time'](1696316292)
+      ['withConfirmed-round'](32563331)
+      .withFee(0)
+      .build()
+
+    it('should be rendered correctly', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'State Proof' },
+                { term: transactionTimestampLabel, description: 'Tue, 03 October 2023 06:58:12' },
+                { term: transactionBlockLabel, description: '32563331' },
+                { term: transactionFeeLabel, description: '0' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
 })
