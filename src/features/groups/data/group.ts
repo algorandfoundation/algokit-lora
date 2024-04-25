@@ -10,10 +10,7 @@ import { loadable } from 'jotai/utils'
 const groupAtomBuilder = (store: JotaiStore, round: Round, id: GroupId) => {
   return atom(async (get) => {
     const block = await get(getBlockAtomBuilder(store, round))
-    return asGroup(
-      id,
-      block.transactions.filter((t) => t.group === id)
-    )
+    return asGroup(id, block)
   })
 }
 
