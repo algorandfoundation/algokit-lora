@@ -71,6 +71,12 @@ import {
   assetUrlLabel,
 } from '../components/asset-config-transaction-info'
 import { assetFreezeAddressLabel, assetNewFreezeStatusLabel } from '../components/asset-freeze-transaction-info'
+import {
+  selectionParticipationKeyLabel,
+  voteFirstValidLabel,
+  voteKeyDilutionLabel,
+  voteParticipationKeyLabel,
+} from '../components/key-reg-transaction-info'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -1057,6 +1063,42 @@ describe('transaction-page', () => {
               ],
             })
           })
+        }
+      )
+    })
+  })
+
+  describe('when rendering a key registration transaction', () => {
+    const transaction = transactionResultMother['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() =>
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Key RegistrationMultisig' },
+                { term: transactionTimestampLabel, description: 'Tue, 18 June 2019 06:53:10' },
+                { term: transactionBlockLabel, description: '107358' },
+                { term: transactionFeeLabel, description: '0.001' },
+                { term: transactionSenderLabel, description: '65NE3RG7Q3IWZMFPKAHSGZV766M4HGN73QBWWF2RPT55X32LHYYIV2YLNI' },
+                { term: voteParticipationKeyLabel, description: 'YlVE4fhZdVHS5ap0ltTyn6Oy3a2Xl9exzOLk4/fF3cY=' },
+                { term: selectionParticipationKeyLabel, description: 'irHd9MGgb7ou2aDUHtgvpqA6lvhtgMCJgldKgP8bu6Q=' },
+                { term: voteFirstValidLabel, description: '1000' },
+                { term: voteParticipationKeyLabel, description: '5180000' },
+                { term: voteKeyDilutionLabel, description: '10000' },
+              ],
+            })
+          )
         }
       )
     })

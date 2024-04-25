@@ -926,4 +926,57 @@ export const transactionResultMother = {
       'tx-type': TransactionType.afrz,
     })
   },
+  ['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']: () => {
+    // Asset freeze transaction
+    return new TransactionResultBuilder({
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 107358,
+      fee: 1000,
+      'first-valid': 107100,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      id: 'VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ',
+      'intra-round-offset': 0,
+      'keyreg-transaction': {
+        'non-participation': false,
+        'selection-participation-key': 'irHd9MGgb7ou2aDUHtgvpqA6lvhtgMCJgldKgP8bu6Q=',
+        'vote-first-valid': 1000,
+        'vote-key-dilution': 10000,
+        'vote-last-valid': 5180000,
+        'vote-participation-key': 'YlVE4fhZdVHS5ap0ltTyn6Oy3a2Xl9exzOLk4/fF3cY=',
+      },
+      'last-valid': 108100,
+      'receiver-rewards': 0,
+      'round-time': 1560804790,
+      sender: '65NE3RG7Q3IWZMFPKAHSGZV766M4HGN73QBWWF2RPT55X32LHYYIV2YLNI',
+      'sender-rewards': 0,
+      signature: {
+        multisig: {
+          subsignature: [
+            {
+              'public-key': 'P+fQ/gdoJi7pTv/S3MekXkpd5DM2RJrCptJKWdlq8F0=',
+            },
+            {
+              'public-key': 'HOYGvU9QYLrIFiFhfl7bfnniDrPvyJcRmxRYkyhvK4E=',
+            },
+            {
+              'public-key': 'SGDOx7hcSmrIEZl4a77IuiEGbTweO6kETsRr8P7h0pM=',
+              signature: 'PoAKqk3najREZpATvsXMjIRa0I2zOokENzVolJjZbBjQ/0XsvCStmlOJGeTwiVVqzlE8Tuta54kNGBxY5nFADg==',
+            },
+            {
+              'public-key': 'viR3l2ZLIYcnf3w7bbAhk5K5Z+6fim831WJD49vYgYE=',
+              signature: 'S4HJ72sVodTVoaIxTrbaSDYqNYGJuMA7rnw40TXuFQu5YxQIJoJa2bVdjhWqpHNmtq/6jYwQulyXXKsUX7VeAQ==',
+            },
+            {
+              'public-key': 'BFK+wNJWcHgFylbjjNeXjAoT5vHxYJ/TYE/gAP6px1Y=',
+              signature: 'T51Fk4+EdtrzNCHAOK75HaZq3Fp74KgwHWyCMhTW56B2abFaDOnA3Elk6iF8U97tWHJXYMMRjDUGxyPOue+0CQ==',
+            },
+          ],
+          threshold: 3,
+          version: 1,
+        },
+      },
+      'tx-type': TransactionType.keyreg,
+    })
+  },
 }
