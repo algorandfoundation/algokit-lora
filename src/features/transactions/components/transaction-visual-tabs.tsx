@@ -12,7 +12,7 @@ const transactionVisualGraphTabId = 'visual'
 const transactionVisualTableTabId = 'table'
 export const transactionDetailsLabel = 'View Transaction Details'
 export const transactionVisualGraphTabLabel = 'Graph'
-export const transactionVisualTableTableLabel = 'Table'
+export const transactionVisualTableTabLabel = 'Table'
 
 export function TransactionVisualTabs({ transaction }: Props) {
   return (
@@ -28,7 +28,7 @@ export function TransactionVisualTabs({ transaction }: Props) {
           className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
           value={transactionVisualTableTabId}
         >
-          {transactionVisualTableTableLabel}
+          {transactionVisualTableTabLabel}
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={transactionVisualGraphTabId}>
