@@ -417,7 +417,8 @@ type TransactionRowProps = {
   indentLevel?: number
   verticalBars: (number | undefined)[]
 }
-function TransactionRow({
+// TODO: rename this
+export function TransactionRow({
   transaction,
   collaborators,
   hasParent = false,
@@ -443,6 +444,12 @@ function TransactionRow({
         </div>
       </div>
       {collaborators.map((_, index) => {
+        if (index === arrow.to + 1 && arrow.direction === 'toSelf') {
+          // This is a special case, when the transaction is from and to the same account
+          // It is renderred across 2 grid cells (see DisplaySelfTransaction).
+          // Therefore, we skip this cell so that we won't cause overflowing
+          return null
+        }
         if (index < arrow.from || index > arrow.to) return <div key={index}></div>
         if (index === arrow.from)
           return (

@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { Badge } from '@/features/common/components/badge'
 import { dateFormatter } from '@/utils/format'
 import { BlockLink } from '@/features/blocks/components/block-link'
+import { GroupViewVisual } from './group-view-visual'
 
 type Props = {
   group: Group
@@ -59,6 +60,7 @@ export function GroupDetails({ group }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{transactionsLabel}</h1>
         </CardContent>
+        <GroupViewVisual group={group} />
       </Card>
     </div>
   )

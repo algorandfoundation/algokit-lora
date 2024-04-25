@@ -7,6 +7,7 @@ import { Transaction, SignatureType, TransactionType, InnerTransaction } from '.
 import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
+import { GroupLink } from '@/features/groups/components/group-link'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -54,11 +55,7 @@ export function TransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionGroupLabel,
-              dd: (
-                <a href="#" className={cn('text-primary underline')}>
-                  {transaction.group}
-                </a>
-              ),
+              dd: <GroupLink round={transaction.confirmedRound} groupId={transaction.group} />,
             },
           ]
         : []),
