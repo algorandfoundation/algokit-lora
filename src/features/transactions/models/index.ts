@@ -222,6 +222,7 @@ export type BaseKeyRegTransaction = CommonTransactionProperties & {
   voteKeyDilution?: number
   voteLastValid?: number
   voteParticipationKey?: string
+  subType?: undefined
 }
 
 export type KeyRegTransaction = BaseKeyRegTransaction & {

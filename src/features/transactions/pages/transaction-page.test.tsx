@@ -75,6 +75,7 @@ import {
   selectionParticipationKeyLabel,
   voteFirstValidLabel,
   voteKeyDilutionLabel,
+  voteLastValidLabel,
   voteParticipationKeyLabel,
 } from '../components/key-reg-transaction-info'
 
@@ -1087,14 +1088,14 @@ describe('transaction-page', () => {
               items: [
                 { term: transactionIdLabel, description: transaction.id },
                 { term: transactionTypeLabel, description: 'Key RegistrationMultisig' },
-                { term: transactionTimestampLabel, description: 'Tue, 18 June 2019 06:53:10' },
+                { term: transactionTimestampLabel, description: 'Mon, 17 June 2019 20:53:10' },
                 { term: transactionBlockLabel, description: '107358' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: '65NE3RG7Q3IWZMFPKAHSGZV766M4HGN73QBWWF2RPT55X32LHYYIV2YLNI' },
                 { term: voteParticipationKeyLabel, description: 'YlVE4fhZdVHS5ap0ltTyn6Oy3a2Xl9exzOLk4/fF3cY=' },
                 { term: selectionParticipationKeyLabel, description: 'irHd9MGgb7ou2aDUHtgvpqA6lvhtgMCJgldKgP8bu6Q=' },
                 { term: voteFirstValidLabel, description: '1000' },
-                { term: voteParticipationKeyLabel, description: '5180000' },
+                { term: voteLastValidLabel, description: '5180000' },
                 { term: voteKeyDilutionLabel, description: '10000' },
               ],
             })
