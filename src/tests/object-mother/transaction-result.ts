@@ -927,7 +927,7 @@ export const transactionResultMother = {
     })
   },
   ['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']: () => {
-    // Asset freeze transaction
+    // Key reg transaction
     return new TransactionResultBuilder({
       'close-rewards': 0,
       'closing-amount': 0,
