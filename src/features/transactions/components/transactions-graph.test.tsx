@@ -21,7 +21,7 @@ import { TransactionsGraph } from './transactions-graph'
 
 const prettyDomMaxLength = 200000
 
-describe('payment-transaction-view-visual', () => {
+describe('payment-transaction-graph', () => {
   describe.each([
     transactionResultMother['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']().build(),
     transactionResultMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']().build(),
@@ -33,7 +33,7 @@ describe('payment-transaction-view-visual', () => {
         () => render(<TransactionsGraph transactions={[model]} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-            `__snapshots__/payment-transaction-view-visual.${transactionResult.id}.html`
+            `__snapshots__/payment-transaction-graph.${transactionResult.id}.html`
           )
         }
       )
@@ -41,7 +41,7 @@ describe('payment-transaction-view-visual', () => {
   })
 })
 
-describe('asset-transfer-transaction-view-visual', () => {
+describe('asset-transfer-transaction-graph', () => {
   describe.each([
     {
       transactionResult: transactionResultMother['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']().build(),
@@ -61,7 +61,7 @@ describe('asset-transfer-transaction-view-visual', () => {
           () => render(<TransactionsGraph transactions={[transaction]} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-              `__snapshots__/asset-transfer-view-visual.${transaction.id}.html`
+              `__snapshots__/asset-transfer-graph.${transaction.id}.html`
             )
           }
         )
@@ -70,7 +70,7 @@ describe('asset-transfer-transaction-view-visual', () => {
   )
 })
 
-describe('application-call-view-visual', () => {
+describe('application-call-graph', () => {
   describe.each([
     {
       transactionResult: transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build(),
@@ -96,7 +96,7 @@ describe('application-call-view-visual', () => {
           () => render(<TransactionsGraph transactions={[model]} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-              `__snapshots__/application-transaction-view-visual.${transactionResult.id}.html`
+              `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
             )
           }
         )
