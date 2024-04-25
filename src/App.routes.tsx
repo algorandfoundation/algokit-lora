@@ -4,7 +4,7 @@ import { Urls } from './routes/urls'
 import { evalTemplates } from './routes/templated-route'
 import { TransactionPage, transactionPageTitle } from './features/transactions/pages/transaction-page'
 import { ExplorePage, explorePageTitle } from './features/explore/pages/explore-page'
-import { GroupPage } from './features/transactions/pages/group-page'
+import { GroupPage } from './features/groups/pages/group-page'
 import { ErrorPage } from './features/common/pages/error-page'
 import { BlockPage, blockPageTitle } from './features/blocks/pages/block-page'
 import { InnerTransactionPage } from './features/transactions/pages/inner-transaction-page'
@@ -51,13 +51,18 @@ export const routes = evalTemplates([
             ],
           },
           {
-            template: Urls.Explore.Group.ById,
-            element: <GroupPage />,
-          },
-          {
             template: Urls.Explore.Block.ById,
-            element: <BlockPage />,
             errorElement: <ErrorPage title={blockPageTitle} />,
+            children: [
+              {
+                template: Urls.Explore.Block.ById,
+                element: <BlockPage />,
+              },
+              {
+                template: Urls.Explore.Block.ById.Group.ById,
+                element: <GroupPage />,
+              },
+            ],
           },
         ],
       },
