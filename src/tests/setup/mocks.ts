@@ -4,6 +4,7 @@ import algosdk from 'algosdk'
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useParams: vi.fn(),
+  useNavigate: vi.fn(),
 }))
 
 vi.mock('@algorandfoundation/algokit-utils', async () => ({

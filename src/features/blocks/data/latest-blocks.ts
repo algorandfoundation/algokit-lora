@@ -10,7 +10,7 @@ import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { algod } from '@/features/common/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { blocksAtom, syncedRoundAtom } from './core'
+import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
 
 const maxBlocksToDisplay = 5
@@ -21,12 +21,12 @@ const latestBlockSummariesAtomBuilder = (store: JotaiStore) => {
     if (!syncedRound) {
       return []
     }
-    const blocks = store.get(blocksAtom)
+    const blockResults = store.get(blockResultsAtom)
     const transactionResults = store.get(transactionResultsAtom)
 
     return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
       const round = syncedRound - i
-      const block = blocks.get(round)
+      const block = blockResults.get(round)
 
       if (block) {
         const transactionSummaries = block.transactionIds.map((transactionId) => {
@@ -112,7 +112,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       return prev
     })
 
-    set(blocksAtom, (prev) => {
+    set(blockResultsAtom, (prev) => {
       blocks.forEach(([key, value]) => {
         prev.set(key, value)
       })

@@ -9,11 +9,11 @@ export const algoAssetResult = {
   params: {
     creator: ZERO_ADDRESS,
     decimals: 6,
-    total: 10_000_000_000,
+    total: 10_000_000_000_000_000n,
     name: 'ALGO',
     'unit-name': 'ALGO',
     url: 'https://www.algorand.foundation',
   },
 } as AssetResult
 
-export const assetsAtom = atom<Map<AssetIndex, AssetResult>>(new Map([[algoAssetResult.index, algoAssetResult]]))
+export const assetResultsAtom = atom<Map<AssetIndex, AssetResult>>(new Map([[algoAssetResult.index, algoAssetResult]]))

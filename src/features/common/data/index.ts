@@ -1,4 +1,5 @@
 import { Config, getAlgoClient, getAlgoIndexerClient } from '@algorandfoundation/algokit-utils'
+export * from './atom-with-debounce'
 
 Config.configure({
   logger: Config.getLogger(true),
