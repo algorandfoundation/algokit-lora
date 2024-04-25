@@ -1,16 +1,14 @@
 import { Group } from '../models'
-import { GroupId } from '../data/types'
-import { Block } from '@/features/blocks/models'
+import { GroupResult } from '../data/types'
 import { asTransactionsSummary } from '@/features/common/mappers'
+import { Transaction } from '@/features/transactions/models'
 
-export const asGroup = (id: GroupId, block: Block): Group => {
-  const transactions = block.transactions.filter((t) => t.group === id)
-
+export const asGroup = (groupResult: GroupResult, transactions: Transaction[]): Group => {
   return {
-    id,
-    round: block.round,
+    id: groupResult.id,
+    round: groupResult.round,
     transactions,
-    timestamp: block.timestamp,
+    timestamp: groupResult.timestamp,
     transactionsSummary: asTransactionsSummary(transactions),
   }
 }

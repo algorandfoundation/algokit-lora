@@ -37,7 +37,7 @@ const fetchBlockResultAtomBuilder = (round: Round) => {
   })
 }
 
-export const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
+const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
   const fetchBlockResultAtom = fetchBlockResultAtomBuilder(round)
 
   const syncEffect = atomEffect((get, set) => {
