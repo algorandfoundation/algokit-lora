@@ -7,6 +7,9 @@ export const UrlParams = {
   InnerTransactionId: 'innerTransactionId:string',
   GroupId: 'groupId:string',
   Round: 'round:string',
+  Address: 'address:string',
+  AssetId: 'assetId:string',
+  ApplicationId: 'applicationId:string',
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
@@ -24,6 +27,15 @@ export const Urls = {
     }),
     Block: UrlTemplate`/block`.extend({
       ById: UrlTemplate`/${UrlParams.Round}`,
+    }),
+    Account: UrlTemplate`/account`.extend({
+      ById: UrlTemplate`/${UrlParams.Address}`,
+    }),
+    Asset: UrlTemplate`/asset`.extend({
+      ById: UrlTemplate`/${UrlParams.AssetId}`,
+    }),
+    Application: UrlTemplate`/application`.extend({
+      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,

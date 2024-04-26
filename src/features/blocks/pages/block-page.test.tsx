@@ -7,12 +7,12 @@ import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
-import { blocksAtom } from '../data/core'
+import { blockResultsAtom } from '../data/core'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block-details'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { assetsAtom } from '@/features/assets/data/core'
+import { assetResultsAtom } from '@/features/assets/data/core'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
@@ -67,7 +67,7 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blocksAtom, new Map([[block.round, block]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, block]]))
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
@@ -101,9 +101,9 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blocksAtom, new Map([[block.round, block]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, block]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
-        myStore.set(assetsAtom, new Map([[asset.index, asset]]))
+        myStore.set(assetResultsAtom, new Map([[asset.index, asset]]))
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),

@@ -42,7 +42,7 @@ export function BlockDetails({ block }: Props) {
           </>
         ),
       },
-      ...(block.previousRound
+      ...(block.previousRound !== undefined
         ? [
             {
               dt: previousRoundLabel,
@@ -50,7 +50,7 @@ export function BlockDetails({ block }: Props) {
             },
           ]
         : []),
-      ...(block.nextRound
+      ...(block.nextRound !== undefined
         ? [
             {
               dt: nextRoundLabel,

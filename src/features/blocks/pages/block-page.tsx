@@ -6,9 +6,7 @@ import { cn } from '@/features/common/utils'
 import { BlockDetails } from '../components/block-details'
 import { is404 } from '@/utils/error'
 import { useLoadableBlock } from '../data'
-
-const validRoundRegex = /^\d+$/
-const isValidRound = (round: string) => round.match(validRoundRegex)
+import { isInteger } from '@/utils/is-integer'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -27,7 +25,7 @@ export const blockFailedToLoadMessage = 'Block failed to load'
 
 export function BlockPage() {
   const { round } = useRequiredParam(UrlParams.Round)
-  invariant(isValidRound(round), blockInvalidRoundMessage)
+  invariant(isInteger(round), blockInvalidRoundMessage)
   const roundNumber = parseInt(round, 10)
   const loadableBlock = useLoadableBlock(roundNumber)
 

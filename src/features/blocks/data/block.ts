@@ -7,7 +7,7 @@ import { fetchTransactionResultsAtomBuilder, fetchTransactionsAtomBuilder, trans
 import { asBlock } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
-import { blocksAtom, syncedRoundAtom } from './core'
+import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
 
 const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
@@ -54,7 +54,7 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
           })
         }
 
-        set(blocksAtom, (prev) => {
+        set(blockResultsAtom, (prev) => {
           return prev.set(blockResult.round, blockResult)
         })
       } catch (e) {
@@ -64,8 +64,8 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
   })
 
   return atom(async (get) => {
-    const blocks = store.get(blocksAtom)
-    const cachedBlockResult = blocks.get(round)
+    const blockResults = store.get(blockResultsAtom)
+    const cachedBlockResult = blockResults.get(round)
     const nextRoundAvailable = get(nextRoundAvailableAtomBuilder(store, round))
     if (cachedBlockResult) {
       const transactions = await get(

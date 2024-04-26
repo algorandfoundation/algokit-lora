@@ -2,12 +2,11 @@ import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { TransactionDetails } from '../components/transaction-details'
-import { useLoadableTransactionAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { is404 } from '@/utils/error'
-
-const isValidTransactionId = (transactionId: string) => transactionId.length === 52
+import { useLoadableTransactionAtom } from '../data'
+import { isTransactionId } from '@/utils/is-transaction-id'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -26,7 +25,7 @@ export const transactionFailedToLoadMessage = 'Transaction failed to load'
 
 export function TransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
-  invariant(isValidTransactionId(transactionId), transactionInvalidIdMessage)
+  invariant(isTransactionId(transactionId), transactionInvalidIdMessage)
   const loadableTransaction = useLoadableTransactionAtom(transactionId)
 
   return (
