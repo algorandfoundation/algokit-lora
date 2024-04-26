@@ -14,6 +14,9 @@ export const transactionResultMother = {
   appCall: () => {
     return transactionResultBuilder().appCallTransaction()
   },
+  stateProof: () => {
+    return transactionResultBuilder().stateProofTransaction()
+  },
   multisig: () => {
     return transactionResultBuilder()
       .paymentTransaction()

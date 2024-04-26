@@ -11,6 +11,7 @@ import { Asset } from '@/features/assets/models'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
+import { asStateProofTransaction } from './state-proof-transaction-mappers'
 
 export const asTransaction = async (transactionResult: TransactionResult, assetResolver: (assetId: number) => Promise<Asset> | Asset) => {
   switch (transactionResult['tx-type']) {
@@ -37,6 +38,10 @@ export const asTransaction = async (transactionResult: TransactionResult, assetR
       const assetId = transactionResult['asset-freeze-transaction']['asset-id']
       const asset = await assetResolver(assetId)
       return asAssetFreezeTransaction(transactionResult, asset)
+    }
+    case algosdk.TransactionType.stpf: {
+      invariant(transactionResult['state-proof-transaction'], 'state-proof-transaction is not set')
+      return asStateProofTransaction(transactionResult)
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
@@ -89,6 +94,13 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         ...common,
         type: TransactionType.AssetFreeze,
         to: transactionResult['asset-freeze-transaction']['asset-id'],
+      }
+    }
+    case algosdk.TransactionType.stpf: {
+      invariant(transactionResult['state-proof-transaction'], 'state-proof-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.StateProof,
       }
     }
     default:

@@ -1,7 +1,7 @@
 import { cn } from '../utils'
 
 type Props = {
-  items: { dt: string; dd: string | number | JSX.Element[] | JSX.Element }[]
+  items: { dt: string; dd: string | number | JSX.Element[] | JSX.Element | undefined }[]
 }
 
 export function DescriptionList({ items }: Props) {

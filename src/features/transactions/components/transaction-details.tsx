@@ -4,6 +4,7 @@ import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { AppCallTransactionDetails } from './app-call-transaction-details'
 import { AssetConfigTransactionDetails } from './asset-config-transaction-details'
 import { AssetFreezeTransactionDetails } from './asset-freeze-transaction-details'
+import { StateProofTransactionDetails } from './state-proof-transaction-details'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -21,6 +22,8 @@ export function TransactionDetails({ transaction }: Props) {
       return <AssetConfigTransactionDetails transaction={transaction} />
     case TransactionType.AssetFreeze:
       return <AssetFreezeTransactionDetails transaction={transaction} />
+    case TransactionType.StateProof:
+      return <StateProofTransactionDetails transaction={transaction} />
     default:
       return <></>
   }
