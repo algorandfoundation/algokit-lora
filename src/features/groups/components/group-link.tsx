@@ -4,21 +4,23 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { GroupId } from '../data/types'
+import { ellipseId } from '@/utils/ellipse-id'
 
 type Props = PropsWithChildren<{
   round: Round
   groupId: GroupId
+  short?: boolean
   className?: string
 }>
 
-export function GroupLink({ round, groupId, className, children }: Props) {
+export function GroupLink({ round, groupId, short = false, className, children }: Props) {
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
       urlTemplate={Urls.Explore.Block.ById.Group.ById}
       urlParams={{ round: round.toString(), groupId: encodeURIComponent(groupId) }}
     >
-      {children ? children : groupId}
+      {children ? children : short ? ellipseId(groupId) : groupId}
     </TemplatedNavLink>
   )
 }
