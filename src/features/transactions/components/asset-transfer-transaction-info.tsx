@@ -5,6 +5,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabel } from './transaction-view-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { AssetLink } from '@/features/assets/components/asset-link'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
@@ -20,15 +21,11 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender}></AccountLink>,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.receiver}
-          </a>
-        ),
+        dd: <AccountLink address={transaction.receiver} />,
       },
       ...(transaction.subType === AssetTransferTransactionSubType.Clawback
         ? [
@@ -44,11 +41,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         : []),
       {
         dt: assetLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.asset.id} {`${transaction.asset.name ? `(${transaction.asset.name})` : ''}`}
-          </a>
-        ),
+        dd: <AssetLink assetId={transaction.asset.id} assetName={transaction.asset.name} />,
       },
       {
         dt: transactionAmountLabel,
@@ -58,11 +51,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionCloseRemainderToLabel,
-              dd: (
-                <a href="#" className={cn('text-primary underline')}>
-                  {transaction.closeRemainder.to}
-                </a>
-              ),
+              dd: <AccountLink address={transaction.closeRemainder.to} />,
             },
             {
               dt: transactionCloseRemainderAmountLabel,

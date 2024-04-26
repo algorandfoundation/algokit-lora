@@ -63,7 +63,6 @@ import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
-  assetIdLabel,
   assetManagerLabel,
   assetReserveLabel,
   assetTotalSupplyLabel,
@@ -870,7 +869,7 @@ describe('transaction-page', () => {
                 { term: transactionBlockLabel, description: '6354625' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: 'MBX2M6J44LQ22L3FROYRBKUAG4FWENPSLPTI7EBR4ECQ2APDMI6XTENHWQ' },
-                { term: assetIdLabel, description: '917559' },
+                { term: assetLabel, description: '917559' },
               ],
             })
           })
@@ -903,7 +902,7 @@ describe('transaction-page', () => {
                 { term: transactionBlockLabel, description: '38185488' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
-                { term: assetIdLabel, description: '1781083085 (DHM: M5+ Quake us6000mt40)' },
+                { term: assetLabel, description: '1781083085 (DHM: M5+ Quake us6000mt40)' },
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/quake/us6000mt40.png#i' },
                 { term: assetUnitLabel, description: 'QUAKE' },
                 { term: assetDecimalsLabel, description: '0' },

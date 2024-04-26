@@ -5,12 +5,13 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel } from './transaction-view-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
+import { AssetLink } from '@/features/assets/components/asset-link'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction
 }
 
-export const assetIdLabel = 'Asset ID'
+export const assetLabel = 'Asset'
 export const assetUrlLabel = 'URL'
 export const assetUnitLabel = 'Unit'
 export const assetDecimalsLabel = 'Decimals'
@@ -30,13 +31,8 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
           dd: <AccountLink address={transaction.sender} />,
         },
         {
-          dt: assetIdLabel,
-          dd: (
-            <a href="#" className={cn('text-primary underline')}>
-              {transaction.assetId}
-              {transaction.name && ` (${transaction.name})`}
-            </a>
-          ),
+          dt: assetLabel,
+          dd: <AssetLink assetId={transaction.assetId} assetName={transaction.name} />,
         },
         transaction.url
           ? {
