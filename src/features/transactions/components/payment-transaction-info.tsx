@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { InnerPaymentTransaction, PaymentTransaction } from '../models'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
   transaction: PaymentTransaction | InnerPaymentTransaction
@@ -17,11 +18,7 @@ export function PaymentTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.sender}
-          </a>
-        ),
+        dd: <AccountLink address={transaction.sender}></AccountLink>,
       },
       {
         dt: transactionReceiverLabel,

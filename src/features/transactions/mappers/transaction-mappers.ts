@@ -8,8 +8,9 @@ import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers
 import { asPaymentTransaction } from './payment-transaction-mappers'
 import { asPlaceholderTransaction } from './placeholder-transaction-mappers'
 import { Asset } from '@/features/assets/models'
-import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
+import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
+import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 
 export const asTransaction = async (transactionResult: TransactionResult, assetResolver: (assetId: number) => Promise<Asset> | Asset) => {
   switch (transactionResult['tx-type']) {
@@ -30,6 +31,12 @@ export const asTransaction = async (transactionResult: TransactionResult, assetR
     case algosdk.TransactionType.acfg: {
       invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
       return asAssetConfigTransaction(transactionResult)
+    }
+    case algosdk.TransactionType.afrz: {
+      invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
+      const assetId = transactionResult['asset-freeze-transaction']['asset-id']
+      const asset = await assetResolver(assetId)
+      return asAssetFreezeTransaction(transactionResult, asset)
     }
     default:
       // TODO: Once we support all transaction types, we should throw an error instead
@@ -74,6 +81,14 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         ...common,
         type: TransactionType.AssetConfig,
         to: transactionResult['asset-config-transaction']['asset-id'] ?? transactionResult['created-asset-index'],
+      }
+    }
+    case algosdk.TransactionType.afrz: {
+      invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.AssetFreeze,
+        to: transactionResult['asset-freeze-transaction']['asset-id'],
       }
     }
     default:

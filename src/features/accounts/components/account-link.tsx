@@ -1,4 +1,6 @@
 import { cn } from '@/features/common/utils'
+import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
+import { Urls } from '@/routes/urls'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { PropsWithChildren } from 'react'
 
@@ -10,8 +12,12 @@ type Props = PropsWithChildren<{
 
 export function AccountLink({ address, short, className, children }: Props) {
   return (
-    <a href="#" className={cn(!children && 'text-primary underline', className)}>
+    <TemplatedNavLink
+      className={cn(!children && 'text-primary underline', className)}
+      urlTemplate={Urls.Explore.Account.ById}
+      urlParams={{ address }}
+    >
       {children ? children : short ? ellipseAddress(address) : address}
-    </a>
+    </TemplatedNavLink>
   )
 }

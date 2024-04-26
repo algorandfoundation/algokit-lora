@@ -56,6 +56,7 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
       if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
         return ellipseAddress(transaction.receiver)
       if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
+      if (transaction.type === TransactionType.AssetConfig || transaction.type === TransactionType.AssetFreeze) return transaction.assetId
     },
   },
   {

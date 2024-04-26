@@ -892,4 +892,35 @@ export const transactionResultMother = {
       'tx-type': TransactionType.acfg,
     })
   },
+  ['mainnet-2XFGVOHMFYLAWBHOSIOI67PBT5LDRHBTD3VLX5EYBDTFNVKMCJIA']: () => {
+    // Asset freeze transaction
+    return new TransactionResultBuilder({
+      'asset-freeze-transaction': {
+        address: 'ZJU3X2B2QN3BUBIJ64JZ565V363ANGBUDOLXAJHDXGIIMYK6WV3NSNCBQQ',
+        'asset-id': 1707148495,
+        'new-freeze-status': true,
+      },
+      'auth-addr': 'FJ5ZFYSXL5SDNWSWBFWUROO4VQRPA42ICJRMRZYGPWXWLBE7TT3HRXWJF4',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 37463564,
+      fee: 1000,
+      'first-valid': 37463562,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: 'xERjxVTlNb8jeHa16qmpxDMh4+dcDCokO69QnNESbFk=',
+      id: '2XFGVOHMFYLAWBHOSIOI67PBT5LDRHBTD3VLX5EYBDTFNVKMCJIA',
+      'intra-round-offset': 2,
+      'last-valid': 37464562,
+      note: 'TkZUIGZyZWV6ZWQgYnkgbG9mdHkuYWk=',
+      'receiver-rewards': 0,
+      'round-time': 1711760608,
+      sender: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY',
+      'sender-rewards': 0,
+      signature: {
+        sig: '7RUentpSD0yu+vP+sCkITzeexaEANTtOFN3uXC8+HNi3Q0zDvpUzDlmBR5s51CWfoQ6BkFse0sH4MqSj2QdBAA==',
+      },
+      'tx-type': TransactionType.afrz,
+    })
+  },
 }

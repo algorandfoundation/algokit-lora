@@ -32,6 +32,7 @@ export const columns: ColumnDef<Transaction>[] = [
         return ellipseAddress(transaction.receiver)
       if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
       if (transaction.type === TransactionType.AssetConfig) return transaction.assetId
+      if (transaction.type === TransactionType.AssetFreeze) return transaction.assetId
     },
   },
   {

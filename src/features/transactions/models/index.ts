@@ -20,6 +20,7 @@ export enum TransactionType {
   AssetTransfer = 'Asset Transfer',
   ApplicationCall = 'Application Call',
   AssetConfig = 'Asset Config',
+  AssetFreeze = 'Asset Freeze',
 }
 
 export enum AssetTransferTransactionSubType {
@@ -64,7 +65,12 @@ export type AssetTransferTransaction = BaseAssetTransferTransaction & {
   id: string
 }
 
-export type Transaction = PaymentTransaction | AssetTransferTransaction | AppCallTransaction | AssetConfigTransaction
+export type Transaction =
+  | PaymentTransaction
+  | AssetTransferTransaction
+  | AppCallTransaction
+  | AssetConfigTransaction
+  | AssetFreezeTransaction
 
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
   id: string
@@ -152,6 +158,7 @@ export type InnerTransaction =
   | InnerAssetTransferTransaction
   | InnerAppCallTransaction
   | InnerAssetConfigTransaction
+  | InnerAssetFreezeTransaction
 
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
@@ -179,4 +186,24 @@ export enum AssetConfigTransactionSubType {
   Create = 'Create',
   Reconfigure = 'Reconfigure',
   Destroy = 'Destroy',
+}
+
+export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
+  type: TransactionType.AssetFreeze
+  address: Address
+  assetId: number
+  assetName?: string
+  freezeStatus: AssetFreezeStatus
+  subType?: undefined
+}
+
+export type AssetFreezeTransaction = BaseAssetFreezeTransaction & {
+  id: string
+}
+
+export type InnerAssetFreezeTransaction = BaseAssetFreezeTransaction & InnerTransactionId
+
+export enum AssetFreezeStatus {
+  Frozen = 'Frozen',
+  Unfrozen = 'Unfrozen',
 }

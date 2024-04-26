@@ -11,7 +11,7 @@ import { indexer } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { getAssetAtomBuilder, getAssetsAtomBuilder } from '@/features/assets/data'
-import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-app-call-transaction'
+import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { transactionResultsAtom } from './core'
 
 export const fetchTransactionResultAtomBuilder = (store: JotaiStore, transactionId: TransactionId) => {
@@ -70,6 +70,12 @@ export const fetchTransactionsAtomBuilder = (
               acc.add(assetId)
             }
           })
+        }
+        if (txn['tx-type'] === AlgoSdkTransactionType.afrz && txn['asset-freeze-transaction']) {
+          const assetId = txn['asset-freeze-transaction']['asset-id']
+          if (!acc.has(assetId)) {
+            acc.add(assetId)
+          }
         }
         return acc
       }, new Set<number>())

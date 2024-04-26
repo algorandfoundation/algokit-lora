@@ -7,6 +7,7 @@ import { DataTable } from '@/features/common/components/data-table'
 import { transactionSenderLabel } from './transaction-view-table'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -36,11 +37,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.sender}
-          </a>
-        ),
+        dd: <AccountLink address={transaction.sender}></AccountLink>,
       },
       {
         dt: applicationIdLabel,
