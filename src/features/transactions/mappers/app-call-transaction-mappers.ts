@@ -84,8 +84,9 @@ const asInnerTransaction = (networkTransactionId: string, index: string, transac
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.axfer) {
     invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-    const asset = assets.find((asset) => asset.id === transactionResult['asset-transfer-transaction']!['asset-id'])
-    invariant(asset, `Asset index ${transactionResult['asset-transfer-transaction']!['asset-id']} not found in cache`)
+    const assetId = transactionResult['asset-transfer-transaction']['asset-id']
+    const asset = assets.find((asset) => asset.id === assetId)
+    invariant(asset, `Asset index ${transactionResult['asset-transfer-transaction']['asset-id']} not found in cache`)
 
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, asset)
   }
@@ -97,8 +98,9 @@ const asInnerTransaction = (networkTransactionId: string, index: string, transac
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.afrz) {
     invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
-    const asset = assets.find((asset) => asset.id === transactionResult['asset-freeze-transaction']!['asset-id'])
-    invariant(asset, `Asset index ${transactionResult['asset-freeze-transaction']!['asset-id']} not found in cache`)
+    const assetId = transactionResult['asset-freeze-transaction']['asset-id']
+    const asset = assets.find((asset) => asset.id === assetId)
+    invariant(asset, `Asset index ${transactionResult['asset-freeze-transaction']['asset-id']} not found in cache`)
 
     return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, asset)
   }
