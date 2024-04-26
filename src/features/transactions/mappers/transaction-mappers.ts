@@ -101,7 +101,6 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       return {
         ...common,
         type: TransactionType.StateProof,
-        to: '',
       }
     }
     default:

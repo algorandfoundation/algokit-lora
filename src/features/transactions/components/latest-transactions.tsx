@@ -28,7 +28,10 @@ export function LatestTransactions() {
                       <DescriptionList
                         items={[
                           { dt: 'From:', dd: ellipseAddress(transaction.from) },
-                          { dt: 'To:', dd: typeof transaction.to === 'string' ? ellipseAddress(transaction.to) : transaction.to },
+                          {
+                            dt: 'To:',
+                            dd: transaction.to && typeof transaction.to === 'string' ? ellipseAddress(transaction.to) : transaction.to,
+                          },
                         ]}
                       />
                     </div>

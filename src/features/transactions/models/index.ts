@@ -77,7 +77,7 @@ export type Transaction =
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
   id: string
   from: Address
-  to: Address | number
+  to?: Address | number
 }
 
 export enum SignatureType {
