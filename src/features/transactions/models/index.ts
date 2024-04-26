@@ -195,7 +195,7 @@ export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   address: Address
   assetId: number
   assetName?: string
-  newFreezeStatus: boolean
+  freezeStatus: AssetFreezeStatus
   subType?: undefined
 }
 
@@ -204,6 +204,11 @@ export type AssetFreezeTransaction = BaseAssetFreezeTransaction & {
 }
 
 export type InnerAssetFreezeTransaction = BaseAssetFreezeTransaction & InnerTransactionId
+
+export enum AssetFreezeStatus {
+  Frozen = 'Frozen',
+  Unfrozen = 'Unfrozen',
+}
 
 export type StateProofTransaction = CommonTransactionProperties & {
   type: TransactionType.StateProof

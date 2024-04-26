@@ -3,7 +3,7 @@ import { AssetLookupResult } from '@algorandfoundation/algokit-utils/types/index
 import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
-import { assetsAtom } from './core'
+import { assetResultsAtom } from './core'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { asAsset } from '../mappers'
@@ -27,7 +27,7 @@ export const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) =
     ;(async () => {
       try {
         const assetResult = await get(fetchAssetResultAtom)
-        set(assetsAtom, (prev) => {
+        set(assetResultsAtom, (prev) => {
           return prev.set(assetResult.index, assetResult)
         })
       } catch (e) {
@@ -37,16 +37,16 @@ export const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) =
   })
 
   return atom(async (get) => {
-    const assets = store.get(assetsAtom)
-    const cachedAsset = assets.get(assetIndex)
-    if (cachedAsset) {
-      return asAsset(cachedAsset)
+    const assetResults = store.get(assetResultsAtom)
+    const cachedAssetResult = assetResults.get(assetIndex)
+    if (cachedAssetResult) {
+      return asAsset(cachedAssetResult)
     }
 
     get(syncEffect)
 
-    const fetchedAsset = await get(fetchAssetResultAtom)
-    return asAsset(fetchedAsset)
+    const assetResult = await get(fetchAssetResultAtom)
+    return asAsset(assetResult)
   })
 }
 
