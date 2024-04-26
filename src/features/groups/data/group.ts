@@ -1,65 +1,33 @@
 import { Round } from '@/features/blocks/data/types'
 import { JotaiStore } from '@/features/common/data/types'
 import { atom, useAtomValue, useStore } from 'jotai'
-import { GroupId, GroupResult } from './types'
+import { GroupId } from './types'
 import { asGroup } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
-import { atomEffect } from 'jotai-effect'
-import { fetchTransactionResultsAtomBuilder, fetchTransactionsAtomBuilder, transactionResultsAtom } from '@/features/transactions/data'
-import { indexer } from '@/features/common/data'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { groupsAtom } from './core'
+import { fetchTransactionResultsAtomBuilder, fetchTransactionsAtomBuilder } from '@/features/transactions/data'
+import { groupResultsAtom } from './core'
+import { fetchBlockResultAtomBuilder, syncBlockAtomEffectBuilder } from '@/features/blocks/data'
+import { invariant } from '@/utils/invariant'
 
-const fetchGroupResultAtomBuilder = (round: Round, id: GroupId) => {
-  return atom(async (_get) => {
-    return await indexer
-      .lookupBlock(round)
-      .do()
-      .then((result) => {
-        const transactionResults: TransactionResult[] = (result.transactions ?? []).filter((t: TransactionResult) => t.group === id)
-        return [
-          {
-            id: id,
-            round: result.round as number,
-            timestamp: new Date(result.timestamp * 1000).toISOString(),
-            transactionIds: transactionResults.map((t) => t.id) ?? [],
-          } as GroupResult,
-          transactionResults,
-        ] as const
-      })
+const fetchGroupResultAtomBuilder = (fetchBlockResultAtom: ReturnType<typeof fetchBlockResultAtomBuilder>, groupId: GroupId) => {
+  return atom(async (get) => {
+    const [blockResult, transactionResults, groupResults] = await get(fetchBlockResultAtom)
+    const groupResult = groupResults.get(groupId)
+    invariant(groupResult, `Transaction group ${groupId} not found in round ${blockResult.round}`)
+    const groupTransactions = transactionResults.filter((t) => t.group === groupResult.id)
+    return [groupResult, groupTransactions] as const
   })
 }
 
-const getGroupAtomBuilder = (store: JotaiStore, round: Round, id: GroupId) => {
-  const fetchGroupResultAtom = fetchGroupResultAtomBuilder(round, id)
-
-  const syncEffect = atomEffect((get, set) => {
-    ;(async () => {
-      try {
-        const [groupResult, transactionResults] = await get(fetchGroupResultAtom)
-
-        if (transactionResults.length > 0) {
-          set(transactionResultsAtom, (prev) => {
-            transactionResults.forEach((t) => {
-              prev.set(t.id, t)
-            })
-            return prev
-          })
-        }
-
-        set(groupsAtom, (prev) => {
-          return prev.set(groupResult.id, groupResult)
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
-  })
+const getGroupAtomBuilder = (store: JotaiStore, round: Round, groupId: GroupId) => {
+  const fetchBlockResultAtom = fetchBlockResultAtomBuilder(round)
+  const fetchGroupResultAtom = fetchGroupResultAtomBuilder(fetchBlockResultAtom, groupId)
+  const syncEffect = syncBlockAtomEffectBuilder(fetchBlockResultAtom)
 
   return atom(async (get) => {
-    const groups = store.get(groupsAtom)
-    const cachedGroupResult = groups.get(id)
+    const groupResults = store.get(groupResultsAtom)
+    const cachedGroupResult = groupResults.get(groupId)
     if (cachedGroupResult) {
       const transactions = await get(
         fetchTransactionsAtomBuilder(store, fetchTransactionResultsAtomBuilder(store, cachedGroupResult.transactionIds))
@@ -75,14 +43,14 @@ const getGroupAtomBuilder = (store: JotaiStore, round: Round, id: GroupId) => {
   })
 }
 
-const useGroupAtom = (round: Round, id: GroupId) => {
+const useGroupAtom = (round: Round, groupId: GroupId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return getGroupAtomBuilder(store, round, id)
-  }, [store, round, id])
+    return getGroupAtomBuilder(store, round, groupId)
+  }, [store, round, groupId])
 }
 
-export const useLoadableGroup = (round: Round, id: GroupId) => {
-  return useAtomValue(loadable(useGroupAtom(round, id)))
+export const useLoadableGroup = (round: Round, groupId: GroupId) => {
+  return useAtomValue(loadable(useGroupAtom(round, groupId)))
 }

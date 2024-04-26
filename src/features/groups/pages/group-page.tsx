@@ -5,11 +5,13 @@ import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { GroupDetails } from '../components/group-details'
 import { cn } from '@/features/common/utils'
+import { invariant } from '@/utils/invariant'
+import { isInteger } from '@/utils/is-integer'
 
-export const groupPageTitle = 'Group'
+export const groupPageTitle = 'Transaction Group'
 export const blockNotFoundMessage = 'Block not found'
 export const blockInvalidRoundMessage = 'Round is invalid'
-export const blockFailedToLoadMessage = 'Block failed to load'
+export const groupFailedToLoadMessage = 'Transaction group failed to load'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -18,14 +20,13 @@ const transformError = (e: Error) => {
 
   // eslint-disable-next-line no-console
   console.error(e)
-  return new Error(blockFailedToLoadMessage)
+  return new Error(groupFailedToLoadMessage)
 }
 
 export function GroupPage() {
   const { round } = useRequiredParam(UrlParams.Round)
+  invariant(isInteger(round), blockInvalidRoundMessage)
   const { groupId } = useRequiredParam(UrlParams.GroupId)
-  // TODO: make sure valid round & group ID
-  // After the search PR is merged
 
   const roundNumber = parseInt(round, 10)
   const loadableGroup = useLoadableGroup(roundNumber, groupId)
