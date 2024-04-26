@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
-import { blocksAtom, syncedRoundAtom } from '@/features/blocks/data/core'
+import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data/core'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -54,7 +54,7 @@ describe('explore-page', () => {
     const transactionResults = [transactionResult1]
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
     const myStore = createStore()
-    myStore.set(blocksAtom, new Map([[block.round, block]]))
+    myStore.set(blockResultsAtom, new Map([[block.round, block]]))
     myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
     myStore.set(syncedRoundAtom, block.round)
 
@@ -123,7 +123,7 @@ describe('explore-page', () => {
     it('only the latest 5 blocks are displayed', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, data.transactions)
-      myStore.set(blocksAtom, data.blocks)
+      myStore.set(blockResultsAtom, data.blocks)
       myStore.set(syncedRoundAtom, data.syncedRound)
 
       return executeComponentTest(
@@ -144,7 +144,7 @@ describe('explore-page', () => {
     it('the latest 50 transactions are displayed', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, data.transactions)
-      myStore.set(blocksAtom, data.blocks)
+      myStore.set(blockResultsAtom, data.blocks)
       myStore.set(syncedRoundAtom, data.syncedRound)
 
       return executeComponentTest(
