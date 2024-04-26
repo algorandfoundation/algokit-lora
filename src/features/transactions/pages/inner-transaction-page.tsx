@@ -6,8 +6,7 @@ import { useLoadableInnerTransactionAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-id'
-
-const isValidTransactionId = (transactionId: string) => transactionId.length === 52
+import { isTransactionId } from '@/utils/is-transaction-id'
 
 const transformError = (e: Error) => {
   if ('status' in e && e.status === 404) {
@@ -26,7 +25,7 @@ export const transactionFailedToLoadMessage = 'Transaction failed to load'
 
 export function InnerTransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
-  invariant(isValidTransactionId(transactionId), transactionInvalidIdMessage)
+  invariant(isTransactionId(transactionId), transactionInvalidIdMessage)
 
   const { innerTransactionId } = useRequiredParam(UrlParams.InnerTransactionId)
   invariant(isValidInnerTransactionId(innerTransactionId), `Invalid inner transaction id: ${innerTransactionId}`)

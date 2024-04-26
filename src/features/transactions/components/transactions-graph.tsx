@@ -28,7 +28,7 @@ import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabe
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
-import { assetFreezeAddressLabel } from './asset-freeze-transaction-info'
+import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
 import { TransactionLink } from './transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -397,8 +397,12 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
         dt: assetFreezeAddressLabel,
         dd: transaction.address,
       },
+      {
+        dt: assetFreezeStatusLabel,
+        dd: transaction.freezeStatus,
+      },
     ],
-    [transaction.address, transaction.assetId, transaction.id, transaction.sender]
+    [transaction.address, transaction.assetId, transaction.freezeStatus, transaction.id, transaction.sender]
   )
 
   return (

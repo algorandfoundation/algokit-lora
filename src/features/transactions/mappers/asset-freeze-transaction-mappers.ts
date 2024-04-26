@@ -1,5 +1,11 @@
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { AssetFreezeTransaction, BaseAssetFreezeTransaction, InnerAssetFreezeTransaction, TransactionType } from '../models'
+import {
+  AssetFreezeStatus,
+  AssetFreezeTransaction,
+  BaseAssetFreezeTransaction,
+  InnerAssetFreezeTransaction,
+  TransactionType,
+} from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { Asset } from '@/features/assets/models'
@@ -13,7 +19,9 @@ const mapCommonAssetFreezeTransactionProperties = (transactionResult: Transactio
     address: transactionResult['asset-freeze-transaction']['address'],
     assetId: transactionResult['asset-freeze-transaction']['asset-id'],
     assetName: asset.name,
-    newFreezeStatus: transactionResult['asset-freeze-transaction']['new-freeze-status'],
+    freezeStatus: transactionResult['asset-freeze-transaction']['new-freeze-status']
+      ? AssetFreezeStatus.Frozen
+      : AssetFreezeStatus.Unfrozen,
   }
 }
 

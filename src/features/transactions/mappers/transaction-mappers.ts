@@ -102,7 +102,6 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       return {
         ...common,
         type: TransactionType.StateProof,
-        to: '',
       }
     }
     case algosdk.TransactionType.keyreg: {
@@ -110,7 +109,6 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       return {
         ...common,
         type: TransactionType.KeyReg,
-        to: '',
       }
     }
     default:

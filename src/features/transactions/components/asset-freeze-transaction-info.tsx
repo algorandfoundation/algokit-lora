@@ -10,8 +10,8 @@ type Props = {
 }
 
 export const assetLabel = 'Asset'
-export const assetFreezeAddressLabel = 'Asset Freeze Address'
-export const assetNewFreezeStatusLabel = 'New Freeze Status'
+export const assetFreezeAddressLabel = 'Freeze Address'
+export const assetFreezeStatusLabel = 'Freeze Status'
 
 export function AssetFreezeTransactionInfo({ transaction }: Props) {
   const items = useMemo(
@@ -19,10 +19,6 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
       {
         dt: transactionSenderLabel,
         dd: <AccountLink address={transaction.sender}></AccountLink>,
-      },
-      {
-        dt: assetFreezeAddressLabel,
-        dd: <AccountLink address={transaction.address}></AccountLink>,
       },
       {
         dt: assetLabel,
@@ -34,11 +30,15 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
         ),
       },
       {
-        dt: assetNewFreezeStatusLabel,
-        dd: transaction.newFreezeStatus ? 'True' : 'False',
+        dt: assetFreezeAddressLabel,
+        dd: <AccountLink address={transaction.address}></AccountLink>,
+      },
+      {
+        dt: assetFreezeStatusLabel,
+        dd: transaction.freezeStatus,
       },
     ],
-    [transaction.address, transaction.assetId, transaction.assetName, transaction.newFreezeStatus, transaction.sender]
+    [transaction.address, transaction.assetId, transaction.assetName, transaction.freezeStatus, transaction.sender]
   )
 
   return (
