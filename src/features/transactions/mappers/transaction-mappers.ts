@@ -1,17 +1,16 @@
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionSummary, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import algosdk from 'algosdk'
 import { asAppCallTransaction } from './app-call-transaction-mappers'
 import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { asPaymentTransaction } from './payment-transaction-mappers'
-import { asPlaceholderTransaction } from './placeholder-transaction-mappers'
 import { Asset } from '@/features/assets/models'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asStateProofTransaction } from './state-proof-transaction-mappers'
+import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 
 export const asTransaction = async (transactionResult: TransactionResult, assetResolver: (assetId: number) => Promise<Asset> | Asset) => {
   switch (transactionResult['tx-type']) {
@@ -43,10 +42,12 @@ export const asTransaction = async (transactionResult: TransactionResult, assetR
       invariant(transactionResult['state-proof-transaction'], 'state-proof-transaction is not set')
       return asStateProofTransaction(transactionResult)
     }
+    case algosdk.TransactionType.keyreg: {
+      invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
+      return asKeyRegTransaction(transactionResult)
+    }
     default:
-      // TODO: Once we support all transaction types, we should throw an error instead
-      // throw new Error(`${transaction['tx-type']} is not supported`)
-      return asPlaceholderTransaction(transactionResult)
+      throw new Error(`Unknown transaction type ${transactionResult['tx-type']}`)
   }
 }
 
@@ -103,13 +104,14 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         type: TransactionType.StateProof,
       }
     }
-    default:
-      // TODO: Once we support all transaction types, we should throw an error instead
-      // throw new Error(`${transaction['tx-type']} is not supported`)
+    case algosdk.TransactionType.keyreg: {
+      invariant(transactionResult['key-reg-transaction'], 'key-reg-transaction is not set')
       return {
         ...common,
-        type: TransactionType.Payment,
-        to: ZERO_ADDRESS,
+        type: TransactionType.KeyReg,
       }
+    }
+    default:
+      throw new Error(`Unknown Transaction type ${transactionResult['tx-type']}`)
   }
 }

@@ -8,6 +8,7 @@ import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-util
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAsset } from '@/features/assets/mappers'
+import { asKeyRegTransaction } from '../mappers/key-reg-transaction-mappers'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -103,4 +104,27 @@ describe('application-call-view-visual', () => {
       })
     }
   )
+})
+
+describe('key-reg-view-visual', () => {
+  describe.each([
+    {
+      transactionResult: transactionResultMother['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']().build(),
+    },
+  ])('when rendering transaction $transactionResult.id', ({ transactionResult }: { transactionResult: TransactionResult }) => {
+    it('should match snapshot', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
+
+      const model = asKeyRegTransaction(transactionResult)
+
+      return executeComponentTest(
+        () => render(<TransactionViewVisual transaction={model} />),
+        async (component) => {
+          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+            `__snapshots__/key-reg-view-visual.${transactionResult.id}.html`
+          )
+        }
+      )
+    })
+  })
 })

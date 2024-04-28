@@ -22,6 +22,7 @@ export enum TransactionType {
   AssetConfig = 'Asset Config',
   AssetFreeze = 'Asset Freeze',
   StateProof = 'State Proof',
+  KeyReg = 'Key Registration',
 }
 
 export enum AssetTransferTransactionSubType {
@@ -73,6 +74,7 @@ export type Transaction =
   | AssetConfigTransaction
   | AssetFreezeTransaction
   | StateProofTransaction
+  | KeyRegTransaction
 
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
   id: string
@@ -161,6 +163,7 @@ export type InnerTransaction =
   | InnerAppCallTransaction
   | InnerAssetConfigTransaction
   | InnerAssetFreezeTransaction
+  | InnerKeyRegTransaction
 
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
@@ -215,3 +218,25 @@ export type StateProofTransaction = CommonTransactionProperties & {
   id: string
   subType?: undefined
 }
+
+export type BaseKeyRegTransaction = CommonTransactionProperties & {
+  type: TransactionType.KeyReg
+  nonParticipation?: boolean
+  selectionParticipationKey?: string
+  voteFirstValid?: number
+  voteKeyDilution?: number
+  voteLastValid?: number
+  voteParticipationKey?: string
+  subType: KeyRegTransactionSubType
+}
+
+export enum KeyRegTransactionSubType {
+  Online = 'Online',
+  Offline = 'Offline',
+}
+
+export type KeyRegTransaction = BaseKeyRegTransaction & {
+  id: string
+}
+
+export type InnerKeyRegTransaction = BaseKeyRegTransaction & InnerTransactionId
