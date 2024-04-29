@@ -1034,4 +1034,44 @@ export const transactionResultMother = {
       'tx-type': TransactionType.keyreg,
     })
   },
+  ['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']: () => {
+    // App call
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': [],
+        'application-id': 1201559522,
+        'foreign-apps': [],
+        'foreign-assets': [0],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': ApplicationOnComplete.noop,
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 36591812,
+      fee: 1000,
+      'first-valid': 36591810,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: '/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=',
+      id: '7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA',
+      'intra-round-offset': 125,
+      'last-valid': 36591814,
+      'receiver-rewards': 0,
+      'round-time': 1709251673,
+      sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
+      'sender-rewards': 0,
+      signature: {
+        sig: '0b7E1n67IzmPYtzYbrVCIN+WwAPqF1j0NrP0OQvFu10Phv77vFkrvWGtoUxZtZZZt8uqHylJA1MEln2wLrHpDQ==',
+      },
+      'tx-type': TransactionType.appl,
+    } as unknown as TransactionResult) // The type definition for App Call transaction in indexer seems to be wrong
+  },
 }
