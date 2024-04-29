@@ -2,13 +2,16 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { describe, expect, it, vi } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
-import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction } from '../mappers'
+import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction, asTransaction } from '../mappers'
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAsset } from '@/features/assets/mappers'
 import { TransactionsGraph } from './transactions-graph'
 import { asKeyRegTransaction } from '../mappers/key-reg-transaction-mappers'
+import { asGroup } from '@/features/groups/mappers'
+import { groupResultMother } from '@/tests/object-mother/group-result'
+import { algoAssetResult } from '@/features/assets/data/core'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -127,4 +130,59 @@ describe('key-reg-graph', () => {
       )
     })
   })
+})
+
+describe('group-graph', () => {
+  describe.each([
+    {
+      groupId: 'group-1',
+      transactionResults: [
+        transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build(),
+        transactionResultMother['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']().build(),
+      ],
+      assetResults: [
+        assetResultMother['mainnet-31566704']().build(),
+        assetResultMother['mainnet-386195940']().build(),
+        assetResultMother['mainnet-408898501']().build(),
+        algoAssetResult,
+      ],
+    },
+  ])(
+    'when rendering transaction $transactionResult.id',
+    ({
+      groupId,
+      transactionResults,
+      assetResults,
+    }: {
+      groupId: string
+      transactionResults: TransactionResult[]
+      assetResults: AssetResult[]
+    }) => {
+      it('should match snapshot', async () => {
+        const transactions = await Promise.all(
+          transactionResults.map((t) =>
+            asTransaction(t, (assetId) => {
+              const assetResult = assetResults.find((a) => a.index === assetId)
+              if (!assetResult) {
+                throw new Error(`Could not find asset result ${assetId}`)
+              }
+              return asAsset(assetResult)
+            })
+          )
+        )
+        const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()
+
+        const group = asGroup(groupResult, transactions)
+
+        return executeComponentTest(
+          () => render(<TransactionsGraph transactions={group.transactions} />),
+          async (component) => {
+            expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+              `__snapshots__/group-graph.${groupId}.html`
+            )
+          }
+        )
+      })
+    }
+  )
 })
