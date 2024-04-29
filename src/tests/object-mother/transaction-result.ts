@@ -927,7 +927,7 @@ export const transactionResultMother = {
     })
   },
   ['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']: () => {
-    // Key reg transaction
+    // Key reg transaction (online)
     return new TransactionResultBuilder({
       'close-rewards': 0,
       'closing-amount': 0,
@@ -970,6 +970,61 @@ export const transactionResultMother = {
             {
               'public-key': 'BFK+wNJWcHgFylbjjNeXjAoT5vHxYJ/TYE/gAP6px1Y=',
               signature: 'T51Fk4+EdtrzNCHAOK75HaZq3Fp74KgwHWyCMhTW56B2abFaDOnA3Elk6iF8U97tWHJXYMMRjDUGxyPOue+0CQ==',
+            },
+          ],
+          threshold: 3,
+          version: 1,
+        },
+      },
+      'tx-type': TransactionType.keyreg,
+    })
+  },
+  ['mainnet-BABZ5DOKAN7IP6FJ5PZSP2NRQU5OFRPZ7WIS2A3DRXCWEMVEM3PQ']: () => {
+    // Key reg transaction (offline)
+    return new TransactionResultBuilder({
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 3771703,
+      fee: 1000,
+      'first-valid': 3771500,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      group: 'UPF4ynUkbZa21a+lTsx/IFkaPmvaa479XhmyCr6C+U4=',
+      id: 'BABZ5DOKAN7IP6FJ5PZSP2NRQU5OFRPZ7WIS2A3DRXCWEMVEM3PQ',
+      'intra-round-offset': 1,
+      'keyreg-transaction': {
+        'non-participation': true,
+        'vote-first-valid': 0,
+        'vote-key-dilution': 0,
+        'vote-last-valid': 0,
+      },
+      'last-valid': 3772500,
+      'receiver-rewards': 0,
+      'round-time': 1576797938,
+      sender: 'P4YDFXSWGQHC4FQUWMWZX7PEIZXIQ65D2AAFNEBYNGL77KSYRBTJORQUB4',
+      'sender-rewards': 0,
+      signature: {
+        multisig: {
+          subsignature: [
+            {
+              'public-key': 'bNQS50I46qXriRN2xx0xMaDdGPPBNSHqgT1LaQonZDI=',
+              signature: 'GSD4t8GW9kRQkf3NpDw2knLdO3TnpXtQlrWxuvPddR+Yt7wKZDMBFAZDqZmgzSgyoWC2w9w4T22o/hxnb10OAA==',
+            },
+            {
+              'public-key': 'vZE4jUasfWO75z9ihbXgQfvD8XX+wd/+U6Lw9hBLP4o=',
+            },
+            {
+              'public-key': 'il9Q7WCNQHqZx9dHkbUzaT12II+QzowXJ03vx5BCUe8=',
+              signature: 'FKvfwstu9ndvrVNdXWXUngfqXTc5xPL8u15Vw/sk55jMw1BtgUB2Zt+0Xg2/+MfbfWhSNCB8MdHP853sytU/AA==',
+            },
+            {
+              'public-key': 'oAw2AOZcYeJMnNxEeRbU1uPrNefVMevvqQsikxniQrs=',
+            },
+            {
+              'public-key': 'JXgbR4xQGD0G1+qMRNsJ7JvojVY7xww5ZC3cLkK7N0Y=',
+              signature: 'krGtp1YgxiRE8+eS1mzGZhL9FIoHyaS6sEtAr6pLVjInKUXu5djHExSJewNtcMD8Cfap1qLeokTigYnqy/piCw==',
+            },
+            {
+              'public-key': 'xwI8Y6cpL67araO5O3Tqsxpq963vq7M48KA3XwJy2CA=',
             },
           ],
           threshold: 3,

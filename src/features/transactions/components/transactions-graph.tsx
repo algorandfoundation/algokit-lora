@@ -15,8 +15,10 @@ import {
   InnerAssetConfigTransaction,
   InnerAssetFreezeTransaction,
   InnerAssetTransferTransaction,
+  InnerKeyRegTransaction,
   InnerPaymentTransaction,
   InnerTransaction,
+  KeyRegTransaction,
   PaymentTransaction,
   Transaction,
   TransactionType,
@@ -29,6 +31,7 @@ import { DisplayAssetAmount } from '@/features/common/components/display-asset-a
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
+import { Badge } from '@/features/common/components/badge'
 import { TransactionLink } from './transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -42,10 +45,21 @@ const graphConfig = {
   paymentTransactionColor: 'rgb(126 200 191)',
 }
 
-type Arrow = {
+type TransactionVector = {
   from: number
   to: number
-  direction: 'leftToRight' | 'rightToLeft' | 'toSelf'
+  type: 'vector'
+  direction: 'leftToRight' | 'rightToLeft'
+}
+
+type TransactionSelfLoop = {
+  from: number
+  type: 'selfLoop'
+}
+
+type TransactionPoint = {
+  type: 'point'
+  from: number
 }
 
 export const applicationIdLabel = 'Application Id'
@@ -137,9 +151,9 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
   )
 }
 
-const DisplayArrow = fixedForwardRef(
+const RenderTransactionVector = fixedForwardRef(
   (
-    { transaction, arrow, ...rest }: { transaction: Transaction | InnerTransaction; arrow: Arrow },
+    { transaction, vector, ...rest }: { transaction: Transaction | InnerTransaction; vector: TransactionVector },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -149,8 +163,8 @@ const DisplayArrow = fixedForwardRef(
         className={cn('flex items-center justify-center z-10')}
         style={{
           // 2 and 3 are the number to offset the name column
-          gridColumnStart: arrow.from + 2,
-          gridColumnEnd: arrow.to + 3,
+          gridColumnStart: vector.from + 2,
+          gridColumnEnd: vector.to + 3,
           color: color,
         }}
         ref={ref}
@@ -159,14 +173,14 @@ const DisplayArrow = fixedForwardRef(
         <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
         <div
           style={{
-            width: `calc(${(100 - 100 / (arrow.to - arrow.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+            width: `calc(${(100 - 100 / (vector.to - vector.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
             height: `${graphConfig.circleDimension}px`,
           }}
           className="relative"
         >
-          {arrow.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
+          {vector.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
           <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
-          {arrow.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+          {vector.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
         </div>
         <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs text-center')}>
           {transaction.type === TransactionType.Payment && (
@@ -192,9 +206,9 @@ const DisplayArrow = fixedForwardRef(
   }
 )
 
-const DisplaySelfTransaction = fixedForwardRef(
+const RenderTransactionSelfLoop = fixedForwardRef(
   (
-    { transaction, arrow, ...rest }: { transaction: Transaction | InnerTransaction; arrow: Arrow },
+    { transaction, loop, ...rest }: { transaction: Transaction | InnerTransaction; loop: TransactionSelfLoop },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -205,8 +219,8 @@ const DisplaySelfTransaction = fixedForwardRef(
         className={cn('flex items-center justify-center relative z-10')}
         {...rest}
         style={{
-          gridColumnStart: arrow.from + 2, // 2 to offset the name column
-          gridColumnEnd: arrow.to + 4, // 4 to offset the name column and make this cell span 2 columns
+          gridColumnStart: loop.from + 2, // 2 to offset the name column
+          gridColumnEnd: loop.from + 4, // 4 to offset the name column and make this cell span 2 columns
           color: color,
         }}
       >
@@ -237,6 +251,31 @@ const DisplaySelfTransaction = fixedForwardRef(
             <DisplayAssetAmount className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} asset={transaction.asset} />
           )}
         </div>
+      </div>
+    )
+  }
+)
+
+const RenderTransactionPoint = fixedForwardRef(
+  (
+    { transaction, point, ...rest }: { transaction: Transaction | InnerTransaction; point: TransactionPoint },
+    ref?: React.LegacyRef<HTMLDivElement>
+  ) => {
+    const color = graphConfig.paymentTransactionColor
+
+    return (
+      <div
+        ref={ref}
+        className={cn('flex items-center justify-center relative z-10')}
+        {...rest}
+        style={{
+          // 2 and 3 are the number to offset the name column
+          gridColumnStart: point.from + 2,
+          gridColumnEnd: point.from + 3,
+          color: color,
+        }}
+      >
+        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
       </div>
     )
   }
@@ -412,6 +451,37 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
   )
 }
 
+function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegTransaction | InnerKeyRegTransaction }) {
+  const items = useMemo(
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: transaction.id,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: (
+          <label>
+            {transaction.type}
+            <Badge variant="outline">{transaction.subType}</Badge>
+          </label>
+        ),
+      },
+      {
+        dt: transactionSenderLabel,
+        dd: transaction.sender,
+      },
+    ],
+    [transaction.id, transaction.sender, transaction.subType, transaction.type]
+  )
+
+  return (
+    <div className={cn('p-4')}>
+      <DescriptionList items={items} />
+    </div>
+  )
+}
+
 type TransactionGraphProps = {
   transaction: Transaction | InnerTransaction
   hasParent?: boolean
@@ -429,7 +499,7 @@ function TransactionGraph({
   indentLevel,
   verticalBars,
 }: TransactionGraphProps) {
-  const arrow = useMemo(() => calcArrow(transaction, collaborators), [collaborators, transaction])
+  const transactionRepresentation = useMemo(() => getTransactionRepresentation(transaction, collaborators), [collaborators, transaction])
   const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
   return (
@@ -447,22 +517,29 @@ function TransactionGraph({
         </div>
       </div>
       {collaborators.map((_, index) => {
-        if (index === arrow.to + 1 && arrow.direction === 'toSelf') {
-          // This is a special case, when the transaction is from and to the same account
-          // It is renderred across 2 grid cells (see DisplaySelfTransaction).
-          // Therefore, we skip this cell so that we won't cause overflowing
-          return null
+        if (
+          transactionRepresentation.type === 'vector' &&
+          (index < transactionRepresentation.from || index > transactionRepresentation.to)
+        ) {
+          return <div key={index}></div>
         }
-        if (index < arrow.from || index > arrow.to) return <div key={index}></div>
-        if (index === arrow.from)
+        if (transactionRepresentation.type === 'point' && index > transactionRepresentation.from) return <div key={index}></div>
+        // The `index > transactionRepresentation.from + 1` is here
+        // because a self-loop vector is renderred across 2 grid cells (see RenderTransactionSelfLoop).
+        // Therefore, we skip this cell so that we won't cause overflowing
+        if (transactionRepresentation.type === 'selfLoop' && index > transactionRepresentation.from + 1) return <div key={index}></div>
+
+        if (index === transactionRepresentation.from)
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                {index === arrow.to ? (
-                  <DisplaySelfTransaction key={index} arrow={arrow} transaction={transaction} />
-                ) : (
-                  <DisplayArrow key={index} arrow={arrow} transaction={transaction} />
-                )}
+                {transactionRepresentation.type === 'vector' ? (
+                  <RenderTransactionVector key={index} vector={transactionRepresentation} transaction={transaction} />
+                ) : transactionRepresentation.type === 'selfLoop' ? (
+                  <RenderTransactionSelfLoop key={index} loop={transactionRepresentation} transaction={transaction} />
+                ) : transactionRepresentation.type === 'point' ? (
+                  <RenderTransactionPoint key={index} point={transactionRepresentation} transaction={transaction} />
+                ) : null}
               </TooltipTrigger>
               <TooltipContent>
                 {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
@@ -470,6 +547,7 @@ function TransactionGraph({
                 {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionToolTipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionToolTipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -492,7 +570,10 @@ function TransactionGraph({
   )
 }
 
-function calcArrow(transaction: Transaction | InnerTransaction, collaborators: Collaborator[]): Arrow {
+function getTransactionRepresentation(
+  transaction: Transaction | InnerTransaction,
+  collaborators: Collaborator[]
+): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
       return collaborators.findIndex((a) => transaction.receiver === a.id)
@@ -514,15 +595,29 @@ function calcArrow(transaction: Transaction | InnerTransaction, collaborators: C
   }
 
   const from = collaborators.findIndex((a) => transaction.sender === a.id)
-  const to = calculateTo()
+  if (transaction.type === TransactionType.KeyReg) {
+    return {
+      from: from,
+      type: 'point',
+    } satisfies TransactionPoint
+  }
 
-  const direction = from < to ? 'leftToRight' : from > to ? 'rightToLeft' : 'toSelf'
+  const to = calculateTo()
+  if (from === to) {
+    return {
+      from: from,
+      type: 'selfLoop',
+    } satisfies TransactionSelfLoop
+  }
+
+  const direction = from < to ? 'leftToRight' : 'rightToLeft'
 
   return {
     from: Math.min(from, to),
     to: Math.max(from, to),
     direction: direction,
-  }
+    type: 'vector',
+  } satisfies TransactionVector
 }
 
 type Props = {

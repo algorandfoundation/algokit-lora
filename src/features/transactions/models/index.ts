@@ -227,7 +227,12 @@ export type BaseKeyRegTransaction = CommonTransactionProperties & {
   voteKeyDilution?: number
   voteLastValid?: number
   voteParticipationKey?: string
-  subType?: undefined
+  subType: KeyRegTransactionSubType
+}
+
+export enum KeyRegTransactionSubType {
+  Online = 'Online',
+  Offline = 'Offline',
 }
 
 export type KeyRegTransaction = BaseKeyRegTransaction & {

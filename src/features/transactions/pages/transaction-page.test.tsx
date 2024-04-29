@@ -1069,7 +1069,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rendering a key registration transaction', () => {
+  describe('when rendering a key registration transaction (online)', () => {
     const transaction = transactionResultMother['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']().build()
 
     it('should be rendered with the correct data', () => {
@@ -1087,7 +1087,7 @@ describe('transaction-page', () => {
               container: component.container,
               items: [
                 { term: transactionIdLabel, description: transaction.id },
-                { term: transactionTypeLabel, description: 'Key RegistrationMultisig' },
+                { term: transactionTypeLabel, description: 'Key RegistrationOnlineMultisig' },
                 { term: transactionTimestampLabel, description: 'Mon, 17 June 2019 20:53:10' },
                 { term: transactionBlockLabel, description: '107358' },
                 { term: transactionFeeLabel, description: '0.001' },
@@ -1100,6 +1100,37 @@ describe('transaction-page', () => {
               ],
             })
           )
+        }
+      )
+    })
+  })
+
+  describe('when rendering a key registration transaction (offline)', () => {
+    const transaction = transactionResultMother['mainnet-BABZ5DOKAN7IP6FJ5PZSP2NRQU5OFRPZ7WIS2A3DRXCWEMVEM3PQ']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, transaction]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() =>
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionTypeLabel, description: 'Key RegistrationOfflineMultisig' },
+              ],
+            })
+          )
+          expect(component.queryByText(selectionParticipationKeyLabel)).toBeNull()
+          expect(component.queryByText(voteFirstValidLabel)).toBeNull()
+          expect(component.queryByText(voteLastValidLabel)).toBeNull()
+          expect(component.queryByText(voteKeyDilutionLabel)).toBeNull()
         }
       )
     })
