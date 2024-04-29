@@ -148,7 +148,7 @@ describe('group-graph', () => {
       ],
     },
   ])(
-    'when rendering transaction $transactionResult.id',
+    'when rendering group $groupId',
     ({
       groupId,
       transactionResults,

@@ -46,7 +46,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a group that fails to load the block', () => {
+  describe('when rending a group within a block that was failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
       vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject({}))
