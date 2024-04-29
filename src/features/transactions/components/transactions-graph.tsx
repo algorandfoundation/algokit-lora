@@ -25,16 +25,16 @@ import {
 } from '../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { ellipseAddress } from '@/utils/ellipse-address'
-import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
-import { ellipseId } from '@/utils/ellipse-id'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transaction-view-table'
+import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transactions-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetIdLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
 import { Badge } from '@/features/common/components/badge'
+import { TransactionLink } from './transaction-link'
+import { ellipseAddress } from '@/utils/ellipse-address'
+import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 const graphConfig = {
   rowHeight: 40,
@@ -94,9 +94,9 @@ function ConnectionToParent() {
 function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
   const component = useMemo(() => {
     if ('innerId' in transaction) {
-      return <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
+      return <InnerTransactionLink innerTransactionId={transaction.innerId} />
     }
-    return ellipseId(transaction.id)
+    return <TransactionLink transactionId={transaction.id} short={true} />
   }, [transaction])
 
   return (
@@ -482,7 +482,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
   )
 }
 
-type TransactionRowProps = {
+type TransactionGraphProps = {
   transaction: Transaction | InnerTransaction
   hasParent?: boolean
   hasNextSibling?: boolean
@@ -491,14 +491,14 @@ type TransactionRowProps = {
   indentLevel?: number
   verticalBars: (number | undefined)[]
 }
-function TransactionRow({
+function TransactionGraph({
   transaction,
   collaborators,
   hasParent = false,
   hasNextSibling = false,
   indentLevel,
   verticalBars,
-}: TransactionRowProps) {
+}: TransactionGraphProps) {
   const transactionRepresentation = useMemo(() => getTransactionRepresentation(transaction, collaborators), [collaborators, transaction])
   const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
@@ -524,7 +524,10 @@ function TransactionRow({
           return <div key={index}></div>
         }
         if (transactionRepresentation.type === 'point' && index > transactionRepresentation.from) return <div key={index}></div>
-        if (transactionRepresentation.type === 'selfLoop' && index > transactionRepresentation.from) return <div key={index}></div>
+        // The `index > transactionRepresentation.from + 1` is here
+        // because a self-loop vector is renderred across 2 grid cells (see RenderTransactionSelfLoop).
+        // Therefore, we skip this cell so that we won't cause overflowing
+        if (transactionRepresentation.type === 'selfLoop' && index > transactionRepresentation.from + 1) return <div key={index}></div>
 
         if (index === transactionRepresentation.from)
           return (
@@ -553,7 +556,7 @@ function TransactionRow({
 
       {hasChildren &&
         transaction.innerTransactions.map((childTransaction, index, arr) => (
-          <TransactionRow
+          <TransactionGraph
             key={index}
             transaction={childTransaction}
             hasParent={true}
@@ -618,11 +621,12 @@ function getTransactionRepresentation(
 }
 
 type Props = {
-  transaction: Transaction | InnerTransaction
+  transactions: Transaction[] | InnerTransaction[]
 }
 
-export function TransactionViewVisual({ transaction }: Props) {
-  const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
+export function TransactionsGraph({ transactions }: Props) {
+  const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
+
   const transactionCount = flattenedTransactions.length
   const collaborators: Collaborator[] = [
     ...getTransactionsCollaborators(flattenedTransactions.map((t) => t.transaction)),
@@ -679,7 +683,9 @@ export function TransactionViewVisual({ transaction }: Props) {
           </div>
         </div>
       </div>
-      <TransactionRow transaction={transaction} hasParent={false} collaborators={collaborators} verticalBars={[]} />
+      {transactions.map((transaction, index) => (
+        <TransactionGraph key={index} transaction={transaction} hasParent={false} collaborators={collaborators} verticalBars={[]} />
+      ))}
     </div>
   )
 }

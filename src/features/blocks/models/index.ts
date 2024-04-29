@@ -1,9 +1,5 @@
-import { Transaction, TransactionSummary, TransactionType } from '@/features/transactions/models'
-
-export type TransactionsSummary = {
-  count: number
-  countByType: [TransactionType, number][]
-}
+import { TransactionsSummary } from '@/features/common/models'
+import { Transaction, TransactionSummary } from '@/features/transactions/models'
 
 export type CommonBlockProperties = {
   round: number

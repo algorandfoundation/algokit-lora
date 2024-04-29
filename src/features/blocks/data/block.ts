@@ -9,6 +9,8 @@ import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
+import { groupResultsAtom } from '@/features/groups/data/core'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
 
 const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
   // This atom conditionally subscribes to updates on the syncedRoundAtom
@@ -19,36 +21,62 @@ const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
   })
 }
 
-const fetchBlockResultAtomBuilder = (round: Round) => {
+export const fetchBlockResultAtomBuilder = (round: Round) => {
   return atom(async (_get) => {
     return await indexer
       .lookupBlock(round)
       .do()
       .then((result) => {
+        const [transactionIds, groupResults] = ((result.transactions ?? []) as TransactionResult[]).reduce(
+          (acc, t) => {
+            acc[0].push(t.id)
+            if (t.group) {
+              const group: GroupResult = acc[1].get(t.group) ?? {
+                id: t.group,
+                round: result.round as number,
+                timestamp: new Date(result.timestamp * 1000).toISOString(),
+                transactionIds: [],
+              }
+              group.transactionIds.push(t.id)
+              acc[1].set(t.group, group)
+            }
+            return acc
+          },
+          [[], new Map()] as [string[], Map<GroupId, GroupResult>]
+        )
+
         return [
           {
             round: result.round as number,
             timestamp: new Date(result.timestamp * 1000).toISOString(),
-            transactionIds: result.transactions?.map((t: TransactionResult) => t.id) ?? [],
+            transactionIds,
           } as BlockResult,
           (result.transactions ?? []) as TransactionResult[],
+          groupResults,
         ] as const
       })
   })
 }
 
-const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
-  const fetchBlockResultAtom = fetchBlockResultAtomBuilder(round)
-
-  const syncEffect = atomEffect((get, set) => {
+export const syncBlockAtomEffectBuilder = (fetchBlockResultAtom: ReturnType<typeof fetchBlockResultAtomBuilder>) => {
+  return atomEffect((get, set) => {
     ;(async () => {
       try {
-        const [blockResult, transactionResults] = await get(fetchBlockResultAtom)
+        const [blockResult, transactionResults, groupResults] = await get(fetchBlockResultAtom)
 
-        if (transactionResults && transactionResults.length > 0) {
+        if (transactionResults.length > 0) {
           set(transactionResultsAtom, (prev) => {
             transactionResults.forEach((t) => {
               prev.set(t.id, t)
+            })
+            return prev
+          })
+        }
+
+        if (groupResults.size > 0) {
+          set(groupResultsAtom, (prev) => {
+            groupResults.forEach((g) => {
+              prev.set(g.id, g)
             })
             return prev
           })
@@ -62,6 +90,11 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
       }
     })()
   })
+}
+
+const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
+  const fetchBlockResultAtom = fetchBlockResultAtomBuilder(round)
+  const syncEffect = syncBlockAtomEffectBuilder(fetchBlockResultAtom)
 
   return atom(async (get) => {
     const blockResults = store.get(blockResultsAtom)

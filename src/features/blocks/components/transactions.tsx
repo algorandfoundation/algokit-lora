@@ -1,11 +1,11 @@
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { ellipseId } from '@/utils/ellipse-id'
 import { Transaction, TransactionType } from '@/features/transactions/models'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
+import { GroupLink } from '@/features/groups/components/group-link'
 
 type Props = {
   transactions: Transaction[]
@@ -19,7 +19,11 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     header: 'Group ID',
-    accessorFn: (transaction) => ellipseId(transaction.group),
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const transaction = c.getValue<Transaction>()
+      return transaction.group ? <GroupLink round={transaction.confirmedRound} groupId={transaction.group} short={true} /> : undefined
+    },
   },
   {
     header: 'From',
@@ -50,7 +54,7 @@ export const columns: ColumnDef<Transaction>[] = [
       if (value.type === TransactionType.AssetTransfer) {
         return <DisplayAssetAmount amount={value.amount} asset={value.asset} />
       }
-      return <></>
+      return undefined
     },
   },
 ]

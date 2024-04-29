@@ -4,25 +4,25 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { FlattenedTransaction, flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useMemo } from 'react'
-import { ellipseId } from '@/utils/ellipse-id'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { InnerTransactionLink } from './inner-transaction-link'
+import { TransactionLink } from './transaction-link'
 
 const graphConfig = {
   indentationWidth: 20,
 }
 
 type Props = {
-  transaction: Transaction | InnerTransaction
+  transactions: Transaction[] | InnerTransaction[]
 }
 
 export const transactionSenderLabel = 'Sender'
 export const transactionReceiverLabel = 'Receiver'
 export const transactionAmountLabel = 'Amount'
 
-export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
+export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
   {
     header: 'Transaction Id',
     accessorFn: (item) => item,
@@ -35,9 +35,9 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
           }}
         >
           {'innerId' in transaction ? (
-            <InnerTransactionLink innerTransactionId={transaction.innerId}>Inner {transaction.innerId}</InnerTransactionLink>
+            <InnerTransactionLink innerTransactionId={transaction.innerId} />
           ) : (
-            ellipseId(transaction.id)
+            <TransactionLink transactionId={transaction.id} short={true} />
           )}
         </div>
       )
@@ -75,8 +75,8 @@ export const tableColumns: ColumnDef<FlattenedTransaction>[] = [
   },
 ]
 
-export function TransactionViewTable({ transaction }: Props) {
-  const flattenedTransactions = useMemo(() => flattenInnerTransactions(transaction), [transaction])
+export function TransactionsTable({ transactions }: Props) {
+  const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
 
-  return <DataTable columns={tableColumns} data={flattenedTransactions} />
+  return <DataTable columns={transactionsTableColumns} data={flattenedTransactions} />
 }

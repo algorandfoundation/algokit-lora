@@ -7,7 +7,7 @@ import { AssetTransferTransaction, InnerAssetTransferTransaction, SignatureType 
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { AssetTransferTransactionInfo } from './asset-transfer-transaction-info'
-import { TransactionViewTabs } from './transaction-view-tabs'
+import { TransactionVisualTabs } from './transaction-visual-tabs'
 
 type AssetTransaferTransactionProps = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
@@ -20,7 +20,7 @@ export function AssetTranserTransactionDetails({ transaction }: AssetTransaferTr
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
           <AssetTransferTransactionInfo transaction={transaction} />
-          <TransactionViewTabs transaction={transaction} />
+          <TransactionVisualTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}

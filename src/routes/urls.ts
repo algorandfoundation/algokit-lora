@@ -22,11 +22,12 @@ export const Urls = {
         }),
       }),
     }),
-    Group: UrlTemplate`/group`.extend({
-      ById: UrlTemplate`/${UrlParams.GroupId}`,
-    }),
     Block: UrlTemplate`/block`.extend({
-      ById: UrlTemplate`/${UrlParams.Round}`,
+      ById: UrlTemplate`/${UrlParams.Round}`.extend({
+        Group: UrlTemplate`/group`.extend({
+          ById: UrlTemplate`/${UrlParams.GroupId}`,
+        }),
+      }),
     }),
     Account: UrlTemplate`/account`.extend({
       ById: UrlTemplate`/${UrlParams.Address}`,
