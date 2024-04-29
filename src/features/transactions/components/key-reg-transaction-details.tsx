@@ -3,23 +3,23 @@ import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { TransactionJson } from './transaction-json'
-import { AssetFreezeTransaction, InnerAssetFreezeTransaction, SignatureType } from '../models'
+import { KeyRegTransaction, InnerKeyRegTransaction, SignatureType } from '../models'
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
-import { AssetFreezeTransactionInfo } from './asset-freeze-transaction-info'
+import { KeyRegTransactionInfo } from './key-reg-transaction-info'
 import { TransactionVisualTabs } from './transaction-visual-tabs'
 
-type AssetFreezeTransactionProps = {
-  transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction
+type KeyRegTransactionProps = {
+  transaction: KeyRegTransaction | InnerKeyRegTransaction
 }
 
-export function AssetFreezeTransactionDetails({ transaction }: AssetFreezeTransactionProps) {
+export function KeyRegTransactionDetails({ transaction }: KeyRegTransactionProps) {
   return (
     <div className={cn('space-y-6 pt-7')}>
       <TransactionInfo transaction={transaction} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
-          <AssetFreezeTransactionInfo transaction={transaction} />
+          <KeyRegTransactionInfo transaction={transaction} />
           <TransactionVisualTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />

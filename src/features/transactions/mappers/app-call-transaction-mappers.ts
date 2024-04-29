@@ -9,6 +9,7 @@ import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-ma
 import { Asset } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
+import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
@@ -103,6 +104,9 @@ const asInnerTransaction = (networkTransactionId: string, index: string, transac
     invariant(asset, `Asset index ${transactionResult['asset-freeze-transaction']['asset-id']} not found in cache`)
 
     return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, asset)
+  }
+  if (transactionResult['tx-type'] === AlgoSdkTransactionType.keyreg) {
+    return asInnerKeyRegTransaction(networkTransactionId, index, transactionResult)
   }
 
   // This could be dangerous as we haven't implemented all the transaction types

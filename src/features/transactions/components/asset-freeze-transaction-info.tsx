@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { AssetFreezeTransaction, InnerAssetFreezeTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionSenderLabel } from './transaction-view-table'
+import { transactionSenderLabel } from './transactions-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {

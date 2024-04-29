@@ -1,22 +1,13 @@
-import { Transaction, TransactionSummary, TransactionType } from '@/features/transactions/models'
+import { Transaction, TransactionSummary } from '@/features/transactions/models'
 import { Block, BlockSummary, CommonBlockProperties } from '../models'
 import { BlockResult } from '../data/types'
+import { asTransactionsSummary } from '@/features/common/mappers'
 
 const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type'>[]): CommonBlockProperties => {
   return {
     round: block.round,
     timestamp: block.timestamp,
-    transactionsSummary: {
-      count: transactions.length,
-      countByType: Array.from(
-        transactions
-          .reduce((acc, transaction) => {
-            const count = (acc.get(transaction.type) || 0) + 1
-            return new Map([...acc, [transaction.type, count]])
-          }, new Map<TransactionType, number>())
-          .entries()
-      ),
-    },
+    transactionsSummary: asTransactionsSummary(transactions),
   }
 }
 
