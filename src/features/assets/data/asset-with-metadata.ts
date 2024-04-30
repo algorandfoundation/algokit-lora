@@ -14,10 +14,10 @@ import algosdk from 'algosdk'
 import { useMemo } from 'react'
 import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
-import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { fetchAssetResultAtomBuilder } from './asset'
 import { asArc3Metadata, asArc69Metadata, asAsset } from '../mappers'
 import { resolveArc3Url } from '../utils/resolve-arc-3-url'
+import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 
 const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
   executePaginatedRequest(
@@ -116,19 +116,6 @@ export const useLoadableAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
   return useAtomValue(loadable(useAssetWithMetadataAtom(assetIndex)))
 }
 
-const noteToArc69Metadata = (note: string | undefined) => {
-  if (!note) {
-    return undefined
-  }
-
-  const json = base64ToUtf8(note)
-  if (json.match(/^{/) && json.includes('arc69')) {
-    const metadataResult = JSON.parse(json) as Arc69MetadataResult
-    return asArc69Metadata(metadataResult)
-  }
-  return undefined
-}
-
 function getIPFSFromUrlAndReserve(
   templateUrl: string | undefined,
   reserveAddress: string | undefined
@@ -172,4 +159,17 @@ function getIPFSFromUrlAndReserve(
     cid: cid.toString(),
     url: templateUrl!.replace(match[0], `ipfs://${cid.toString()}`).replace(/#arc3$/, ''),
   }
+}
+
+const noteToArc69Metadata = (note: string | undefined) => {
+  if (!note) {
+    return undefined
+  }
+
+  const json = base64ToUtf8(note)
+  if (json.match(/^{/) && json.includes('arc69')) {
+    const metadataResult = JSON.parse(json) as Arc69MetadataResult
+    return asArc69Metadata(metadataResult)
+  }
+  return undefined
 }

@@ -7,8 +7,8 @@ type Props = {
 
 export function Arc3Media({ asset }: Props) {
   return (
-    <div>
-      {asset.metadata.image && <img src={asset.metadata.image} alt={asset.name} className={cn('w-32 h-32')} />}
+    <div className={cn('w-32 h-32')}>
+      {asset.metadata.image && <img src={asset.metadata.image} alt={asset.name} />}
       {asset.metadata.animationUrl && (
         <video title={asset.name} autoPlay playsInline loop controls muted>
           <source src={asset.metadata.animationUrl} type="video/mp4" />

@@ -44,7 +44,7 @@ export function AssetDetails({ asset }: Props) {
             dd: (
               <label>
                 {asset.name}
-                <Badge variant="outline">ARC-3</Badge>
+                {asset.metadata && <Badge variant="outline">{asset.metadata.standard}</Badge>}
               </label>
             ),
           }
@@ -78,7 +78,7 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.decimals, asset.defaultFrozen, asset.id, asset.name, asset.total, asset.unitName, asset.url]
+    [asset.decimals, asset.defaultFrozen, asset.id, asset.metadata, asset.name, asset.total, asset.unitName, asset.url]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(

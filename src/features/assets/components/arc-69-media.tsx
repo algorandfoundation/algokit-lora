@@ -1,3 +1,4 @@
+import { cn } from '@/features/common/utils'
 import { Arc69Asset } from '../models'
 
 type Props = {
@@ -6,10 +7,10 @@ type Props = {
 
 export function Arc69Media({ asset }: Props) {
   return (
-    <div>
+    <div className={cn('w-32 h-32')}>
       {asset.metadata.mimeType?.startsWith('video/') ? (
         <video title={asset.name} autoPlay playsInline loop controls muted>
-          <source src={asset.metadata.mediaUrl} type="video/mp4" />
+          <source src={asset.metadata.mediaUrl ?? asset.url} type="video/mp4" />
         </video>
       ) : (
         <img src={asset.metadata.mediaUrl} alt={asset.name} />
