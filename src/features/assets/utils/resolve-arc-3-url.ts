@@ -1,9 +1,6 @@
 import { AssetIndex } from '../data/types'
+import { getHttpUrlFromIpfs } from './get-http-url-from-ipfs'
 
-export const resolveArc3Url = (assetIndex: AssetIndex, url: string): string => {
-  return resolveIpfsUrl(url).replace('{id}', assetIndex.toString())
-}
-
-export const resolveIpfsUrl = (url: string): string => {
-  return url.replace('ipfs://', 'https://ipfs.algonode.xyz/ipfs/')
+export const getArc3MetadataUrl = (assetIndex: AssetIndex, url: string): string => {
+  return getHttpUrlFromIpfs(url.replace('{id}', assetIndex.toString()))
 }

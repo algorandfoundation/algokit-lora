@@ -5,19 +5,17 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
 import { assetWithMetadataAtom } from './core'
-import { Arc19Metadata, Arc3Metadata, Arc3MetadataResult, Arc69MetadataResult, AssetWithMetadata } from '../models'
+import { Arc19Metadata, Arc3Metadata, Arc3MetadataResult, Arc69Metadata, Arc69MetadataResult, AssetWithMetadata } from '../models'
 import axios from 'axios'
-import { CID, Version } from 'multiformats/cid'
-import * as digest from 'multiformats/hashes/digest'
-import { sha256 } from 'multiformats/hashes/sha2'
-import algosdk from 'algosdk'
+
 import { useMemo } from 'react'
 import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { fetchAssetResultAtomBuilder } from './asset'
 import { asArc3Metadata, asArc69Metadata, asAsset } from '../mappers'
-import { resolveArc3Url } from '../utils/resolve-arc-3-url'
+import { getArc3MetadataUrl } from '../utils/resolve-arc-3-url'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { getArc19MetadataUrl } from '../utils/get-arc-19-metadata-url'
 
 const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
   executePaginatedRequest(
@@ -31,36 +29,70 @@ const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
     }
   )
 
-const getAssetMetadata = async (assetResult: AssetResult) => {
+// This function get the array of ARC metadata for the asset result
+// Currently, we support ARC-3, 16, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
+// ARCs are community standard, therefore, there are edge cases
+// For example:
+// - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
+// - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
+// - ARC-19 doesn't specify the metadata format but it seems to be the same with ARC-3
+const getAssetMetadata = async (assetResult: AssetResult): Promise<(Arc3Metadata | Arc19Metadata | Arc69Metadata)[]> => {
   // TODO: handle ARC-16
-  if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
-    // When the URL contains #arc3 or @arc3, it's an ARC-3/ARC-19
-    const metadataUrl = assetResult.params.url.startsWith('template-ipfs://')
-      ? getIPFSFromUrlAndReserve(assetResult.params.url, assetResult.params.reserve)?.url
-      : resolveArc3Url(assetResult.index, assetResult.params.url)
-    if (!metadataUrl) {
-      return undefined
-    }
-    const metadata = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
+  const metadataArray: Array<Arc3Metadata | Arc19Metadata | Arc69Metadata> = []
 
-    const metadataStandard = assetResult.params.url.startsWith('template-ipfs://') ? 'ARC-19' : 'ARC-3'
+  if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
+    // When the URL contains #arc3 or @arc3, it follows ARC-3
+    // If the URL starts with template-ipfs://, it also follows ARC-19
+    // If the asset follows both ARC-3 and ARC-19, we add both metadata to the array
 
     // TODO: for ARC3, handle Asset Metadata Hash
-    return {
-      ...asArc3Metadata(assetResult.index, assetResult.params.url, metadata),
-      standard: metadataStandard,
-    } as Arc3Metadata | Arc19Metadata
-  }
+    const isAlsoArc19 = assetResult.params.url.startsWith('template-ipfs://')
 
+    const metadataUrl = isAlsoArc19
+      ? getArc19MetadataUrl(assetResult.params.url, assetResult.params.reserve)
+      : getArc3MetadataUrl(assetResult.index, assetResult.params.url)
+
+    if (metadataUrl) {
+      const metadataResult = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
+      const metadata = asArc3Metadata(assetResult.index, assetResult.params.url, metadataResult)
+
+      metadataArray.push({
+        ...metadata,
+        standard: 'ARC-3',
+      })
+      if (isAlsoArc19) {
+        metadataArray.push({
+          ...metadata,
+          standard: 'ARC-19',
+        })
+      }
+    }
+  } else if (assetResult.params.url?.startsWith('template-ipfs://')) {
+    // If the asset doesn't follow ARC-3, but the URL starts with template-ipfs://, it follows ARC-19
+    // There is no specs for ARC-19 metadata, but it seems to be the same with ARC-3
+
+    const metadataUrl = getArc19MetadataUrl(assetResult.params.url, assetResult.params.reserve)
+    if (metadataUrl) {
+      const metadataResult = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
+      const metadata = asArc3Metadata(assetResult.index, assetResult.params.url, metadataResult)
+
+      metadataArray.push({
+        ...metadata,
+        standard: 'ARC-19',
+      })
+    }
+  }
   // Check for ARC-69
   const assetConfigTransactionResults = await fetchAssetConfigTransactionResults(assetResult.index)
   const latestConfigTxn = assetConfigTransactionResults[assetConfigTransactionResults.length - 1]
   if (latestConfigTxn.note) {
     const arc69Metadata = noteToArc69Metadata(latestConfigTxn.note)
-    if (arc69Metadata) return arc69Metadata
+    if (arc69Metadata) {
+      metadataArray.push(arc69Metadata)
+    }
   }
 
-  return undefined
+  return metadataArray
 }
 
 const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
@@ -112,51 +144,6 @@ export const useAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
 
 export const useLoadableAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
   return useAtomValue(loadable(useAssetWithMetadataAtom(assetIndex)))
-}
-
-function getIPFSFromUrlAndReserve(
-  templateUrl: string | undefined,
-  reserveAddress: string | undefined
-): { cid: string; url: string } | undefined {
-  // https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0019.md
-  const ipfsTemplateUrlMatch = new RegExp(
-    /^template-ipfs:\/\/{ipfscid:(?<version>[01]):(?<codec>[a-z0-9-]+):(?<field>[a-z0-9-]+):(?<hash>[a-z0-9-]+)}/
-  )
-
-  const match = ipfsTemplateUrlMatch.exec(templateUrl ?? '')
-  if (!match) {
-    if (templateUrl?.startsWith('template-ipfs://')) {
-      throw new Error(`Invalid ASA URL; unable to parse as IPFS template URL '${templateUrl}'`)
-    }
-    return undefined
-  }
-
-  const { field, codec, hash, version } = match?.groups ?? {}
-
-  if (field !== 'reserve') {
-    throw new Error(`Invalid ASA URL; unsupported field '${field}' (expected 'reserve') in IPFS template URL '${templateUrl}'`)
-  }
-  if (codec !== 'raw' && codec !== 'dag-pb') {
-    throw new Error(`Invalid ASA URL; unsupported codec '${codec}' (expected 'raw' or 'dag-pb') in IPFS template URL '${templateUrl}'`)
-  }
-  if (hash !== 'sha2-256') {
-    throw new Error(`Invalid ASA URL; unsupported hash '${hash}' (expected 'sha2-256') in IPFS template URL '${templateUrl}'`)
-  }
-  if (version != '0' && version != '1') {
-    throw new Error(`Invalid ASA URL; unsupported version '${version}' (expected '0' or '1') in IPFS template URL '${templateUrl}'`)
-  }
-
-  const hashAlgorithm = sha256
-  const publicKey = algosdk.decodeAddress(reserveAddress!).publicKey
-  const multihashDigest = digest.create(hashAlgorithm.code, publicKey)
-
-  // https://github.com/TxnLab/arc3.xyz/blob/66334cb31cf46a3b0a466193f351d766df24a16c/src/lib/nft.ts#L68
-  const cid = CID.create(parseInt(version) as Version, match?.groups?.codec === 'dag-pb' ? 0x70 : 0x55, multihashDigest)
-
-  return {
-    cid: cid.toString(),
-    url: templateUrl!.replace(match[0], `ipfs://${cid.toString()}`).replace(/#arc3$/, ''),
-  }
 }
 
 const noteToArc69Metadata = (note: string | undefined) => {

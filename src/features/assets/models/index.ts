@@ -22,19 +22,7 @@ export enum TokenType {
 }
 
 export type AssetWithMetadata = Asset & {
-  metadata?: Arc3Metadata | Arc19Metadata | Arc69Metadata
-}
-
-export type Arc3Asset = Asset & {
-  metadata: Arc3Metadata
-}
-
-export type Arc19Asset = Asset & {
-  metadata: Arc19Metadata
-}
-
-export type Arc69Asset = Asset & {
-  metadata: Arc69Metadata
+  metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
 }
 
 export type Arc69Metadata = {
