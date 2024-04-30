@@ -7,6 +7,7 @@ import { useLoadableAsset } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
+import { useLoadableAssetMetadataAtom } from '../data/asset-metadata'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -29,12 +30,19 @@ export function AssetPage() {
 
   const assetId = parseInt(_assetId, 10)
   const loadableAsset = useLoadableAsset(assetId)
+  const loadableAssetMetadata = useLoadableAssetMetadataAtom(assetId)
 
   return (
     <div>
       <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
       <RenderLoadable loadable={loadableAsset} transformError={transformError}>
-        {(asset) => <AssetDetails asset={asset} />}
+        {(asset) => (
+          <>
+            <RenderLoadable loadable={loadableAssetMetadata}>
+              {(assetMetadata) => <AssetDetails asset={asset} assetMetadata={assetMetadata} />}
+            </RenderLoadable>
+          </>
+        )}
       </RenderLoadable>
     </div>
   )

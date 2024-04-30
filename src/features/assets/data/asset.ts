@@ -9,7 +9,7 @@ import { loadable } from 'jotai/utils'
 import { asAsset } from '../mappers'
 import { AssetIndex } from './types'
 
-const fetchAssetResultAtomBuilder = (assetIndex: AssetIndex) =>
+export const fetchAssetResultAtomBuilder = (assetIndex: AssetIndex) =>
   atom(async (_get) => {
     return await indexer
       .lookupAssetByID(assetIndex)
