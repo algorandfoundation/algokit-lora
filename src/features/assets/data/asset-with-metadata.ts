@@ -32,22 +32,24 @@ const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
 
 const getAssetMetadata = async (assetResult: AssetResult) => {
   // TODO: handle ARC-16
+  // TODO: handle fungible, pure non-fungible or fractional non-fungible
 
   if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
+    // When the URL contains #arc3 or @arc3, it's an ARC-3/ARC-19
     const metadataUrl = assetResult.params.url.startsWith('template-ipfs://')
       ? getIPFSFromUrlAndReserve(assetResult.params.url, assetResult.params.reserve)?.url
       : resolveArc3Url(assetResult.params.url)
     if (!metadataUrl) {
       return undefined
     }
+    const metadata = (await axios.get(metadataUrl)).data
 
     const metadataStandard = assetResult.params.url.startsWith('template-ipfs://') ? 'ARC-19' : 'ARC-3'
-
-    if (metadataStandard === 'ARC-19') {
-      return (await axios.get<Arc19Metadata>(metadataUrl)).data
-    } else {
-      return (await axios.get<Arc3Metadata>(metadataUrl)).data
-    }
+    // TODO: for ARC3, handle Asset Metadata Hash
+    return {
+      ...metadata,
+      standard: metadataStandard,
+    } as Arc3Metadata | Arc19Metadata
   }
 
   // Check for ARC-69
@@ -113,6 +115,9 @@ export const useLoadableAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
 }
 
 const resolveArc3Url = (url: string): string => {
+  // TODO: handle {id} in the URL
+  // MAY contain the string {id}. If {id} exists in the URI, clients MUST replace this with the asset ID in decimal form. The rules below applies after such a replacement.
+
   if (url.startsWith('ipfs://')) {
     const ipfsGateway = 'https://ipfs.algonode.xyz/ipfs'
     return `${ipfsGateway}/${url.split('://')[1]}`
