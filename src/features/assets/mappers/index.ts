@@ -1,8 +1,9 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { Arc3Metadata, Arc3MetadataResult, Arc69Metadata, Arc69MetadataResult, Asset } from '../models'
+import { Arc3Metadata, Arc3MetadataResult, Arc69Metadata, Arc69MetadataResult, Asset, TokenType } from '../models'
 import { asJson } from '@/utils/as-json'
 import { AssetIndex } from '../data/types'
 import { resolveArc3Url, resolveIpfsUrl } from '../utils/resolve-arc-3-url'
+import Decimal from 'decimal.js'
 
 export const asAsset = (assetResult: AssetResult): Asset => {
   return {
@@ -19,6 +20,7 @@ export const asAsset = (assetResult: AssetResult): Asset => {
     freeze: assetResult.params.freeze,
     clawback: assetResult.params.clawback,
     json: asJson(assetResult),
+    tokenType: getTokenType(assetResult),
   }
 }
 
@@ -64,4 +66,22 @@ export const asArc69Metadata = (arc69MetadataResult: Arc69MetadataResult): Arc69
     properties: arc69MetadataResult.properties,
     mimeType: arc69MetadataResult.mime_type,
   }
+}
+
+const getTokenType = (assetResult: AssetResult): TokenType => {
+  if (assetResult.params.total === 1 && assetResult.params.decimals === 0) {
+    return TokenType.PureNonFungible
+  }
+  // Check for fractional non-fungible
+  // Definition from ARC-3
+  // An ASA is said to be a fractional non-fungible token (fractional NFT) if and only if it has the following properties:
+  // Total Number of Units (t) MUST be a power of 10 larger than 1: 10, 100, 1000, ...
+  // Number of Digits after the Decimal Point (dc) MUST be equal to the logarithm in base 10 of total number of units.
+  if (
+    assetResult.params.total > 1 &&
+    Decimal.log10(assetResult.params.total.toString()).toString() === assetResult.params.decimals.toString()
+  ) {
+    return TokenType.FractionalNonFungible
+  }
+  return TokenType.Fungible
 }

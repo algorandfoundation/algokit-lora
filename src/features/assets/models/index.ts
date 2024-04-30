@@ -12,6 +12,13 @@ export type Asset = {
   freeze?: string
   clawback?: string
   json: string
+  tokenType: TokenType
+}
+
+export enum TokenType {
+  Fungible = 'Fungible',
+  PureNonFungible = 'Pure Non-Tungible',
+  FractionalNonFungible = 'Fractional Non-Fungible',
 }
 
 export type AssetWithMetadata = Asset & {

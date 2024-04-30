@@ -2,6 +2,7 @@ import { cn } from '@/features/common/utils'
 import { Arc19Asset, Arc3Asset } from '../models'
 
 type Props = {
+  // ARC-3 and ARC_19 share the same metadata structure
   asset: Arc3Asset | Arc19Asset
 }
 

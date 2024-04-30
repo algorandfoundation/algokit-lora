@@ -33,8 +33,6 @@ const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
 
 const getAssetMetadata = async (assetResult: AssetResult) => {
   // TODO: handle ARC-16
-  // TODO: handle fungible, pure non-fungible or fractional non-fungible
-
   if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
     // When the URL contains #arc3 or @arc3, it's an ARC-3/ARC-19
     const metadataUrl = assetResult.params.url.startsWith('template-ipfs://')
