@@ -2,15 +2,14 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
-import { Arc19Metadata, Arc3Metadata, Arc69Metadata, Asset } from '../models'
+import { AssetWithMetadata } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import Decimal from 'decimal.js'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 
 type Props = {
-  asset: Asset
-  assetMetadata: Arc3Metadata | Arc19Metadata | Arc69Metadata | undefined
+  asset: AssetWithMetadata
 }
 
 export const assetIdLabel = 'Asset ID'
@@ -31,7 +30,7 @@ export const assetClawbackLabel = 'Clawback'
 
 export const assetJsonLabel = 'Asset JSON'
 
-export function AssetDetails({ asset, assetMetadata }: Props) {
+export function AssetDetails({ asset }: Props) {
   const assetItems = useMemo(
     () => [
       {
@@ -110,7 +109,7 @@ export function AssetDetails({ asset, assetMetadata }: Props) {
     [asset.clawback, asset.creator, asset.freeze, asset.manager, asset.reserve]
   ).filter(isDefined)
 
-  console.log('metadata', assetMetadata)
+  console.log('metadata', asset.metadata)
   return (
     <div className={cn('space-y-6 pt-7')}>
       <Card className={cn('p-4')}>

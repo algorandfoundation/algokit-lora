@@ -4,8 +4,8 @@ import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
-import { assetMetadataMapAtom } from './core'
-import { Arc19Metadata, Arc3Metadata, Arc69Metadata } from '../models'
+import { assetWithMetadataAtom } from './core'
+import { Arc19Metadata, Arc3Metadata, Arc69Metadata, AssetWithMetadata } from '../models'
 import axios from 'axios'
 import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
@@ -16,6 +16,7 @@ import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { fetchAssetResultAtomBuilder } from './asset'
+import { asAsset } from '../mappers'
 
 const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
   executePaginatedRequest(
@@ -58,6 +59,66 @@ const getAssetMetadata = async (assetResult: AssetResult) => {
   }
 
   return undefined
+}
+
+const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+  const syncEffect = atomEffect((get, set) => {
+    ;(async () => {
+      try {
+        const assetMetadata = await get(assetMetadataAtom)
+        set(assetWithMetadataAtom, (prev) => {
+          return prev.set(assetIndex, assetMetadata)
+        })
+      } catch (e) {
+        // Ignore any errors as there is nothing to sync
+      }
+    })()
+  })
+
+  const assetMetadataAtom = atom(async (get) => {
+    const assetMetadataMap = store.get(assetWithMetadataAtom)
+
+    const assetMetadata = assetMetadataMap.get(assetIndex)
+    if (assetMetadata) {
+      return assetMetadata
+    }
+
+    get(syncEffect)
+
+    const fetchAssetResultAtom = fetchAssetResultAtomBuilder(assetIndex)
+    const assetResult = await get(fetchAssetResultAtom)
+
+    const asset = asAsset(assetResult)
+    const metadata = await getAssetMetadata(assetResult)
+
+    return {
+      ...asset,
+      metadata,
+    } satisfies AssetWithMetadata
+  })
+
+  return assetMetadataAtom
+}
+
+export const useAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
+  const store = useStore()
+
+  return useMemo(() => {
+    return getAssetWithMetadataAtomBuilder(store, assetIndex)
+  }, [store, assetIndex])
+}
+
+export const useLoadableAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
+  return useAtomValue(loadable(useAssetWithMetadataAtom(assetIndex)))
+}
+
+const resolveArc3Url = (url: string): string => {
+  if (url.startsWith('ipfs://')) {
+    const ipfsGateway = 'https://ipfs.algonode.xyz/ipfs'
+    return `${ipfsGateway}/${url.split('://')[1]}`
+  }
+
+  return url
 }
 
 const noteToArc69Metadata = (note: string | undefined) => {
@@ -115,57 +176,4 @@ function getIPFSFromUrlAndReserve(
     cid: cid.toString(),
     url: templateUrl!.replace(match[0], `ipfs://${cid.toString()}`).replace(/#arc3$/, ''),
   }
-}
-
-const getAssetMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
-  const syncEffect = atomEffect((get, set) => {
-    ;(async () => {
-      try {
-        const assetMetadata = await get(assetMetadataAtom)
-        set(assetMetadataMapAtom, (prev) => {
-          return prev.set(assetIndex, assetMetadata)
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
-  })
-
-  const assetMetadataAtom = atom(async (get) => {
-    const assetMetadataMap = store.get(assetMetadataMapAtom)
-
-    const assetMetadata = assetMetadataMap.get(assetIndex)
-    if (assetMetadata) {
-      return assetMetadata
-    }
-
-    get(syncEffect)
-
-    const fetchAssetResultAtom = fetchAssetResultAtomBuilder(assetIndex)
-    const assetResult = await get(fetchAssetResultAtom)
-    return getAssetMetadata(assetResult)
-  })
-
-  return assetMetadataAtom
-}
-
-export const useAssetMetadataAtom = (assetIndex: AssetIndex) => {
-  const store = useStore()
-
-  return useMemo(() => {
-    return getAssetMetadataAtomBuilder(store, assetIndex)
-  }, [store, assetIndex])
-}
-
-export const useLoadableAssetMetadataAtom = (assetIndex: AssetIndex) => {
-  return useAtomValue(loadable(useAssetMetadataAtom(assetIndex)))
-}
-
-const resolveArc3Url = (url: string): string => {
-  if (url.startsWith('ipfs://')) {
-    const ipfsGateway = 'https://ipfs.algonode.xyz/ipfs'
-    return `${ipfsGateway}/${url.split('://')[1]}`
-  }
-
-  return url
 }

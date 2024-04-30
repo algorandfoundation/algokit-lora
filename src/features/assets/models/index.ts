@@ -14,6 +14,10 @@ export type Asset = {
   json: string
 }
 
+export type AssetWithMetadata = Asset & {
+  metadata?: Arc3Metadata | Arc19Metadata | Arc69Metadata
+}
+
 export type Arc69Metadata = {
   standard: 'ARC-69'
   description?: string
