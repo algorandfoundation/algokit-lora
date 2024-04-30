@@ -1,8 +1,8 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { Arc3Metadata, Arc3MetadataResult, Asset } from '../models'
+import { Arc3Metadata, Arc3MetadataResult, Arc69Metadata, Arc69MetadataResult, Asset } from '../models'
 import { asJson } from '@/utils/as-json'
 import { AssetIndex } from '../data/types'
-import { resolveArc3Url } from '../utils/resolve-arc-3-url'
+import { resolveArc3Url, resolveIpfsUrl } from '../utils/resolve-arc-3-url'
 
 export const asAsset = (assetResult: AssetResult): Asset => {
   return {
@@ -53,4 +53,15 @@ const getArc3MediaUrl = (assetIndex: AssetIndex, assetMetadataUrl: string, media
   const absoluteImageUrl = !isRelative ? mediaUrl : new URL(assetMetadataUrl, mediaUrl).toString()
 
   return resolveArc3Url(assetIndex, absoluteImageUrl)
+}
+
+export const asArc69Metadata = (arc69MetadataResult: Arc69MetadataResult): Arc69Metadata => {
+  return {
+    standard: 'ARC-69',
+    description: arc69MetadataResult.description,
+    externalUrl: arc69MetadataResult.external_url,
+    mediaUrl: arc69MetadataResult.media_url ? resolveIpfsUrl(arc69MetadataResult.media_url) : undefined,
+    properties: arc69MetadataResult.properties,
+    mimeType: arc69MetadataResult.mime_type,
+  }
 }

@@ -5,7 +5,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
 import { assetWithMetadataAtom } from './core'
-import { Arc19Metadata, Arc3Metadata, Arc3MetadataResult, Arc69Metadata, AssetWithMetadata } from '../models'
+import { Arc19Metadata, Arc3Metadata, Arc3MetadataResult, Arc69MetadataResult, AssetWithMetadata } from '../models'
 import axios from 'axios'
 import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
@@ -16,7 +16,7 @@ import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { fetchAssetResultAtomBuilder } from './asset'
-import { asArc3Metadata, asAsset } from '../mappers'
+import { asArc3Metadata, asArc69Metadata, asAsset } from '../mappers'
 import { resolveArc3Url } from '../utils/resolve-arc-3-url'
 
 const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
@@ -123,7 +123,8 @@ const noteToArc69Metadata = (note: string | undefined) => {
 
   const json = base64ToUtf8(note)
   if (json.match(/^{/) && json.includes('arc69')) {
-    return JSON.parse(json) as Arc69Metadata
+    const metadataResult = JSON.parse(json) as Arc69MetadataResult
+    return asArc69Metadata(metadataResult)
   }
   return undefined
 }

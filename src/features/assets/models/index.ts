@@ -81,3 +81,11 @@ export type Arc3MetadataResult = {
   extra_metadata?: string
   // TODO: localization
 }
+
+export type Arc69MetadataResult = {
+  description?: string
+  external_url?: string
+  media_url?: string
+  properties?: Record<string, string>
+  mime_type?: string
+}

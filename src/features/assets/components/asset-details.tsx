@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
-import { Asset } from '../models'
+import { Arc3Asset, Arc69Asset, AssetWithMetadata } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import Decimal from 'decimal.js'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -23,9 +23,12 @@ import {
   assetUnitNameLabel,
   assetUrlLabel,
 } from './labels'
+import { Badge } from '@/features/common/components/badge'
+import { Arc3Media } from './arc-3-media'
+import { Arc69Media } from './arc-69-media'
 
 type Props = {
-  asset: Asset
+  asset: AssetWithMetadata
 }
 
 export function AssetDetails({ asset }: Props) {
@@ -38,7 +41,12 @@ export function AssetDetails({ asset }: Props) {
       asset.name
         ? {
             dt: assetNameLabel,
-            dd: asset.name,
+            dd: (
+              <label>
+                {asset.name}
+                <Badge variant="outline">ARC-3</Badge>
+              </label>
+            ),
           }
         : undefined,
       asset.unitName
@@ -111,7 +119,11 @@ export function AssetDetails({ asset }: Props) {
     <div className={cn('space-y-6 pt-7')}>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <DescriptionList items={assetItems} />
+          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+            <DescriptionList items={assetItems} />
+            {asset.metadata?.standard === 'ARC-3' && <Arc3Media asset={asset as Arc3Asset} />}
+            {asset.metadata?.standard === 'ARC-69' && <Arc69Media asset={asset as Arc69Asset} />}
+          </div>
         </CardContent>
       </Card>
       <Card className={cn('p-4')}>
