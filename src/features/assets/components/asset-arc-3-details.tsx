@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
-import { Asset } from '../models'
+import { Arc3Asset } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import Decimal from 'decimal.js'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -13,6 +13,7 @@ import {
   assetCreatorLabel,
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
+  assetDescriptionLabel,
   assetFreezeLabel,
   assetIdLabel,
   assetJsonLabel,
@@ -23,12 +24,13 @@ import {
   assetUnitNameLabel,
   assetUrlLabel,
 } from './labels'
+import { Badge } from '@/features/common/components/badge'
 
 type Props = {
-  asset: Asset
+  asset: Arc3Asset
 }
 
-export function AssetDetails({ asset }: Props) {
+export function AssetArc3Details({ asset }: Props) {
   const assetItems = useMemo(
     () => [
       {
@@ -38,7 +40,19 @@ export function AssetDetails({ asset }: Props) {
       asset.name
         ? {
             dt: assetNameLabel,
-            dd: asset.name,
+            dd: (
+              <label>
+                {asset.name}
+                {/* TODO: ARC-16 */}
+                <Badge variant="outline">ARC-3</Badge>
+              </label>
+            ),
+          }
+        : undefined,
+      asset.metadata.description
+        ? {
+            dt: assetDescriptionLabel,
+            dd: asset.metadata.description,
           }
         : undefined,
       asset.unitName
@@ -70,7 +84,7 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.decimals, asset.defaultFrozen, asset.id, asset.name, asset.total, asset.unitName, asset.url]
+    [asset.decimals, asset.defaultFrozen, asset.id, asset.metadata.description, asset.name, asset.total, asset.unitName, asset.url]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(
@@ -111,7 +125,17 @@ export function AssetDetails({ asset }: Props) {
     <div className={cn('space-y-6 pt-7')}>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <DescriptionList items={assetItems} />
+          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+            <DescriptionList items={assetItems} />
+            <div>
+              {asset.metadata.image && <img src={asset.metadata.image} alt={asset.name} className={cn('w-32 h-32')} />}
+              {asset.metadata.animationUrl && (
+                <video title={asset.name} autoPlay playsInline loop controls muted>
+                  <source src={asset.metadata.animationUrl} type="video/mp4" />
+                </video>
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
       <Card className={cn('p-4')}>

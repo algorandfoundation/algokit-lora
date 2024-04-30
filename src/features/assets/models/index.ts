@@ -18,6 +18,18 @@ export type AssetWithMetadata = Asset & {
   metadata?: Arc3Metadata | Arc19Metadata | Arc69Metadata
 }
 
+export type Arc3Asset = Asset & {
+  metadata: Arc3Metadata
+}
+
+export type Arc19Asset = Asset & {
+  metadata: Arc19Metadata
+}
+
+export type Arc69Asset = Asset & {
+  metadata: Arc69Metadata
+}
+
 export type Arc69Metadata = {
   standard: 'ARC-69'
   description?: string
@@ -27,7 +39,8 @@ export type Arc69Metadata = {
   mimeType?: string
 }
 
-type Arc3And19Common = {
+export type Arc3Metadata = {
+  standard: 'ARC-3'
   name?: string
   decimals?: number
   description?: string
@@ -45,10 +58,26 @@ type Arc3And19Common = {
   extraMetadata?: string
 }
 
-export type Arc3Metadata = Arc3And19Common & {
-  standard: 'ARC-3'
+export type Arc19Metadata = Omit<Arc3Metadata, 'standard'> & {
+  standard: 'ARC-19'
 }
 
-export type Arc19Metadata = Arc3And19Common & {
-  standard: 'ARC-19'
+// ARC-3 and ARC-19 share the same metadata structure
+export type Arc3MetadataResult = {
+  name?: string
+  decimals?: number
+  description?: string
+  image?: string
+  image_integrity?: string
+  image_mimetype?: string
+  background_color?: string
+  external_url?: string
+  external_url_integrity?: string
+  external_url_mimetype?: string
+  animation_url?: string
+  animation_url_integrity?: string
+  animation_url_mimetype?: string
+  properties?: Record<string, unknown>
+  extra_metadata?: string
+  // TODO: localization
 }

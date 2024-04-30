@@ -5,7 +5,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
 import { assetWithMetadataAtom } from './core'
-import { Arc19Metadata, Arc3Metadata, Arc69Metadata, AssetWithMetadata } from '../models'
+import { Arc19Metadata, Arc3Metadata, Arc3MetadataResult, Arc69Metadata, AssetWithMetadata } from '../models'
 import axios from 'axios'
 import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
@@ -16,7 +16,8 @@ import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { fetchAssetResultAtomBuilder } from './asset'
-import { asAsset } from '../mappers'
+import { asArc3Metadata, asAsset } from '../mappers'
+import { resolveArc3Url } from '../utils/resolve-arc-3-url'
 
 const fetchAssetConfigTransactionResults = (assetIndex: AssetIndex) =>
   executePaginatedRequest(
@@ -38,16 +39,17 @@ const getAssetMetadata = async (assetResult: AssetResult) => {
     // When the URL contains #arc3 or @arc3, it's an ARC-3/ARC-19
     const metadataUrl = assetResult.params.url.startsWith('template-ipfs://')
       ? getIPFSFromUrlAndReserve(assetResult.params.url, assetResult.params.reserve)?.url
-      : resolveArc3Url(assetResult.params.url)
+      : resolveArc3Url(assetResult.index, assetResult.params.url)
     if (!metadataUrl) {
       return undefined
     }
-    const metadata = (await axios.get(metadataUrl)).data
+    const metadata = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
 
     const metadataStandard = assetResult.params.url.startsWith('template-ipfs://') ? 'ARC-19' : 'ARC-3'
+
     // TODO: for ARC3, handle Asset Metadata Hash
     return {
-      ...metadata,
+      ...asArc3Metadata(assetResult.index, assetResult.params.url, metadata),
       standard: metadataStandard,
     } as Arc3Metadata | Arc19Metadata
   }
@@ -112,18 +114,6 @@ export const useAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
 
 export const useLoadableAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
   return useAtomValue(loadable(useAssetWithMetadataAtom(assetIndex)))
-}
-
-const resolveArc3Url = (url: string): string => {
-  // TODO: handle {id} in the URL
-  // MAY contain the string {id}. If {id} exists in the URI, clients MUST replace this with the asset ID in decimal form. The rules below applies after such a replacement.
-
-  if (url.startsWith('ipfs://')) {
-    const ipfsGateway = 'https://ipfs.algonode.xyz/ipfs'
-    return `${ipfsGateway}/${url.split('://')[1]}`
-  }
-
-  return url
 }
 
 const noteToArc69Metadata = (note: string | undefined) => {

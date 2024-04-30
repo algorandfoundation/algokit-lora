@@ -7,6 +7,8 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
 import { useLoadableAssetWithMetadataAtom } from '../data/asset-with-metadata'
+import { AssetArc3Details } from '../components/asset-arc-3-details'
+import { Arc3Asset } from '../models'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -34,7 +36,14 @@ export function AssetPage() {
     <div>
       <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
       <RenderLoadable loadable={loadableAssetWithMetadata} transformError={transformError}>
-        {(assetWithMetadata) => <AssetDetails asset={assetWithMetadata} />}
+        {(assetWithMetadata) => (
+          <>
+            {!assetWithMetadata.metadata && <AssetDetails asset={assetWithMetadata} />}
+            {assetWithMetadata.metadata && assetWithMetadata.metadata.standard === 'ARC-3' && (
+              <AssetArc3Details asset={assetWithMetadata as Arc3Asset} />
+            )}
+          </>
+        )}
       </RenderLoadable>
     </div>
   )
