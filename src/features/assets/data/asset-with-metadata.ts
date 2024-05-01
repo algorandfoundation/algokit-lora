@@ -8,12 +8,15 @@ import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { fetchAssetResultAtomBuilder } from './asset'
 import { asAsset } from '../mappers'
-import { fetchAssetTransactionResultsAtomBuilder } from './asset-transaction-results'
+import { useAssetTransactionResultsAtom } from './asset-transaction-results'
 import { fetchAssetMetadataAtomBuilder } from './asset-metadata'
 import { fetchTransactionsAtomBuilder } from '@/features/transactions/data'
-import { syncedRoundAtom } from '@/features/blocks/data/core'
 
-const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+const getAssetWithMetadataAtomBuilder = (
+  store: JotaiStore,
+  assetIndex: AssetIndex,
+  assetTransactionResultsAtom: ReturnType<typeof useAssetTransactionResultsAtom>
+) => {
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
       try {
@@ -28,16 +31,16 @@ const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetInd
   })
 
   const assetMetadataAtom = atom(async (get) => {
-    // TODO: find out why syncedRound here is important
-    get(syncedRoundAtom)
-
+    // TODO: work out how to sync with assets transaction results atom
+    // get(syncedRoundAtom) 655061079
+    const assetTransactionResults = await get(assetTransactionResultsAtom)
     const assetsWithMetadata = store.get(assetsWithMetadataAtom)
 
+    console.log('im here')
     const assetWithMetadata = assetsWithMetadata.get(assetIndex)
     if (assetWithMetadata) {
       // TODO: consider performance, can we only sync if the asset has new transactions
       // TODO: update metadata, also be careful, only update ARC-19 and ARC-69
-      const assetTransactionResults = await get(fetchAssetTransactionResultsAtomBuilder(store, assetIndex))
       const transactions = await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))
 
       return {
@@ -49,7 +52,6 @@ const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetInd
     get(syncEffect)
 
     const assetResult = await get(fetchAssetResultAtomBuilder(assetIndex))
-    const assetTransactionResults = await get(fetchAssetTransactionResultsAtomBuilder(store, assetIndex))
     const assetMetadata = await get(fetchAssetMetadataAtomBuilder(assetResult, assetTransactionResults))
 
     const asset = asAsset(assetResult)
@@ -67,10 +69,11 @@ const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetInd
 
 export const useAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
   const store = useStore()
+  const assetsTransactionResultsAtom = useAssetTransactionResultsAtom(assetIndex)
 
   return useMemo(() => {
-    return getAssetWithMetadataAtomBuilder(store, assetIndex)
-  }, [store, assetIndex])
+    return getAssetWithMetadataAtomBuilder(store, assetIndex, assetsTransactionResultsAtom)
+  }, [store, assetIndex, assetsTransactionResultsAtom])
 }
 
 export const useLoadableAssetWithMetadataAtom = (assetIndex: AssetIndex) => {

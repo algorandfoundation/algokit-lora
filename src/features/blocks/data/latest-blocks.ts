@@ -119,6 +119,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
         assetIds.forEach((assetId) => {
           if (!prev.has(assetId)) return prev
           prev.set(assetId, [...(prev.get(assetId) ?? []), transactionResult])
+          console.log('set for assetId', assetId)
         })
       })
 
