@@ -35,7 +35,7 @@ export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
           }}
         >
           {'innerId' in transaction ? (
-            <InnerTransactionLink innerTransactionId={transaction.innerId} />
+            <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
           ) : (
             <TransactionLink transactionId={transaction.id} short={true} />
           )}
