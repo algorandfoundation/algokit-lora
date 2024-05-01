@@ -2,6 +2,7 @@ import { cn } from '@/features/common/utils'
 import { Arc3Metadata, Arc69Metadata, AssetWithMetadata } from '../models'
 import { useMemo } from 'react'
 import { getArc19MetadataUrl } from '../utils/get-arc-19-metadata-url'
+import { getHttpUrlFromIpfs } from '../utils/get-http-url-from-ipfs'
 
 type Props = {
   asset: AssetWithMetadata
@@ -41,7 +42,7 @@ export function AssetMedia({ asset }: Props) {
       }
 
       const metadata = asset.metadata.find((m) => m.standard === 'ARC-69') as Arc69Metadata
-      const url = asset.url.startsWith('template-ipfs://') ? getArc19MetadataUrl(asset.url, asset.reserve)! : asset.url
+      const url = asset.url.startsWith('template-ipfs://') ? getArc19MetadataUrl(asset.url, asset.reserve)! : getHttpUrlFromIpfs(asset.url)
 
       return {
         type: metadata.mimeType?.startsWith('video/') ? 'video' : 'image',

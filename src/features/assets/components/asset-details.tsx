@@ -26,6 +26,7 @@ import {
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
 import { AssetTraits } from './asset-traits'
+import { AssetMetadata } from './asset-metadata'
 
 type Props = {
   asset: AssetWithMetadata
@@ -136,6 +137,7 @@ export function AssetDetails({ asset }: Props) {
           <DescriptionList items={assetAddresses} />
         </CardContent>
       </Card>
+      <AssetMetadata asset={asset} />
       <AssetTraits asset={asset} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>

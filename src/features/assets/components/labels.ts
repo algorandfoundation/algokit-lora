@@ -17,4 +17,6 @@ export const assetClawbackLabel = 'Clawback'
 
 export const assetTraitsLabel = 'Asset Traits'
 
+export const assetMetadataLabel = 'Asset Metadata'
+
 export const assetJsonLabel = 'Asset JSON'
