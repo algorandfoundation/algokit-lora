@@ -12,6 +12,8 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
+import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
+import { assetsTransactionResultsAtom } from '@/features/assets/data/core'
 
 const maxBlocksToDisplay = 5
 
@@ -109,6 +111,17 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       transactions.forEach((value, key) => {
         prev.set(key, value)
       })
+      return prev
+    })
+    set(assetsTransactionResultsAtom, (prev) => {
+      transactions.forEach((transactionResult) => {
+        const assetIds = getAssetIdsForTransaction(transactionResult)
+        assetIds.forEach((assetId) => {
+          if (!prev.has(assetId)) return prev
+          prev.set(assetId, [...(prev.get(assetId) ?? []), transactionResult])
+        })
+      })
+
       return prev
     })
 

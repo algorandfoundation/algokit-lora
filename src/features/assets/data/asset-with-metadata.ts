@@ -11,6 +11,7 @@ import { asAsset } from '../mappers'
 import { fetchAssetTransactionResultsAtomBuilder } from './asset-transaction-results'
 import { fetchAssetMetadataAtomBuilder } from './asset-metadata'
 import { fetchTransactionsAtomBuilder } from '@/features/transactions/data'
+import { syncedRoundAtom } from '@/features/blocks/data/core'
 
 const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   const syncEffect = atomEffect((get, set) => {
@@ -27,11 +28,22 @@ const getAssetWithMetadataAtomBuilder = (store: JotaiStore, assetIndex: AssetInd
   })
 
   const assetMetadataAtom = atom(async (get) => {
+    // TODO: find out why syncedRound here is important
+    get(syncedRoundAtom)
+
     const assetsWithMetadata = store.get(assetsWithMetadataAtom)
 
     const assetWithMetadata = assetsWithMetadata.get(assetIndex)
     if (assetWithMetadata) {
-      return assetWithMetadata
+      // TODO: consider performance, can we only sync if the asset has new transactions
+      // TODO: update metadata, also be careful, only update ARC-19 and ARC-69
+      const assetTransactionResults = await get(fetchAssetTransactionResultsAtomBuilder(store, assetIndex))
+      const transactions = await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))
+
+      return {
+        ...assetWithMetadata,
+        transactions: transactions.sort((a, b) => b.confirmedRound - a.confirmedRound),
+      }
     }
 
     get(syncEffect)
