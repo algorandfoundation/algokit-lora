@@ -49,7 +49,7 @@ export type Arc3Metadata = {
   animationUrl?: string
   animationUrlIntegrity?: string
   animationUrlMimetype?: string
-  properties?: Record<string, unknown>
+  properties?: Record<string, string>
   extraMetadata?: string
 }
 
@@ -72,7 +72,7 @@ export type Arc3MetadataResult = {
   animation_url?: string
   animation_url_integrity?: string
   animation_url_mimetype?: string
-  properties?: Record<string, unknown>
+  properties?: Record<string, string>
   extra_metadata?: string
   // TODO: localization
 }

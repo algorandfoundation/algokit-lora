@@ -15,4 +15,6 @@ export const assetReserveLabel = 'Reserve'
 export const assetFreezeLabel = 'Freeze'
 export const assetClawbackLabel = 'Clawback'
 
+export const assetTraitsLabel = 'Asset Traits'
+
 export const assetJsonLabel = 'Asset JSON'
