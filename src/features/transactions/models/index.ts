@@ -150,6 +150,7 @@ export enum AppCallOnComplete {
 }
 
 export type InnerTransactionId = {
+  networkTransactionId: string
   id: string
   innerId: string
 }

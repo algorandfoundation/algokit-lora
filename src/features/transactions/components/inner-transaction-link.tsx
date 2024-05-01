@@ -4,16 +4,20 @@ import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 
 type Props = PropsWithChildren<{
+  transactionId: string
   innerTransactionId: string
   className?: string
 }>
 
-export function InnerTransactionLink({ innerTransactionId, className, children }: Props) {
+export function InnerTransactionLink({ transactionId, innerTransactionId, className, children }: Props) {
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
       urlTemplate={Urls.Explore.Transaction.ById.Inner.ById}
-      urlParams={{ innerTransactionId: innerTransactionId }}
+      urlParams={{
+        transactionId: transactionId,
+        innerTransactionId: innerTransactionId,
+      }}
     >
       {children ? children : `Inner ${innerTransactionId}`}
     </TemplatedNavLink>

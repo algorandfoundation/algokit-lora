@@ -94,7 +94,7 @@ function ConnectionToParent() {
 function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
   const component = useMemo(() => {
     if ('innerId' in transaction) {
-      return <InnerTransactionLink innerTransactionId={transaction.innerId} />
+      return <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
     }
     return <TransactionLink transactionId={transaction.id} short={true} />
   }, [transaction])
