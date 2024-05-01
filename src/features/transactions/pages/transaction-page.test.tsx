@@ -1026,7 +1026,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['2XFGVOH...', 'E4A6...VZHY', '1707148495', 'Asset Freeze'],
+                cells: ['2XFGVOH...', 'E4A6...VZHY', 'ZJU3...CBQQ', 'Asset Freeze'],
               },
             ],
           })

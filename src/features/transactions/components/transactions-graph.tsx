@@ -588,7 +588,7 @@ function getTransactionRepresentation(
     }
 
     if (transaction.type === TransactionType.AssetFreeze) {
-      return collaborators.findIndex((a) => transaction.assetId.toString() === a.id)
+      return collaborators.findIndex((a) => transaction.address.toString() === a.id)
     }
 
     throw new Error('Not supported transaction type')
@@ -729,8 +729,8 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
   }
   if (transaction.type === TransactionType.AssetFreeze) {
     collaborators.push({
-      type: 'Asset',
-      id: transaction.assetId.toString(),
+      type: 'Account',
+      id: transaction.address.toString(),
     })
   }
   return collaborators
