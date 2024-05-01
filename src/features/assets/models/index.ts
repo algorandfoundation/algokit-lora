@@ -1,3 +1,5 @@
+import { Transaction } from '@/features/transactions/models'
+
 export type Asset = {
   id: number
   name?: string
@@ -23,6 +25,7 @@ export enum TokenType {
 
 export type AssetWithMetadata = Asset & {
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
+  transactions: Transaction[]
 }
 
 export type Arc69Metadata = {

@@ -20,6 +20,7 @@ import {
   assetNameLabel,
   assetReserveLabel,
   assetTotalSupplyLabel,
+  assetTransactionsLabel,
   assetUnitNameLabel,
   assetUrlLabel,
 } from './labels'
@@ -27,6 +28,7 @@ import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
 import { AssetTraits } from './asset-traits'
 import { AssetMetadata } from './asset-metadata'
+import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 
 type Props = {
   asset: AssetWithMetadata
@@ -144,6 +146,14 @@ export function AssetDetails({ asset }: Props) {
           <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
           <div className={cn('border-solid border-2 border-border h-96 grid')}>
             <pre className={cn('overflow-scroll p-4')}>{asset.json}</pre>
+          </div>
+        </CardContent>
+      </Card>
+      <Card className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
+          <div className={cn('border-solid border-2 grid p-4')}>
+            <TransactionsTable transactions={asset.transactions} />
           </div>
         </CardContent>
       </Card>
