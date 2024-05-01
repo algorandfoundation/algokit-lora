@@ -24,8 +24,7 @@ import {
   assetUrlLabel,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
-import { Arc3Media } from './arc-3-media'
-import { Arc69Media } from './arc-69-media'
+import { AssetMedia } from './asset-media'
 
 type Props = {
   asset: AssetWithMetadata
@@ -126,9 +125,7 @@ export function AssetDetails({ asset }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
-            {/* {asset.metadata?.standard === 'ARC-3' && <Arc3Media asset={asset as Arc3Asset} />}
-            {asset.metadata?.standard === 'ARC-19' && <Arc3Media asset={asset as Arc19Asset} />}
-            {asset.metadata?.standard === 'ARC-69' && <Arc69Media asset={asset as Arc69Asset} />} */}
+            <AssetMedia asset={asset} />
           </div>
         </CardContent>
       </Card>
