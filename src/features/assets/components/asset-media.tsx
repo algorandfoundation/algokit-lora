@@ -1,6 +1,7 @@
 import { cn } from '@/features/common/utils'
-import { AssetWithMetadata } from '../models'
+import { Arc3Metadata, Arc69Metadata, AssetWithMetadata } from '../models'
 import { useMemo } from 'react'
+import { getArc19MetadataUrl } from '../utils/get-arc-19-metadata-url'
 
 type Props = {
   asset: AssetWithMetadata
@@ -12,8 +13,12 @@ export function AssetMedia({ asset }: Props) {
       return undefined
     }
 
-    if (asset.metadata.length === 1 && asset.metadata[0].standard === 'ARC-3') {
-      const metadata = asset.metadata[0]
+    const metadataStandards = asset.metadata.map((m) => m.standard)
+
+    if ((metadataStandards.includes('ARC-3') || metadataStandards.includes('ARC-19')) && !metadataStandards.includes('ARC-69')) {
+      // If the asset follows ARC-3 or ARC-19, but not ARC-69
+      // we display the media from the metadata
+      const metadata = asset.metadata.find((m) => m.standard === 'ARC-3' || m.standard === 'ARC-19') as Arc3Metadata
       if (metadata.image) {
         return {
           url: metadata.image,
@@ -28,29 +33,19 @@ export function AssetMedia({ asset }: Props) {
       }
     }
 
-    if (asset.metadata.length === 1 && asset.metadata[0].standard === 'ARC-19') {
-      const metadata = asset.metadata[0]
-      if (metadata.image) {
-        return {
-          url: metadata.image,
-          type: 'image',
-        }
+    if (metadataStandards.includes('ARC-69')) {
+      // If the asset follows ARC-69, we display the media from the asset URL
+      // In this scenario, we also support ARC-19 format URLs
+      if (!asset.url) {
+        return undefined
       }
-      if (metadata.animationUrl) {
-        return {
-          url: metadata.animationUrl,
-          type: 'video',
-        }
-      }
-    }
 
-    if (asset.metadata.length === 1 && asset.metadata[0].standard === 'ARC-69') {
-      const metadata = asset.metadata[0]
-      if (asset.url) {
-        return {
-          type: metadata.mimeType?.startsWith('video/') ? 'video' : 'image',
-          url: asset.url,
-        }
+      const metadata = asset.metadata.find((m) => m.standard === 'ARC-69') as Arc69Metadata
+      const url = asset.url.startsWith('template-ipfs://') ? getArc19MetadataUrl(asset.url, asset.reserve)! : asset.url
+
+      return {
+        type: metadata.mimeType?.startsWith('video/') ? 'video' : 'image',
+        url: url,
       }
     }
   }, [asset])
