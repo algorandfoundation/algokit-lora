@@ -13,8 +13,7 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
-import { assetsWithMetadataAtom } from '@/features/assets/data/core'
-import { mutatedAssetWithMetadata } from '@/features/assets/utils/mutate-asset-with-metadata'
+import { assetsTransactionResultsAtom } from '@/features/assets/data/core'
 
 const maxBlocksToDisplay = 5
 
@@ -118,12 +117,12 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     transactions.forEach((transactionResult) => {
       const assetIds = getAssetIdsForTransaction(transactionResult)
       assetIds.forEach((assetId) => {
-        set(assetsWithMetadataAtom, (prev) => {
-          const existingAsset = prev.get(assetId)
-          if (!existingAsset) return prev
+        set(assetsTransactionResultsAtom, (prev) => {
+          const cachedData = prev.get(assetId)
+          if (!cachedData) return prev
 
-          const mutatedAsset = mutatedAssetWithMetadata(existingAsset, transactionResult)
-          return new Map([...prev, [assetId, mutatedAsset]])
+          const transactionResults = [...cachedData, transactionResult]
+          return new Map([...prev, [assetId, transactionResults]])
         })
       })
     })

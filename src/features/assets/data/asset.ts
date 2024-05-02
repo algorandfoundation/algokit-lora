@@ -20,7 +20,7 @@ export const fetchAssetResultAtomBuilder = (assetIndex: AssetIndex) =>
       })
   })
 
-export const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+export const getAssetResultAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, noCache?: boolean) => {
   const fetchAssetResultAtom = fetchAssetResultAtomBuilder(assetIndex)
 
   const syncEffect = atomEffect((get, set) => {
@@ -39,13 +39,20 @@ export const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) =
   return atom(async (get) => {
     const assetResults = store.get(assetResultsAtom)
     const cachedAssetResult = assetResults.get(assetIndex)
-    if (cachedAssetResult) {
-      return asAsset(cachedAssetResult)
+    if (cachedAssetResult && !noCache) {
+      return cachedAssetResult
     }
 
     get(syncEffect)
 
     const assetResult = await get(fetchAssetResultAtom)
+    return assetResult
+  })
+}
+
+export const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+  return atom(async (get) => {
+    const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex))
     return asAsset(assetResult)
   })
 }
