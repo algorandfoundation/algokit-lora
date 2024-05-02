@@ -1,4 +1,5 @@
 import { Transaction } from '@/features/transactions/models'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export type Asset = {
   id: number
@@ -24,6 +25,11 @@ export enum TokenType {
 }
 
 export type AssetWithMetadata = Asset & {
+  metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
+  transactionResults: TransactionResult[]
+}
+
+export type AssetWithMetadataAndTransaction = Asset & {
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
   transactions: Transaction[]
 }

@@ -13,7 +13,8 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
-import { assetsTransactionResultsAtom, assetsWithMetadataAtom } from '@/features/assets/data/core'
+import { assetsWithMetadataAtom } from '@/features/assets/data/core'
+import { mutatedAssetWithMetadata } from '@/features/assets/utils/mutate-asset-with-metadata'
 
 const maxBlocksToDisplay = 5
 
@@ -114,32 +115,18 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       return prev
     })
 
-    set(assetsWithMetadataAtom, (prev) => {
-      const foo = prev.get(655061079)
-      if (!foo) return prev
-      const currentRound = blocks[blocks.length - 1][0]
-      const newMap = new Map([...prev])
-      newMap.set(655061079, {
-        ...foo,
-      })
-      console.log('Set current round to', currentRound)
-      return newMap
-    })
+    transactions.forEach((transactionResult) => {
+      const assetIds = getAssetIdsForTransaction(transactionResult)
+      assetIds.forEach((assetId) => {
+        set(assetsWithMetadataAtom, (prev) => {
+          const existingAsset = prev.get(assetId)
+          if (!existingAsset) return prev
 
-    // OK, new map works
-    // transactions.forEach((transactionResult) => {
-    //   const assetIds = getAssetIdsForTransaction(transactionResult)
-    //   assetIds.forEach((assetId) => {
-    //     set(assetsTransactionResultsAtom, (prev) => {
-    //       if (!prev.has(assetId)) return prev
-    //       const newMap = new Map([...prev])
-    //       const arr = [...(prev.get(assetId) ?? []), transactionResult]
-    //       newMap.set(assetId, arr)
-    //       console.log('set for assetId', assetId, arr.length, newMap === prev)
-    //       return newMap
-    //     })
-    //   })
-    // })
+          const mutatedAsset = mutatedAssetWithMetadata(existingAsset, transactionResult)
+          return new Map([...prev, [assetId, mutatedAsset]])
+        })
+      })
+    })
 
     set(blockResultsAtom, (prev) => {
       blocks.forEach(([key, value]) => {

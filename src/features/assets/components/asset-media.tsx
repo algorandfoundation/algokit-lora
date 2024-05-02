@@ -1,11 +1,11 @@
 import { cn } from '@/features/common/utils'
-import { Arc3Metadata, Arc69Metadata, AssetWithMetadata } from '../models'
+import { Arc3Metadata, Arc69Metadata, AssetWithMetadataAndTransaction } from '../models'
 import { useMemo } from 'react'
 import { getArc19MetadataUrl } from '../utils/get-arc-19-metadata-url'
 import { getHttpUrlFromIpfs } from '../utils/get-http-url-from-ipfs'
 
 type Props = {
-  asset: AssetWithMetadata
+  asset: AssetWithMetadataAndTransaction
 }
 
 export function AssetMedia({ asset }: Props) {

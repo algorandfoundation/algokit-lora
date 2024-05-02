@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
-import { AssetWithMetadata } from '../models'
+import { AssetWithMetadataAndTransaction } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import Decimal from 'decimal.js'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -31,7 +31,7 @@ import { AssetMetadata } from './asset-metadata'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 
 type Props = {
-  asset: AssetWithMetadata
+  asset: AssetWithMetadataAndTransaction
 }
 
 export function AssetDetails({ asset }: Props) {

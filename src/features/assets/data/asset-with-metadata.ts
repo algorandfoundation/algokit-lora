@@ -2,7 +2,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
 import { assetsWithMetadataAtom } from './core'
-import { AssetWithMetadata } from '../models'
+import { AssetWithMetadata, AssetWithMetadataAndTransaction } from '../models'
 import { useMemo } from 'react'
 import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
@@ -13,7 +13,6 @@ import { fetchAssetMetadataAtomBuilder } from './asset-metadata'
 import { fetchTransactionsAtomBuilder } from '@/features/transactions/data'
 
 const getAssetWithMetadataAtomBuilder = (
-  store: JotaiStore,
   assetIndex: AssetIndex,
   assetTransactionResultsAtom: ReturnType<typeof useAssetTransactionResultsAtom>
 ) => {
@@ -41,18 +40,18 @@ const getAssetWithMetadataAtomBuilder = (
 
     get(syncEffect)
 
+    // TODO: do we need store. here?
     const assetResult = await get(fetchAssetResultAtomBuilder(assetIndex))
     const assetMetadata = await get(fetchAssetMetadataAtomBuilder(assetResult, assetTransactionResults))
 
     const asset = asAsset(assetResult)
-    const transactions = (await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))).sort(
-      (a, b) => b.confirmedRound - a.confirmedRound
-    )
+    // const transactions = (await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))).sort(
+    //   (a, b) => b.confirmedRound - a.confirmedRound
+    // )
 
     return {
       ...asset,
-      transactions: transactions,
-      currentRound: transactions[0]?.confirmedRound ?? 0,
+      transactionResults: assetTransactionResults,
       metadata: assetMetadata,
     } satisfies AssetWithMetadata
   })
@@ -60,12 +59,31 @@ const getAssetWithMetadataAtomBuilder = (
   return assetMetadataAtom
 }
 
+const getAssetWithMetadataAndTransactionsAtomBuilder = (
+  store: JotaiStore,
+  assetIndex: AssetIndex,
+  assetTransactionResultsAtom: ReturnType<typeof useAssetTransactionResultsAtom>
+) => {
+  return atom(async (get) => {
+    const assetMetadataAtom = await get(getAssetWithMetadataAtomBuilder(assetIndex, assetTransactionResultsAtom))
+    const transactions = (await get(fetchTransactionsAtomBuilder(store, assetMetadataAtom.transactionResults))).sort(
+      (a, b) => b.confirmedRound - a.confirmedRound
+    )
+
+    // TODO: see if we can avoid the spread operation here because it will include the transactionResults
+    return {
+      ...assetMetadataAtom,
+      transactions,
+    } satisfies AssetWithMetadataAndTransaction
+  })
+}
+
 export const useAssetWithMetadataAtom = (assetIndex: AssetIndex) => {
   const store = useStore()
   const assetsTransactionResultsAtom = useAssetTransactionResultsAtom(assetIndex)
 
   return useMemo(() => {
-    return getAssetWithMetadataAtomBuilder(store, assetIndex, assetsTransactionResultsAtom)
+    return getAssetWithMetadataAndTransactionsAtomBuilder(store, assetIndex, assetsTransactionResultsAtom)
   }, [store, assetIndex, assetsTransactionResultsAtom])
 }
 
