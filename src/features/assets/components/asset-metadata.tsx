@@ -1,13 +1,13 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { AssetWithMetadataAndTransaction } from '../models'
+import { Asset } from '../models'
 import { assetMetadataLabel } from './labels'
 import { useMemo } from 'react'
 import { isDefined } from '@/utils/is-defined'
 import { DescriptionList } from '@/features/common/components/description-list'
 
 type Props = {
-  asset: AssetWithMetadataAndTransaction
+  asset: Asset
 }
 
 export function AssetMetadata({ asset }: Props) {
