@@ -2,8 +2,8 @@ import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-util
 import axios from 'axios'
 import { asArc3Metadata, asArc69Metadata } from '../mappers'
 import { Arc3Metadata, Arc19Metadata, Arc69Metadata, Arc3MetadataResult, Arc69MetadataResult } from '../models'
-import { getArc19MetadataUrl } from './get-arc-19-metadata-url'
-import { getArc3MetadataUrl } from './resolve-arc-3-url'
+import { getArc19Url } from './get-arc-19-url'
+import { getArc3Url } from './get-arc-3-url'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 
 // This atom returns the array of ARC metadata for the asset result
@@ -28,8 +28,8 @@ export const getAssetMetadata = async (assetResult: AssetResult, assetTransactio
     const isAlsoArc19 = assetResult.params.url.startsWith('template-ipfs://')
 
     const metadataUrl = isAlsoArc19
-      ? getArc19MetadataUrl(assetResult.params.url, assetResult.params.reserve)
-      : getArc3MetadataUrl(assetResult.index, assetResult.params.url)
+      ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
+      : getArc3Url(assetResult.index, assetResult.params.url)
 
     if (metadataUrl) {
       const metadataResult = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
@@ -50,7 +50,7 @@ export const getAssetMetadata = async (assetResult: AssetResult, assetTransactio
     // If the asset doesn't follow ARC-3, but the URL starts with template-ipfs://, it follows ARC-19
     // There is no specs for ARC-19 metadata, but it seems to be the same with ARC-3
 
-    const metadataUrl = getArc19MetadataUrl(assetResult.params.url, assetResult.params.reserve)
+    const metadataUrl = getArc19Url(assetResult.params.url, assetResult.params.reserve)
     if (metadataUrl) {
       const metadataResult = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
       const metadata = asArc3Metadata(assetResult.index, assetResult.params.url, metadataResult)

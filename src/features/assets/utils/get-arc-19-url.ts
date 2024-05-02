@@ -2,9 +2,9 @@ import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
 import { sha256 } from 'multiformats/hashes/sha2'
 import algosdk from 'algosdk'
-import { getHttpUrlFromIpfs } from './get-http-url-from-ipfs'
+import { replaceIpfsWithGatewayIfNeeded } from './replace-ipfs-with-gateway-if-needed'
 
-export function getArc19MetadataUrl(templateUrl: string | undefined, reserveAddress: string | undefined): string | undefined {
+export function getArc19Url(templateUrl: string | undefined, reserveAddress: string | undefined): string | undefined {
   // https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0019.md
   const ipfsTemplateUrlMatch = new RegExp(
     /^template-ipfs:\/\/{ipfscid:(?<version>[01]):(?<codec>[a-z0-9-]+):(?<field>[a-z0-9-]+):(?<hash>[a-z0-9-]+)}/
@@ -42,5 +42,5 @@ export function getArc19MetadataUrl(templateUrl: string | undefined, reserveAddr
 
   const url = templateUrl!.replace(match[0], `ipfs://${cid.toString()}`).replace(/#arc3$/, '')
 
-  return getHttpUrlFromIpfs(url)
+  return replaceIpfsWithGatewayIfNeeded(url)
 }

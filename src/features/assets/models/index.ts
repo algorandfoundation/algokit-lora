@@ -78,7 +78,6 @@ export type Arc3MetadataResult = {
   animation_url_mimetype?: string
   properties?: Record<string, string>
   extra_metadata?: string
-  // TODO: localization
 }
 
 export type Arc69MetadataResult = {
