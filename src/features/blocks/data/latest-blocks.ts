@@ -13,7 +13,7 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
-import { assetsTransactionResultsAtom } from '@/features/assets/data/core'
+import { assetsTransactionResultsAtom, assetsWithMetadataAtom } from '@/features/assets/data/core'
 
 const maxBlocksToDisplay = 5
 
@@ -113,18 +113,34 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       })
       return prev
     })
-    set(assetsTransactionResultsAtom, (prev) => {
-      transactions.forEach((transactionResult) => {
-        const assetIds = getAssetIdsForTransaction(transactionResult)
-        assetIds.forEach((assetId) => {
-          if (!prev.has(assetId)) return prev
-          prev.set(assetId, [...(prev.get(assetId) ?? []), transactionResult])
-          console.log('set for assetId', assetId)
-        })
-      })
 
-      return prev
+    set(assetsWithMetadataAtom, (prev) => {
+      const foo = prev.get(655061079)
+      if (!foo) return prev
+      const currentRound = blocks[blocks.length - 1][0]
+      const newMap = new Map([...prev])
+      newMap.set(655061079, {
+        ...foo,
+        currentRound: currentRound,
+      })
+      console.log('Set current round to', currentRound)
+      return newMap
     })
+
+    // OK, new map works
+    // transactions.forEach((transactionResult) => {
+    //   const assetIds = getAssetIdsForTransaction(transactionResult)
+    //   assetIds.forEach((assetId) => {
+    //     set(assetsTransactionResultsAtom, (prev) => {
+    //       if (!prev.has(assetId)) return prev
+    //       const newMap = new Map([...prev])
+    //       const arr = [...(prev.get(assetId) ?? []), transactionResult]
+    //       newMap.set(assetId, arr)
+    //       console.log('set for assetId', assetId, arr.length, newMap === prev)
+    //       return newMap
+    //     })
+    //   })
+    // })
 
     set(blockResultsAtom, (prev) => {
       blocks.forEach(([key, value]) => {

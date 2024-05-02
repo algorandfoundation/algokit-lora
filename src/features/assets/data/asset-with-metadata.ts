@@ -34,7 +34,7 @@ const getAssetWithMetadataAtomBuilder = (
     // TODO: work out how to sync with assets transaction results atom
     // get(syncedRoundAtom) 655061079
     const assetTransactionResults = await get(assetTransactionResultsAtom)
-    const assetsWithMetadata = store.get(assetsWithMetadataAtom)
+    const assetsWithMetadata = get(assetsWithMetadataAtom)
 
     console.log('im here')
     const assetWithMetadata = assetsWithMetadata.get(assetIndex)
@@ -55,11 +55,14 @@ const getAssetWithMetadataAtomBuilder = (
     const assetMetadata = await get(fetchAssetMetadataAtomBuilder(assetResult, assetTransactionResults))
 
     const asset = asAsset(assetResult)
-    const transactions = await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))
+    const transactions = (await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))).sort(
+      (a, b) => b.confirmedRound - a.confirmedRound
+    )
 
     return {
       ...asset,
-      transactions: transactions.sort((a, b) => b.confirmedRound - a.confirmedRound),
+      transactions: transactions,
+      currentRound: transactions[0]?.confirmedRound ?? 0,
       metadata: assetMetadata,
     } satisfies AssetWithMetadata
   })

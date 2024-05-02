@@ -24,6 +24,7 @@ export enum TokenType {
 }
 
 export type AssetWithMetadata = Asset & {
+  currentRound: number
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
   transactions: Transaction[]
 }

@@ -9,6 +9,7 @@ import { indexer } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { useMemo } from 'react'
 import { syncedRoundAtom } from '@/features/blocks/data/core'
+import { selectAtom } from 'jotai/utils'
 
 const fetchAssetTransactionResultsAtomBuilder = (assetIndex: AssetIndex) => {
   return atom(async () => {
@@ -54,11 +55,10 @@ export const getAssetTransactionResultsAtomBuilder = (assetIndex: AssetIndex) =>
   const syncEffect = syncAssetTransactionResultEffectBuilder(assetIndex, fetchAssetTransactionResults)
 
   return atom(async (get) => {
-    get(syncedRoundAtom)
-    console.log('im here 1')
-    const assetsTransactionResults = get(assetsTransactionResultsAtom)
-    const cachedTransactionResults = assetsTransactionResults.get(assetIndex)
-    if (cachedTransactionResults) {
+    // get(syncedRoundAtom)
+    const cachedTransactionResults = get(assetsTransactionResultsAtom).get(assetIndex) ?? []
+    console.log('im here 1', cachedTransactionResults)
+    if (cachedTransactionResults.length) {
       return cachedTransactionResults
     }
 
