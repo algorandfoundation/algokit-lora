@@ -1,15 +1,12 @@
-import { JotaiStore } from '@/features/common/data/types'
 import { AssetIndex } from './types'
 import { atomEffect } from 'jotai-effect'
-import { atom, useStore } from 'jotai'
+import { atom } from 'jotai'
 import { assetsTransactionResultsAtom } from './core'
 import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { indexer } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { useMemo } from 'react'
-import { syncedRoundAtom } from '@/features/blocks/data/core'
-import { selectAtom } from 'jotai/utils'
 
 const fetchAssetTransactionResultsAtomBuilder = (assetIndex: AssetIndex) => {
   return atom(async () => {
@@ -55,9 +52,8 @@ export const getAssetTransactionResultsAtomBuilder = (assetIndex: AssetIndex) =>
   const syncEffect = syncAssetTransactionResultEffectBuilder(assetIndex, fetchAssetTransactionResults)
 
   return atom(async (get) => {
-    // get(syncedRoundAtom)
     const cachedTransactionResults = get(assetsTransactionResultsAtom).get(assetIndex) ?? []
-    console.log('im here 1', cachedTransactionResults)
+
     if (cachedTransactionResults.length) {
       return cachedTransactionResults
     }
@@ -73,7 +69,3 @@ export const useAssetTransactionResultsAtom = (assetIndex: AssetIndex) => {
     return getAssetTransactionResultsAtomBuilder(assetIndex)
   }, [assetIndex])
 }
-
-// export const useAssetTransactionResults = (assetIndex: AssetIndex) => {
-//   return useAtomValue(useAssetTransactionResultsAtom(assetIndex))
-// }

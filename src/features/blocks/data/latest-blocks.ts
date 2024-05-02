@@ -121,7 +121,6 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       const newMap = new Map([...prev])
       newMap.set(655061079, {
         ...foo,
-        currentRound: currentRound,
       })
       console.log('Set current round to', currentRound)
       return newMap

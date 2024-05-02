@@ -125,7 +125,6 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-6 pt-7')}>
-      Current Round: {asset.currentRound} <br />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>

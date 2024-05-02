@@ -31,22 +31,12 @@ const getAssetWithMetadataAtomBuilder = (
   })
 
   const assetMetadataAtom = atom(async (get) => {
-    // TODO: work out how to sync with assets transaction results atom
-    // get(syncedRoundAtom) 655061079
     const assetTransactionResults = await get(assetTransactionResultsAtom)
     const assetsWithMetadata = get(assetsWithMetadataAtom)
 
-    console.log('im here')
     const assetWithMetadata = assetsWithMetadata.get(assetIndex)
     if (assetWithMetadata) {
-      // TODO: consider performance, can we only sync if the asset has new transactions
-      // TODO: update metadata, also be careful, only update ARC-19 and ARC-69
-      const transactions = await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))
-
-      return {
-        ...assetWithMetadata,
-        transactions: transactions.sort((a, b) => b.confirmedRound - a.confirmedRound),
-      }
+      return assetWithMetadata
     }
 
     get(syncEffect)
