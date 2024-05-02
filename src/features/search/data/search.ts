@@ -6,7 +6,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { Urls } from '@/routes/urls'
 import { is404 } from '@/utils/error'
 import { getApplicationAtomBuilder } from '@/features/applications/data'
-import { getAssetAtomBuilder } from '@/features/assets/data'
+import { getAssetSummaryAtomBuilder } from '@/features/assets/data'
 import { SearchResult, SearchResultType } from '../models'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ellipseId } from '@/utils/ellipse-id'
@@ -65,7 +65,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
           })
         }
 
-        const assetAtom = getAssetAtomBuilder(store, id)
+        const assetAtom = getAssetSummaryAtomBuilder(store, id)
         const applicationAtom = getApplicationAtomBuilder(store, id)
 
         try {

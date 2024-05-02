@@ -2,7 +2,7 @@ import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-util
 import { AssetIndex } from './types'
 import { atom } from 'jotai'
 import { ZERO_ADDRESS } from '@/features/common/constants'
-import { AssetWithMetadata } from '../models'
+import { Asset } from '../models'
 
 export const algoAssetResult = {
   index: 0,
@@ -19,7 +19,6 @@ export const algoAssetResult = {
 
 export const assetResultsAtom = atom<Map<AssetIndex, AssetResult>>(new Map([[algoAssetResult.index, algoAssetResult]]))
 
-export const assetsWithMetadataAtom = atom<Map<AssetIndex, AssetWithMetadata>>(new Map())
+export const assetsAtom = atom<Map<AssetIndex, Asset>>(new Map())
 
-// TODO: we might not need this
 export const assetsTransactionResultsAtom = atom<Map<AssetIndex, TransactionResult[]>>(new Map())

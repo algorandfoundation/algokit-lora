@@ -8,9 +8,12 @@ import {
 } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { Asset } from '@/features/assets/models'
+import { AssetSummary } from '@/features/assets/models'
 
-const mapCommonAssetFreezeTransactionProperties = (transactionResult: TransactionResult, asset: Asset): BaseAssetFreezeTransaction => {
+const mapCommonAssetFreezeTransactionProperties = (
+  transactionResult: TransactionResult,
+  asset: AssetSummary
+): BaseAssetFreezeTransaction => {
   invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
 
   return {
@@ -25,7 +28,7 @@ const mapCommonAssetFreezeTransactionProperties = (transactionResult: Transactio
   }
 }
 
-export const asAssetFreezeTransaction = (transactionResult: TransactionResult, asset: Asset): AssetFreezeTransaction => {
+export const asAssetFreezeTransaction = (transactionResult: TransactionResult, asset: AssetSummary): AssetFreezeTransaction => {
   return {
     id: transactionResult.id,
     ...mapCommonAssetFreezeTransactionProperties(transactionResult, asset),
@@ -36,7 +39,7 @@ export const asInnerAssetFreezeTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  asset: Asset
+  asset: AssetSummary
 ): InnerAssetFreezeTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),

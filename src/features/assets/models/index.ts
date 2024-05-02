@@ -1,6 +1,6 @@
 import { Transaction } from '@/features/transactions/models'
 
-export type Asset = {
+export type AssetSummary = {
   id: number
   name?: string
   total: number | bigint
@@ -23,7 +23,7 @@ export enum TokenType {
   FractionalNonFungible = 'Fractional Non-Fungible',
 }
 
-export type AssetWithMetadata = Asset & {
+export type Asset = AssetSummary & {
   validRound: number
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
   transactions: Transaction[]

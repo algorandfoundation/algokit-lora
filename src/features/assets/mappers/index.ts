@@ -1,12 +1,12 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { Arc3Metadata, Arc3MetadataResult, Arc69Metadata, Arc69MetadataResult, Asset, TokenType } from '../models'
+import { Arc3Metadata, Arc3MetadataResult, Arc69Metadata, Arc69MetadataResult, AssetSummary, TokenType } from '../models'
 import { asJson } from '@/utils/as-json'
 import { AssetIndex } from '../data/types'
 import { getArc3MetadataUrl } from '../utils/resolve-arc-3-url'
 import Decimal from 'decimal.js'
 import { getHttpUrlFromIpfs } from '../utils/get-http-url-from-ipfs'
 
-export const asAsset = (assetResult: AssetResult): Asset => {
+export const asAssetSummary = (assetResult: AssetResult): AssetSummary => {
   return {
     id: assetResult.index,
     name: assetResult.params.name,
@@ -50,6 +50,7 @@ export const asArc3Metadata = (
   }
 }
 
+// TODO: rename this function
 const getArc3MediaUrl = (assetIndex: AssetIndex, assetMetadataUrl: string, mediaUrl: string) => {
   const isRelative = !mediaUrl.includes(':')
   const absoluteImageUrl = !isRelative ? mediaUrl : new URL(assetMetadataUrl, mediaUrl).toString()

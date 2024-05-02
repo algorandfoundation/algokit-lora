@@ -6,7 +6,7 @@ import { isInteger } from '@/utils/is-integer'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
-import { useLoadableAssetWithMetadataAtom } from '../data/asset-with-metadata'
+import { useLoadableAssetAtom } from '../data/asset-with-metadata'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -28,7 +28,7 @@ export function AssetPage() {
   invariant(isInteger(_assetId), assetInvalidIdMessage)
 
   const assetId = parseInt(_assetId, 10)
-  const loadableAssetWithMetadata = useLoadableAssetWithMetadataAtom(assetId)
+  const loadableAssetWithMetadata = useLoadableAssetAtom(assetId)
 
   return (
     <div>
