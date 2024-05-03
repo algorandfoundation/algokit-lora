@@ -2,14 +2,11 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
 import { assetsAtom } from './core'
-import { Asset } from '../models'
 import { useMemo } from 'react'
 import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { getAssetResultAtomBuilder } from './asset-summary'
-import { asAssetSummary } from '../mappers'
-import { getAssetAssetConfigTransactionResultsAtomBuilder } from './asset-asset-config-transaction-results'
-import { getAssetMetadata } from '../utils/get-asset-metadata'
+import { getAsset } from '../utils/get-asset'
 
 const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   const syncEffect = atomEffect((get, set) => {
@@ -27,36 +24,16 @@ const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   })
 
   const assetAtom = atom(async (get) => {
-    // This is tricky, for asset with a lot of transactions, this takes too long
-    // If we do pagination by the table, we won't be able to refresh
-    const assetAssetConfigTransactionResults = await get(getAssetAssetConfigTransactionResultsAtomBuilder(assetIndex))
-    const assets = store.get(assetsAtom)
-    const latestRound = assetAssetConfigTransactionResults[assetAssetConfigTransactionResults.length - 1]['confirmed-round']!
-    let ignoreCache = false
+    const cachedAsset = get(assetsAtom).get(assetIndex)
 
-    const cachedAsset = assets.get(assetIndex)
     if (cachedAsset) {
-      if (cachedAsset.validRound === latestRound) {
-        return cachedAsset
-      } else {
-        // If there are new asset config transactions, we need to fetch the asset again
-        ignoreCache = true
-      }
+      return cachedAsset
     }
 
     get(syncEffect)
 
-    const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex, ignoreCache))
-    const assetMetadata =
-      !cachedAsset || ignoreCache ? await getAssetMetadata(assetResult, assetAssetConfigTransactionResults) : cachedAsset.metadata
-
-    const asset = asAssetSummary(assetResult)
-
-    return {
-      ...asset,
-      validRound: latestRound,
-      metadata: assetMetadata,
-    } satisfies Asset
+    const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex))
+    return getAsset(assetResult)
   })
 
   return assetAtom

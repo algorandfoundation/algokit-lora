@@ -12,9 +12,12 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
-import { assetsAssetConfigTransactionResultsAtom } from '@/features/assets/data/core'
+import { assetsAtom } from '@/features/assets/data/core'
 import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
+import { distinct } from '@/utils/distinct'
+import { getAsset } from '@/features/assets/utils/get-asset'
+import { fetchAssetResultAtomBuilder } from '@/features/assets/data'
 
 const maxBlocksToDisplay = 5
 
@@ -116,18 +119,17 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     })
 
     transactions.forEach((transactionResult) => {
-      const assetConfigTransactionResults = flattenTransactionResult(transactionResult).filter(
-        (t) => t['tx-type'] === algosdk.TransactionType.acfg
-      )
+      const affectedAssetIds = flattenTransactionResult(transactionResult)
+        .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
+        .map((t) => t['asset-config-transaction']!['asset-id'])
+        .filter(distinct((x) => x))
 
-      assetConfigTransactionResults.forEach((transactionResult) => {
-        const assetId = transactionResult['asset-config-transaction']!['asset-id']
-        set(assetsAssetConfigTransactionResultsAtom, (prev) => {
-          const cachedData = prev.get(assetId)
-          if (!cachedData) return prev
+      affectedAssetIds.forEach(async (assetId) => {
+        const assetResult = await get(fetchAssetResultAtomBuilder(assetId))
+        const asset = await getAsset(assetResult)
 
-          const transactionResults = [...cachedData, transactionResult]
-          return new Map([...prev, [assetId, transactionResults]])
+        set(assetsAtom, (prev) => {
+          return new Map([...prev, [assetId, asset]])
         })
       })
     })

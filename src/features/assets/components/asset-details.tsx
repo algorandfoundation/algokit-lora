@@ -28,7 +28,6 @@ import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
 import { AssetTraits } from './asset-traits'
 import { AssetMetadata } from './asset-metadata'
-import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 
 type Props = {
   asset: Asset
