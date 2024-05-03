@@ -28,13 +28,13 @@ export function AssetPage() {
   invariant(isInteger(_assetId), assetInvalidIdMessage)
 
   const assetId = parseInt(_assetId, 10)
-  const loadableAssetWithMetadata = useLoadableAssetAtom(assetId)
+  const loadableAsset = useLoadableAssetAtom(assetId)
 
   return (
     <div>
       <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
-      <RenderLoadable loadable={loadableAssetWithMetadata} transformError={transformError}>
-        {(assetWithMetadata) => <>{<AssetDetails asset={assetWithMetadata} />}</>}
+      <RenderLoadable loadable={loadableAsset} transformError={transformError}>
+        {(asset) => <>{<AssetDetails asset={asset} />}</>}
       </RenderLoadable>
     </div>
   )

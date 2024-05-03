@@ -20,10 +20,10 @@ const getAssetAtomBuilder = (
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
       try {
-        const assetMetadata = await get(assetMetadataAtom)
+        const asset = await get(assetAtom)
 
         set(assetsAtom, (prev) => {
-          return prev.set(assetIndex, assetMetadata)
+          return prev.set(assetIndex, asset)
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
@@ -31,18 +31,20 @@ const getAssetAtomBuilder = (
     })()
   })
 
-  const assetMetadataAtom = atom(async (get) => {
+  const assetAtom = atom(async (get) => {
+    // This is tricky, for asset with a lot of transactions, this takes too long
+    // If we do pagination by the table, we won't be able to refresh
     const assetTransactionResults = await get(assetTransactionResultsAtom)
-    const assetsWithMetadata = get(assetsAtom)
+    const assets = get(assetsAtom)
     let noCache = false
 
-    const assetWithMetadata = assetsWithMetadata.get(assetIndex)
-    if (assetWithMetadata) {
-      if (assetWithMetadata.validRound === assetTransactionResults[assetTransactionResults.length - 1].confirmedRound) {
-        return assetWithMetadata
+    const cachedAsset = assets.get(assetIndex)
+    if (cachedAsset) {
+      if (cachedAsset.validRound === assetTransactionResults[assetTransactionResults.length - 1].confirmedRound) {
+        return cachedAsset
       }
 
-      if (assetTransactionResults.some((t) => t['confirmed-round']! > assetWithMetadata.validRound && t['tx-type'] === 'acfg')) {
+      if (assetTransactionResults.some((t) => t['confirmed-round']! > cachedAsset.validRound && t['tx-type'] === 'acfg')) {
         // If there are new asset config transactions, we need to fetch the asset again
         noCache = true
       }
@@ -51,8 +53,7 @@ const getAssetAtomBuilder = (
     get(syncEffect)
 
     const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex, noCache))
-    const assetMetadata =
-      !assetWithMetadata || !noCache ? await getAssetMetadata(assetResult, assetTransactionResults) : assetWithMetadata.metadata
+    const assetMetadata = !cachedAsset || !noCache ? await getAssetMetadata(assetResult, assetTransactionResults) : cachedAsset.metadata
 
     const asset = asAssetSummary(assetResult)
     const transactions = (await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))).sort(
@@ -67,7 +68,7 @@ const getAssetAtomBuilder = (
     } satisfies Asset
   })
 
-  return assetMetadataAtom
+  return assetAtom
 }
 
 export const useAssetAtom = (assetIndex: AssetIndex) => {
