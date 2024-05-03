@@ -35,11 +35,12 @@ const getAssetAtomBuilder = (
     // If we do pagination by the table, we won't be able to refresh
     const assetAssetConfigTransactionResults = await get(assetAssetConfigTransactionResultsAtom)
     const assets = store.get(assetsAtom)
+    const latestRound = assetAssetConfigTransactionResults[assetAssetConfigTransactionResults.length - 1]['confirmed-round']!
     let ignoreCache = false
 
     const cachedAsset = assets.get(assetIndex)
     if (cachedAsset) {
-      if (cachedAsset.validRound === assetAssetConfigTransactionResults[assetAssetConfigTransactionResults.length - 1]['confirmed-round']) {
+      if (cachedAsset.validRound === latestRound) {
         return cachedAsset
       } else {
         // If there are new asset config transactions, we need to fetch the asset again
@@ -57,7 +58,7 @@ const getAssetAtomBuilder = (
 
     return {
       ...asset,
-      validRound: assetAssetConfigTransactionResults[assetAssetConfigTransactionResults.length - 1].confirmedRound,
+      validRound: latestRound,
       metadata: assetMetadata,
     } satisfies Asset
   })
