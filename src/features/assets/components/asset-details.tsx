@@ -152,9 +152,7 @@ export function AssetDetails({ asset }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
-          <div className={cn('border-solid border-2 grid p-4')}>
-            <TransactionsTable transactions={asset.transactions} />
-          </div>
+          <div className={cn('border-solid border-2 grid p-4')}>{/* <TransactionsTable transactions={asset.transactions} /> */}</div>
         </CardContent>
       </Card>
     </div>

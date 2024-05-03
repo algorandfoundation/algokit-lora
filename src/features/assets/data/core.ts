@@ -21,4 +21,4 @@ export const assetResultsAtom = atom<Map<AssetIndex, AssetResult>>(new Map([[alg
 
 export const assetsAtom = atom<Map<AssetIndex, Asset>>(new Map())
 
-export const assetsTransactionResultsAtom = atom<Map<AssetIndex, TransactionResult[]>>(new Map())
+export const assetsAssetConfigTransactionResultsAtom = atom<Map<AssetIndex, TransactionResult[]>>(new Map())

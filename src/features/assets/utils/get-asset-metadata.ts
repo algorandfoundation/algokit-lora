@@ -13,9 +13,7 @@ import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 // - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
 // - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
 // - ARC-19 doesn't specify the metadata format but it seems to be the same with ARC-3
-export const getAssetMetadata = async (assetResult: AssetResult, assetTransactionResults: TransactionResult[]) => {
-  const assetConfigTransactionResults = assetTransactionResults.filter((t) => t['tx-type'] === 'acfg')
-
+export const getAssetMetadata = async (assetResult: AssetResult, assetConfigTransactionResults: TransactionResult[]) => {
   // TODO: handle ARC-16
   const metadataArray: Array<Arc3Metadata | Arc19Metadata | Arc69Metadata> = []
 

@@ -12,8 +12,9 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
-import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
-import { assetsTransactionResultsAtom } from '@/features/assets/data/core'
+import { assetsAssetConfigTransactionResultsAtom } from '@/features/assets/data/core'
+import algosdk from 'algosdk'
+import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 
 const maxBlocksToDisplay = 5
 
@@ -115,9 +116,13 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     })
 
     transactions.forEach((transactionResult) => {
-      const assetIds = getAssetIdsForTransaction(transactionResult)
-      assetIds.forEach((assetId) => {
-        set(assetsTransactionResultsAtom, (prev) => {
+      const assetConfigTransactionResults = flattenTransactionResult(transactionResult).filter(
+        (t) => t['tx-type'] === algosdk.TransactionType.acfg
+      )
+
+      assetConfigTransactionResults.forEach((transactionResult) => {
+        const assetId = transactionResult['asset-config-transaction']!['asset-id']
+        set(assetsAssetConfigTransactionResultsAtom, (prev) => {
           const cachedData = prev.get(assetId)
           if (!cachedData) return prev
 
