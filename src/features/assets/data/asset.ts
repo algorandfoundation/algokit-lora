@@ -8,14 +8,10 @@ import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { getAssetResultAtomBuilder } from './asset-summary'
 import { asAssetSummary } from '../mappers'
-import { useAssetAssetConfigTransactionResultsAtom } from './asset-asset-config-transaction-results'
+import { getAssetAssetConfigTransactionResultsAtomBuilder } from './asset-asset-config-transaction-results'
 import { getAssetMetadata } from '../utils/get-asset-metadata'
 
-const getAssetAtomBuilder = (
-  store: JotaiStore,
-  assetIndex: AssetIndex,
-  assetAssetConfigTransactionResultsAtom: ReturnType<typeof useAssetAssetConfigTransactionResultsAtom>
-) => {
+const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
       try {
@@ -33,7 +29,7 @@ const getAssetAtomBuilder = (
   const assetAtom = atom(async (get) => {
     // This is tricky, for asset with a lot of transactions, this takes too long
     // If we do pagination by the table, we won't be able to refresh
-    const assetAssetConfigTransactionResults = await get(assetAssetConfigTransactionResultsAtom)
+    const assetAssetConfigTransactionResults = await get(getAssetAssetConfigTransactionResultsAtomBuilder(assetIndex))
     const assets = store.get(assetsAtom)
     const latestRound = assetAssetConfigTransactionResults[assetAssetConfigTransactionResults.length - 1]['confirmed-round']!
     let ignoreCache = false
@@ -68,11 +64,10 @@ const getAssetAtomBuilder = (
 
 export const useAssetAtom = (assetIndex: AssetIndex) => {
   const store = useStore()
-  const assetAssetConfigTransactionResultsAtom = useAssetAssetConfigTransactionResultsAtom(assetIndex)
 
   return useMemo(() => {
-    return getAssetAtomBuilder(store, assetIndex, assetAssetConfigTransactionResultsAtom)
-  }, [assetAssetConfigTransactionResultsAtom, assetIndex, store])
+    return getAssetAtomBuilder(store, assetIndex)
+  }, [assetIndex, store])
 }
 
 export const useLoadableAssetAtom = (assetIndex: AssetIndex) => {

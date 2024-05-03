@@ -7,7 +7,6 @@ import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { indexer } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { useMemo } from 'react'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 
 const fetchAssetAssetConfigTransactionResultsAtomBuilder = (assetIndex: AssetIndex) => {
@@ -50,7 +49,7 @@ const syncAssetAssetConfigTransactionResultEffectBuilder = (
   })
 }
 
-const getAssetAssetConfigTransactionResultsAtomBuilder = (assetIndex: AssetIndex) => {
+export const getAssetAssetConfigTransactionResultsAtomBuilder = (assetIndex: AssetIndex) => {
   const fetchAtom = fetchAssetAssetConfigTransactionResultsAtomBuilder(assetIndex)
   const syncEffect = syncAssetAssetConfigTransactionResultEffectBuilder(assetIndex, fetchAtom)
 
@@ -65,10 +64,4 @@ const getAssetAssetConfigTransactionResultsAtomBuilder = (assetIndex: AssetIndex
 
     return await get(fetchAtom)
   })
-}
-
-export const useAssetAssetConfigTransactionResultsAtom = (assetIndex: AssetIndex) => {
-  return useMemo(() => {
-    return getAssetAssetConfigTransactionResultsAtomBuilder(assetIndex)
-  }, [assetIndex])
 }
