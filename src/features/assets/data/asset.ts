@@ -53,7 +53,7 @@ const getAssetAtomBuilder = (
     get(syncEffect)
 
     const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex, noCache))
-    const assetMetadata = !cachedAsset || !noCache ? await getAssetMetadata(assetResult, assetTransactionResults) : cachedAsset.metadata
+    const assetMetadata = !cachedAsset || noCache ? await getAssetMetadata(assetResult, assetTransactionResults) : cachedAsset.metadata
 
     const asset = asAssetSummary(assetResult)
     const transactions = (await get(fetchTransactionsAtomBuilder(store, assetTransactionResults))).sort(
