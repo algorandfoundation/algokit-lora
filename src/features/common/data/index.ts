@@ -6,11 +6,11 @@ Config.configure({
 })
 
 export const indexer = getAlgoIndexerClient({
-  server: 'https://testnet-idx.algonode.cloud/',
+  server: 'https://mainnet-idx.algonode.cloud/',
   port: 443,
 })
 
 export const algod = getAlgoClient({
-  server: 'https://testnet-api.algonode.cloud/',
+  server: 'https://mainnet-api.algonode.cloud/',
   port: 443,
 })
