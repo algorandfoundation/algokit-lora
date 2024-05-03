@@ -64,11 +64,3 @@ export const getAssetTransactionResultsAtomBuilder = (store: JotaiStore, assetIn
     return await get(fetchAssetTransactionResults)
   })
 }
-
-export const useAssetTransactionResultsAtom = (assetIndex: AssetIndex) => {
-  const store = useStore()
-
-  return useMemo(() => {
-    return getAssetTransactionResultsAtomBuilder(store, assetIndex)
-  }, [assetIndex, store])
-}

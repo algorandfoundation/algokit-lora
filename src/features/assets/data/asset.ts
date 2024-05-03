@@ -8,15 +8,11 @@ import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
 import { getAssetResultAtomBuilder } from './asset-summary'
 import { asAssetSummary } from '../mappers'
-import { useAssetTransactionResultsAtom } from './asset-transaction-results'
+import { getAssetTransactionResultsAtomBuilder } from './asset-transaction-results'
 import { getAssetMetadata } from '../utils/get-asset-metadata'
 import { fetchTransactionsAtomBuilder } from '@/features/transactions/data'
 
-const getAssetAtomBuilder = (
-  store: JotaiStore,
-  assetIndex: AssetIndex,
-  assetTransactionResultsAtom: ReturnType<typeof useAssetTransactionResultsAtom>
-) => {
+const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   const syncEffect = atomEffect((get, set) => {
     ;(async () => {
       try {
@@ -34,8 +30,8 @@ const getAssetAtomBuilder = (
   const assetAtom = atom(async (get) => {
     // This is tricky, for asset with a lot of transactions, this takes too long
     // If we do pagination by the table, we won't be able to refresh
-    const assetTransactionResults = await get(assetTransactionResultsAtom)
-    const assets = get(assetsAtom)
+    const assetTransactionResults = await get(getAssetTransactionResultsAtomBuilder(store, assetIndex))
+    const assets = store.get(assetsAtom)
     let noCache = false
 
     const cachedAsset = assets.get(assetIndex)
@@ -73,11 +69,10 @@ const getAssetAtomBuilder = (
 
 export const useAssetAtom = (assetIndex: AssetIndex) => {
   const store = useStore()
-  const assetsTransactionResultsAtom = useAssetTransactionResultsAtom(assetIndex)
 
   return useMemo(() => {
-    return getAssetAtomBuilder(store, assetIndex, assetsTransactionResultsAtom)
-  }, [assetIndex, assetsTransactionResultsAtom, store])
+    return getAssetAtomBuilder(store, assetIndex)
+  }, [assetIndex, store])
 }
 
 export const useLoadableAssetAtom = (assetIndex: AssetIndex) => {
