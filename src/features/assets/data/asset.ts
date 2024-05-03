@@ -19,7 +19,7 @@ const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
         const asset = await get(assetAtom)
 
         set(assetsAtom, (prev) => {
-          return prev.set(assetIndex, asset)
+          return new Map([...prev, [assetIndex, asset]])
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
