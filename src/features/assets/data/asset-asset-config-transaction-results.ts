@@ -51,12 +51,12 @@ const syncAssetAssetConfigTransactionResultEffectBuilder = (
   })
 }
 
-const getAssetAssetConfigTransactionResultsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+const getAssetAssetConfigTransactionResultsAtomBuilder = (assetIndex: AssetIndex) => {
   const fetchAtom = fetchAssetAssetConfigTransactionResultsAtomBuilder(assetIndex)
   const syncEffect = syncAssetAssetConfigTransactionResultEffectBuilder(assetIndex, fetchAtom)
 
   return atom(async (get) => {
-    const cachedTransactionResults = store.get(assetsAssetConfigTransactionResultsAtom).get(assetIndex) ?? []
+    const cachedTransactionResults = get(assetsAssetConfigTransactionResultsAtom).get(assetIndex) ?? []
 
     if (cachedTransactionResults.length) {
       return cachedTransactionResults
@@ -68,11 +68,8 @@ const getAssetAssetConfigTransactionResultsAtomBuilder = (store: JotaiStore, ass
   })
 }
 
-// TODO: not sure if we need this
 export const useAssetAssetConfigTransactionResultsAtom = (assetIndex: AssetIndex) => {
-  const store = useStore()
-
   return useMemo(() => {
-    return getAssetAssetConfigTransactionResultsAtomBuilder(store, assetIndex)
-  }, [assetIndex, store])
+    return getAssetAssetConfigTransactionResultsAtomBuilder(assetIndex)
+  }, [assetIndex])
 }
