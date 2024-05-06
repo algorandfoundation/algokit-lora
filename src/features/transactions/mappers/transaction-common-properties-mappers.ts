@@ -48,6 +48,7 @@ export const transformSignature = (signature?: TransactionSignature) => {
 
 export const asInnerTransactionId = (networkTransactionId: string, index: string): InnerTransactionId => {
   return {
+    networkTransactionId: networkTransactionId,
     id: `${networkTransactionId}-${index}`,
     innerId: index,
   }
