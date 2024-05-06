@@ -22,7 +22,6 @@ export const getAssetMetadata = async (assetResult: AssetResult, assetConfigTran
     // If the URL starts with template-ipfs://, it also follows ARC-19
     // If the asset follows both ARC-3 and ARC-19, we add both metadata to the array
 
-    // TODO: for ARC3, handle Asset Metadata Hash
     const isAlsoArc19 = assetResult.params.url.startsWith('template-ipfs://')
 
     const metadataUrl = isAlsoArc19

@@ -47,6 +47,6 @@ export const useAssetAtom = (assetIndex: AssetIndex) => {
   }, [assetIndex, store])
 }
 
-export const useLoadableAssetAtom = (assetIndex: AssetIndex) => {
+export const useLoadableAsset = (assetIndex: AssetIndex) => {
   return useAtomValue(loadable(useAssetAtom(assetIndex)))
 }
