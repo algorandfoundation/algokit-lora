@@ -22,7 +22,7 @@ export enum TokenType {
 }
 
 export type Asset = AssetSummary & {
-  validRound: number
+  lastUpdateRound: number
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
 }
 

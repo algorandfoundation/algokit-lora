@@ -29,7 +29,7 @@ export const getAsset = async (assetResult: AssetResult) => {
 
   return {
     ...asset,
-    validRound: 0,
+    lastUpdateRound: assetConfigTransactionResults[assetConfigTransactionResults.length - 1]['confirmed-round']!,
     metadata: assetMetadata,
   } satisfies Asset
 }
