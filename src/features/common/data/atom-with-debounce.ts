@@ -1,6 +1,6 @@
 import { atom, SetStateAction } from 'jotai'
 
-export const atomWithDebounce = <T>(initialValue: T, delayMilliseconds = 600, shouldDebounceOnReset = false) => {
+export const atomWithDebounce = <T>(initialValue: T, delayMilliseconds = 500, shouldDebounceOnReset = false) => {
   const prevTimeoutAtom = atom<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   // DO NOT EXPORT currentValueAtom as using this atom to set state can cause

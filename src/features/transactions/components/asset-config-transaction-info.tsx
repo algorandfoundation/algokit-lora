@@ -1,16 +1,18 @@
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { AssetConfigTransaction, InnerAssetConfigTransaction } from '../models'
+import { AssetConfigTransaction, AssetConfigTransactionSubType, InnerAssetConfigTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel } from './transactions-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
+import { AssetLink } from '@/features/assets/components/asset-link'
+import Decimal from 'decimal.js'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction
 }
 
-export const assetIdLabel = 'Asset ID'
+export const assetLabel = 'Asset'
 export const assetUrlLabel = 'URL'
 export const assetUnitLabel = 'Unit'
 export const assetDecimalsLabel = 'Decimals'
@@ -30,13 +32,8 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
           dd: <AccountLink address={transaction.sender} />,
         },
         {
-          dt: assetIdLabel,
-          dd: (
-            <a href="#" className={cn('text-primary underline')}>
-              {transaction.assetId}
-              {transaction.name && ` (${transaction.name})`}
-            </a>
-          ),
+          dt: assetLabel,
+          dd: <AssetLink assetId={transaction.assetId} assetName={transaction.name} />,
         },
         transaction.url
           ? {
@@ -54,18 +51,22 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
               dd: transaction.unitName,
             }
           : undefined,
-        transaction.decimals != null
-          ? {
-              dt: assetDecimalsLabel,
-              dd: transaction.decimals.toString(),
-            }
-          : undefined,
-        transaction.total != null
-          ? {
-              dt: assetTotalSupplyLabel,
-              dd: transaction.total.toString(),
-            }
-          : undefined,
+        ...(transaction.subType === AssetConfigTransactionSubType.Create
+          ? [
+              transaction.total != null
+                ? {
+                    dt: assetTotalSupplyLabel,
+                    dd: `${new Decimal(transaction.total.toString()).div(new Decimal(10).pow((transaction.decimals ?? 0).toString()))} ${transaction.unitName}`,
+                  }
+                : undefined,
+              transaction.decimals != null
+                ? {
+                    dt: assetDecimalsLabel,
+                    dd: transaction.decimals.toString(),
+                  }
+                : undefined,
+            ]
+          : []),
         transaction.manager
           ? {
               dt: assetManagerLabel,
@@ -107,6 +108,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       transaction.name,
       transaction.reserve,
       transaction.sender,
+      transaction.subType,
       transaction.total,
       transaction.unitName,
       transaction.url,

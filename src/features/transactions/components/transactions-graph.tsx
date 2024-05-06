@@ -29,7 +29,7 @@ import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transactions-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
-import { assetIdLabel } from './asset-config-transaction-info'
+import { assetLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
 import { Badge } from '@/features/common/components/badge'
 import { TransactionLink } from './transaction-link'
@@ -399,7 +399,7 @@ function AssetConfigTransactionToolTipContent({ transaction }: { transaction: As
         dd: transaction.sender,
       },
       {
-        dt: assetIdLabel,
+        dt: assetLabel,
         dd: transaction.assetId,
       },
     ],
@@ -429,7 +429,7 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
         dd: transaction.sender,
       },
       {
-        dt: assetIdLabel,
+        dt: assetLabel,
         dd: transaction.assetId,
       },
       {
