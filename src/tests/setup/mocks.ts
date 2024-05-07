@@ -34,6 +34,15 @@ vi.mock('@/features/common/data', async () => {
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
         }),
       }),
+      searchForTransactions: vi.fn().mockReturnValue({
+        assetID: vi.fn().mockReturnValue({
+          txType: vi.fn().mockReturnValue({
+            do: vi.fn(),
+          }),
+        }),
+      }),
     },
   }
 })
+
+vi.mock('axios')

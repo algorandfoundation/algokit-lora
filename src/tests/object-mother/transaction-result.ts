@@ -48,6 +48,9 @@ export const transactionResultMother = {
         logicsig: { logic: 'CIEBQw==' },
       })
   },
+  assetConfig: () => {
+    return transactionResultBuilder()['withTx-type'](TransactionType.acfg)
+  },
   ['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']: () => {
     return new TransactionResultBuilder({
       id: 'FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ',

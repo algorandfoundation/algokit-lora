@@ -4,6 +4,9 @@ import { AssetResultBuilder } from '../builders/asset-result-builder'
 const encoder = new TextEncoder()
 
 export const assetResultMother = {
+  arc3: () => {
+    return new AssetResultBuilder().arc3Asset()
+  },
   ['mainnet-140479105']: () => {
     return new AssetResultBuilder({
       index: 140479105,
