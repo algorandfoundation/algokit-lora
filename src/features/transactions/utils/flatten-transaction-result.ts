@@ -9,7 +9,6 @@ export const flattenTransactionResult = (transactionResult: TransactionResult): 
   }
 
   const innerTransactions = transactionResult['inner-txns'] ?? []
-  results.push(...innerTransactions.flatMap(flattenTransactionResult))
 
-  return results
+  return results.concat(innerTransactions.flatMap(flattenTransactionResult))
 }

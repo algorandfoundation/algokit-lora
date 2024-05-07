@@ -1,7 +1,7 @@
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import axios from 'axios'
 import { asArc3Metadata, asArc69Metadata } from '../mappers'
-import { Arc3Metadata, Arc19Metadata, Arc69Metadata, Arc3MetadataResult, Arc69MetadataResult } from '../models'
+import { Arc3Metadata, Arc19Metadata, Arc69Metadata, Arc3MetadataResult, Arc69MetadataResult, AssetStandard } from '../models'
 import { getArc19Url } from './get-arc-19-url'
 import { getArc3Url } from './get-arc-3-url'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -34,12 +34,12 @@ export const getAssetMetadata = async (assetResult: AssetResult, assetConfigTran
 
       metadataArray.push({
         ...metadata,
-        standard: 'ARC-3',
+        standard: AssetStandard.ARC3,
       })
       if (isAlsoArc19) {
         metadataArray.push({
           ...metadata,
-          standard: 'ARC-19',
+          standard: AssetStandard.ARC19,
         })
       }
     }
@@ -49,12 +49,13 @@ export const getAssetMetadata = async (assetResult: AssetResult, assetConfigTran
 
     const metadataUrl = getArc19Url(assetResult.params.url, assetResult.params.reserve)
     if (metadataUrl) {
-      const metadataResult = (await axios.get<Arc3MetadataResult>(metadataUrl)).data
+      const response = await fetch(metadataUrl)
+      const metadataResult = (await response.json()) as Arc3MetadataResult
       const metadata = asArc3Metadata(assetResult.index, assetResult.params.url, metadataResult)
 
       metadataArray.push({
         ...metadata,
-        standard: 'ARC-19',
+        standard: AssetStandard.ARC19,
       })
     }
   }

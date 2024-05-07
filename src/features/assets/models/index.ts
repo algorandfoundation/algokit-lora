@@ -26,8 +26,14 @@ export type Asset = AssetSummary & {
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
 }
 
+export enum AssetStandard {
+  ARC3 = 'ARC-3',
+  ARC19 = 'ARC-19',
+  ARC69 = 'ARC-69',
+}
+
 export type Arc69Metadata = {
-  standard: 'ARC-69'
+  standard: AssetStandard.ARC69
   description?: string
   externalUrl?: string
   mediaUrl?: string
@@ -36,7 +42,7 @@ export type Arc69Metadata = {
 }
 
 export type Arc3Metadata = {
-  standard: 'ARC-3'
+  standard: AssetStandard.ARC3
   name?: string
   decimals?: number
   description?: string
@@ -55,7 +61,7 @@ export type Arc3Metadata = {
 }
 
 export type Arc19Metadata = Omit<Arc3Metadata, 'standard'> & {
-  standard: 'ARC-19'
+  standard: AssetStandard.ARC19
 }
 
 // ARC-3 and ARC-19 share the same metadata structure
