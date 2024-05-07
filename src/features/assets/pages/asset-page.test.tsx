@@ -5,17 +5,30 @@ import axios from 'axios'
 import { describe, it, vi } from 'vitest'
 import { AssetPage } from './asset-page'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
-import { assetIdLabel } from '../components/labels'
+import {
+  assetAddressesLabel,
+  assetCreatorLabel,
+  assetDecimalsLabel,
+  assetDefaultFrozenLabel,
+  assetIdLabel,
+  assetManagerLabel,
+  assetMetadataLabel,
+  assetNameLabel,
+  assetReserveLabel,
+  assetTotalSupplyLabel,
+  assetUrlLabel,
+} from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
 import { assetResultsAtom } from '../data/core'
 import { indexer } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
+import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
 
-describe.only('asset-page', () => {
+describe('asset-page', () => {
   describe('when rendering an ARC-3 asset', () => {
-    const assetResult = assetResultMother.arc3().build()
+    const assetResult = assetResultMother['mainnet-1284444444']().build()
     const transactionResult = transactionResultMother.assetConfig().build()
 
     it('should be rendered with the correct data', () => {
@@ -51,7 +64,31 @@ describe.only('asset-page', () => {
           await waitFor(() => {
             descriptionListAssertion({
               container: component.container,
-              items: [{ term: assetIdLabel, description: assetResult.index.toString() }],
+              items: [
+                { term: assetIdLabel, description: assetResult.index.toString() },
+                { term: assetNameLabel, description: 'OrangeARC-3Fungible' },
+                { term: assetUnitLabel, description: 'ORA' },
+                { term: assetTotalSupplyLabel, description: '4000000 ORA' },
+                { term: assetDecimalsLabel, description: '8' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'ipfs://QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu#arc3' },
+              ],
+            })
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI' },
+                { term: assetManagerLabel, description: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI' },
+                { term: assetReserveLabel, description: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [{ term: 'Image', description: 'https://ipfs.algonode.xyz/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
             })
           })
         }

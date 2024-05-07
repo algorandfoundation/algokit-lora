@@ -4,9 +4,6 @@ import { AssetResultBuilder } from '../builders/asset-result-builder'
 const encoder = new TextEncoder()
 
 export const assetResultMother = {
-  arc3: () => {
-    return new AssetResultBuilder().arc3Asset()
-  },
   ['mainnet-140479105']: () => {
     return new AssetResultBuilder({
       index: 140479105,
@@ -179,5 +176,29 @@ export const assetResultMother = {
         'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
       },
     } satisfies AssetResult)
+  },
+  'mainnet-1284444444': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 34632901,
+      deleted: false,
+      index: 1284444444,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
+        decimals: 8,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
+        'metadata-hash': encoder.encode('0/1Rvi7owrF6eugm00nA3yD+q4pNaAMDQBx0FWDDJDY='),
+        name: 'Orange',
+        'name-b64': encoder.encode('T3Jhbmdl'),
+        reserve: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
+        total: 400000000000000,
+        'unit-name': 'ORA',
+        'unit-name-b64': encoder.encode('T1JB'),
+        url: 'ipfs://QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu#arc3',
+        'url-b64': encoder.encode('aXBmczovL1FtVWl0eEp1UEpKcmN1QWRBaVZkRUVwdXpHbXNFTEdnQXZoTGQ1RmlYUlNoRXUjYXJjMw=='),
+      },
+    })
   },
 }

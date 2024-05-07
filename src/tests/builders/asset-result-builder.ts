@@ -16,11 +16,6 @@ export class AssetResultBuilder extends DataBuilder<AssetResult> {
           }
     )
   }
-
-  public arc3Asset() {
-    this.thing.params.url = `https://example.com/${this.thing.index}#arc3`
-    return this
-  }
 }
 
 export const assetResultBuilder = dossierProxy<AssetResultBuilder, AssetResult>(AssetResultBuilder)
