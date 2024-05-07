@@ -123,14 +123,18 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
         .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
         .map((t) => t['asset-config-transaction']!['asset-id'])
         .filter(distinct((x) => x))
+        .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
 
       affectedAssetIds.forEach(async (assetId) => {
-        const assetResult = await get(fetchAssetResultAtomBuilder(assetId))
-        const asset = await getAsset(assetResult)
+        // Only update the asset if it's already in the atom
+        if (get(assetsAtom).has(assetId)) {
+          const assetResult = await get(fetchAssetResultAtomBuilder(assetId))
+          const asset = await getAsset(assetResult)
 
-        set(assetsAtom, (prev) => {
-          return new Map([...prev, [assetId, asset]])
-        })
+          set(assetsAtom, (prev) => {
+            return new Map([...prev, [assetId, asset]])
+          })
+        }
       })
     })
 
