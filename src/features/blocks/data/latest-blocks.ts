@@ -112,10 +112,11 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     })
 
     set(transactionResultsAtom, (prev) => {
+      const newMap = new Map(prev)
       transactions.forEach((value, key) => {
-        prev.set(key, value)
+        newMap.set(key, value)
       })
-      return prev
+      return newMap
     })
 
     transactions.forEach((transactionResult) => {
@@ -132,17 +133,18 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
           const asset = await getAsset(assetResult)
 
           set(assetsAtom, (prev) => {
-            return new Map([...prev, [assetId, asset]])
+            return new Map(prev).set(assetId, asset)
           })
         }
       })
     })
 
     set(blockResultsAtom, (prev) => {
+      const newMap = new Map(prev)
       blocks.forEach(([key, value]) => {
-        prev.set(key, value)
+        newMap.set(key, value)
       })
-      return prev
+      return newMap
     })
   })
 
