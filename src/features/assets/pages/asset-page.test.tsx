@@ -3,7 +3,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
 import axios from 'axios'
 import { describe, expect, it, vi } from 'vitest'
-import { AssetPage } from './asset-page'
+import { AssetPage, assetFailedToLoadMessage, assetInvalidIdMessage, assetNotFoundMessage } from './asset-page'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import {
   assetAddressesLabel,
@@ -25,8 +25,50 @@ import { assetResultsAtom } from '../data/core'
 import { indexer } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
+import { HttpError } from '@/tests/errors'
 
 describe('asset-page', () => {
+  describe('when rending an asset using an invalid asset Id', () => {
+    it('should display invalid asset Id message', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: 'invalid-id' }))
+
+      return executeComponentTest(
+        () => render(<AssetPage />),
+        async (component) => {
+          await waitFor(() => expect(component.getByText(assetInvalidIdMessage)).toBeTruthy())
+        }
+      )
+    })
+  })
+
+  describe('when rending an asset with asset Id that does not exist', () => {
+    it('should display not found message', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
+      vi.mocked(indexer.lookupAssetByID(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+
+      return executeComponentTest(
+        () => render(<AssetPage />),
+        async (component) => {
+          await waitFor(() => expect(component.getByText(assetNotFoundMessage)).toBeTruthy())
+        }
+      )
+    })
+  })
+
+  describe('when rending an asset that was failed to load', () => {
+    it('should display failed to load message', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
+      vi.mocked(indexer.lookupAssetByID(0).includeAll(true).do).mockImplementation(() => Promise.reject({}))
+
+      return executeComponentTest(
+        () => render(<AssetPage />),
+        async (component) => {
+          await waitFor(() => expect(component.getByText(assetFailedToLoadMessage)).toBeTruthy())
+        }
+      )
+    })
+  })
+
   describe('when rendering an ARC-3 asset', () => {
     const assetResult = assetResultMother['mainnet-1284444444']().build()
     const transactionResult = transactionResultMother.assetConfig().build()
