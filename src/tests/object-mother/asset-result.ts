@@ -247,4 +247,27 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-854081201': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 23110800,
+      deleted: false,
+      index: 854081201,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+        name: 'Bad Bunny Society #587',
+        'name-b64': encoder.encode('QmFkIEJ1bm55IFNvY2lldHkgIzU4Nw=='),
+        reserve: 'V4UCC2YXBHLELD7Y6HYSKZI4GABLUG5HE6HAQQ36OBXFEZS7W4VMWB6DUQ',
+        total: 1,
+        'unit-name': 'bbs587',
+        'unit-name-b64': encoder.encode('YmJzNTg3'),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
 }

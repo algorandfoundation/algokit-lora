@@ -2,7 +2,7 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
 import axios from 'axios'
-import { describe, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AssetPage } from './asset-page'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import {
@@ -73,6 +73,9 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'ipfs://QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu#arc3' },
               ],
             })
+            expect(
+              component.container.querySelector('img[src="https://ipfs.algonode.xyz/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]')
+            ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -149,6 +152,11 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3' },
               ],
             })
+            expect(
+              component.container.querySelector(
+                'img[src="https://ipfs.algonode.xyz/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]'
+              )
+            ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -224,6 +232,7 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v' },
               ],
             })
+            expect(component.container.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -262,6 +271,86 @@ describe('asset-page', () => {
                 { term: 'endClass', description: 'C8.3' },
                 { term: 'type', description: 'solar' },
                 { term: 'subType', description: 'flare' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an ARC-19 + ARC-69 asset', () => {
+    const assetResult = assetResultMother['mainnet-854081201']().build()
+    const transactionResult = transactionResultMother['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
+        Promise.resolve({
+          transactions: [transactionResult],
+        })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: assetIdLabel, description: assetResult.index.toString() },
+                { term: assetNameLabel, description: 'Bad Bunny Society #587ARC-19ARC-69Pure Non-Tungible' },
+                { term: assetUnitLabel, description: 'bbs587' },
+                { term: assetTotalSupplyLabel, description: '1 bbs587' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
+              ],
+            })
+            expect(
+              component.container.querySelector(
+                'img[src="https://ipfs.algonode.xyz/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]'
+              )
+            ).toBeTruthy()
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE' },
+                { term: assetManagerLabel, description: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE' },
+                { term: assetReserveLabel, description: 'V4UCC2YXBHLELD7Y6HYSKZI4GABLUG5HE6HAQQ36OBXFEZS7W4VMWB6DUQ' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [
+                {
+                  term: 'Description',
+                  description: 'Bad Bunny Society #587',
+                },
+              ],
+            })
+
+            const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            descriptionListAssertion({
+              container: assetTraitsCard,
+              items: [
+                { term: 'Background', description: 'Red' },
+                { term: 'Skin', description: 'Pink' },
+                { term: 'Ear', description: 'Multicolor' },
+                { term: 'Body', description: 'Orange Jacket' },
+                { term: 'Mouth', description: 'Joint' },
+                { term: 'Nose', description: 'Acid' },
+                { term: 'Eyes', description: 'Rave' },
+                { term: 'Head', description: 'Ring' },
               ],
             })
           })

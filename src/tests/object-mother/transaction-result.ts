@@ -1111,4 +1111,45 @@ export const transactionResultMother = {
       'tx-type': TransactionType.acfg,
     })
   },
+  ['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 0,
+        params: {
+          creator: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+          name: 'Bad Bunny Society #587',
+          'name-b64': encoder.encode('QmFkIEJ1bm55IFNvY2lldHkgIzU4Nw=='),
+          reserve: 'V4UCC2YXBHLELD7Y6HYSKZI4GABLUG5HE6HAQQ36OBXFEZS7W4VMWB6DUQ',
+          total: 1,
+          'unit-name': 'bbs587',
+          'unit-name-b64': encoder.encode('YmJzNTg3'),
+          url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+          'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 23110800,
+      'created-asset-index': 854081201,
+      fee: 1000,
+      'first-valid': 23110798,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: 'x2iqKcM/w+966sWzIzvH0ySIH9eq7ZCWqGHC6rXILWY=',
+      id: 'P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ',
+      'intra-round-offset': 164,
+      'last-valid': 23111798,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJCYWQgQnVubnkgU29jaWV0eSAjNTg3IiwibWltZV90eXBlIjoiaW1hZ2Uvd2VicCIsInByb3BlcnRpZXMiOnsiQmFja2dyb3VuZCI6IlJlZCIsIlNraW4iOiJQaW5rIiwiRWFyIjoiTXVsdGljb2xvciIsIkJvZHkiOiJPcmFuZ2UgSmFja2V0IiwiTW91dGgiOiJKb2ludCIsIk5vc2UiOiJBY2lkIiwiRXllcyI6IlJhdmUiLCJIZWFkIjoiUmluZyJ9fQ==',
+      'receiver-rewards': 0,
+      'round-time': 1661696204,
+      sender: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+      'sender-rewards': 0,
+      signature: { sig: 'kQlJT5RVh7TKuQnIkOw4FI9BJ7k++wSuOcXXxLn6srgnAS/sIuTomN2UNzG9DZIFXjoqlap1wpmcNsl5LVvdAw==' },
+      'tx-type': TransactionType.acfg,
+    })
+  },
 }
