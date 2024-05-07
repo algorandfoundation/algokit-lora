@@ -201,4 +201,27 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-1494117806': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 36012728,
+      deleted: false,
+      index: 1494117806,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU',
+        name: 'Zappy #1620',
+        'name-b64': encoder.encode('WmFwcHkgIzE2MjA='),
+        reserve: 'OPL3M2ZOKLSPVIM32MRK45O6IQMHTJPVWOWPVTEGXVHC3GHFLJK2YC5OWE',
+        total: 1,
+        'unit-name': 'ZAPP1620',
+        'unit-name-b64': encoder.encode('WkFQUDE2MjA='),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9I2FyYzM='),
+      },
+    })
+  },
 }

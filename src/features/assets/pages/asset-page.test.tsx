@@ -16,6 +16,7 @@ import {
   assetNameLabel,
   assetReserveLabel,
   assetTotalSupplyLabel,
+  assetTraitsLabel,
   assetUrlLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
@@ -89,6 +90,103 @@ describe('asset-page', () => {
             descriptionListAssertion({
               container: assetMetadataCard,
               items: [{ term: 'Image', description: 'https://ipfs.algonode.xyz/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an ARC-3 + ARC-19 asset', () => {
+    const assetResult = assetResultMother['mainnet-1494117806']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transactionResult.id, transactionResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(axios.get).mockImplementation(() => {
+        return Promise.resolve({
+          data: {
+            name: 'Zappy #1620',
+            standard: 'arc3',
+            decimals: 0,
+            image: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
+            image_mimetype: 'image/png',
+            properties: {
+              Background: 'Orange',
+              Body: 'Turtleneck Sweater',
+              Earring: 'Right Helix',
+              Eyes: 'Wet',
+              Eyewear: 'Nerd Glasses',
+              Head: 'Wrap',
+              Mouth: 'Party Horn',
+              Skin: 'Sienna',
+            },
+          },
+        })
+      })
+      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
+        Promise.resolve({
+          transactions: [transactionResult],
+        })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: assetIdLabel, description: assetResult.index.toString() },
+                { term: assetNameLabel, description: 'Zappy #1620ARC-3ARC-19Pure Non-Tungible' },
+                { term: assetUnitLabel, description: 'ZAPP1620' },
+                { term: assetTotalSupplyLabel, description: '1 ZAPP1620' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3' },
+              ],
+            })
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU' },
+                { term: assetManagerLabel, description: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU' },
+                { term: assetReserveLabel, description: 'OPL3M2ZOKLSPVIM32MRK45O6IQMHTJPVWOWPVTEGXVHC3GHFLJK2YC5OWE' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [
+                {
+                  term: 'Image',
+                  description: 'https://ipfs.algonode.xyz/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
+                },
+              ],
+            })
+
+            const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            descriptionListAssertion({
+              container: assetTraitsCard,
+              items: [
+                { term: 'Background', description: 'Orange' },
+                { term: 'Body', description: 'Turtleneck Sweater' },
+                { term: 'Earring', description: 'Right Helix' },
+                { term: 'Eyes', description: 'Wet' },
+                { term: 'Eyewear', description: 'Nerd Glasses' },
+                { term: 'Head', description: 'Wrap' },
+                { term: 'Mouth', description: 'Party Horn' },
+                { term: 'Skin', description: 'Sienna' },
+              ],
             })
           })
         }
