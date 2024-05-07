@@ -224,4 +224,27 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-1800979729': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 38393946,
+      deleted: false,
+      index: 1800979729,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+        name: 'DHMα: M1 Solar Flare SCQCSO',
+        'name-b64': encoder.encode('REhNzrE6IE0xIFNvbGFyIEZsYXJlIFNDUUNTTw=='),
+        reserve: 'ESK3ZHVALWTRWTEQVRO4ZGZGGOFCKCJNVE5ODFMPWICXVSJVJZYINHHYHE',
+        total: 1,
+        'unit-name': 'SOLFLARE',
+        'unit-name-b64': encoder.encode('U09MRkxBUkU='),
+        url: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v',
+        'url-b64': encoder.encode('aHR0cHM6Ly9hc3NldHMuZGF0YWhpc3Rvcnkub3JnL3NvbGFyL1NDUUNTTy5tcDQjdg=='),
+      },
+    })
+  },
 }

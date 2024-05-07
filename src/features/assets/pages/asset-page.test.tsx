@@ -24,7 +24,6 @@ import { createStore } from 'jotai'
 import { assetResultsAtom } from '../data/core'
 import { indexer } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
-import { transactionResultsAtom } from '@/features/transactions/data'
 import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
 
 describe('asset-page', () => {
@@ -34,7 +33,6 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transactionResult.id, transactionResult]]))
       myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
@@ -103,7 +101,6 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transactionResult.id, transactionResult]]))
       myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
@@ -186,6 +183,85 @@ describe('asset-page', () => {
                 { term: 'Head', description: 'Wrap' },
                 { term: 'Mouth', description: 'Party Horn' },
                 { term: 'Skin', description: 'Sienna' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an ARC-69 asset', () => {
+    const assetResult = assetResultMother['mainnet-1800979729']().build()
+    const transactionResult = transactionResultMother['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
+        Promise.resolve({
+          transactions: [transactionResult],
+        })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: assetIdLabel, description: assetResult.index.toString() },
+                { term: assetNameLabel, description: 'DHMα: M1 Solar Flare SCQCSOARC-69Pure Non-Tungible' },
+                { term: assetUnitLabel, description: 'SOLFLARE' },
+                { term: assetTotalSupplyLabel, description: '1 SOLFLARE' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v' },
+              ],
+            })
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
+                { term: assetManagerLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
+                { term: assetReserveLabel, description: 'ESK3ZHVALWTRWTEQVRO4ZGZGGOFCKCJNVE5ODFMPWICXVSJVJZYINHHYHE' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [
+                {
+                  term: 'Description',
+                  description:
+                    'This is an alpha data artifact minted by The Data History Museum. It represents a Class M1.6 solar flare. The verified source of this data artifact was the National Oceanic and Atmospheric Administration (NOAA). For more information visit https://datahistory.org/.',
+                },
+              ],
+            })
+
+            const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            descriptionListAssertion({
+              container: assetTraitsCard,
+              items: [
+                { term: 'satellite', description: 'GOES-16' },
+                { term: 'source', description: 'NOAA' },
+                { term: 'beginTime', description: '2024-04-30T00:46:00Z' },
+                { term: 'beginClass', description: 'C1.1' },
+                { term: 'peakClass', description: 'M1.6' },
+                { term: 'peakTime', description: '2024-04-30T01:14:00Z' },
+                { term: 'peakXrayFlux', description: '1.64110e-5 Wm⁻²' },
+                { term: 'endTime', description: '2024-04-30T01:31:00Z' },
+                { term: 'endClass', description: 'C8.3' },
+                { term: 'type', description: 'solar' },
+                { term: 'subType', description: 'flare' },
               ],
             })
           })

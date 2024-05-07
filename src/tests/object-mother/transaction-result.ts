@@ -1077,4 +1077,38 @@ export const transactionResultMother = {
       'tx-type': TransactionType.appl,
     } as unknown as TransactionResult) // The type definition for App Call transaction in indexer seems to be wrong
   },
+  ['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 1800979729,
+        params: {
+          creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          reserve: 'ESK3ZHVALWTRWTEQVRO4ZGZGGOFCKCJNVE5ODFMPWICXVSJVJZYINHHYHE',
+          total: 0,
+        },
+      },
+      'auth-addr': '5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 38394154,
+      fee: 1000,
+      'first-valid': 38394151,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: '4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA',
+      'intra-round-offset': 3,
+      'last-valid': 38395151,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGFuIGFscGhhIGRhdGEgYXJ0aWZhY3QgbWludGVkIGJ5IFRoZSBEYXRhIEhpc3RvcnkgTXVzZXVtLiBJdCByZXByZXNlbnRzIGEgQ2xhc3MgTTEuNiBzb2xhciBmbGFyZS4gVGhlIHZlcmlmaWVkIHNvdXJjZSBvZiB0aGlzIGRhdGEgYXJ0aWZhY3Qgd2FzIHRoZSBOYXRpb25hbCBPY2VhbmljIGFuZCBBdG1vc3BoZXJpYyBBZG1pbmlzdHJhdGlvbiAoTk9BQSkuIEZvciBtb3JlIGluZm9ybWF0aW9uIHZpc2l0IGh0dHBzOi8vZGF0YWhpc3Rvcnkub3JnLy4iLCJleHRlcm5hbF91cmwiOiJodHRwczovL211c2V1bS5kYXRhaGlzdG9yeS5vcmcvZXZlbnQvU09MRkxBUkUvU0NRQ1NPIiwicHJvcGVydGllcyI6eyJzYXRlbGxpdGUiOiJHT0VTLTE2Iiwic291cmNlIjoiTk9BQSIsImJlZ2luVGltZSI6IjIwMjQtMDQtMzBUMDA6NDY6MDBaIiwiYmVnaW5DbGFzcyI6IkMxLjEiLCJwZWFrQ2xhc3MiOiJNMS42IiwicGVha1RpbWUiOiIyMDI0LTA0LTMwVDAxOjE0OjAwWiIsInBlYWtYcmF5Rmx1eCI6IjEuNjQxMTBlLTUgV23igbvCsiIsImVuZFRpbWUiOiIyMDI0LTA0LTMwVDAxOjMxOjAwWiIsImVuZENsYXNzIjoiQzguMyIsInR5cGUiOiJzb2xhciIsInN1YlR5cGUiOiJmbGFyZSJ9LCJtaW1lX3R5cGUiOiJ2aWRlby9tcDQiLCJpZCI6IlNDUUNTTyIsInRpdGxlIjoiQ2xhc3MgTTEuNiBzb2xhciBmbGFyZSB0aGF0IHBlYWtlZCBhdCBUdWUsIDMwIEFwciAyMDI0IDAxOjE0OjAwIEdNVCJ9',
+      'receiver-rewards': 0,
+      'round-time': 1714440885,
+      sender: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+      'sender-rewards': 0,
+      signature: { sig: 'xQjGgT33TOy7dQm0vzDFsHbTDl4BHnzOOp0gHDkexH3Ci5ZFrNgQYnSVyncJ3Cw9MsSybw/3cZwoboK7/O2RDg==' },
+      'tx-type': TransactionType.acfg,
+    })
+  },
 }
