@@ -5,11 +5,13 @@ import { useCallback } from 'react'
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  currentPage: number
   nextPage: () => void
+  previousPage: () => void
 }
 // TODO: many inside a <Provider>
 
-export function LazyLoadDataTable<TData, TValue>({ columns, data, nextPage }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, data, currentPage, nextPage, previousPage }: Props<TData, TValue>) {
   // const [currentPage, setCurrentPage] = useState(data)
   // const [nextPageToken, setNextPageToken] = useState<string>()
 
@@ -23,6 +25,9 @@ export function LazyLoadDataTable<TData, TValue>({ columns, data, nextPage }: Pr
   const nextPageButtonClicked = useCallback(async () => {
     nextPage()
   }, [nextPage])
+  const previousPageButtonClicked = useCallback(async () => {
+    previousPage()
+  }, [previousPage])
 
   return (
     <div>
@@ -60,7 +65,11 @@ export function LazyLoadDataTable<TData, TValue>({ columns, data, nextPage }: Pr
           </TableBody>
         </Table>
       </div>
-      <button onClick={nextPageButtonClicked}>Next</button>
+      <div className="space-x-4">
+        <button onClick={previousPageButtonClicked}>Previous</button>
+        <label>{currentPage}</label>
+        <button onClick={nextPageButtonClicked}>Next</button>
+      </div>
     </div>
   )
 }

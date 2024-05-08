@@ -1,7 +1,7 @@
 import { LazyLoadDataTable } from '@/features/common/components/lazy-load-data-table'
 import { AssetIndex } from '../data/types'
 import { indexer } from '@/features/common/data'
-import { TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atom, useAtomValue, useStore } from 'jotai'
 import { loadable } from 'jotai/utils'
 import { useMemo, useState } from 'react'
@@ -15,15 +15,17 @@ import { cn } from '@/features/common/utils'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ColumnDef } from '@tanstack/react-table'
+import { atomEffect } from 'jotai-effect'
 
 type Props = {
   assetIndex: AssetIndex
 }
 
 export function AssetTransactionHistory({ assetIndex }: Props) {
-  const [nextPageToken, setNextPageToken] = useState<string | undefined>(undefined)
-  const loadableTransactions = useLoadableAssetTransactions(assetIndex, nextPageToken)
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const loadableTransactions = useLoadableAssetTransactions(assetIndex, currentPage)
 
+  // TODO: only allow next if the next page token is available
   return (
     <RenderLoadable loadable={loadableTransactions}>
       {(assetTransactionsAtomValue) => (
@@ -32,7 +34,13 @@ export function AssetTransactionHistory({ assetIndex }: Props) {
           columns={transactionsTableColumns}
           nextPage={() => {
             if (assetTransactionsAtomValue.nextPageToken) {
-              setNextPageToken(assetTransactionsAtomValue.nextPageToken)
+              setCurrentPage((prev) => prev + 1)
+            }
+          }}
+          currentPage={currentPage}
+          previousPage={() => {
+            if (assetTransactionsAtomValue.nextPageToken) {
+              setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
             }
           }}
         />
@@ -41,8 +49,24 @@ export function AssetTransactionHistory({ assetIndex }: Props) {
   )
 }
 
-const fetchAssetTransactionResultsAtomBuilder = (assetIndex: AssetIndex, nextPageToken?: string) => {
-  return atom(async (_get) => {
+// const fetchAssetTransactionResults = async (assetIndex: AssetIndex, nextPageToken?: string) => {
+//   const results = (await indexer
+//     .searchForTransactions()
+//     .assetID(assetIndex)
+//     .nextToken(nextPageToken ?? '')
+//     .limit(10)
+//     .do()) as TransactionSearchResults
+//   return {
+//     transactionResults: results.transactions,
+//     nextPageToken: results['next-token'],
+//   } as const
+// }
+
+const fetchNextAssetTransactionResultsPageAtomBuilder = (assetIndex: AssetIndex) => {
+  return atom(async (get) => {
+    const cache = get(assetTransactionResultsPagesAtom)
+    const nextPageToken = cache[cache.length - 1]?.nextPageToken
+
     const results = (await indexer
       .searchForTransactions()
       .assetID(assetIndex)
@@ -56,12 +80,47 @@ const fetchAssetTransactionResultsAtomBuilder = (assetIndex: AssetIndex, nextPag
   })
 }
 
-const getAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, nextPageToken?: string) => {
-  const fetchAssetTransactionResultsAtom = fetchAssetTransactionResultsAtomBuilder(assetIndex, nextPageToken)
+const getSyncEffect = (fetchNextPageAtom: ReturnType<typeof fetchNextAssetTransactionResultsPageAtomBuilder>) => {
+  return atomEffect((get, set) => {
+    ;(async () => {
+      try {
+        const { transactionResults, nextPageToken } = await get(fetchNextPageAtom)
+
+        set(assetTransactionResultsPagesAtom, (prev) => {
+          const foo = Array.from(prev).concat([{ transactionResults, nextPageToken }])
+          console.log('foo', foo)
+          return foo
+        })
+      } catch (e) {
+        // Ignore any errors as there is nothing to sync
+      }
+    })()
+  })
+}
+
+const getAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, pageNumber: number) => {
+  const fetchNextPageAtom = fetchNextAssetTransactionResultsPageAtomBuilder(assetIndex)
+  const syncEffect = getSyncEffect(fetchNextPageAtom)
 
   return atom(async (get) => {
-    // TODO: cache and sync stuff
-    const { transactionResults, nextPageToken } = await get(fetchAssetTransactionResultsAtom)
+    const index = pageNumber - 1
+    const cache = store.get(assetTransactionResultsPagesAtom)
+
+    console.log('cache size', cache.length)
+    if (index < cache.length - 1) {
+      const page = cache[index]
+      return {
+        transactions: await get(fetchTransactionsAtomBuilder(store, page.transactionResults)),
+        nextPageToken: page.nextPageToken,
+      }
+    }
+
+    const foo = cache[cache.length - 1]?.nextPageToken
+    const { transactionResults, nextPageToken } = await get(fetchNextPageAtom)
+
+    console.log('nextPageToken', nextPageToken)
+    get(syncEffect)
+
     return {
       transactions: await get(fetchTransactionsAtomBuilder(store, transactionResults)),
       nextPageToken,
@@ -69,16 +128,16 @@ const getAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetInd
   })
 }
 
-const useAssetTransactionsAtom = (assetIndex: AssetIndex, nextPageToken?: string) => {
+const useAssetTransactionsAtom = (assetIndex: AssetIndex, pageNumber: number) => {
   const store = useStore()
 
   return useMemo(() => {
-    return getAssetTransactionsAtomBuilder(store, assetIndex, nextPageToken)
-  }, [store, assetIndex, nextPageToken])
+    return getAssetTransactionsAtomBuilder(store, assetIndex, pageNumber)
+  }, [store, assetIndex, pageNumber])
 }
 
-export const useLoadableAssetTransactions = (assetIndex: AssetIndex, nextPageToken?: string) => {
-  return useAtomValue(loadable(useAssetTransactionsAtom(assetIndex, nextPageToken)))
+export const useLoadableAssetTransactions = (assetIndex: AssetIndex, pageNumber: number) => {
+  return useAtomValue(loadable(useAssetTransactionsAtom(assetIndex, pageNumber)))
 }
 
 const transactionsTableColumns: ColumnDef<Transaction>[] = [
@@ -126,3 +185,10 @@ const transactionsTableColumns: ColumnDef<Transaction>[] = [
     },
   },
 ]
+
+const assetTransactionResultsPagesAtom = atom<AssetTransactionResultsPage[]>([])
+
+type AssetTransactionResultsPage = {
+  transactionResults: TransactionResult[]
+  nextPageToken?: string
+}
