@@ -1,7 +1,6 @@
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
-import axios from 'axios'
 import { describe, expect, it, vi } from 'vitest'
 import { AssetPage, assetFailedToLoadMessage, assetInvalidIdMessage, assetNotFoundMessage } from './asset-page'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
@@ -78,19 +77,21 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(axios.get).mockImplementation(() => {
-        return Promise.resolve({
-          data: {
-            name: 'Orange',
-            decimals: 8,
-            description:
-              "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
-            image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
-            image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
-            image_mimetype: 'image/png',
-          },
-        })
-      })
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              name: 'Orange',
+              decimals: 8,
+              description:
+                "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
+              image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
+              image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
+              image_mimetype: 'image/png',
+            }),
+        } as Response)
+      )
+
       vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
         Promise.resolve({
           transactions: [transactionResult],
@@ -116,7 +117,9 @@ describe('asset-page', () => {
               ],
             })
             expect(
-              component.container.querySelector('img[src="https://ipfs.algonode.xyz/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]')
+              component.container.querySelector(
+                'img[src="https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]'
+              )
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -132,7 +135,7 @@ describe('asset-page', () => {
             const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
             descriptionListAssertion({
               container: assetMetadataCard,
-              items: [{ term: 'Image', description: 'https://ipfs.algonode.xyz/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
+              items: [{ term: 'Image', description: 'https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
             })
           })
         }
@@ -149,27 +152,28 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(axios.get).mockImplementation(() => {
-        return Promise.resolve({
-          data: {
-            name: 'Zappy #1620',
-            standard: 'arc3',
-            decimals: 0,
-            image: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
-            image_mimetype: 'image/png',
-            properties: {
-              Background: 'Orange',
-              Body: 'Turtleneck Sweater',
-              Earring: 'Right Helix',
-              Eyes: 'Wet',
-              Eyewear: 'Nerd Glasses',
-              Head: 'Wrap',
-              Mouth: 'Party Horn',
-              Skin: 'Sienna',
-            },
-          },
-        })
-      })
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              name: 'Zappy #1620',
+              standard: 'arc3',
+              decimals: 0,
+              image: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
+              image_mimetype: 'image/png',
+              properties: {
+                Background: 'Orange',
+                Body: 'Turtleneck Sweater',
+                Earring: 'Right Helix',
+                Eyes: 'Wet',
+                Eyewear: 'Nerd Glasses',
+                Head: 'Wrap',
+                Mouth: 'Party Horn',
+                Skin: 'Sienna',
+              },
+            }),
+        } as Response)
+      )
       vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
         Promise.resolve({
           transactions: [transactionResult],
@@ -196,7 +200,7 @@ describe('asset-page', () => {
             })
             expect(
               component.container.querySelector(
-                'img[src="https://ipfs.algonode.xyz/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]'
+                'img[src="https://cloudflare-ipfs.com/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]'
               )
             ).toBeTruthy()
 
@@ -216,7 +220,7 @@ describe('asset-page', () => {
               items: [
                 {
                   term: 'Image',
-                  description: 'https://ipfs.algonode.xyz/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
+                  description: 'https://cloudflare-ipfs.com/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
                 },
               ],
             })
@@ -356,7 +360,7 @@ describe('asset-page', () => {
             })
             expect(
               component.container.querySelector(
-                'img[src="https://ipfs.algonode.xyz/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]'
+                'img[src="https://cloudflare-ipfs.com/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]'
               )
             ).toBeTruthy()
 

@@ -45,4 +45,4 @@ vi.mock('@/features/common/data', async () => {
   }
 })
 
-vi.mock('axios')
+global.fetch = vi.fn()
