@@ -190,7 +190,7 @@ describe('asset-page', () => {
               container: component.container,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'Zappy #1620ARC-3ARC-19Pure Non-Tungible' },
+                { term: assetNameLabel, description: 'Zappy #1620ARC-3ARC-19Pure Non-Fungible' },
                 { term: assetUnitLabel, description: 'ZAPP1620' },
                 { term: assetTotalSupplyLabel, description: '1 ZAPP1620' },
                 { term: assetDecimalsLabel, description: '0' },
@@ -270,7 +270,7 @@ describe('asset-page', () => {
               container: component.container,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'DHMα: M1 Solar Flare SCQCSOARC-69Pure Non-Tungible' },
+                { term: assetNameLabel, description: 'DHMα: M1 Solar Flare SCQCSOARC-69Pure Non-Fungible' },
                 { term: assetUnitLabel, description: 'SOLFLARE' },
                 { term: assetTotalSupplyLabel, description: '1 SOLFLARE' },
                 { term: assetDecimalsLabel, description: '0' },
@@ -350,7 +350,7 @@ describe('asset-page', () => {
               container: component.container,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'Bad Bunny Society #587ARC-19ARC-69Pure Non-Tungible' },
+                { term: assetNameLabel, description: 'Bad Bunny Society #587ARC-19ARC-69Pure Non-Fungible' },
                 { term: assetUnitLabel, description: 'bbs587' },
                 { term: assetTotalSupplyLabel, description: '1 bbs587' },
                 { term: assetDecimalsLabel, description: '0' },

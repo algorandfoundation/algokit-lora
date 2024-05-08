@@ -1,5 +1,5 @@
 import { cn } from '@/features/common/utils'
-import { Arc3Metadata, Arc69Metadata, Asset } from '../models'
+import { Arc3Metadata, Arc69Metadata, Asset, AssetStandard } from '../models'
 import { useMemo } from 'react'
 import { getArc19Url } from '../utils/get-arc-19-url'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
@@ -16,10 +16,13 @@ export function AssetMedia({ asset }: Props) {
 
     const metadataStandards = asset.metadata.map((m) => m.standard)
 
-    if ((metadataStandards.includes('ARC-3') || metadataStandards.includes('ARC-19')) && !metadataStandards.includes('ARC-69')) {
+    if (
+      (metadataStandards.includes(AssetStandard.ARC3) || metadataStandards.includes(AssetStandard.ARC19)) &&
+      !metadataStandards.includes(AssetStandard.ARC69)
+    ) {
       // If the asset follows ARC-3 or ARC-19, but not ARC-69
       // we display the media from the metadata
-      const metadata = asset.metadata.find((m) => m.standard === 'ARC-3' || m.standard === 'ARC-19') as Arc3Metadata
+      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC3 || m.standard === AssetStandard.ARC19) as Arc3Metadata
       if (metadata.image) {
         return {
           url: metadata.image,
@@ -34,14 +37,14 @@ export function AssetMedia({ asset }: Props) {
       }
     }
 
-    if (metadataStandards.includes('ARC-69')) {
+    if (metadataStandards.includes(AssetStandard.ARC69)) {
       // If the asset follows ARC-69, we display the media from the asset URL
       // In this scenario, we also support ARC-19 format URLs
       if (!asset.url) {
         return undefined
       }
 
-      const metadata = asset.metadata.find((m) => m.standard === 'ARC-69') as Arc69Metadata
+      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC69) as Arc69Metadata
       const url = asset.url.startsWith('template-ipfs://')
         ? getArc19Url(asset.url, asset.reserve)!
         : replaceIpfsWithGatewayIfNeeded(asset.url)

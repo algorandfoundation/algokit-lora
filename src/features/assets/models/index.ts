@@ -17,7 +17,7 @@ export type AssetSummary = {
 
 export enum TokenType {
   Fungible = 'Fungible',
-  PureNonFungible = 'Pure Non-Tungible',
+  PureNonFungible = 'Pure Non-Fungible',
   FractionalNonFungible = 'Fractional Non-Fungible',
 }
 

@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { Asset } from '../models'
+import { Asset, AssetStandard } from '../models'
 import { assetMetadataLabel } from './labels'
 import { useMemo } from 'react'
 import { isDefined } from '@/utils/is-defined'
@@ -14,10 +14,13 @@ export function AssetMetadata({ asset }: Props) {
   const items = useMemo(() => {
     const metadataStandards = asset.metadata.map((m) => m.standard)
 
-    if ((metadataStandards.includes('ARC-3') || metadataStandards.includes('ARC-19')) && !metadataStandards.includes('ARC-69')) {
+    if (
+      (metadataStandards.includes(AssetStandard.ARC3) || metadataStandards.includes(AssetStandard.ARC19)) &&
+      !metadataStandards.includes(AssetStandard.ARC69)
+    ) {
       // If the asset follows ARC-3 or ARC-19, but not ARC-69
       // we display ARC-3 metadata
-      const metadata = asset.metadata.find((m) => m.standard === 'ARC-3' || m.standard === 'ARC-19')!
+      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC3 || m.standard === AssetStandard.ARC19)!
       const supportedKeys = [
         'name',
         'decimals',
@@ -38,8 +41,8 @@ export function AssetMetadata({ asset }: Props) {
       return getDescriptionListItems(metadata, supportedKeys)
     }
 
-    if (metadataStandards.includes('ARC-69')) {
-      const metadata = asset.metadata.find((m) => m.standard === 'ARC-69')!
+    if (metadataStandards.includes(AssetStandard.ARC69)) {
+      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC69)!
 
       const supportedKeys = ['description', 'external_url', 'media_url', 'mime_type']
       return getDescriptionListItems(metadata, supportedKeys)
