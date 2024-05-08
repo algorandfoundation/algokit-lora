@@ -28,6 +28,7 @@ import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
 import { AssetTraits } from './asset-traits'
 import { AssetMetadata } from './asset-metadata'
+import { AssetTransactionHistory } from './asset-transaction-history'
 
 type Props = {
   asset: Asset
@@ -151,7 +152,9 @@ export function AssetDetails({ asset }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
-          <div className={cn('border-solid border-2 grid p-4')}>{/* <TransactionsTable transactions={asset.transactions} /> */}</div>
+          <div className={cn('border-solid border-2 grid p-4')}>
+            <AssetTransactionHistory assetIndex={asset.id} />
+          </div>
         </CardContent>
       </Card>
     </div>
