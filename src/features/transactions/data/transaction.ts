@@ -20,7 +20,9 @@ export const fetchTransactionResultAtomBuilder = (store: JotaiStore, transaction
       try {
         const transactionResult = await get(transactionResultAtom)
         set(transactionResultsAtom, (prev) => {
-          return new Map([...prev, [transactionResult.id, transactionResult]])
+          const next = new Map(prev)
+          next.set(transactionResult.id, transactionResult)
+          return next
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync

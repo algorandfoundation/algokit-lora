@@ -22,7 +22,7 @@ export enum TokenType {
 }
 
 export type Asset = AssetSummary & {
-  lastUpdateRound: number
+  // TODO: NC - Could this be better as a record, you'll never have multiple ARC3 etc. maybe we can get rid of metadatas as a word
   metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
 }
 

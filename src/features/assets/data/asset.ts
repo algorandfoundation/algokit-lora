@@ -1,42 +1,20 @@
 import { atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
-import { atomEffect } from 'jotai-effect'
-import { assetsAtom } from './core'
 import { useMemo } from 'react'
 import { AssetIndex } from './types'
 import { loadable } from 'jotai/utils'
-import { getAssetResultAtomBuilder } from './asset-summary'
-import { getAsset } from '../utils/get-asset'
+import { getAssetResultAtomBuilder } from './asset-result'
+import { getAssetMetadataAtomBuilder } from './asset-metadata'
+import { asAsset } from '../mappers/asset'
 
+// TODO: NC - Come back and remove store if this works
 const getAssetAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
-  const syncEffect = atomEffect((get, set) => {
-    ;(async () => {
-      try {
-        const asset = await get(assetAtom)
+  const assetResultAtom = getAssetResultAtomBuilder(assetIndex)
 
-        set(assetsAtom, (prev) => {
-          return new Map(prev).set(assetIndex, asset)
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
+  return atom(async (get) => {
+    const assetResult = await get(assetResultAtom)
+    return asAsset(assetResult, await get(getAssetMetadataAtomBuilder(store, assetResult)))
   })
-
-  const assetAtom = atom(async (get) => {
-    const cachedAsset = get(assetsAtom).get(assetIndex)
-
-    if (cachedAsset) {
-      return cachedAsset
-    }
-
-    get(syncEffect)
-
-    const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex))
-    return getAsset(assetResult)
-  })
-
-  return assetAtom
 }
 
 export const useAssetAtom = (assetIndex: AssetIndex) => {
@@ -44,7 +22,7 @@ export const useAssetAtom = (assetIndex: AssetIndex) => {
 
   return useMemo(() => {
     return getAssetAtomBuilder(store, assetIndex)
-  }, [assetIndex, store])
+  }, [store, assetIndex])
 }
 
 export const useLoadableAsset = (assetIndex: AssetIndex) => {

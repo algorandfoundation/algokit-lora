@@ -1,8 +1,8 @@
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { asArc3Metadata, asArc69Metadata } from '../mappers'
+import { asArc3Metadata, asArc69Metadata } from './asset-summary'
 import { Arc3Metadata, Arc19Metadata, Arc69Metadata, Arc3MetadataResult, Arc69MetadataResult, AssetStandard } from '../models'
-import { getArc19Url } from './get-arc-19-url'
-import { getArc3Url } from './get-arc-3-url'
+import { getArc19Url } from '../utils/get-arc-19-url'
+import { getArc3Url } from '../utils/get-arc-3-url'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 
 // This atom returns the array of ARC metadata for the asset result
@@ -12,7 +12,7 @@ import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 // - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
 // - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
 // - ARC-19 doesn't specify the metadata format but it seems to be the same with ARC-3
-export const getAssetMetadata = async (assetResult: AssetResult, assetConfigTransactionResults: TransactionResult[]) => {
+export const asAssetMetadata = async (assetResult: AssetResult, potentialMetadataTransaction?: TransactionResult) => {
   // TODO: handle ARC-16
   const metadataArray: Array<Arc3Metadata | Arc19Metadata | Arc69Metadata> = []
 
@@ -61,9 +61,8 @@ export const getAssetMetadata = async (assetResult: AssetResult, assetConfigTran
   }
 
   // Check for ARC-69
-  const latestConfigTxn = assetConfigTransactionResults[assetConfigTransactionResults.length - 1]
-  if (latestConfigTxn.note) {
-    const arc69Metadata = noteToArc69Metadata(latestConfigTxn.note)
+  if (potentialMetadataTransaction && potentialMetadataTransaction.note) {
+    const arc69Metadata = noteToArc69Metadata(potentialMetadataTransaction.note)
     if (arc69Metadata) {
       metadataArray.push(arc69Metadata)
     }

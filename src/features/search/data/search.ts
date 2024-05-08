@@ -65,6 +65,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
           })
         }
 
+        // TODO: NC - Do we actually want to use the asset result instead?
         const assetAtom = getAssetSummaryAtomBuilder(store, id)
         const applicationAtom = getApplicationAtomBuilder(store, id)
 
