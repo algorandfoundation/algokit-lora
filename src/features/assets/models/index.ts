@@ -1,39 +1,37 @@
 export type AssetSummary = {
   id: number
   name?: string
-  total: number | bigint
   decimals: number | bigint
   unitName?: string
-  defaultFrozen: boolean
-  url?: string
-  creator: string
-  manager?: string
-  reserve?: string
-  freeze?: string
   clawback?: string
-  json: string
-  tokenType: TokenType
 }
 
-export enum TokenType {
+export enum AssetType {
   Fungible = 'Fungible',
   PureNonFungible = 'Pure Non-Fungible',
   FractionalNonFungible = 'Fractional Non-Fungible',
 }
 
 export type Asset = AssetSummary & {
-  // TODO: NC - Could this be better as a record, you'll never have multiple ARC3 etc. maybe we can get rid of metadatas as a word
-  metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
+  total: number | bigint
+  defaultFrozen: boolean
+  url?: string
+  creator: string
+  manager?: string
+  reserve?: string
+  freeze?: string
+  json: string
+  type: AssetType
+  metadata: AssetMetadata
 }
 
-export enum AssetStandard {
-  ARC3 = 'ARC-3',
-  ARC19 = 'ARC-19',
-  ARC69 = 'ARC-69',
+export type AssetMetadata = {
+  arc3?: Arc3Or19Metadata
+  arc19?: Arc3Or19Metadata
+  arc69?: Arc69Metadata
 }
 
 export type Arc69Metadata = {
-  standard: AssetStandard.ARC69
   description?: string
   externalUrl?: string
   mediaUrl?: string
@@ -41,8 +39,7 @@ export type Arc69Metadata = {
   mimeType?: string
 }
 
-export type Arc3Metadata = {
-  standard: AssetStandard.ARC3
+export type Arc3Or19Metadata = {
   name?: string
   decimals?: number
   description?: string
@@ -58,35 +55,4 @@ export type Arc3Metadata = {
   animationUrlMimetype?: string
   properties?: Record<string, string>
   extraMetadata?: string
-}
-
-export type Arc19Metadata = Omit<Arc3Metadata, 'standard'> & {
-  standard: AssetStandard.ARC19
-}
-
-// ARC-3 and ARC-19 share the same metadata structure
-export type Arc3MetadataResult = {
-  name?: string
-  decimals?: number
-  description?: string
-  image?: string
-  image_integrity?: string
-  image_mimetype?: string
-  background_color?: string
-  external_url?: string
-  external_url_integrity?: string
-  external_url_mimetype?: string
-  animation_url?: string
-  animation_url_integrity?: string
-  animation_url_mimetype?: string
-  properties?: Record<string, string>
-  extra_metadata?: string
-}
-
-export type Arc69MetadataResult = {
-  description?: string
-  external_url?: string
-  media_url?: string
-  properties?: Record<string, string>
-  mime_type?: string
 }

@@ -1,5 +1,5 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { AssetIndex, AssetMetadata } from './types'
+import { AssetIndex, AssetMetadataResult } from './types'
 import { atom } from 'jotai'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 
@@ -18,4 +18,4 @@ export const algoAssetResult = {
 
 export const assetResultsAtom = atom<Map<AssetIndex, AssetResult>>(new Map([[algoAssetResult.index, algoAssetResult]]))
 
-export const assetMetadataAtom = atom<Map<AssetIndex, AssetMetadata[]>>(new Map())
+export const assetMetadataAtom = atom<Map<AssetIndex, AssetMetadataResult>>(new Map())

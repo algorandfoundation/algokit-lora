@@ -1,1 +1,1 @@
-export { asAssetSummary, asArc3Metadata, asArc69Metadata } from './asset-summary'
+export { asAssetSummary } from './asset-summary'

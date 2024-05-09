@@ -46,12 +46,15 @@ export function AssetDetails({ asset }: Props) {
             dd: (
               <label>
                 {asset.name}
-                {asset.metadata.map((m, i) => (
-                  <Badge key={i} variant="outline">
-                    {m.standard}
-                  </Badge>
-                ))}
-                <Badge variant="outline">{asset.tokenType}</Badge>
+                {Object.entries(asset.metadata)
+                  .filter(([_, v]) => isDefined(v))
+                  .map(([m, _], i) => (
+                    <Badge key={i} variant="outline">
+                      {/* TODO: NC - This is gross and needs fixing */}
+                      {m === 'arc3' ? 'ARC-3' : m === 'arc19' ? 'ARC-19' : m === 'arc69' ? 'ARC-69' : ''}
+                    </Badge>
+                  ))}
+                <Badge variant="outline">{asset.type}</Badge>
               </label>
             ),
           }
@@ -85,7 +88,7 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.decimals, asset.defaultFrozen, asset.id, asset.metadata, asset.name, asset.tokenType, asset.total, asset.unitName, asset.url]
+    [asset.decimals, asset.defaultFrozen, asset.id, asset.metadata, asset.name, asset.type, asset.total, asset.unitName, asset.url]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(

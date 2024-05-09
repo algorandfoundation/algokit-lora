@@ -1,10 +1,11 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { Asset, AssetStandard } from '../models'
+import { Asset } from '../models'
 import { assetMetadataLabel } from './labels'
 import { useMemo } from 'react'
 import { isDefined } from '@/utils/is-defined'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { invariant } from '@/utils/invariant'
 
 type Props = {
   asset: Asset
@@ -12,15 +13,16 @@ type Props = {
 
 export function AssetMetadata({ asset }: Props) {
   const items = useMemo(() => {
-    const metadataStandards = asset.metadata.map((m) => m.standard)
+    const isArc3 = asset.metadata.arc3 ? true : false
+    const isArc19 = asset.metadata.arc19 ? true : false
+    const isArc69 = asset.metadata.arc69 ? true : false
 
-    if (
-      (metadataStandards.includes(AssetStandard.ARC3) || metadataStandards.includes(AssetStandard.ARC19)) &&
-      !metadataStandards.includes(AssetStandard.ARC69)
-    ) {
+    if ((isArc3 || isArc19) && !isArc69) {
       // If the asset follows ARC-3 or ARC-19, but not ARC-69
       // we display ARC-3 metadata
-      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC3 || m.standard === AssetStandard.ARC19)!
+      // TODO: NC - We should be able to de-duplicate this logic into the model type
+      const metadata = asset.metadata.arc3 ? asset.metadata.arc3 : asset.metadata.arc19 ? asset.metadata.arc19 : undefined
+      invariant(metadata, 'ARC-3 or ARC-19 metadata must be present')
       const supportedKeys = [
         'name',
         'decimals',
@@ -41,8 +43,9 @@ export function AssetMetadata({ asset }: Props) {
       return getDescriptionListItems(metadata, supportedKeys)
     }
 
-    if (metadataStandards.includes(AssetStandard.ARC69)) {
-      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC69)!
+    if (isArc69) {
+      const metadata = asset.metadata.arc69
+      invariant(metadata, 'ARC-69 metadata must be present')
 
       const supportedKeys = ['description', 'external_url', 'media_url', 'mime_type']
       return getDescriptionListItems(metadata, supportedKeys)
@@ -50,6 +53,10 @@ export function AssetMetadata({ asset }: Props) {
 
     return []
   }, [asset])
+
+  if (items.length === 0) {
+    return undefined
+  }
 
   return (
     <Card className={cn('p-4')}>

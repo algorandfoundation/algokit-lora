@@ -11,12 +11,15 @@ type Props = {
 
 export function AssetTraits({ asset }: Props) {
   const traits = useMemo<Record<string, string>>(() => {
-    return asset.metadata.reduce((acc, metadata) => {
-      return {
-        ...acc,
-        ...metadata.properties,
-      }
-    }, {})
+    return (
+      (asset.metadata.arc69
+        ? asset.metadata.arc69.properties
+        : asset.metadata.arc3
+          ? asset.metadata.arc3.properties
+          : asset.metadata.arc19
+            ? asset.metadata.arc19.properties
+            : undefined) ?? {}
+    )
   }, [asset.metadata])
   const items = useMemo(() => {
     return Object.entries(traits).map(([key, value]) => {

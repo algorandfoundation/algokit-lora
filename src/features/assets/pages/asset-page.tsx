@@ -30,8 +30,6 @@ export function AssetPage() {
   const assetId = parseInt(_assetId, 10)
   const loadableAsset = useLoadableAsset(assetId)
 
-  console.log('render')
-
   return (
     <div>
       <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
