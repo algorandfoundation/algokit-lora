@@ -18,7 +18,10 @@ type Props = {
 }
 
 export function AssetTransactionHistory({ assetIndex }: Props) {
-  const fetchNextPage = useCallback((nextPageToken?: string) => fetchAssetTransactionResults(assetIndex, nextPageToken), [assetIndex])
+  const fetchNextPage = useCallback(
+    (pageSize: number, nextPageToken?: string) => fetchAssetTransactionResults(assetIndex, pageSize, nextPageToken),
+    [assetIndex]
+  )
   const mapper = useCallback((store: JotaiStore, rows: TransactionResult[]) => {
     return fetchTransactionsAtomBuilder(store, rows)
   }, [])
@@ -26,12 +29,12 @@ export function AssetTransactionHistory({ assetIndex }: Props) {
   return <LazyLoadDataTable columns={transactionsTableColumns} fetchNextPage={fetchNextPage} mapper={mapper} />
 }
 
-const fetchAssetTransactionResults = async (assetIndex: AssetIndex, nextPageToken?: string) => {
+const fetchAssetTransactionResults = async (assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
     .assetID(assetIndex)
     .nextToken(nextPageToken ?? '')
-    .limit(10)
+    .limit(pageSize)
     .do()) as TransactionSearchResults
   return {
     rows: results.transactions,

@@ -15,11 +15,16 @@ export type ViewModelPage<TViewModel> = {
 }
 
 type LoadablePaginationBuilderInput<TData, TViewModel> = {
-  fetchNextPage: (nextPageToken?: string) => Promise<RawDataPage<TData>>
+  pageSize: number
+  fetchNextPage: (pageSize: number, nextPageToken?: string) => Promise<RawDataPage<TData>>
   mapper: (store: JotaiStore, rows: TData[]) => Atom<Promise<TViewModel[]>>
 }
 
-export function loadablePaginationBuilder<TData, TViewModel>({ fetchNextPage, mapper }: LoadablePaginationBuilderInput<TData, TViewModel>) {
+export function loadablePaginationBuilder<TData, TViewModel>({
+  pageSize,
+  fetchNextPage,
+  mapper,
+}: LoadablePaginationBuilderInput<TData, TViewModel>) {
   // TODO: need to reset this atom when page size changed
   const rawDataPagesAtom = atom<RawDataPage<TData>[]>([])
 
@@ -37,7 +42,7 @@ export function loadablePaginationBuilder<TData, TViewModel>({ fetchNextPage, ma
     })
   }
 
-  const getViewModelPageAtomBuilder = (store: JotaiStore, pageNumber: number) => {
+  const getViewModelPageAtomBuilder = (store: JotaiStore, pageSize: number, pageNumber: number) => {
     return atom(async (get) => {
       const index = pageNumber - 1
       const cache = store.get(rawDataPagesAtom)
@@ -51,7 +56,7 @@ export function loadablePaginationBuilder<TData, TViewModel>({ fetchNextPage, ma
       }
 
       const currentNextPageToken = cache[cache.length - 1]?.nextPageToken
-      const { rows, nextPageToken } = await fetchNextPage(currentNextPageToken)
+      const { rows, nextPageToken } = await fetchNextPage(pageSize, currentNextPageToken)
 
       get(syncEffectBuilder({ rows, nextPageToken }))
 
@@ -62,16 +67,16 @@ export function loadablePaginationBuilder<TData, TViewModel>({ fetchNextPage, ma
     })
   }
 
-  const useViewModelPageAtom = (pageNumber: number) => {
+  const useViewModelPageAtom = (pageSize: number, pageNumber: number) => {
     const store = useStore()
 
     return useMemo(() => {
-      return getViewModelPageAtomBuilder(store, pageNumber)
-    }, [store, pageNumber])
+      return getViewModelPageAtomBuilder(store, pageSize, pageNumber)
+    }, [store, pageSize, pageNumber])
   }
 
   const useLoadablePage = (pageNumber: number) => {
-    return useAtomValue(loadable(useViewModelPageAtom(pageNumber)))
+    return useAtomValue(loadable(useViewModelPageAtom(pageSize, pageNumber)))
   }
 
   return { useLoadablePage } as const

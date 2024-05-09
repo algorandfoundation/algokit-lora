@@ -1,6 +1,6 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
 import { JotaiStore } from '../../data/types'
 import { RenderLoadable } from '../render-loadable'
@@ -9,34 +9,41 @@ import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 
 interface Props<TData, TViewModel, TValue> {
   columns: ColumnDef<TViewModel, TValue>[]
-  fetchNextPage: (nextPageToken?: string) => Promise<RawDataPage<TData>>
+  fetchNextPage: (pageSize: number, nextPageToken?: string) => Promise<RawDataPage<TData>>
   mapper: (store: JotaiStore, rows: TData[]) => Atom<Promise<TViewModel[]>>
 }
 
 export function LazyLoadDataTable<TData, TViewModel, TValue>({ columns, fetchNextPage, mapper }: Props<TData, TViewModel, TValue>) {
   // TODO: consider having a callback so that the consumer can set the transaction results atom
-  // TODO: test nextPageEnabled, previousPageEnabled
+
+  const [pageSize, setPageSize] = useState(10)
   const { useLoadablePage } = useMemo(
     () =>
       loadablePaginationBuilder({
+        pageSize,
         fetchNextPage,
         mapper,
       }),
-    [fetchNextPage, mapper]
+    [pageSize, fetchNextPage, mapper]
   )
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
+
+  const setPageSizeAndResetCurrentPage = useCallback((newPageSize: number) => {
+    setPageSize(newPageSize)
+    setCurrentPage(1)
+  }, [])
 
   // TODO: move the render loading inside so that the entire table is not re-rendered
   return (
     <RenderLoadable loadable={loadablePage}>
       {(page) => (
         <LazyLoadDataTableInner
-          pageSize={10}
-          setPageSize={() => {}}
+          pageSize={pageSize}
+          setPageSize={setPageSizeAndResetCurrentPage}
           data={page.rows}
           columns={columns}
-          nextPageEnabled={page.nextPageToken !== undefined}
+          nextPageEnabled={page.nextPageToken !== undefined && page.rows.length === pageSize}
           nextPage={() => {
             setCurrentPage((prev) => prev + 1)
           }}
