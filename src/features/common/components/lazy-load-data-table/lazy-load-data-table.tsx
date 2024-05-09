@@ -6,7 +6,9 @@ interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   currentPage: number
+  nextPageEnabled: boolean
   nextPage: () => void
+  previousPageEnabled: boolean
   previousPage: () => void
 }
 // TODO: many inside a <Provider>

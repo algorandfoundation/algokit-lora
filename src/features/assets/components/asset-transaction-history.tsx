@@ -32,16 +32,14 @@ export function AssetTransactionHistory({ assetIndex }: Props) {
         <LazyLoadDataTable
           data={assetTransactionsAtomValue.transactions}
           columns={transactionsTableColumns}
+          nextPageEnabled={assetTransactionsAtomValue.nextPageToken !== undefined}
           nextPage={() => {
-            if (assetTransactionsAtomValue.nextPageToken) {
-              setCurrentPage((prev) => prev + 1)
-            }
+            setCurrentPage((prev) => prev + 1)
           }}
           currentPage={currentPage}
+          previousPageEnabled={currentPage > 1}
           previousPage={() => {
-            if (assetTransactionsAtomValue.nextPageToken) {
-              setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
-            }
+            setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
           }}
         />
       )}
@@ -49,47 +47,25 @@ export function AssetTransactionHistory({ assetIndex }: Props) {
   )
 }
 
-// const fetchAssetTransactionResults = async (assetIndex: AssetIndex, nextPageToken?: string) => {
-//   const results = (await indexer
-//     .searchForTransactions()
-//     .assetID(assetIndex)
-//     .nextToken(nextPageToken ?? '')
-//     .limit(10)
-//     .do()) as TransactionSearchResults
-//   return {
-//     transactionResults: results.transactions,
-//     nextPageToken: results['next-token'],
-//   } as const
-// }
-
-const fetchNextAssetTransactionResultsPageAtomBuilder = (assetIndex: AssetIndex) => {
-  return atom(async (get) => {
-    const cache = get(assetTransactionResultsPagesAtom)
-    const nextPageToken = cache[cache.length - 1]?.nextPageToken
-
-    const results = (await indexer
-      .searchForTransactions()
-      .assetID(assetIndex)
-      .nextToken(nextPageToken ?? '')
-      .limit(10)
-      .do()) as TransactionSearchResults
-    return {
-      transactionResults: results.transactions,
-      nextPageToken: results['next-token'],
-    }
-  })
+const fetchAssetTransactionResults = async (assetIndex: AssetIndex, nextPageToken?: string) => {
+  const results = (await indexer
+    .searchForTransactions()
+    .assetID(assetIndex)
+    .nextToken(nextPageToken ?? '')
+    .limit(10)
+    .do()) as TransactionSearchResults
+  return {
+    transactionResults: results.transactions,
+    nextPageToken: results['next-token'],
+  } as const
 }
 
-const getSyncEffect = (fetchNextPageAtom: ReturnType<typeof fetchNextAssetTransactionResultsPageAtomBuilder>) => {
-  return atomEffect((get, set) => {
+const getSyncEffect = ({ transactionResults, nextPageToken }: { transactionResults: TransactionResult[]; nextPageToken?: string }) => {
+  return atomEffect((_, set) => {
     ;(async () => {
       try {
-        const { transactionResults, nextPageToken } = await get(fetchNextPageAtom)
-
         set(assetTransactionResultsPagesAtom, (prev) => {
-          const foo = Array.from(prev).concat([{ transactionResults, nextPageToken }])
-          console.log('foo', foo)
-          return foo
+          return Array.from(prev).concat([{ transactionResults, nextPageToken }])
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
@@ -99,15 +75,11 @@ const getSyncEffect = (fetchNextPageAtom: ReturnType<typeof fetchNextAssetTransa
 }
 
 const getAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, pageNumber: number) => {
-  const fetchNextPageAtom = fetchNextAssetTransactionResultsPageAtomBuilder(assetIndex)
-  const syncEffect = getSyncEffect(fetchNextPageAtom)
-
   return atom(async (get) => {
     const index = pageNumber - 1
     const cache = store.get(assetTransactionResultsPagesAtom)
 
-    console.log('cache size', cache.length)
-    if (index < cache.length - 1) {
+    if (index < cache.length) {
       const page = cache[index]
       return {
         transactions: await get(fetchTransactionsAtomBuilder(store, page.transactionResults)),
@@ -116,10 +88,9 @@ const getAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetInd
     }
 
     const foo = cache[cache.length - 1]?.nextPageToken
-    const { transactionResults, nextPageToken } = await get(fetchNextPageAtom)
+    const { transactionResults, nextPageToken } = await fetchAssetTransactionResults(assetIndex, foo)
 
-    console.log('nextPageToken', nextPageToken)
-    get(syncEffect)
+    get(getSyncEffect({ transactionResults, nextPageToken }))
 
     return {
       transactions: await get(fetchTransactionsAtomBuilder(store, transactionResults)),
@@ -186,6 +157,7 @@ const transactionsTableColumns: ColumnDef<Transaction>[] = [
   },
 ]
 
+// TODO: need to reset this atom
 const assetTransactionResultsPagesAtom = atom<AssetTransactionResultsPage[]>([])
 
 type AssetTransactionResultsPage = {
