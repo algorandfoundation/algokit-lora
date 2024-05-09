@@ -1,10 +1,11 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Atom } from 'jotai'
 import { JotaiStore } from '../../data/types'
 import { RenderLoadable } from '../render-loadable'
 import { RawDataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
+import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 
 interface Props<TData, TViewModel, TValue> {
   columns: ColumnDef<TViewModel, TValue>[]
@@ -26,10 +27,13 @@ export function LazyLoadDataTable<TData, TViewModel, TValue>({ columns, fetchNex
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
 
+  // TODO: move the render loading inside so that the entire table is not re-rendered
   return (
     <RenderLoadable loadable={loadablePage}>
       {(page) => (
         <LazyLoadDataTableInner
+          pageSize={10}
+          setPageSize={() => {}}
           data={page.rows}
           columns={columns}
           nextPageEnabled={page.nextPageToken !== undefined}
@@ -50,26 +54,31 @@ export function LazyLoadDataTable<TData, TViewModel, TValue>({ columns, fetchNex
 interface InnerProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  pageSize: number
+  setPageSize: (pageSize: number) => void
   currentPage: number
   nextPageEnabled: boolean
   nextPage: () => void
   previousPageEnabled: boolean
   previousPage: () => void
 }
-export function LazyLoadDataTableInner<TData, TValue>({ columns, data, currentPage, nextPage, previousPage }: InnerProps<TData, TValue>) {
+export function LazyLoadDataTableInner<TData, TValue>({
+  columns,
+  data,
+  pageSize,
+  setPageSize,
+  currentPage,
+  nextPage,
+  nextPageEnabled,
+  previousPage,
+  previousPageEnabled,
+}: InnerProps<TData, TValue>) {
   const table = useReactTable({
     data: data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
   })
-
-  const nextPageButtonClicked = useCallback(async () => {
-    nextPage()
-  }, [nextPage])
-  const previousPageButtonClicked = useCallback(async () => {
-    previousPage()
-  }, [previousPage])
 
   return (
     <div>
@@ -107,11 +116,15 @@ export function LazyLoadDataTableInner<TData, TValue>({ columns, data, currentPa
           </TableBody>
         </Table>
       </div>
-      <div className="space-x-4">
-        <button onClick={previousPageButtonClicked}>Previous</button>
-        <label>{currentPage}</label>
-        <button onClick={nextPageButtonClicked}>Next</button>
-      </div>
+      <LazyLoadDataTablePagination
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        currentPage={currentPage}
+        nextPageEnabled={nextPageEnabled}
+        nextPage={nextPage}
+        previousPageEnabled={previousPageEnabled}
+        previousPage={previousPage}
+      />
     </div>
   )
 }
