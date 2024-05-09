@@ -3,9 +3,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
 import { JotaiStore } from '../../data/types'
-import { RenderLoadable } from '../render-loadable'
 import { RawDataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
+import { RenderLoadable } from '../render-loadable'
 
 interface Props<TData, TViewModel, TValue> {
   columns: ColumnDef<TViewModel, TValue>[]
@@ -29,59 +29,23 @@ export function LazyLoadDataTable<TData, TViewModel, TValue>({ columns, fetchNex
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
 
+  const nextPage = useCallback(() => {
+    setCurrentPage((prev) => prev + 1)
+  }, [])
+
+  const previousPage = useCallback(() => {
+    setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
+  }, [])
+
   const setPageSizeAndResetCurrentPage = useCallback((newPageSize: number) => {
     setPageSize(newPageSize)
     setCurrentPage(1)
   }, [])
 
-  // TODO: move the render loading inside so that the entire table is not re-rendered
-  return (
-    <RenderLoadable loadable={loadablePage}>
-      {(page) => (
-        <LazyLoadDataTableInner
-          pageSize={pageSize}
-          setPageSize={setPageSizeAndResetCurrentPage}
-          data={page.rows}
-          columns={columns}
-          nextPageEnabled={page.nextPageToken !== undefined && page.rows.length === pageSize}
-          nextPage={() => {
-            setCurrentPage((prev) => prev + 1)
-          }}
-          currentPage={currentPage}
-          previousPageEnabled={currentPage > 1}
-          previousPage={() => {
-            setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
-          }}
-        />
-      )}
-    </RenderLoadable>
-  )
-}
+  const page = useMemo(() => (loadablePage.state === 'hasData' ? loadablePage.data : undefined), [loadablePage])
 
-interface InnerProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  pageSize: number
-  setPageSize: (pageSize: number) => void
-  currentPage: number
-  nextPageEnabled: boolean
-  nextPage: () => void
-  previousPageEnabled: boolean
-  previousPage: () => void
-}
-export function LazyLoadDataTableInner<TData, TValue>({
-  columns,
-  data,
-  pageSize,
-  setPageSize,
-  currentPage,
-  nextPage,
-  nextPageEnabled,
-  previousPage,
-  previousPageEnabled,
-}: InnerProps<TData, TValue>) {
   const table = useReactTable({
-    data: data,
+    data: page?.rows ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
@@ -104,32 +68,38 @@ export function LazyLoadDataTableInner<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+          <RenderLoadable loadable={loadablePage}>
+            {(_) => {
+              return (
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              )
+            }}
+          </RenderLoadable>
         </Table>
       </div>
       <LazyLoadDataTablePagination
         pageSize={pageSize}
-        setPageSize={setPageSize}
+        setPageSize={setPageSizeAndResetCurrentPage}
         currentPage={currentPage}
-        nextPageEnabled={nextPageEnabled}
+        nextPageEnabled={!!page?.nextPageToken && page.rows.length === pageSize}
         nextPage={nextPage}
-        previousPageEnabled={previousPageEnabled}
+        previousPageEnabled={currentPage > 1}
         previousPage={previousPage}
       />
     </div>
