@@ -1,11 +1,10 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
-import { Atom, atom, useAtomValue, useStore } from 'jotai'
-import { atomEffect } from 'jotai-effect'
+import { Atom } from 'jotai'
 import { JotaiStore } from '../../data/types'
-import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '../render-loadable'
+import { RawDataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
 
 interface Props<TData, TViewModel, TValue> {
   columns: ColumnDef<TViewModel, TValue>[]
@@ -115,77 +114,4 @@ export function LazyLoadDataTableInner<TData, TValue>({ columns, data, currentPa
       </div>
     </div>
   )
-}
-
-type RawDataPage<TData> = {
-  rows: TData[]
-  nextPageToken?: string
-}
-
-type ViewModelPage<TViewModel> = {
-  rows: TViewModel[]
-  nextPageToken?: string
-}
-
-type LoadablePaginationBuilderInput<TData, TViewModel> = {
-  fetchNextPage: (nextPageToken?: string) => Promise<RawDataPage<TData>>
-  mapper: (store: JotaiStore, rows: TData[]) => Atom<Promise<TViewModel[]>>
-}
-
-function loadablePaginationBuilder<TData, TViewModel>({ fetchNextPage, mapper }: LoadablePaginationBuilderInput<TData, TViewModel>) {
-  // TODO: need to reset this atom when page size changed
-  const rawDataPagesAtom = atom<RawDataPage<TData>[]>([])
-
-  const syncEffectBuilder = ({ rows, nextPageToken }: { rows: TData[]; nextPageToken?: string }) => {
-    return atomEffect((_, set) => {
-      ;(async () => {
-        try {
-          set(rawDataPagesAtom, (prev) => {
-            return Array.from(prev).concat([{ rows, nextPageToken }])
-          })
-        } catch (e) {
-          // Ignore any errors as there is nothing to sync
-        }
-      })()
-    })
-  }
-
-  const getViewModelPageAtomBuilder = (store: JotaiStore, pageNumber: number) => {
-    return atom(async (get) => {
-      const index = pageNumber - 1
-      const cache = store.get(rawDataPagesAtom)
-
-      if (index < cache.length) {
-        const page = cache[index]
-        return {
-          rows: await get(mapper(store, page.rows)),
-          nextPageToken: page.nextPageToken,
-        } satisfies ViewModelPage<TViewModel>
-      }
-
-      const currentNextPageToken = cache[cache.length - 1]?.nextPageToken
-      const { rows, nextPageToken } = await fetchNextPage(currentNextPageToken)
-
-      get(syncEffectBuilder({ rows, nextPageToken }))
-
-      return {
-        rows: await get(mapper(store, rows)),
-        nextPageToken,
-      } satisfies ViewModelPage<TViewModel>
-    })
-  }
-
-  const useViewModelPageAtom = (pageNumber: number) => {
-    const store = useStore()
-
-    return useMemo(() => {
-      return getViewModelPageAtomBuilder(store, pageNumber)
-    }, [store, pageNumber])
-  }
-
-  const useLoadablePage = (pageNumber: number) => {
-    return useAtomValue(loadable(useViewModelPageAtom(pageNumber)))
-  }
-
-  return { useLoadablePage } as const
 }
