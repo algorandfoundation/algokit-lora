@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
 import { AccountVisualTabs } from './account-visual-tabs'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
 
 export const accountAddressLabel = 'Address'
 export const accountBalanceLabel = 'Balance'
@@ -25,11 +26,11 @@ export function AccountInfo({ account }: { account: Account }) {
       },
       {
         dt: accountBalanceLabel,
-        dd: account.balance,
+        dd: <DisplayAlgo amount={account.balance} />,
       },
       {
         dt: accountMinBalanceLabel,
-        dd: account.minBalance,
+        dd: <DisplayAlgo amount={account.minBalance} />,
       },
       {
         dt: accountHoldingAssetsLabel,
