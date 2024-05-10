@@ -85,11 +85,7 @@ const transactionsTableColumns: ColumnDef<Transaction>[] = [
     accessorKey: 'id',
     cell: (c) => {
       const value = c.getValue<string>()
-      return (
-        <div>
-          <TransactionLink transactionId={value} short={true} />
-        </div>
-      )
+      return <TransactionLink transactionId={value} short={true} />
     },
   },
   {
@@ -99,9 +95,7 @@ const transactionsTableColumns: ColumnDef<Transaction>[] = [
   },
   {
     header: 'To',
-    accessorFn: (transaction) => transaction,
-    cell: (c) => {
-      const transaction = c.getValue<Transaction>()
+    accessorFn: (transaction) => {
       if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
         return ellipseAddress(transaction.receiver)
       if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
