@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
 import { DataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
-import { RenderLoadable } from '../render-loadable'
+import { Loader2 as Loader } from 'lucide-react'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -63,29 +63,38 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
               </TableRow>
             ))}
           </TableHeader>
-          <RenderLoadable loadable={loadablePage}>
-            {(_) => {
-              return (
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              )
-            }}
-          </RenderLoadable>
+          <TableBody>
+            {loadablePage.state === 'loading' && (
+              <TableRow>
+                <TableCell colSpan={columns.length}>
+                  <div className="flex flex-col items-center">
+                    <Loader className="size-10 animate-spin" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+            {loadablePage.state === 'hasError' && (
+              <TableRow>
+                <TableCell colSpan={columns.length}>Failed to load data.</TableCell>
+              </TableRow>
+            )}
+            {loadablePage.state === 'hasData' &&
+              table.getRowModel().rows?.length &&
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            {loadablePage.state === 'hasData' && table.getRowModel().rows?.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
         </Table>
       </div>
       <LazyLoadDataTablePagination
