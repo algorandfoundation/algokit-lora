@@ -31,7 +31,7 @@ export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: Lo
     })
   }
 
-  const getViewModelPageAtomBuilder = (store: JotaiStore, pageSize: number, pageNumber: number) => {
+  const getPageAtomBuilder = (store: JotaiStore, pageSize: number, pageNumber: number) => {
     return atom(async (get) => {
       const index = pageNumber - 1
       const cache = store.get(rawDataPagesAtom)
@@ -56,16 +56,16 @@ export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: Lo
     })
   }
 
-  const useViewModelPageAtom = (pageSize: number, pageNumber: number) => {
+  const usePageAtom = (pageSize: number, pageNumber: number) => {
     const store = useStore()
 
     return useMemo(() => {
-      return getViewModelPageAtomBuilder(store, pageSize, pageNumber)
+      return getPageAtomBuilder(store, pageSize, pageNumber)
     }, [store, pageSize, pageNumber])
   }
 
   const useLoadablePage = (pageNumber: number) => {
-    return useAtomValue(loadable(useViewModelPageAtom(pageSize, pageNumber)))
+    return useAtomValue(loadable(usePageAtom(pageSize, pageNumber)))
   }
 
   return { useLoadablePage } as const
