@@ -1,7 +1,8 @@
-import { OverflowAutoTabsContent } from '@/features/common/components/tabs'
+import { OverflowAutoTabsContent, TabsContent } from '@/features/common/components/tabs'
 import { cn } from '@/features/common/utils'
 import { Tabs, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { Account } from '../models'
+import { AccountTransactionHistory } from './account-transaction-history'
 
 const accountVisualTransactionTabId = 'visual'
 const accountVisualAssetsTabId = 'table'
@@ -54,12 +55,13 @@ export function AccountVisualTabs({ account }: Props) {
           {accountVisualOptedApplicationsTabLabel}
         </TabsTrigger>
       </TabsList>
-      {/* <OverflowAutoTabsContent value={accountVisualGraphTabId}>
-        <accountsGraph accounts={[account]} />
+      <OverflowAutoTabsContent value={accountVisualTransactionTabId}>
+        <AccountTransactionHistory address={account.address} />
       </OverflowAutoTabsContent>
-      <OverflowAutoTabsContent value={accountVisualTableTabId}>
-        <accountsTable accounts={[account]} />
-      </OverflowAutoTabsContent> */}
+      <OverflowAutoTabsContent value={accountVisualAssetsTabId}></OverflowAutoTabsContent>
+      <OverflowAutoTabsContent value={accountVisualCreatedAssetsTabId}></OverflowAutoTabsContent>
+      <OverflowAutoTabsContent value={accountVisualCreatedApplicationsTabId}></OverflowAutoTabsContent>
+      <OverflowAutoTabsContent value={accountVisualOptedApplicationsTabId}></OverflowAutoTabsContent>
     </Tabs>
   )
 }
