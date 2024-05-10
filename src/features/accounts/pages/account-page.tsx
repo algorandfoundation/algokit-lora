@@ -7,7 +7,7 @@ import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Account } from '../models'
 import { useLoadableAccountAtom } from '../data/account'
-import { AccountInfo } from '../components/account-info'
+import { AccountDetails } from '../components/account-details'
 
 export const accountPageTitle = 'Account'
 export const accountInvalidAddressMessage = 'Address is invalid'
@@ -32,7 +32,7 @@ export function AccountPage() {
     <div>
       <h1 className={cn('text-2xl text-primary font-bold')}>{accountPageTitle}</h1>
       <RenderLoadable loadable={loadableAccount} transformError={transformError}>
-        {(account: Account) => <AccountInfo account={account} />}
+        {(account: Account) => <AccountDetails account={account} />}
       </RenderLoadable>
     </div>
   )

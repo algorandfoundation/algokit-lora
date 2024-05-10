@@ -3,8 +3,8 @@ import { Account } from '../models'
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
-import { AccountVisualTabs } from './account-visual-tabs'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
+import { AccountLink } from './account-link'
 
 export const accountAddressLabel = 'Address'
 export const accountBalanceLabel = 'Balance'
@@ -14,8 +14,6 @@ export const accountCreatedAssetsLabel = 'Created assets'
 export const accountCreatedApplicationsLabel = 'Created applications'
 export const accountOptedApplicationsLabel = 'opted applications'
 export const accountRekeyedToLabel = 'Rekeyed to'
-export const activityLabel = 'Activity'
-export const accountJsonLabel = 'Acount JSON'
 
 export function AccountInfo({ account }: { account: Account }) {
   const accountInfoItems = useMemo(() => {
@@ -50,12 +48,11 @@ export function AccountInfo({ account }: { account: Account }) {
       },
     ]
 
-    if (account.rekeyedTo) {
+    account.rekeyedTo &&
       items.push({
         dt: accountRekeyedToLabel,
-        dd: account.rekeyedTo,
+        dd: <AccountLink address={account.rekeyedTo}></AccountLink>,
       })
-    }
 
     return items
   }, [
@@ -68,30 +65,11 @@ export function AccountInfo({ account }: { account: Account }) {
     account.totalAssetsOptedIn,
     account.rekeyedTo,
   ])
-
   return (
-    <div className={cn('space-y-6 pt-7')}>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <DescriptionList items={accountInfoItems} />
-        </CardContent>
-      </Card>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{activityLabel}</h1>
-          <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <AccountVisualTabs account={account} />
-          </div>
-        </CardContent>
-      </Card>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{accountJsonLabel}</h1>
-          <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <pre className={cn('overflow-scroll p-4')}>{JSON.stringify(account.json, null, 2)}</pre>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <Card className={cn('p-4')}>
+      <CardContent className={cn('text-sm space-y-2')}>
+        <DescriptionList items={accountInfoItems} />
+      </CardContent>
+    </Card>
   )
 }
