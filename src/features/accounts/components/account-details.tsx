@@ -1,7 +1,7 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { Account } from '../models'
 import { cn } from '@/features/common/utils'
-import { AccountVisualTabs } from './account-visual-tabs'
+import { AccountActivityTabs } from './account-activity-tabs'
 import { AccountInfo } from './account-info'
 
 type Props = {
@@ -18,8 +18,8 @@ export function AccountDetails({ account }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{activityLabel}</h1>
-          <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <AccountVisualTabs account={account} />
+          <div className={cn('border-solid border-2 border-border grid')}>
+            <AccountActivityTabs account={account} />
           </div>
         </CardContent>
       </Card>

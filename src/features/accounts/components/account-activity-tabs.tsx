@@ -1,6 +1,5 @@
-import { OverflowAutoTabsContent, TabsContent } from '@/features/common/components/tabs'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { cn } from '@/features/common/utils'
-import { Tabs, TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { Account } from '../models'
 import { AccountTransactionHistory } from './account-transaction-history'
 
@@ -20,36 +19,36 @@ type Props = {
   account: Account
 }
 
-export function AccountVisualTabs({ account }: Props) {
+export function AccountActivityTabs({ account }: Props) {
   return (
     <Tabs defaultValue={accountVisualTransactionTabId}>
       <TabsList aria-label={accountDetailsLabel}>
         <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
+          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
           value={accountVisualTransactionTabId}
         >
           {accountVisualGraphTabLabel}
         </TabsTrigger>
         <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
+          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
           value={accountVisualAssetsTabId}
         >
           {accountVisualAssetsTabLabel}
         </TabsTrigger>
         <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
+          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
           value={accountVisualCreatedAssetsTabId}
         >
           {accountVisualCreatedAssetsTabLabel}
         </TabsTrigger>
         <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
+          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
           value={accountVisualCreatedApplicationsTabId}
         >
           {accountVisualCreatedApplicationsTabLabel}
         </TabsTrigger>
         <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
+          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
           value={accountVisualOptedApplicationsTabId}
         >
           {accountVisualOptedApplicationsTabLabel}
