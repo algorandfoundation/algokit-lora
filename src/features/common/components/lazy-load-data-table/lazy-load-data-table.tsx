@@ -2,29 +2,24 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
-import { JotaiStore } from '../../data/types'
-import { RawDataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
+import { DataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { RenderLoadable } from '../render-loadable'
 
-interface Props<TData, TViewModel, TValue> {
-  columns: ColumnDef<TViewModel, TValue>[]
-  fetchNextPage: (pageSize: number, nextPageToken?: string) => Promise<RawDataPage<TData>>
-  mapper: (store: JotaiStore, rows: TData[]) => Atom<Promise<TViewModel[]>>
+interface Props<TData, TValue> {
+  columns: ColumnDef<TData, TValue>[]
+  fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
 }
 
-export function LazyLoadDataTable<TData, TViewModel, TValue>({ columns, fetchNextPage, mapper }: Props<TData, TViewModel, TValue>) {
-  // TODO: consider having a callback so that the consumer can set the transaction results atom
-
+export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
   const { useLoadablePage } = useMemo(
     () =>
       loadablePaginationBuilder({
         pageSize,
         fetchNextPage,
-        mapper,
       }),
-    [pageSize, fetchNextPage, mapper]
+    [pageSize, fetchNextPage]
   )
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)

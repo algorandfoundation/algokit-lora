@@ -4,29 +4,18 @@ import { loadable } from 'jotai/utils'
 import { JotaiStore } from './types'
 import { useMemo } from 'react'
 
-export type RawDataPage<TData> = {
+export type DataPage<TData> = {
   rows: TData[]
   nextPageToken?: string
 }
 
-export type ViewModelPage<TViewModel> = {
-  rows: TViewModel[]
-  nextPageToken?: string
-}
-
-type LoadablePaginationBuilderInput<TData, TViewModel> = {
+type LoadablePaginationBuilderInput<TData> = {
   pageSize: number
-  fetchNextPage: (pageSize: number, nextPageToken?: string) => Promise<RawDataPage<TData>>
-  mapper: (store: JotaiStore, rows: TData[]) => Atom<Promise<TViewModel[]>>
+  fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
 }
 
-export function loadablePaginationBuilder<TData, TViewModel>({
-  pageSize,
-  fetchNextPage,
-  mapper,
-}: LoadablePaginationBuilderInput<TData, TViewModel>) {
-  // TODO: need to reset this atom when page size changed
-  const rawDataPagesAtom = atom<RawDataPage<TData>[]>([])
+export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: LoadablePaginationBuilderInput<TData>) {
+  const rawDataPagesAtom = atom<DataPage<TData>[]>([])
 
   const syncEffectBuilder = ({ rows, nextPageToken }: { rows: TData[]; nextPageToken?: string }) => {
     return atomEffect((_, set) => {
@@ -50,20 +39,20 @@ export function loadablePaginationBuilder<TData, TViewModel>({
       if (index < cache.length) {
         const page = cache[index]
         return {
-          rows: await get(mapper(store, page.rows)),
+          rows: page.rows,
           nextPageToken: page.nextPageToken,
-        } satisfies ViewModelPage<TViewModel>
+        } satisfies DataPage<TData>
       }
 
       const currentNextPageToken = cache[cache.length - 1]?.nextPageToken
-      const { rows, nextPageToken } = await fetchNextPage(pageSize, currentNextPageToken)
+      const { rows, nextPageToken } = await get(fetchNextPage(pageSize, currentNextPageToken))
 
       get(syncEffectBuilder({ rows, nextPageToken }))
 
       return {
-        rows: await get(mapper(store, rows)),
+        rows: rows,
         nextPageToken,
-      } satisfies ViewModelPage<TViewModel>
+      } satisfies DataPage<TData>
     })
   }
 
