@@ -21,6 +21,7 @@ export type Arc3Or19MetadataResult = {
 }
 
 export type Arc69MetadataResult = {
+  standard: 'arc69'
   description?: string
   external_url?: string
   media_url?: string
@@ -28,6 +29,7 @@ export type Arc69MetadataResult = {
   mime_type?: string
 }
 
+// TODO: NC - We might be able to simply return a single metadata object
 export type AssetMetadataResult = {
   arc3?: Arc3Or19MetadataResult
   arc19?: Arc3Or19MetadataResult

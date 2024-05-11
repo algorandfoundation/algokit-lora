@@ -10,6 +10,17 @@ export enum AssetType {
   Fungible = 'Fungible',
   PureNonFungible = 'Pure Non-Fungible',
   FractionalNonFungible = 'Fractional Non-Fungible',
+  Deleted = 'Deleted',
+}
+
+export enum AssetMediaType {
+  Image = 'image',
+  Video = 'video',
+}
+
+export type AssetMedia = {
+  type: AssetMediaType
+  url: string
 }
 
 export type Asset = AssetSummary & {
@@ -20,39 +31,16 @@ export type Asset = AssetSummary & {
   manager?: string
   reserve?: string
   freeze?: string
-  json: string
   type: AssetType
-  metadata: AssetMetadata
+  standardsUsed: AssetStandard[]
+  traits?: Record<string, string>
+  metadata?: Record<string, string | number>
+  media?: AssetMedia
+  json: string
 }
 
-export type AssetMetadata = {
-  arc3?: Arc3Or19Metadata
-  arc19?: Arc3Or19Metadata
-  arc69?: Arc69Metadata
-}
-
-export type Arc69Metadata = {
-  description?: string
-  externalUrl?: string
-  mediaUrl?: string
-  properties?: Record<string, string>
-  mimeType?: string
-}
-
-export type Arc3Or19Metadata = {
-  name?: string
-  decimals?: number
-  description?: string
-  image?: string
-  imageIntegrity?: string
-  imageMimetype?: string
-  backgroundColor?: string
-  externalUrl?: string
-  externalUrlIntegrity?: string
-  externalUrlMimetype?: string
-  animationUrl?: string
-  animationUrlIntegrity?: string
-  animationUrlMimetype?: string
-  properties?: Record<string, string>
-  extraMetadata?: string
+export enum AssetStandard {
+  ARC3 = 'ARC-3',
+  ARC19 = 'ARC-19',
+  ARC69 = 'ARC-69',
 }

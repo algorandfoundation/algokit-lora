@@ -7,9 +7,9 @@ import { AssetIndex } from './types'
 import { getAssetResultAtomBuilder } from './asset-result'
 
 // TODO: NC - Come back and remove store if this works
-export const getAssetSummaryAtomBuilder = (_store: JotaiStore, assetIndex: AssetIndex) => {
+export const getAssetSummaryAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   return atom(async (get) => {
-    const assetResult = await get(getAssetResultAtomBuilder(assetIndex))
+    const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex))
     return asAssetSummary(assetResult)
   })
 }

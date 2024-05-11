@@ -3,56 +3,21 @@ import { cn } from '@/features/common/utils'
 import { Asset } from '../models'
 import { assetMetadataLabel } from './labels'
 import { useMemo } from 'react'
-import { isDefined } from '@/utils/is-defined'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { invariant } from '@/utils/invariant'
 
 type Props = {
-  asset: Asset
+  metadata: Asset['metadata']
 }
 
-export function AssetMetadata({ asset }: Props) {
+export function AssetMetadata({ metadata }: Props) {
   const items = useMemo(() => {
-    const isArc3 = asset.metadata.arc3 ? true : false
-    const isArc19 = asset.metadata.arc19 ? true : false
-    const isArc69 = asset.metadata.arc69 ? true : false
-
-    if ((isArc3 || isArc19) && !isArc69) {
-      // If the asset follows ARC-3 or ARC-19, but not ARC-69
-      // we display ARC-3 metadata
-      // TODO: NC - We should be able to de-duplicate this logic into the model type
-      const metadata = asset.metadata.arc3 ? asset.metadata.arc3 : asset.metadata.arc19 ? asset.metadata.arc19 : undefined
-      invariant(metadata, 'ARC-3 or ARC-19 metadata must be present')
-      const supportedKeys = [
-        'name',
-        'decimals',
-        'description',
-        'image',
-        'image_integrity',
-        'image_mimetype',
-        'background_color',
-        'external_url',
-        'external_url_integrity',
-        'external_url_mimetype',
-        'animation_url',
-        'animation_url_integrity',
-        'animation_url_mimetype',
-        'extra_metadata',
-      ]
-
-      return getDescriptionListItems(metadata, supportedKeys)
-    }
-
-    if (isArc69) {
-      const metadata = asset.metadata.arc69
-      invariant(metadata, 'ARC-69 metadata must be present')
-
-      const supportedKeys = ['description', 'external_url', 'media_url', 'mime_type']
-      return getDescriptionListItems(metadata, supportedKeys)
-    }
-
-    return []
-  }, [asset])
+    return Object.entries(metadata ?? {}).map(([key, value]) => {
+      return {
+        dt: humanisePropertyKey(key),
+        dd: value,
+      }
+    })
+  }, [metadata])
 
   if (items.length === 0) {
     return undefined
@@ -66,21 +31,6 @@ export function AssetMetadata({ asset }: Props) {
       </CardContent>
     </Card>
   )
-}
-
-const getDescriptionListItems = (metadata: Record<string, unknown>, supportedKeys: string[]): { dt: string; dd: string | number }[] => {
-  return supportedKeys
-    .map((key) => {
-      if (metadata[key] === undefined) {
-        return undefined
-      }
-
-      return {
-        dt: humanisePropertyKey(key),
-        dd: metadata[key] as string | number, // Force type assertion because we only support string/number keys
-      }
-    })
-    .filter(isDefined)
 }
 
 const humanisePropertyKey = (key: string): string => {

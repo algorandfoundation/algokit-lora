@@ -1,3 +1,4 @@
+export const assetDetailsLabel = 'Asset Details'
 export const assetIdLabel = 'Asset ID'
 export const assetNameLabel = 'Name'
 export const assetDescriptionLabel = 'Description'

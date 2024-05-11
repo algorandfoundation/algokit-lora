@@ -3,7 +3,6 @@ import { JotaiStore } from '@/features/common/data/types'
 import { atomEffect } from 'jotai-effect'
 import { assetMetadataAtom } from './core'
 import { AssetResult, TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
-import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
@@ -11,6 +10,7 @@ import { Arc3Or19MetadataResult, Arc69MetadataResult, AssetMetadataResult } from
 import { getArc19Url } from '../utils/get-arc-19-url'
 import { getArc3Url } from '../utils/get-arc-3-url'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { ZERO_ADDRESS } from '@/features/common/constants'
 
 // This atom returns the array of ARC metadata for the asset result
 // Currently, we support ARC-3, 16, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
@@ -32,6 +32,17 @@ export const buildAssetMetadataResult = async (
   // ARC19 + ARC69
   // ARC3 + ARC69
   // ARC3 + ARC19 + ARC69
+
+  // I think we essentially only want to display a single metadata object
+
+  // Check for ARC-69
+  if (potentialMetadataTransaction && potentialMetadataTransaction.note) {
+    const metadata = noteToArc69Metadata(potentialMetadataTransaction.note)
+    if (metadata) {
+      assetMetadata.arc69 = metadata
+      return assetMetadata
+    }
+  }
 
   // TODO: NC - I think we can simplify this code as well
   if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
@@ -70,16 +81,7 @@ export const buildAssetMetadataResult = async (
         ...metadataResult,
         metadata_url: metadataUrl,
       } satisfies Arc3Or19MetadataResult
-
       assetMetadata.arc19 = metadata
-    }
-  }
-
-  // Check for ARC-69
-  if (potentialMetadataTransaction && potentialMetadataTransaction.note) {
-    const metadata = noteToArc69Metadata(potentialMetadataTransaction.note)
-    if (metadata) {
-      assetMetadata.arc69 = metadata
     }
   }
 
@@ -100,20 +102,30 @@ const noteToArc69Metadata = (note: string | undefined) => {
 
 export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
   atom(async (_get) => {
-    // TODO: NC - We should be able to simplify this
-    const results = await executePaginatedRequest(
-      (response: TransactionSearchResults) => response.transactions,
-      (nextToken) => {
-        let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
-        if (nextToken) {
-          s = s.nextToken(nextToken)
-        }
-        return s
-      }
-    )
-    const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => t['tx-type'] === TransactionType.acfg)
-    // TODO: NC - Handle the scenario where the latest transaction is an asset destroy
-    return await buildAssetMetadataResult(assetResult, assetConfigTransactionResults[assetConfigTransactionResults.length - 1])
+    // TODO: NC - 3 API Calls investigate this, it should only be 2 in dev mode
+    if (assetResult.params.manager === ZERO_ADDRESS) {
+      // The asset has been destroyed, so don't return the metadata.
+      // We could handle this scenario, however we'd need the asset create and last re-configure transactions.
+      // As a result we'd require the full acfg transaction history for the asset.
+      return {} as AssetMetadataResult
+    }
+
+    const result = (await indexer
+      .searchForTransactions()
+      .address(assetResult.params.manager!)
+      .addressRole('sender')
+      .assetID(assetResult.index)
+      .txType('acfg')
+      .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
+      .do()) as TransactionSearchResults
+    // TODO: NC - Question for Patrick - Does indexer return inner transactions where the search criteria matches?
+    const assetConfigTransactionResults = result.transactions.flatMap(flattenTransactionResult).filter((t) => {
+      const isAssetConfigTransaction = t['tx-type'] === TransactionType.acfg
+      const isDestroyTransaction = t['asset-config-transaction']?.['params'] === undefined
+      return isAssetConfigTransaction && !isDestroyTransaction
+    })
+
+    return await buildAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
   })
 
 export const getAssetMetadataAtomBuilder = (store: JotaiStore, assetResult: AssetResult) => {
@@ -138,8 +150,11 @@ export const getAssetMetadataAtomBuilder = (store: JotaiStore, assetResult: Asse
     const assetMetadata = store.get(assetMetadataAtom)
     const cachedAssetMetadata = assetMetadata.get(assetResult.index)
     if (cachedAssetMetadata) {
+      console.log('meta ran cache hit')
       return cachedAssetMetadata
     }
+
+    console.log('meta ran cache miss')
 
     get(syncEffect)
 

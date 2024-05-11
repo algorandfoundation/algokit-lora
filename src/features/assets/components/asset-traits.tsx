@@ -6,23 +6,12 @@ import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 
 type Props = {
-  asset: Asset
+  traits: Asset['traits']
 }
 
-export function AssetTraits({ asset }: Props) {
-  const traits = useMemo<Record<string, string>>(() => {
-    return (
-      (asset.metadata.arc69
-        ? asset.metadata.arc69.properties
-        : asset.metadata.arc3
-          ? asset.metadata.arc3.properties
-          : asset.metadata.arc19
-            ? asset.metadata.arc19.properties
-            : undefined) ?? {}
-    )
-  }, [asset.metadata])
+export function AssetTraits({ traits }: Props) {
   const items = useMemo(() => {
-    return Object.entries(traits).map(([key, value]) => {
+    return Object.entries(traits ?? {}).map(([key, value]) => {
       return {
         dt: key,
         dd: value,
@@ -31,7 +20,7 @@ export function AssetTraits({ asset }: Props) {
   }, [traits])
 
   if (items.length === 0) {
-    return null
+    return undefined
   }
 
   return (

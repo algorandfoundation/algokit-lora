@@ -9,6 +9,7 @@ import {
   assetCreatorLabel,
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
+  assetDetailsLabel,
   assetIdLabel,
   assetManagerLabel,
   assetMetadataLabel,
@@ -104,8 +105,9 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
                 { term: assetNameLabel, description: 'OrangeARC-3Fungible' },
@@ -117,9 +119,7 @@ describe('asset-page', () => {
               ],
             })
             expect(
-              component.container.querySelector(
-                'img[src="https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]'
-              )
+              detailsCard.querySelector('img[src="https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]')
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -132,10 +132,11 @@ describe('asset-page', () => {
               ],
             })
 
+            // TODO: NC - Expand this out
             const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
             descriptionListAssertion({
               container: assetMetadataCard,
-              items: [{ term: 'Image', description: 'https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
+              items: [{ term: 'Image', description: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
             })
           })
         }
@@ -186,8 +187,9 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
                 { term: assetNameLabel, description: 'Zappy #1620ARC-3ARC-19Pure Non-Fungible' },
@@ -199,7 +201,7 @@ describe('asset-page', () => {
               ],
             })
             expect(
-              component.container.querySelector(
+              detailsCard.querySelector(
                 'img[src="https://cloudflare-ipfs.com/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]'
               )
             ).toBeTruthy()
@@ -220,7 +222,7 @@ describe('asset-page', () => {
               items: [
                 {
                   term: 'Image',
-                  description: 'https://cloudflare-ipfs.com/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
+                  description: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
                 },
               ],
             })
@@ -266,8 +268,9 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
                 { term: assetNameLabel, description: 'DHMα: M1 Solar Flare SCQCSOARC-69Pure Non-Fungible' },
@@ -278,7 +281,7 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v' },
               ],
             })
-            expect(component.container.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
+            expect(detailsCard.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -346,8 +349,9 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
                 { term: assetIdLabel, description: assetResult.index.toString() },
                 { term: assetNameLabel, description: 'Bad Bunny Society #587ARC-19ARC-69Pure Non-Fungible' },
@@ -359,7 +363,7 @@ describe('asset-page', () => {
               ],
             })
             expect(
-              component.container.querySelector(
+              detailsCard.querySelector(
                 'img[src="https://cloudflare-ipfs.com/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]'
               )
             ).toBeTruthy()
@@ -404,4 +408,6 @@ describe('asset-page', () => {
       )
     })
   })
+
+  // TODO: NC - Add a test for deleted assets
 })

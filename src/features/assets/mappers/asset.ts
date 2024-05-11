@@ -1,13 +1,18 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { asAssetSummary } from './asset-summary'
-import { Arc3Or19Metadata, Arc69Metadata, Asset, AssetType } from '../models'
+import { Asset, AssetMediaType, AssetStandard, AssetType } from '../models'
 import { Arc3Or19MetadataResult, Arc69MetadataResult, AssetIndex, AssetMetadataResult } from '../data/types'
 import { getArc3Url } from '../utils/get-arc-3-url'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import Decimal from 'decimal.js'
 import { asJson } from '@/utils/as-json'
+import { invariant } from '@/utils/invariant'
+import { getArc19Url } from '../utils/get-arc-19-url'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
+  const standardsUsed = asStandardsUsed(assetResult, metadataResult)
+  // TODO: NC - Functions using this probably shouldn't
+
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
@@ -18,16 +23,117 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
     reserve: assetResult.params.reserve,
     freeze: assetResult.params.freeze,
     type: asType(assetResult),
+    standardsUsed,
+    traits: asTraits(metadataResult),
+    media: asMedia(assetResult, metadataResult, standardsUsed),
+    metadata: asMetadata(metadataResult, standardsUsed),
     json: asJson(assetResult),
-    metadata: {
-      arc3: metadataResult.arc3 && asArc3Or19Metadata(assetResult.index, metadataResult.arc3),
-      arc19: metadataResult.arc19 && asArc3Or19Metadata(assetResult.index, metadataResult.arc19),
-      arc69: metadataResult.arc69 && asArc69Metadata(metadataResult.arc69),
-    },
   }
 }
 
+// TODO: NC - Chat to Pat about if we should show other metadata?
+// TODO: NC - What about localization? --> handle this.
+const asMetadata = (metadataResult: AssetMetadataResult, standardsUsed: AssetStandard[]): Asset['metadata'] => {
+  if (standardsUsed.length === 0) {
+    return undefined
+  }
+
+  return {
+    ...asArc3Or19Metadata(metadataResult.arc3),
+    ...asArc3Or19Metadata(metadataResult.arc19),
+    ...asArc69Metadata(metadataResult.arc69),
+  }
+}
+
+const asTraits = (metadataResult: AssetMetadataResult): Asset['traits'] => {
+  if (!metadataResult.arc3 && !metadataResult.arc19?.properties && !metadataResult.arc69?.properties) {
+    return undefined
+  }
+
+  return {
+    ...metadataResult.arc3?.properties,
+    ...metadataResult.arc19?.properties,
+    ...metadataResult.arc69?.properties,
+  }
+}
+
+const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult, standardsUsed: AssetStandard[]): Asset['media'] => {
+  if (standardsUsed.length === 0) {
+    return undefined
+  }
+
+  if (
+    (standardsUsed.includes(AssetStandard.ARC3) || standardsUsed.includes(AssetStandard.ARC19)) &&
+    !standardsUsed.includes(AssetStandard.ARC69)
+  ) {
+    // If the asset follows ARC-3 or ARC-19, but not ARC-69
+    // we use the media from the metadata
+    const metadata = metadataResult.arc3 ? metadataResult.arc3 : metadataResult.arc19 ? metadataResult.arc19 : undefined
+    invariant(metadata, 'ARC-3 or ARC-19 metadata must be present')
+    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadata.metadata_url, metadata.image)
+    if (imageUrl) {
+      return {
+        url: imageUrl,
+        type: AssetMediaType.Image,
+      }
+    }
+    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadata.metadata_url, metadata.animation_url)
+    if (videoUrl) {
+      return {
+        url: videoUrl,
+        type: AssetMediaType.Video,
+      }
+    }
+  }
+
+  if (standardsUsed.includes(AssetStandard.ARC69)) {
+    // If the asset follows ARC-69, we display the media from the asset URL
+    // In this scenario, we also support ARC-19 format URLs
+    if (!assetResult.params.url) {
+      return undefined
+    }
+
+    const metadata = metadataResult.arc69
+    invariant(metadata, 'ARC-69 metadata must be present')
+    const url = assetResult.params.url.startsWith('template-ipfs://')
+      ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
+      : replaceIpfsWithGatewayIfNeeded(assetResult.params.url)
+
+    if (url) {
+      return {
+        type: metadata.mime_type?.startsWith('video/') ? AssetMediaType.Video : AssetMediaType.Image,
+        url,
+      }
+    }
+  }
+}
+
+const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadataResult): AssetStandard[] => {
+  const standardsUsed = new Set<AssetStandard>()
+  if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
+    standardsUsed.add(AssetStandard.ARC3)
+  }
+  if (assetResult.params.url?.startsWith('template-ipfs://')) {
+    standardsUsed.add(AssetStandard.ARC19)
+  }
+  if (metadataResult.arc3) {
+    standardsUsed.add(AssetStandard.ARC3)
+  }
+  if (metadataResult.arc19) {
+    standardsUsed.add(AssetStandard.ARC19)
+  }
+  if (metadataResult.arc69) {
+    standardsUsed.add(AssetStandard.ARC69)
+  }
+
+  return Array.from(standardsUsed)
+}
+
 const asType = (assetResult: AssetResult): AssetType => {
+  if (assetResult.deleted === true) {
+    return AssetType.Deleted
+  }
+
   if (assetResult.params.total === 1 && assetResult.params.decimals === 0) {
     return AssetType.PureNonFungible
   }
@@ -45,39 +151,23 @@ const asType = (assetResult: AssetResult): AssetType => {
   return AssetType.Fungible
 }
 
-const asArc3Or19Metadata = (assetIndex: AssetIndex, metadata: Arc3Or19MetadataResult): Arc3Or19Metadata => {
-  // ARC-3 and ARC-19 share this function because the metadata is the same
-
-  // TODO: NC - We likely don't need everything here, we can be smarter here
-  return {
-    image: metadata.image ? getArc3MediaUrl(assetIndex, metadata.metadata_url, metadata.image) : undefined,
-    imageIntegrity: metadata.image_integrity,
-    imageMimetype: metadata.image_mimetype,
-    backgroundColor: metadata.background_color,
-    externalUrl: metadata.external_url,
-    externalUrlIntegrity: metadata.external_url_integrity,
-    externalUrlMimetype: metadata.external_url_mimetype,
-    animationUrl: metadata.animation_url ? getArc3MediaUrl(assetIndex, metadata.metadata_url, metadata.animation_url) : undefined,
-    animationUrlIntegrity: metadata.animation_url_integrity,
-    animationUrlMimetype: metadata.animation_url_mimetype,
-    properties: metadata.properties,
-    extraMetadata: metadata.extra_metadata,
+const asArc3Or19Metadata = (metadataResult: Arc3Or19MetadataResult | undefined): Asset['metadata'] => {
+  if (metadataResult) {
+    const { metadata_url: _metadataUrl, properties: _properties, ...metadata } = metadataResult
+    return metadata
   }
 }
 
 const getArc3MediaUrl = (assetIndex: AssetIndex, assetMetadataUrl: string, mediaUrl: string) => {
   const isRelative = !mediaUrl.includes(':')
-  const absoluteImageUrl = !isRelative ? mediaUrl : new URL(assetMetadataUrl, mediaUrl).toString()
+  const absoluteMediaUrl = !isRelative ? mediaUrl : new URL(assetMetadataUrl, mediaUrl).toString()
 
-  return getArc3Url(assetIndex, absoluteImageUrl)
+  return getArc3Url(assetIndex, absoluteMediaUrl)
 }
 
-const asArc69Metadata = (arc69MetadataResult: Arc69MetadataResult): Arc69Metadata => {
-  return {
-    description: arc69MetadataResult.description,
-    externalUrl: arc69MetadataResult.external_url,
-    mediaUrl: arc69MetadataResult.media_url ? replaceIpfsWithGatewayIfNeeded(arc69MetadataResult.media_url) : undefined,
-    properties: arc69MetadataResult.properties,
-    mimeType: arc69MetadataResult.mime_type,
+const asArc69Metadata = (metadataResult: Arc69MetadataResult | undefined): Asset['metadata'] => {
+  if (metadataResult) {
+    const { properties: _properties, ...metadata } = metadataResult
+    return metadata
   }
 }

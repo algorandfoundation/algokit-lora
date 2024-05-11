@@ -66,6 +66,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
         }
 
         // TODO: NC - Do we actually want to use the asset result instead?
+        // TODO: NC - API call is fired twice here
         const assetAtom = getAssetSummaryAtomBuilder(store, id)
         const applicationAtom = getApplicationAtomBuilder(store, id)
 
@@ -79,7 +80,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
             results.push({
               type: SearchResultType.Asset,
               id: id,
-              label: `${id} (${asset.name})`,
+              label: asset.name ? `${id} (${asset.name})` : id.toString(),
               url: Urls.Explore.Asset.ById.build({ assetId: id.toString() }),
             })
           }
