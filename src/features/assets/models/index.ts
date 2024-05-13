@@ -41,6 +41,7 @@ export type Asset = AssetSummary & {
 
 export enum AssetStandard {
   ARC3 = 'ARC-3',
+  ARC16 = 'ARC-16',
   ARC19 = 'ARC-19',
   ARC69 = 'ARC-69',
 }

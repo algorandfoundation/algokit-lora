@@ -7,6 +7,11 @@ export type AssetResult = {
   params: AssetParams
 }
 
+type Arc16MetadataProperties = {
+  traits?: Record<string, unknown>
+  [key: string]: unknown
+}
+
 // ARC-3 and ARC-19 share the same metadata structure, which is defined in the ARC-3 spec
 export type Arc3MetadataResult = {
   standard: AssetMetadataStandard.ARC3
@@ -25,7 +30,7 @@ export type Arc3MetadataResult = {
     animation_url?: string
     animation_url_integrity?: string
     animation_url_mimetype?: string
-    properties?: Record<string, string>
+    properties?: Arc16MetadataProperties
     extra_metadata?: string
     [key: string]: unknown
   }
@@ -37,7 +42,7 @@ export type Arc69MetadataResult = {
     description?: string
     external_url?: string
     media_url?: string
-    properties?: Record<string, string>
+    properties?: Arc16MetadataProperties
     mime_type?: string
     [key: string]: unknown
   }

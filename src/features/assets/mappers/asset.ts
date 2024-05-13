@@ -7,6 +7,7 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 import Decimal from 'decimal.js'
 import { asJson } from '@/utils/as-json'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
+import { isArc16Properties } from '../utils/arc16'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
   return {
@@ -36,6 +37,10 @@ const asMetadata = (metadataResult: AssetMetadataResult): Asset['metadata'] => {
 
 const asTraits = (metadataResult: AssetMetadataResult): Asset['traits'] => {
   if (metadataResult && metadataResult.metadata.properties) {
+    if (isArc16Properties(metadataResult.metadata.properties)) {
+      return normalizeObjectForDisplay(metadataResult.metadata.properties.traits!) as Record<string, string>
+    }
+
     return normalizeObjectForDisplay(metadataResult.metadata.properties) as Record<string, string>
   }
 }
@@ -92,6 +97,9 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
     : [false, false]
   if (isArc3) {
     standardsUsed.add(AssetStandard.ARC3)
+  }
+  if (metadataResult?.metadata.properties && isArc16Properties(metadataResult.metadata.properties)) {
+    standardsUsed.add(AssetStandard.ARC16)
   }
   if (isArc19) {
     standardsUsed.add(AssetStandard.ARC19)
