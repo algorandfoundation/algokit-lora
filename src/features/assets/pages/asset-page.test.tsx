@@ -412,6 +412,122 @@ describe('asset-page', () => {
     })
   })
 
+  describe('when rendering an ARC16 + ARC-19 asset', () => {
+    const assetResult = assetResultMother['mainnet-1820067164']().build()
+    const transactionResult = transactionResultMother['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              name: 'Coop #48',
+              standard: 'arc3',
+              image: 'ipfs://bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png',
+              image_mime_type: 'image/png',
+              description:
+                "A troop of 890 Coopers based on Cooper Daniels' DEV'N and his quest for CoopCoin Beach. Artwork by F.o.E. and inspired by the original work of Blockrunner for the ReCoop Show.",
+              properties: {
+                traits: {
+                  Background: 'Soft Cream',
+                  Base: 'Coop v1',
+                  Tat: 'Naked',
+                  'Chest Hair': 'Clean',
+                  Outfit: 'Coop Hoodie',
+                  'Face Tat': 'Clean',
+                  'Face Trait': 'Gold Grill',
+                  'Lower Face': 'Fresh Trim',
+                  'Upper Head': 'Scoopy',
+                  Eyes: 'Coop Brokelys',
+                  Ears: 'Hoop',
+                },
+                filters: {},
+              },
+              extra: {},
+            }),
+        } as Response)
+      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '1820067164ARC-16ARC-19Pure Non-Fungible' },
+                { term: assetNameLabel, description: 'Coop #48' },
+                { term: assetUnitLabel, description: 'Coop48' },
+                { term: assetTotalSupplyLabel, description: '1 Coop48' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
+              ],
+            })
+            expect(
+              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png"]`)
+            ).toBeTruthy()
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE' },
+                { term: assetManagerLabel, description: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE' },
+                { term: assetReserveLabel, description: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [
+                { term: 'Name', description: 'Coop #48' },
+                { term: 'Standard', description: 'arc3' },
+                { term: 'Image', description: 'ipfs://bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png' },
+                { term: 'Image Mime Type', description: 'image/png' },
+                {
+                  term: 'Description',
+                  description:
+                    "A troop of 890 Coopers based on Cooper Daniels' DEV'N and his quest for CoopCoin Beach. Artwork by F.o.E. and inspired by the original work of Blockrunner for the ReCoop Show.",
+                },
+                { term: 'Extra', description: '{}' },
+              ],
+            })
+
+            const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            descriptionListAssertion({
+              container: assetTraitsCard,
+              items: [
+                { term: 'Background', description: 'Soft Cream' },
+                { term: 'Base', description: 'Coop v1' },
+                { term: 'Tat', description: 'Naked' },
+                { term: 'Chest Hair', description: 'Clean' },
+                { term: 'Outfit', description: 'Coop Hoodie' },
+                { term: 'Face Tat', description: 'Clean' },
+                { term: 'Face Trait', description: 'Gold Grill' },
+                { term: 'Lower Face', description: 'Fresh Trim' },
+                { term: 'Upper Head', description: 'Scoopy' },
+                { term: 'Eyes', description: 'Coop Brokelys' },
+                { term: 'Ears', description: 'Hoop' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
   describe('when rendering a deleted asset', () => {
     const assetResult = assetResultMother['mainnet-917559']().build()
     const createAssetTransactionResult = transactionResultMother['mainnet-A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q']().build()

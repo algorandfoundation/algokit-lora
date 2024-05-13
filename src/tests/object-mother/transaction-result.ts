@@ -1241,4 +1241,44 @@ export const transactionResultMother = {
       'tx-type': TransactionType.acfg,
     })
   },
+  ['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 0,
+        params: {
+          creator: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+          name: 'Coop #48',
+          'name-b64': encoder.encode('Q29vcCAjNDg='),
+          reserve: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI',
+          total: 1,
+          'unit-name': 'Coop48',
+          'unit-name-b64': encoder.encode('Q29vcDQ4'),
+          url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+          'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 38688486,
+      'created-asset-index': 1820067164,
+      fee: 1000,
+      'first-valid': 38688195,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: 'U8DZy01c8WOvL9uuvBKRUpzkpxxsOnotnhN3cfqIZbU=',
+      id: 'K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q',
+      'intra-round-offset': 39,
+      'last-valid': 38689195,
+      'receiver-rewards': 0,
+      'round-time': 1715286054,
+      sender: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+      'sender-rewards': 0,
+      signature: { sig: 'e5usiTCw+xuiY5whu1xESgOqnCmahpDRhJ8fOWIMD80crhgR1O3/05BiMIJnlEvu9icv5+7tarvomyNExdEdDA==' },
+      'tx-type': TransactionType.acfg,
+    })
+  },
 }

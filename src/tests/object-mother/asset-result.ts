@@ -288,4 +288,23 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-1820067164': () => {
+    return new AssetResultBuilder({
+      index: 1820067164,
+      params: {
+        creator: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+        name: 'Coop #48',
+        'name-b64': encoder.encode('Q29vcCAjNDg='),
+        reserve: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI',
+        total: 1,
+        'unit-name': 'Coop48',
+        'unit-name-b64': encoder.encode('Q29vcDQ4'),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
 }
