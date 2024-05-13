@@ -27,11 +27,11 @@ export const fetchAssetResultAtomBuilder = (assetIndex: AssetIndex) =>
     }
   })
 
-export const getAssetResultAtomBuilder = (_store: JotaiStore, assetIndex: AssetIndex) => {
+export const getAssetResultAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
   return atom(async (get) => {
-    // TODO: NC - This results in double fetching when an atom depends on this, due to depending on something that we directly set using an effect.
+    // TODO: NC - If I don't use store here we get double fetching when an atom depends on this, due to depending on something that we directly set using an effect.
     // I'll be coming back and re-evaluating the patterns here.
-    const assetResults = get(assetResultsAtom)
+    const assetResults = store.get(assetResultsAtom)
     const cachedAssetResult = assetResults.get(assetIndex)
     if (cachedAssetResult) {
       return cachedAssetResult

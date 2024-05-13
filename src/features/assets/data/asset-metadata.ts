@@ -6,9 +6,9 @@ import { AssetResult, TransactionResult, TransactionSearchResults } from '@algor
 import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
-import { Arc3Or19MetadataResult, Arc69MetadataResult, AssetMetadataResult } from './types'
-import { getArc19Url } from '../utils/get-arc-19-url'
-import { getArc3Url } from '../utils/get-arc-3-url'
+import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetMetadataStandard } from './types'
+import { getArc19Url, isArc19Url } from '../utils/arc19'
+import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
@@ -24,61 +24,41 @@ export const buildAssetMetadataResult = async (
   assetResult: AssetResult,
   potentialMetadataTransaction?: TransactionResult
 ): Promise<AssetMetadataResult> => {
-  const assetMetadata = {} as AssetMetadataResult
-
-  // Check for ARC-69
+  // Get ARC-69 metadata if applicable
   if (potentialMetadataTransaction && potentialMetadataTransaction.note) {
     const metadata = noteToArc69Metadata(potentialMetadataTransaction.note)
     if (metadata) {
-      assetMetadata.arc69 = metadata
-      return assetMetadata
+      return {
+        standard: AssetMetadataStandard.ARC69,
+        metadata,
+      } satisfies Arc69MetadataResult
     }
   }
 
-  // TODO: NC - I think we can simplify this code as well
-  if (assetResult.params.url?.includes('#arc3') || assetResult.params.url?.includes('@arc3')) {
-    // When the URL contains #arc3 or @arc3, it follows ARC-3
-    // If the URL starts with template-ipfs://, it also follows ARC-19
-    // If the asset follows both ARC-3 and ARC-19, we add both metadata to the array
+  // Get ARC-3 or ARC-19 metadata if applicable
+  const [isArc3, isArc19] = assetResult.params.url
+    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
+    : [false, false]
 
-    const isAlsoArc19 = assetResult.params.url.startsWith('template-ipfs://')
-
-    const metadataUrl = isAlsoArc19
+  if (assetResult.params.url && (isArc3 || isArc19)) {
+    // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
+    const metadataUrl = isArc19
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
       : getArc3Url(assetResult.index, assetResult.params.url)
 
     if (metadataUrl) {
       const response = await fetch(metadataUrl)
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { localization: _localization, ...metadataResult } = await response.json()
-      const metadata = {
-        ...metadataResult,
+      const { localization: _localization, ...metadata } = await response.json()
+      return {
+        standard: AssetMetadataStandard.ARC3,
         metadata_url: metadataUrl,
-      } satisfies Arc3Or19MetadataResult
-
-      assetMetadata.arc3 = metadata
-      if (isAlsoArc19) {
-        assetMetadata.arc19 = metadata
-      }
-    }
-  } else if (assetResult.params.url?.startsWith('template-ipfs://')) {
-    // If the asset doesn't follow ARC-3, but the URL starts with template-ipfs://, it follows ARC-19
-    // There is no specs for ARC-19 metadata, but it seems to be the same with ARC-3
-
-    const metadataUrl = getArc19Url(assetResult.params.url, assetResult.params.reserve)
-    if (metadataUrl) {
-      const response = await fetch(metadataUrl)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { localization: _localization, ...metadataResult } = await response.json()
-      const metadata = {
-        ...metadataResult,
-        metadata_url: metadataUrl,
-      } satisfies Arc3Or19MetadataResult
-      assetMetadata.arc19 = metadata
+        metadata,
+      } satisfies Arc3MetadataResult
     }
   }
 
-  return assetMetadata
+  return null
 }
 
 const noteToArc69Metadata = (note: string | undefined) => {
@@ -88,7 +68,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
 
   const json = base64ToUtf8(note)
   if (json.match(/^{/) && json.includes('arc69')) {
-    return JSON.parse(json) as Arc69MetadataResult
+    return JSON.parse(json) as Arc69MetadataResult['metadata']
   }
   return undefined
 }
@@ -96,7 +76,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
 export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
   atom(async (_get) => {
     if (assetResult.index === 0) {
-      return {} as AssetMetadataResult
+      return null
     }
 
     const results =
@@ -130,7 +110,7 @@ export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
     })
 
     if (assetConfigTransactionResults.length === 0) {
-      return {} as AssetMetadataResult
+      return null
     }
 
     return await buildAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
