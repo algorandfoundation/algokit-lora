@@ -1,2 +1,2 @@
-// When the URL contains #arc3 or @arc3, it follows ARC-3
+// When properties contains the key traits, it conforms to ARC-16.
 export const isArc16Properties = (properties: Record<string, unknown>) => 'traits' in properties
