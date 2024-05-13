@@ -23,6 +23,9 @@ vi.mock('@/features/common/data', async () => {
       disassemble: vi.fn().mockReturnValue({
         do: vi.fn(),
       }),
+      getAssetByID: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
     },
     indexer: {
       ...(original.indexer as algosdk.Indexer),
@@ -37,7 +40,14 @@ vi.mock('@/features/common/data', async () => {
       searchForTransactions: vi.fn().mockReturnValue({
         assetID: vi.fn().mockReturnValue({
           txType: vi.fn().mockReturnValue({
-            do: vi.fn(),
+            do: vi.fn().mockReturnValue({ then: vi.fn() }),
+            address: vi.fn().mockReturnValue({
+              addressRole: vi.fn().mockReturnValue({
+                limit: vi.fn().mockReturnValue({
+                  do: vi.fn().mockReturnValue({ then: vi.fn() }),
+                }),
+              }),
+            }),
           }),
         }),
       }),

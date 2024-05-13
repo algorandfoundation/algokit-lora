@@ -65,8 +65,6 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
           })
         }
 
-        // TODO: NC - Do we actually want to use the asset result instead?
-        // TODO: NC - API call is fired twice here
         const assetAtom = getAssetSummaryAtomBuilder(store, id)
         const applicationAtom = getApplicationAtomBuilder(store, id)
 

@@ -11,6 +11,7 @@ import { getArc19Url } from '../utils/get-arc-19-url'
 import { getArc3Url } from '../utils/get-arc-3-url'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
+import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 
 // This atom returns the array of ARC metadata for the asset result
 // Currently, we support ARC-3, 16, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
@@ -24,16 +25,6 @@ export const buildAssetMetadataResult = async (
   potentialMetadataTransaction?: TransactionResult
 ): Promise<AssetMetadataResult> => {
   const assetMetadata = {} as AssetMetadataResult
-
-  // ARC3
-  // ARC19
-  // ARC69
-  // ARC3 + ARC19
-  // ARC19 + ARC69
-  // ARC3 + ARC69
-  // ARC3 + ARC19 + ARC69
-
-  // I think we essentially only want to display a single metadata object
 
   // Check for ARC-69
   if (potentialMetadataTransaction && potentialMetadataTransaction.note) {
@@ -58,7 +49,8 @@ export const buildAssetMetadataResult = async (
 
     if (metadataUrl) {
       const response = await fetch(metadataUrl)
-      const metadataResult = (await response.json()) as Omit<Arc3Or19MetadataResult, 'metadata_url'>
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { localization: _localization, ...metadataResult } = await response.json()
       const metadata = {
         ...metadataResult,
         metadata_url: metadataUrl,
@@ -76,7 +68,8 @@ export const buildAssetMetadataResult = async (
     const metadataUrl = getArc19Url(assetResult.params.url, assetResult.params.reserve)
     if (metadataUrl) {
       const response = await fetch(metadataUrl)
-      const metadataResult = (await response.json()) as Omit<Arc3Or19MetadataResult, 'metadata_url'>
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { localization: _localization, ...metadataResult } = await response.json()
       const metadata = {
         ...metadataResult,
         metadata_url: metadataUrl,
@@ -102,28 +95,43 @@ const noteToArc69Metadata = (note: string | undefined) => {
 
 export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
   atom(async (_get) => {
-    // TODO: NC - 3 API Calls investigate this, it should only be 2 in dev mode
-    if (assetResult.params.manager === ZERO_ADDRESS) {
-      // The asset has been destroyed, so don't return the metadata.
-      // We could handle this scenario, however we'd need the asset create and last re-configure transactions.
-      // As a result we'd require the full acfg transaction history for the asset.
+    if (assetResult.index === 0) {
       return {} as AssetMetadataResult
     }
 
-    const result = (await indexer
-      .searchForTransactions()
-      .address(assetResult.params.manager!)
-      .addressRole('sender')
-      .assetID(assetResult.index)
-      .txType('acfg')
-      .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
-      .do()) as TransactionSearchResults
-    // TODO: NC - Question for Patrick - Does indexer return inner transactions where the search criteria matches?
-    const assetConfigTransactionResults = result.transactions.flatMap(flattenTransactionResult).filter((t) => {
+    const results =
+      assetResult.params.manager && assetResult.params.manager !== ZERO_ADDRESS
+        ? await indexer
+            .searchForTransactions()
+            .assetID(assetResult.index)
+            .txType('acfg')
+            .address(assetResult.params.manager)
+            .addressRole('sender')
+            .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
+            .do()
+            .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address
+        : // The asset has been destroyed or is an immutable asset.
+          // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest
+          await executePaginatedRequest(
+            (res: TransactionSearchResults) => res.transactions,
+            (nextToken) => {
+              let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
+              if (nextToken) {
+                s = s.nextToken(nextToken)
+              }
+              return s
+            }
+          ).then((res) => res.reverse()) // reverse the order, so it's newest to oldest
+
+    const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
       const isAssetConfigTransaction = t['tx-type'] === TransactionType.acfg
       const isDestroyTransaction = t['asset-config-transaction']?.['params'] === undefined
       return isAssetConfigTransaction && !isDestroyTransaction
     })
+
+    if (assetConfigTransactionResults.length === 0) {
+      return {} as AssetMetadataResult
+    }
 
     return await buildAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
   })
@@ -150,11 +158,8 @@ export const getAssetMetadataAtomBuilder = (store: JotaiStore, assetResult: Asse
     const assetMetadata = store.get(assetMetadataAtom)
     const cachedAssetMetadata = assetMetadata.get(assetResult.index)
     if (cachedAssetMetadata) {
-      console.log('meta ran cache hit')
       return cachedAssetMetadata
     }
-
-    console.log('meta ran cache miss')
 
     get(syncEffect)
 

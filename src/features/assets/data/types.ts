@@ -1,4 +1,11 @@
+import { AssetParams } from '@algorandfoundation/algokit-utils/types/indexer'
+
 export type AssetIndex = number
+
+export type AssetResult = {
+  index: AssetIndex
+  params: AssetParams
+}
 
 // ARC-3 and ARC-19 share the same metadata structure
 export type Arc3Or19MetadataResult = {
@@ -21,7 +28,6 @@ export type Arc3Or19MetadataResult = {
 }
 
 export type Arc69MetadataResult = {
-  standard: 'arc69'
   description?: string
   external_url?: string
   media_url?: string

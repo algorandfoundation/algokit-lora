@@ -32,7 +32,6 @@ export function Search() {
 
   const handleSelection = useCallback(
     (url: string) => {
-      console.log('test')
       navigate(url)
     },
     [navigate]

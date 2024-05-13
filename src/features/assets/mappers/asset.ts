@@ -31,8 +31,6 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
   }
 }
 
-// TODO: NC - Chat to Pat about if we should show other metadata?
-// TODO: NC - What about localization? --> handle this.
 const asMetadata = (metadataResult: AssetMetadataResult, standardsUsed: AssetStandard[]): Asset['metadata'] => {
   if (standardsUsed.length === 0) {
     return undefined

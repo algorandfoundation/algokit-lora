@@ -1,44 +1,42 @@
 import { atom } from 'jotai'
-import { AssetIndex } from './types'
-import { indexer } from '@/features/common/data'
-import { AssetLookupResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetIndex, AssetResult } from './types'
+import { indexer, algod } from '@/features/common/data'
 import { atomEffect } from 'jotai-effect'
 import { assetResultsAtom } from './core'
 import { JotaiStore } from '@/features/common/data/types'
+import { asError, is404 } from '@/utils/error'
 
-// TODO: NC - Get asset from algod instead of indexer
 export const fetchAssetResultAtomBuilder = (assetIndex: AssetIndex) =>
   atom(async (_get) => {
-    return await indexer
-      .lookupAssetByID(assetIndex)
-      .includeAll(true)
-      .do()
-      .then((result) => {
-        return (result as AssetLookupResult).asset
-      })
+    try {
+      // Check algod first, as there can be some syncing delays to indexer
+      return await algod
+        .getAssetByID(assetIndex)
+        .do()
+        .then((result) => result as AssetResult)
+    } catch (e: unknown) {
+      if (is404(asError(e))) {
+        // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
+        return await indexer
+          .lookupAssetByID(assetIndex)
+          .includeAll(true) // Returns destroyed assets
+          .do()
+          .then((result) => result.asset as AssetResult)
+      }
+      throw e
+    }
   })
 
-// TODO: NC - Delete
-// # Options
-// # 1 store atoms
-// # 2 use conditional subscribe
-// # 3 select atom
-
-// # scenarios
-// initial load
-// cache invalidation
-// update
-
-export const getAssetResultAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+export const getAssetResultAtomBuilder = (_store: JotaiStore, assetIndex: AssetIndex) => {
   return atom(async (get) => {
-    console.log('hit 2')
-    const assetResults = store.get(assetResultsAtom) // TODO: NC - This must be store.get
+    // TODO: NC - This results in double fetching when an atom depends on this, due to depending on something that we directly set using an effect.
+    // I'll be coming back and re-evaluating the patterns here.
+    const assetResults = get(assetResultsAtom)
     const cachedAssetResult = assetResults.get(assetIndex)
     if (cachedAssetResult) {
       return cachedAssetResult
     }
 
-    // TODO: NC - Should I change the other atoms to compose in this way?
     const fetchAssetResultAtom = fetchAssetResultAtomBuilder(assetIndex)
     const syncEffect = atomEffect((get, set) => {
       ;(async () => {
