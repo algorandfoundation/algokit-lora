@@ -48,7 +48,6 @@ export const buildAssetMetadataResult = async (
 
     if (metadataUrl) {
       const response = await fetch(metadataUrl)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { localization: _localization, ...metadata } = await response.json()
       return {
         standard: AssetMetadataStandard.ARC3,
