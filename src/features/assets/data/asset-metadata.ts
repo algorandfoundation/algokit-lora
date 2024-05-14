@@ -13,13 +13,12 @@ import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 
-// This atom returns the array of ARC metadata for the asset result
-// Currently, we support ARC-3, 16, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
+// Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
 // For example:
 // - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
 // - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
-// - ARC-19 doesn't specify the metadata format but it seems to be the same with ARC-3
+// - ARC-19 doesn't specify the metadata format but generally people use the ARC-3 format
 export const buildAssetMetadataResult = async (
   assetResult: AssetResult,
   potentialMetadataTransaction?: TransactionResult
