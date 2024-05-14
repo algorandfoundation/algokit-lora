@@ -1,4 +1,4 @@
-import { Transaction, TransactionType } from '@/features/transactions/models'
+import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { cn } from '@/features/common/utils'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ColumnDef } from '@tanstack/react-table'
@@ -6,13 +6,19 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 
-export const assetTransactionsTableColumns: ColumnDef<Transaction>[] = [
+export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
   {
     header: 'Transaction Id',
-    accessorKey: 'id',
+    accessorFn: (transaction) => transaction,
     cell: (c) => {
-      const value = c.getValue<string>()
-      return <TransactionLink transactionId={value} short={true} />
+      const transaction = c.getValue<Transaction | InnerTransaction>()
+      return 'innerId' in transaction ? (
+        <>
+          <TransactionLink transactionId={transaction.networkTransactionId} short={true} />- (Inner)
+        </>
+      ) : (
+        <TransactionLink transactionId={transaction.id} short={true} />
+      )
     },
   },
   {

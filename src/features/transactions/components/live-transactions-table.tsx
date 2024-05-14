@@ -2,21 +2,22 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
 import { useMemo, useState } from 'react'
-import { fetchTransactionsAtomBuilder, liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
-import { Transaction } from '@/features/transactions/models'
+import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { atomEffect } from 'jotai-effect'
-import { atom, useAtom, useAtomValue, useStore } from 'jotai'
+import { Atom, atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { JotaiStore } from '@/features/common/data/types'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
-  filter: (transactionResult: TransactionResult) => boolean
+  mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>
 }
 
-export function LiveTransactionsTable({ filter, columns }: Props) {
+export function LiveTransactionsTable({ mapper, columns }: Props) {
   const [maxRows, setMaxRows] = useState(10)
-  const transactions = useLiveTransactions(filter, maxRows)
+  const transactions = useLiveTransactions(mapper, maxRows)
   const table = useReactTable({
     data: transactions,
     columns,
@@ -85,12 +86,15 @@ export function LiveTransactionsTable({ filter, columns }: Props) {
 
 const maxRowsOptions = [10, 20, 30, 40, 50]
 
-const useLiveTransactions = (filter: (transactionResult: TransactionResult) => boolean, maxRows: number) => {
+const useLiveTransactions = (
+  mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>,
+  maxRows: number
+) => {
   const store = useStore()
 
   const { liveTransactionsAtomEffect, liveTransactionsAtom } = useMemo(() => {
     const syncedTransactionIdAtom = atom<TransactionId | undefined>(undefined)
-    const liveTransactionsAtom = atom<Transaction[]>([])
+    const liveTransactionsAtom = atom<(Transaction | InnerTransaction)[]>([])
 
     const liveTransactionsAtomEffect = atomEffect((get, set) => {
       ;(async () => {
@@ -112,16 +116,11 @@ const useLiveTransactions = (filter: (transactionResult: TransactionResult) => b
             continue
           }
 
-          if (filter(transactionResult)) {
-            newTransactionResults.push(transactionResult)
-          }
-
-          if (newTransactionResults.length === maxRows) {
-            // Already reached the max number of rows, break the loop
-            break
-          }
+          newTransactionResults.push(transactionResult)
         }
-        const newTransactions = await get(fetchTransactionsAtomBuilder(store, newTransactionResults))
+        const newTransactions = (
+          await Promise.all(newTransactionResults.map((transactionResult) => get(mapper(store, transactionResult))))
+        ).flat()
 
         if (newTransactions.length) {
           set(liveTransactionsAtom, (prev) => {
@@ -135,7 +134,7 @@ const useLiveTransactions = (filter: (transactionResult: TransactionResult) => b
       liveTransactionsAtomEffect,
       liveTransactionsAtom,
     }
-  }, [store, filter, maxRows])
+  }, [store, mapper, maxRows])
 
   useAtom(liveTransactionsAtomEffect)
 
