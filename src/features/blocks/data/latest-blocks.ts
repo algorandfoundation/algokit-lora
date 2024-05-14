@@ -12,10 +12,11 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
-import { assetMetadataAtom, assetResultsAtom } from '@/features/assets/data/core'
+import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
+import { assetResultsAtom } from '@/features/assets/data'
 
 const maxBlocksToDisplay = 5
 
@@ -125,10 +126,10 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
         .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
 
       affectedAssetIds.forEach(async (assetId) => {
-        // Invalidate any asset caches that are potentially stale because of this transaction
+        // Invalidate any asset caches that are stale because of this transaction
 
-        if (get.peek(assetMetadataAtom).has(assetId)) {
-          set(assetMetadataAtom, (prev) => {
+        if (get.peek(assetMetadataResultsAtom).has(assetId)) {
+          set(assetMetadataResultsAtom, (prev) => {
             const next = new Map(prev)
             next.delete(assetId)
             return next

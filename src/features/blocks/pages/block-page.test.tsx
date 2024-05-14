@@ -6,17 +6,17 @@ import { BlockPage, blockFailedToLoadMessage, blockInvalidRoundMessage, blockNot
 import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
-import { createStore } from 'jotai'
+import { atom, createStore } from 'jotai'
 import { blockResultsAtom } from '../data/core'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block-details'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { assetResultsAtom } from '@/features/assets/data/core'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
+import { assetResultsAtom } from '@/features/assets/data'
 
 describe('block-page', () => {
   describe('when rending a block using an invalid round number', () => {
@@ -103,7 +103,7 @@ describe('block-page', () => {
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, block]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
-        myStore.set(assetResultsAtom, new Map([[asset.index, asset]]))
+        myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),

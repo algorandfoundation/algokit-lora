@@ -158,7 +158,7 @@ export function AssetDetails({ asset }: Props) {
             <CardContent className={cn('text-sm space-y-2')}>
               <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
               <div className={cn('border-solid border-2 grid p-4')}>
-                <AssetTransactionHistory assetIndex={asset.id} />
+                <AssetTransactionHistory assetId={asset.id} />
               </div>
             </CardContent>
           </Card>

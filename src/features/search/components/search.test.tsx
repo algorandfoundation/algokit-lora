@@ -2,8 +2,7 @@ import { Search, noSearchResultsMessage, searchPlaceholderLabel } from './search
 import { describe, it, expect, vi } from 'vitest'
 import { render, waitFor } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
-import { createStore } from 'jotai'
-import { assetResultsAtom } from '@/features/assets/data/core'
+import { atom, createStore } from 'jotai'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { applicationResultsAtom } from '@/features/applications/data/core'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
@@ -11,6 +10,7 @@ import { blockResultMother } from '@/tests/object-mother/block-result'
 import { blockResultsAtom } from '@/features/blocks/data/core'
 import { useNavigate } from 'react-router-dom'
 import { SearchResultType } from '../models'
+import { assetResultsAtom } from '@/features/assets/data'
 
 describe('search', () => {
   describe('when no search results have been returned', () => {
@@ -37,7 +37,7 @@ describe('search', () => {
 
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[blockResult.round, blockResult]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, applicationResult]]))
 
     describe.each([

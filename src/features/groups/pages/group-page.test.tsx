@@ -6,17 +6,17 @@ import { GroupPage, blockInvalidRoundMessage, blockNotFoundMessage, groupFailedT
 import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
-import { createStore } from 'jotai'
+import { atom, createStore } from 'jotai'
 import { groupResultsAtom } from '../data/core'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { blockLabel, groupIdLabel, timestampLabel, transactionsLabel } from '../components/group-details'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { algoAssetResult, assetResultsAtom } from '@/features/assets/data/core'
-import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { algoAssetResult } from '@/features/assets/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-visual-tabs'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
+import { assetResultsAtom } from '@/features/assets/data'
 
 describe('block-page', () => {
   describe('when rending a group using an invalid round number', () => {
@@ -83,7 +83,7 @@ describe('block-page', () => {
       myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
       myStore.set(
         assetResultsAtom,
-        new Map([[algoAssetResult.index, algoAssetResult], ...assets.map<[number, AssetResult]>((a) => [a.index, a])])
+        new Map([[algoAssetResult.index, atom(algoAssetResult)], ...assets.map((a) => [a.index, atom(a)] as const)])
       )
 
       return executeComponentTest(

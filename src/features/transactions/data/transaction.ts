@@ -10,7 +10,7 @@ import { TransactionId } from './types'
 import { indexer } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { getAssetSummaryAtomBuilder, getAssetSummariesAtomBuilder } from '@/features/assets/data'
+import { createAssetSummaryAtom, createAssetSummariesAtom } from '@/features/assets/data'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { transactionResultsAtom } from './core'
 
@@ -84,7 +84,7 @@ export const fetchTransactionsAtomBuilder = (
     )
 
     const assets = new Map(
-      (await get(getAssetSummariesAtomBuilder(store, assetIds))).map((a) => {
+      (await get(createAssetSummariesAtom(store, assetIds))).map((a) => {
         return [a.id, a] as const
       })
     )
@@ -107,7 +107,7 @@ export const fetchTransactionAtomBuilder = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return await asTransaction(txn, (assetId: number) => get(getAssetSummaryAtomBuilder(store, assetId)))
+    return await asTransaction(txn, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
   })
 }
 

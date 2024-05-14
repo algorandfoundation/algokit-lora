@@ -1,4 +1,4 @@
-import { AssetIndex } from '../data/types'
+import { AssetId } from '../data/types'
 import { indexer } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useMemo } from 'react'
@@ -7,10 +7,10 @@ import { fetchTransactionsAtomBuilder, transactionResultsAtom } from '@/features
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
 
-const fetchAssetTransactionResults = async (assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
+const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
-    .assetID(assetIndex)
+    .assetID(assetId)
     .nextToken(nextPageToken ?? '')
     .limit(pageSize)
     .do()) as TransactionSearchResults
@@ -38,9 +38,9 @@ const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
+const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetIndex, pageSize, nextPageToken)
+    const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetId, pageSize, nextPageToken)
 
     get(syncEffectBuilder(transactionResults))
 
@@ -53,10 +53,10 @@ const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetI
   })
 }
 
-export const useFetchNextAssetTransactionsPage = (assetIndex: AssetIndex) => {
+export const useFetchNextAssetTransactionsPage = (assetId: AssetId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => fetchAssetTransactionsAtomBuilder(store, assetIndex, pageSize, nextPageToken)
-  }, [store, assetIndex])
+    return (pageSize: number, nextPageToken?: string) => fetchAssetTransactionsAtomBuilder(store, assetId, pageSize, nextPageToken)
+  }, [store, assetId])
 }
