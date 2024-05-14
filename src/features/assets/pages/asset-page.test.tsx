@@ -17,6 +17,7 @@ import {
   assetReserveLabel,
   assetTotalSupplyLabel,
   assetTraitsLabel,
+  assetTransactionsLabel,
   assetUrlLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
@@ -146,6 +147,10 @@ describe('asset-page', () => {
                 { term: 'Image Mimetype', description: 'image/png' },
               ],
             })
+
+            const transactionTabList = component.getByRole('tablist', { name: assetTransactionsLabel })
+            expect(transactionTabList).toBeTruthy()
+            expect(transactionTabList.children.length).toBe(2)
           })
         }
       )
@@ -607,6 +612,9 @@ describe('asset-page', () => {
 
             const assetTraitsCard = component.queryByText(assetTraitsLabel)
             expect(assetTraitsCard).toBeNull()
+
+            const transactionTabList = component.queryByRole('tablist', { name: assetTransactionsLabel })
+            expect(transactionTabList).toBeNull()
           })
         }
       )
