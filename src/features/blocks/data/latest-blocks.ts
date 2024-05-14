@@ -12,6 +12,10 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
+import { assetMetadataAtom, assetResultsAtom } from '@/features/assets/data/core'
+import algosdk from 'algosdk'
+import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
+import { distinct } from '@/utils/distinct'
 
 const maxBlocksToDisplay = 5
 
@@ -106,17 +110,47 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     })
 
     set(transactionResultsAtom, (prev) => {
+      const next = new Map(prev)
       transactions.forEach((value, key) => {
-        prev.set(key, value)
+        next.set(key, value)
       })
-      return prev
+      return next
+    })
+
+    transactions.forEach((t) => {
+      const affectedAssetIds = flattenTransactionResult(t)
+        .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
+        .map((t) => t['asset-config-transaction']!['asset-id'])
+        .filter(distinct((x) => x))
+        .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
+
+      affectedAssetIds.forEach(async (assetId) => {
+        // Invalidate any asset caches that are potentially stale because of this transaction
+
+        if (get.peek(assetMetadataAtom).has(assetId)) {
+          set(assetMetadataAtom, (prev) => {
+            const next = new Map(prev)
+            next.delete(assetId)
+            return next
+          })
+        }
+
+        if (get.peek(assetResultsAtom).has(assetId)) {
+          set(assetResultsAtom, (prev) => {
+            const next = new Map(prev)
+            next.delete(assetId)
+            return next
+          })
+        }
+      })
     })
 
     set(blockResultsAtom, (prev) => {
+      const next = new Map(prev)
       blocks.forEach(([key, value]) => {
-        prev.set(key, value)
+        next.set(key, value)
       })
-      return prev
+      return next
     })
   })
 

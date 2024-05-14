@@ -6,7 +6,7 @@ import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction,
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
-import { asAsset } from '@/features/assets/mappers'
+import { asAssetSummary } from '@/features/assets/mappers/asset-summary'
 import { TransactionsGraph } from './transactions-graph'
 import { asKeyRegTransaction } from '../mappers/key-reg-transaction-mappers'
 import { asGroup } from '@/features/groups/mappers'
@@ -59,7 +59,7 @@ describe('asset-transfer-transaction-graph', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
-        const transaction = asAssetTransferTransaction(transactionResult, asAsset(assetResult))
+        const transaction = asAssetTransferTransaction(transactionResult, asAssetSummary(assetResult))
 
         return executeComponentTest(
           () => render(<TransactionsGraph transactions={[transaction]} />),
@@ -94,7 +94,7 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, assetResults.map(asAsset))
+        const model = asAppCallTransaction(transactionResult, assetResults.map(asAssetSummary))
 
         return executeComponentTest(
           () => render(<TransactionsGraph transactions={[model]} />),
@@ -166,7 +166,7 @@ describe('group-graph', () => {
               if (!assetResult) {
                 throw new Error(`Could not find asset result ${assetId}`)
               }
-              return asAsset(assetResult)
+              return asAssetSummary(assetResult)
             })
           )
         )

@@ -1,10 +1,10 @@
-import { Asset } from '@/features/assets/models'
+import { AssetSummary } from '@/features/assets/models'
 import { cn } from '../utils'
 import Decimal from 'decimal.js'
 
 type Props = {
   amount: number | bigint
-  asset: Asset
+  asset: AssetSummary
   className?: string
 }
 

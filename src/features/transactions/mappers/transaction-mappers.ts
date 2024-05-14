@@ -5,14 +5,17 @@ import algosdk from 'algosdk'
 import { asAppCallTransaction } from './app-call-transaction-mappers'
 import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { asPaymentTransaction } from './payment-transaction-mappers'
-import { Asset } from '@/features/assets/models'
+import { AssetSummary } from '@/features/assets/models'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 
-export const asTransaction = async (transactionResult: TransactionResult, assetResolver: (assetId: number) => Promise<Asset> | Asset) => {
+export const asTransaction = async (
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => Promise<AssetSummary> | AssetSummary
+) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
       return asPaymentTransaction(transactionResult)

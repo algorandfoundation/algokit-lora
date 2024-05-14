@@ -177,4 +177,134 @@ export const assetResultMother = {
       },
     } satisfies AssetResult)
   },
+  'mainnet-1284444444': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 34632901,
+      deleted: false,
+      index: 1284444444,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
+        decimals: 8,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
+        'metadata-hash': encoder.encode('0/1Rvi7owrF6eugm00nA3yD+q4pNaAMDQBx0FWDDJDY='),
+        name: 'Orange',
+        'name-b64': encoder.encode('T3Jhbmdl'),
+        reserve: 'JP3ENKDQC2BOYRMLFGKBS7RB2IVNF7VNHCFHVTRNHOENRQ6R4UN7MCNXPI',
+        total: 400000000000000,
+        'unit-name': 'ORA',
+        'unit-name-b64': encoder.encode('T1JB'),
+        url: 'ipfs://QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu#arc3',
+        'url-b64': encoder.encode('aXBmczovL1FtVWl0eEp1UEpKcmN1QWRBaVZkRUVwdXpHbXNFTEdnQXZoTGQ1RmlYUlNoRXUjYXJjMw=='),
+      },
+    })
+  },
+  'mainnet-1494117806': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 36012728,
+      deleted: false,
+      index: 1494117806,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU',
+        name: 'Zappy #1620',
+        'name-b64': encoder.encode('WmFwcHkgIzE2MjA='),
+        reserve: 'OPL3M2ZOKLSPVIM32MRK45O6IQMHTJPVWOWPVTEGXVHC3GHFLJK2YC5OWE',
+        total: 1,
+        'unit-name': 'ZAPP1620',
+        'unit-name-b64': encoder.encode('WkFQUDE2MjA='),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9I2FyYzM='),
+      },
+    })
+  },
+  'mainnet-1800979729': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 38393946,
+      deleted: false,
+      index: 1800979729,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+        name: 'DHMα: M1 Solar Flare SCQCSO',
+        'name-b64': encoder.encode('REhNzrE6IE0xIFNvbGFyIEZsYXJlIFNDUUNTTw=='),
+        reserve: 'ESK3ZHVALWTRWTEQVRO4ZGZGGOFCKCJNVE5ODFMPWICXVSJVJZYINHHYHE',
+        total: 1,
+        'unit-name': 'SOLFLARE',
+        'unit-name-b64': encoder.encode('U09MRkxBUkU='),
+        url: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v',
+        'url-b64': encoder.encode('aHR0cHM6Ly9hc3NldHMuZGF0YWhpc3Rvcnkub3JnL3NvbGFyL1NDUUNTTy5tcDQjdg=='),
+      },
+    })
+  },
+  'mainnet-854081201': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 23110800,
+      deleted: false,
+      index: 854081201,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+        name: 'Bad Bunny Society #587',
+        'name-b64': encoder.encode('QmFkIEJ1bm55IFNvY2lldHkgIzU4Nw=='),
+        reserve: 'V4UCC2YXBHLELD7Y6HYSKZI4GABLUG5HE6HAQQ36OBXFEZS7W4VMWB6DUQ',
+        total: 1,
+        'unit-name': 'bbs587',
+        'unit-name-b64': encoder.encode('YmJzNTg3'),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
+  'mainnet-917559': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 6354271,
+      deleted: true,
+      'destroyed-at-round': 6354625,
+      index: 917559,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        reserve: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        total: 0,
+      },
+    })
+  },
+  'mainnet-1820067164': () => {
+    return new AssetResultBuilder({
+      index: 1820067164,
+      params: {
+        creator: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+        name: 'Coop #48',
+        'name-b64': encoder.encode('Q29vcCAjNDg='),
+        reserve: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI',
+        total: 1,
+        'unit-name': 'Coop48',
+        'unit-name-b64': encoder.encode('Q29vcDQ4'),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
 }

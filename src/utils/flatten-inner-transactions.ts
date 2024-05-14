@@ -19,9 +19,6 @@ export function flattenInnerTransactions(transaction: Transaction | InnerTransac
     return results
   }
 
-  const inners: FlattenedTransaction[] =
-    transaction.innerTransactions.flatMap((transaction) => flattenInnerTransactions(transaction, nestingLevel + 1)) ?? []
-  results.push(...inners)
-
-  return results
+  const inners = transaction.innerTransactions.flatMap((transaction) => flattenInnerTransactions(transaction, nestingLevel + 1)) ?? []
+  return results.concat(inners)
 }

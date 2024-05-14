@@ -9,9 +9,9 @@ import {
 import { invariant } from '@/utils/invariant'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { Asset } from '@/features/assets/models'
+import { AssetSummary } from '@/features/assets/models'
 
-const mapCommonAssetTransferTransactionProperties = (transactionResult: TransactionResult, asset: Asset) => {
+const mapCommonAssetTransferTransactionProperties = (transactionResult: TransactionResult, asset: AssetSummary) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
   const subType = () => {
@@ -54,7 +54,7 @@ const mapCommonAssetTransferTransactionProperties = (transactionResult: Transact
   } satisfies BaseAssetTransferTransaction
 }
 
-export const asAssetTransferTransaction = (transactionResult: TransactionResult, asset: Asset): AssetTransferTransaction => {
+export const asAssetTransferTransaction = (transactionResult: TransactionResult, asset: AssetSummary): AssetTransferTransaction => {
   return {
     id: transactionResult.id,
     ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),
@@ -65,7 +65,7 @@ export const asInnerAssetTransferTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  asset: Asset
+  asset: AssetSummary
 ): InnerAssetTransferTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),

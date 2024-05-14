@@ -29,7 +29,9 @@ export const getApplicationAtomBuilder = (store: JotaiStore, applicationId: Appl
       try {
         const applicationResult = await get(fetchApplicationResultAtom)
         set(applicationResultsAtom, (prev) => {
-          return prev.set(applicationResult.id, applicationResult)
+          const next = new Map(prev)
+          next.set(applicationResult.id, applicationResult)
+          return next
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
