@@ -10,7 +10,7 @@ import { TransactionId } from './types'
 import { indexer } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { getAssetAtomBuilder, getAssetsAtomBuilder } from '@/features/assets/data'
+import { getAssetSummaryAtomBuilder, getAssetSummariesAtomBuilder } from '@/features/assets/data'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { transactionResultsAtom } from './core'
 
@@ -20,7 +20,9 @@ export const fetchTransactionResultAtomBuilder = (store: JotaiStore, transaction
       try {
         const transactionResult = await get(transactionResultAtom)
         set(transactionResultsAtom, (prev) => {
-          return new Map([...prev, [transactionResult.id, transactionResult]])
+          const next = new Map(prev)
+          next.set(transactionResult.id, transactionResult)
+          return next
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
@@ -82,7 +84,7 @@ export const fetchTransactionsAtomBuilder = (
     )
 
     const assets = new Map(
-      (await get(getAssetsAtomBuilder(store, assetIds))).map((a) => {
+      (await get(getAssetSummariesAtomBuilder(store, assetIds))).map((a) => {
         return [a.id, a] as const
       })
     )
@@ -105,7 +107,7 @@ export const fetchTransactionAtomBuilder = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return await asTransaction(txn, (assetId: number) => get(getAssetAtomBuilder(store, assetId)))
+    return await asTransaction(txn, (assetId: number) => get(getAssetSummaryAtomBuilder(store, assetId)))
   })
 }
 

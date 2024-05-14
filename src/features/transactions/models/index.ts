@@ -1,5 +1,5 @@
 import { Address } from '@/features/accounts/data/types'
-import { Asset } from '@/features/assets/models'
+import { AssetSummary } from '@/features/assets/models'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type CommonTransactionProperties = {
@@ -58,7 +58,7 @@ export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   receiver: Address
   amount: number | bigint
   closeRemainder?: CloseAssetRemainder
-  asset: Asset
+  asset: AssetSummary
   clawbackFrom?: Address
 }
 

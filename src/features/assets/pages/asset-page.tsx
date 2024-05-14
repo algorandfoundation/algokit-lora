@@ -3,10 +3,10 @@ import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { cn } from '@/features/common/utils'
 import { isInteger } from '@/utils/is-integer'
-import { useLoadableAsset } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
+import { useLoadableAsset } from '../data'
 
 const transformError = (e: Error) => {
   if (is404(e)) {

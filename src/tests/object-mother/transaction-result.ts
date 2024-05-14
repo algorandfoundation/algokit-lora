@@ -48,6 +48,21 @@ export const transactionResultMother = {
         logicsig: { logic: 'CIEBQw==' },
       })
   },
+  assetConfig: () => {
+    return transactionResultBuilder()
+      ['withTx-type'](TransactionType.acfg)
+      ['withAsset-config-transaction']({
+        'asset-id': 1234,
+        params: {
+          creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          reserve: 'POMY37RQ5PYG2NHKEFVDVDKGWZLZ4NHUWUW57CVGZVIPZCTNAFE2JM7XQU',
+          total: 0,
+        },
+      })
+  },
   ['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']: () => {
     return new TransactionResultBuilder({
       id: 'FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ',
@@ -791,7 +806,7 @@ export const transactionResultMother = {
     } as unknown as TransactionResult) // The type definition for App Call transaction in indexer seems to be wrong
   },
   ['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']: () => {
-    // Asset config destroy asset
+    // Asset config destroy asset for 917559
     return new TransactionResultBuilder({
       'asset-config-transaction': {
         'asset-id': 917559,
@@ -1073,5 +1088,197 @@ export const transactionResultMother = {
       },
       'tx-type': TransactionType.appl,
     } as unknown as TransactionResult) // The type definition for App Call transaction in indexer seems to be wrong
+  },
+  ['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 1800979729,
+        params: {
+          creator: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+          reserve: 'ESK3ZHVALWTRWTEQVRO4ZGZGGOFCKCJNVE5ODFMPWICXVSJVJZYINHHYHE',
+          total: 0,
+        },
+      },
+      'auth-addr': '5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 38394154,
+      fee: 1000,
+      'first-valid': 38394151,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: '4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA',
+      'intra-round-offset': 3,
+      'last-valid': 38395151,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGFuIGFscGhhIGRhdGEgYXJ0aWZhY3QgbWludGVkIGJ5IFRoZSBEYXRhIEhpc3RvcnkgTXVzZXVtLiBJdCByZXByZXNlbnRzIGEgQ2xhc3MgTTEuNiBzb2xhciBmbGFyZS4gVGhlIHZlcmlmaWVkIHNvdXJjZSBvZiB0aGlzIGRhdGEgYXJ0aWZhY3Qgd2FzIHRoZSBOYXRpb25hbCBPY2VhbmljIGFuZCBBdG1vc3BoZXJpYyBBZG1pbmlzdHJhdGlvbiAoTk9BQSkuIEZvciBtb3JlIGluZm9ybWF0aW9uIHZpc2l0IGh0dHBzOi8vZGF0YWhpc3Rvcnkub3JnLy4iLCJleHRlcm5hbF91cmwiOiJodHRwczovL211c2V1bS5kYXRhaGlzdG9yeS5vcmcvZXZlbnQvU09MRkxBUkUvU0NRQ1NPIiwicHJvcGVydGllcyI6eyJzYXRlbGxpdGUiOiJHT0VTLTE2Iiwic291cmNlIjoiTk9BQSIsImJlZ2luVGltZSI6IjIwMjQtMDQtMzBUMDA6NDY6MDBaIiwiYmVnaW5DbGFzcyI6IkMxLjEiLCJwZWFrQ2xhc3MiOiJNMS42IiwicGVha1RpbWUiOiIyMDI0LTA0LTMwVDAxOjE0OjAwWiIsInBlYWtYcmF5Rmx1eCI6IjEuNjQxMTBlLTUgV23igbvCsiIsImVuZFRpbWUiOiIyMDI0LTA0LTMwVDAxOjMxOjAwWiIsImVuZENsYXNzIjoiQzguMyIsInR5cGUiOiJzb2xhciIsInN1YlR5cGUiOiJmbGFyZSJ9LCJtaW1lX3R5cGUiOiJ2aWRlby9tcDQiLCJpZCI6IlNDUUNTTyIsInRpdGxlIjoiQ2xhc3MgTTEuNiBzb2xhciBmbGFyZSB0aGF0IHBlYWtlZCBhdCBUdWUsIDMwIEFwciAyMDI0IDAxOjE0OjAwIEdNVCJ9',
+      'receiver-rewards': 0,
+      'round-time': 1714440885,
+      sender: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
+      'sender-rewards': 0,
+      signature: { sig: 'xQjGgT33TOy7dQm0vzDFsHbTDl4BHnzOOp0gHDkexH3Ci5ZFrNgQYnSVyncJ3Cw9MsSybw/3cZwoboK7/O2RDg==' },
+      'tx-type': TransactionType.acfg,
+    })
+  },
+  ['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 0,
+        params: {
+          creator: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+          name: 'Bad Bunny Society #587',
+          'name-b64': encoder.encode('QmFkIEJ1bm55IFNvY2lldHkgIzU4Nw=='),
+          reserve: 'V4UCC2YXBHLELD7Y6HYSKZI4GABLUG5HE6HAQQ36OBXFEZS7W4VMWB6DUQ',
+          total: 1,
+          'unit-name': 'bbs587',
+          'unit-name-b64': encoder.encode('YmJzNTg3'),
+          url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+          'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 23110800,
+      'created-asset-index': 854081201,
+      fee: 1000,
+      'first-valid': 23110798,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: 'x2iqKcM/w+966sWzIzvH0ySIH9eq7ZCWqGHC6rXILWY=',
+      id: 'P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ',
+      'intra-round-offset': 164,
+      'last-valid': 23111798,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJCYWQgQnVubnkgU29jaWV0eSAjNTg3IiwibWltZV90eXBlIjoiaW1hZ2Uvd2VicCIsInByb3BlcnRpZXMiOnsiQmFja2dyb3VuZCI6IlJlZCIsIlNraW4iOiJQaW5rIiwiRWFyIjoiTXVsdGljb2xvciIsIkJvZHkiOiJPcmFuZ2UgSmFja2V0IiwiTW91dGgiOiJKb2ludCIsIk5vc2UiOiJBY2lkIiwiRXllcyI6IlJhdmUiLCJIZWFkIjoiUmluZyJ9fQ==',
+      'receiver-rewards': 0,
+      'round-time': 1661696204,
+      sender: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
+      'sender-rewards': 0,
+      signature: { sig: 'kQlJT5RVh7TKuQnIkOw4FI9BJ7k++wSuOcXXxLn6srgnAS/sIuTomN2UNzG9DZIFXjoqlap1wpmcNsl5LVvdAw==' },
+      'tx-type': TransactionType.acfg,
+    })
+  },
+  ['mainnet-A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q']: () => {
+    // Asset config creation for 917559
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 0,
+        params: {
+          clawback: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          creator: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          decimals: 0,
+          'default-frozen': false,
+          freeze: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          manager: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          name: 'TestAsset3',
+          'name-b64': encoder.encode('VGVzdEFzc2V0Mw=='),
+          reserve: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          total: 10000000,
+          'unit-name': 'token',
+          'unit-name-b64': encoder.encode('dG9rZW4='),
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 6354271,
+      'created-asset-index': 917559,
+      fee: 1000,
+      'first-valid': 6354269,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      id: 'A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q',
+      'intra-round-offset': 0,
+      'last-valid': 6355269,
+      note: 'l8EIBYWlyQw=',
+      'receiver-rewards': 0,
+      'round-time': 1588141633,
+      sender: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'bIT1lgB15oU6F9/vQ5ZFLUyPePRkJ/cxmqUFR9kagkljiA3LCzHva/pUg75iiLV59fBleMzXPo+H9OOec9nKDA==',
+      },
+      'tx-type': TransactionType.acfg,
+    })
+  },
+  ['mainnet-HTGK2WBVXTOHV7X5ER3QT3JH2NQSZU43KEMSTHXMJO5D2E3ROT6Q']: () => {
+    // Asset config reconfigure for 917559
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 917559,
+        params: {
+          clawback: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          creator: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          decimals: 0,
+          'default-frozen': false,
+          freeze: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          manager: 'MBX2M6J44LQ22L3FROYRBKUAG4FWENPSLPTI7EBR4ECQ2APDMI6XTENHWQ',
+          reserve: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+          total: 0,
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 6354480,
+      fee: 1000,
+      'first-valid': 6354477,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      id: 'HTGK2WBVXTOHV7X5ER3QT3JH2NQSZU43KEMSTHXMJO5D2E3ROT6Q',
+      'intra-round-offset': 0,
+      'last-valid': 6355477,
+      note: 'dnuPOsrNYeM=',
+      'receiver-rewards': 0,
+      'round-time': 1588142543,
+      sender: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'Lm1ap4lB/0SyCYK4Gb2UbVyJrAega3OccpeGPMh4GJNyqG4of0fwhPdVigW7ImkaVDTzguYqK3UYV9mEvMxZCg==',
+      },
+      'tx-type': TransactionType.acfg,
+    })
+  },
+  ['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 0,
+        params: {
+          creator: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+          name: 'Coop #48',
+          'name-b64': encoder.encode('Q29vcCAjNDg='),
+          reserve: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI',
+          total: 1,
+          'unit-name': 'Coop48',
+          'unit-name-b64': encoder.encode('Q29vcDQ4'),
+          url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+          'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 38688486,
+      'created-asset-index': 1820067164,
+      fee: 1000,
+      'first-valid': 38688195,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      group: 'U8DZy01c8WOvL9uuvBKRUpzkpxxsOnotnhN3cfqIZbU=',
+      id: 'K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q',
+      'intra-round-offset': 39,
+      'last-valid': 38689195,
+      'receiver-rewards': 0,
+      'round-time': 1715286054,
+      sender: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+      'sender-rewards': 0,
+      signature: { sig: 'e5usiTCw+xuiY5whu1xESgOqnCmahpDRhJ8fOWIMD80crhgR1O3/05BiMIJnlEvu9icv5+7tarvomyNExdEdDA==' },
+      'tx-type': TransactionType.acfg,
+    })
   },
 }

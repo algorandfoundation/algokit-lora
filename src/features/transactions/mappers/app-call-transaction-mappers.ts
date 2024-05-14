@@ -6,7 +6,7 @@ import { mapCommonTransactionProperties, asInnerTransactionId } from './transact
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
-import { Asset } from '@/features/assets/models'
+import { AssetSummary } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
@@ -14,7 +14,7 @@ import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
-  assets: Asset[],
+  assets: AssetSummary[],
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -41,7 +41,7 @@ const mapCommonAppCallTransactionProperties = (
   } satisfies BaseAppCallTransaction
 }
 
-export const asAppCallTransaction = (transactionResult: TransactionResult, assets: Asset[]): AppCallTransaction => {
+export const asAppCallTransaction = (transactionResult: TransactionResult, assets: AssetSummary[]): AppCallTransaction => {
   const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assets)
 
   return {
@@ -54,7 +54,7 @@ export const asInnerAppCallTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assets: Asset[]
+  assets: AssetSummary[]
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
@@ -79,7 +79,7 @@ const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnCompl
   }
 }
 
-const asInnerTransaction = (networkTransactionId: string, index: string, transactionResult: TransactionResult, assets: Asset[]) => {
+const asInnerTransaction = (networkTransactionId: string, index: string, transactionResult: TransactionResult, assets: AssetSummary[]) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
   }

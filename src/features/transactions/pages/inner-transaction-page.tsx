@@ -7,9 +7,10 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-id'
 import { isTransactionId } from '@/utils/is-transaction-id'
+import { is404 } from '@/utils/error'
 
 const transformError = (e: Error) => {
-  if ('status' in e && e.status === 404) {
+  if (is404(e)) {
     return new Error(transactionNotFoundMessage)
   }
 
