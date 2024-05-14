@@ -21,7 +21,7 @@ export const useAssetAtom = (assetIndex: AssetIndex) => {
 
   return useMemo(() => {
     return getAssetAtomBuilder(store, assetIndex)
-  }, [assetIndex, store])
+  }, [store, assetIndex])
 }
 
 export const useLoadableAsset = (assetIndex: AssetIndex) => {
