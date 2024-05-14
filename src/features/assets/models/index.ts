@@ -1,35 +1,42 @@
 export type AssetSummary = {
   id: number
   name?: string
-  total: number | bigint
   decimals: number | bigint
   unitName?: string
+  clawback?: string
+}
+
+export enum AssetType {
+  Fungible = 'Fungible',
+  PureNonFungible = 'Pure Non-Fungible',
+  FractionalNonFungible = 'Fractional Non-Fungible',
+  Deleted = 'Deleted',
+}
+
+export enum AssetMediaType {
+  Image = 'image',
+  Video = 'video',
+}
+
+export type AssetMedia = {
+  type: AssetMediaType
+  url: string
+}
+
+export type Asset = AssetSummary & {
+  total: number | bigint
   defaultFrozen: boolean
   url?: string
   creator: string
   manager?: string
   reserve?: string
   freeze?: string
-  clawback?: string
+  type: AssetType
+  standardsUsed: AssetStandard[]
+  traits?: Record<string, string>
+  metadata?: Record<string, string | number>
+  media?: AssetMedia
   json: string
-  tokenType: TokenType
-}
-
-export enum TokenType {
-  Fungible = 'Fungible',
-  PureNonFungible = 'Pure Non-Fungible',
-  FractionalNonFungible = 'Fractional Non-Fungible',
-}
-
-export type Asset = AssetSummary & {
-  lastUpdateRound: number
-  metadata: (Arc3Metadata | Arc19Metadata | Arc69Metadata)[]
-}
-
-export enum AssetStandard {
-  ARC3 = 'ARC-3',
-  ARC19 = 'ARC-19',
-  ARC69 = 'ARC-69',
 }
 
 export type Arc69Metadata = {
@@ -89,4 +96,11 @@ export type Arc69MetadataResult = {
   media_url?: string
   properties?: Record<string, string>
   mime_type?: string
+}
+
+export enum AssetStandard {
+  ARC3 = 'ARC-3',
+  ARC16 = 'ARC-16',
+  ARC19 = 'ARC-19',
+  ARC69 = 'ARC-69',
 }

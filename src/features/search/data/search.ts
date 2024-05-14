@@ -78,7 +78,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
             results.push({
               type: SearchResultType.Asset,
               id: id,
-              label: `${id} (${asset.name})`,
+              label: asset.name ? `${id} (${asset.name})` : id.toString(),
               url: Urls.Explore.Asset.ById.build({ assetId: id.toString() }),
             })
           }

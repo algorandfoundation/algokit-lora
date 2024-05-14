@@ -13,6 +13,7 @@ import {
   assetCreatorLabel,
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
+  assetDetailsLabel,
   assetFreezeLabel,
   assetIdLabel,
   assetJsonLabel,
@@ -39,22 +40,22 @@ export function AssetDetails({ asset }: Props) {
     () => [
       {
         dt: assetIdLabel,
-        dd: asset.id,
+        dd: (
+          <>
+            <span>{asset.id}</span>
+            {asset.standardsUsed.map((s, i) => (
+              <Badge key={i} variant="outline">
+                {s}
+              </Badge>
+            ))}
+            <Badge variant="outline">{asset.type}</Badge>
+          </>
+        ),
       },
       asset.name
         ? {
             dt: assetNameLabel,
-            dd: (
-              <label>
-                {asset.name}
-                {asset.metadata.map((m, i) => (
-                  <Badge key={i} variant="outline">
-                    {m.standard}
-                  </Badge>
-                ))}
-                <Badge variant="outline">{asset.tokenType}</Badge>
-              </label>
-            ),
+            dd: asset.name,
           }
         : undefined,
       asset.unitName
@@ -65,7 +66,7 @@ export function AssetDetails({ asset }: Props) {
         : undefined,
       {
         dt: assetTotalSupplyLabel,
-        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals.toString()))} ${asset.unitName}`,
+        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals.toString()))} ${asset.unitName ?? ''}`,
       },
       {
         dt: assetDecimalsLabel,
@@ -86,7 +87,7 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.decimals, asset.defaultFrozen, asset.id, asset.metadata, asset.name, asset.tokenType, asset.total, asset.unitName, asset.url]
+    [asset.id, asset.standardsUsed, asset.type, asset.unitName, asset.total, asset.decimals, asset.defaultFrozen, asset.url]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(
@@ -125,7 +126,7 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-6 pt-7')}>
-      <Card className={cn('p-4')}>
+      <Card aria-label={assetDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
@@ -133,30 +134,36 @@ export function AssetDetails({ asset }: Props) {
           </div>
         </CardContent>
       </Card>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{assetAddressesLabel}</h1>
-          <DescriptionList items={assetAddresses} />
-        </CardContent>
-      </Card>
-      <AssetMetadata asset={asset} />
-      <AssetTraits asset={asset} />
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
-          <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <pre className={cn('overflow-scroll p-4')}>{asset.json}</pre>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
-          <div className={cn('border-solid border-2 grid p-4')}>
-            <AssetTransactionHistory assetIndex={asset.id} />
-          </div>
-        </CardContent>
-      </Card>
+      {asset.id !== 0 && (
+        <>
+          <Card className={cn('p-4')}>
+            <CardContent className={cn('text-sm space-y-2')}>
+              <h1 className={cn('text-2xl text-primary font-bold')}>{assetAddressesLabel}</h1>
+              <DescriptionList items={assetAddresses} />
+            </CardContent>
+          </Card>
+
+          <AssetMetadata metadata={asset.metadata} />
+          <AssetTraits traits={asset.traits} />
+          <Card className={cn('p-4')}>
+            <CardContent className={cn('text-sm space-y-2')}>
+              <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
+              <div className={cn('border-solid border-2 border-border h-96 grid')}>
+                <pre className={cn('overflow-scroll p-4')}>{asset.json}</pre>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={cn('p-4')}>
+            <CardContent className={cn('text-sm space-y-2')}>
+              <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
+              <div className={cn('border-solid border-2 grid p-4')}>
+                <AssetTransactionHistory assetIndex={asset.id} />
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   )
 }

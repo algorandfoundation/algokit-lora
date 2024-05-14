@@ -6,7 +6,7 @@ import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction,
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
-import { asAssetSummary } from '@/features/assets/mappers'
+import { asAssetSummary } from '@/features/assets/mappers/asset-summary'
 import { TransactionsGraph } from './transactions-graph'
 import { asKeyRegTransaction } from '../mappers/key-reg-transaction-mappers'
 import { asGroup } from '@/features/groups/mappers'

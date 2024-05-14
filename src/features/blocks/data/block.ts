@@ -66,24 +66,28 @@ export const syncBlockAtomEffectBuilder = (fetchBlockResultAtom: ReturnType<type
 
         if (transactionResults.length > 0) {
           set(transactionResultsAtom, (prev) => {
+            const next = new Map(prev)
             transactionResults.forEach((t) => {
-              prev.set(t.id, t)
+              next.set(t.id, t)
             })
-            return prev
+            return next
           })
         }
 
         if (groupResults.size > 0) {
           set(groupResultsAtom, (prev) => {
+            const next = new Map(prev)
             groupResults.forEach((g) => {
-              prev.set(g.id, g)
+              next.set(g.id, g)
             })
-            return prev
+            return next
           })
         }
 
         set(blockResultsAtom, (prev) => {
-          return prev.set(blockResult.round, blockResult)
+          const next = new Map(prev)
+          next.set(blockResult.round, blockResult)
+          return next
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync

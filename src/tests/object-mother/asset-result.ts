@@ -270,4 +270,41 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-917559': () => {
+    return new AssetResultBuilder({
+      'created-at-round': 6354271,
+      deleted: true,
+      'destroyed-at-round': 6354625,
+      index: 917559,
+      params: {
+        clawback: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        creator: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        manager: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        reserve: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        total: 0,
+      },
+    })
+  },
+  'mainnet-1820067164': () => {
+    return new AssetResultBuilder({
+      index: 1820067164,
+      params: {
+        creator: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
+        name: 'Coop #48',
+        'name-b64': encoder.encode('Q29vcCAjNDg='),
+        reserve: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI',
+        total: 1,
+        'unit-name': 'Coop48',
+        'unit-name-b64': encoder.encode('Q29vcDQ4'),
+        url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
 }

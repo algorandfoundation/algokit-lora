@@ -9,6 +9,7 @@ import {
   assetCreatorLabel,
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
+  assetDetailsLabel,
   assetIdLabel,
   assetManagerLabel,
   assetMetadataLabel,
@@ -20,11 +21,12 @@ import {
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
-import { assetResultsAtom } from '../data/core'
-import { indexer } from '@/features/common/data'
+import { algoAssetResult, assetResultsAtom } from '../data/core'
+import { indexer, algod } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
 import { HttpError } from '@/tests/errors'
+import { ipfsGatewayUrl } from '../utils/replace-ipfs-with-gateway-if-needed'
 
 describe('asset-page', () => {
   describe('when rending an asset using an invalid asset Id', () => {
@@ -43,6 +45,7 @@ describe('asset-page', () => {
   describe('when rending an asset with asset Id that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
+      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
       vi.mocked(indexer.lookupAssetByID(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
@@ -54,10 +57,10 @@ describe('asset-page', () => {
     })
   })
 
-  describe('when rending an asset that was failed to load', () => {
+  describe('when rending an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      vi.mocked(indexer.lookupAssetByID(0).includeAll(true).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<AssetPage />),
@@ -92,11 +95,9 @@ describe('asset-page', () => {
         } as Response)
       )
 
-      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
-        Promise.resolve({
-          transactions: [transactionResult],
-        })
-      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
 
       return executeComponentTest(
         () => {
@@ -104,11 +105,12 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
-                { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'OrangeARC-3Fungible' },
+                { term: assetIdLabel, description: '1284444444ARC-3Fungible' },
+                { term: assetNameLabel, description: 'Orange' },
                 { term: assetUnitLabel, description: 'ORA' },
                 { term: assetTotalSupplyLabel, description: '4000000 ORA' },
                 { term: assetDecimalsLabel, description: '8' },
@@ -116,11 +118,7 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'ipfs://QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu#arc3' },
               ],
             })
-            expect(
-              component.container.querySelector(
-                'img[src="https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]'
-              )
-            ).toBeTruthy()
+            expect(detailsCard.querySelector(`img[src="${ipfsGatewayUrl}QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]`)).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -135,7 +133,18 @@ describe('asset-page', () => {
             const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
             descriptionListAssertion({
               container: assetMetadataCard,
-              items: [{ term: 'Image', description: 'https://cloudflare-ipfs.com/ipfs/QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' }],
+              items: [
+                { term: 'Name', description: 'Orange' },
+                { term: 'Decimals', description: '8' },
+                {
+                  term: 'Description',
+                  description:
+                    "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
+                },
+                { term: 'Image', description: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv' },
+                { term: 'Image Integrity', description: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=' },
+                { term: 'Image Mimetype', description: 'image/png' },
+              ],
             })
           })
         }
@@ -174,11 +183,9 @@ describe('asset-page', () => {
             }),
         } as Response)
       )
-      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
-        Promise.resolve({
-          transactions: [transactionResult],
-        })
-      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
 
       return executeComponentTest(
         () => {
@@ -186,11 +193,12 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
-                { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'Zappy #1620ARC-3ARC-19Pure Non-Fungible' },
+                { term: assetIdLabel, description: '1494117806ARC-3ARC-19Pure Non-Fungible' },
+                { term: assetNameLabel, description: 'Zappy #1620' },
                 { term: assetUnitLabel, description: 'ZAPP1620' },
                 { term: assetTotalSupplyLabel, description: '1 ZAPP1620' },
                 { term: assetDecimalsLabel, description: '0' },
@@ -199,9 +207,7 @@ describe('asset-page', () => {
               ],
             })
             expect(
-              component.container.querySelector(
-                'img[src="https://cloudflare-ipfs.com/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]'
-              )
+              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]`)
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -218,10 +224,11 @@ describe('asset-page', () => {
             descriptionListAssertion({
               container: assetMetadataCard,
               items: [
-                {
-                  term: 'Image',
-                  description: 'https://cloudflare-ipfs.com/ipfs/bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
-                },
+                { term: 'Name', description: 'Zappy #1620' },
+                { term: 'Standard', description: 'arc3' },
+                { term: 'Decimals', description: '0' },
+                { term: 'Image', description: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74' },
+                { term: 'Image Mimetype', description: 'image/png' },
               ],
             })
 
@@ -254,11 +261,9 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
-        Promise.resolve({
-          transactions: [transactionResult],
-        })
-      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
 
       return executeComponentTest(
         () => {
@@ -266,11 +271,12 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
-                { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'DHMα: M1 Solar Flare SCQCSOARC-69Pure Non-Fungible' },
+                { term: assetIdLabel, description: '1800979729ARC-69Pure Non-Fungible' },
+                { term: assetNameLabel, description: 'DHMα: M1 Solar Flare SCQCSO' },
                 { term: assetUnitLabel, description: 'SOLFLARE' },
                 { term: assetTotalSupplyLabel, description: '1 SOLFLARE' },
                 { term: assetDecimalsLabel, description: '0' },
@@ -278,7 +284,7 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v' },
               ],
             })
-            expect(component.container.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
+            expect(detailsCard.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -294,11 +300,16 @@ describe('asset-page', () => {
             descriptionListAssertion({
               container: assetMetadataCard,
               items: [
+                { term: 'Standard', description: 'arc69' },
                 {
                   term: 'Description',
                   description:
                     'This is an alpha data artifact minted by The Data History Museum. It represents a Class M1.6 solar flare. The verified source of this data artifact was the National Oceanic and Atmospheric Administration (NOAA). For more information visit https://datahistory.org/.',
                 },
+                { term: 'External Url', description: 'https://museum.datahistory.org/event/SOLFLARE/SCQCSO' },
+                { term: 'Mime Type', description: 'video/mp4' },
+                { term: 'Id', description: 'SCQCSO' },
+                { term: 'Title', description: 'Class M1.6 solar flare that peaked at Tue, 30 Apr 2024 01:14:00 GMT' },
               ],
             })
 
@@ -334,11 +345,9 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
-        Promise.resolve({
-          transactions: [transactionResult],
-        })
-      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
 
       return executeComponentTest(
         () => {
@@ -346,11 +355,12 @@ describe('asset-page', () => {
         },
         async (component) => {
           await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
             descriptionListAssertion({
-              container: component.container,
+              container: detailsCard,
               items: [
-                { term: assetIdLabel, description: assetResult.index.toString() },
-                { term: assetNameLabel, description: 'Bad Bunny Society #587ARC-19ARC-69Pure Non-Fungible' },
+                { term: assetIdLabel, description: '854081201ARC-19ARC-69Pure Non-Fungible' },
+                { term: assetNameLabel, description: 'Bad Bunny Society #587' },
                 { term: assetUnitLabel, description: 'bbs587' },
                 { term: assetTotalSupplyLabel, description: '1 bbs587' },
                 { term: assetDecimalsLabel, description: '0' },
@@ -359,9 +369,7 @@ describe('asset-page', () => {
               ],
             })
             expect(
-              component.container.querySelector(
-                'img[src="https://cloudflare-ipfs.com/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]'
-              )
+              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]`)
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -378,10 +386,9 @@ describe('asset-page', () => {
             descriptionListAssertion({
               container: assetMetadataCard,
               items: [
-                {
-                  term: 'Description',
-                  description: 'Bad Bunny Society #587',
-                },
+                { term: 'Standard', description: 'arc69' },
+                { term: 'Description', description: 'Bad Bunny Society #587' },
+                { term: 'Mime Type', description: 'image/webp' },
               ],
             })
 
@@ -399,6 +406,207 @@ describe('asset-page', () => {
                 { term: 'Head', description: 'Ring' },
               ],
             })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an ARC16 + ARC-19 asset', () => {
+    const assetResult = assetResultMother['mainnet-1820067164']().build()
+    const transactionResult = transactionResultMother['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              name: 'Coop #48',
+              standard: 'arc3',
+              image: 'ipfs://bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png',
+              image_mime_type: 'image/png',
+              description:
+                "A troop of 890 Coopers based on Cooper Daniels' DEV'N and his quest for CoopCoin Beach. Artwork by F.o.E. and inspired by the original work of Blockrunner for the ReCoop Show.",
+              properties: {
+                traits: {
+                  Background: 'Soft Cream',
+                  Base: 'Coop v1',
+                  Tat: 'Naked',
+                  'Chest Hair': 'Clean',
+                  Outfit: 'Coop Hoodie',
+                  'Face Tat': 'Clean',
+                  'Face Trait': 'Gold Grill',
+                  'Lower Face': 'Fresh Trim',
+                  'Upper Head': 'Scoopy',
+                  Eyes: 'Coop Brokelys',
+                  Ears: 'Hoop',
+                },
+                filters: {},
+              },
+              extra: {},
+            }),
+        } as Response)
+      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '1820067164ARC-16ARC-19Pure Non-Fungible' },
+                { term: assetNameLabel, description: 'Coop #48' },
+                { term: assetUnitLabel, description: 'Coop48' },
+                { term: assetTotalSupplyLabel, description: '1 Coop48' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
+              ],
+            })
+            expect(
+              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png"]`)
+            ).toBeTruthy()
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE' },
+                { term: assetManagerLabel, description: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE' },
+                { term: assetReserveLabel, description: '6ZTNQ3SPQEYOWIXZHQR6HSX6CZSQ4FLYOXOCPNJSNRRT6QA2FFD6JIBDSI' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [
+                { term: 'Name', description: 'Coop #48' },
+                { term: 'Standard', description: 'arc3' },
+                { term: 'Image', description: 'ipfs://bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png' },
+                { term: 'Image Mime Type', description: 'image/png' },
+                {
+                  term: 'Description',
+                  description:
+                    "A troop of 890 Coopers based on Cooper Daniels' DEV'N and his quest for CoopCoin Beach. Artwork by F.o.E. and inspired by the original work of Blockrunner for the ReCoop Show.",
+                },
+                { term: 'Extra', description: '{}' },
+              ],
+            })
+
+            const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            descriptionListAssertion({
+              container: assetTraitsCard,
+              items: [
+                { term: 'Background', description: 'Soft Cream' },
+                { term: 'Base', description: 'Coop v1' },
+                { term: 'Tat', description: 'Naked' },
+                { term: 'Chest Hair', description: 'Clean' },
+                { term: 'Outfit', description: 'Coop Hoodie' },
+                { term: 'Face Tat', description: 'Clean' },
+                { term: 'Face Trait', description: 'Gold Grill' },
+                { term: 'Lower Face', description: 'Fresh Trim' },
+                { term: 'Upper Head', description: 'Scoopy' },
+                { term: 'Eyes', description: 'Coop Brokelys' },
+                { term: 'Ears', description: 'Hoop' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering a deleted asset', () => {
+    const assetResult = assetResultMother['mainnet-917559']().build()
+    const createAssetTransactionResult = transactionResultMother['mainnet-A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q']().build()
+    const reconfigureAssetTransactionResult =
+      transactionResultMother['mainnet-HTGK2WBVXTOHV7X5ER3QT3JH2NQSZU43KEMSTHXMJO5D2E3ROT6Q']().build()
+    const destroyAssetTransactionResult = transactionResultMother['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
+        Promise.resolve([createAssetTransactionResult, reconfigureAssetTransactionResult, destroyAssetTransactionResult])
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '917559Deleted' },
+                { term: assetTotalSupplyLabel, description: '0 ' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+              ],
+            })
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [{ term: assetCreatorLabel, description: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY' }],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering the algo asset', () => {
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, algoAssetResult]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.index.toString() }))
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '0Fungible' },
+                { term: assetNameLabel, description: 'ALGO' },
+                { term: assetUnitLabel, description: 'ALGO' },
+                { term: assetTotalSupplyLabel, description: '10000000000 ALGO' },
+                { term: assetDecimalsLabel, description: '6' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'https://www.algorand.foundation' },
+              ],
+            })
+
+            const assetAddressesCard = component.queryByText(assetAddressesLabel)
+            expect(assetAddressesCard).toBeNull()
+
+            const assetMetadataCard = component.queryByText(assetMetadataLabel)
+            expect(assetMetadataCard).toBeNull()
+
+            const assetTraitsCard = component.queryByText(assetTraitsLabel)
+            expect(assetTraitsCard).toBeNull()
           })
         }
       )

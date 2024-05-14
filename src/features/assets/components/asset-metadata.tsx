@@ -1,55 +1,27 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { Asset, AssetStandard } from '../models'
+import { Asset } from '../models'
 import { assetMetadataLabel } from './labels'
 import { useMemo } from 'react'
-import { isDefined } from '@/utils/is-defined'
 import { DescriptionList } from '@/features/common/components/description-list'
 
 type Props = {
-  asset: Asset
+  metadata: Asset['metadata']
 }
 
-export function AssetMetadata({ asset }: Props) {
+export function AssetMetadata({ metadata }: Props) {
   const items = useMemo(() => {
-    const metadataStandards = asset.metadata.map((m) => m.standard)
+    return Object.entries(metadata ?? {}).map(([key, value]) => {
+      return {
+        dt: humanisePropertyKey(key),
+        dd: value,
+      }
+    })
+  }, [metadata])
 
-    if (
-      (metadataStandards.includes(AssetStandard.ARC3) || metadataStandards.includes(AssetStandard.ARC19)) &&
-      !metadataStandards.includes(AssetStandard.ARC69)
-    ) {
-      // If the asset follows ARC-3 or ARC-19, but not ARC-69
-      // we display ARC-3 metadata
-      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC3 || m.standard === AssetStandard.ARC19)!
-      const supportedKeys = [
-        'name',
-        'decimals',
-        'description',
-        'image',
-        'image_integrity',
-        'image_mimetype',
-        'background_color',
-        'external_url',
-        'external_url_integrity',
-        'external_url_mimetype',
-        'animation_url',
-        'animation_url_integrity',
-        'animation_url_mimetype',
-        'extra_metadata',
-      ]
-
-      return getDescriptionListItems(metadata, supportedKeys)
-    }
-
-    if (metadataStandards.includes(AssetStandard.ARC69)) {
-      const metadata = asset.metadata.find((m) => m.standard === AssetStandard.ARC69)!
-
-      const supportedKeys = ['description', 'external_url', 'media_url', 'mime_type']
-      return getDescriptionListItems(metadata, supportedKeys)
-    }
-
-    return []
-  }, [asset])
+  if (items.length === 0) {
+    return undefined
+  }
 
   return (
     <Card className={cn('p-4')}>
@@ -59,21 +31,6 @@ export function AssetMetadata({ asset }: Props) {
       </CardContent>
     </Card>
   )
-}
-
-const getDescriptionListItems = (metadata: Record<string, unknown>, supportedKeys: string[]): { dt: string; dd: string | number }[] => {
-  return supportedKeys
-    .map((key) => {
-      if (metadata[key] === undefined) {
-        return undefined
-      }
-
-      return {
-        dt: humanisePropertyKey(key),
-        dd: metadata[key] as string | number, // Force type assertion because we only support string/number keys
-      }
-    })
-    .filter(isDefined)
 }
 
 const humanisePropertyKey = (key: string): string => {
