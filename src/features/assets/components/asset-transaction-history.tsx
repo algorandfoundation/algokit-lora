@@ -7,14 +7,14 @@ import { cn } from '@/features/common/utils'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ColumnDef } from '@tanstack/react-table'
-import { useFetchNextAssetTransactionPage } from '../data/asset-transaction-history'
+import { useFetchNextAssetTransactionsPage } from '../data/asset-transaction-history'
 
 type Props = {
   assetIndex: AssetIndex
 }
 
 export function AssetTransactionHistory({ assetIndex }: Props) {
-  const fetchNextPage = useFetchNextAssetTransactionPage(assetIndex)
+  const fetchNextPage = useFetchNextAssetTransactionsPage(assetIndex)
 
   return <LazyLoadDataTable columns={transactionsTableColumns} fetchNextPage={fetchNextPage} />
 }

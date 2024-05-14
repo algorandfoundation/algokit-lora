@@ -37,11 +37,7 @@ export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: Lo
       const cache = store.get(rawDataPagesAtom)
 
       if (index < cache.length) {
-        const page = cache[index]
-        return {
-          rows: page.rows,
-          nextPageToken: page.nextPageToken,
-        } satisfies DataPage<TData>
+        return cache[index] satisfies DataPage<TData>
       }
 
       const currentNextPageToken = cache[cache.length - 1]?.nextPageToken

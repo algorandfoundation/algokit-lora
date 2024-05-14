@@ -25,11 +25,11 @@ const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
     ;(async () => {
       try {
         set(transactionResultsAtom, (prev) => {
-          const newMap = new Map(prev)
+          const next = new Map(prev)
           transactionResults.forEach((transactionResult) => {
-            newMap.set(transactionResult.id, transactionResult)
+            next.set(transactionResult.id, transactionResult)
           })
-          return newMap
+          return next
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
@@ -38,7 +38,7 @@ const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const fetchAssetTransactionAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
+const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
   return atom(async (get) => {
     const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetIndex, pageSize, nextPageToken)
 
@@ -53,10 +53,10 @@ const fetchAssetTransactionAtomBuilder = (store: JotaiStore, assetIndex: AssetIn
   })
 }
 
-export const useFetchNextAssetTransactionPage = (assetIndex: AssetIndex) => {
+export const useFetchNextAssetTransactionsPage = (assetIndex: AssetIndex) => {
   const store = useStore()
 
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => fetchAssetTransactionAtomBuilder(store, assetIndex, pageSize, nextPageToken)
+    return (pageSize: number, nextPageToken?: string) => fetchAssetTransactionsAtomBuilder(store, assetIndex, pageSize, nextPageToken)
   }, [store, assetIndex])
 }
