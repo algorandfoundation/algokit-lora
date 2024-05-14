@@ -21,11 +21,11 @@ import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 // - ARC-19 doesn't specify the metadata format but generally people use the ARC-3 format
 export const buildAssetMetadataResult = async (
   assetResult: AssetResult,
-  potentialMetadataTransaction?: TransactionResult
+  latestAssetCreateOrReconfigureTransaction?: TransactionResult
 ): Promise<AssetMetadataResult> => {
   // Get ARC-69 metadata if applicable
-  if (potentialMetadataTransaction && potentialMetadataTransaction.note) {
-    const metadata = noteToArc69Metadata(potentialMetadataTransaction.note)
+  if (latestAssetCreateOrReconfigureTransaction && latestAssetCreateOrReconfigureTransaction.note) {
+    const metadata = noteToArc69Metadata(latestAssetCreateOrReconfigureTransaction.note)
     if (metadata) {
       return {
         standard: AssetMetadataStandard.ARC69,
