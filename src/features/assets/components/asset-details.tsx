@@ -15,8 +15,12 @@ import {
   assetDefaultFrozenLabel,
   assetDetailsLabel,
   assetFreezeLabel,
+  assetHistoricalTransactionsTabId,
+  assetHistoricalTransactionsTabLabel,
   assetIdLabel,
   assetJsonLabel,
+  assetLiveTransactionsTabId,
+  assetLiveTransactionsTabLabel,
   assetManagerLabel,
   assetNameLabel,
   assetReserveLabel,
@@ -30,6 +34,8 @@ import { AssetMedia } from './asset-media'
 import { AssetTraits } from './asset-traits'
 import { AssetMetadata } from './asset-metadata'
 import { AssetTransactionHistory } from './asset-transaction-history'
+import { AssetLiveTransactions } from './asset-live-transactions'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 
 type Props = {
   asset: Asset
@@ -157,9 +163,28 @@ export function AssetDetails({ asset }: Props) {
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
               <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
-              <div className={cn('border-solid border-2 grid p-4')}>
-                <AssetTransactionHistory assetIndex={asset.id} />
-              </div>
+              <Tabs defaultValue={assetLiveTransactionsTabId}>
+                <TabsList aria-label={assetTransactionsLabel}>
+                  <TabsTrigger
+                    className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
+                    value={assetLiveTransactionsTabId}
+                  >
+                    {assetLiveTransactionsTabLabel}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
+                    value={assetHistoricalTransactionsTabId}
+                  >
+                    {assetHistoricalTransactionsTabLabel}
+                  </TabsTrigger>
+                </TabsList>
+                <OverflowAutoTabsContent value={assetLiveTransactionsTabId}>
+                  <AssetLiveTransactions assetIndex={asset.id} />
+                </OverflowAutoTabsContent>
+                <OverflowAutoTabsContent value={assetHistoricalTransactionsTabId}>
+                  <AssetTransactionHistory assetIndex={asset.id} />
+                </OverflowAutoTabsContent>
+              </Tabs>
             </CardContent>
           </Card>
         </>

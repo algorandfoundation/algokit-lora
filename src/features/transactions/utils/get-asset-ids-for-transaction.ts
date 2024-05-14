@@ -12,13 +12,10 @@ export const getAssetIdsForTransaction = (transaction: TransactionResult): numbe
     invariant(transaction['application-transaction'], 'application-transaction is not set')
 
     const innerTransactions = transaction['inner-txns'] ?? []
-    return innerTransactions.reduce(
-      (acc, innerTxn) => {
-        const innerResult = getAssetIdsForTransaction(innerTxn)
-        return acc.concat(innerResult)
-      },
-      transaction['application-transaction']['foreign-assets'] ?? ([] as number[])
-    )
+    return innerTransactions.reduce((acc, innerTxn) => {
+      const innerResult = getAssetIdsForTransaction(innerTxn)
+      return acc.concat(innerResult)
+    }, [] as number[])
   }
   if (transaction['tx-type'] === algosdk.TransactionType.acfg) {
     invariant(transaction['asset-config-transaction'], 'asset-config-transaction is not set')

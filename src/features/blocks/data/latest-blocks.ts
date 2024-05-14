@@ -3,7 +3,7 @@ import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { transactionResultsAtom } from '@/features/transactions/data'
+import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { asTransactionSummary } from '@/features/transactions/mappers/transaction-mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
@@ -151,6 +151,10 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
         next.set(key, value)
       })
       return next
+    })
+
+    set(liveTransactionIdsAtom, (prev) => {
+      return Array.from(transactions.keys()).concat(prev)
     })
   })
 

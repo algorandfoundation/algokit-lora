@@ -4,3 +4,5 @@ import { TransactionId } from './types'
 
 // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
 export const transactionResultsAtom = atom<Map<TransactionId, TransactionResult>>(new Map())
+
+export const liveTransactionIdsAtom = atom<TransactionId[]>([])
