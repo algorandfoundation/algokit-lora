@@ -12,7 +12,7 @@ export const accountMinBalanceLabel = 'Min Balance'
 export const accountHoldingAssetsLabel = 'Holding assets'
 export const accountCreatedAssetsLabel = 'Created assets'
 export const accountCreatedApplicationsLabel = 'Created applications'
-export const accountOptedApplicationsLabel = 'opted applications'
+export const accountOptedApplicationsLabel = 'Opted applications'
 export const accountRekeyedToLabel = 'Rekeyed to'
 
 export function AccountInfo({ account }: { account: Account }) {
