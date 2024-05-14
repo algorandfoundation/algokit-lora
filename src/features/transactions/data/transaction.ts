@@ -5,7 +5,6 @@ import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { invariant } from '@/utils/invariant'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { TransactionId } from './types'
 import { indexer } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
@@ -57,32 +56,7 @@ export const fetchTransactionsAtomBuilder = (
 ) => {
   return atom(async (get) => {
     const txns = Array.isArray(transactionResults) ? transactionResults : await get(transactionResults)
-    const assetIds = Array.from(
-      txns.reduce((acc, txn) => {
-        if (txn['tx-type'] === AlgoSdkTransactionType.axfer && txn['asset-transfer-transaction']) {
-          const assetId = txn['asset-transfer-transaction']['asset-id']
-          if (!acc.has(assetId)) {
-            acc.add(assetId)
-          }
-        }
-        if (txn['tx-type'] === AlgoSdkTransactionType.appl && txn['application-transaction']) {
-          const assetIds = getAssetIdsForTransaction(txn)
-          assetIds.forEach((assetId) => {
-            if (!acc.has(assetId)) {
-              acc.add(assetId)
-            }
-          })
-        }
-        if (txn['tx-type'] === AlgoSdkTransactionType.afrz && txn['asset-freeze-transaction']) {
-          const assetId = txn['asset-freeze-transaction']['asset-id']
-          if (!acc.has(assetId)) {
-            acc.add(assetId)
-          }
-        }
-        return acc
-      }, new Set<number>())
-    )
-
+    const assetIds = Array.from(new Set(txns.map((txn) => getAssetIdsForTransaction(txn)).flat()))
     const assets = new Map(
       (await get(getAssetSummariesAtomBuilder(store, assetIds))).map((a) => {
         return [a.id, a] as const

@@ -1,8 +1,9 @@
 import algosdk from 'algosdk'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { invariant } from '@/utils/invariant'
+import { AssetIndex } from '@/features/assets/data/types'
 
-export const getAssetIdsForTransaction = (transaction: TransactionResult): number[] => {
+export const getAssetIdsForTransaction = (transaction: TransactionResult): AssetIndex[] => {
   if (transaction['tx-type'] === algosdk.TransactionType.axfer) {
     invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 

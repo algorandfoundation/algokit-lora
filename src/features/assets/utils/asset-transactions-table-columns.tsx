@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { ellipseId } from '@/utils/ellipse-id'
 
 export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
   {
@@ -13,9 +14,13 @@ export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransac
     cell: (c) => {
       const transaction = c.getValue<Transaction | InnerTransaction>()
       return 'innerId' in transaction ? (
-        <>
-          <TransactionLink transactionId={transaction.networkTransactionId} short={true} />- (Inner)
-        </>
+        <TransactionLink
+          className={cn('text-primary underline cursor-pointer grid gap-2')}
+          transactionId={transaction.networkTransactionId}
+        >
+          <span>{ellipseId(transaction.id)}</span>
+          <span>(Inner)</span>
+        </TransactionLink>
       ) : (
         <TransactionLink transactionId={transaction.id} short={true} />
       )
