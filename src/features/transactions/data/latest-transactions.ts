@@ -1,25 +1,17 @@
-import { useLatestBlockSummariesAtom } from '@/features/blocks/data'
-import { atom, useAtomValue, useStore } from 'jotai'
-import { useMemo } from 'react'
+import { latestBlockSummariesAtom } from '@/features/blocks/data'
+import { atom, useAtomValue } from 'jotai'
 
 const maxTransactionsToDisplay = 50
 
-const createLatestTransactionSummariesAtom = (latestBlockSummariesAtom: ReturnType<typeof useLatestBlockSummariesAtom>) => {
+const createLatestTransactionSummariesAtom = () => {
   return atom((get) => {
     const latestBlockSummaries = get(latestBlockSummariesAtom)
     return latestBlockSummaries.flatMap((b) => b.transactions).splice(0, maxTransactionsToDisplay)
   })
 }
 
-const useLatestTransactionSummariesAtom = (latestBlockSummariesAtom: ReturnType<typeof useLatestBlockSummariesAtom>) => {
-  return useMemo(() => {
-    return createLatestTransactionSummariesAtom(latestBlockSummariesAtom)
-  }, [latestBlockSummariesAtom])
-}
+const latestTransactionSummaries = createLatestTransactionSummariesAtom()
 
 export const useLatestTransactionSummaries = () => {
-  const store = useStore()
-  const latestBlockSummariesAtom = useLatestBlockSummariesAtom(store)
-
-  return useAtomValue(useLatestTransactionSummariesAtom(latestBlockSummariesAtom))
+  return useAtomValue(latestTransactionSummaries)
 }

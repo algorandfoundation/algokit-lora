@@ -24,12 +24,12 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          const container = await waitFor(() => {
+          waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
             expect(latestBlocks).toBeDefined()
-            return latestBlocks.parentElement!
+            const container = latestBlocks.parentElement!
+            expect(queryAllByRole(container, 'link')).toEqual([])
           })
-          expect(queryAllByRole(container, 'link')).toEqual([])
         }
       )
     })
@@ -38,12 +38,12 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          const container = await waitFor(() => {
+          await waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })
             expect(latestTransactions).toBeDefined()
-            return latestTransactions.parentElement!
+            const container = latestTransactions.parentElement!
+            expect(queryAllByRole(container, 'link')).toEqual([])
           })
-          expect(queryAllByRole(container, 'link')).toEqual([])
         }
       )
     })
@@ -62,17 +62,17 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          const container = await waitFor(() => {
+          await waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
             expect(latestBlocks).toBeDefined()
-            return latestBlocks.parentElement!
+            const container = latestBlocks.parentElement!
+            const blockCards = getAllByRole(container, 'link')
+            expect(blockCards.length).toBe(1)
+            const blockCard1 = blockCards[0]
+            expect(getByRole(blockCard1, 'heading').textContent).toBe(block.round.toString())
+            expect(blockCard1.textContent).toContain('1 transaction')
+            expect(blockCard1.textContent).toContain('Thu, 29 February 2024 06:52:011')
           })
-          const blockCards = getAllByRole(container, 'link')
-          expect(blockCards.length).toBe(1)
-          const blockCard1 = blockCards[0]
-          expect(getByRole(blockCard1, 'heading').textContent).toBe(block.round.toString())
-          expect(blockCard1.textContent).toContain('1 transaction')
-          expect(blockCard1.textContent).toContain('Thu, 29 February 2024 06:52:011')
         }
       )
     })
@@ -81,18 +81,18 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          const container = await waitFor(() => {
+          waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })
             expect(latestTransactions).toBeDefined()
-            return latestTransactions.parentElement!
+            const container = latestTransactions.parentElement!
+            const transactionCards = getAllByRole(container, 'link')
+            expect(transactionCards.length).toBe(transactionResults.length)
+            const transactionCard1 = transactionCards[0]
+            expect(getByRole(transactionCard1, 'heading').textContent).toBe(ellipseId(transactionResult1.id))
+            expect(transactionCard1.textContent).toContain(`From:${ellipseAddress(transactionResult1.sender)}`)
+            expect(transactionCard1.textContent).toContain(`To:${ellipseAddress(transactionResult1.receiver)}`)
+            expect(transactionCards[0].textContent).toContain('Payment')
           })
-          const transactionCards = getAllByRole(container, 'link')
-          expect(transactionCards.length).toBe(transactionResults.length)
-          const transactionCard1 = transactionCards[0]
-          expect(getByRole(transactionCard1, 'heading').textContent).toBe(ellipseId(transactionResult1.id))
-          expect(transactionCard1.textContent).toContain(`From:${ellipseAddress(transactionResult1.sender)}`)
-          expect(transactionCard1.textContent).toContain(`To:${ellipseAddress(transactionResult1.receiver)}`)
-          expect(transactionCards[0].textContent).toContain('Payment')
         }
       )
     })
@@ -129,14 +129,14 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          const container = await waitFor(() => {
+          await waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
             expect(latestBlocks).toBeDefined()
-            return latestBlocks.parentElement!
+            const container = latestBlocks.parentElement!
+            expect(data.blocks.size).toBeGreaterThan(5)
+            const blockCards = getAllByRole(container, 'link')
+            expect(blockCards.length).toBe(5)
           })
-          expect(data.blocks.size).toBeGreaterThan(5)
-          const blockCards = getAllByRole(container, 'link')
-          expect(blockCards.length).toBe(5)
         }
       )
     })
@@ -150,14 +150,14 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          const container = await waitFor(() => {
+          await waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })
             expect(latestTransactions).toBeDefined()
-            return latestTransactions.parentElement!
+            const container = latestTransactions.parentElement!
+            expect(data.transactions.size).toBeGreaterThan(50)
+            const transactionCards = getAllByRole(container, 'link')
+            expect(transactionCards.length).toBe(50)
           })
-          expect(data.transactions.size).toBeGreaterThan(50)
-          const transactionCards = getAllByRole(container, 'link')
-          expect(transactionCards.length).toBe(50)
         }
       )
     })

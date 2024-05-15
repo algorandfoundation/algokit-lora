@@ -1,6 +1,4 @@
-import { JotaiStore } from '@/features/common/data/types'
-import { atom, useAtom, useAtomValue, useStore } from 'jotai'
-import { useMemo } from 'react'
+import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -18,18 +16,12 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
-import { atomWithDefault } from 'jotai/utils'
 
 const maxBlocksToDisplay = 5
 
-// TODO: NC - This needs fixing, I'll come back to this
-const createLatestBlockSummariesAtom = (_store: JotaiStore) => {
-  const dataAtom = atomWithDefault<BlockSummary[]>((get) => {
-    get(setDataEffect)
-    return []
-  })
-
-  const setDataEffect = atomEffect((get, set) => {
+const createLatestBlockSummariesAtom = () => {
+  const latestBlockSummariesAtom = atom<BlockSummary[]>([])
+  const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
     const syncedRound = get(syncedRoundAtom)
     if (!syncedRound) {
       return
@@ -48,7 +40,7 @@ const createLatestBlockSummariesAtom = (_store: JotaiStore) => {
             if (block) {
               const transactionSummaries = await Promise.all(
                 block.transactionIds.map(async (transactionId) => {
-                  const transactionResult = await get(transactionResults.get(transactionId)!)
+                  const transactionResult = await get.peek(transactionResults.get(transactionId)!)
 
                   return asTransactionSummary(transactionResult)
                 })
@@ -60,22 +52,21 @@ const createLatestBlockSummariesAtom = (_store: JotaiStore) => {
         )
       ).filter(isDefined)
 
-      set(dataAtom, latestBlockSummaries)
+      set(latestBlockSummariesAtom, latestBlockSummaries)
     })()
   })
 
-  return dataAtom
+  return atom((get) => {
+    get(refreshLatestBlockSummariesEffect)
+
+    return get(latestBlockSummariesAtom)
+  })
 }
 
-export const useLatestBlockSummariesAtom = (store: JotaiStore) => {
-  return useMemo(() => {
-    return createLatestBlockSummariesAtom(store)
-  }, [store])
-}
+export const latestBlockSummariesAtom = createLatestBlockSummariesAtom()
 
 export const useLatestBlockSummaries = () => {
-  const store = useStore()
-  return useAtomValue(useLatestBlockSummariesAtom(store))
+  return useAtomValue(latestBlockSummariesAtom)
 }
 
 const subscribeToBlocksEffect = atomEffect((get, set) => {
