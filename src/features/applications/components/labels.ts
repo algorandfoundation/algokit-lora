@@ -1,0 +1,7 @@
+export const applicationIdLabel = 'Application ID'
+export const applicationCreatorAccountLabel = 'Creator'
+export const applicationAccountLabel = 'Account'
+export const applicationGlobalStateByteLabel = 'Global State Byte'
+export const applicationGlobalStateUintLabel = 'Global State Uint'
+export const applicationLocalStateByteLabel = 'Local State Byte'
+export const applicationLocalStateUintLabel = 'Local State Uint'
