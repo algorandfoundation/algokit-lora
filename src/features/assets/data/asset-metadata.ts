@@ -77,7 +77,7 @@ export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
       return null
     }
 
-    const results =
+    let results =
       assetResult.params.manager && assetResult.params.manager !== ZERO_ADDRESS
         ? await indexer
             .searchForTransactions()
@@ -88,18 +88,22 @@ export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
             .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
             .do()
             .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address
-        : // The asset has been destroyed or is an immutable asset.
-          // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest
-          await executePaginatedRequest(
-            (res: TransactionSearchResults) => res.transactions,
-            (nextToken) => {
-              let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
-              if (nextToken) {
-                s = s.nextToken(nextToken)
-              }
-              return s
-            }
-          ).then((res) => res.reverse()) // reverse the order, so it's newest to oldest
+        : []
+    if (results.length === 0) {
+      // The asset has been destroyed or is an immutable asset.
+      // Or the asset doesn't have any config transactions by the manager account.
+      // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest
+      results = await executePaginatedRequest(
+        (res: TransactionSearchResults) => res.transactions,
+        (nextToken) => {
+          let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
+          if (nextToken) {
+            s = s.nextToken(nextToken)
+          }
+          return s
+        }
+      ).then((res) => res.reverse()) // reverse the order, so it's newest to oldest
+    }
 
     const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
       const isAssetConfigTransaction = t['tx-type'] === TransactionType.acfg
