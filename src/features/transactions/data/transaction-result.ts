@@ -3,7 +3,7 @@ import { TransactionId } from './types'
 import { indexer } from '@/features/common/data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { atom } from 'jotai'
-import { atomFam } from '@/features/common/data/atom-fam'
+import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 import { JotaiStore } from '@/features/common/data/types'
 
 const createTransactionResultAtom = (transactionId: TransactionId) =>
@@ -13,7 +13,7 @@ const createTransactionResultAtom = (transactionId: TransactionId) =>
     })
   })
 
-export const [transactionResultsAtom, getTransactionResultAtom] = atomFam((transactionId) => transactionId, createTransactionResultAtom)
+export const [transactionResultsAtom, getTransactionResultAtom] = atomsInAtom(createTransactionResultAtom, (transactionId) => transactionId)
 
 // TODO: NC - We could potentially not wrap this in an atom and just return Array of atoms
 // TODO: NC - There is probably a bit on the edges that need to adapt as well

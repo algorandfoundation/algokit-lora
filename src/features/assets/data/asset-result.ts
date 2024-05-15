@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import { AssetId, AssetResult } from './types'
 import { indexer, algod } from '@/features/common/data'
 import { asError, is404 } from '@/utils/error'
-import { atomFam } from '@/features/common/data/atom-fam'
+import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 
 export const algoAssetResult = {
@@ -39,8 +39,8 @@ const createAssetResultAtom = (assetId: AssetId) =>
     }
   })
 
-export const [assetResultsAtom, getAssetResultAtom] = atomFam(
-  (assetId) => assetId,
+export const [assetResultsAtom, getAssetResultAtom] = atomsInAtom(
   createAssetResultAtom,
+  (assetId) => assetId,
   new Map([[algoAssetResult.index, atom(algoAssetResult)]])
 )

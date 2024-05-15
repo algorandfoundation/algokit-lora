@@ -6,11 +6,10 @@ import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
-import { atomFam } from '@/features/common/data/atom-fam'
+import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 
 export const syncedRoundAtom = atom<Round | undefined>(undefined)
 
-// TODO: NC - We could implement this as a write only atom. It actually doesn't even need to be an atom
 export const createBlockLinkedConceptsAtom = (round: Round) => {
   return atom(async (_get) => {
     // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -51,15 +50,7 @@ export const createBlockLinkedConceptsAtom = (round: Round) => {
   })
 }
 
-// block
-// group
-
-// 3 ways to sync
-// direct block
-// realtime block
-// group
-
-export const setBlockLinkedConceptsAtom = atom(
+export const updateBlockLinkedEntitiesAtom = atom(
   null,
   (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
     if (transactionResults.length > 0) {
@@ -118,7 +109,7 @@ const createBlockResultAtom = (round: Round) => {
       })
 
       // Don't need to sync the block, as it's synced by atomFam due to this atom returning the block
-      set(setBlockLinkedConceptsAtom, [], transactionResults, groupResults)
+      set(updateBlockLinkedEntitiesAtom, [], transactionResults, groupResults)
     })()
   })
 
@@ -129,4 +120,4 @@ const createBlockResultAtom = (round: Round) => {
   })
 }
 
-export const [blockResultsAtom, getBlockResultAtom] = atomFam((round) => round, createBlockResultAtom)
+export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(createBlockResultAtom, (round) => round)
