@@ -1,4 +1,3 @@
-import { assetDetailsLabel } from '@/features/assets/components/labels'
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
@@ -6,14 +5,21 @@ import { Application } from '../models'
 import { useMemo } from 'react'
 import {
   applicationAccountLabel,
+  applicationApprovalProgramLabel,
+  applicationApprovalProgramTabsListAriaLabel,
+  applicationClearStateProgramLabel,
+  applicationClearStateProgramTabsListAriaLabel,
   applicationCreatorAccountLabel,
+  applicationDetailsLabel,
   applicationGlobalStateByteLabel,
   applicationGlobalStateUintLabel,
   applicationIdLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
+  applicationProgramsLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
+import { ApplicationProgram } from './application-program'
 
 type Props = {
   application: Application
@@ -64,9 +70,22 @@ export function ApplicationDetails({ application }: Props) {
 
   return (
     <div className={cn('space-y-6 pt-7')}>
-      <Card aria-label={assetDetailsLabel} className={cn('p-4')}>
+      <Card aria-label={applicationDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationDetailsLabel}</h1>
           <DescriptionList items={applicationItems} />
+        </CardContent>
+      </Card>
+      <Card aria-label={applicationProgramsLabel} className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationProgramsLabel}</h1>
+          <h1 className={cn('text-xl font-bold')}>{applicationApprovalProgramLabel}</h1>
+          <ApplicationProgram tabsListAriaLabel={applicationApprovalProgramTabsListAriaLabel} base64Program={application.approvalProgram} />
+          <h1 className={cn('text-xl font-bold')}>{applicationClearStateProgramLabel}</h1>
+          <ApplicationProgram
+            tabsListAriaLabel={applicationClearStateProgramTabsListAriaLabel}
+            base64Program={application.clearStateProgram}
+          />
         </CardContent>
       </Card>
     </div>

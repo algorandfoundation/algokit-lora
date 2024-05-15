@@ -14,7 +14,7 @@ import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
-import { base64LogicsigTabLabel, tealLogicsigTabLabel, logicsigLabel } from '../components/logicsig-details'
+import { logicsigLabel } from '../components/logicsig-details'
 import { algod } from '@/features/common/data'
 import {
   transactionVisualTableTabLabel,
@@ -77,6 +77,7 @@ import {
   voteLastValidLabel,
   voteParticipationKeyLabel,
 } from '../components/key-reg-transaction-info'
+import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applications/components/application-program'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -255,7 +256,7 @@ describe('transaction-page', () => {
             expect(logicsigTabList.children.length).toBe(2)
           })
 
-          const base64Tab = component.getByRole('tabpanel', { name: base64LogicsigTabLabel })
+          const base64Tab = component.getByRole('tabpanel', { name: base64ProgramTabLabel })
           expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active')
           expect(base64Tab.textContent).toBe(transaction.signature!.logicsig!.logic)
         }
@@ -277,9 +278,9 @@ describe('transaction-page', () => {
           await waitFor(async () => {
             const logicsigTabList = component.getByRole('tablist', { name: logicsigLabel })
             expect(logicsigTabList).toBeTruthy()
-            await user.click(getByRole(logicsigTabList, 'tab', { name: tealLogicsigTabLabel }))
+            await user.click(getByRole(logicsigTabList, 'tab', { name: tealProgramTabLabel }))
           })
-          const tealTab = component.getByRole('tabpanel', { name: tealLogicsigTabLabel })
+          const tealTab = component.getByRole('tabpanel', { name: tealProgramTabLabel })
           await waitFor(() => expect(tealTab.getAttribute('data-state'), 'Teal tab should be active').toBe('active'))
           expect(tealTab.textContent).toBe(teal)
         }
