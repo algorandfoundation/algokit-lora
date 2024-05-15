@@ -1,7 +1,5 @@
-import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { cn } from '@/features/common/utils'
-import { Account } from '../models'
-import { AccountTransactionHistory } from './account-transaction-history'
 
 const accountVisualTransactionTabId = 'visual'
 const accountVisualAssetsTabId = 'table'
@@ -15,11 +13,7 @@ export const accountVisualCreatedAssetsTabLabel = 'Created Assets'
 export const accountVisualCreatedApplicationsTabLabel = 'Created Applications'
 export const accountVisualOptedApplicationsTabLabel = 'Opted Applications'
 
-type Props = {
-  account: Account
-}
-
-export function AccountActivityTabs({ account }: Props) {
+export function AccountActivityTabs() {
   return (
     <Tabs defaultValue={accountVisualTransactionTabId}>
       <TabsList aria-label={accountDetailsLabel}>
@@ -54,13 +48,6 @@ export function AccountActivityTabs({ account }: Props) {
           {accountVisualOptedApplicationsTabLabel}
         </TabsTrigger>
       </TabsList>
-      <OverflowAutoTabsContent value={accountVisualTransactionTabId}>
-        <AccountTransactionHistory address={account.address} />
-      </OverflowAutoTabsContent>
-      <OverflowAutoTabsContent value={accountVisualAssetsTabId}></OverflowAutoTabsContent>
-      <OverflowAutoTabsContent value={accountVisualCreatedAssetsTabId}></OverflowAutoTabsContent>
-      <OverflowAutoTabsContent value={accountVisualCreatedApplicationsTabId}></OverflowAutoTabsContent>
-      <OverflowAutoTabsContent value={accountVisualOptedApplicationsTabId}></OverflowAutoTabsContent>
     </Tabs>
   )
 }
