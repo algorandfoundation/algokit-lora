@@ -102,7 +102,7 @@ describe('block-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, block]]))
-        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
         myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
 
         return executeComponentTest(

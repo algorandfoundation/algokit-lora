@@ -4,11 +4,14 @@ import { invariant } from '@/utils/invariant'
 
 // TODO: NC - Name this what we want
 // TODO: NC - Do we want to pass store around or set it as a global?
+
+// atomsInAtom
 export function atomFam<Param, Id extends string | number, Value>(
   idSelector: (param: Param) => Id,
   createValueAtom: (param: Param) => Atom<Value>,
   initialValuesState: Map<Id, Atom<Value>> = new Map()
 ) {
+  // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
   const valuesAtom = atom(initialValuesState)
 
   const getOrCreateValueAtom = atom(null, (get, set, param: Param) => {

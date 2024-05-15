@@ -4,7 +4,7 @@ import { render, waitFor } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
 import { atom, createStore } from 'jotai'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
-import { applicationResultsAtom } from '@/features/applications/data/core'
+import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { blockResultsAtom } from '@/features/blocks/data/core'
@@ -38,7 +38,7 @@ describe('search', () => {
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[blockResult.round, blockResult]]))
     myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
-    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, applicationResult]]))
+    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
 
     describe.each([
       {

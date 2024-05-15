@@ -17,36 +17,59 @@ import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
+import { BlockSummary } from '../models'
+import { atomWithDefault } from 'jotai/utils'
 
 const maxBlocksToDisplay = 5
 
-const latestBlockSummariesAtomBuilder = (store: JotaiStore) => {
-  return atom((get) => {
+// TODO: NC - This needs fixing, I'll come back to this
+const createLatestBlockSummariesAtom = (_store: JotaiStore) => {
+  const dataAtom = atomWithDefault<BlockSummary[]>((get) => {
+    get(setDataEffect)
+    return []
+  })
+
+  const setDataEffect = atomEffect((get, set) => {
     const syncedRound = get(syncedRoundAtom)
     if (!syncedRound) {
-      return []
+      return
     }
-    const blockResults = store.get(blockResultsAtom)
-    const transactionResults = store.get(transactionResultsAtom)
 
-    return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
-      const round = syncedRound - i
-      const block = blockResults.get(round)
+    const blockResults = get.peek(blockResultsAtom)
+    const transactionResults = get.peek(transactionResultsAtom)
 
-      if (block) {
-        const transactionSummaries = block.transactionIds.map((transactionId) => {
-          return asTransactionSummary(transactionResults.get(transactionId)!)
-        })
+    ;(async () => {
+      const latestBlockSummaries = (
+        await Promise.all(
+          Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
+            const round = syncedRound - i
+            const block = blockResults.get(round)
 
-        return asBlockSummary(block, transactionSummaries)
-      }
-    }).filter(isDefined)
+            if (block) {
+              const transactionSummaries = await Promise.all(
+                block.transactionIds.map(async (transactionId) => {
+                  const transactionResult = await get(transactionResults.get(transactionId)!)
+
+                  return asTransactionSummary(transactionResult)
+                })
+              )
+
+              return asBlockSummary(block, transactionSummaries)
+            }
+          })
+        )
+      ).filter(isDefined)
+
+      set(dataAtom, latestBlockSummaries)
+    })()
   })
+
+  return dataAtom
 }
 
 export const useLatestBlockSummariesAtom = (store: JotaiStore) => {
   return useMemo(() => {
-    return latestBlockSummariesAtomBuilder(store)
+    return createLatestBlockSummariesAtom(store)
   }, [store])
 }
 
@@ -113,7 +136,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     set(transactionResultsAtom, (prev) => {
       const next = new Map(prev)
       transactions.forEach((value, key) => {
-        next.set(key, value)
+        next.set(key, atom(value))
       })
       return next
     })

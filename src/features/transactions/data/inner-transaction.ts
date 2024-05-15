@@ -7,9 +7,9 @@ import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { createAssetSummaryAtom } from '@/features/assets/data'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
-import { fetchTransactionResultAtomBuilder } from './transaction'
+import { getTransactionResultAtom } from './transaction-result'
 
-export const fetchInnerTransactionAtomBuilder = (
+export const createInnerTransactionAtom = (
   store: JotaiStore,
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
   innerId: string
@@ -37,7 +37,7 @@ const useInnerTransactionAtom = (transactionId: TransactionId, innerId: string) 
   const store = useStore()
 
   return useMemo(() => {
-    return fetchInnerTransactionAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId), innerId)
+    return createInnerTransactionAtom(store, getTransactionResultAtom(store, transactionId), innerId)
   }, [store, transactionId, innerId])
 }
 

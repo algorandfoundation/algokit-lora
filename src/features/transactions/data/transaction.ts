@@ -1,57 +1,17 @@
 import { Atom, atom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
-import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { invariant } from '@/utils/invariant'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { TransactionId } from './types'
-import { indexer } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { createAssetSummaryAtom, createAssetSummariesAtom } from '@/features/assets/data'
 import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
-import { transactionResultsAtom } from './core'
+import { getTransactionResultAtom } from './transaction-result'
 
-export const fetchTransactionResultAtomBuilder = (store: JotaiStore, transactionId: TransactionId) => {
-  const syncEffect = atomEffect((get, set) => {
-    ;(async () => {
-      try {
-        const transactionResult = await get(transactionResultAtom)
-        set(transactionResultsAtom, (prev) => {
-          const next = new Map(prev)
-          next.set(transactionResult.id, transactionResult)
-          return next
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
-  })
-  const transactionResultAtom = atom((get) => {
-    const transactionResults = store.get(transactionResultsAtom)
-    const cachedTransactionResult = transactionResults.get(transactionId)
-    if (cachedTransactionResult) {
-      return cachedTransactionResult
-    }
-
-    get(syncEffect)
-
-    return lookupTransactionById(transactionId, indexer).then((result) => {
-      return result.transaction
-    })
-  })
-  return transactionResultAtom
-}
-
-export const fetchTransactionResultsAtomBuilder = (store: JotaiStore, transactionIds: TransactionId[]) => {
-  return atom((get) => {
-    return Promise.all(transactionIds.map((transactionId) => get(fetchTransactionResultAtomBuilder(store, transactionId))))
-  })
-}
-
-export const fetchTransactionsAtomBuilder = (
+export const createTransactionsAtom = (
   store: JotaiStore,
   transactionResults: TransactionResult[] | Atom<TransactionResult[] | Promise<TransactionResult[]>>
 ) => {
@@ -101,7 +61,7 @@ export const fetchTransactionsAtomBuilder = (
   })
 }
 
-export const fetchTransactionAtomBuilder = (
+export const createTransactionAtom = (
   store: JotaiStore,
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>
 ) => {
@@ -115,7 +75,7 @@ const useTransactionAtom = (transactionId: TransactionId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchTransactionAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId))
+    return createTransactionAtom(store, getTransactionResultAtom(store, transactionId))
   }, [store, transactionId])
 }
 

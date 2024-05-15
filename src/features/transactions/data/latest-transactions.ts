@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 const maxTransactionsToDisplay = 50
 
-const latestTransactionSummariesAtomBuilder = (latestBlockSummariesAtom: ReturnType<typeof useLatestBlockSummariesAtom>) => {
+const createLatestTransactionSummariesAtom = (latestBlockSummariesAtom: ReturnType<typeof useLatestBlockSummariesAtom>) => {
   return atom((get) => {
     const latestBlockSummaries = get(latestBlockSummariesAtom)
     return latestBlockSummaries.flatMap((b) => b.transactions).splice(0, maxTransactionsToDisplay)
@@ -13,7 +13,7 @@ const latestTransactionSummariesAtomBuilder = (latestBlockSummariesAtom: ReturnT
 
 const useLatestTransactionSummariesAtom = (latestBlockSummariesAtom: ReturnType<typeof useLatestBlockSummariesAtom>) => {
   return useMemo(() => {
-    return latestTransactionSummariesAtomBuilder(latestBlockSummariesAtom)
+    return createLatestTransactionSummariesAtom(latestBlockSummariesAtom)
   }, [latestBlockSummariesAtom])
 }
 

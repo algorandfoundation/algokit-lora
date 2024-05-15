@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
 import { Urls } from '@/routes/urls'
 import { is404 } from '@/utils/error'
-import { getApplicationAtomBuilder } from '@/features/applications/data'
 import { createAssetSummaryAtom } from '@/features/assets/data'
 import { SearchResult, SearchResultType } from '../models'
 import { ellipseAddress } from '@/utils/ellipse-address'
@@ -15,6 +14,7 @@ import { atomWithDebounce } from '@/features/common/data'
 import { isAddress } from '@/utils/is-address'
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { isInteger } from '@/utils/is-integer'
+import { createApplicationAtom } from '@/features/applications/data'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -23,7 +23,7 @@ const handle404 = (e: Error) => {
   throw e
 }
 
-const getSearchAtomsBuilder = (store: JotaiStore) => {
+const createSearchAtoms = (store: JotaiStore) => {
   const [currentTermAtom, termAtom, isDebouncingAtom] = atomWithDebounce<string>('')
   const searchResultsAtom = atom(async (get) => {
     // Return an async forever value if we are debouncing, so we can render a loader
@@ -66,7 +66,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
         }
 
         const assetAtom = createAssetSummaryAtom(store, id)
-        const applicationAtom = getApplicationAtomBuilder(store, id)
+        const applicationAtom = createApplicationAtom(store, id)
 
         try {
           const [asset, application] = await Promise.all([
@@ -107,7 +107,7 @@ const getSearchAtomsBuilder = (store: JotaiStore) => {
 const useSearchAtoms = () => {
   const store = useStore()
   return useMemo(() => {
-    return getSearchAtomsBuilder(store)
+    return createSearchAtoms(store)
   }, [store])
 }
 

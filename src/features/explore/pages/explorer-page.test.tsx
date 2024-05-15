@@ -1,6 +1,6 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { getAllByRole, getByRole, queryAllByRole, render, waitFor } from '@/tests/testing-library'
-import { createStore } from 'jotai'
+import { Atom, atom, createStore } from 'jotai'
 import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
@@ -55,7 +55,7 @@ describe('explore-page', () => {
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[block.round, block]]))
-    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
+    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
     myStore.set(syncedRoundAtom, block.round)
 
     it('the processed blocks are displayed', () => {
@@ -110,13 +110,13 @@ describe('explore-page', () => {
         return {
           syncedRound: block.round > acc.syncedRound ? block.round : acc.syncedRound,
           blocks: new Map([...acc.blocks, [block.round, block]]),
-          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, t] as const)]),
+          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, atom(t)] as const)]),
         }
       },
       {
         syncedRound: 0,
         blocks: new Map<Round, BlockResult>(),
-        transactions: new Map<TransactionId, TransactionResult>(),
+        transactions: new Map<TransactionId, Atom<TransactionResult>>(),
       }
     )
 

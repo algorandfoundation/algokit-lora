@@ -80,7 +80,7 @@ describe('block-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
       const myStore = createStore()
       myStore.set(groupResultsAtom, new Map([[group.id, group]]))
-      myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, x])))
+      myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
       myStore.set(
         assetResultsAtom,
         new Map([[algoAssetResult.index, atom(algoAssetResult)], ...assets.map((a) => [a.index, atom(a)] as const)])

@@ -5,7 +5,7 @@ import { GroupId } from './types'
 import { asGroup } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
-import { fetchTransactionResultsAtomBuilder, fetchTransactionsAtomBuilder } from '@/features/transactions/data'
+import { getTransactionResultsAtom, createTransactionsAtom } from '@/features/transactions/data'
 import { groupResultsAtom } from './core'
 import { fetchBlockResultAtomBuilder, syncBlockAtomEffectBuilder } from '@/features/blocks/data'
 import { invariant } from '@/utils/invariant'
@@ -29,16 +29,14 @@ const getGroupAtomBuilder = (store: JotaiStore, round: Round, groupId: GroupId) 
     const groupResults = store.get(groupResultsAtom)
     const cachedGroupResult = groupResults.get(groupId)
     if (cachedGroupResult) {
-      const transactions = await get(
-        fetchTransactionsAtomBuilder(store, fetchTransactionResultsAtomBuilder(store, cachedGroupResult.transactionIds))
-      )
+      const transactions = await get(createTransactionsAtom(store, getTransactionResultsAtom(store, cachedGroupResult.transactionIds)))
       return asGroup(cachedGroupResult, transactions)
     }
 
     get(syncEffect)
 
     const [groupResult, transactionResults] = await get(fetchGroupResultAtom)
-    const transactions = await get(fetchTransactionsAtomBuilder(store, transactionResults))
+    const transactions = await get(createTransactionsAtom(store, transactionResults))
     return asGroup(groupResult, transactions)
   })
 }

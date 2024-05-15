@@ -3,7 +3,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { indexer } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
-import { fetchTransactionResultsAtomBuilder, fetchTransactionsAtomBuilder, transactionResultsAtom } from '@/features/transactions/data'
+import { getTransactionResultsAtom, createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { asBlock } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
@@ -21,6 +21,7 @@ const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
   })
 }
 
+// TODO: NC - This thing returned here should be a type and have a concept wrapping it
 export const fetchBlockResultAtomBuilder = (round: Round) => {
   return atom(async (_get) => {
     return await indexer
@@ -68,7 +69,9 @@ export const syncBlockAtomEffectBuilder = (fetchBlockResultAtom: ReturnType<type
           set(transactionResultsAtom, (prev) => {
             const next = new Map(prev)
             transactionResults.forEach((t) => {
-              next.set(t.id, t)
+              if (!next.has(t.id)) {
+                next.set(t.id, atom(t))
+              }
             })
             return next
           })
@@ -78,7 +81,9 @@ export const syncBlockAtomEffectBuilder = (fetchBlockResultAtom: ReturnType<type
           set(groupResultsAtom, (prev) => {
             const next = new Map(prev)
             groupResults.forEach((g) => {
-              next.set(g.id, g)
+              if (!next.has(g.id)) {
+                next.set(g.id, g)
+              }
             })
             return next
           })
@@ -105,16 +110,14 @@ const getBlockAtomBuilder = (store: JotaiStore, round: Round) => {
     const cachedBlockResult = blockResults.get(round)
     const nextRoundAvailable = get(nextRoundAvailableAtomBuilder(store, round))
     if (cachedBlockResult) {
-      const transactions = await get(
-        fetchTransactionsAtomBuilder(store, fetchTransactionResultsAtomBuilder(store, cachedBlockResult.transactionIds))
-      )
+      const transactions = await get(createTransactionsAtom(store, getTransactionResultsAtom(store, cachedBlockResult.transactionIds)))
       return asBlock(cachedBlockResult, transactions, nextRoundAvailable)
     }
 
     get(syncEffect)
 
     const [blockResult, transactionResults] = await get(fetchBlockResultAtom)
-    const transactions = await get(fetchTransactionsAtomBuilder(store, transactionResults))
+    const transactions = await get(createTransactionsAtom(store, transactionResults))
     return asBlock(blockResult, transactions, nextRoundAvailable)
   })
 }

@@ -3,7 +3,7 @@ import { indexer } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useMemo } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
-import { fetchTransactionsAtomBuilder, transactionResultsAtom } from '@/features/transactions/data'
+import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
 
@@ -20,14 +20,16 @@ const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, 
   } as const
 }
 
-const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
+const createSyncEffect = (transactionResults: TransactionResult[]) => {
   return atomEffect((_, set) => {
     ;(async () => {
       try {
         set(transactionResultsAtom, (prev) => {
           const next = new Map(prev)
           transactionResults.forEach((transactionResult) => {
-            next.set(transactionResult.id, transactionResult)
+            if (!next.has(transactionResult.id)) {
+              next.set(transactionResult.id, atom(transactionResult))
+            }
           })
           return next
         })
@@ -38,13 +40,13 @@ const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
+const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   return atom(async (get) => {
     const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetId, pageSize, nextPageToken)
 
-    get(syncEffectBuilder(transactionResults))
+    get(createSyncEffect(transactionResults))
 
-    const transactions = await get(fetchTransactionsAtomBuilder(store, transactionResults))
+    const transactions = await get(createTransactionsAtom(store, transactionResults))
 
     return {
       rows: transactions,
@@ -57,6 +59,6 @@ export const useFetchNextAssetTransactionsPage = (assetId: AssetId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => fetchAssetTransactionsAtomBuilder(store, assetId, pageSize, nextPageToken)
+    return (pageSize: number, nextPageToken?: string) => createAssetTransactionsAtom(store, assetId, pageSize, nextPageToken)
   }, [store, assetId])
 }
