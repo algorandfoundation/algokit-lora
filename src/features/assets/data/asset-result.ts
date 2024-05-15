@@ -4,7 +4,6 @@ import { indexer, algod } from '@/features/common/data'
 import { asError, is404 } from '@/utils/error'
 import { atomFam } from '@/features/common/data/atom-fam'
 import { ZERO_ADDRESS } from '@/features/common/constants'
-import { JotaiStore } from '@/features/common/data/types'
 
 export const algoAssetResult = {
   index: 0,
@@ -40,11 +39,8 @@ const createAssetResultAtom = (assetId: AssetId) =>
     }
   })
 
-const [_assetResultsAtom, _getAssetResultAtom] = atomFam(
-  (id) => id,
+export const [assetResultsAtom, getAssetResultAtom] = atomFam(
+  (assetId) => assetId,
   createAssetResultAtom,
   new Map([[algoAssetResult.index, atom(algoAssetResult)]])
 )
-
-export const assetResultsAtom = _assetResultsAtom
-export const getAssetResultAtom = (store: JotaiStore, assetId: AssetId) => _getAssetResultAtom(store, assetId)

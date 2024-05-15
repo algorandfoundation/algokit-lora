@@ -13,10 +13,7 @@ const createTransactionResultAtom = (transactionId: TransactionId) =>
     })
   })
 
-const [_transactionResultsAtom, _getTransactionResultAtom] = atomFam((id) => id, createTransactionResultAtom)
-
-export const transactionResultsAtom = _transactionResultsAtom
-export const getTransactionResultAtom = (store: JotaiStore, transactionId: TransactionId) => _getTransactionResultAtom(store, transactionId)
+export const [transactionResultsAtom, getTransactionResultAtom] = atomFam((transactionId) => transactionId, createTransactionResultAtom)
 
 export const getTransactionResultsAtom = (store: JotaiStore, transactionIds: TransactionId[]) => {
   return atom((get) => {

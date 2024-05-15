@@ -1,5 +1,4 @@
 import { atom } from 'jotai'
-import { JotaiStore } from '@/features/common/data/types'
 import { AssetResult, TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
@@ -113,7 +112,7 @@ export const createAssetMetadataResultAtom = (assetResult: AssetResult) =>
     return await createAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
   })
 
-const [_assetMetadataResultsAtom, _getAssetMetadataResultAtom] = atomFam((assetResult) => assetResult.index, createAssetMetadataResultAtom)
-
-export const assetMetadataResultsAtom = _assetMetadataResultsAtom
-export const getAssetMetadataResultAtom = (store: JotaiStore, assetResult: AssetResult) => _getAssetMetadataResultAtom(store, assetResult)
+export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = atomFam(
+  (assetResult) => assetResult.index,
+  createAssetMetadataResultAtom
+)
