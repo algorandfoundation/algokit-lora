@@ -81,7 +81,7 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
         type: AssetMediaType.Video,
       }
     }
-  } else if (!metadataResult && assetResult.params.url?.startsWith('ipfs://')) {
+  } else if (!metadataResult && (assetResult.params.url?.startsWith('ipfs://') || assetResult.params.url?.includes('/ipfs/'))) {
     // There are a lot of NFTs which use the URL to store the ipfs image, however don't follow any standard
     return {
       url: replaceIpfsWithGatewayIfNeeded(assetResult.params.url),
