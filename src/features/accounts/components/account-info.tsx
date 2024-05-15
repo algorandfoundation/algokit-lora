@@ -36,7 +36,7 @@ export function AccountInfo({ account }: { account: Account }) {
       },
       {
         dt: accountCreatedAssetsLabel,
-        dd: account.totalCreatedAssets ? account.totalCreatedAssets : 0,
+        dd: account.totalCreatedAssets,
       },
       {
         dt: accountCreatedApplicationsLabel,
@@ -46,14 +46,15 @@ export function AccountInfo({ account }: { account: Account }) {
         dt: accountOptedApplicationsLabel,
         dd: account.totalAssetsOptedIn ? account.totalAssetsOptedIn : 0,
       },
+      ...(account.rekeyedTo
+        ? [
+            {
+              dt: accountRekeyedToLabel,
+              dd: <AccountLink address={account.rekeyedTo}></AccountLink>,
+            },
+          ]
+        : []),
     ]
-
-    account.rekeyedTo &&
-      items.push({
-        dt: accountRekeyedToLabel,
-        dd: <AccountLink address={account.rekeyedTo}></AccountLink>,
-      })
-
     return items
   }, [
     account.address,

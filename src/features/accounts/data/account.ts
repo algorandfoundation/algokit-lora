@@ -26,7 +26,7 @@ export const getAccountAtomBuilder = (store: JotaiStore, address: Address) => {
       try {
         const accountResult = await get(fetchAccountResultAtom)
         set(accountResultsAtom, (prev) => {
-          return prev.set(accountResult.address, accountResult)
+          return new Map(prev).set(accountResult.address, accountResult)
         })
       } catch (e) {
         // Ignore any errors as there is nothing to sync
