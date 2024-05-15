@@ -23,7 +23,6 @@ const handle404 = (e: Error) => {
   throw e
 }
 
-// TODO: NC - I think we can do this without the store
 const createSearchAtoms = (store: JotaiStore) => {
   const [currentTermAtom, termAtom, isDebouncingAtom] = atomWithDebounce<string>('')
   const searchResultsAtom = atom(async (get) => {

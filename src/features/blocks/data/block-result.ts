@@ -10,6 +10,7 @@ import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 
 export const syncedRoundAtom = atom<Round | undefined>(undefined)
 
+// TODO: NC - Maybe this is a createExtractedFromBlockAtom?
 export const createBlockLinkedConceptsAtom = (round: Round) => {
   return atom(async (_get) => {
     // We  use indexer instead of algod, as algod might not have the full history of blocks

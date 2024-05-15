@@ -13,6 +13,7 @@ export const createAssetSummaryAtom = (store: JotaiStore, assetId: AssetId) => {
   })
 }
 
+// TODO: NC - Change this to createAssetSummaryAtoms (separate PR)
 export const createAssetSummariesAtom = (store: JotaiStore, assetId: AssetId[]) => {
   return atom((get) => {
     return Promise.all(assetId.map((assetId) => get(createAssetSummaryAtom(store, assetId))))

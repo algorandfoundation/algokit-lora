@@ -13,10 +13,14 @@ import { getTransactionResultAtom } from './transaction-result'
 
 export const createTransactionsAtom = (
   store: JotaiStore,
-  transactionResults: TransactionResult[] | Atom<TransactionResult[] | Promise<TransactionResult[]>>
+  transactionResults: TransactionResult[] | Atom<Promise<TransactionResult> | TransactionResult>[]
 ) => {
   return atom(async (get) => {
-    const txns = Array.isArray(transactionResults) ? transactionResults : await get(transactionResults)
+    const txns = await Promise.all(
+      transactionResults.map(async (transactionResult) => {
+        return 'id' in transactionResult ? transactionResult : await get(transactionResult)
+      })
+    )
     const assetIds = Array.from(
       txns.reduce((acc, txn) => {
         if (txn['tx-type'] === AlgoSdkTransactionType.axfer && txn['asset-transfer-transaction']) {
@@ -51,6 +55,7 @@ export const createTransactionsAtom = (
 
     return await Promise.all(
       txns.map((transactionResult) => {
+        // TODO: NC - I don't think we need the asset mapping, we can do this dynamically (separate PR)
         return asTransaction(transactionResult, (assetId: number) => {
           const asset = assets.get(assetId)
           invariant(asset, `when mapping ${transactionResult.id}, asset with id ${assetId} could not be retrieved`)

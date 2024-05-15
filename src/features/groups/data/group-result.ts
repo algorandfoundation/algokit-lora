@@ -11,7 +11,7 @@ const createGroupResultAtom = (groupId: GroupId, round: Round) => {
   // TODO: NC - Give this a good name
   const blockLinkedConceptsAtom = createBlockLinkedConceptsAtom(round)
 
-  // TODO: NC - Lots of duplication. Can we name this better?
+  // TODO: NC - Can we name this better?
   const syncLinkedConceptsEffect = atomEffect((get, set) => {
     ;(async () => {
       const [blockResult, transactionResults, _] = await get(blockLinkedConceptsAtom).catch(() => {
