@@ -10,8 +10,7 @@ import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 
 export const syncedRoundAtom = atom<Round | undefined>(undefined)
 
-// TODO: NC - Maybe this is a createExtractedFromBlockAtom?
-export const createBlockLinkedConceptsAtom = (round: Round) => {
+export const createBlockExtractAtom = (round: Round) => {
   return atom(async (_get) => {
     // We  use indexer instead of algod, as algod might not have the full history of blocks
     const result = await indexer
@@ -51,7 +50,7 @@ export const createBlockLinkedConceptsAtom = (round: Round) => {
   })
 }
 
-export const updateBlockLinkedEntitiesAtom = atom(
+export const addStateExtractFromBlocksAtom = atom(
   null,
   (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
     if (transactionResults.length > 0) {
@@ -99,24 +98,23 @@ export const updateBlockLinkedEntitiesAtom = atom(
 )
 
 const createBlockResultAtom = (round: Round) => {
-  // TODO: NC - Give this a good name
-  const blockLinkedConceptsAtom = createBlockLinkedConceptsAtom(round)
+  const blockExtractAtom = createBlockExtractAtom(round)
 
-  const syncLinkedConceptsEffect = atomEffect((get, set) => {
+  const syncStateExtractedFromBlockEffect = atomEffect((get, set) => {
     ;(async () => {
-      const [_, transactionResults, groupResults] = await get(blockLinkedConceptsAtom).catch(() => {
+      const [_, transactionResults, groupResults] = await get(blockExtractAtom).catch(() => {
         // Ignore any errors as the fetch operation has failed and we have nothing to sync
         return [null, [] as TransactionResult[], [] as GroupResult[]] as const
       })
 
-      // Don't need to sync the block, as it's synced by atomFam due to this atom returning the block
-      set(updateBlockLinkedEntitiesAtom, [], transactionResults, groupResults)
+      // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
+      set(addStateExtractFromBlocksAtom, [], transactionResults, groupResults)
     })()
   })
 
   return atom<Promise<BlockResult> | BlockResult>(async (get) => {
-    get(syncLinkedConceptsEffect)
-    const [blockResult] = await get(blockLinkedConceptsAtom)
+    get(syncStateExtractedFromBlockEffect)
+    const [blockResult] = await get(blockExtractAtom)
     return blockResult
   })
 }

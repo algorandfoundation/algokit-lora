@@ -14,7 +14,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
-import { blockResultsAtom, updateBlockLinkedEntitiesAtom, syncedRoundAtom } from './block-result'
+import { blockResultsAtom, addStateExtractFromBlocksAtom, syncedRoundAtom } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
 
@@ -161,7 +161,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       })
     }
 
-    set(updateBlockLinkedEntitiesAtom, blockResults, transactionResults, Array.from(groupResults.values()))
+    set(addStateExtractFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
   })
 
   subscriber.start()
