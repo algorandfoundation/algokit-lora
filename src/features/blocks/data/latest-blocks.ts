@@ -8,7 +8,6 @@ import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { algod } from '@/features/common/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
@@ -16,6 +15,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
+import { blockResultsAtom, syncedRoundAtom } from './block-result'
 
 const maxBlocksToDisplay = 5
 
@@ -35,9 +35,10 @@ const createLatestBlockSummariesAtom = () => {
         await Promise.all(
           Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
             const round = syncedRound - i
-            const block = blockResults.get(round)
+            const blockAtom = blockResults.get(round)
 
-            if (block) {
+            if (blockAtom) {
+              const block = await get(blockAtom)
               const transactionSummaries = await Promise.all(
                 block.transactionIds.map(async (transactionId) => {
                   const transactionResult = await get.peek(transactionResults.get(transactionId)!)
@@ -113,6 +114,8 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       [new Map<Round, string[]>(), new Map<TransactionId, TransactionResult>()] as const
     )
 
+    // TODO: NC - Groups aren't being added here, but they should be (come back to this)
+
     const blocks = result.blockMetadata.map((b) => {
       return [
         b.round,
@@ -163,7 +166,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     set(blockResultsAtom, (prev) => {
       const next = new Map(prev)
       blocks.forEach(([key, value]) => {
-        next.set(key, value)
+        next.set(key, atom(value))
       })
       return next
     })

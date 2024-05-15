@@ -7,7 +7,7 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { blockResultMother } from '@/tests/object-mother/block-result'
-import { blockResultsAtom } from '@/features/blocks/data/core'
+import { blockResultsAtom } from '@/features/blocks/data'
 import { useNavigate } from 'react-router-dom'
 import { SearchResultType } from '../models'
 import { assetResultsAtom } from '@/features/assets/data'
@@ -36,7 +36,7 @@ describe('search', () => {
     const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
 
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[blockResult.round, blockResult]]))
+    myStore.set(blockResultsAtom, new Map([[blockResult.round, atom(blockResult)]]))
     myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
 

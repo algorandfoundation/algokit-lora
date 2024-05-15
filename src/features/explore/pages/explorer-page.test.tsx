@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
-import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data/core'
+import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -54,7 +54,7 @@ describe('explore-page', () => {
     const transactionResults = [transactionResult1]
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[block.round, block]]))
+    myStore.set(blockResultsAtom, new Map([[block.round, atom(block)]]))
     myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
     myStore.set(syncedRoundAtom, block.round)
 
@@ -109,13 +109,13 @@ describe('explore-page', () => {
       (acc, [block, transactions]) => {
         return {
           syncedRound: block.round > acc.syncedRound ? block.round : acc.syncedRound,
-          blocks: new Map([...acc.blocks, [block.round, block]]),
+          blocks: new Map([...acc.blocks, [block.round, atom(block)]]),
           transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, atom(t)] as const)]),
         }
       },
       {
         syncedRound: 0,
-        blocks: new Map<Round, BlockResult>(),
+        blocks: new Map<Round, Atom<BlockResult>>(),
         transactions: new Map<TransactionId, Atom<TransactionResult>>(),
       }
     )

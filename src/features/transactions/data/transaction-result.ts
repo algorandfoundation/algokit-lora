@@ -15,6 +15,8 @@ const createTransactionResultAtom = (transactionId: TransactionId) =>
 
 export const [transactionResultsAtom, getTransactionResultAtom] = atomFam((transactionId) => transactionId, createTransactionResultAtom)
 
+// TODO: NC - We could potentially not wrap this in an atom and just return Array of atoms
+// TODO: NC - There is probably a bit on the edges that need to adapt as well
 export const getTransactionResultsAtom = (store: JotaiStore, transactionIds: TransactionId[]) => {
   return atom((get) => {
     return Promise.all(transactionIds.map((transactionId) => get(getTransactionResultAtom(store, transactionId))))
