@@ -12,6 +12,7 @@ import {
   applicationCreatorAccountLabel,
   applicationDetailsLabel,
   applicationGlobalStateByteLabel,
+  applicationGlobalStateLabel,
   applicationGlobalStateUintLabel,
   applicationIdLabel,
   applicationLocalStateByteLabel,
@@ -20,6 +21,7 @@ import {
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationProgram } from './application-program'
+import { ApplicationGlobalStateTable } from './application-global-state-table'
 
 type Props = {
   application: Application
@@ -86,6 +88,12 @@ export function ApplicationDetails({ application }: Props) {
             tabsListAriaLabel={applicationClearStateProgramTabsListAriaLabel}
             base64Program={application.clearStateProgram}
           />
+        </CardContent>
+      </Card>
+      <Card aria-label={applicationGlobalStateLabel} className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationGlobalStateLabel}</h1>
+          <ApplicationGlobalStateTable application={application} />
         </CardContent>
       </Card>
     </div>
