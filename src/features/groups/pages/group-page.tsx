@@ -24,12 +24,12 @@ const transformError = (e: Error) => {
 }
 
 export function GroupPage() {
-  const { round } = useRequiredParam(UrlParams.Round)
-  invariant(isInteger(round), blockInvalidRoundMessage)
+  const { round: _round } = useRequiredParam(UrlParams.Round)
+  invariant(isInteger(_round), blockInvalidRoundMessage)
   const { groupId } = useRequiredParam(UrlParams.GroupId)
 
-  const roundNumber = parseInt(round, 10)
-  const loadableGroup = useLoadableGroup(roundNumber, groupId)
+  const round = parseInt(_round, 10)
+  const loadableGroup = useLoadableGroup(groupId, round)
 
   return (
     <div>

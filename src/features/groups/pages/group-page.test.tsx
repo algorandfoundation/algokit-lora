@@ -7,7 +7,7 @@ import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { atom, createStore } from 'jotai'
-import { groupResultsAtom } from '../data/core'
+import { groupResultsAtom } from '../data'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { blockLabel, groupIdLabel, timestampLabel, transactionsLabel } from '../components/group-details'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
@@ -79,7 +79,7 @@ describe('block-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
       const myStore = createStore()
-      myStore.set(groupResultsAtom, new Map([[group.id, group]]))
+      myStore.set(groupResultsAtom, new Map([[group.id, atom(group)]]))
       myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
       myStore.set(
         assetResultsAtom,

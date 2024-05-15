@@ -24,10 +24,10 @@ export const blockInvalidRoundMessage = 'Round is invalid'
 export const blockFailedToLoadMessage = 'Block failed to load'
 
 export function BlockPage() {
-  const { round } = useRequiredParam(UrlParams.Round)
-  invariant(isInteger(round), blockInvalidRoundMessage)
-  const roundNumber = parseInt(round, 10)
-  const loadableBlock = useLoadableBlock(roundNumber)
+  const { round: _round } = useRequiredParam(UrlParams.Round)
+  invariant(isInteger(_round), blockInvalidRoundMessage)
+  const round = parseInt(_round, 10)
+  const loadableBlock = useLoadableBlock(round)
 
   return (
     <div>

@@ -4,15 +4,15 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { atomEffect } from 'jotai-effect'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
-import { groupResultsAtom } from '@/features/groups/data/core'
+import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { atomFam } from '@/features/common/data/atom-fam'
 
 export const syncedRoundAtom = atom<Round | undefined>(undefined)
 
-export const createBlockResultAtom = (round: Round) => {
-  // TODO: NC - Give this a good name
-  const blockLinkedConceptsAtom = atom(async (_get) => {
+// TODO: NC - We could implement this as a write only atom. It actually doesn't even need to be an atom
+export const createBlockLinkedConceptsAtom = (round: Round) => {
+  return atom(async (_get) => {
     // We  use indexer instead of algod, as algod might not have the full history of blocks
     const result = await indexer
       .lookupBlock(round)
@@ -43,43 +43,82 @@ export const createBlockResultAtom = (round: Round) => {
             transactionIds,
           } as BlockResult,
           (result.transactions ?? []) as TransactionResult[],
-          groupResults,
+          Array.from(groupResults.values()),
         ] as const
       })
 
     return result
   })
+}
+
+// block
+// group
+
+// 3 ways to sync
+// direct block
+// realtime block
+// group
+
+export const setBlockLinkedConceptsAtom = atom(
+  null,
+  (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
+    if (transactionResults.length > 0) {
+      const currentTransactionResults = get(transactionResultsAtom)
+      const transactionResultsToAdd = transactionResults.filter((t) => !currentTransactionResults.has(t.id))
+      set(transactionResultsAtom, (prev) => {
+        const next = new Map(prev)
+        transactionResultsToAdd.forEach((transactionResult) => {
+          if (!next.has(transactionResult.id)) {
+            next.set(transactionResult.id, atom(transactionResult))
+          }
+        })
+        return next
+      })
+    }
+
+    if (groupResults.length > 0) {
+      const currentGroupResults = get(groupResultsAtom)
+      const groupResultsToAdd = groupResults.filter((groupResult) => !currentGroupResults.has(groupResult.id))
+      set(groupResultsAtom, (prev) => {
+        const next = new Map(prev)
+        groupResultsToAdd.forEach((groupResult) => {
+          if (!next.has(groupResult.id)) {
+            next.set(groupResult.id, atom(groupResult))
+          }
+        })
+        return next
+      })
+    }
+
+    if (blockResults.length > 0) {
+      const currentBlockResults = get(blockResultsAtom)
+      const blockResultsToAdd = blockResults.filter((blockResult) => !currentBlockResults.has(blockResult.round))
+      set(blockResultsAtom, (prev) => {
+        const next = new Map(prev)
+        blockResultsToAdd.forEach((blockResult) => {
+          if (!next.has(blockResult.round)) {
+            next.set(blockResult.round, atom(blockResult))
+          }
+        })
+        return next
+      })
+    }
+  }
+)
+
+const createBlockResultAtom = (round: Round) => {
+  // TODO: NC - Give this a good name
+  const blockLinkedConceptsAtom = createBlockLinkedConceptsAtom(round)
 
   const syncLinkedConceptsEffect = atomEffect((get, set) => {
     ;(async () => {
       const [_, transactionResults, groupResults] = await get(blockLinkedConceptsAtom).catch(() => {
         // Ignore any errors as the fetch operation has failed and we have nothing to sync
-        return [null, [] as TransactionResult[], new Map<string, GroupResult>()] as const
+        return [null, [] as TransactionResult[], [] as GroupResult[]] as const
       })
 
-      if (transactionResults.length > 0) {
-        set(transactionResultsAtom, (prev) => {
-          const next = new Map(prev)
-          transactionResults.forEach((t) => {
-            if (!next.has(t.id)) {
-              next.set(t.id, atom(t))
-            }
-          })
-          return next
-        })
-      }
-
-      if (groupResults.size > 0) {
-        set(groupResultsAtom, (prev) => {
-          const next = new Map(prev)
-          groupResults.forEach((g) => {
-            if (!next.has(g.id)) {
-              next.set(g.id, g)
-            }
-          })
-          return next
-        })
-      }
+      // Don't need to sync the block, as it's synced by atomFam due to this atom returning the block
+      set(setBlockLinkedConceptsAtom, [], transactionResults, groupResults)
     })()
   })
 
