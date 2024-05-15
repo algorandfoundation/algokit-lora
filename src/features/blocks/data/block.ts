@@ -7,7 +7,7 @@ import { loadable } from 'jotai/utils'
 import { Round } from './types'
 import { syncedRoundAtom, getBlockResultAtom } from './block-result'
 
-const nextRoundAvailableAtomBuilder = (store: JotaiStore, round: Round) => {
+const createNextRoundAvailableAtom = (store: JotaiStore, round: Round) => {
   // This atom conditionally subscribes to updates on the syncedRoundAtom
   return atom((get) => {
     const syncedRoundSnapshot = store.get(syncedRoundAtom)
@@ -20,7 +20,7 @@ const createBlockAtom = (store: JotaiStore, round: Round) => {
   return atom(async (get) => {
     const blockResult = await get(getBlockResultAtom(store, round))
     const transactions = await get(createTransactionsAtom(store, getTransactionResultAtoms(store, blockResult.transactionIds)))
-    const nextRoundAvailable = get(nextRoundAvailableAtomBuilder(store, round))
+    const nextRoundAvailable = get(createNextRoundAvailableAtom(store, round))
     return asBlock(blockResult, transactions, nextRoundAvailable)
   })
 }

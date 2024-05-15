@@ -2,13 +2,10 @@ import { Atom, atom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { loadable } from 'jotai/utils'
-import { invariant } from '@/utils/invariant'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { TransactionId } from './types'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { createAssetSummaryAtom, createAssetSummariesAtom } from '@/features/assets/data'
-import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
+import { createAssetSummaryAtom } from '@/features/assets/data'
 import { getTransactionResultAtom } from './transaction-result'
 
 export const createTransactionsAtom = (
@@ -21,46 +18,10 @@ export const createTransactionsAtom = (
         return 'id' in transactionResult ? transactionResult : await get(transactionResult)
       })
     )
-    const assetIds = Array.from(
-      txns.reduce((acc, txn) => {
-        if (txn['tx-type'] === AlgoSdkTransactionType.axfer && txn['asset-transfer-transaction']) {
-          const assetId = txn['asset-transfer-transaction']['asset-id']
-          if (!acc.has(assetId)) {
-            acc.add(assetId)
-          }
-        }
-        if (txn['tx-type'] === AlgoSdkTransactionType.appl && txn['application-transaction']) {
-          const assetIds = getAssetIdsForTransaction(txn)
-          assetIds.forEach((assetId) => {
-            if (!acc.has(assetId)) {
-              acc.add(assetId)
-            }
-          })
-        }
-        if (txn['tx-type'] === AlgoSdkTransactionType.afrz && txn['asset-freeze-transaction']) {
-          const assetId = txn['asset-freeze-transaction']['asset-id']
-          if (!acc.has(assetId)) {
-            acc.add(assetId)
-          }
-        }
-        return acc
-      }, new Set<number>())
-    )
-
-    const assets = new Map(
-      (await get(createAssetSummariesAtom(store, assetIds))).map((a) => {
-        return [a.id, a] as const
-      })
-    )
 
     return await Promise.all(
       txns.map((transactionResult) => {
-        // TODO: NC - I don't think we need the asset mapping, we can do this dynamically (separate PR)
-        return asTransaction(transactionResult, (assetId: number) => {
-          const asset = assets.get(assetId)
-          invariant(asset, `when mapping ${transactionResult.id}, asset with id ${assetId} could not be retrieved`)
-          return asset
-        })
+        return asTransaction(transactionResult, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
       })
     )
   })

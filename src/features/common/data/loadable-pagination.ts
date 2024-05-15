@@ -9,12 +9,12 @@ export type DataPage<TData> = {
   nextPageToken?: string
 }
 
-type LoadablePaginationBuilderInput<TData> = {
+type CreateLoadablePaginationInput<TData> = {
   pageSize: number
   fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
 }
 
-export function createLoadablePagination<TData>({ pageSize, fetchNextPage }: LoadablePaginationBuilderInput<TData>) {
+export function createLoadablePagination<TData>({ pageSize, fetchNextPage }: CreateLoadablePaginationInput<TData>) {
   const rawDataPagesAtom = atom<DataPage<TData>[]>([])
 
   const createSyncEffect = ({ rows, nextPageToken }: { rows: TData[]; nextPageToken?: string }) => {
