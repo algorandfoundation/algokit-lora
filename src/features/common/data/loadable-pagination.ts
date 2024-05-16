@@ -9,15 +9,15 @@ export type DataPage<TData> = {
   nextPageToken?: string
 }
 
-type LoadablePaginationBuilderInput<TData> = {
+type CreateLoadablePaginationInput<TData> = {
   pageSize: number
   fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
 }
 
-export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: LoadablePaginationBuilderInput<TData>) {
+export function createLoadablePagination<TData>({ pageSize, fetchNextPage }: CreateLoadablePaginationInput<TData>) {
   const rawDataPagesAtom = atom<DataPage<TData>[]>([])
 
-  const syncEffectBuilder = ({ rows, nextPageToken }: { rows: TData[]; nextPageToken?: string }) => {
+  const createSyncEffect = ({ rows, nextPageToken }: { rows: TData[]; nextPageToken?: string }) => {
     return atomEffect((_, set) => {
       ;(async () => {
         try {
@@ -31,7 +31,7 @@ export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: Lo
     })
   }
 
-  const getPageAtomBuilder = (store: JotaiStore, pageSize: number, pageNumber: number) => {
+  const createPageAtom = (store: JotaiStore, pageSize: number, pageNumber: number) => {
     return atom(async (get) => {
       const index = pageNumber - 1
       const cache = store.get(rawDataPagesAtom)
@@ -43,7 +43,7 @@ export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: Lo
       const currentNextPageToken = cache[cache.length - 1]?.nextPageToken
       const { rows, nextPageToken } = await get(fetchNextPage(pageSize, currentNextPageToken))
 
-      get(syncEffectBuilder({ rows, nextPageToken }))
+      get(createSyncEffect({ rows, nextPageToken }))
 
       return {
         rows: rows,
@@ -56,7 +56,7 @@ export function loadablePaginationBuilder<TData>({ pageSize, fetchNextPage }: Lo
     const store = useStore()
 
     return useMemo(() => {
-      return getPageAtomBuilder(store, pageSize, pageNumber)
+      return createPageAtom(store, pageSize, pageNumber)
     }, [store, pageSize, pageNumber])
   }
 

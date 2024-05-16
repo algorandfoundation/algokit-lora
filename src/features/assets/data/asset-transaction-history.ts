@@ -1,16 +1,16 @@
-import { AssetIndex } from '../data/types'
+import { AssetId } from '../data/types'
 import { indexer } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useMemo } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
-import { fetchTransactionsAtomBuilder, transactionResultsAtom } from '@/features/transactions/data'
+import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
 
-const fetchAssetTransactionResults = async (assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
+const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
-    .assetID(assetIndex)
+    .assetID(assetId)
     .nextToken(nextPageToken ?? '')
     .limit(pageSize)
     .do()) as TransactionSearchResults
@@ -20,14 +20,16 @@ const fetchAssetTransactionResults = async (assetIndex: AssetIndex, pageSize: nu
   } as const
 }
 
-const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
+const createSyncEffect = (transactionResults: TransactionResult[]) => {
   return atomEffect((_, set) => {
     ;(async () => {
       try {
         set(transactionResultsAtom, (prev) => {
           const next = new Map(prev)
           transactionResults.forEach((transactionResult) => {
-            next.set(transactionResult.id, transactionResult)
+            if (!next.has(transactionResult.id)) {
+              next.set(transactionResult.id, atom(transactionResult))
+            }
           })
           return next
         })
@@ -38,13 +40,13 @@ const syncEffectBuilder = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex, pageSize: number, nextPageToken?: string) => {
+const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetIndex, pageSize, nextPageToken)
+    const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetId, pageSize, nextPageToken)
 
-    get(syncEffectBuilder(transactionResults))
+    get(createSyncEffect(transactionResults))
 
-    const transactions = await get(fetchTransactionsAtomBuilder(store, transactionResults))
+    const transactions = await get(createTransactionsAtom(store, transactionResults))
 
     return {
       rows: transactions,
@@ -53,10 +55,10 @@ const fetchAssetTransactionsAtomBuilder = (store: JotaiStore, assetIndex: AssetI
   })
 }
 
-export const useFetchNextAssetTransactionsPage = (assetIndex: AssetIndex) => {
+export const useFetchNextAssetTransactionsPage = (assetId: AssetId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => fetchAssetTransactionsAtomBuilder(store, assetIndex, pageSize, nextPageToken)
-  }, [store, assetIndex])
+    return (pageSize: number, nextPageToken?: string) => createAssetTransactionsAtom(store, assetId, pageSize, nextPageToken)
+  }, [store, assetId])
 }

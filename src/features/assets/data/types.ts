@@ -1,9 +1,9 @@
 import { AssetParams } from '@algorandfoundation/algokit-utils/types/indexer'
 
-export type AssetIndex = number
+export type AssetId = number
 
 export type AssetResult = {
-  index: AssetIndex
+  index: AssetId
   params: AssetParams
 }
 

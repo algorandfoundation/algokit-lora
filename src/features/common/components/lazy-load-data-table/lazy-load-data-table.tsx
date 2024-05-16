@@ -2,7 +2,7 @@ import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
-import { DataPage, loadablePaginationBuilder } from '../../data/loadable-pagination-builder'
+import { DataPage, createLoadablePagination } from '../../data/loadable-pagination'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { Loader2 as Loader } from 'lucide-react'
 
@@ -15,7 +15,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
   const [pageSize, setPageSize] = useState(10)
   const { useLoadablePage } = useMemo(
     () =>
-      loadablePaginationBuilder({
+      createLoadablePagination({
         pageSize,
         fetchNextPage,
       }),

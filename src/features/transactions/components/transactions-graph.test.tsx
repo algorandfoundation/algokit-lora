@@ -11,7 +11,7 @@ import { TransactionsGraph } from './transactions-graph'
 import { asKeyRegTransaction } from '../mappers/key-reg-transaction-mappers'
 import { asGroup } from '@/features/groups/mappers'
 import { groupResultMother } from '@/tests/object-mother/group-result'
-import { algoAssetResult } from '@/features/assets/data/core'
+import { algoAssetResult } from '@/features/assets/data'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
