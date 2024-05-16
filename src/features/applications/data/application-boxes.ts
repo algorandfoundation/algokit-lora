@@ -18,7 +18,7 @@ const fetchApplicationBoxes = async (applicationId: ApplicationId, pageSize: num
 const createApplicationBoxesAtom = (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
   return atom(async () => {
     const { boxes, nextPageToken: newNextPageToken } = await fetchApplicationBoxes(applicationId, pageSize, nextPageToken)
-    console.log('boxes', boxes)
+
     return {
       rows: boxes,
       nextPageToken: newNextPageToken,
