@@ -1,64 +1,33 @@
 import { ApplicationId } from './types'
 import { indexer } from '@/features/common/data'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useMemo } from 'react'
-import { JotaiStore } from '@/features/common/data/types'
-import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
-import { atomEffect } from 'jotai-effect'
-import { atom, useStore } from 'jotai'
-import { modelsv2 } from 'algosdk'
+import { atom } from 'jotai'
 
 const fetchApplicationBoxes = async (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
-  const results = (await indexer
+  const results = await indexer
     .searchForApplicationBoxes(applicationId)
     .nextToken(nextPageToken ?? '')
     .limit(pageSize)
-    .do()) as modelsv2.BoxesResponse
+    .do()
   return {
-    transactionResults: results.boxes,
-    nextPageToken: results['next-token'],
+    boxes: results.boxes,
+    nextPageToken: results.nextToken,
   } as const
 }
 
-const createSyncEffect = (transactionResults: TransactionResult[]) => {
-  return atomEffect((_, set) => {
-    ;(async () => {
-      try {
-        set(transactionResultsAtom, (prev) => {
-          const next = new Map(prev)
-          transactionResults.forEach((transactionResult) => {
-            if (!next.has(transactionResult.id)) {
-              next.set(transactionResult.id, atom(transactionResult))
-            }
-          })
-          return next
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
-  })
-}
-
-const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
-  return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await fetchApplicationBoxes(assetId, pageSize, nextPageToken)
-
-    get(createSyncEffect(transactionResults))
-
-    const transactions = await get(createTransactionsAtom(store, transactionResults))
-
+const createApplicationBoxesAtom = (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
+  return atom(async () => {
+    const { boxes, nextPageToken: newNextPageToken } = await fetchApplicationBoxes(applicationId, pageSize, nextPageToken)
+    console.log('boxes', boxes)
     return {
-      rows: transactions,
+      rows: boxes,
       nextPageToken: newNextPageToken,
     }
   })
 }
 
-export const useFetchNextAssetTransactionsPage = (assetId: AssetId) => {
-  const store = useStore()
-
+export const useFetchNextApplicationBoxPage = (applicationId: ApplicationId) => {
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => createAssetTransactionsAtom(store, assetId, pageSize, nextPageToken)
-  }, [store, assetId])
+    return (pageSize: number, nextPageToken?: string) => createApplicationBoxesAtom(applicationId, pageSize, nextPageToken)
+  }, [applicationId])
 }

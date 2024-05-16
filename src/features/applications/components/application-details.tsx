@@ -22,6 +22,7 @@ import {
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationProgram } from './application-program'
 import { ApplicationGlobalStateTable } from './application-global-state-table'
+import { ApplicationBoxes } from './application-boxes'
 
 type Props = {
   application: Application
@@ -102,7 +103,7 @@ export function ApplicationDetails({ application }: Props) {
       <Card aria-label={applicationBoxesLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{applicationBoxesLabel}</h1>
-          <ApplicationGlobalStateTable application={application} />
+          <ApplicationBoxes applicationId={application.id} />
         </CardContent>
       </Card>
     </div>
