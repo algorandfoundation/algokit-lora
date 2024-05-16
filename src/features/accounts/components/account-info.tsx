@@ -6,6 +6,7 @@ import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { AccountLink } from './account-link'
 
+export const accountInformationLabel = 'Account Information'
 export const accountAddressLabel = 'Address'
 export const accountBalanceLabel = 'Balance'
 export const accountMinBalanceLabel = 'Min Balance'
@@ -67,7 +68,7 @@ export function AccountInfo({ account }: { account: Account }) {
     account.rekeyedTo,
   ])
   return (
-    <Card className={cn('p-4')}>
+    <Card aria-label={accountInformationLabel} className={cn('p-4')}>
       <CardContent className={cn('text-sm space-y-2')}>
         <DescriptionList items={accountInfoItems} />
       </CardContent>

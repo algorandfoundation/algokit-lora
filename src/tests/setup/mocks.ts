@@ -26,6 +26,9 @@ vi.mock('@/features/common/data', async () => {
       getAssetByID: vi.fn().mockReturnValue({
         do: vi.fn().mockReturnValue({ then: vi.fn() }),
       }),
+      accountInformation: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
     },
     indexer: {
       ...(original.indexer as algosdk.Indexer),
