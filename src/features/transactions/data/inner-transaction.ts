@@ -5,18 +5,18 @@ import { loadable } from 'jotai/utils'
 import { TransactionId } from './types'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { getAssetSummaryAtomBuilder } from '@/features/assets/data'
+import { createAssetSummaryAtom } from '@/features/assets/data'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
-import { fetchTransactionResultAtomBuilder } from './transaction'
+import { getTransactionResultAtom } from './transaction-result'
 
-export const fetchInnerTransactionAtomBuilder = (
+export const createInnerTransactionAtom = (
   store: JotaiStore,
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
   innerId: string
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    const transaction = await asTransaction(txn, (assetId: number) => get(getAssetSummaryAtomBuilder(store, assetId)))
+    const transaction = await asTransaction(txn, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
     if (transaction.type !== TransactionType.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
@@ -37,7 +37,7 @@ const useInnerTransactionAtom = (transactionId: TransactionId, innerId: string) 
   const store = useStore()
 
   return useMemo(() => {
-    return fetchInnerTransactionAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId), innerId)
+    return createInnerTransactionAtom(store, getTransactionResultAtom(store, transactionId), innerId)
   }, [store, transactionId, innerId])
 }
 

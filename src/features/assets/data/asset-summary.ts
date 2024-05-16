@@ -1,31 +1,12 @@
-import { atom, useAtomValue, useStore } from 'jotai'
+import { atom } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
-import { useMemo } from 'react'
-import { loadable } from 'jotai/utils'
 import { asAssetSummary } from '../mappers/asset-summary'
-import { AssetIndex } from './types'
-import { getAssetResultAtomBuilder } from './asset-result'
+import { AssetId } from './types'
+import { getAssetResultAtom } from './asset-result'
 
-export const getAssetSummaryAtomBuilder = (store: JotaiStore, assetIndex: AssetIndex) => {
+export const createAssetSummaryAtom = (store: JotaiStore, assetId: AssetId) => {
   return atom(async (get) => {
-    const assetResult = await get(getAssetResultAtomBuilder(store, assetIndex))
+    const assetResult = await get(getAssetResultAtom(store, assetId))
     return asAssetSummary(assetResult)
   })
-}
-
-export const getAssetSummariesAtomBuilder = (store: JotaiStore, assetIndexes: AssetIndex[]) => {
-  return atom((get) => {
-    return Promise.all(assetIndexes.map((assetIndex) => get(getAssetSummaryAtomBuilder(store, assetIndex))))
-  })
-}
-
-export const useAssetSummaryAtom = (assetIndex: AssetIndex) => {
-  const store = useStore()
-  return useMemo(() => {
-    return getAssetSummaryAtomBuilder(store, assetIndex)
-  }, [store, assetIndex])
-}
-
-export const useLoadableAssetSummary = (assetIndex: AssetIndex) => {
-  return useAtomValue(loadable(useAssetSummaryAtom(assetIndex)))
 }
