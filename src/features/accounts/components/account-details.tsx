@@ -15,7 +15,7 @@ export function AccountDetails({ account }: Props) {
   return (
     <div className={cn('space-y-6 pt-7')}>
       <AccountInfo account={account} />
-      <Card className={cn('p-4')}>
+      <Card aria-label={activityLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{activityLabel}</h1>
           <div className={cn('border-solid border-2 border-border grid')}>
@@ -24,7 +24,7 @@ export function AccountDetails({ account }: Props) {
         </CardContent>
       </Card>
       <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
+        <CardContent aria-label={accountJsonLabel} className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{accountJsonLabel}</h1>
           <div className={cn('border-solid border-2 border-border h-96 grid')}>
             <pre className={cn('overflow-scroll p-4')}>{account.json}</pre>

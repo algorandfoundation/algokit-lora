@@ -19,6 +19,7 @@ import {
 } from '../components/account-info'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { accountResultsAtom } from '../data'
+import { accountJsonLabel } from '../components/account-details'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {
@@ -77,6 +78,59 @@ describe('account-page', () => {
                 { term: accountApplicationsOptedInLabel, description: '0' },
               ],
             })
+          })
+        }
+      )
+    })
+  })
+  describe('when rendering an new account', () => {
+    const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA' },
+                { term: accountBalanceLabel, description: '5.883741' },
+                { term: accountMinBalanceLabel, description: '0.7' },
+                { term: accountAssetsHeldLabel, description: '3' },
+                { term: accountAssetsCreatedLabel, description: '0' },
+                { term: accountAssetsOptedInLabel, description: '3' },
+                { term: accountApplicationsCreatedLabel, description: '0' },
+                { term: accountApplicationsOptedInLabel, description: '2' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an account', () => {
+    const accountResult = accountResultMother['mainnet-JY2FRXQP7Q6SYH7QE2HF2XWNE644V6KUH3PYC4SYWPUSEATTDJSNUHMHR4']().build()
+
+    it('should be rendered with the correct json data', () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const jsonCard = component.getByLabelText(accountJsonLabel)
+            jsonCard.textContent = JSON.stringify(accountResult)
           })
         }
       )
