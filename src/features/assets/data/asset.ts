@@ -10,7 +10,8 @@ import { getAssetResultAtom } from './asset-result'
 const createAssetAtom = (store: JotaiStore, assetId: AssetId) => {
   return atom(async (get) => {
     const assetResult = await get(getAssetResultAtom(store, assetId))
-    return asAsset(assetResult, await get(getAssetMetadataResultAtom(store, assetResult)))
+    const assetMetadata = await get(getAssetMetadataResultAtom(store, assetResult))
+    return asAsset(assetResult, assetMetadata)
   })
 }
 

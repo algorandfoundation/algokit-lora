@@ -8,8 +8,8 @@ import { getApplicationResultAtom } from './application-result'
 
 export const createApplicationAtom = (store: JotaiStore, applicationId: ApplicationId) => {
   return atom(async (get) => {
-    const assetResult = await get(getApplicationResultAtom(store, applicationId))
-    return asApplication(assetResult)
+    const applicationResult = await get(getApplicationResultAtom(store, applicationId))
+    return asApplication(applicationResult)
   })
 }
 
