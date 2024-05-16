@@ -1,7 +1,6 @@
+import { Address } from '@/features/accounts/data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-
-type Address = string
 
 export type CommonTransactionProperties = {
   type: TransactionType
