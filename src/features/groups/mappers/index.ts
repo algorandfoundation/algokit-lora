@@ -1,7 +1,7 @@
 import { Group } from '../models'
 import { GroupResult } from '../data/types'
-import { asTransactionsSummary } from '@/features/common/mappers'
 import { Transaction } from '@/features/transactions/models'
+import { asTransactionsSummary } from '@/features/transactions/mappers'
 
 export const asGroup = (groupResult: GroupResult, transactions: Transaction[]): Group => {
   return {

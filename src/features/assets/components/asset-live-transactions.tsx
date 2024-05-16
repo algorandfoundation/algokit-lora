@@ -20,8 +20,8 @@ export function AssetLiveTransactions({ assetId }: Props) {
         const assetIdsForTransaction = getAssetIdsForTransaction(transactionResult)
         if (!assetIdsForTransaction.includes(assetId)) return []
 
-        const networkTransaction = await get(createTransactionAtom(store, transactionResult))
-        return extractTransactionsForAsset(networkTransaction, assetId)
+        const transaction = await get(createTransactionAtom(store, transactionResult))
+        return extractTransactionsForAsset(transaction, assetId)
       })
     },
     [assetId]

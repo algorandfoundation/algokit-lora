@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import { indexer } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
-import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
@@ -50,7 +50,7 @@ export const createBlockExtractAtom = (round: Round) => {
   })
 }
 
-export const addStateExtractFromBlocksAtom = atom(
+export const addStateExtractedFromBlocksAtom = atom(
   null,
   (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
     if (transactionResults.length > 0) {
@@ -64,10 +64,6 @@ export const addStateExtractFromBlocksAtom = atom(
           }
         })
         return next
-      })
-
-      set(liveTransactionIdsAtom, (prev) => {
-        return Array.from(transactionResults.map((txn) => txn.id)).concat(prev)
       })
     }
 
@@ -112,7 +108,7 @@ const createBlockResultAtom = (round: Round) => {
       })
 
       // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
-      set(addStateExtractFromBlocksAtom, [], transactionResults, groupResults)
+      set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
     })()
   })
 
