@@ -9,6 +9,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { TransactionLink } from './transaction-link'
+import { asTo } from '@/features/common/mappers/to'
 
 const graphConfig = {
   indentationWidth: 20,
@@ -50,15 +51,7 @@ export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
   },
   {
     header: 'To',
-    accessorFn: (item) => item.transaction,
-    cell: (c) => {
-      const transaction = c.getValue<Transaction>()
-      if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
-        return ellipseAddress(transaction.receiver)
-      if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
-      if (transaction.type === TransactionType.AssetConfig) return transaction.assetId
-      if (transaction.type === TransactionType.AssetFreeze) return ellipseAddress(transaction.address)
-    },
+    accessorFn: (item) => asTo(item.transaction),
   },
   {
     accessorKey: 'transaction.type',

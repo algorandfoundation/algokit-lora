@@ -1,8 +1,9 @@
 import algosdk from 'algosdk'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { invariant } from '@/utils/invariant'
+import { AssetId } from '@/features/assets/data/types'
 
-export const getAssetIdsForTransaction = (transaction: TransactionResult): number[] => {
+export const getAssetIdsForTransaction = (transaction: TransactionResult): AssetId[] => {
   if (transaction['tx-type'] === algosdk.TransactionType.axfer) {
     invariant(transaction['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
@@ -12,13 +13,10 @@ export const getAssetIdsForTransaction = (transaction: TransactionResult): numbe
     invariant(transaction['application-transaction'], 'application-transaction is not set')
 
     const innerTransactions = transaction['inner-txns'] ?? []
-    return innerTransactions.reduce(
-      (acc, innerTxn) => {
-        const innerResult = getAssetIdsForTransaction(innerTxn)
-        return acc.concat(innerResult)
-      },
-      transaction['application-transaction']['foreign-assets'] ?? ([] as number[])
-    )
+    return innerTransactions.reduce((acc, innerTxn) => {
+      const innerResult = getAssetIdsForTransaction(innerTxn)
+      return acc.concat(innerResult)
+    }, [] as number[])
   }
   if (transaction['tx-type'] === algosdk.TransactionType.acfg) {
     invariant(transaction['asset-config-transaction'], 'asset-config-transaction is not set')

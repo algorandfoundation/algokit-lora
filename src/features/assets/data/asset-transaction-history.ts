@@ -6,6 +6,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
+import { extractTransactionsForAsset } from '../utils/extract-transactions-for-asset'
 
 const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
@@ -47,9 +48,10 @@ const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSi
     get(createSyncEffect(transactionResults))
 
     const transactions = await get(createTransactionsAtom(store, transactionResults))
+    const transactionsForAsset = transactions.flatMap((transaction) => extractTransactionsForAsset(transaction, assetId))
 
     return {
-      rows: transactions,
+      rows: transactionsForAsset,
       nextPageToken: newNextPageToken,
     }
   })
