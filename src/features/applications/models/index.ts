@@ -1,4 +1,4 @@
-export type ApplicationId = number
+import { ApplicationId } from '../data/types'
 
 export type Application = {
   id: ApplicationId

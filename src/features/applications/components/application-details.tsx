@@ -7,6 +7,7 @@ import {
   applicationAccountLabel,
   applicationApprovalProgramLabel,
   applicationApprovalProgramTabsListAriaLabel,
+  applicationBoxesLabel,
   applicationClearStateProgramLabel,
   applicationClearStateProgramTabsListAriaLabel,
   applicationCreatorAccountLabel,
@@ -95,6 +96,12 @@ export function ApplicationDetails({ application }: Props) {
       <Card aria-label={applicationGlobalStateLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{applicationGlobalStateLabel}</h1>
+          <ApplicationGlobalStateTable application={application} />
+        </CardContent>
+      </Card>
+      <Card aria-label={applicationBoxesLabel} className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationBoxesLabel}</h1>
           <ApplicationGlobalStateTable application={application} />
         </CardContent>
       </Card>
