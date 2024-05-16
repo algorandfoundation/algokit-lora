@@ -1,7 +1,7 @@
 import { Round } from '@/features/blocks/data/types'
 import { atom } from 'jotai'
 import { GroupId, GroupResult } from './types'
-import { createBlockExtractAtom, addStateExtractFromBlocksAtom as addStateExtractedFromBlocksAtom } from '@/features/blocks/data'
+import { createBlockExtractAtom, addStateExtractedFromBlocksAtom } from '@/features/blocks/data'
 import { invariant } from '@/utils/invariant'
 import { atomEffect } from 'jotai-effect'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'

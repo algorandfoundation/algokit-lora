@@ -1,7 +1,7 @@
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
 import { Block, BlockSummary, CommonBlockProperties } from '../models'
 import { BlockResult } from '../data/types'
-import { asTransactionsSummary } from '@/features/common/mappers'
+import { asTransactionsSummary } from '@/features/transactions/mappers'
 
 const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type'>[]): CommonBlockProperties => {
   return {
