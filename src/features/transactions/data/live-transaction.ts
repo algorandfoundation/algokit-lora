@@ -14,15 +14,13 @@ export const useLiveTransactions = (
   const store = useStore()
 
   const { liveTransactionsAtomEffect, liveTransactionsAtom } = useMemo(() => {
-    const syncedTransactionIdAtom = atom<TransactionId | undefined>(undefined)
+    let syncedTransactionId: TransactionId | undefined = undefined
     const liveTransactionsAtom = atom<(Transaction | InnerTransaction)[]>([])
 
     const liveTransactionsAtomEffect = atomEffect((get, set) => {
       ;(async () => {
         const liveTransactionIds = get(liveTransactionIdsAtom)
-        const syncedTransactionId = get.peek(syncedTransactionIdAtom)
 
-        set(syncedTransactionIdAtom, liveTransactionIds[0])
         const newTransactionResults: TransactionResult[] = []
         for (const transactionId of liveTransactionIds) {
           if (transactionId === syncedTransactionId) {
@@ -33,10 +31,11 @@ export const useLiveTransactions = (
           const transactionResult = await get.peek(transactionResultAtom)
           newTransactionResults.push(transactionResult)
         }
+        syncedTransactionId = liveTransactionIds[0]
+
         const newTransactions = (
           await Promise.all(newTransactionResults.map((transactionResult) => get(mapper(store, transactionResult))))
         ).flat()
-
         if (newTransactions.length) {
           set(liveTransactionsAtom, (prev) => {
             return newTransactions.concat(prev).slice(0, maxRows)
