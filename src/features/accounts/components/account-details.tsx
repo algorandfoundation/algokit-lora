@@ -19,7 +19,7 @@ export function AccountDetails({ account }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{activityLabel}</h1>
           <div className={cn('border-solid border-2 border-border grid')}>
-            <AccountActivityTabs />
+            <AccountActivityTabs account={account} />
           </div>
         </CardContent>
       </Card>
