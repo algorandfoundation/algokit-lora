@@ -8,8 +8,22 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { indexer } from '@/features/common/data'
+import { algod, indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
+import { applicationResultMother } from '@/tests/object-mother/application-result'
+import { atom, createStore } from 'jotai'
+import { applicationResultsAtom } from '../data'
+import {
+  applicationAccountLabel,
+  applicationCreatorAccountLabel,
+  applicationDetailsLabel,
+  applicationGlobalStateByteLabel,
+  applicationGlobalStateUintLabel,
+  applicationIdLabel,
+  applicationLocalStateByteLabel,
+  applicationLocalStateUintLabel,
+} from '../components/labels'
+import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -48,6 +62,42 @@ describe('application-page', () => {
         () => render(<ApplicationPage />),
         async (component) => {
           await waitFor(() => expect(component.getByText(applicationFailedToLoadMessage)).toBeTruthy())
+        }
+      )
+    })
+  })
+
+  describe('when rendering an application', () => {
+    const applicationResult = applicationResultMother['mainner-80441968']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      const teal = '\n#pragma version 8\nint 1\nreturn\n'
+      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(async () => {
+            const detailsCard = component.getByLabelText(applicationDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: applicationIdLabel, description: '80441968' },
+                { term: applicationCreatorAccountLabel, description: '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA' },
+                { term: applicationAccountLabel, description: 'S3TLYVDRMR5VRKPACAYFXFLPNTYWQG37A6LPKERQ2DNABLTTGCXDUE2T3E' },
+                { term: applicationGlobalStateByteLabel, description: '3' },
+                { term: applicationLocalStateByteLabel, description: '0' },
+                { term: applicationGlobalStateUintLabel, description: '12' },
+                { term: applicationLocalStateUintLabel, description: '2' },
+              ],
+            })
+          })
         }
       )
     })

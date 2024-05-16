@@ -17,7 +17,6 @@ import {
   applicationIdLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
-  applicationProgramsLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationProgram } from './application-program'
@@ -78,12 +77,15 @@ export function ApplicationDetails({ application }: Props) {
           <DescriptionList items={applicationItems} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationProgramsLabel} className={cn('p-4')}>
+      <Card aria-label={applicationApprovalProgramLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationProgramsLabel}</h1>
-          <h1 className={cn('text-xl font-bold')}>{applicationApprovalProgramLabel}</h1>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationApprovalProgramLabel}</h1>
           <ApplicationProgram tabsListAriaLabel={applicationApprovalProgramTabsListAriaLabel} base64Program={application.approvalProgram} />
-          <h1 className={cn('text-xl font-bold')}>{applicationClearStateProgramLabel}</h1>
+        </CardContent>
+      </Card>
+      <Card aria-label={applicationClearStateProgramLabel} className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationClearStateProgramLabel}</h1>
           <ApplicationProgram
             tabsListAriaLabel={applicationClearStateProgramTabsListAriaLabel}
             base64Program={application.clearStateProgram}
