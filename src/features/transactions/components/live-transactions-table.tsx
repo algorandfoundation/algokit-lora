@@ -1,14 +1,12 @@
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
-import { useMemo, useState } from 'react'
-import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { useState } from 'react'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
-import { atomEffect } from 'jotai-effect'
-import { Atom, atom, useAtom, useAtomValue, useStore } from 'jotai'
-import { TransactionId } from '@/features/transactions/data/types'
+import { Atom } from 'jotai'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { JotaiStore } from '@/features/common/data/types'
+import { useLiveTransactions } from '../data/live-transaction'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
@@ -85,60 +83,3 @@ export function LiveTransactionsTable({ mapper, columns }: Props) {
 }
 
 const maxRowsOptions = [10, 20, 30, 40, 50]
-
-const useLiveTransactions = (
-  mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>,
-  maxRows: number
-) => {
-  const store = useStore()
-
-  const { liveTransactionsAtomEffect, liveTransactionsAtom } = useMemo(() => {
-    const syncedTransactionIdAtom = atom<TransactionId | undefined>(undefined)
-    const liveTransactionsAtom = atom<(Transaction | InnerTransaction)[]>([])
-
-    const liveTransactionsAtomEffect = atomEffect((get, set) => {
-      ;(async () => {
-        const transactionResults = get(transactionResultsAtom)
-        const liveTransactionIds = get(liveTransactionIdsAtom)
-        const syncedTransactionId = get(syncedTransactionIdAtom)
-
-        set(syncedTransactionIdAtom, liveTransactionIds[0])
-        const newTransactionResults: TransactionResult[] = []
-        for (const transactionId of liveTransactionIds) {
-          if (transactionId === syncedTransactionId) {
-            break
-          }
-          const transactionResultAtom = transactionResults.get(transactionId)
-
-          if (!transactionResultAtom) {
-            // Ignore if the transaction is not in the transactionResultsAtom
-            // Very unlikely to happen
-            continue
-          }
-
-          const transactionResult = await get.peek(transactionResultAtom)
-          newTransactionResults.push(transactionResult)
-        }
-        const newTransactions = (
-          await Promise.all(newTransactionResults.map((transactionResult) => get(mapper(store, transactionResult))))
-        ).flat()
-
-        if (newTransactions.length) {
-          set(liveTransactionsAtom, (prev) => {
-            return newTransactions.concat(prev).slice(0, maxRows)
-          })
-        }
-      })()
-    })
-
-    return {
-      liveTransactionsAtomEffect,
-      liveTransactionsAtom,
-    }
-  }, [store, mapper, maxRows])
-
-  useAtom(liveTransactionsAtomEffect)
-
-  const transactions = useAtomValue(liveTransactionsAtom)
-  return transactions
-}
