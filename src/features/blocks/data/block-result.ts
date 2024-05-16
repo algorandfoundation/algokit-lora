@@ -50,7 +50,7 @@ export const createBlockExtractAtom = (round: Round) => {
   })
 }
 
-export const addStateExtractFromBlocksAtom = atom(
+export const addStateExtractedFromBlocksAtom = atom(
   null,
   (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
     if (transactionResults.length > 0) {
@@ -108,7 +108,7 @@ const createBlockResultAtom = (round: Round) => {
       })
 
       // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
-      set(addStateExtractFromBlocksAtom, [], transactionResults, groupResults)
+      set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
     })()
   })
 

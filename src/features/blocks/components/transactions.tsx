@@ -6,6 +6,7 @@ import { DataTable } from '@/features/common/components/data-table'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { GroupLink } from '@/features/groups/components/group-link'
+import { asTo } from '@/features/common/mappers/to'
 
 type Props = {
   transactions: Transaction[]
@@ -31,13 +32,7 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     header: 'To',
-    accessorFn: (transaction) => {
-      if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
-        return ellipseAddress(transaction.receiver)
-      if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
-      if (transaction.type === TransactionType.AssetConfig) return transaction.assetId
-      if (transaction.type === TransactionType.AssetFreeze) return transaction.assetId
-    },
+    accessorFn: asTo,
   },
   {
     accessorKey: 'type',

@@ -1,5 +1,5 @@
+import { TransactionsSummary } from '@/features/common/models'
 import { Transaction, TransactionType } from '@/features/transactions/models'
-import { TransactionsSummary } from '../models'
 
 export const asTransactionsSummary = (transactions: Pick<Transaction, 'type'>[]): TransactionsSummary => {
   return {

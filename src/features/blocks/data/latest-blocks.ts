@@ -1,8 +1,8 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { transactionResultsAtom } from '@/features/transactions/data'
-import { asTransactionSummary } from '@/features/transactions/mappers/transaction-mappers'
+import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { algod } from '@/features/common/data'
@@ -14,7 +14,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
-import { blockResultsAtom, addStateExtractFromBlocksAtom, syncedRoundAtom } from './block-result'
+import { blockResultsAtom, addStateExtractedFromBlocksAtom, syncedRoundAtom } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
 
@@ -161,7 +161,11 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       })
     }
 
-    set(addStateExtractFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
+    set(addStateExtractedFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
+
+    set(liveTransactionIdsAtom, (prev) => {
+      return transactionResults.map((txn) => txn.id).concat(prev)
+    })
   })
 
   subscriber.start()
