@@ -8,13 +8,14 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { algod, indexer } from '@/features/common/data'
+import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { atom, createStore } from 'jotai'
 import { applicationResultsAtom } from '../data'
 import {
   applicationAccountLabel,
+  applicationBoxesLabel,
   applicationCreatorAccountLabel,
   applicationDetailsLabel,
   applicationGlobalStateByteLabel,
@@ -26,6 +27,7 @@ import {
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
+import { modelsv2, indexerModels } from 'algosdk'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -77,8 +79,46 @@ describe('application-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
+      vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+        Promise.resolve(
+          new indexerModels.BoxesResponse({
+            applicationId: 80441968,
+            boxes: [
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
+              }),
+            ],
+            nextToken: 'b64:AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
+          })
+        )
+      )
 
       return executeComponentTest(
         () => {
@@ -115,6 +155,23 @@ describe('application-page', () => {
                 { cells: ['Pot', 'Uint', '0'] },
                 { cells: ['Price', 'Uint', '1000000'] },
                 { cells: ['RoundBegin', 'Uint', '1606905675'] },
+              ],
+            })
+
+            const boxesCard = component.getByLabelText(applicationBoxesLabel)
+            tableAssertion({
+              container: boxesCard,
+              rows: [
+                { cells: ['AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8='] },
+                { cells: ['AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4='] },
+                { cells: ['AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ='] },
+                { cells: ['AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk='] },
+                { cells: ['AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk='] },
+                { cells: ['AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U='] },
+                { cells: ['AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o='] },
+                { cells: ['AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc='] },
+                { cells: ['AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0='] },
+                { cells: ['AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck='] },
               ],
             })
           })

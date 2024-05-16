@@ -56,6 +56,13 @@ vi.mock('@/features/common/data', async () => {
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
         }),
       }),
+      searchForApplicationBoxes: vi.fn().mockReturnValue({
+        nextToken: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            do: vi.fn().mockReturnValue({ then: vi.fn() }),
+          }),
+        }),
+      }),
     },
   }
 })
