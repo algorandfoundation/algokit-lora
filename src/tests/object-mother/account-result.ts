@@ -1,5 +1,6 @@
 import { AccountResult } from '@/features/accounts/data/types'
 import { AccountResultBuilder } from '../builders/account-result-builder'
+import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export const accountResultMother = {
   ['mainnet-7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ']: () => {
@@ -17,7 +18,7 @@ export const accountResultMother = {
       'reward-base': 218288,
       rewards: 0,
       round: 38851889,
-      status: 'Offline',
+      status: AccountStatus.Offline,
       'total-apps-opted-in': 0,
       'total-assets-opted-in': 1,
       'total-created-apps': 0,

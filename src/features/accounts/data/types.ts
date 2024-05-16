@@ -1,9 +1,11 @@
+import { NoStringIndex } from '@/features/common/data/types'
 import {
   ApplicationResult as IndexerApplicationResult,
   AssetHolding as IndexerAssetHolding,
   AssetResult as IndexerAssetResult,
   AppLocalState as IndexerAppLocalState,
   AccountResult as IndexerAccountResult,
+  SignatureType,
 } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export type Address = string
@@ -16,7 +18,20 @@ export type AssetResult = {
   params: IndexerAssetResult['params']
 }
 
-export type AccountResult = Omit<IndexerAccountResult, 'closed-at-round' | 'created-at-round' | 'deleted'> & {
+export type AccountResult = Omit<
+  NoStringIndex<IndexerAccountResult>,
+  | 'closed-at-round'
+  | 'created-at-round'
+  | 'deleted'
+  | 'apps-local-state'
+  | 'assets'
+  | 'created-apps'
+  | 'created-assets'
+  | 'min-balance'
+  | 'total-box-bytes'
+  | 'total-boxes'
+  | 'sig-type'
+> & {
   'apps-local-state'?: AppLocalState[]
   assets?: AssetHolding[]
   'created-apps'?: ApplicationResult[]
@@ -24,4 +39,5 @@ export type AccountResult = Omit<IndexerAccountResult, 'closed-at-round' | 'crea
   'min-balance': number
   'total-box-bytes'?: number
   'total-boxes'?: number
+  'sig-type'?: SignatureType
 }

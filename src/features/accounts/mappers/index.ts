@@ -8,11 +8,12 @@ export const asAccount = (accountResult: AccountResult): Account => {
     address: accountResult.address,
     balance: microAlgos(accountResult.amount),
     minBalance: microAlgos(accountResult['min-balance']),
-    totalCreatedAssets: accountResult['total-created-assets'],
-    totalCreatedApps: accountResult['total-created-apps'],
+    totalAssetsCreated: accountResult['total-created-assets'],
     totalAssetsOptedIn: accountResult['total-assets-opted-in'],
+    totalAssetsHeld: (accountResult.assets ?? []).length,
+    totalApplicationsCreated: accountResult['total-created-apps'],
+    totalApplicationsOptedIn: accountResult['total-apps-opted-in'],
     rekeyedTo: accountResult['auth-addr'],
-    totalHeldAssets: (accountResult.assets ?? []).length,
     json: asJson(accountResult),
   }
 }

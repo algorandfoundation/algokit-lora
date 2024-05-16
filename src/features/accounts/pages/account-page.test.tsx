@@ -9,12 +9,13 @@ import { atom, createStore } from 'jotai'
 import {
   accountAddressLabel,
   accountBalanceLabel,
-  accountCreatedApplicationsLabel,
-  accountCreatedAssetsLabel,
-  accountHoldingAssetsLabel,
+  accountApplicationsCreatedLabel,
+  accountAssetsCreatedLabel,
+  accountAssetsHeldLabel,
   accountInformationLabel,
   accountMinBalanceLabel,
-  accountOptedApplicationsLabel,
+  accountApplicationsOptedInLabel,
+  accountAssetsOptedInLabel,
 } from '../components/account-info'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { accountResultsAtom } from '../data'
@@ -52,14 +53,11 @@ describe('account-page', () => {
   describe('when rendering an account', () => {
     const accountResult = accountResultMother['mainnet-7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ']().build()
 
-    it.skip('should be rendered with the correct data', () => {
+    it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.index, atom(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
-      // vi.mocked(algod.accountInformation('7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ').do).mockImplementation(() =>
-      //   Promise.resolve({})
-      // )
 
       return executeComponentTest(
         () => render(<AccountPage />, undefined, myStore),
@@ -70,12 +68,13 @@ describe('account-page', () => {
               container: informationCard,
               items: [
                 { term: accountAddressLabel, description: '7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ' },
-                { term: accountBalanceLabel, description: '5854460' },
-                { term: accountMinBalanceLabel, description: '200000' },
-                { term: accountHoldingAssetsLabel, description: '1' },
-                { term: accountCreatedAssetsLabel, description: '0' },
-                { term: accountCreatedApplicationsLabel, description: '0' },
-                { term: accountOptedApplicationsLabel, description: '0' },
+                { term: accountBalanceLabel, description: '5.85446' },
+                { term: accountMinBalanceLabel, description: '0.2' },
+                { term: accountAssetsHeldLabel, description: '1' },
+                { term: accountAssetsCreatedLabel, description: '0' },
+                { term: accountAssetsOptedInLabel, description: '1' },
+                { term: accountApplicationsCreatedLabel, description: '0' },
+                { term: accountApplicationsOptedInLabel, description: '0' },
               ],
             })
           })

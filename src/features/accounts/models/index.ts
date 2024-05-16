@@ -5,10 +5,11 @@ export type Account = {
   address: Address
   balance: AlgoAmount
   minBalance: AlgoAmount
-  totalCreatedAssets: number
-  totalCreatedApps: number
+  totalAssetsCreated: number
   totalAssetsOptedIn: number
+  totalAssetsHeld: number
+  totalApplicationsCreated: number
+  totalApplicationsOptedIn: number
   rekeyedTo?: Address
-  totalHeldAssets: number
   json: string
 }

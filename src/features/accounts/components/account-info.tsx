@@ -10,10 +10,11 @@ export const accountInformationLabel = 'Account Information'
 export const accountAddressLabel = 'Address'
 export const accountBalanceLabel = 'Balance'
 export const accountMinBalanceLabel = 'Min Balance'
-export const accountHoldingAssetsLabel = 'Holding assets'
-export const accountCreatedAssetsLabel = 'Created assets'
-export const accountCreatedApplicationsLabel = 'Created applications'
-export const accountOptedApplicationsLabel = 'Opted applications'
+export const accountAssetsHeldLabel = 'Holding assets'
+export const accountAssetsCreatedLabel = 'Created assets'
+export const accountAssetsOptedInLabel = 'Opted assets'
+export const accountApplicationsCreatedLabel = 'Created applications'
+export const accountApplicationsOptedInLabel = 'Opted applications'
 export const accountRekeyedToLabel = 'Rekeyed to'
 
 export function AccountInfo({ account }: { account: Account }) {
@@ -32,20 +33,24 @@ export function AccountInfo({ account }: { account: Account }) {
         dd: <DisplayAlgo amount={account.minBalance} />,
       },
       {
-        dt: accountHoldingAssetsLabel,
-        dd: account.totalHeldAssets,
+        dt: accountAssetsHeldLabel,
+        dd: account.totalAssetsHeld,
       },
       {
-        dt: accountCreatedAssetsLabel,
-        dd: account.totalCreatedAssets,
+        dt: accountAssetsCreatedLabel,
+        dd: account.totalAssetsCreated,
       },
       {
-        dt: accountCreatedApplicationsLabel,
-        dd: account.totalCreatedApps ? account.totalCreatedApps : 0,
+        dt: accountAssetsOptedInLabel,
+        dd: account.totalAssetsOptedIn,
       },
       {
-        dt: accountOptedApplicationsLabel,
-        dd: account.totalAssetsOptedIn ? account.totalAssetsOptedIn : 0,
+        dt: accountApplicationsCreatedLabel,
+        dd: account.totalApplicationsCreated ? account.totalApplicationsCreated : 0,
+      },
+      {
+        dt: accountApplicationsOptedInLabel,
+        dd: account.totalApplicationsOptedIn ? account.totalApplicationsOptedIn : 0,
       },
       ...(account.rekeyedTo
         ? [
@@ -61,10 +66,11 @@ export function AccountInfo({ account }: { account: Account }) {
     account.address,
     account.balance,
     account.minBalance,
-    account.totalHeldAssets,
-    account.totalCreatedAssets,
-    account.totalCreatedApps,
+    account.totalAssetsHeld,
+    account.totalAssetsCreated,
     account.totalAssetsOptedIn,
+    account.totalApplicationsCreated,
+    account.totalApplicationsOptedIn,
     account.rekeyedTo,
   ])
   return (
