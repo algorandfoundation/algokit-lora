@@ -85,11 +85,11 @@ export const createAssetMetadataResultAtom = (assetResult: AssetResult) =>
             .addressRole('sender')
             .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
             .do()
-            .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address
+            .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address.
         : []
     if (results.length === 0) {
-      // The asset has been destroyed or is an immutable asset, or the asset is mutable however has not been mutated.
-      // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest
+      // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
+      // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
       results = await executePaginatedRequest(
         (res: TransactionSearchResults) => res.transactions,
         (nextToken) => {

@@ -6,6 +6,7 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { ellipseId } from '@/utils/ellipse-id'
+import { asTo } from '@/features/common/mappers/to'
 
 export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
   {
@@ -27,7 +28,7 @@ export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransac
     },
   },
   {
-    header: 'Block Id',
+    header: 'Round',
     accessorKey: 'confirmedRound',
   },
   {
@@ -37,13 +38,7 @@ export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransac
   },
   {
     header: 'To',
-    accessorFn: (transaction) => {
-      if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer)
-        return ellipseAddress(transaction.receiver)
-      if (transaction.type === TransactionType.ApplicationCall) return transaction.applicationId
-      if (transaction.type === TransactionType.AssetConfig) return transaction.assetId
-      if (transaction.type === TransactionType.AssetFreeze) return ellipseAddress(transaction.address)
-    },
+    accessorFn: asTo,
   },
   {
     accessorKey: 'type',
