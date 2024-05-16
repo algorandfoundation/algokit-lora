@@ -18,12 +18,14 @@ import {
   applicationCreatorAccountLabel,
   applicationDetailsLabel,
   applicationGlobalStateByteLabel,
+  applicationGlobalStateLabel,
   applicationGlobalStateUintLabel,
   applicationIdLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
+import { tableAssertion } from '@/tests/assertions/table-assertion'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -95,6 +97,24 @@ describe('application-page', () => {
                 { term: applicationLocalStateByteLabel, description: '0' },
                 { term: applicationGlobalStateUintLabel, description: '12' },
                 { term: applicationLocalStateUintLabel, description: '2' },
+              ],
+            })
+
+            // Only test the first 10 rows, should be enough
+            const globalStateCard = component.getByLabelText(applicationGlobalStateLabel)
+            tableAssertion({
+              container: globalStateCard,
+              rows: [
+                { cells: ['Bids', 'Uint', '0'] },
+                { cells: ['Creator', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
+                { cells: ['Dividend', 'Uint', '5'] },
+                { cells: ['Escrow', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
+                { cells: ['FeesFirst', 'Uint', '250000'] },
+                { cells: ['FeesSecond', 'Uint', '500000'] },
+                { cells: ['Multiplier', 'Uint', '5'] },
+                { cells: ['Pot', 'Uint', '0'] },
+                { cells: ['Price', 'Uint', '1000000'] },
+                { cells: ['RoundBegin', 'Uint', '1606905675'] },
               ],
             })
           })
