@@ -21,13 +21,14 @@ import {
   assetUrlLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
-import { createStore } from 'jotai'
-import { algoAssetResult, assetResultsAtom } from '../data/core'
+import { atom, createStore } from 'jotai'
+import { algoAssetResult } from '../data'
 import { indexer, algod } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
 import { HttpError } from '@/tests/errors'
 import { ipfsGatewayUrl } from '../utils/replace-ipfs-with-gateway-if-needed'
+import { assetResultsAtom } from '../data'
 
 describe('asset-page', () => {
   describe('when rending an asset using an invalid asset Id', () => {
@@ -78,7 +79,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>
@@ -163,7 +164,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>
@@ -263,7 +264,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
@@ -347,7 +348,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
@@ -423,7 +424,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>
@@ -542,7 +543,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, assetResult]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
@@ -580,7 +581,7 @@ describe('asset-page', () => {
   describe('when rendering the algo asset', () => {
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, algoAssetResult]]))
+      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, atom(algoAssetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.index.toString() }))
 

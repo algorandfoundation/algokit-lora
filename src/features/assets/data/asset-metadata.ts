@@ -1,7 +1,4 @@
 import { atom } from 'jotai'
-import { JotaiStore } from '@/features/common/data/types'
-import { atomEffect } from 'jotai-effect'
-import { assetMetadataAtom } from './core'
 import { AssetResult, TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
@@ -12,6 +9,7 @@ import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
+import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -19,7 +17,7 @@ import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 // - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
 // - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
 // - ARC-19 doesn't specify the metadata format but generally people use the ARC-3 format
-export const buildAssetMetadataResult = async (
+const createAssetMetadataResult = async (
   assetResult: AssetResult,
   latestAssetCreateOrReconfigureTransaction?: TransactionResult
 ): Promise<AssetMetadataResult> => {
@@ -71,7 +69,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
   return undefined
 }
 
-export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
+export const createAssetMetadataResultAtom = (assetResult: AssetResult) =>
   atom(async (_get) => {
     if (assetResult.index === 0) {
       return null
@@ -114,37 +112,10 @@ export const fetchAssetMetadataAtomBuilder = (assetResult: AssetResult) =>
       return null
     }
 
-    return await buildAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
+    return await createAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
   })
 
-export const getAssetMetadataAtomBuilder = (store: JotaiStore, assetResult: AssetResult) => {
-  const fetchAssetMetadataAtom = fetchAssetMetadataAtomBuilder(assetResult)
-
-  const syncEffect = atomEffect((get, set) => {
-    ;(async () => {
-      try {
-        const assetMetadata = await get(fetchAssetMetadataAtom)
-        set(assetMetadataAtom, (prev) => {
-          const next = new Map(prev)
-          next.set(assetResult.index, assetMetadata)
-          return next
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
-  })
-
-  return atom(async (get) => {
-    const assetMetadata = store.get(assetMetadataAtom)
-    const cachedAssetMetadata = assetMetadata.get(assetResult.index)
-    if (cachedAssetMetadata) {
-      return cachedAssetMetadata
-    }
-
-    get(syncEffect)
-
-    const assetMetadataResult = await get(fetchAssetMetadataAtom)
-    return assetMetadataResult
-  })
-}
+export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = atomsInAtom(
+  createAssetMetadataResultAtom,
+  (assetResult) => assetResult.index
+)

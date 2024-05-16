@@ -179,10 +179,10 @@ export function AssetDetails({ asset }: Props) {
                   </TabsTrigger>
                 </TabsList>
                 <OverflowAutoTabsContent value={assetLiveTransactionsTabId}>
-                  <AssetLiveTransactions assetIndex={asset.id} />
+                  <AssetLiveTransactions assetId={asset.id} />
                 </OverflowAutoTabsContent>
                 <OverflowAutoTabsContent value={assetHistoricalTransactionsTabId}>
-                  <AssetTransactionHistory assetIndex={asset.id} />
+                  <AssetTransactionHistory assetId={asset.id} />
                 </OverflowAutoTabsContent>
               </Tabs>
             </CardContent>

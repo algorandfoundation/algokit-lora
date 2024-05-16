@@ -1,6 +1,4 @@
-import { JotaiStore } from '@/features/common/data/types'
-import { atom, useAtom, useAtomValue, useStore } from 'jotai'
-import { useMemo } from 'react'
+import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
 import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
@@ -8,50 +6,69 @@ import { asTransactionSummary } from '@/features/transactions/mappers/transactio
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { algod } from '@/features/common/data'
-import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { blockResultsAtom, syncedRoundAtom } from './core'
 import { BlockResult, Round } from './types'
-import { assetMetadataAtom, assetResultsAtom } from '@/features/assets/data/core'
+import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
+import { assetResultsAtom } from '@/features/assets/data'
+import { BlockSummary } from '../models'
+import { blockResultsAtom, addStateExtractFromBlocksAtom, syncedRoundAtom } from './block-result'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
+import { AssetId } from '@/features/assets/data/types'
 
 const maxBlocksToDisplay = 5
 
-const latestBlockSummariesAtomBuilder = (store: JotaiStore) => {
-  return atom((get) => {
+const createLatestBlockSummariesAtom = () => {
+  const latestBlockSummariesAtom = atom<BlockSummary[]>([])
+  const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
     const syncedRound = get(syncedRoundAtom)
     if (!syncedRound) {
-      return []
+      return
     }
-    const blockResults = store.get(blockResultsAtom)
-    const transactionResults = store.get(transactionResultsAtom)
 
-    return Array.from({ length: maxBlocksToDisplay }, (_, i) => {
-      const round = syncedRound - i
-      const block = blockResults.get(round)
+    const blockResults = get.peek(blockResultsAtom)
+    const transactionResults = get.peek(transactionResultsAtom)
 
-      if (block) {
-        const transactionSummaries = block.transactionIds.map((transactionId) => {
-          return asTransactionSummary(transactionResults.get(transactionId)!)
-        })
+    ;(async () => {
+      const latestBlockSummaries = (
+        await Promise.all(
+          Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
+            const round = syncedRound - i
+            const blockAtom = blockResults.get(round)
 
-        return asBlockSummary(block, transactionSummaries)
-      }
-    }).filter(isDefined)
+            if (blockAtom) {
+              const block = await get(blockAtom)
+              const transactionSummaries = await Promise.all(
+                block.transactionIds.map(async (transactionId) => {
+                  const transactionResult = await get.peek(transactionResults.get(transactionId)!)
+
+                  return asTransactionSummary(transactionResult)
+                })
+              )
+
+              return asBlockSummary(block, transactionSummaries)
+            }
+          })
+        )
+      ).filter(isDefined)
+
+      set(latestBlockSummariesAtom, latestBlockSummaries)
+    })()
+  })
+
+  return atom((get) => {
+    get(refreshLatestBlockSummariesEffect)
+
+    return get(latestBlockSummariesAtom)
   })
 }
 
-export const useLatestBlockSummariesAtom = (store: JotaiStore) => {
-  return useMemo(() => {
-    return latestBlockSummariesAtomBuilder(store)
-  }, [store])
-}
+export const latestBlockSummariesAtom = createLatestBlockSummariesAtom()
 
 export const useLatestBlockSummaries = () => {
-  const store = useStore()
-  return useAtomValue(useLatestBlockSummariesAtom(store))
+  return useAtomValue(latestBlockSummariesAtom)
 }
 
 const subscribeToBlocksEffect = atomEffect((get, set) => {
@@ -83,75 +100,58 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       return
     }
 
-    const [blockTransactionIds, transactions] = result.subscribedTransactions.reduce(
+    const [blockTransactionIds, transactionResults, groupResults, staleAssetIds] = result.subscribedTransactions.reduce(
       (acc, t) => {
-        if (!t.parentTransactionId && t['confirmed-round']) {
+        if (!t.parentTransactionId && t['confirmed-round'] != null) {
+          const round = t['confirmed-round']
           // Filter out filtersMatched and balanceChanges, as we don't need them
           const { filtersMatched, balanceChanges, ...transaction } = t
-          const round = transaction['confirmed-round']!
 
           acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
-          acc[1].set(transaction.id, transaction)
+          acc[1].push(transaction)
+          if (t.group) {
+            const roundTime = transaction['round-time']
+            const group: GroupResult = acc[2].get(t.group) ?? {
+              id: t.group,
+              round: round,
+              timestamp: (roundTime ? new Date(roundTime * 1000) : new Date()).toISOString(),
+              transactionIds: [],
+            }
+            group.transactionIds.push(t.id)
+            acc[2].set(t.group, group)
+          }
+          const staleAssetIds = flattenTransactionResult(t)
+            .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
+            .map((t) => t['asset-config-transaction']!['asset-id'])
+            .filter(distinct((x) => x))
+            .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
+          acc[3].push(...staleAssetIds)
         }
         return acc
       },
-      [new Map<Round, string[]>(), new Map<TransactionId, TransactionResult>()] as const
+      [new Map(), [], new Map(), []] as [Map<Round, string[]>, TransactionResult[], Map<GroupId, GroupResult>, AssetId[]]
     )
 
-    const blocks = result.blockMetadata.map((b) => {
-      return [
-        b.round,
-        {
-          round: b.round,
-          timestamp: b.timestamp,
-          transactionIds: blockTransactionIds.get(b.round) ?? [],
-        } as BlockResult,
-      ] as const
-    })
+    if (staleAssetIds.length > 0) {
+      const currentAssetResults = get.peek(assetResultsAtom)
+      const assetIdsToRemove = staleAssetIds.filter((staleAssetId) => currentAssetResults.has(staleAssetId))
 
-    set(transactionResultsAtom, (prev) => {
-      const next = new Map(prev)
-      transactions.forEach((value, key) => {
-        next.set(key, value)
+      set(assetMetadataResultsAtom, (prev) => {
+        const next = new Map(prev)
+        assetIdsToRemove.forEach((assetId) => {
+          next.delete(assetId)
+        })
+        return next
       })
-      return next
-    })
 
-    transactions.forEach((t) => {
-      const affectedAssetIds = flattenTransactionResult(t)
-        .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
-        .map((t) => t['asset-config-transaction']!['asset-id'])
-        .filter(distinct((x) => x))
-        .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
-
-      affectedAssetIds.forEach(async (assetId) => {
-        // Invalidate any asset caches that are potentially stale because of this transaction
-
-        if (get.peek(assetMetadataAtom).has(assetId)) {
-          set(assetMetadataAtom, (prev) => {
-            const next = new Map(prev)
-            next.delete(assetId)
-            return next
-          })
-        }
-
-        if (get.peek(assetResultsAtom).has(assetId)) {
-          set(assetResultsAtom, (prev) => {
-            const next = new Map(prev)
-            next.delete(assetId)
-            return next
-          })
-        }
+      set(assetResultsAtom, (prev) => {
+        const next = new Map(prev)
+        assetIdsToRemove.forEach((assetId) => {
+          next.delete(assetId)
+        })
+        return next
       })
-    })
-
-    set(blockResultsAtom, (prev) => {
-      const next = new Map(prev)
-      blocks.forEach(([key, value]) => {
-        next.set(key, value)
-      })
-      return next
-    })
+    }
 
     set(liveTransactionIdsAtom, (prev) => {
       return Array.from(transactions.keys()).concat(prev)

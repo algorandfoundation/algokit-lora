@@ -1,87 +1,39 @@
 import { Atom, atom, useAtomValue, useStore } from 'jotai'
 import { useMemo } from 'react'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
-import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
-import { invariant } from '@/utils/invariant'
 import { TransactionId } from './types'
-import { indexer } from '@/features/common/data'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { getAssetSummaryAtomBuilder, getAssetSummariesAtomBuilder } from '@/features/assets/data'
-import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
-import { transactionResultsAtom } from './core'
+import { createAssetSummaryAtom } from '@/features/assets/data'
+import { getTransactionResultAtom } from './transaction-result'
 
-export const fetchTransactionResultAtomBuilder = (store: JotaiStore, transactionId: TransactionId) => {
-  const syncEffect = atomEffect((get, set) => {
-    ;(async () => {
-      try {
-        const transactionResult = await get(transactionResultAtom)
-        set(transactionResultsAtom, (prev) => {
-          const next = new Map(prev)
-          next.set(transactionResult.id, transactionResult)
-          return next
-        })
-      } catch (e) {
-        // Ignore any errors as there is nothing to sync
-      }
-    })()
-  })
-  const transactionResultAtom = atom((get) => {
-    const transactionResults = store.get(transactionResultsAtom)
-    const cachedTransactionResult = transactionResults.get(transactionId)
-    if (cachedTransactionResult) {
-      return cachedTransactionResult
-    }
-
-    get(syncEffect)
-
-    return lookupTransactionById(transactionId, indexer).then((result) => {
-      return result.transaction
-    })
-  })
-  return transactionResultAtom
-}
-
-export const fetchTransactionResultsAtomBuilder = (store: JotaiStore, transactionIds: TransactionId[]) => {
-  return atom((get) => {
-    return Promise.all(transactionIds.map((transactionId) => get(fetchTransactionResultAtomBuilder(store, transactionId))))
-  })
-}
-
-export const fetchTransactionsAtomBuilder = (
+export const createTransactionsAtom = (
   store: JotaiStore,
-  transactionResults: TransactionResult[] | Atom<TransactionResult[] | Promise<TransactionResult[]>>
+  transactionResults: TransactionResult[] | Atom<Promise<TransactionResult> | TransactionResult>[]
 ) => {
   return atom(async (get) => {
-    const txns = Array.isArray(transactionResults) ? transactionResults : await get(transactionResults)
-    const assetIds = Array.from(new Set(txns.map((txn) => getAssetIdsForTransaction(txn)).flat()))
-    const assets = new Map(
-      (await get(getAssetSummariesAtomBuilder(store, assetIds))).map((a) => {
-        return [a.id, a] as const
+    const txns = await Promise.all(
+      transactionResults.map(async (transactionResult) => {
+        return 'id' in transactionResult ? transactionResult : await get(transactionResult)
       })
     )
 
     return await Promise.all(
       txns.map((transactionResult) => {
-        return asTransaction(transactionResult, (assetId: number) => {
-          const asset = assets.get(assetId)
-          invariant(asset, `when mapping ${transactionResult.id}, asset with id ${assetId} could not be retrieved`)
-          return asset
-        })
+        return asTransaction(transactionResult, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
       })
     )
   })
 }
 
-export const fetchTransactionAtomBuilder = (
+export const createTransactionAtom = (
   store: JotaiStore,
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return await asTransaction(txn, (assetId: number) => get(getAssetSummaryAtomBuilder(store, assetId)))
+    return await asTransaction(txn, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
   })
 }
 
@@ -89,7 +41,7 @@ const useTransactionAtom = (transactionId: TransactionId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return fetchTransactionAtomBuilder(store, fetchTransactionResultAtomBuilder(store, transactionId))
+    return createTransactionAtom(store, getTransactionResultAtom(store, transactionId))
   }, [store, transactionId])
 }
 
