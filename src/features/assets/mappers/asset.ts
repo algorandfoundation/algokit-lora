@@ -1,7 +1,7 @@
 import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { asAssetSummary } from './asset-summary'
 import { Asset, AssetMediaType, AssetStandard, AssetType } from '../models'
-import { AssetIndex, AssetMetadataResult, AssetMetadataStandard } from '../data/types'
+import { AssetId, AssetMetadataResult, AssetMetadataStandard } from '../data/types'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import Decimal from 'decimal.js'
@@ -81,7 +81,7 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
         type: AssetMediaType.Video,
       }
     }
-  } else if (!metadataResult && assetResult.params.url?.startsWith('ipfs://')) {
+  } else if (!metadataResult && (assetResult.params.url?.startsWith('ipfs://') || assetResult.params.url?.includes('/ipfs/'))) {
     // There are a lot of NFTs which use the URL to store the ipfs image, however don't follow any standard
     return {
       url: replaceIpfsWithGatewayIfNeeded(assetResult.params.url),
@@ -132,11 +132,11 @@ const asType = (assetResult: AssetResult): AssetType => {
   return AssetType.Fungible
 }
 
-const getArc3MediaUrl = (assetIndex: AssetIndex, assetMetadataUrl: string, mediaUrl: string) => {
+const getArc3MediaUrl = (assetId: AssetId, assetMetadataUrl: string, mediaUrl: string) => {
   const isRelative = !mediaUrl.includes(':')
   const absoluteMediaUrl = !isRelative ? mediaUrl : new URL(assetMetadataUrl, mediaUrl).toString()
 
-  return getArc3Url(assetIndex, absoluteMediaUrl)
+  return getArc3Url(assetId, absoluteMediaUrl)
 }
 
 const normalizeObjectForDisplay = (object: Record<string, unknown>) => {

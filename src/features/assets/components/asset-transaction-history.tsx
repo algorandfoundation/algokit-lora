@@ -1,5 +1,5 @@
 import { LazyLoadDataTable } from '@/features/common/components/lazy-load-data-table'
-import { AssetIndex } from '../data/types'
+import { AssetId } from '../data/types'
 import { Transaction, TransactionType } from '@/features/transactions/models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
@@ -10,11 +10,11 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useFetchNextAssetTransactionsPage } from '../data/asset-transaction-history'
 
 type Props = {
-  assetIndex: AssetIndex
+  assetId: AssetId
 }
 
-export function AssetTransactionHistory({ assetIndex }: Props) {
-  const fetchNextPage = useFetchNextAssetTransactionsPage(assetIndex)
+export function AssetTransactionHistory({ assetId }: Props) {
+  const fetchNextPage = useFetchNextAssetTransactionsPage(assetId)
 
   return <LazyLoadDataTable columns={transactionsTableColumns} fetchNextPage={fetchNextPage} />
 }
