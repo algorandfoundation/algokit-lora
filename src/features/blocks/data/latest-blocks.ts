@@ -1,7 +1,7 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { transactionResultsAtom } from '@/features/transactions/data'
 import { asTransactionSummary } from '@/features/transactions/mappers/transaction-mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
@@ -132,6 +132,14 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       [new Map(), [], new Map(), []] as [Map<Round, string[]>, TransactionResult[], Map<GroupId, GroupResult>, AssetId[]]
     )
 
+    const blockResults = result.blockMetadata.map((b) => {
+      return {
+        round: b.round,
+        timestamp: b.timestamp,
+        transactionIds: blockTransactionIds.get(b.round) ?? [],
+      } as BlockResult
+    })
+
     if (staleAssetIds.length > 0) {
       const currentAssetResults = get.peek(assetResultsAtom)
       const assetIdsToRemove = staleAssetIds.filter((staleAssetId) => currentAssetResults.has(staleAssetId))
@@ -153,9 +161,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       })
     }
 
-    set(liveTransactionIdsAtom, (prev) => {
-      return Array.from(transactions.keys()).concat(prev)
-    })
+    set(addStateExtractFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
   })
 
   subscriber.start()

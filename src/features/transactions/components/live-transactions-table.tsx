@@ -103,19 +103,20 @@ const useLiveTransactions = (
         const syncedTransactionId = get(syncedTransactionIdAtom)
 
         set(syncedTransactionIdAtom, liveTransactionIds[0])
-        const newTransactionResults = []
+        const newTransactionResults: TransactionResult[] = []
         for (const transactionId of liveTransactionIds) {
           if (transactionId === syncedTransactionId) {
             break
           }
-          const transactionResult = transactionResults.get(transactionId)
+          const transactionResultAtom = transactionResults.get(transactionId)
 
-          if (!transactionResult) {
+          if (!transactionResultAtom) {
             // Ignore if the transaction is not in the transactionResultsAtom
             // Very unlikely to happen
             continue
           }
 
+          const transactionResult = await get.peek(transactionResultAtom)
           newTransactionResults.push(transactionResult)
         }
         const newTransactions = (

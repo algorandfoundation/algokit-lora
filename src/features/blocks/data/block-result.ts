@@ -2,7 +2,7 @@ import { atom } from 'jotai'
 import { indexer } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { atomEffect } from 'jotai-effect'
-import { transactionResultsAtom } from '@/features/transactions/data'
+import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
@@ -64,6 +64,10 @@ export const addStateExtractFromBlocksAtom = atom(
           }
         })
         return next
+      })
+
+      set(liveTransactionIdsAtom, (prev) => {
+        return Array.from(transactionResults.map((txn) => txn.id)).concat(prev)
       })
     }
 
