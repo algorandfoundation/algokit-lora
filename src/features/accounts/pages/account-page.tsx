@@ -6,7 +6,7 @@ import { isAddress } from '@/utils/is-address'
 import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Account } from '../models'
-import { useLoadableAccountAtom } from '../data/account'
+import { useLoadableAccountAtom } from '../data'
 import { AccountDetails } from '../components/account-details'
 
 export const accountPageTitle = 'Account'

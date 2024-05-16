@@ -5,8 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
 import { algod } from '@/features/common/data'
 import { accountResultMother } from '@/tests/object-mother/account-result'
-import { createStore } from 'jotai'
-import { accountResultsAtom } from '../data/core'
+import { atom, createStore } from 'jotai'
 import {
   accountAddressLabel,
   accountBalanceLabel,
@@ -18,6 +17,7 @@ import {
   accountOptedApplicationsLabel,
 } from '../components/account-info'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
+import { accountResultsAtom } from '../data'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {
@@ -54,7 +54,7 @@ describe('account-page', () => {
 
     it.skip('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.index, accountResult]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.index, atom(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
       // vi.mocked(algod.accountInformation('7AHHR4ZMHKMRFUVGLU3SWGKMJBKRUA5UQQUPFWT4WMFO2RLXBUIXZR7FQQ').do).mockImplementation(() =>

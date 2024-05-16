@@ -70,7 +70,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
 }
 
 export const createAssetMetadataResultAtom = (assetResult: AssetResult) =>
-  atom(async (_get) => {
+  atom<Promise<AssetMetadataResult> | AssetMetadataResult>(async (_get) => {
     if (assetResult.index === 0) {
       return null
     }
