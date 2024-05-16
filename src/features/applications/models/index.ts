@@ -9,7 +9,6 @@ export type Application = {
   approvalProgram: string
   clearStateProgram: string
   globalState: Map<string, ApplicationGlobalStateValue>
-  // TODO: PD - boxes state
   // TODO: PD - ARC2 app stuff
 }
 
@@ -31,4 +30,8 @@ export type ApplicationGlobalStateValue =
 export enum ApplicationGlobalStateType {
   Bytes = 'Bytes',
   Uint = 'Uint',
+}
+
+export type ApplicationBoxSummary = {
+  name: string
 }
