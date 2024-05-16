@@ -288,7 +288,7 @@ describe('transaction-page', () => {
     })
   })
 
-  describe('when rending a transaction with a note', () => {
+  describe('when rendering a transaction with a note', () => {
     const transactionBuilder = transactionResultMother.payment()
 
     describe('and the note is text', () => {

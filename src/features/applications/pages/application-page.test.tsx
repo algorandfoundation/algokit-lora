@@ -12,7 +12,7 @@ import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 
 describe('application-page', () => {
-  describe('when rending an application using an invalid application Id', () => {
+  describe('when rendering an application using an invalid application Id', () => {
     it('should display invalid application Id message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: 'invalid-id' }))
 
@@ -25,7 +25,7 @@ describe('application-page', () => {
     })
   })
 
-  describe('when rending an application with application Id that does not exist', () => {
+  describe('when rendering an application with application Id that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: '123456' }))
       vi.mocked(indexer.lookupApplications(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
@@ -39,7 +39,7 @@ describe('application-page', () => {
     })
   })
 
-  describe('when rending an application that failed to load', () => {
+  describe('when rendering an application that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: '123456' }))
       vi.mocked(indexer.lookupApplications(0).includeAll(true).do).mockImplementation(() => Promise.reject({}))
