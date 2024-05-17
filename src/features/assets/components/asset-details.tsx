@@ -25,7 +25,7 @@ import {
   assetNameLabel,
   assetReserveLabel,
   assetTotalSupplyLabel,
-  assetTransactionsLabel,
+  assetActivityLabel,
   assetUnitNameLabel,
   assetUrlLabel,
 } from './labels'
@@ -162,9 +162,9 @@ export function AssetDetails({ asset }: Props) {
 
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetTransactionsLabel}</h1>
+              <h1 className={cn('text-2xl text-primary font-bold')}>{assetActivityLabel}</h1>
               <Tabs defaultValue={assetLiveTransactionsTabId}>
-                <TabsList aria-label={assetTransactionsLabel}>
+                <TabsList aria-label={assetActivityLabel}>
                   <TabsTrigger
                     className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
                     value={assetLiveTransactionsTabId}

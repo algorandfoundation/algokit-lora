@@ -1,52 +1,66 @@
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
+import { AccountAssetHeld } from './account-assets-held'
+import { Account } from '../models'
 
-const accountVisualTransactionTabId = 'visual'
-const accountVisualAssetsTabId = 'table'
-const accountVisualCreatedAssetsTabId = 'created-assets'
-const accountVisualCreatedApplicationsTabId = 'created-applications'
-const accountVisualOptedApplicationsTabId = 'opted-applications'
+const accountLiveTransactionsTabId = 'live-transactions'
+const accountHistoricalTransactionsTabId = 'historical-transactions'
+const accountHeldAssetsTabId = 'held-assets'
+const accountCreatedAssetsTabId = 'created-assets'
+const accountCreatedApplicationsTabId = 'created-applications'
+const accountOptedApplicationsTabId = 'opted-applications'
+
 export const accountDetailsLabel = 'View account Details'
-export const accountVisualGraphTabLabel = 'Transactions'
-export const accountVisualAssetsTabLabel = 'Assets'
-export const accountVisualCreatedAssetsTabLabel = 'Created Assets'
-export const accountVisualCreatedApplicationsTabLabel = 'Created Applications'
-export const accountVisualOptedApplicationsTabLabel = 'Opted Applications'
+export const accountLiveTransactionsTabLabel = 'Live Transactions'
+export const accountHistoricalTransactionsTabLabel = 'Historical Transactions'
+export const accountHeldAssetsTabLabel = 'Held Assets'
+export const accountCreatedAssetsTabLabel = 'Created Assets'
+export const accountCreatedApplicationsTabLabel = 'Created Applications'
+export const accountOptedApplicationsTabLabel = 'Opted Applications'
 
-export function AccountActivityTabs() {
+type Props = {
+  account: Account
+}
+
+export function AccountActivityTabs({ account }: Props) {
   const tabs = useMemo(
     () => [
       {
-        id: accountVisualTransactionTabId,
-        label: accountDetailsLabel,
+        id: accountLiveTransactionsTabId,
+        label: accountLiveTransactionsTabLabel,
         children: '',
       },
       {
-        id: accountVisualAssetsTabId,
-        label: accountVisualAssetsTabLabel,
+        id: accountHistoricalTransactionsTabId,
+        label: accountHistoricalTransactionsTabLabel,
         children: '',
       },
       {
-        id: accountVisualCreatedAssetsTabId,
-        label: accountVisualCreatedAssetsTabLabel,
+        id: accountHeldAssetsTabId,
+        label: accountHeldAssetsTabLabel,
+        children: <AccountAssetHeld address={account.address} />,
+      },
+      {
+        id: accountCreatedAssetsTabId,
+        label: accountCreatedAssetsTabLabel,
         children: '',
       },
       {
-        id: accountVisualCreatedApplicationsTabId,
-        label: accountVisualCreatedApplicationsTabLabel,
+        id: accountCreatedApplicationsTabId,
+        label: accountCreatedApplicationsTabLabel,
         children: '',
       },
       {
-        id: accountVisualOptedApplicationsTabId,
-        label: accountVisualOptedApplicationsTabLabel,
+        id: accountOptedApplicationsTabId,
+        label: accountOptedApplicationsTabLabel,
         children: '',
       },
     ],
-    []
+    [account.address]
   )
   return (
-    <Tabs defaultValue={accountVisualTransactionTabId}>
+    <Tabs defaultValue={accountLiveTransactionsTabId}>
       <TabsList aria-label={accountDetailsLabel}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')} value={tab.id}>

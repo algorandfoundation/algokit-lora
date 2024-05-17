@@ -17,7 +17,7 @@ import {
   assetReserveLabel,
   assetTotalSupplyLabel,
   assetTraitsLabel,
-  assetTransactionsLabel,
+  assetActivityLabel,
   assetUrlLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
@@ -149,9 +149,9 @@ describe('asset-page', () => {
               ],
             })
 
-            const transactionTabList = component.getByRole('tablist', { name: assetTransactionsLabel })
-            expect(transactionTabList).toBeTruthy()
-            expect(transactionTabList.children.length).toBe(2)
+            const activityTabList = component.getByRole('tablist', { name: assetActivityLabel })
+            expect(activityTabList).toBeTruthy()
+            expect(activityTabList.children.length).toBe(2)
           })
         }
       )
@@ -614,8 +614,8 @@ describe('asset-page', () => {
             const assetTraitsCard = component.queryByText(assetTraitsLabel)
             expect(assetTraitsCard).toBeNull()
 
-            const transactionTabList = component.queryByRole('tablist', { name: assetTransactionsLabel })
-            expect(transactionTabList).toBeNull()
+            const activityTabList = component.queryByRole('tablist', { name: assetActivityLabel })
+            expect(activityTabList).toBeNull()
           })
         }
       )

@@ -6,7 +6,7 @@ import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { algod } from '@/features/common/data'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
@@ -17,6 +17,9 @@ import { BlockSummary } from '../models'
 import { blockResultsAtom, addStateExtractedFromBlocksAtom, syncedRoundAtom } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
+import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
+import { accountResultsAtom } from '@/features/accounts/data'
+import { Address } from '@/features/accounts/data/types'
 
 const maxBlocksToDisplay = 5
 
@@ -100,15 +103,20 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       return
     }
 
-    const [blockTransactionIds, transactionResults, groupResults, staleAssetIds] = result.subscribedTransactions.reduce(
+    const [blockTransactionIds, transactionResults, groupResults, staleAssetIds, staleAddresses] = result.subscribedTransactions.reduce(
       (acc, t) => {
         if (!t.parentTransactionId && t['confirmed-round'] != null) {
           const round = t['confirmed-round']
-          // Filter out filtersMatched and balanceChanges, as we don't need them
-          const { filtersMatched, balanceChanges, ...transaction } = t
+          // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
+          const { filtersMatched: _filtersMatched, balanceChanges, arc28Events: _arc28Events, ...transaction } = t
 
+          // Accumulate transaction ids by round
           acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
+
+          // Accumulate transactions
           acc[1].push(transaction)
+
+          // Accumulate group results
           if (t.group) {
             const roundTime = transaction['round-time']
             const group: GroupResult = acc[2].get(t.group) ?? {
@@ -120,16 +128,48 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
             group.transactionIds.push(t.id)
             acc[2].set(t.group, group)
           }
+
+          // Accumulate stale asset ids
           const staleAssetIds = flattenTransactionResult(t)
             .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
             .map((t) => t['asset-config-transaction']!['asset-id'])
             .filter(distinct((x) => x))
             .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
           acc[3].push(...staleAssetIds)
+
+          // Accumulate stale addresses
+          const addressesStaleDueToBalanceChanges =
+            balanceChanges
+              ?.filter((bc) => {
+                const isAssetOptIn =
+                  bc.amount === 0n &&
+                  bc.assetId !== 0 &&
+                  bc.roles.includes(BalanceChangeRole.Sender) &&
+                  bc.roles.includes(BalanceChangeRole.Receiver)
+                const isNonZeroAmount = bc.amount !== 0n // Can either be negative (decreased balance) or positive (increased balance)
+                return isAssetOptIn || isNonZeroAmount
+              })
+              .map((bc) => bc.address)
+              .filter(distinct((x) => x)) ?? []
+          const addressesStaleDueToAppChanges = flattenTransactionResult(t)
+            .filter((t) => {
+              if (t['tx-type'] !== algosdk.TransactionType.appl) {
+                return false
+              }
+              const appCallTransaction = t['application-transaction']!
+              const isAppCreate =
+                appCallTransaction['on-completion'] === ApplicationOnComplete.noop && !appCallTransaction['application-id']
+              const isAppOptIn = appCallTransaction['on-completion'] === ApplicationOnComplete.optin && appCallTransaction['application-id']
+              return isAppCreate || isAppOptIn
+            })
+            .map((t) => t.sender)
+            .filter(distinct((x) => x))
+          const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToAppChanges)))
+          acc[4].push(...staleAddresses)
         }
         return acc
       },
-      [new Map(), [], new Map(), []] as [Map<Round, string[]>, TransactionResult[], Map<GroupId, GroupResult>, AssetId[]]
+      [new Map(), [], new Map(), [], []] as [Map<Round, string[]>, TransactionResult[], Map<GroupId, GroupResult>, AssetId[], Address[]]
     )
 
     const blockResults = result.blockMetadata.map((b) => {
@@ -156,6 +196,19 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
         const next = new Map(prev)
         assetIdsToRemove.forEach((assetId) => {
           next.delete(assetId)
+        })
+        return next
+      })
+    }
+
+    if (staleAddresses.length > 0) {
+      const currentAccountResults = get.peek(accountResultsAtom)
+      const addressesToRemove = staleAddresses.filter((staleAddress) => currentAccountResults.has(staleAddress))
+
+      set(accountResultsAtom, (prev) => {
+        const next = new Map(prev)
+        addressesToRemove.forEach((address) => {
+          next.delete(address)
         })
         return next
       })
