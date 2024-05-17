@@ -35,3 +35,8 @@ export enum ApplicationGlobalStateType {
 export type ApplicationBoxSummary = {
   name: string
 }
+
+export type ApplicationBox = {
+  name: string
+  value: string
+}

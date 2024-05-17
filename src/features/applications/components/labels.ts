@@ -16,3 +16,7 @@ export const applicationClearStateProgramTabsListAriaLabel = 'View Application C
 export const applicationGlobalStateLabel = 'Global State'
 
 export const applicationBoxesLabel = 'Boxes'
+
+export const applicationBoxDetailsLabel = 'Application Box'
+export const applicationBoxNameLabel = 'Box Name'
+export const applicationBoxValueLabel = 'Box Value'

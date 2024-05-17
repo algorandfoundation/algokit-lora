@@ -10,6 +10,7 @@ export const UrlParams = {
   Address: 'address:string',
   AssetId: 'assetId:string',
   ApplicationId: 'applicationId:string',
+  BoxName: 'boxName:string',
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
@@ -36,7 +37,11 @@ export const Urls = {
       ById: UrlTemplate`/${UrlParams.AssetId}`,
     }),
     Application: UrlTemplate`/application`.extend({
-      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+      ById: UrlTemplate`/${UrlParams.ApplicationId}`.extend({
+        Box: UrlTemplate`/box`.extend({
+          ById: UrlTemplate`/${UrlParams.BoxName}`,
+        }),
+      }),
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
