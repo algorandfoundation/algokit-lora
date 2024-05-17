@@ -17,6 +17,6 @@ export const applicationGlobalStateLabel = 'Global State'
 
 export const applicationBoxesLabel = 'Boxes'
 
-export const applicationBoxDetailsLabel = 'Application Box'
+export const applicationBoxDetailsLabel = 'Application Box Details'
 export const applicationBoxNameLabel = 'Box Name'
 export const applicationBoxValueLabel = 'Box Value'
