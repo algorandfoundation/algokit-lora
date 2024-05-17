@@ -19,7 +19,7 @@ import {
 } from '../components/account-info'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { accountResultsAtom } from '../data'
-import { accountActivityLabel, accountJsonLabel } from '../components/account-details'
+import { accountActivityLabel, accountJsonLabel } from '../components/labels'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {

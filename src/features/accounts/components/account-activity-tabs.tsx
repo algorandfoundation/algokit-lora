@@ -4,21 +4,21 @@ import { useMemo } from 'react'
 import { AccountAssetHeld } from './account-assets-held'
 import { Account } from '../models'
 import { AccountTransactionHistory } from './account-transaction-history'
-import { accountActivityLabel } from './account-details'
-
-const accountLiveTransactionsTabId = 'live-transactions'
-const accountHistoricalTransactionsTabId = 'historical-transactions'
-const accountHeldAssetsTabId = 'held-assets'
-const accountCreatedAssetsTabId = 'created-assets'
-const accountCreatedApplicationsTabId = 'created-applications'
-const accountOptedApplicationsTabId = 'opted-applications'
-
-export const accountLiveTransactionsTabLabel = 'Live Transactions'
-export const accountHistoricalTransactionsTabLabel = 'Historical Transactions'
-export const accountHeldAssetsTabLabel = 'Held Assets'
-export const accountCreatedAssetsTabLabel = 'Created Assets'
-export const accountCreatedApplicationsTabLabel = 'Created Applications'
-export const accountOptedApplicationsTabLabel = 'Opted Applications'
+import {
+  accountActivityLabel,
+  accountLiveTransactionsTabId,
+  accountCreatedApplicationsTabId,
+  accountCreatedAssetsTabId,
+  accountHeldAssetsTabId,
+  accountHistoricalTransactionsTabId,
+  accountOptedApplicationsTabId,
+  accountLiveTransactionsTabLabel,
+  accountHistoricalTransactionsTabLabel,
+  accountHeldAssetsTabLabel,
+  accountCreatedAssetsTabLabel,
+  accountCreatedApplicationsTabLabel,
+  accountOptedApplicationsTabLabel,
+} from './labels'
 
 type Props = {
   account: Account

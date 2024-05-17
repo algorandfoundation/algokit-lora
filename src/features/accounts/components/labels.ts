@@ -1,0 +1,16 @@
+export const accountJsonLabel = 'Acount JSON'
+export const accountActivityLabel = 'Activity'
+
+export const accountLiveTransactionsTabLabel = 'Live Transactions'
+export const accountHistoricalTransactionsTabLabel = 'Historical Transactions'
+export const accountHeldAssetsTabLabel = 'Held Assets'
+export const accountCreatedAssetsTabLabel = 'Created Assets'
+export const accountCreatedApplicationsTabLabel = 'Created Applications'
+export const accountOptedApplicationsTabLabel = 'Opted Applications'
+
+export const accountLiveTransactionsTabId = 'live-transactions'
+export const accountHistoricalTransactionsTabId = 'historical-transactions'
+export const accountHeldAssetsTabId = 'held-assets'
+export const accountCreatedAssetsTabId = 'created-assets'
+export const accountCreatedApplicationsTabId = 'created-applications'
+export const accountOptedApplicationsTabId = 'opted-applications'

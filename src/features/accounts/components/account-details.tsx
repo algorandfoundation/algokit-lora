@@ -3,13 +3,11 @@ import { Account } from '../models'
 import { cn } from '@/features/common/utils'
 import { AccountActivityTabs } from './account-activity-tabs'
 import { AccountInfo } from './account-info'
+import { accountActivityLabel, accountJsonLabel } from './labels'
 
 type Props = {
   account: Account
 }
-
-export const accountActivityLabel = 'Activity'
-export const accountJsonLabel = 'Acount JSON'
 
 export function AccountDetails({ account }: Props) {
   return (
