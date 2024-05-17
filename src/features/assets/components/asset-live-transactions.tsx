@@ -3,9 +3,6 @@ import { useCallback } from 'react'
 import { LiveTransactionsTable } from '@/features/transactions/components/live-transactions-table'
 import { assetTransactionsTableColumns } from '../utils/asset-transactions-table-columns'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { JotaiStore } from '@/features/common/data/types'
-import { createTransactionAtom } from '@/features/transactions/data'
-import { atom } from 'jotai'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -15,15 +12,10 @@ type Props = {
 }
 
 export function AssetLiveTransactions({ assetId }: Props) {
-  const mapper = useCallback(
-    (store: JotaiStore, transactionResult: TransactionResult) => {
-      return atom(async (get) => {
-        const assetIdsForTransaction = getAssetIdsForTransaction(transactionResult)
-        if (!assetIdsForTransaction.includes(assetId)) return []
-
-        const transaction = await get(createTransactionAtom(store, transactionResult))
-        return [transaction]
-      })
+  const filter = useCallback(
+    (transactionResult: TransactionResult) => {
+      const assetIdsForTransaction = getAssetIdsForTransaction(transactionResult)
+      return assetIdsForTransaction.includes(assetId)
     },
     [assetId]
   )
@@ -46,5 +38,5 @@ export function AssetLiveTransactions({ assetId }: Props) {
     },
     [assetId]
   )
-  return <LiveTransactionsTable mapper={mapper} getSubRows={getSubRows} columns={assetTransactionsTableColumns} />
+  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={assetTransactionsTableColumns} />
 }

@@ -3,21 +3,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
 import { useState } from 'react'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
-import { Atom } from 'jotai'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { JotaiStore } from '@/features/common/data/types'
 import { useLiveTransactions } from '../data/live-transaction'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
-  // convert mapper to filter
-  mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>
+  filter: (transactionResult: TransactionResult) => boolean
   getSubRows?: (row: Transaction | InnerTransaction) => InnerTransaction[]
 }
 
-export function LiveTransactionsTable({ mapper, columns, getSubRows }: Props) {
+export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   const [maxRows, setMaxRows] = useState(10)
-  const transactions = useLiveTransactions(mapper, maxRows)
+  const transactions = useLiveTransactions(filter, maxRows)
   const table = useReactTable({
     data: transactions,
     columns,
