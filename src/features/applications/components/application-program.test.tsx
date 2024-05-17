@@ -15,7 +15,7 @@ describe('application-program', () => {
 
       return executeComponentTest(
         () => {
-          return render(<ApplicationProgram tabsListAriaLabel={tabListName} base64Program={program} />, undefined)
+          return render(<ApplicationProgram tabsListAriaLabel={tabListName} base64Program={program} />)
         },
         async (component, user) => {
           const tabList = component.getByRole('tablist', { name: tabListName })

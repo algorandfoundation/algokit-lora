@@ -9,7 +9,6 @@ type Props = PropsWithChildren<{
   className?: string
 }>
 
-// TODO: use this everywhere else
 export function ApplicationLink({ applicationId, className, children }: Props) {
   return (
     <TemplatedNavLink
