@@ -52,7 +52,18 @@ const createApplicationTransactionsAtom = (store: JotaiStore, applicationID: App
     get(createSyncEffect(transactionResults))
 
     const transactions = await get(createTransactionsAtom(store, transactionResults))
-    const transactionsForApplication = transactions.flatMap((transaction) => extractTransactionsForApplication(transaction, applicationID))
+    const transactionsForApplication = transactions.flatMap((transaction) => {
+      // Sometimes, the app call transaction can be nested inside another transaction
+      // In that case, we want to flag it as an inner transaction
+      // We also only want to return one item per transaction even though there could be multiple
+      //   because we don't want to break the pagination
+      const txns = extractTransactionsForApplication(transaction, applicationID)
+      if (txns.length === 0) {
+        // Since this is the historical data, this should not happen
+        throw new Error(`Transaction ${transaction.id} doesn't contain any inner transaction for ${applicationID}`)
+      }
+      return txns[0]
+    })
 
     return {
       rows: transactionsForApplication,
