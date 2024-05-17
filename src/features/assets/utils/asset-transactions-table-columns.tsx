@@ -7,22 +7,31 @@ import { TransactionLink } from '@/features/transactions/components/transaction-
 import { ellipseId } from '@/utils/ellipse-id'
 import { asTo } from '@/features/common/mappers/to'
 
+const indentationWidth = 20
 export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
   {
     header: 'Transaction Id',
     accessorFn: (transaction) => transaction,
-    cell: (c) => {
-      const transaction = c.getValue<Transaction | InnerTransaction>()
-      return 'innerId' in transaction ? (
-        <TransactionLink
-          className={cn('text-primary underline cursor-pointer grid gap-2')}
-          transactionId={transaction.networkTransactionId}
+    cell: ({ row, getValue }) => {
+      const transaction = getValue<Transaction | InnerTransaction>()
+      return (
+        <div
+          style={{
+            marginLeft: `${indentationWidth * row.depth}px`,
+          }}
         >
-          <span>{ellipseId(transaction.id)}</span>
-          <span>(Inner)</span>
-        </TransactionLink>
-      ) : (
-        <TransactionLink transactionId={transaction.id} short={true} />
+          {'innerId' in transaction ? (
+            <TransactionLink
+              className={cn('text-primary underline cursor-pointer grid gap-2')}
+              transactionId={transaction.networkTransactionId}
+            >
+              <span>{ellipseId(transaction.id)}</span>
+              <span>(Inner)</span>
+            </TransactionLink>
+          ) : (
+            <TransactionLink transactionId={transaction.id} short={true} />
+          )}
+        </div>
       )
     },
   },

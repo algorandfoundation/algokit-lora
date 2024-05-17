@@ -48,21 +48,9 @@ const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSi
     get(createSyncEffect(transactionResults))
 
     const transactions = await get(createTransactionsAtom(store, transactionResults))
-    const transactionsForAsset = transactions.flatMap((transaction) => {
-      // Sometimes, the asset transaction can be nested inside another transaction
-      // In that case, we want to flag it as an inner transaction
-      // We also only want to return one item per transaction even though there could be multiple
-      //   because we don't want to break the pagination
-      const txns = extractTransactionsForAsset(transaction, assetId)
-      if (txns.length === 0) {
-        // Since this is the historical data, this should not happen
-        throw new Error(`Transaction ${transaction.id} doesn't contain any inner transaction for asset ${assetId}`)
-      }
-      return txns[0]
-    })
 
     return {
-      rows: transactionsForAsset,
+      rows: transactions,
       nextPageToken: newNextPageToken,
     }
   })

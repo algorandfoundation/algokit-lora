@@ -8,6 +8,7 @@ import { createTransactionAtom } from '@/features/transactions/data'
 import { atom } from 'jotai'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
 import { extractTransactionsForAsset } from '../utils/extract-transactions-for-asset'
+import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 
 type Props = {
   assetId: AssetId
@@ -21,10 +22,17 @@ export function AssetLiveTransactions({ assetId }: Props) {
         if (!assetIdsForTransaction.includes(assetId)) return []
 
         const transaction = await get(createTransactionAtom(store, transactionResult))
-        return extractTransactionsForAsset(transaction, assetId)
+        return [transaction]
       })
     },
     [assetId]
   )
-  return <LiveTransactionsTable mapper={mapper} columns={assetTransactionsTableColumns} />
+  const getSubRows = useCallback((row: Transaction | InnerTransaction) => {
+    if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
+      return []
+    }
+
+    return row.innerTransactions
+  }, [])
+  return <LiveTransactionsTable mapper={mapper} getSubRows={getSubRows} columns={assetTransactionsTableColumns} />
 }
