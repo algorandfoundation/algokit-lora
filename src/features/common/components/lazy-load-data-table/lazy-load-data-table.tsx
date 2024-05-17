@@ -79,7 +79,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
               </TableRow>
             )}
             {loadablePage.state === 'hasData' &&
-              table.getRowModel().rows?.length &&
+              table.getRowModel().rows.length > 0 &&
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map((cell) => (
@@ -87,7 +87,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
                   ))}
                 </TableRow>
               ))}
-            {loadablePage.state === 'hasData' && table.getRowModel().rows?.length === 0 && (
+            {loadablePage.state === 'hasData' && table.getRowModel().rows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.

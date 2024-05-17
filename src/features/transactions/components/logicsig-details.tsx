@@ -7,7 +7,6 @@ type LogicsigProps = {
 
 export const logicsigLabel = 'View Logic Signature Details'
 
-// TODO: refactor this to use the new program component
 export function LogicsigDetails({ signature }: LogicsigProps) {
   return <ApplicationProgram tabsListAriaLabel={logicsigLabel} base64Program={signature.logic} />
 }
