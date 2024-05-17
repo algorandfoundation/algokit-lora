@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { AccountAssetHeld } from './account-assets-held'
 import { Account } from '../models'
 import { AccountTransactionHistory } from './account-transaction-history'
+import { AccountLiveTransactions } from './account-live-transactions'
 import {
   accountActivityLabel,
   accountLiveTransactionsTabId,
@@ -30,7 +31,7 @@ export function AccountActivityTabs({ account }: Props) {
       {
         id: accountLiveTransactionsTabId,
         label: accountLiveTransactionsTabLabel,
-        children: '',
+        children: <AccountLiveTransactions address={account.address} />,
       },
       {
         id: accountHistoricalTransactionsTabId,
