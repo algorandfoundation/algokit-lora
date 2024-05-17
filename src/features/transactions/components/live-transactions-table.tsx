@@ -10,10 +10,12 @@ import { useLiveTransactions } from '../data/live-transaction'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
+  // convert mapper to filter
   mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>
+  getSubRows?: (row: Transaction) => InnerTransaction[]
 }
 
-export function LiveTransactionsTable({ mapper, columns }: Props) {
+export function LiveTransactionsTable({ mapper, columns, getSubRows }: Props) {
   const [maxRows, setMaxRows] = useState(10)
   const transactions = useLiveTransactions(mapper, maxRows)
   const table = useReactTable({
@@ -21,6 +23,7 @@ export function LiveTransactionsTable({ mapper, columns }: Props) {
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
+    getSubRows: getSubRows,
   })
 
   return (

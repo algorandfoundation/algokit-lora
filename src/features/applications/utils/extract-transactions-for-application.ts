@@ -2,6 +2,7 @@ import { Transaction, TransactionType } from '@/features/transactions/models'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { ApplicationId } from '../data/types'
 
+// TODO: gone
 export const extractTransactionsForApplication = (transaction: Transaction, applicationId: ApplicationId) => {
   const flattenedTransactions = flattenInnerTransactions(transaction)
   return flattenedTransactions

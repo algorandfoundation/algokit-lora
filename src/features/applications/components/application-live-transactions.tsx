@@ -6,9 +6,10 @@ import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionAtom } from '@/features/transactions/data'
 import { atom } from 'jotai'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
-import { TransactionType } from 'algosdk'
-import { extractTransactionsForApplication } from '../utils/extract-transactions-for-application'
+import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { applicationTransactionsTableColumns } from '../utils/application-transactions-table-columns'
+import { Transaction, InnerTransaction, TransactionType } from '@/features/transactions/models'
+import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 type Props = {
   applicationId: ApplicationId
@@ -21,17 +22,31 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
         const transactionResultIncludesInners = flattenTransactionResult(transactionResult)
         if (
           !transactionResultIncludesInners.some(
-            (txn) => txn['tx-type'] === TransactionType.appl && txn['application-transaction']?.['application-id'] === applicationId
+            (txn) => txn['tx-type'] === AlgoSdkTransactionType.appl && txn['application-transaction']?.['application-id'] === applicationId
           )
         ) {
           return []
         }
 
         const transaction = await get(createTransactionAtom(store, transactionResult))
-        return extractTransactionsForApplication(transaction, applicationId)
+        return [transaction]
       })
     },
     [applicationId]
   )
-  return <LiveTransactionsTable mapper={mapper} columns={applicationTransactionsTableColumns} />
+  const getSubRows = useCallback(
+    (row: Transaction | InnerTransaction) => {
+      if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
+        return []
+      }
+
+      return row.innerTransactions.filter((innerTransaction) => {
+        const txns = flattenInnerTransactions(innerTransaction)
+        return txns.some(({ transaction: txn }) => txn.type === TransactionType.ApplicationCall && txn.applicationId === applicationId)
+      })
+    },
+    [applicationId]
+  )
+
+  return <LiveTransactionsTable mapper={mapper} getSubRows={getSubRows} columns={applicationTransactionsTableColumns} />
 }
