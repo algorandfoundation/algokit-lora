@@ -15,14 +15,22 @@ import {
   applicationGlobalStateByteLabel,
   applicationGlobalStateLabel,
   applicationGlobalStateUintLabel,
+  applicationHistoricalTransactionsTabId,
+  applicationHistoricalTransactionsTabLabel,
   applicationIdLabel,
+  applicationLiveTransactionsTabId,
+  applicationLiveTransactionsTabLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
+  applicationTransactionsLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationProgram } from './application-program'
 import { ApplicationGlobalStateTable } from './application-global-state-table'
 import { ApplicationBoxes } from './application-boxes'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { ApplicationLiveTransactions } from './application-live-transactions'
+import { ApplicationTransactionHistory } from './application-transaction-history'
 
 type Props = {
   application: Application
@@ -104,6 +112,33 @@ export function ApplicationDetails({ application }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{applicationBoxesLabel}</h1>
           <ApplicationBoxes applicationId={application.id} />
+        </CardContent>
+      </Card>
+      <Card aria-label={applicationTransactionsLabel} className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationTransactionsLabel}</h1>
+          <Tabs defaultValue={applicationLiveTransactionsTabId}>
+            <TabsList aria-label={applicationTransactionsLabel}>
+              <TabsTrigger
+                className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
+                value={applicationLiveTransactionsTabId}
+              >
+                {applicationLiveTransactionsTabLabel}
+              </TabsTrigger>
+              <TabsTrigger
+                className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
+                value={applicationHistoricalTransactionsTabId}
+              >
+                {applicationHistoricalTransactionsTabLabel}
+              </TabsTrigger>
+            </TabsList>
+            <OverflowAutoTabsContent value={applicationLiveTransactionsTabId}>
+              <ApplicationLiveTransactions applicationId={application.id} />
+            </OverflowAutoTabsContent>
+            <OverflowAutoTabsContent value={applicationHistoricalTransactionsTabId}>
+              <ApplicationTransactionHistory applicationId={application.id} />
+            </OverflowAutoTabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>
