@@ -48,7 +48,7 @@ const creatAccountTransactionAtom = (store: JotaiStore, address: Address, pageSi
     get(createSyncEffect(transactionResults))
 
     const transactions = await get(createTransactionsAtom(store, transactionResults))
-    const transactionsForAccount = transactions.flatMap((transaction) => extractTransactionsForAccount(transaction))
+    const transactionsForAccount = transactions.flatMap((transaction) => extractTransactionsForAccount(transaction, address))
     return {
       rows: transactionsForAccount,
       nextPageToken: newNextPageToken,
