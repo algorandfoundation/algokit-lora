@@ -1,11 +1,10 @@
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { cn } from '@/features/common/utils'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ColumnDef } from '@tanstack/react-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { ellipseId } from '@/utils/ellipse-id'
 import { asTo } from '@/features/common/mappers/to'
+import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
 
 const indentationWidth = 20
 export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
@@ -21,13 +20,7 @@ export const assetTransactionsTableColumns: ColumnDef<Transaction | InnerTransac
           }}
         >
           {'innerId' in transaction ? (
-            <TransactionLink
-              className={cn('text-primary underline cursor-pointer grid gap-2')}
-              transactionId={transaction.networkTransactionId}
-            >
-              <span>{ellipseId(transaction.id)}</span>
-              <span>(Inner)</span>
-            </TransactionLink>
+            <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
           ) : (
             <TransactionLink transactionId={transaction.id} short={true} />
           )}

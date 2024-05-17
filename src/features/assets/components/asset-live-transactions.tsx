@@ -7,8 +7,8 @@ import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionAtom } from '@/features/transactions/data'
 import { atom } from 'jotai'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
-import { extractTransactionsForAsset } from '../utils/extract-transactions-for-asset'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 type Props = {
   assetId: AssetId
@@ -27,12 +27,24 @@ export function AssetLiveTransactions({ assetId }: Props) {
     },
     [assetId]
   )
-  const getSubRows = useCallback((row: Transaction | InnerTransaction) => {
-    if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
-      return []
-    }
+  const getSubRows = useCallback(
+    (row: Transaction | InnerTransaction) => {
+      if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
+        return []
+      }
 
-    return row.innerTransactions
-  }, [])
+      return row.innerTransactions.filter((innerTransaction) => {
+        const txns = flattenInnerTransactions(innerTransaction)
+        return txns.some(({ transaction }) => {
+          return (
+            (transaction.type === TransactionType.AssetTransfer && transaction.asset.id === assetId) ||
+            (transaction.type === TransactionType.AssetConfig && transaction.assetId === assetId) ||
+            (transaction.type === TransactionType.AssetFreeze && transaction.assetId === assetId)
+          )
+        })
+      })
+    },
+    [assetId]
+  )
   return <LiveTransactionsTable mapper={mapper} getSubRows={getSubRows} columns={assetTransactionsTableColumns} />
 }

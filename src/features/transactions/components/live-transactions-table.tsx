@@ -1,4 +1,4 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
 import { useState } from 'react'
@@ -12,7 +12,7 @@ interface Props {
   columns: ColumnDef<Transaction>[]
   // convert mapper to filter
   mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>
-  getSubRows?: (row: Transaction) => InnerTransaction[]
+  getSubRows?: (row: Transaction | InnerTransaction) => InnerTransaction[]
 }
 
 export function LiveTransactionsTable({ mapper, columns, getSubRows }: Props) {
@@ -24,6 +24,10 @@ export function LiveTransactionsTable({ mapper, columns, getSubRows }: Props) {
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     getSubRows: getSubRows,
+    getExpandedRowModel: getExpandedRowModel(),
+    state: {
+      expanded: true,
+    },
   })
 
   return (

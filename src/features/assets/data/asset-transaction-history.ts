@@ -6,7 +6,6 @@ import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
-import { extractTransactionsForAsset } from '../utils/extract-transactions-for-asset'
 
 const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
