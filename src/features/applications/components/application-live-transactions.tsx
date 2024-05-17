@@ -22,6 +22,7 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     },
     [applicationId]
   )
+  // TODO: refactor this out
   const getSubRows = useCallback(
     (row: Transaction | InnerTransaction) => {
       if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {

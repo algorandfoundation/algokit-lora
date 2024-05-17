@@ -13,6 +13,7 @@ type Props = {
 export function AssetTransactionHistory({ assetId }: Props) {
   const fetchNextPage = useFetchNextAssetTransactionsPage(assetId)
 
+  // TODO: refactor this out
   const getSubRows = useCallback(
     (row: Transaction | InnerTransaction) => {
       if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
