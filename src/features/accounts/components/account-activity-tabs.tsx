@@ -3,6 +3,8 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { AccountAssetHeld } from './account-assets-held'
 import { Account } from '../models'
+import { AccountTransactionHistory } from './account-transaction-history'
+import { accountActivityLabel } from './account-details'
 
 const accountLiveTransactionsTabId = 'live-transactions'
 const accountHistoricalTransactionsTabId = 'historical-transactions'
@@ -11,7 +13,6 @@ const accountCreatedAssetsTabId = 'created-assets'
 const accountCreatedApplicationsTabId = 'created-applications'
 const accountOptedApplicationsTabId = 'opted-applications'
 
-export const accountDetailsLabel = 'View account Details'
 export const accountLiveTransactionsTabLabel = 'Live Transactions'
 export const accountHistoricalTransactionsTabLabel = 'Historical Transactions'
 export const accountHeldAssetsTabLabel = 'Held Assets'
@@ -34,7 +35,7 @@ export function AccountActivityTabs({ account }: Props) {
       {
         id: accountHistoricalTransactionsTabId,
         label: accountHistoricalTransactionsTabLabel,
-        children: '',
+        children: <AccountTransactionHistory address={account.address} />,
       },
       {
         id: accountHeldAssetsTabId,
@@ -61,7 +62,7 @@ export function AccountActivityTabs({ account }: Props) {
   )
   return (
     <Tabs defaultValue={accountLiveTransactionsTabId}>
-      <TabsList aria-label={accountDetailsLabel}>
+      <TabsList aria-label={accountActivityLabel}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')} value={tab.id}>
             {tab.label}

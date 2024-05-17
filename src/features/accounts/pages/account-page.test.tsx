@@ -19,7 +19,7 @@ import {
 } from '../components/account-info'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { accountResultsAtom } from '../data'
-import { accountJsonLabel } from '../components/account-details'
+import { accountActivityLabel, accountJsonLabel } from '../components/account-details'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {
@@ -78,6 +78,9 @@ describe('account-page', () => {
                 { term: accountApplicationsOptedInLabel, description: '2' },
               ],
             })
+            const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
+            expect(activityTabList).toBeTruthy()
+            expect(activityTabList.children.length).toBe(6)
           })
         }
       )
