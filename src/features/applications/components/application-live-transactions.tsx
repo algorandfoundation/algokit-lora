@@ -5,8 +5,8 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { applicationTransactionsTableColumns } from '../utils/application-transactions-table-columns'
-import { Transaction, InnerTransaction, TransactionType } from '@/features/transactions/models'
-import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { Transaction, InnerTransaction } from '@/features/transactions/models'
+import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
 
 type Props = {
   applicationId: ApplicationId
@@ -22,18 +22,9 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     },
     [applicationId]
   )
-  // TODO: refactor this out
-  const getSubRows = useCallback(
-    (row: Transaction | InnerTransaction) => {
-      if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
-        return []
-      }
 
-      return row.innerTransactions.filter((innerTransaction) => {
-        const txns = flattenInnerTransactions(innerTransaction)
-        return txns.some(({ transaction: txn }) => txn.type === TransactionType.ApplicationCall && txn.applicationId === applicationId)
-      })
-    },
+  const getSubRows = useCallback(
+    (row: Transaction | InnerTransaction) => getApplicationTransactionsTableSubRows(applicationId, row),
     [applicationId]
   )
 
