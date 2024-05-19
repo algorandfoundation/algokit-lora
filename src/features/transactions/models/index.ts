@@ -173,11 +173,11 @@ export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   total?: number | bigint
   decimals?: number | bigint
   unitName?: string
-  clawback?: string
+  clawback?: Address
   subType: AssetConfigTransactionSubType
-  manager?: string
-  reserve?: string
-  freeze?: string
+  manager?: Address
+  reserve?: Address
+  freeze?: Address
   defaultFrozen?: boolean
 }
 
