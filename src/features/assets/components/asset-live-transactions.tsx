@@ -4,8 +4,8 @@ import { LiveTransactionsTable } from '@/features/transactions/components/live-t
 import { assetTransactionsTableColumns } from '../utils/asset-transactions-table-columns'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
-import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { InnerTransaction, Transaction } from '@/features/transactions/models'
+import { getAssetTransactionsTableSubRows } from '../utils/get-asset-transactions-table-sub-rows'
 
 type Props = {
   assetId: AssetId
@@ -19,24 +19,6 @@ export function AssetLiveTransactions({ assetId }: Props) {
     },
     [assetId]
   )
-  const getSubRows = useCallback(
-    (row: Transaction | InnerTransaction) => {
-      if (row.type !== TransactionType.ApplicationCall || row.innerTransactions.length === 0) {
-        return []
-      }
-
-      return row.innerTransactions.filter((innerTransaction) => {
-        const txns = flattenInnerTransactions(innerTransaction)
-        return txns.some(({ transaction }) => {
-          return (
-            (transaction.type === TransactionType.AssetTransfer && transaction.asset.id === assetId) ||
-            (transaction.type === TransactionType.AssetConfig && transaction.assetId === assetId) ||
-            (transaction.type === TransactionType.AssetFreeze && transaction.assetId === assetId)
-          )
-        })
-      })
-    },
-    [assetId]
-  )
+  const getSubRows = useCallback((row: Transaction | InnerTransaction) => getAssetTransactionsTableSubRows(assetId, row), [assetId])
   return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={assetTransactionsTableColumns} />
 }
