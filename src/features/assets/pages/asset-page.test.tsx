@@ -31,7 +31,7 @@ import { ipfsGatewayUrl } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { assetResultsAtom } from '../data'
 
 describe('asset-page', () => {
-  describe('when rending an asset using an invalid asset Id', () => {
+  describe('when rendering an asset using an invalid asset Id', () => {
     it('should display invalid asset Id message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: 'invalid-id' }))
 
@@ -44,7 +44,7 @@ describe('asset-page', () => {
     })
   })
 
-  describe('when rending an asset with asset Id that does not exist', () => {
+  describe('when rendering an asset with asset Id that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
       vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
@@ -59,7 +59,7 @@ describe('asset-page', () => {
     })
   })
 
-  describe('when rending an asset that failed to load', () => {
+  describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
       vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))

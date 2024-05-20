@@ -1,4 +1,4 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
@@ -9,9 +9,10 @@ import { Loader2 as Loader } from 'lucide-react'
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
+  getSubRows?: (row: TData) => TData[]
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage, getSubRows }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
   const { useLoadablePage } = useMemo(
     () =>
@@ -41,8 +42,13 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
 
   const table = useReactTable({
     data: page?.rows ?? [],
+    state: {
+      expanded: true,
+    },
+    getSubRows: getSubRows,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     manualPagination: true,
   })
 
@@ -79,7 +85,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
               </TableRow>
             )}
             {loadablePage.state === 'hasData' &&
-              table.getRowModel().rows?.length &&
+              table.getRowModel().rows.length > 0 &&
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
                   {row.getVisibleCells().map((cell) => (
@@ -87,7 +93,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage }: Pro
                   ))}
                 </TableRow>
               ))}
-            {loadablePage.state === 'hasData' && table.getRowModel().rows?.length === 0 && (
+            {loadablePage.state === 'hasData' && table.getRowModel().rows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   No results.

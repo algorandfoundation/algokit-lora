@@ -1,4 +1,4 @@
-import { AssetId } from '../data/types'
+import { ApplicationId } from './types'
 import { indexer } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useMemo } from 'react'
@@ -7,10 +7,10 @@ import { createTransactionsAtom, transactionResultsAtom } from '@/features/trans
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
 
-const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
+const fetchApplicationTransactionResults = async (applicationID: ApplicationId, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
-    .assetID(assetId)
+    .applicationID(applicationID)
     .nextToken(nextPageToken ?? '')
     .limit(pageSize)
     .do()) as TransactionSearchResults
@@ -40,9 +40,13 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
+const createApplicationTransactionsAtom = (store: JotaiStore, applicationID: ApplicationId, pageSize: number, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetId, pageSize, nextPageToken)
+    const { transactionResults, nextPageToken: newNextPageToken } = await fetchApplicationTransactionResults(
+      applicationID,
+      pageSize,
+      nextPageToken
+    )
 
     get(createSyncEffect(transactionResults))
 
@@ -55,10 +59,10 @@ const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSi
   })
 }
 
-export const useFetchNextAssetTransactionsPage = (assetId: AssetId) => {
+export const useFetchNextApplicationTransactionsPage = (applicationID: ApplicationId) => {
   const store = useStore()
 
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => createAssetTransactionsAtom(store, assetId, pageSize, nextPageToken)
-  }, [store, assetId])
+    return (pageSize: number, nextPageToken?: string) => createApplicationTransactionsAtom(store, applicationID, pageSize, nextPageToken)
+  }, [store, applicationID])
 }

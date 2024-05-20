@@ -19,7 +19,7 @@ import { descriptionListAssertion } from '@/tests/assertions/description-list-as
 import { assetResultsAtom } from '@/features/assets/data'
 
 describe('block-page', () => {
-  describe('when rending a block using an invalid round number', () => {
+  describe('when rendering a block using an invalid round number', () => {
     it('should display invalid round message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: 'invalid-id' }))
 
@@ -32,7 +32,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a block that does not exist', () => {
+  describe('when rendering a block that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456' }))
       vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
@@ -46,7 +46,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a block that fails to load', () => {
+  describe('when rendering a block that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456' }))
       vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject({}))
@@ -60,7 +60,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a block that exists', () => {
+  describe('when rendering a block that exists', () => {
     describe('and has no transactions', () => {
       const block = blockResultMother.blockWithoutTransactions().withRound(12345).withTimestamp('2024-02-29T06:52:01Z').build()
 
