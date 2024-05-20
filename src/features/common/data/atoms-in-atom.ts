@@ -2,11 +2,11 @@ import { WritableAtom, atom, type Atom } from 'jotai'
 import { JotaiStore } from './types'
 import { invariant } from '@/utils/invariant'
 
-export function atomsInAtom<Args extends unknown[], Key extends string | number, ValueAtom extends Atom<unknown>>(
-  createInitialValueAtom: (...args: Args) => ValueAtom,
+export function atomsInAtom<Args extends unknown[], Key extends string | number, Value>(
+  createInitialValue: ((...args: Args) => Value) | WritableAtom<null, Args, Value>,
   keySelector: (...args: Args) => Key,
-  initialValues: Map<Key, ValueAtom> = new Map(),
-  effectToRunOnInitialValueAtomCreation?: WritableAtom<null, [ValueAtom], Promise<void>>
+  initialValues: Map<Key, Atom<Value | Awaited<Value>>> = new Map(),
+  createInitialValueAtom: (value: Value) => Atom<Value | Awaited<Value>> = (value) => atom(() => value)
 ) {
   // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
   const valuesAtom = atom(initialValues)
@@ -15,24 +15,21 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
     const key = keySelector(...args)
     const atoms = get(valuesAtom)
     if (atoms.has(key)) {
-      const atom = atoms.get(key)
-      invariant(atom, 'atom is undefined')
-      return atom
+      const valueAtom = atoms.get(key)
+      invariant(valueAtom, 'atom is undefined')
+      return valueAtom
     }
 
-    const atom = createInitialValueAtom(...args)
-
-    if (effectToRunOnInitialValueAtomCreation) {
-      set(effectToRunOnInitialValueAtomCreation, atom)
-    }
+    const value = 'write' in createInitialValue ? set(createInitialValue, ...args) : createInitialValue(...args)
+    const valueAtom = createInitialValueAtom(value)
 
     set(valuesAtom, (prev) => {
       const next = new Map(prev)
-      next.set(key, atom)
+      next.set(key, valueAtom)
       return next
     })
 
-    return atom
+    return valueAtom
   })
 
   // TODO: When we implement network switch, it's probably a good time to decide if we should make the store a global

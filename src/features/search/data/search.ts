@@ -14,7 +14,7 @@ import { isAddress } from '@/utils/is-address'
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { isInteger } from '@/utils/is-integer'
 import { createApplicationAtom } from '@/features/applications/data'
-import { syncedRoundAtom } from '@/features/blocks/data'
+import { syncedRoundAtom } from '@/features/blocks/data/synced-round'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {

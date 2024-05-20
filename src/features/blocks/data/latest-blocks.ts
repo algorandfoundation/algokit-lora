@@ -14,7 +14,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
-import { blockResultsAtom, addStateExtractedFromBlocksAtom, syncedRoundAtom } from './block-result'
+import { blockResultsAtom, addStateExtractedFromBlocksAtom } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
@@ -22,6 +22,7 @@ import { accountResultsAtom } from '@/features/accounts/data'
 import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
+import { syncedRoundAtom } from './synced-round'
 
 const maxBlocksToDisplay = 5
 

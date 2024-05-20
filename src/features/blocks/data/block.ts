@@ -5,7 +5,8 @@ import { asBlock } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { Round } from './types'
-import { syncedRoundAtom, getBlockResultAtom } from './block-result'
+import { getBlockResultAtom } from './block-result'
+import { syncedRoundAtom } from './synced-round'
 
 const createNextRoundAvailableAtom = (store: JotaiStore, round: Round) => {
   // This atom conditionally subscribes to updates on the syncedRoundAtom
