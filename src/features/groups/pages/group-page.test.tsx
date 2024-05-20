@@ -19,7 +19,7 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 
 describe('block-page', () => {
-  describe('when rending a group using an invalid round number', () => {
+  describe('when rendering a group using an invalid round number', () => {
     it('should display invalid round message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: 'invalid-id', groupId: 'some-id' }))
 
@@ -32,7 +32,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a group with a round number that does not exist', () => {
+  describe('when rendering a group with a round number that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
       vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
@@ -46,7 +46,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a group within a block that was failed to load', () => {
+  describe('when rendering a group within a block that was failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
       vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject({}))
@@ -60,7 +60,7 @@ describe('block-page', () => {
     })
   })
 
-  describe('when rending a group', () => {
+  describe('when rendering a group', () => {
     const transactionResult1 = transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build()
     const transactionResult2 = transactionResultMother['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']().build()
     const transactionResults = [transactionResult1, transactionResult2]

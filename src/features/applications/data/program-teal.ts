@@ -1,10 +1,10 @@
-import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useMemo } from 'react'
-import { loadable } from 'jotai/utils'
-import { Buffer } from 'buffer'
 import { algod } from '@/features/common/data'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { loadable } from 'jotai/utils'
+import { useMemo } from 'react'
+import { Buffer } from 'buffer'
 
-export const useLogicsigTeal = (logic: string) => {
+export const useProgramTeal = (base64Program: string) => {
   const [tealAtom, fetchTealAtom] = useMemo(() => {
     const tealAtom = atom<Promise<string> | undefined>(undefined)
     const fetchTealAtom = atom(null, (get, set) => {
@@ -12,7 +12,7 @@ export const useLogicsigTeal = (logic: string) => {
         return
       }
 
-      const program = new Uint8Array(Buffer.from(logic, 'base64'))
+      const program = new Uint8Array(Buffer.from(base64Program, 'base64'))
       set(
         tealAtom,
         algod
@@ -22,7 +22,7 @@ export const useLogicsigTeal = (logic: string) => {
       )
     })
     return [tealAtom, fetchTealAtom] as const
-  }, [logic])
+  }, [base64Program])
 
   return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
 }
