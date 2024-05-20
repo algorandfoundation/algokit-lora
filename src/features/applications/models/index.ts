@@ -1,5 +1,9 @@
 import { ApplicationId } from '../data/types'
 
+export type ApplicationSummary = {
+  id: ApplicationId
+}
+
 export type Application = {
   id: ApplicationId
   name?: string

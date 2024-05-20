@@ -121,6 +121,9 @@ describe('application-page', () => {
           })
         )
       )
+      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+      )
 
       return executeComponentTest(
         () => {
