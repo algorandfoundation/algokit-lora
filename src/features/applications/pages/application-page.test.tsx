@@ -24,10 +24,12 @@ import {
   applicationIdLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
+  applicationNameLabel,
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { modelsv2, indexerModels } from 'algosdk'
+import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -172,6 +174,39 @@ describe('application-page', () => {
                 { cells: ['AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc='] },
                 { cells: ['AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0='] },
                 { cells: ['AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck='] },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an application that has app name following algokit standard', () => {
+    const applicationResult = applicationResultMother['mainnet-1196727051']().build()
+    const transactionResult = transactionResultMother['mainnet-XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ']().build()
+
+    it('should be rendered with the correct app name', () => {
+      const myStore = createStore()
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        Promise.resolve({ currentRound: 123, transactions: [transactionResult], nextToken: '' })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(async () => {
+            const detailsCard = component.getByLabelText(applicationDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: applicationIdLabel, description: '1196727051' },
+                { term: applicationNameLabel, description: 'cryptoless-JIUK4YAO2GU7UX36JHH35KWI4AJ3PDEYSRQ75PCJJKR5UBX6RQ6Y5UZSJQ' },
               ],
             })
           })

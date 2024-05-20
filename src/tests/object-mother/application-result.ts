@@ -35,6 +35,53 @@ export const applicationResultMother = {
       },
     })
   },
+  'mainnet-1196727051': () => {
+    return new ApplicationResultBuilder({
+      'created-at-round': 32218016,
+      deleted: false,
+      id: 1196727051,
+      params: {
+        'approval-program':
+          'CSAEAAEGAiYJDG5mdGlja2V0X2FwcAABAA9tYW5hZ2VyX2FkZHJlc3MBAQQuU0kZBGg0o6oSbWV0aG9kX3Blcm1pc3Npb25zB2FpcmxpbmUxGyISQAEtNhoAgAThNZDwEkABETYaAIAEnNbuoRJAAPU2GgCABF5iYz4SQADZNhoAgAS2olF1EkAAvTYaAIAE+Qj2KRJAAKE2GgCABB0UDY4SQACFNhoAgATG43mkEkAAaTYaACcFEkAAUTYaAIAEnvUJRhJAADU2GgCABE+i3akSQAAZNhoAJwYSQAABADEZIhIxGCITEESIBBYjQzEZIhIxGCITEESIA+wjQzEZIhIxGCITEESIA7IjQzEZIhIxGCITEESIA34jQzEZIhIxGCITEESIA0wjQzEZIhIxGCITEESIAxAjQzEZIhIxGCISEESIAuAjQzEZIhIxGCITEESIArcjQzEZIhIxGCITEESIApcjQzEZIhIxGCITEESIAncjQzEZIhIxGCITEESIAlcjQzEZIxJAADYxGSUSQAAlMRmBBBJAABMxGYEFEkAAAQAxGCITRIgAViNDMRgiE0SIAEEjQzEYIhNEiABSI0MxGCITRIgAQyNDigIBi/4yCGFAAAQiQgAbi/4iJwdjNQE1ADQBQAAHIov/U0IABTQAQv/1iYoAADEAMgkSRCNDigAAMQAyCRJEI0OKAAAjQ4oAACNDigEAMQAyCRJEK4v/wBxniYoBADEAK2QSRLEkshAjshmL/8AyshgisgGziYoBADEAK2QSRLEkshAlshmL/8AyshgisgGziYoCADEAK2QSRIv+wBwnB4v/ZomKAgGL/icIZBJAAAqL/ov/iP9JQgABI4mKAwAoi/7AMmcri/1nJwiL/2cjQ4oFADEAIoj/y0SxJLIQKGSyGIAEWOGHaLIai/uyGov8shqL/bIai/6yGov/shoisgGziYoDADEAJIj/mESxJLIQKGSyGIv/wByyHIv+wDCyMIAErnlpMLIai/2yGiqyGicEshoisgGziYoDADEAgQOI/2FEsSSyEChkshiL/sAcshyL/8AcshyL/cAwsjAnBbIaKrIaJwSyGoABArIaIrIBs4mKBAAxAIEFiP8nRLEkshAoZLIYi/zAMLIwgAQ7tliRshoqshqL/bIai/4WVwQAshqL/7IaIrIBs4mKAgAxAIEEiP7uRLEkshAoZLIYi/7AMLIwgARMfzwNshoqshoqIov/VrIaIrIBs4mKAwAxACWI/r9EsSSyEChkshiL/8AcshyL/sAwsjAnBrIai/2yGiqyGicEshoisgGziYoAACI2GgEiVYwAiwCI/i2JigAAIjYaASJVjACLAIj+LImKAAAiNhoBIlWMAIsAiP42iYoAACJJNhoBIlWMADYaAheMAYsAiwGI/jeJigAAKSIpNhoBjAA2GgIiVYwBNhoDjAKLAIsBiwKI/kGJigAAKUcENhoBjAA2GgKMATYaA4wCNhoEjAM2GgWMBIsAiwGLAosDiwSI/iiJigAAKSJJNhoBjAA2GgIiVYwBNhoDIlWMAosAiwGLAoj+OImKAAAiRwI2GgEiVYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/kmJigAAIikiKTYaASJVjAA2GgKMATYaAyJajAI2GgSMA4sAiwGLAosDiP5YiYoAACJJNhoBIlWMADYaAiJVjAGLAIsBiP52iYoAACkiSTYaAYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/oOJ',
+        'clear-state-program': 'CYEAQw==',
+        creator: '52MVNW6FNW7L6W7IAKSROD5FYZGZNLVKT6WUWNUFEE3DT737RYIIL2YQ3Y',
+        'global-state': [
+          toTealKeyValue({
+            key: 'bWFuYWdlcl9hZGRyZXNz',
+            value: {
+              bytes: '0QGHvZ1GkfgBxdPm8vbFxBpukSHn/8UGJmPuEFl9eDk=',
+              type: 1,
+              uint: 0,
+            },
+          }),
+          toTealKeyValue({
+            key: 'YWlybGluZQ==',
+            value: {
+              bytes: 'SiiuYA7RqfpffknPvqrI4BO3jJiUYf68SUqj2gb+jD0=',
+              type: 1,
+              uint: 0,
+            },
+          }),
+          toTealKeyValue({
+            key: 'bmZ0aWNrZXRfYXBw',
+            value: {
+              bytes: '',
+              type: 2,
+              uint: 1196710954,
+            },
+          }),
+        ],
+        'global-state-schema': {
+          'num-byte-slice': 2,
+          'num-uint': 1,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 1,
+        },
+      },
+    })
+  },
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>
