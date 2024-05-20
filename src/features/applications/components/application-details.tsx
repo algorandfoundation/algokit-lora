@@ -23,6 +23,8 @@ import {
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
   applicationTransactionsLabel,
+  applicationJsonLabel,
+  applicationNameLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationProgram } from './application-program'
@@ -43,6 +45,12 @@ export function ApplicationDetails({ application }: Props) {
         dt: applicationIdLabel,
         dd: application.id,
       },
+      application.name
+        ? {
+            dt: applicationNameLabel,
+            dd: application.name,
+          }
+        : undefined,
       {
         dt: applicationCreatorAccountLabel,
         dd: application.creator,
@@ -76,7 +84,14 @@ export function ApplicationDetails({ application }: Props) {
           }
         : undefined,
     ],
-    [application.id, application.creator, application.account, application.globalStateSchema, application.localStateSchema]
+    [
+      application.id,
+      application.name,
+      application.creator,
+      application.account,
+      application.globalStateSchema,
+      application.localStateSchema,
+    ]
   ).filter(isDefined)
 
   return (
@@ -139,6 +154,14 @@ export function ApplicationDetails({ application }: Props) {
               <ApplicationTransactionHistory applicationId={application.id} />
             </OverflowAutoTabsContent>
           </Tabs>
+        </CardContent>
+      </Card>
+      <Card className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationJsonLabel}</h1>
+          <div className={cn('border-solid border-2 border-border h-96 grid')}>
+            <pre className={cn('overflow-scroll p-4')}>{application.json}</pre>
+          </div>
         </CardContent>
       </Card>
     </div>

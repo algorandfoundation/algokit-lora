@@ -1,5 +1,6 @@
 export const applicationDetailsLabel = 'Application Details'
 export const applicationIdLabel = 'Application ID'
+export const applicationNameLabel = 'Application Name'
 export const applicationCreatorAccountLabel = 'Creator'
 export const applicationAccountLabel = 'Account'
 export const applicationGlobalStateByteLabel = 'Global State Byte'
@@ -25,3 +26,5 @@ export const applicationLiveTransactionsTabId = 'live-transactions'
 export const applicationLiveTransactionsTabLabel = 'Live Transactions'
 export const applicationHistoricalTransactionsTabId = 'historical-transactions'
 export const applicationHistoricalTransactionsTabLabel = 'Historical Transactions'
+
+export const applicationJsonLabel = 'Application JSON'

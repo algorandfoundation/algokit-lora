@@ -1,12 +1,21 @@
-import { Application, ApplicationGlobalStateType, ApplicationGlobalStateValue } from '../models'
+import { Application, ApplicationGlobalStateType, ApplicationGlobalStateValue, ApplicationSummary } from '../models'
 import { ApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
+import { ApplicationMetadataResult } from '../data/types'
+import { asJson } from '@/utils/as-json'
 
-export const asApplication = (application: ApplicationResult): Application => {
+export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
     id: application.id,
+  }
+}
+
+export const asApplication = (application: ApplicationResult, metadata?: ApplicationMetadataResult): Application => {
+  return {
+    id: application.id,
+    name: metadata?.name,
     creator: application.params.creator,
     account: getApplicationAddress(application.id),
     globalStateSchema: application.params['global-state-schema']
@@ -24,6 +33,7 @@ export const asApplication = (application: ApplicationResult): Application => {
     approvalProgram: application.params['approval-program'],
     clearStateProgram: application.params['clear-state-program'],
     globalState: asGlobalStateValue(application),
+    json: asJson(application),
   }
 }
 
