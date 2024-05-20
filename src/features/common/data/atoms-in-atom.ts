@@ -1,11 +1,12 @@
-import { atom, type Atom } from 'jotai'
+import { WritableAtom, atom, type Atom } from 'jotai'
 import { JotaiStore } from './types'
 import { invariant } from '@/utils/invariant'
 
 export function atomsInAtom<Args extends unknown[], Key extends string | number, ValueAtom extends Atom<unknown>>(
   createInitialValueAtom: (...args: Args) => ValueAtom,
   keySelector: (...args: Args) => Key,
-  initialValues: Map<Key, ValueAtom> = new Map()
+  initialValues: Map<Key, ValueAtom> = new Map(),
+  effectToRunOnInitialValueAtomCreation?: WritableAtom<null, [ValueAtom], Promise<void>>
 ) {
   // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
   const valuesAtom = atom(initialValues)
@@ -20,6 +21,10 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
     }
 
     const atom = createInitialValueAtom(...args)
+
+    if (effectToRunOnInitialValueAtomCreation) {
+      set(effectToRunOnInitialValueAtomCreation, atom)
+    }
 
     set(valuesAtom, (prev) => {
       const next = new Map(prev)

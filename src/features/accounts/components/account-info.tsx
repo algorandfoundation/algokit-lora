@@ -19,6 +19,10 @@ import {
 } from './labels'
 
 export function AccountInfo({ account }: { account: Account }) {
+  const totalAssetsHeld = account.assetsHeld.length
+  const totalAssetsCreated = account.assetsCreated.length
+  const totalAssetsOptedIn = account.assetsHeld.length + account.assetsOpted.length
+
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -35,15 +39,15 @@ export function AccountInfo({ account }: { account: Account }) {
       },
       {
         dt: accountAssetsHeldLabel,
-        dd: account.totalAssetsHeld,
+        dd: totalAssetsHeld,
       },
       {
         dt: accountAssetsCreatedLabel,
-        dd: account.totalAssetsCreated,
+        dd: totalAssetsCreated,
       },
       {
         dt: accountAssetsOptedInLabel,
-        dd: account.totalAssetsOptedIn,
+        dd: totalAssetsOptedIn,
       },
       {
         dt: accountApplicationsCreatedLabel,
@@ -67,12 +71,12 @@ export function AccountInfo({ account }: { account: Account }) {
     account.address,
     account.balance,
     account.minBalance,
-    account.totalAssetsHeld,
-    account.totalAssetsCreated,
-    account.totalAssetsOptedIn,
     account.totalApplicationsCreated,
     account.totalApplicationsOptedIn,
     account.rekeyedTo,
+    totalAssetsHeld,
+    totalAssetsCreated,
+    totalAssetsOptedIn,
   ])
   return (
     <Card aria-label={accountInformationLabel} className={cn('p-4')}>

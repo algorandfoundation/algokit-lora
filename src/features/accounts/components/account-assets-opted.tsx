@@ -5,7 +5,7 @@ import { AssetLink } from '@/features/assets/components/asset-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 
 type Props = {
-  assetsHeld: AssetHolding[]
+  assetsOpted: AssetHolding[]
 }
 
 export const assetsHeldTableColumns: ColumnDef<AssetHolding>[] = [
@@ -28,10 +28,10 @@ export const assetsHeldTableColumns: ColumnDef<AssetHolding>[] = [
   },
 ]
 
-export function AccountAssetsHeld({ assetsHeld }: Props) {
-  if (assetsHeld.length === 0) {
+export function AccountAssetsOpted({ assetsOpted }: Props) {
+  if (assetsOpted.length === 0) {
     return <></>
   }
 
-  return <DataTable columns={assetsHeldTableColumns} data={assetsHeld} />
+  return <DataTable columns={assetsHeldTableColumns} data={assetsOpted} />
 }
