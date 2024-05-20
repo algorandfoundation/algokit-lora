@@ -10,6 +10,7 @@ export type Application = {
   approvalProgram: string
   clearStateProgram: string
   globalState: Map<string, ApplicationGlobalStateValue>
+  json: string
 }
 
 export type ApplicationStateSchema = {

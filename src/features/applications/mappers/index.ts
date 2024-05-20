@@ -4,6 +4,7 @@ import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult } from '../data/types'
+import { asJson } from '@/utils/as-json'
 
 export const asApplication = (application: ApplicationResult, metadata?: ApplicationMetadataResult): Application => {
   return {
@@ -26,6 +27,7 @@ export const asApplication = (application: ApplicationResult, metadata?: Applica
     approvalProgram: application.params['approval-program'],
     clearStateProgram: application.params['clear-state-program'],
     globalState: asGlobalStateValue(application),
+    json: asJson(application),
   }
 }
 

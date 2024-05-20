@@ -20,3 +20,5 @@ export const applicationBoxesLabel = 'Boxes'
 
 export const applicationBoxNameLabel = 'Box Name'
 export const applicationBoxValueLabel = 'Box Value'
+
+export const applicationJsonLabel = 'Application JSON'

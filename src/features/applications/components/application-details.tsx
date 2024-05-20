@@ -16,6 +16,7 @@ import {
   applicationGlobalStateLabel,
   applicationGlobalStateUintLabel,
   applicationIdLabel,
+  applicationJsonLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
   applicationNameLabel,
@@ -118,6 +119,14 @@ export function ApplicationDetails({ application }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{applicationBoxesLabel}</h1>
           <ApplicationBoxes applicationId={application.id} />
+        </CardContent>
+      </Card>
+      <Card className={cn('p-4')}>
+        <CardContent className={cn('text-sm space-y-2')}>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationJsonLabel}</h1>
+          <div className={cn('border-solid border-2 border-border h-96 grid')}>
+            <pre className={cn('overflow-scroll p-4')}>{application.json}</pre>
+          </div>
         </CardContent>
       </Card>
     </div>

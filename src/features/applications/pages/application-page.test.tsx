@@ -72,7 +72,7 @@ describe('application-page', () => {
   })
 
   describe('when rendering an application', () => {
-    const applicationResult = applicationResultMother['mainner-80441968']().build()
+    const applicationResult = applicationResultMother['mainnet-80441968']().build()
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()

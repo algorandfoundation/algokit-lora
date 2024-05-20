@@ -5,7 +5,7 @@ export const applicationResultMother = {
   basic: () => {
     return applicationResultBuilder()
   },
-  'mainner-80441968': () => {
+  'mainnet-80441968': () => {
     return new ApplicationResultBuilder({
       id: 80441968,
       params: {
