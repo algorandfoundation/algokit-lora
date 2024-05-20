@@ -18,6 +18,7 @@ import {
   applicationIdLabel,
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
+  applicationNameLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationProgram } from './application-program'
@@ -35,6 +36,12 @@ export function ApplicationDetails({ application }: Props) {
         dt: applicationIdLabel,
         dd: application.id,
       },
+      application.name
+        ? {
+            dt: applicationNameLabel,
+            dd: application.name,
+          }
+        : undefined,
       {
         dt: applicationCreatorAccountLabel,
         dd: application.creator,
@@ -68,7 +75,14 @@ export function ApplicationDetails({ application }: Props) {
           }
         : undefined,
     ],
-    [application.id, application.creator, application.account, application.globalStateSchema, application.localStateSchema]
+    [
+      application.id,
+      application.name,
+      application.creator,
+      application.account,
+      application.globalStateSchema,
+      application.localStateSchema,
+    ]
   ).filter(isDefined)
 
   return (

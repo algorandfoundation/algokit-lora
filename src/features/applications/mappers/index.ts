@@ -3,10 +3,12 @@ import { ApplicationResult } from '@algorandfoundation/algokit-utils/types/index
 import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
+import { ApplicationMetadataResult } from '../data/types'
 
-export const asApplication = (application: ApplicationResult): Application => {
+export const asApplication = (application: ApplicationResult, metadata?: ApplicationMetadataResult): Application => {
   return {
     id: application.id,
+    name: metadata?.name,
     creator: application.params.creator,
     account: getApplicationAddress(application.id),
     globalStateSchema: application.params['global-state-schema']

@@ -1,5 +1,6 @@
 export const applicationDetailsLabel = 'Application Details'
 export const applicationIdLabel = 'Application ID'
+export const applicationNameLabel = 'Application Name'
 export const applicationCreatorAccountLabel = 'Creator'
 export const applicationAccountLabel = 'Account'
 export const applicationGlobalStateByteLabel = 'Global State Byte'

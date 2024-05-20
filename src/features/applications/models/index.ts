@@ -2,6 +2,7 @@ import { ApplicationId } from '../data/types'
 
 export type Application = {
   id: ApplicationId
+  name?: string
   account: string
   creator: string
   globalStateSchema?: ApplicationStateSchema
@@ -9,7 +10,6 @@ export type Application = {
   approvalProgram: string
   clearStateProgram: string
   globalState: Map<string, ApplicationGlobalStateValue>
-  // TODO: PD - ARC2 app stuff
 }
 
 export type ApplicationStateSchema = {
