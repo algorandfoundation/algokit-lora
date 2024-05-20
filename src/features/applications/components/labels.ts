@@ -20,7 +20,7 @@ export const applicationBoxesLabel = 'Boxes'
 export const applicationBoxNameLabel = 'Box Name'
 export const applicationBoxValueLabel = 'Box Value'
 
-export const applicationTransactionsLabel = 'Application Transactions'
+export const applicationTransactionsLabel = 'Activity'
 export const applicationLiveTransactionsTabId = 'live-transactions'
 export const applicationLiveTransactionsTabLabel = 'Live Transactions'
 export const applicationHistoricalTransactionsTabId = 'historical-transactions'
