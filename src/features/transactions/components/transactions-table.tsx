@@ -69,7 +69,6 @@ export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
   },
 ]
 
-// I think this can be converted to subRows
 export function TransactionsTable({ transactions }: Props) {
   const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
 
