@@ -67,7 +67,7 @@ export function AccountActivityTabs({ account }: Props) {
         children: '',
       },
     ],
-    [account.address, account.assetsCreated, account.assetsHeld]
+    [account.address, account.assetsCreated, account.assetsHeld, account.assetsOpted]
   )
   return (
     <Tabs defaultValue={accountLiveTransactionsTabId}>
