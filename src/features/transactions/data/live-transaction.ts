@@ -1,16 +1,12 @@
 import { useMemo } from 'react'
-import { getTransactionResultAtom, liveTransactionIdsAtom } from '@/features/transactions/data'
+import { createTransactionAtom, getTransactionResultAtom, liveTransactionIdsAtom } from '@/features/transactions/data'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { atomEffect } from 'jotai-effect'
-import { Atom, atom, useAtom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtom, useAtomValue, useStore } from 'jotai'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { JotaiStore } from '@/features/common/data/types'
 
-export const useLiveTransactions = (
-  mapper: (store: JotaiStore, transactionResult: TransactionResult) => Atom<Promise<(Transaction | InnerTransaction)[]>>,
-  maxRows: number
-) => {
+export const useLiveTransactions = (filter: (transactionResult: TransactionResult) => boolean, maxRows: number) => {
   const store = useStore()
 
   const { liveTransactionsAtomEffect, liveTransactionsAtom } = useMemo(() => {
@@ -33,9 +29,9 @@ export const useLiveTransactions = (
         }
         syncedTransactionId = liveTransactionIds[0]
 
-        const newTransactions = (
-          await Promise.all(newTransactionResults.map((transactionResult) => get(mapper(store, transactionResult))))
-        ).flat()
+        const newTransactions = await Promise.all(
+          newTransactionResults.filter(filter).map(async (transactionResult) => await get(createTransactionAtom(store, transactionResult)))
+        )
         if (newTransactions.length) {
           set(liveTransactionsAtom, (prev) => {
             return newTransactions.concat(prev).slice(0, maxRows)
@@ -48,7 +44,7 @@ export const useLiveTransactions = (
       liveTransactionsAtomEffect,
       liveTransactionsAtom,
     }
-  }, [store, mapper, maxRows])
+  }, [store, filter, maxRows])
 
   useAtom(liveTransactionsAtomEffect)
 
