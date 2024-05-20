@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/features/c
 
 type Props = { applicationId: ApplicationId; boxName: string }
 
+const dialogTitle = 'Application Box'
 export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
   return (
     <Dialog>
@@ -18,7 +19,7 @@ export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
       </DialogTrigger>
       <DialogContent className="w-[800px]">
         <DialogHeader>
-          <h1 className={cn('text-2xl text-primary font-bold')}>Application Box</h1>
+          <h1 className={cn('text-2xl text-primary font-bold')}>{dialogTitle}</h1>
         </DialogHeader>
         <InternalDialogContent applicationId={applicationId} boxName={boxName} />
       </DialogContent>
