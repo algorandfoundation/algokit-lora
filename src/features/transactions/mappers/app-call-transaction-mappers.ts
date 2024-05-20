@@ -22,7 +22,9 @@ const mapCommonAppCallTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.ApplicationCall,
-    applicationId: transactionResult['application-transaction']['application-id'],
+    applicationId: transactionResult['application-transaction']['application-id']
+      ? transactionResult['application-transaction']['application-id']
+      : transactionResult['created-application-index']!,
     applicationArgs: transactionResult['application-transaction']['application-args'] ?? [],
     applicationAccounts: transactionResult['application-transaction'].accounts ?? [],
     foreignApps: transactionResult['application-transaction']['foreign-apps'] ?? [],
