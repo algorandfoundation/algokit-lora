@@ -7,6 +7,8 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionType } from 'algosdk'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { parseArc2 } from '@/features/transactions/mappers/arc-2'
+import { parseJson } from '@/utils/parse-json'
 
 const createApplicationMetadataResultAtom = (applicationResult: ApplicationResult) => {
   return atom<Promise<ApplicationMetadataResult> | ApplicationMetadataResult>(async (_get) => {
@@ -24,10 +26,13 @@ const createApplicationMetadataResultAtom = (applicationResult: ApplicationResul
     if (!creationTransaction) return null
 
     const text = base64ToUtf8(creationTransaction.note ?? '')
-    console.log(text)
-    const maybeJson = parseJson(text)
-    if (maybeJson && 'name' in maybeJson) {
-      return { name: maybeJson.name }
+
+    const maybeArc2 = parseArc2(text)
+    if (maybeArc2 && maybeArc2.format === 'j') {
+      const arc2Data = parseJson(maybeArc2.data)
+      if (arc2Data && 'name' in arc2Data) {
+        return { name: arc2Data.name }
+      }
     }
 
     return null
@@ -38,15 +43,3 @@ export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] 
   createApplicationMetadataResultAtom,
   (applicationResult) => applicationResult.id
 )
-
-// TODO: refactor
-function parseJson(maybeJson: string) {
-  try {
-    const json = JSON.parse(maybeJson)
-    if (json && typeof json === 'object') {
-      return json
-    }
-  } catch (e) {
-    // ignore
-  }
-}
