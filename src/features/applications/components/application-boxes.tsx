@@ -3,8 +3,8 @@ import { useFetchNextApplicationBoxPage } from '../data/application-boxes'
 import { ApplicationId } from '../data/types'
 import { ColumnDef } from '@tanstack/react-table'
 import { ApplicationBoxSummary } from '../models'
-import { ApplicationBoxLink } from './application-box-link'
 import { useMemo } from 'react'
+import { ApplicationBoxDetailsDialog } from './application-box-details-dialog'
 
 type Props = {
   applicationId: ApplicationId
@@ -21,6 +21,9 @@ const createTableColumns = (applicationId: ApplicationId): ColumnDef<Application
   {
     header: 'Name',
     accessorKey: 'name',
-    cell: (context) => <ApplicationBoxLink applicationId={applicationId} boxName={context.getValue<string>()} />,
+    cell: (context) => {
+      const boxName = context.getValue<string>()
+      return <ApplicationBoxDetailsDialog applicationId={applicationId} boxName={boxName} />
+    },
   },
 ]

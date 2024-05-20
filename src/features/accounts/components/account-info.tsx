@@ -5,17 +5,18 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { AccountLink } from './account-link'
-
-export const accountInformationLabel = 'Account Information'
-export const accountAddressLabel = 'Address'
-export const accountBalanceLabel = 'Balance'
-export const accountMinBalanceLabel = 'Min Balance'
-export const accountAssetsHeldLabel = 'Holding assets'
-export const accountAssetsCreatedLabel = 'Created assets'
-export const accountAssetsOptedInLabel = 'Opted assets'
-export const accountApplicationsCreatedLabel = 'Created applications'
-export const accountApplicationsOptedInLabel = 'Opted applications'
-export const accountRekeyedToLabel = 'Rekeyed to'
+import {
+  accountAddressLabel,
+  accountApplicationsCreatedLabel,
+  accountApplicationsOptedInLabel,
+  accountAssetsCreatedLabel,
+  accountAssetsHeldLabel,
+  accountAssetsOptedInLabel,
+  accountBalanceLabel,
+  accountInformationLabel,
+  accountMinBalanceLabel,
+  accountRekeyedToLabel,
+} from './labels'
 
 export function AccountInfo({ account }: { account: Account }) {
   const accountInfoItems = useMemo(() => {
