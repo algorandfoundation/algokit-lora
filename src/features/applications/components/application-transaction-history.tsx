@@ -11,6 +11,11 @@ type Props = {
 }
 
 export function ApplicationTransactionHistory({ applicationId }: Props) {
+  // TODO: for the future
+  // How we handle getSubRows isn't the best practice. Ideally, we should create a new view model, for example, TransactionForApplication
+  // and then fetchNextPage should return a list of TransactionForApplication
+  // TransactionForApplication should be similar to Transaction, but the InnerTransactions should be only transactions that are related to the application
+  // This way, getSubRows simply return the innerTransactions
   const fetchNextPage = useFetchNextApplicationTransactionsPage(applicationId)
   const getSubRows = useCallback(
     (row: Transaction | InnerTransaction) => getApplicationTransactionsTableSubRows(applicationId, row),
