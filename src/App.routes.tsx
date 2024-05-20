@@ -11,7 +11,6 @@ import { InnerTransactionPage } from './features/transactions/pages/inner-transa
 import { AccountPage, accountPageTitle } from './features/accounts/pages/account-page'
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
-import { ApplicationBoxPage } from './features/applications/pages/application-box-page'
 
 export const routes = evalTemplates([
   {
@@ -81,16 +80,7 @@ export const routes = evalTemplates([
           {
             template: Urls.Explore.Application.ById,
             errorElement: <ErrorPage title={applicationPageTitle} />,
-            children: [
-              {
-                template: Urls.Explore.Application.ById,
-                element: <ApplicationPage />,
-              },
-              {
-                template: Urls.Explore.Application.ById.Box.ById,
-                element: <ApplicationBoxPage />,
-              },
-            ],
+            element: <ApplicationPage />,
           },
         ],
       },

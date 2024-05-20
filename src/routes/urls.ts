@@ -37,11 +37,7 @@ export const Urls = {
       ById: UrlTemplate`/${UrlParams.AssetId}`,
     }),
     Application: UrlTemplate`/application`.extend({
-      ById: UrlTemplate`/${UrlParams.ApplicationId}`.extend({
-        Box: UrlTemplate`/box`.extend({
-          ById: UrlTemplate`/${UrlParams.BoxName}`,
-        }),
-      }),
+      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
