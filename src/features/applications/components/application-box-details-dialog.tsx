@@ -15,7 +15,7 @@ export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
   return (
     <Dialog>
       <DialogTrigger>
-        <label className={cn('text-primary underline')}>{boxName}</label>
+        <label className={cn('text-primary underline cursor-pointer')}>{boxName}</label>
       </DialogTrigger>
       <DialogContent className="w-[800px]">
         <DialogHeader>
