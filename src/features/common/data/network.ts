@@ -11,6 +11,7 @@ export type NetworkConfig = {
   algodConfig: {
     server: string
     port: number
+    token?: string
   }
 }
 
@@ -38,8 +39,21 @@ const testnetConfig: NetworkConfig = {
     port: 443,
   },
 }
+const localnetConfig: NetworkConfig = {
+  id: 'localnet',
+  name: 'Localnet',
+  indexerConfig: {
+    server: 'http://localhost/',
+    port: 8980,
+  },
+  algodConfig: {
+    server: 'http://localhost/',
+    port: 4001,
+    token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+  },
+}
 
-export const networksConfigs = [mainnetConfig, testnetConfig]
+export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
 export const networkIdAtom = atomWithStorage('network-id', mainnetConfig.id, undefined, { getOnInit: true })
 
