@@ -13,8 +13,8 @@ import { atomWithDebounce } from '@/features/common/data'
 import { isAddress } from '@/utils/is-address'
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { isInteger } from '@/utils/is-integer'
-import { createApplicationAtom } from '@/features/applications/data'
-import { syncedRoundAtom } from '@/features/blocks/data/synced-round'
+import { syncedRoundAtom } from '@/features/blocks/data'
+import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -66,7 +66,7 @@ const createSearchAtoms = (store: JotaiStore) => {
         }
 
         const assetAtom = createAssetSummaryAtom(store, id)
-        const applicationAtom = createApplicationAtom(store, id)
+        const applicationAtom = createApplicationSummaryAtom(store, id)
 
         try {
           const [asset, application] = await Promise.all([

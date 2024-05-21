@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
-import { blockResultsAtom } from '@/features/blocks/data'
+import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -15,7 +15,6 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { syncedRoundAtom } from '@/features/blocks/data/synced-round'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {

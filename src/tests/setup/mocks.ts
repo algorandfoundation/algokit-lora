@@ -53,6 +53,11 @@ vi.mock('@/features/common/data', async () => {
             }),
           }),
         }),
+        applicationID: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            do: vi.fn().mockReturnValue({ then: vi.fn() }),
+          }),
+        }),
       }),
       lookupApplications: vi.fn().mockReturnValue({
         includeAll: vi.fn().mockReturnValue({
