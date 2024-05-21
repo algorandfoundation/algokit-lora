@@ -12,7 +12,7 @@ export const asApplicationSummary = (application: ApplicationResult): Applicatio
   }
 }
 
-export const asApplication = (application: ApplicationResult, metadata?: ApplicationMetadataResult): Application => {
+export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult): Application => {
   return {
     id: application.id,
     name: metadata?.name,

@@ -11,7 +11,7 @@ import {
 export type Address = string
 
 export type AppLocalState = Omit<IndexerAppLocalState, 'closed-out-at-round' | 'deleted' | 'opted-in-at-round'>
-export type AssetHolding = Omit<IndexerAssetHolding, 'deleted' | 'opted-in-at-round' | 'opted-out-at-round'>
+export type AssetHoldingResult = Omit<IndexerAssetHolding, 'deleted' | 'opted-in-at-round' | 'opted-out-at-round'>
 export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round' | 'deleted' | 'deleted-at-round'>
 export type AssetResult = {
   index: number
@@ -33,7 +33,7 @@ export type AccountResult = Omit<
   | 'sig-type'
 > & {
   'apps-local-state'?: AppLocalState[]
-  assets?: AssetHolding[]
+  assets?: AssetHoldingResult[]
   'created-apps'?: ApplicationResult[]
   'created-assets'?: AssetResult[]
   'min-balance': number

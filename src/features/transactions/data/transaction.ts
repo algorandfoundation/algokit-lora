@@ -5,8 +5,8 @@ import { loadable } from 'jotai/utils'
 import { TransactionId } from './types'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { createAssetSummaryAtom } from '@/features/assets/data'
 import { getTransactionResultAtom } from './transaction-result'
+import { createAssetResolver } from '@/features/assets/data/asset-summary'
 
 export const createTransactionsAtom = (
   store: JotaiStore,
@@ -19,9 +19,11 @@ export const createTransactionsAtom = (
       })
     )
 
+    const assetResolver = createAssetResolver(store, get)
+
     return await Promise.all(
       txns.map((transactionResult) => {
-        return asTransaction(transactionResult, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
+        return asTransaction(transactionResult, assetResolver)
       })
     )
   })
@@ -33,7 +35,7 @@ export const createTransactionAtom = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return await asTransaction(txn, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
+    return await asTransaction(txn, createAssetResolver(store, get))
   })
 }
 
