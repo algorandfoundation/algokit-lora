@@ -15,7 +15,7 @@ export type NetworkConfig = {
   }
 }
 
-const mainnetConfig: NetworkConfig = {
+export const mainnetConfig: NetworkConfig = {
   id: 'mainnet',
   name: 'Mainnet',
   indexerConfig: {
