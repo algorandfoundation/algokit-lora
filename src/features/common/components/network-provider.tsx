@@ -8,13 +8,14 @@ type Props = {
   children: React.ReactNode
 }
 
-export const dataStore = createStore()
+export let dataStore = createStore()
 
 export function NetworkProvider({ children }: Props) {
   const networkConfig = useAtomValue(networkConfigAtom, { store: globalStore })
 
   useEffect(() => {
     setNetwork(networkConfig)
+    dataStore = createStore()
   }, [networkConfig])
 
   return (
