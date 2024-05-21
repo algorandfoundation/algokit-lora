@@ -11,6 +11,7 @@ import { InnerTransactionPage } from './features/transactions/pages/inner-transa
 import { AccountPage, accountPageTitle } from './features/accounts/pages/account-page'
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
+import { SettingsPage } from './features/settings/pages/settings-page'
 
 export const routes = evalTemplates([
   {
@@ -87,6 +88,10 @@ export const routes = evalTemplates([
       {
         template: Urls.AppStudio,
         element: <div>App Studio</div>,
+      },
+      {
+        template: Urls.Settings,
+        element: <SettingsPage />,
       },
     ],
   },

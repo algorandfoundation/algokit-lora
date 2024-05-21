@@ -10,6 +10,7 @@ import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
 import { useCallback } from 'react'
 import { useLayout } from '../hooks/use-layout'
 import SvgChevronRight from '@/features/common/components/icons/chevron-right'
+import SvgCog from '@/features/common/components/icons/cog'
 
 type Props = {
   className?: string
@@ -20,6 +21,7 @@ export function LeftSideBarMenu({ className }: Props) {
     { urlTemplate: Urls.Index, icon: <SvgHome />, text: 'Home' },
     { urlTemplate: Urls.Explore, icon: <SvgWallet />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <SvgCodeBlock />, text: 'App Studio' },
+    { urlTemplate: Urls.Settings, icon: <SvgCog />, text: 'Settings' },
   ]
   const { isLeftSideBarExpanded, setIsLeftSideBarExpanded } = useLayout()
 
