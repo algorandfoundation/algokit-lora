@@ -5,9 +5,9 @@ import { useMemo } from 'react'
 import { Buffer } from 'buffer'
 
 export const useProgramTeal = (base64Program: string) => {
-  const [tealAtom, fetchTealAtom] = useMemo(() => {
+  const [tealAtom, getTealAtom] = useMemo(() => {
     const tealAtom = atom<Promise<string> | undefined>(undefined)
-    const fetchTealAtom = atom(null, (get, set) => {
+    const getTealAtom = atom(null, (get, set) => {
       if (get(tealAtom)) {
         return
       }
@@ -21,8 +21,8 @@ export const useProgramTeal = (base64Program: string) => {
           .then((result) => result.result as string)
       )
     })
-    return [tealAtom, fetchTealAtom] as const
+    return [tealAtom, getTealAtom] as const
   }, [base64Program])
 
-  return [useAtomValue(loadable(tealAtom)), useSetAtom(fetchTealAtom)] as const
+  return [useAtomValue(loadable(tealAtom)), useSetAtom(getTealAtom)] as const
 }

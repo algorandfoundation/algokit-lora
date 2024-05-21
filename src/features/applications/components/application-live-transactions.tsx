@@ -4,9 +4,9 @@ import { LiveTransactionsTable } from '@/features/transactions/components/live-t
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
-import { applicationTransactionsTableColumns } from '../utils/application-transactions-table-columns'
 import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
+import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
 
 type Props = {
   applicationId: ApplicationId
@@ -28,5 +28,5 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     [applicationId]
   )
 
-  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={applicationTransactionsTableColumns} />
+  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={transactionsTableColumns} />
 }
