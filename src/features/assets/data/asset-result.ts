@@ -18,29 +18,28 @@ export const algoAssetResult = {
   },
 } as AssetResult
 
-const createAssetResultAtom = (assetId: AssetId) =>
-  atom<Promise<AssetResult> | AssetResult>(async (_get) => {
-    try {
-      // Check algod first, as there can be some syncing delays to indexer
-      return await algod
-        .getAssetByID(assetId)
+const getAssetResult = async (assetId: AssetId) => {
+  try {
+    // Check algod first, as there can be some syncing delays to indexer
+    return await algod
+      .getAssetByID(assetId)
+      .do()
+      .then((result) => result as AssetResult)
+  } catch (e: unknown) {
+    if (is404(asError(e))) {
+      // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
+      return await indexer
+        .lookupAssetByID(assetId)
+        .includeAll(true) // Returns destroyed assets
         .do()
-        .then((result) => result as AssetResult)
-    } catch (e: unknown) {
-      if (is404(asError(e))) {
-        // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
-        return await indexer
-          .lookupAssetByID(assetId)
-          .includeAll(true) // Returns destroyed assets
-          .do()
-          .then((result) => result.asset as AssetResult)
-      }
-      throw e
+        .then((result) => result.asset as AssetResult)
     }
-  })
+    throw e
+  }
+}
 
 export const [assetResultsAtom, getAssetResultAtom] = atomsInAtom(
-  createAssetResultAtom,
+  getAssetResult,
   (assetId) => assetId,
   new Map([[algoAssetResult.index, atom(algoAssetResult)]])
 )

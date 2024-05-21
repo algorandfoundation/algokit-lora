@@ -6,7 +6,7 @@ import { ApplicationBox, ApplicationBoxSummary } from '../models'
 import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
 
-const fetchApplicationBoxes = async (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
+const getApplicationBoxes = async (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
   const results = await indexer
     .searchForApplicationBoxes(applicationId)
     .nextToken(nextPageToken ?? '')
@@ -19,9 +19,12 @@ const fetchApplicationBoxes = async (applicationId: ApplicationId, pageSize: num
   } as const
 }
 
+const getApplicationBox = (applicationId: ApplicationId, boxName: string) =>
+  indexer.lookupApplicationBoxByIDandName(applicationId, Buffer.from(boxName, 'base64')).do()
+
 const createApplicationBoxesAtom = (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
   return atom(async () => {
-    const { boxes, nextPageToken: newNextPageToken } = await fetchApplicationBoxes(applicationId, pageSize, nextPageToken)
+    const { boxes, nextPageToken: newNextPageToken } = await getApplicationBoxes(applicationId, pageSize, nextPageToken)
 
     return {
       rows: boxes,
@@ -39,7 +42,7 @@ export const useFetchNextApplicationBoxPage = (applicationId: ApplicationId) => 
 export const useApplicationBox = (applicationId: ApplicationId, boxName: string) => {
   return useMemo(() => {
     return atom(async () => {
-      const box = await indexer.lookupApplicationBoxByIDandName(applicationId, Buffer.from(boxName, 'base64')).do()
+      const box = await getApplicationBox(applicationId, boxName)
       return box.get_obj_for_encoding(false) as ApplicationBox
     })
   }, [applicationId, boxName])

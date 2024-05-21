@@ -57,7 +57,7 @@ export const assetResultMother = {
         name: 'Tether USDt',
         'name-b64': encoder.encode('VGV0aGVyIFVTRHQ='),
         reserve: 'XIU7HGGAJ3QOTATPDSIIHPFVKMICXKHMOR2FJKHTVLII4FAOA3CYZQDLG4',
-        total: 18446744073709552000,
+        total: 18446744073709552000n,
         'unit-name': 'USDt',
         'unit-name-b64': encoder.encode('VVNEdA=='),
         url: 'tether.to',
@@ -94,7 +94,7 @@ export const assetResultMother = {
         name: 'Folks V2 Algo',
         'name-b64': encoder.encode('Rm9sa3MgVjIgQWxnbw=='),
         reserve: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
-        total: 10000000000000000,
+        total: 10000000000000000n,
         'unit-name': 'fALGO',
         'unit-name-b64': encoder.encode('ZkFMR08='),
       },
@@ -112,7 +112,7 @@ export const assetResultMother = {
         name: 'USDC',
         'name-b64': encoder.encode('VVNEQw=='),
         reserve: '2UEQTE5QDNXPI7M3TU44G6SYKLFWLPQO7EBZM7K7MHMQQMFI4QJPLHQFHM',
-        total: 18446744073709552000,
+        total: 18446744073709552000n,
         'unit-name': 'USDC',
         'unit-name-b64': encoder.encode('VVNEQw=='),
         url: 'https://www.centre.io/usdc',
@@ -132,7 +132,7 @@ export const assetResultMother = {
         name: 'goETH',
         'name-b64': encoder.encode('Z29FVEg='),
         reserve: 'NLTFR6Y7AAQ6BFFE7NMNJRK3CIZ5U7KSSD6UDMVZ3WOW2TPALOEV57MEEA',
-        total: 15000000000000000,
+        total: 15000000000000000n,
         'unit-name': 'goETH',
         'unit-name-b64': encoder.encode('Z29FVEg='),
         url: 'https://algomint.io',
@@ -304,6 +304,175 @@ export const assetResultMother = {
         'unit-name-b64': encoder.encode('Q29vcDQ4'),
         url: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}',
         'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6cmF3OnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
+  'mainnet-2254146': () => {
+    return new AssetResultBuilder({
+      index: 2254146,
+      params: {
+        clawback: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        manager: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        name: 'FIDE Online Arena Blitz Ranking',
+        'name-b64': encoder.encode('RklERSBPbmxpbmUgQXJlbmEgQmxpdHogUmFua2luZw=='),
+        reserve: 'C7RYOGEWDT7HZM3HKPSMU7QGWTRWR3EPOQTJ2OHXGYLARD3X62DNWELS34',
+        total: 9223372035000000000n,
+        'unit-name': 'FOABZR',
+        'unit-name-b64': encoder.encode('Rk9BQlpS'),
+      },
+    })
+  },
+  'mainnet-2254149': () => {
+    return new AssetResultBuilder({
+      index: 2254149,
+      params: {
+        clawback: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        manager: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        name: 'FIDE Online Arena Rapid Ranking',
+        'name-b64': encoder.encode('RklERSBPbmxpbmUgQXJlbmEgUmFwaWQgUmFua2luZw=='),
+        reserve: 'C7RYOGEWDT7HZM3HKPSMU7QGWTRWR3EPOQTJ2OHXGYLARD3X62DNWELS34',
+        total: 9223372035000000000n,
+        'unit-name': 'FOARDR',
+        'unit-name-b64': encoder.encode('Rk9BUkRS'),
+      },
+    })
+  },
+  'mainnet-2254150': () => {
+    return new AssetResultBuilder({
+      index: 2254150,
+      params: {
+        clawback: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        manager: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
+        name: 'FIDE Online Arena Bullet Ranking',
+        'name-b64': encoder.encode('RklERSBPbmxpbmUgQXJlbmEgQnVsbGV0IFJhbmtpbmc='),
+        reserve: 'C7RYOGEWDT7HZM3HKPSMU7QGWTRWR3EPOQTJ2OHXGYLARD3X62DNWELS34',
+        total: 9223372035000000000n,
+        'unit-name': 'FOABTR',
+        'unit-name-b64': encoder.encode('Rk9BQlRS'),
+      },
+    })
+  },
+  'mainnet-127745593': () => {
+    return new AssetResultBuilder({
+      index: 127745593,
+      params: {
+        clawback: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        manager: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        name: 'LC Bullet Ranking',
+        'name-b64': encoder.encode('TEMgQnVsbGV0IFJhbmtpbmc='),
+        reserve: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        total: 9223372035000000000n,
+        'unit-name': 'LCBTR',
+        'unit-name-b64': encoder.encode('TENCVFI='),
+      },
+    })
+  },
+  'mainnet-127746157': () => {
+    return new AssetResultBuilder({
+      index: 127746157,
+      params: {
+        clawback: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        manager: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        name: 'LC Blitz Ranking',
+        'name-b64': encoder.encode('TEMgQmxpdHogUmFua2luZw=='),
+        reserve: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        total: 9223372035000000000n,
+        'unit-name': 'LCBZR',
+        'unit-name-b64': encoder.encode('TENCWlI='),
+      },
+    })
+  },
+  'mainnet-127746786': () => {
+    return new AssetResultBuilder({
+      index: 127746786,
+      params: {
+        clawback: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        manager: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        name: 'LC Rapid Ranking',
+        'name-b64': encoder.encode('TEMgUmFwaWQgUmFua2luZw=='),
+        reserve: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
+        total: 9223372035000000000n,
+        'unit-name': 'LCRDR',
+        'unit-name-b64': encoder.encode('TENSRFI='),
+      },
+    })
+  },
+  'mainnet-924268058': () => {
+    return new AssetResultBuilder({
+      index: 924268058,
+      params: {
+        creator: 'V6SGZIWO6OAKUTKERDUFACQBPXMGPCNGEYMUANHRZA475YONW5B4BBLVL4',
+        decimals: 6,
+        'default-frozen': false,
+        manager: 'ATPVJYGEGP5H6GCZ4T6CG4PK7LH5OMWXHLXZHDPGO7RO6T3EHWTF6UUY6E',
+        name: 'FrysCrypto',
+        'name-b64': encoder.encode('RnJ5c0NyeXB0bw=='),
+        reserve: 'ATPVJYGEGP5H6GCZ4T6CG4PK7LH5OMWXHLXZHDPGO7RO6T3EHWTF6UUY6E',
+        total: 8000000000000000,
+        'unit-name': 'FRY',
+        'unit-name-b64': encoder.encode('RlJZ'),
+        url: 'https://fryscryptoexcursions.com',
+        'url-b64': encoder.encode('aHR0cHM6Ly9mcnlzY3J5cHRvZXhjdXJzaW9ucy5jb20='),
+      },
+    })
+  },
+  'mainnet-1010208883': () => {
+    return new AssetResultBuilder({
+      index: 1010208883,
+      params: {
+        creator: 'XSKED5VKZZCSYNDWXZJI65JM2HP7HZFJWCOBIMOONKHTK5UVKENBNVDEYM',
+        decimals: 6,
+        'default-frozen': false,
+        'metadata-hash': encoder.encode('AAAAADcXNhoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='),
+        name: 'TinymanPool2.0 FRY-ALGO',
+        'name-b64': encoder.encode('VGlueW1hblBvb2wyLjAgRlJZLUFMR08='),
+        reserve: 'YLNMUHDGH2G7G2PQMSU7K4TEQ6JPNE752LLXECCA7XCE3AB7JO3I3HQTDQ',
+        total: 18446744073709551615n,
+        'unit-name': 'TMPOOL2',
+        'unit-name-b64': encoder.encode('VE1QT09MMg=='),
+        url: 'https://tinyman.org',
+        'url-b64': encoder.encode('aHR0cHM6Ly90aW55bWFuLm9yZw=='),
+      },
+    })
+  },
+  'mainnet-1096015467': () => {
+    return new AssetResultBuilder({
+      index: 1096015467,
+      params: {
+        creator: 'B34VMB7AAF2JZHLUZL4ROAFAV7Q5TY2JXFCDGAJFYHNQAMVE5BCGGVEGAE',
+        decimals: 4,
+        'default-frozen': false,
+        manager: 'B34VMB7AAF2JZHLUZL4ROAFAV7Q5TY2JXFCDGAJFYHNQAMVE5BCGGVEGAE',
+        'metadata-hash': encoder.encode('MWQ3NWYwNGYwZmE5NDA3MDkxOWZkZDNlY2FhMmM1ZmQ='),
+        name: 'Pepe',
+        'name-b64': encoder.encode('UGVwZQ=='),
+        total: 4206899999999990000n,
+        'unit-name': 'PEPE',
+        'unit-name-b64': encoder.encode('UEVQRQ=='),
       },
     })
   },

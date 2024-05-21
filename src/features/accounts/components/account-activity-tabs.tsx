@@ -1,9 +1,10 @@
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { AccountAssetHeld } from './account-assets-held'
+import { AccountAssetsHeld } from './account-assets-held'
 import { Account } from '../models'
 import { AccountTransactionHistory } from './account-transaction-history'
+import { AccountLiveTransactions } from './account-live-transactions'
 import {
   accountActivityLabel,
   accountLiveTransactionsTabId,
@@ -18,7 +19,11 @@ import {
   accountCreatedAssetsTabLabel,
   accountCreatedApplicationsTabLabel,
   accountOptedApplicationsTabLabel,
+  accountOptedAssetsTabId,
+  accountOptedAssetsTabLabel,
 } from './labels'
+import { AccountAssetsCreated } from './account-assets-created'
+import { AccountAssetsOpted } from './account-assets-opted'
 
 type Props = {
   account: Account
@@ -30,7 +35,7 @@ export function AccountActivityTabs({ account }: Props) {
       {
         id: accountLiveTransactionsTabId,
         label: accountLiveTransactionsTabLabel,
-        children: '',
+        children: <AccountLiveTransactions address={account.address} />,
       },
       {
         id: accountHistoricalTransactionsTabId,
@@ -40,12 +45,17 @@ export function AccountActivityTabs({ account }: Props) {
       {
         id: accountHeldAssetsTabId,
         label: accountHeldAssetsTabLabel,
-        children: <AccountAssetHeld address={account.address} />,
+        children: <AccountAssetsHeld assetsHeld={account.assetsHeld} />,
       },
       {
         id: accountCreatedAssetsTabId,
         label: accountCreatedAssetsTabLabel,
-        children: '',
+        children: <AccountAssetsCreated assetsCreated={account.assetsCreated} />,
+      },
+      {
+        id: accountOptedAssetsTabId,
+        label: accountOptedAssetsTabLabel,
+        children: <AccountAssetsOpted assetsOpted={account.assetsOpted} />,
       },
       {
         id: accountCreatedApplicationsTabId,
@@ -58,7 +68,7 @@ export function AccountActivityTabs({ account }: Props) {
         children: '',
       },
     ],
-    [account.address]
+    [account.address, account.assetsCreated, account.assetsHeld, account.assetsOpted]
   )
   return (
     <Tabs defaultValue={accountLiveTransactionsTabId}>
