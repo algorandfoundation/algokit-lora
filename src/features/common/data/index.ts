@@ -1,19 +1,17 @@
 import { Config, getAlgoClient, getAlgoIndexerClient } from '@algorandfoundation/algokit-utils'
 import { NetworkConfig, mainnetConfig } from './network'
-import { createStore } from 'jotai'
 export * from './atom-with-debounce'
+export * from './network'
 
 Config.configure({
   logger: Config.getLogger(true),
 })
 
-export let indexer = getAlgoIndexerClient(mainnetConfig.indexerConfig)
+export let indexer = getAlgoIndexerClient(mainnetConfig.indexer)
 
-export let algod = getAlgoClient(mainnetConfig.algodConfig)
+export let algod = getAlgoClient(mainnetConfig.algod)
 
 export const setNetwork = (networkConfig: NetworkConfig) => {
-  indexer = getAlgoIndexerClient(networkConfig.indexerConfig)
-  algod = getAlgoClient(networkConfig.algodConfig)
+  indexer = getAlgoIndexerClient(networkConfig.indexer)
+  algod = getAlgoClient(networkConfig.algod)
 }
-
-export const globalStore = createStore()

@@ -1,12 +1,11 @@
-import { globalStore } from '@/features/common/data'
+import { settingsStore, selectedNetworkAtom, networksConfigs } from '@/features/common/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
-import { networkIdAtom, networksConfigs } from '@/features/common/data/network'
 import { cn } from '@/features/common/utils'
 import { useAtom } from 'jotai'
 
 export function NetworkSelect() {
-  const [networkId, setNetworkId] = useAtom(networkIdAtom, { store: globalStore })
+  const [networkId, setNetworkId] = useAtom(selectedNetworkAtom, { store: settingsStore })
 
   return (
     <div className={cn('flex w-48 flex-col')}>

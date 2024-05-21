@@ -1,6 +1,5 @@
-import { Provider, createStore, useAtomValue } from 'jotai'
-import { networkConfigAtom } from '../data/network'
-import { globalStore } from '@/features/common/data'
+import { Provider, createStore } from 'jotai'
+import { useNetworkConfig } from '../data/network'
 import { useEffect } from 'react'
 import { setNetwork } from '../data'
 
@@ -10,8 +9,8 @@ type Props = {
 
 export let dataStore = createStore()
 
-export function NetworkProvider({ children }: Props) {
-  const networkConfig = useAtomValue(networkConfigAtom, { store: globalStore })
+export function SettingsProvider({ children }: Props) {
+  const networkConfig = useNetworkConfig()
 
   useEffect(() => {
     setNetwork(networkConfig)
