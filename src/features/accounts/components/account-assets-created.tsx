@@ -7,7 +7,7 @@ type Props = {
   assetsCreated: AccountAssetSummary[]
 }
 
-export const assetsHeldTableColumns: ColumnDef<AccountAssetSummary>[] = [
+const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
   {
     header: 'ID',
     accessorFn: (item) => item.id,
@@ -24,9 +24,5 @@ export const assetsHeldTableColumns: ColumnDef<AccountAssetSummary>[] = [
 ]
 
 export function AccountAssetsCreated({ assetsCreated }: Props) {
-  if (assetsCreated.length === 0) {
-    return <></>
-  }
-
-  return <DataTable columns={assetsHeldTableColumns} data={assetsCreated} />
+  return <DataTable columns={assetsCreatedTableColumns} data={assetsCreated} />
 }
