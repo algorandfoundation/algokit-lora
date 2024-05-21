@@ -79,8 +79,8 @@ export const routes = evalTemplates([
           },
           {
             template: Urls.Explore.Application.ById,
-            element: <ApplicationPage />,
             errorElement: <ErrorPage title={applicationPageTitle} />,
+            element: <ApplicationPage />,
           },
         ],
       },

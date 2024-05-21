@@ -1,53 +1,48 @@
 import { atom } from 'jotai'
 import { indexer } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { atomEffect } from 'jotai-effect'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 
-export const syncedRoundAtom = atom<Round | undefined>(undefined)
-
-export const createBlockExtractAtom = (round: Round) => {
-  return atom(async (_get) => {
-    // We  use indexer instead of algod, as algod might not have the full history of blocks
-    const result = await indexer
-      .lookupBlock(round)
-      .do()
-      .then((result) => {
-        const [transactionIds, groupResults] = ((result.transactions ?? []) as TransactionResult[]).reduce(
-          (acc, t) => {
-            acc[0].push(t.id)
-            if (t.group) {
-              const group: GroupResult = acc[1].get(t.group) ?? {
-                id: t.group,
-                round: result.round as number,
-                timestamp: new Date(result.timestamp * 1000).toISOString(),
-                transactionIds: [],
-              }
-              group.transactionIds.push(t.id)
-              acc[1].set(t.group, group)
+export const getBlockAndExtractData = async (round: Round) => {
+  // We  use indexer instead of algod, as algod might not have the full history of blocks
+  const result = await indexer
+    .lookupBlock(round)
+    .do()
+    .then((result) => {
+      const [transactionIds, groupResults] = ((result.transactions ?? []) as TransactionResult[]).reduce(
+        (acc, t) => {
+          acc[0].push(t.id)
+          if (t.group) {
+            const group: GroupResult = acc[1].get(t.group) ?? {
+              id: t.group,
+              round: result.round as number,
+              timestamp: new Date(result.timestamp * 1000).toISOString(),
+              transactionIds: [],
             }
-            return acc
-          },
-          [[], new Map()] as [string[], Map<GroupId, GroupResult>]
-        )
+            group.transactionIds.push(t.id)
+            acc[1].set(t.group, group)
+          }
+          return acc
+        },
+        [[], new Map()] as [string[], Map<GroupId, GroupResult>]
+      )
 
-        return [
-          {
-            round: result.round as number,
-            timestamp: new Date(result.timestamp * 1000).toISOString(),
-            transactionIds,
-          } as BlockResult,
-          (result.transactions ?? []) as TransactionResult[],
-          Array.from(groupResults.values()),
-        ] as const
-      })
+      return [
+        {
+          round: result.round as number,
+          timestamp: new Date(result.timestamp * 1000).toISOString(),
+          transactionIds,
+        } as BlockResult,
+        (result.transactions ?? []) as TransactionResult[],
+        Array.from(groupResults.values()),
+      ] as const
+    })
 
-    return result
-  })
+  return result
 }
 
 export const addStateExtractedFromBlocksAtom = atom(
@@ -97,26 +92,12 @@ export const addStateExtractedFromBlocksAtom = atom(
   }
 )
 
-const createBlockResultAtom = (round: Round) => {
-  const blockExtractAtom = createBlockExtractAtom(round)
+const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, round: Round) => {
+  const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
 
-  const syncStateExtractedFromBlockEffect = atomEffect((get, set) => {
-    ;(async () => {
-      const [_, transactionResults, groupResults] = await get(blockExtractAtom).catch(() => {
-        // Ignore any errors as the fetch operation has failed and we have nothing to sync
-        return [null, [] as TransactionResult[], [] as GroupResult[]] as const
-      })
+  // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
+  set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
+  return blockResult
+})
 
-      // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
-      set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
-    })()
-  })
-
-  return atom<Promise<BlockResult> | BlockResult>(async (get) => {
-    get(syncStateExtractedFromBlockEffect)
-    const [blockResult] = await get(blockExtractAtom)
-    return blockResult
-  })
-}
-
-export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(createBlockResultAtom, (round) => round)
+export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)

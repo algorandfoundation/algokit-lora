@@ -5,7 +5,7 @@ import { loadable } from 'jotai/utils'
 import { TransactionId } from './types'
 import { JotaiStore } from '@/features/common/data/types'
 import { asTransaction } from '../mappers/transaction-mappers'
-import { createAssetSummaryAtom } from '@/features/assets/data'
+import { createAssetResolver } from '@/features/assets/data'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { getTransactionResultAtom } from './transaction-result'
 
@@ -16,7 +16,7 @@ export const createInnerTransactionAtom = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    const transaction = await asTransaction(txn, (assetId: number) => get(createAssetSummaryAtom(store, assetId)))
+    const transaction = await asTransaction(txn, createAssetResolver(store, get))
     if (transaction.type !== TransactionType.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }

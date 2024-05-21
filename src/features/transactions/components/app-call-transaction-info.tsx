@@ -8,6 +8,7 @@ import { transactionSenderLabel } from './transactions-table'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { ApplicationLink } from '@/features/applications/components/application-link'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -41,11 +42,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
       },
       {
         dt: applicationIdLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.applicationId}
-          </a>
-        ),
+        dd: <ApplicationLink applicationId={transaction.applicationId}></ApplicationLink>,
       },
       {
         dt: actionLabel,

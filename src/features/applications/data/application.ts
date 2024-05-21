@@ -5,11 +5,13 @@ import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { ApplicationId } from './types'
 import { getApplicationResultAtom } from './application-result'
+import { getApplicationMetadataResultAtom } from './application-metadata'
 
 export const createApplicationAtom = (store: JotaiStore, applicationId: ApplicationId) => {
   return atom(async (get) => {
     const applicationResult = await get(getApplicationResultAtom(store, applicationId))
-    return asApplication(applicationResult)
+    const applicationMetadata = await get(getApplicationMetadataResultAtom(store, applicationResult))
+    return asApplication(applicationResult, applicationMetadata)
   })
 }
 

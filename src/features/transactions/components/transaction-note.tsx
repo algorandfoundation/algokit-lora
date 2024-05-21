@@ -1,36 +1,13 @@
 import { cn } from '@/features/common/utils'
-import { Arc2TransactionNote } from '@algorandfoundation/algokit-utils/types/transaction'
 import { useMemo } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { parseArc2 } from '../mappers/arc-2'
+import { parseJson } from '@/utils/parse-json'
 
 type TransactionNoteProps = {
   note: string
-}
-
-function parseJson(maybeJson: string) {
-  try {
-    const json = JSON.parse(maybeJson)
-    if (json && typeof json === 'object') {
-      return json
-    }
-  } catch (e) {
-    // ignore
-  }
-}
-
-// Based on the ARC-2 spec https://github.com/algorandfoundation/ARCs/blob/main/ARCs/arc-0002.md#specification
-const arc2Regex = /^([a-zA-Z0-9][a-zA-Z0-9_/@.-]{4,31}):([mjbu]{1})(.*)$/
-function parseArc2(maybeArc2: string) {
-  const result = maybeArc2.match(arc2Regex)
-  if (result && result.length === 4) {
-    return {
-      dAppName: result[1],
-      format: result[2] as 'm' | 'b' | 'u' | 'j',
-      data: result[3],
-    } satisfies Arc2TransactionNote
-  }
 }
 
 const base64NoteTabId = 'base64'

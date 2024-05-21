@@ -1,4 +1,3 @@
-import { atom } from 'jotai'
 import { AssetResult, TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
@@ -69,53 +68,52 @@ const noteToArc69Metadata = (note: string | undefined) => {
   return undefined
 }
 
-export const createAssetMetadataResultAtom = (assetResult: AssetResult) =>
-  atom<Promise<AssetMetadataResult> | AssetMetadataResult>(async (_get) => {
-    if (assetResult.index === 0) {
-      return null
-    }
+const getAssetMetadataResult = async (assetResult: AssetResult) => {
+  if (assetResult.index === 0) {
+    return null
+  }
 
-    let results =
-      assetResult.params.manager && assetResult.params.manager !== ZERO_ADDRESS
-        ? await indexer
-            .searchForTransactions()
-            .assetID(assetResult.index)
-            .txType('acfg')
-            .address(assetResult.params.manager)
-            .addressRole('sender')
-            .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
-            .do()
-            .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address.
-        : []
-    if (results.length === 0) {
-      // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
-      // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
-      results = await executePaginatedRequest(
-        (res: TransactionSearchResults) => res.transactions,
-        (nextToken) => {
-          let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
-          if (nextToken) {
-            s = s.nextToken(nextToken)
-          }
-          return s
+  let results =
+    assetResult.params.manager && assetResult.params.manager !== ZERO_ADDRESS
+      ? await indexer
+          .searchForTransactions()
+          .assetID(assetResult.index)
+          .txType('acfg')
+          .address(assetResult.params.manager)
+          .addressRole('sender')
+          .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
+          .do()
+          .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address.
+      : []
+  if (results.length === 0) {
+    // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
+    // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
+    results = await executePaginatedRequest(
+      (res: TransactionSearchResults) => res.transactions,
+      (nextToken) => {
+        let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
+        if (nextToken) {
+          s = s.nextToken(nextToken)
         }
-      ).then((res) => res.reverse()) // reverse the order, so it's newest to oldest
-    }
+        return s
+      }
+    ).then((res) => res.reverse()) // reverse the order, so it's newest to oldest
+  }
 
-    const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
-      const isAssetConfigTransaction = t['tx-type'] === TransactionType.acfg
-      const isDestroyTransaction = t['asset-config-transaction']?.['params'] === undefined
-      return isAssetConfigTransaction && !isDestroyTransaction
-    })
-
-    if (assetConfigTransactionResults.length === 0) {
-      return null
-    }
-
-    return await createAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
+  const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
+    const isAssetConfigTransaction = t['tx-type'] === TransactionType.acfg
+    const isDestroyTransaction = t['asset-config-transaction']?.['params'] === undefined
+    return isAssetConfigTransaction && !isDestroyTransaction
   })
 
+  if (assetConfigTransactionResults.length === 0) {
+    return null
+  }
+
+  return await createAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
+}
+
 export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = atomsInAtom(
-  createAssetMetadataResultAtom,
+  getAssetMetadataResult,
   (assetResult) => assetResult.index
 )

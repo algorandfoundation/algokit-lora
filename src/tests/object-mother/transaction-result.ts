@@ -1281,4 +1281,77 @@ export const transactionResultMother = {
       'tx-type': TransactionType.acfg,
     })
   },
+  ['mainnet-XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ']: () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': [
+          '+Qj2KQ==',
+          '0QGHvZ1GkfgBxdPm8vbFxBpukSHn/8UGJmPuEFl9eDk=',
+          'AQ==',
+          'SiiuYA7RqfpffknPvqrI4BO3jJiUYf68SUqj2gb+jD0=',
+        ],
+        'application-id': 0,
+        'approval-program':
+          'CSAEAAEGAiYJDG5mdGlja2V0X2FwcAABAA9tYW5hZ2VyX2FkZHJlc3MBAQQuU0kZBGg0o6oSbWV0aG9kX3Blcm1pc3Npb25zB2FpcmxpbmUxGyISQAEtNhoAgAThNZDwEkABETYaAIAEnNbuoRJAAPU2GgCABF5iYz4SQADZNhoAgAS2olF1EkAAvTYaAIAE+Qj2KRJAAKE2GgCABB0UDY4SQACFNhoAgATG43mkEkAAaTYaACcFEkAAUTYaAIAEnvUJRhJAADU2GgCABE+i3akSQAAZNhoAJwYSQAABADEZIhIxGCITEESIBBYjQzEZIhIxGCITEESIA+wjQzEZIhIxGCITEESIA7IjQzEZIhIxGCITEESIA34jQzEZIhIxGCITEESIA0wjQzEZIhIxGCITEESIAxAjQzEZIhIxGCISEESIAuAjQzEZIhIxGCITEESIArcjQzEZIhIxGCITEESIApcjQzEZIhIxGCITEESIAncjQzEZIhIxGCITEESIAlcjQzEZIxJAADYxGSUSQAAlMRmBBBJAABMxGYEFEkAAAQAxGCITRIgAViNDMRgiE0SIAEEjQzEYIhNEiABSI0MxGCITRIgAQyNDigIBi/4yCGFAAAQiQgAbi/4iJwdjNQE1ADQBQAAHIov/U0IABTQAQv/1iYoAADEAMgkSRCNDigAAMQAyCRJEI0OKAAAjQ4oAACNDigEAMQAyCRJEK4v/wBxniYoBADEAK2QSRLEkshAjshmL/8AyshgisgGziYoBADEAK2QSRLEkshAlshmL/8AyshgisgGziYoCADEAK2QSRIv+wBwnB4v/ZomKAgGL/icIZBJAAAqL/ov/iP9JQgABI4mKAwAoi/7AMmcri/1nJwiL/2cjQ4oFADEAIoj/y0SxJLIQKGSyGIAEWOGHaLIai/uyGov8shqL/bIai/6yGov/shoisgGziYoDADEAJIj/mESxJLIQKGSyGIv/wByyHIv+wDCyMIAErnlpMLIai/2yGiqyGicEshoisgGziYoDADEAgQOI/2FEsSSyEChkshiL/sAcshyL/8AcshyL/cAwsjAnBbIaKrIaJwSyGoABArIaIrIBs4mKBAAxAIEFiP8nRLEkshAoZLIYi/zAMLIwgAQ7tliRshoqshqL/bIai/4WVwQAshqL/7IaIrIBs4mKAgAxAIEEiP7uRLEkshAoZLIYi/7AMLIwgARMfzwNshoqshoqIov/VrIaIrIBs4mKAwAxACWI/r9EsSSyEChkshiL/8AcshyL/sAwsjAnBrIai/2yGiqyGicEshoisgGziYoAACI2GgEiVYwAiwCI/i2JigAAIjYaASJVjACLAIj+LImKAAAiNhoBIlWMAIsAiP42iYoAACJJNhoBIlWMADYaAheMAYsAiwGI/jeJigAAKSIpNhoBjAA2GgIiVYwBNhoDjAKLAIsBiwKI/kGJigAAKUcENhoBjAA2GgKMATYaA4wCNhoEjAM2GgWMBIsAiwGLAosDiwSI/iiJigAAKSJJNhoBjAA2GgIiVYwBNhoDIlWMAosAiwGLAoj+OImKAAAiRwI2GgEiVYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/kmJigAAIikiKTYaASJVjAA2GgKMATYaAyJajAI2GgSMA4sAiwGLAosDiP5YiYoAACJJNhoBIlWMADYaAiJVjAGLAIsBiP52iYoAACkiSTYaAYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/oOJ',
+        'clear-state-program': 'CYEAQw==',
+        'foreign-apps': [1196710954],
+        'foreign-assets': [],
+        'global-state-schema': {
+          'num-byte-slice': 2,
+          'num-uint': 1,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 1,
+        },
+        'on-completion': 'noop',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 32218016,
+      'created-application-index': 1196727051,
+      fee: 1000,
+      'first-valid': 32218000,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      'global-state-delta': [
+        {
+          key: 'YWlybGluZQ==',
+          value: {
+            action: 1,
+            bytes: 'SiiuYA7RqfpffknPvqrI4BO3jJiUYf68SUqj2gb+jD0=',
+            uint: 0,
+          },
+        },
+        {
+          key: 'bWFuYWdlcl9hZGRyZXNz',
+          value: {
+            action: 1,
+            bytes: '0QGHvZ1GkfgBxdPm8vbFxBpukSHn/8UGJmPuEFl9eDk=',
+            uint: 0,
+          },
+        },
+        {
+          key: 'bmZ0aWNrZXRfYXBw',
+          value: {
+            action: 2,
+            uint: 1196710954,
+          },
+        },
+      ],
+      id: 'XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ',
+      'intra-round-offset': 18,
+      'last-valid': 32219000,
+      note: 'QUxHT0tJVF9ERVBMT1lFUjpqeyJuYW1lIjogImNyeXB0b2xlc3MtSklVSzRZQU8yR1U3VVgzNkpISDM1S1dJNEFKM1BERVlTUlE3NVBDSkpLUjVVQlg2UlE2WTVVWlNKUSIsICJ2ZXJzaW9uIjogInYxLjAiLCAiZGVsZXRhYmxlIjogbnVsbCwgInVwZGF0YWJsZSI6IG51bGx9',
+      'receiver-rewards': 0,
+      'round-time': 1695154915,
+      sender: '52MVNW6FNW7L6W7IAKSROD5FYZGZNLVKT6WUWNUFEE3DT737RYIIL2YQ3Y',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'hogSpsFw9RMBA7wlp1bf66qInAlIQ9Q762bWwd/Wah2o5jeZ0dNp29QhXsposgCalhThD5PLVrr6N77vdWZICg==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
 }
