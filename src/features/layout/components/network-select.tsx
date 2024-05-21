@@ -1,8 +1,9 @@
-import { settingsStore, selectedNetworkAtom, networksConfigs } from '@/features/common/data'
+import { selectedNetworkAtom, networksConfigs } from '@/features/settings/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
 import { useAtom } from 'jotai'
+import { settingsStore } from '@/features/settings/data'
 
 export function NetworkSelect() {
   const [networkId, setNetworkId] = useAtom(selectedNetworkAtom, { store: settingsStore })

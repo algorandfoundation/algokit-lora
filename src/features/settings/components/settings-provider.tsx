@@ -1,7 +1,7 @@
 import { Provider, createStore } from 'jotai'
 import { useNetworkConfig } from '../data/network'
 import { useEffect } from 'react'
-import { setNetwork } from '../data'
+import { setNetwork } from '../../common/data'
 
 type Props = {
   children: React.ReactNode

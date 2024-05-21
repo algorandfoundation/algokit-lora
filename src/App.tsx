@@ -4,7 +4,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './features/theme/context/theme-provider'
 import { LayoutProvider } from './features/layout/context/layout-provider'
 import { TooltipProvider } from './features/common/components/tooltip'
-import { SettingsProvider } from './features/common/components/settings-provider'
+import { SettingsProvider } from './features/settings/components/settings-provider'
 
 const router = createBrowserRouter(routes)
 

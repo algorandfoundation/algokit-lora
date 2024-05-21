@@ -1,7 +1,6 @@
 import { Config, getAlgoClient, getAlgoIndexerClient } from '@algorandfoundation/algokit-utils'
-import { NetworkConfig, mainnetConfig } from './network'
+import { NetworkConfig, mainnetConfig } from '../../settings/data/network'
 export * from './atom-with-debounce'
-export * from './network'
 
 Config.configure({
   logger: Config.getLogger(true),

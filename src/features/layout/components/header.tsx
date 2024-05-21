@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { ThemeToggle } from '@/features/theme/components/theme-toggle'
 import { ConnectWallet } from './connect-wallet'
 import { Search } from '@/features/search/components/search'
-import { useNetworkConfig } from '@/features/common/data'
+import { useNetworkConfig } from '@/features/settings/data'
 
 type Props = {
   className?: string

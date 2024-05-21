@@ -1,5 +1,6 @@
-import { atom, createStore, useAtomValue } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
+import { settingsStore } from './settings'
 
 export type NetworkConfig = {
   id: string
@@ -73,5 +74,3 @@ const networkConfigAtom = atom((get) => {
 export const useNetworkConfig = () => {
   return useAtomValue(networkConfigAtom, { store: settingsStore })
 }
-
-export const settingsStore = createStore()
