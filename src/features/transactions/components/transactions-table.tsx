@@ -23,7 +23,7 @@ export const transactionSenderLabel = 'Sender'
 export const transactionReceiverLabel = 'Receiver'
 export const transactionAmountLabel = 'Amount'
 
-export const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
+const transactionsTableColumns: ColumnDef<FlattenedTransaction>[] = [
   {
     header: 'Transaction Id',
     accessorFn: (item) => item,

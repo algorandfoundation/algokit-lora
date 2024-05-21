@@ -7,7 +7,7 @@ import { createTransactionsAtom, transactionResultsAtom } from '@/features/trans
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
 
-const fetchAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
+const getAssetTransactionResults = async (assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
     .assetID(assetId)
@@ -42,7 +42,7 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
 
 const createAssetTransactionsAtom = (store: JotaiStore, assetId: AssetId, pageSize: number, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await fetchAssetTransactionResults(assetId, pageSize, nextPageToken)
+    const { transactionResults, nextPageToken: newNextPageToken } = await getAssetTransactionResults(assetId, pageSize, nextPageToken)
 
     get(createSyncEffect(transactionResults))
 
