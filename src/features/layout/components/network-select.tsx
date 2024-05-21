@@ -1,7 +1,7 @@
 import { globalStore } from '@/features/common/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
-import { networkIdAtom, networksConfig } from '@/features/common/data/network'
+import { networkIdAtom, networksConfigs } from '@/features/common/data/network'
 import { cn } from '@/features/common/utils'
 import { useAtom } from 'jotai'
 
@@ -18,7 +18,7 @@ export function NetworkSelect() {
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
         <SelectContent className={cn('bg-card text-card-foreground')}>
-          {networksConfig.map((item) => (
+          {networksConfigs.map((item) => (
             <SelectItem key={item.id} value={item.id}>
               {item.name}
             </SelectItem>

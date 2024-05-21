@@ -39,17 +39,17 @@ const testnetConfig: NetworkConfig = {
   },
 }
 
-export const networksConfig = [mainnetConfig, testnetConfig]
+export const networksConfigs = [mainnetConfig, testnetConfig]
 
 export const networkIdAtom = atomWithStorage('network-id', mainnetConfig.id, undefined, { getOnInit: true })
 
 export const networkConfigAtom = atom((get) => {
   const id = get(networkIdAtom)
-  const config = networksConfig.find((n) => n.id === id)
+  const config = networksConfigs.find((n) => n.id === id)
 
   if (!config) {
     // eslint-disable-next-line no-console
-    console.warn(`Unknown network: ${id}`)
+    console.warn(`Unknown network: ${id}, fallback to mainnet`)
     return mainnetConfig
   }
 
