@@ -1,27 +1,19 @@
 import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
-import { Atom } from 'jotai'
-import { LoadDataResponse, createLoadablePagination } from '../../data/loadable-pagination'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { Loader2 as Loader } from 'lucide-react'
+import { Loadable } from 'jotai/vanilla/utils/loadable'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  fetchData: (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
+  loadablePageBuilder: (pageSize: number) => { useLoadablePage: (pageNumber: number) => Loadable<Promise<TData[]>> }
   getSubRows?: (row: TData) => TData[]
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, fetchData, getSubRows }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, loadablePageBuilder, getSubRows }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
-  const { useLoadablePage } = useMemo(
-    () =>
-      createLoadablePagination({
-        pageSize,
-        fetchData: fetchData,
-      }),
-    [pageSize, fetchData]
-  )
+  const { useLoadablePage } = useMemo(() => loadablePageBuilder(pageSize), [loadablePageBuilder, pageSize])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
 
