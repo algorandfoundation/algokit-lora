@@ -5,7 +5,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { ApplicationBox, ApplicationBoxSummary } from '../models'
 import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
-import { createLazyLoadPageAtom } from '@/features/common/data/loadable-pagination'
+import { createLazyLoadPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { JotaiStore } from '@/features/common/data/types'
 
 const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?: string) => {
@@ -48,7 +48,7 @@ export const useLoadableApplicationBox = (applicationId: ApplicationId, boxName:
   return useAtomValue(loadable(useApplicationBox(applicationId, boxName)))
 }
 
-export const createLoadableApplicationBoxPage = (applicationId: ApplicationId) => {
+export const createLoadableApplicationBoxesPage = (applicationId: ApplicationId) => {
   const fetchApplicationBoxResults = (nextPageToken?: string) => createApplicationBoxResultsAtom(applicationId, nextPageToken)
 
   return (pageSize: number) => {

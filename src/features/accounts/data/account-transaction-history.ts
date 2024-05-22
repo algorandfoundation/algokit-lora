@@ -6,7 +6,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom, useAtomValue, useStore } from 'jotai'
-import { createLazyLoadPageAtom } from '@/features/common/data/loadable-pagination'
+import { createLazyLoadPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { loadable } from 'jotai/utils'
 
 // TODO: work out the limit
