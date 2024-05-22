@@ -9,6 +9,7 @@ import { atom, useAtomValue, useStore } from 'jotai'
 import { createLazyLoadPageAtom } from '@/features/common/data/loadable-pagination'
 import { loadable } from 'jotai/utils'
 
+// TODO: work out the limit
 const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
@@ -63,7 +64,7 @@ export const createLoadableAccountTransactionPage = (address: Address) => {
 
     const createTransactionsPageAtom = (store: JotaiStore, pageNumber: number) => {
       return atom(async (get) => {
-        const transactionResults = await get(lazyLoadPageAtom(pageNumber))
+        const transactionResults = await get(lazyLoadPageAtom(store, pageNumber))
         return get(createTransactionsAtom(store, transactionResults))
       })
     }

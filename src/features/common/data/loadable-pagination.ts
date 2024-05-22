@@ -1,4 +1,5 @@
 import { Atom, atom } from 'jotai'
+import { JotaiStore } from './types'
 
 export type LoadDataResponse<TData> = {
   items: TData[]
@@ -11,21 +12,23 @@ type Input<TData> = {
 }
 
 export function createLazyLoadPageAtom<TData>({ pageSize, fetchData }: Input<TData>) {
-  let itemsAtom: TData[] = []
-  let nextPageTokenAtom: string | undefined = undefined
+  const itemsAtom = atom<TData[]>([])
+  const nextPageTokenAtom = atom<string | undefined>(undefined)
 
-  return (pageNumber: number) => {
+  return (store: JotaiStore, pageNumber: number) => {
     return atom(async (get) => {
       const index = pageNumber - 1
 
-      const itemsFromCache = itemsAtom.slice(index * pageSize, (index + 1) * pageSize)
+      const cache = store.get(itemsAtom)
+      const itemsFromCache = cache.slice(index * pageSize, (index + 1) * pageSize)
 
       if (itemsFromCache.length === pageSize) return itemsFromCache
 
-      const { items, nextPageToken } = await get(fetchData(nextPageTokenAtom))
-      const nextCache = Array.from(itemsAtom).concat(items)
-      itemsAtom = nextCache
-      nextPageTokenAtom = nextPageToken
+      const { items, nextPageToken } = await get(fetchData(store.get(nextPageTokenAtom)))
+      const nextCache = Array.from(cache).concat(items)
+
+      store.set(itemsAtom, nextCache)
+      store.set(nextPageTokenAtom, nextPageToken)
 
       return nextCache.slice(index * pageSize, (index + 1) * pageSize)
     })
