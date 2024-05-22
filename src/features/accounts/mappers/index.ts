@@ -29,6 +29,7 @@ export const asAccount = async (
     minBalance: microAlgos(accountResult['min-balance']),
     totalApplicationsCreated: accountResult['total-created-apps'],
     totalApplicationsOptedIn: accountResult['total-apps-opted-in'],
+    applicationCreated: accountResult['created-apps'] ?? [],
     assetsHeld,
     assetsCreated: await asAccountAssetSummaries(accountResult['created-assets'] ?? [], asAccountAssetSummary),
     assetsOpted,

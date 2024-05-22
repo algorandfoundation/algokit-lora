@@ -1,5 +1,5 @@
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { Address } from '../data/types'
+import { Address, ApplicationResult } from '../data/types'
 import { AssetSummary } from '@/features/assets/models'
 
 export type AccountAssetSummary = Omit<AssetSummary, 'clawback'>
@@ -16,6 +16,7 @@ export type Account = {
   minBalance: AlgoAmount
   totalApplicationsCreated: number
   totalApplicationsOptedIn: number
+  applicationCreated: ApplicationResult[]
   assetsHeld: AssetHolding[]
   assetsCreated: AccountAssetSummary[]
   assetsOpted: AssetHolding[]

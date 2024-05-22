@@ -24,6 +24,7 @@ import {
 } from './labels'
 import { AccountAssetsCreated } from './account-assets-created'
 import { AccountAssetsOpted } from './account-assets-opted'
+import { AccountApplicationsCreated } from './account-applications-created'
 
 type Props = {
   account: Account
@@ -60,7 +61,7 @@ export function AccountActivityTabs({ account }: Props) {
       {
         id: accountCreatedApplicationsTabId,
         label: accountCreatedApplicationsTabLabel,
-        children: '',
+        children: <AccountApplicationsCreated applicationsCreated={account.applicationCreated} />,
       },
       {
         id: accountOptedApplicationsTabId,
@@ -68,7 +69,7 @@ export function AccountActivityTabs({ account }: Props) {
         children: '',
       },
     ],
-    [account.address, account.assetsCreated, account.assetsHeld, account.assetsOpted]
+    [account.address, account.applicationCreated, account.assetsCreated, account.assetsHeld, account.assetsOpted]
   )
   return (
     <Tabs defaultValue={accountLiveTransactionsTabId}>
