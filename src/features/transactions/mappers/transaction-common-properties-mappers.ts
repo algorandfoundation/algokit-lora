@@ -3,7 +3,6 @@ import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
-import { asJson } from '@/utils/as-json'
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
   invariant(transactionResult['confirmed-round'], 'confirmed-round is not set')
@@ -17,7 +16,7 @@ export const mapCommonTransactionProperties = (transactionResult: TransactionRes
     sender: transactionResult.sender,
     signature: transformSignature(transactionResult.signature),
     note: transactionResult.note,
-    json: asJson(transactionResult),
+    json: transactionResult,
   }
 }
 
