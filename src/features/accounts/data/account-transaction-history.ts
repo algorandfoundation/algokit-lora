@@ -7,12 +7,11 @@ import { createTransactionsAtom, transactionResultsAtom } from '@/features/trans
 import { atomEffect } from 'jotai-effect'
 import { atom, useStore } from 'jotai'
 
-const getAccountTransactionResults = async (address: Address, pageSize: number, nextPageToken?: string) => {
+const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
     .address(address)
     .nextToken(nextPageToken ?? '')
-    .limit(pageSize)
     .do()) as TransactionSearchResults
   return {
     transactionResults: results.transactions,
@@ -40,16 +39,16 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const createAccountTransactionAtom = (store: JotaiStore, address: Address, pageSize: number, nextPageToken?: string) => {
+const createAccountTransactionAtom = (store: JotaiStore, address: Address, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await getAccountTransactionResults(address, pageSize, nextPageToken)
+    const { transactionResults, nextPageToken: newNextPageToken } = await getAccountTransactionResults(address, nextPageToken)
 
     get(createSyncEffect(transactionResults))
 
     const transactions = await get(createTransactionsAtom(store, transactionResults))
 
     return {
-      rows: transactions,
+      items: transactions,
       nextPageToken: newNextPageToken,
     }
   })
@@ -59,6 +58,6 @@ export const useFetchNextAccountTransactionPage = (address: Address) => {
   const store = useStore()
 
   return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => createAccountTransactionAtom(store, address, pageSize, nextPageToken)
+    return (nextPageToken?: string) => createAccountTransactionAtom(store, address, nextPageToken)
   }, [store, address])
 }

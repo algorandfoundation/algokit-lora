@@ -1,54 +1,37 @@
 import { Atom, atom, useAtomValue, useStore } from 'jotai'
-import { atomEffect } from 'jotai-effect'
 import { loadable } from 'jotai/utils'
 import { JotaiStore } from './types'
 import { useMemo } from 'react'
 
-export type DataPage<TData> = {
-  rows: TData[]
+export type LoadDataResponse<TData> = {
+  items: TData[]
   nextPageToken?: string
 }
 
 type CreateLoadablePaginationInput<TData> = {
   pageSize: number
-  fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
+  fetchData: (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
 }
 
-export function createLoadablePagination<TData>({ pageSize, fetchNextPage }: CreateLoadablePaginationInput<TData>) {
-  const rawDataPagesAtom = atom<DataPage<TData>[]>([])
-
-  const createSyncEffect = ({ rows, nextPageToken }: { rows: TData[]; nextPageToken?: string }) => {
-    return atomEffect((_, set) => {
-      ;(async () => {
-        try {
-          set(rawDataPagesAtom, (prev) => {
-            return Array.from(prev).concat([{ rows, nextPageToken }])
-          })
-        } catch (e) {
-          // Ignore any errors as there is nothing to sync
-        }
-      })()
-    })
-  }
+export function createLoadablePagination<TData>({ pageSize, fetchData }: CreateLoadablePaginationInput<TData>) {
+  const itemsAtom = atom<TData[]>([])
+  const nextPageTokenAtom = atom<string | undefined>(undefined)
 
   const createPageAtom = (store: JotaiStore, pageSize: number, pageNumber: number) => {
     return atom(async (get) => {
       const index = pageNumber - 1
-      const cache = store.get(rawDataPagesAtom)
+      const cache = store.get(itemsAtom)
 
-      if (index < cache.length) {
-        return cache[index] satisfies DataPage<TData>
-      }
+      const itemsFromCache = cache.slice(index * pageSize, (index + 1) * pageSize)
 
-      const currentNextPageToken = cache[cache.length - 1]?.nextPageToken
-      const { rows, nextPageToken } = await get(fetchNextPage(pageSize, currentNextPageToken))
+      if (itemsFromCache.length === pageSize) return itemsFromCache
 
-      get(createSyncEffect({ rows, nextPageToken }))
+      const { items, nextPageToken } = await get(fetchData(store.get(nextPageTokenAtom)))
+      const nextCache = Array.from(cache).concat(items)
+      store.set(itemsAtom, nextCache)
+      store.set(nextPageTokenAtom, nextPageToken)
 
-      return {
-        rows: rows,
-        nextPageToken,
-      } satisfies DataPage<TData>
+      return nextCache.slice(index * pageSize, (index + 1) * pageSize)
     })
   }
 

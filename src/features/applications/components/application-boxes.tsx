@@ -14,7 +14,7 @@ export function ApplicationBoxes({ applicationId }: Props) {
   const fetchNextPage = useFetchNextApplicationBoxPage(applicationId)
   const tableColumns = useMemo(() => createTableColumns(applicationId), [applicationId])
 
-  return <LazyLoadDataTable columns={tableColumns} fetchNextPage={fetchNextPage} />
+  return <LazyLoadDataTable columns={tableColumns} fetchData={fetchNextPage} />
 }
 
 const createTableColumns = (applicationId: ApplicationId): ColumnDef<ApplicationBoxSummary>[] => [

@@ -22,5 +22,5 @@ export function ApplicationTransactionHistory({ applicationId }: Props) {
     [applicationId]
   )
 
-  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} fetchNextPage={fetchNextPage} />
+  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} fetchData={fetchNextPage} />
 }

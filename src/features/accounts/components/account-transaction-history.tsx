@@ -14,5 +14,5 @@ export function AccountTransactionHistory({ address }: Props) {
   const fetchNextPage = useFetchNextAccountTransactionPage(address)
   const getSubRows = useCallback((row: Transaction | InnerTransaction) => getAccountTransactionsTableSubRows(address, row), [address])
 
-  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} fetchNextPage={fetchNextPage} />
+  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} fetchData={fetchNextPage} />
 }

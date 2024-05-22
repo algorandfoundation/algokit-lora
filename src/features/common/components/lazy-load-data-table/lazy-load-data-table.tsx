@@ -2,25 +2,25 @@ import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTa
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
 import { Atom } from 'jotai'
-import { DataPage, createLoadablePagination } from '../../data/loadable-pagination'
+import { LoadDataResponse, createLoadablePagination } from '../../data/loadable-pagination'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { Loader2 as Loader } from 'lucide-react'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  fetchNextPage: (pageSize: number, nextPageToken?: string) => Atom<Promise<DataPage<TData>>>
+  fetchData: (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
   getSubRows?: (row: TData) => TData[]
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage, getSubRows }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, fetchData, getSubRows }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
   const { useLoadablePage } = useMemo(
     () =>
       createLoadablePagination({
         pageSize,
-        fetchNextPage,
+        fetchData: fetchData,
       }),
-    [pageSize, fetchNextPage]
+    [pageSize, fetchData]
   )
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
@@ -41,7 +41,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage, getSu
   const page = useMemo(() => (loadablePage.state === 'hasData' ? loadablePage.data : undefined), [loadablePage])
 
   const table = useReactTable({
-    data: page?.rows ?? [],
+    data: page ?? [],
     state: {
       expanded: true,
     },
@@ -107,7 +107,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, fetchNextPage, getSu
         pageSize={pageSize}
         setPageSize={setPageSizeAndResetCurrentPage}
         currentPage={currentPage}
-        nextPageEnabled={!!page?.nextPageToken && page.rows.length === pageSize}
+        nextPageEnabled={true}
         nextPage={nextPage}
         previousPageEnabled={currentPage > 1}
         previousPage={previousPage}
