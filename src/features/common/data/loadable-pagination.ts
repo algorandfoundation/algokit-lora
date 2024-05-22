@@ -1,7 +1,5 @@
-import { Atom, atom, useAtomValue, useStore } from 'jotai'
-import { loadable } from 'jotai/utils'
+import { Atom, atom } from 'jotai'
 import { JotaiStore } from './types'
-import { useMemo } from 'react'
 
 export type LoadDataResponse<TData> = {
   items: TData[]
@@ -17,7 +15,7 @@ export function createLoadablePagination<TData>({ pageSize, fetchData }: CreateL
   const itemsAtom = atom<TData[]>([])
   const nextPageTokenAtom = atom<string | undefined>(undefined)
 
-  const createPageAtom = (store: JotaiStore, pageSize: number, pageNumber: number) => {
+  const createPageAtom = (store: JotaiStore, pageNumber: number) => {
     return atom(async (get) => {
       const index = pageNumber - 1
       const cache = store.get(itemsAtom)
@@ -35,17 +33,5 @@ export function createLoadablePagination<TData>({ pageSize, fetchData }: CreateL
     })
   }
 
-  const usePageAtom = (pageSize: number, pageNumber: number) => {
-    const store = useStore()
-
-    return useMemo(() => {
-      return createPageAtom(store, pageSize, pageNumber)
-    }, [store, pageSize, pageNumber])
-  }
-
-  const useLoadablePage = (pageNumber: number) => {
-    return useAtomValue(loadable(usePageAtom(pageSize, pageNumber)))
-  }
-
-  return { useLoadablePage } as const
+  return createPageAtom
 }
