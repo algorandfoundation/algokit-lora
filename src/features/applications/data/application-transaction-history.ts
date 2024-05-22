@@ -5,14 +5,16 @@ import { useMemo } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
-import { atom, useStore } from 'jotai'
+import { atom, useAtomValue, useStore } from 'jotai'
+import { createLazyLoadPageAtom } from '@/features/common/data/lazy-load-pagination'
+import { loadable } from 'jotai/utils'
 
-const getApplicationTransactionResults = async (applicationID: ApplicationId, pageSize: number, nextPageToken?: string) => {
+const getApplicationTransactionResults = async (applicationID: ApplicationId, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
     .applicationID(applicationID)
     .nextToken(nextPageToken ?? '')
-    .limit(pageSize)
+    .limit(100)
     .do()) as TransactionSearchResults
   return {
     transactionResults: results.transactions,
@@ -40,29 +42,44 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const createApplicationTransactionsAtom = (store: JotaiStore, applicationID: ApplicationId, pageSize: number, nextPageToken?: string) => {
+const createApplicationTransactionResultsAtom = (applicationID: ApplicationId, nextPageToken?: string) => {
   return atom(async (get) => {
-    const { transactionResults, nextPageToken: newNextPageToken } = await getApplicationTransactionResults(
-      applicationID,
-      pageSize,
-      nextPageToken
-    )
+    const { transactionResults, nextPageToken: newNextPageToken } = await getApplicationTransactionResults(applicationID, nextPageToken)
 
     get(createSyncEffect(transactionResults))
 
-    const transactions = await get(createTransactionsAtom(store, transactionResults))
-
     return {
-      rows: transactions,
+      items: transactionResults,
       nextPageToken: newNextPageToken,
     }
   })
 }
 
-export const useFetchNextApplicationTransactionsPage = (applicationID: ApplicationId) => {
-  const store = useStore()
+export const createLoadableApplicationTransactionPage = (applicationID: ApplicationId) => {
+  const fetchTransactionResults = (nextPageToken?: string) => createApplicationTransactionResultsAtom(applicationID, nextPageToken)
 
-  return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => createApplicationTransactionsAtom(store, applicationID, pageSize, nextPageToken)
-  }, [store, applicationID])
+  return (pageSize: number) => {
+    const lazyLoadPageAtom = createLazyLoadPageAtom({ pageSize, fetchData: fetchTransactionResults })
+
+    const createPageAtom = (store: JotaiStore, pageNumber: number) => {
+      return atom(async (get) => {
+        const transactionResults = await get(lazyLoadPageAtom(store, pageNumber))
+        return get(createTransactionsAtom(store, transactionResults))
+      })
+    }
+
+    const usePageAtom = (pageNumber: number) => {
+      const store = useStore()
+
+      return useMemo(() => {
+        return createPageAtom(store, pageNumber)
+      }, [store, pageNumber])
+    }
+
+    const useLoadablePage = (pageNumber: number) => {
+      return useAtomValue(loadable(usePageAtom(pageNumber)))
+    }
+
+    return { useLoadablePage }
+  }
 }

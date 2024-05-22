@@ -43,7 +43,7 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
   })
 }
 
-const createAccountTransactionResultAtom = (address: Address, nextPageToken?: string) => {
+const createAccountTransactionResultsAtom = (address: Address, nextPageToken?: string) => {
   return atom(async (get) => {
     const { transactionResults, nextPageToken: newNextPageToken } = await getAccountTransactionResults(address, nextPageToken)
 
@@ -57,10 +57,10 @@ const createAccountTransactionResultAtom = (address: Address, nextPageToken?: st
 }
 
 export const createLoadableAccountTransactionPage = (address: Address) => {
-  const fetchAccountTransactionResults = (nextPageToken?: string) => createAccountTransactionResultAtom(address, nextPageToken)
+  const fetchTransactionResults = (nextPageToken?: string) => createAccountTransactionResultsAtom(address, nextPageToken)
 
   return (pageSize: number) => {
-    const lazyLoadPageAtom = createLazyLoadPageAtom({ pageSize, fetchData: fetchAccountTransactionResults })
+    const lazyLoadPageAtom = createLazyLoadPageAtom({ pageSize, fetchData: fetchTransactionResults })
 
     const createTransactionsPageAtom = (store: JotaiStore, pageNumber: number) => {
       return atom(async (get) => {
