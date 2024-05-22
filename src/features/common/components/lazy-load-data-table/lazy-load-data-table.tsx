@@ -7,13 +7,13 @@ import { Loadable } from 'jotai/vanilla/utils/loadable'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  loadablePageBuilder: (pageSize: number) => { useLoadablePage: (pageNumber: number) => Loadable<Promise<TData[]>> }
+  createLoadablePage: (pageSize: number) => { useLoadablePage: (pageNumber: number) => Loadable<Promise<TData[]>> }
   getSubRows?: (row: TData) => TData[]
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, loadablePageBuilder, getSubRows }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, getSubRows }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
-  const { useLoadablePage } = useMemo(() => loadablePageBuilder(pageSize), [loadablePageBuilder, pageSize])
+  const { useLoadablePage } = useMemo(() => createLoadablePage(pageSize), [createLoadablePage, pageSize])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
 

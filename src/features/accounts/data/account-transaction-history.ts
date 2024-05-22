@@ -6,7 +6,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom, useAtomValue, useStore } from 'jotai'
-import { createLoadablePagination } from '@/features/common/data/loadable-pagination'
+import { createLazyLoadPageAtom } from '@/features/common/data/loadable-pagination'
 import { loadable } from 'jotai/utils'
 
 const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
@@ -55,15 +55,15 @@ const createAccountTransactionResultAtom = (address: Address, nextPageToken?: st
   })
 }
 
-export const createFoo = (address: Address) => {
+export const createLoadableAccountTransactionPage = (address: Address) => {
   const fetchAccountTransactionResults = (nextPageToken?: string) => createAccountTransactionResultAtom(address, nextPageToken)
 
   return (pageSize: number) => {
-    const foo = createLoadablePagination({ pageSize, fetchData: fetchAccountTransactionResults })
+    const lazyLoadPageAtom = createLazyLoadPageAtom({ pageSize, fetchData: fetchAccountTransactionResults })
 
-    const createTransactionPageAtom = (store: JotaiStore, pageNumber: number) => {
+    const createTransactionsPageAtom = (store: JotaiStore, pageNumber: number) => {
       return atom(async (get) => {
-        const transactionResults = await get(foo(store, pageNumber))
+        const transactionResults = await get(lazyLoadPageAtom(pageNumber))
         return get(createTransactionsAtom(store, transactionResults))
       })
     }
@@ -72,7 +72,7 @@ export const createFoo = (address: Address) => {
       const store = useStore()
 
       return useMemo(() => {
-        return createTransactionPageAtom(store, pageNumber)
+        return createTransactionsPageAtom(store, pageNumber)
       }, [store, pageNumber])
     }
 
