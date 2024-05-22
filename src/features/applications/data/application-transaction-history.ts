@@ -1,13 +1,10 @@
 import { ApplicationId } from './types'
 import { indexer } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
-import { useMemo } from 'react'
-import { JotaiStore } from '@/features/common/data/types'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
-import { atom, useAtomValue, useStore } from 'jotai'
-import { createLazyLoadPageAtom } from '@/features/common/data/lazy-load-pagination'
-import { loadable } from 'jotai/utils'
+import { atom } from 'jotai'
+import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 
 const getApplicationTransactionResults = async (applicationID: ApplicationId, nextPageToken?: string) => {
   const results = (await indexer
@@ -55,31 +52,12 @@ const createApplicationTransactionResultsAtom = (applicationID: ApplicationId, n
   })
 }
 
-export const createLoadableApplicationTransactionPage = (applicationID: ApplicationId) => {
-  const fetchTransactionResults = (nextPageToken?: string) => createApplicationTransactionResultsAtom(applicationID, nextPageToken)
-
-  return (pageSize: number) => {
-    const lazyLoadPageAtom = createLazyLoadPageAtom({ pageSize, fetchData: fetchTransactionResults })
-
-    const createPageAtom = (store: JotaiStore, pageNumber: number) => {
-      return atom(async (get) => {
-        const transactionResults = await get(lazyLoadPageAtom(store, pageNumber))
+export const createLoadableApplicationTransactionsPage = (applicationID: ApplicationId) => {
+  return createLoadableViewModelPageAtom({
+    fetchRawData: (nextPageToken?: string) => createApplicationTransactionResultsAtom(applicationID, nextPageToken),
+    createViewModelPageAtom: (store, transactionResults) =>
+      atom(async (get) => {
         return get(createTransactionsAtom(store, transactionResults))
-      })
-    }
-
-    const usePageAtom = (pageNumber: number) => {
-      const store = useStore()
-
-      return useMemo(() => {
-        return createPageAtom(store, pageNumber)
-      }, [store, pageNumber])
-    }
-
-    const useLoadablePage = (pageNumber: number) => {
-      return useAtomValue(loadable(usePageAtom(pageNumber)))
-    }
-
-    return { useLoadablePage }
-  }
+      }),
+  })
 }

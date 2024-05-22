@@ -1,6 +1,6 @@
 import { LazyLoadDataTable } from '@/features/common/components/lazy-load-data-table'
 import { ApplicationId } from '../data/types'
-import { createLoadableApplicationTransactionPage } from '../data/application-transaction-history'
+import { createLoadableApplicationTransactionsPage } from '../data/application-transaction-history'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { useCallback, useMemo } from 'react'
 import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function ApplicationTransactionHistory({ applicationId }: Props) {
-  const createLoadblePage = useMemo(() => createLoadableApplicationTransactionPage(applicationId), [applicationId])
+  const createLoadblePage = useMemo(() => createLoadableApplicationTransactionsPage(applicationId), [applicationId])
 
   // TODO: for the future
   // How we handle getSubRows isn't the best practice. Ideally, we should create a new view model, for example, TransactionForApplication

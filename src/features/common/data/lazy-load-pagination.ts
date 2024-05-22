@@ -1,17 +1,19 @@
-import { Atom, atom } from 'jotai'
+import { Atom, atom, useAtomValue, useStore } from 'jotai'
 import { JotaiStore } from './types'
+import { useMemo } from 'react'
+import { loadable } from 'jotai/utils'
 
 export type LoadDataResponse<TData> = {
   items: TData[]
   nextPageToken?: string
 }
 
-type Input<TData> = {
+type CreateLazyLoadRawDataPageAtom<TData> = {
   pageSize: number
   fetchData: (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
 }
 
-export function createLazyLoadPageAtom<TData>({ pageSize, fetchData }: Input<TData>) {
+function createLazyLoadRawDataPageAtom<TData>({ pageSize, fetchData }: CreateLazyLoadRawDataPageAtom<TData>) {
   const itemsAtom = atom<TData[]>([])
   const nextPageTokenAtom = atom<string | undefined>(undefined)
 
@@ -32,5 +34,44 @@ export function createLazyLoadPageAtom<TData>({ pageSize, fetchData }: Input<TDa
 
       return nextCache.slice(index * pageSize, (index + 1) * pageSize)
     })
+  }
+}
+
+type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
+  fetchRawData: (nextPageToken?: string) => Atom<
+    Promise<{
+      items: TRawData[]
+      nextPageToken?: string
+    }>
+  >
+  createViewModelPageAtom: (store: JotaiStore, rawDataPage: TRawData[]) => Atom<Promise<TViewModel[]> | TViewModel[]>
+}
+export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
+  fetchRawData,
+  createViewModelPageAtom,
+}: CreateLoadableViewModelPageAtomInput<TRawData, TViewModel>) {
+  return (pageSize: number) => {
+    const lazyLoadRawDataPageAtom = createLazyLoadRawDataPageAtom({ pageSize, fetchData: fetchRawData })
+
+    const createPageAtom = (store: JotaiStore, pageNumber: number) => {
+      return atom(async (get) => {
+        const rawDataPage = await get(lazyLoadRawDataPageAtom(store, pageNumber))
+        return get(createViewModelPageAtom(store, rawDataPage))
+      })
+    }
+
+    const usePageAtom = (pageNumber: number) => {
+      const store = useStore()
+
+      return useMemo(() => {
+        return createPageAtom(store, pageNumber)
+      }, [store, pageNumber])
+    }
+
+    const useLoadablePage = (pageNumber: number) => {
+      return useAtomValue(loadable(usePageAtom(pageNumber)))
+    }
+
+    return { useLoadablePage }
   }
 }

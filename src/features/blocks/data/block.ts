@@ -20,7 +20,8 @@ const createNextRoundAvailableAtom = (store: JotaiStore, round: Round) => {
 const createBlockAtom = (store: JotaiStore, round: Round) => {
   return atom(async (get) => {
     const blockResult = await get(getBlockResultAtom(store, round))
-    const transactions = await get(createTransactionsAtom(store, getTransactionResultAtoms(store, blockResult.transactionIds)))
+    const transactionResults = await Promise.all(getTransactionResultAtoms(store, blockResult.transactionIds).map((txn) => get(txn)))
+    const transactions = await get(createTransactionsAtom(store, transactionResults))
     const nextRoundAvailable = get(createNextRoundAvailableAtom(store, round))
     return asBlock(blockResult, transactions, nextRoundAvailable)
   })

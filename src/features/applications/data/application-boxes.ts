@@ -1,12 +1,11 @@
 import { ApplicationId } from './types'
 import { indexer } from '@/features/common/data'
 import { useMemo } from 'react'
-import { atom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { ApplicationBox, ApplicationBoxSummary } from '../models'
 import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
-import { createLazyLoadPageAtom } from '@/features/common/data/lazy-load-pagination'
-import { JotaiStore } from '@/features/common/data/types'
+import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 
 const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?: string) => {
   const results = await indexer
@@ -49,28 +48,8 @@ export const useLoadableApplicationBox = (applicationId: ApplicationId, boxName:
 }
 
 export const createLoadableApplicationBoxesPage = (applicationId: ApplicationId) => {
-  const fetchApplicationBoxResults = (nextPageToken?: string) => createApplicationBoxResultsAtom(applicationId, nextPageToken)
-
-  return (pageSize: number) => {
-    const lazyLoadPageAtom = createLazyLoadPageAtom({ pageSize, fetchData: fetchApplicationBoxResults })
-
-    const createPageAtom = (store: JotaiStore, pageNumber: number) => {
-      return atom(async (get) => {
-        return await get(lazyLoadPageAtom(store, pageNumber))
-      })
-    }
-
-    const usePageAtom = (pageNumber: number) => {
-      const store = useStore()
-      return useMemo(() => {
-        return createPageAtom(store, pageNumber)
-      }, [store, pageNumber])
-    }
-
-    const useLoadablePage = (pageNumber: number) => {
-      return useAtomValue(loadable(usePageAtom(pageNumber)))
-    }
-
-    return { useLoadablePage }
-  }
+  return createLoadableViewModelPageAtom({
+    fetchRawData: (nextPageToken?: string) => createApplicationBoxResultsAtom(applicationId, nextPageToken),
+    createViewModelPageAtom: (_, rawDataPage) => atom(() => rawDataPage),
+  })
 }
