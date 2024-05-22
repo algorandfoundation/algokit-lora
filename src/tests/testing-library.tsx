@@ -1,5 +1,4 @@
 import { LayoutProvider } from '@/features/layout/context/layout-provider'
-import { ThemeProvider } from '@/features/theme/context/theme-provider'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { queries, render, renderHook, screen, within } from '@testing-library/react'
 import type { createStore } from 'jotai'
@@ -8,6 +7,7 @@ import type { PropsWithChildren } from 'react'
 import { MemoryRouter } from 'react-router'
 import { ErrorBoundary } from './error-boundary'
 import * as getDescriptionQueries from './custom-queries/get-description'
+import { SettingsProvider } from '@/features/settings/components/settings-provider'
 
 const allQueries = {
   ...queries,
@@ -25,8 +25,8 @@ const Providers =
   (store?: JotaiStore) =>
   ({ children }: PropsWithChildren) => {
     return (
-      <JotaiProvider store={store}>
-        <ThemeProvider>
+      <SettingsProvider>
+        <JotaiProvider store={store}>
           <TooltipProvider>
             <LayoutProvider>
               <ErrorBoundary>
@@ -34,8 +34,8 @@ const Providers =
               </ErrorBoundary>
             </LayoutProvider>
           </TooltipProvider>
-        </ThemeProvider>
-      </JotaiProvider>
+        </JotaiProvider>
+      </SettingsProvider>
     )
   }
 
