@@ -30,6 +30,7 @@ export const asAccount = async (
     totalApplicationsCreated: accountResult['total-created-apps'],
     totalApplicationsOptedIn: accountResult['total-apps-opted-in'],
     applicationCreated: accountResult['created-apps'] ?? [],
+    applicationOpted: accountResult['apps-local-state'] ?? [],
     assetsHeld,
     assetsCreated: await asAccountAssetSummaries(accountResult['created-assets'] ?? [], asAccountAssetSummary),
     assetsOpted,
