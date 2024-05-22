@@ -1,4 +1,3 @@
-import { LayoutProvider } from '@/features/layout/context/layout-provider'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { queries, render, renderHook, screen, within } from '@testing-library/react'
 import type { createStore } from 'jotai'
@@ -28,11 +27,9 @@ const Providers =
       <SettingsProvider>
         <JotaiProvider store={store}>
           <TooltipProvider>
-            <LayoutProvider>
-              <ErrorBoundary>
-                <MemoryRouter>{children}</MemoryRouter>
-              </ErrorBoundary>
-            </LayoutProvider>
+            <ErrorBoundary>
+              <MemoryRouter>{children}</MemoryRouter>
+            </ErrorBoundary>
           </TooltipProvider>
         </JotaiProvider>
       </SettingsProvider>
