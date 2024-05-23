@@ -11,10 +11,10 @@ type Props = {
 }
 
 export function ApplicationBoxes({ applicationId }: Props) {
-  const createLoadblePage = useMemo(() => createLoadableApplicationBoxesPage(applicationId), [applicationId])
+  const createLoadablePage = useMemo(() => createLoadableApplicationBoxesPage(applicationId), [applicationId])
   const tableColumns = useMemo(() => createTableColumns(applicationId), [applicationId])
 
-  return <LazyLoadDataTable columns={tableColumns} createLoadablePage={createLoadblePage} />
+  return <LazyLoadDataTable columns={tableColumns} createLoadablePage={createLoadablePage} />
 }
 
 const createTableColumns = (applicationId: ApplicationId): ColumnDef<ApplicationBoxSummary>[] => [

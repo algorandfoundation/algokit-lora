@@ -11,8 +11,8 @@ type Props = {
 }
 
 export function AccountTransactionHistory({ address }: Props) {
-  const createLoadblePage = useMemo(() => createLoadableAccountTransactionsPage(address), [address])
+  const createLoadablePage = useMemo(() => createLoadableAccountTransactionsPage(address), [address])
   const getSubRows = useCallback((row: Transaction | InnerTransaction) => getAccountTransactionsTableSubRows(address, row), [address])
 
-  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadblePage} />
+  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
 }

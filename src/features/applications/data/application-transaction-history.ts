@@ -5,13 +5,14 @@ import { createTransactionsAtom, transactionResultsAtom } from '@/features/trans
 import { atomEffect } from 'jotai-effect'
 import { atom } from 'jotai'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
+import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 
 const getApplicationTransactionResults = async (applicationID: ApplicationId, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
     .applicationID(applicationID)
     .nextToken(nextPageToken ?? '')
-    .limit(100)
+    .limit(DEFAULT_FETCH_SIZE)
     .do()) as TransactionSearchResults
   return {
     transactionResults: results.transactions,

@@ -6,12 +6,13 @@ import { ApplicationBox, ApplicationBoxSummary } from '../models'
 import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
+import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 
 const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?: string) => {
   const results = await indexer
     .searchForApplicationBoxes(applicationId)
     .nextToken(nextPageToken ?? '')
-    .limit(100)
+    .limit(DEFAULT_FETCH_SIZE)
     .do()
 
   return {

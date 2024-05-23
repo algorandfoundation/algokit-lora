@@ -11,7 +11,7 @@ type Props = {
 }
 
 export function ApplicationTransactionHistory({ applicationId }: Props) {
-  const createLoadblePage = useMemo(() => createLoadableApplicationTransactionsPage(applicationId), [applicationId])
+  const createLoadablePage = useMemo(() => createLoadableApplicationTransactionsPage(applicationId), [applicationId])
 
   // TODO: for the future
   // How we handle getSubRows isn't the best practice. Ideally, we should create a new view model, for example, TransactionForApplication
@@ -23,5 +23,5 @@ export function ApplicationTransactionHistory({ applicationId }: Props) {
     [applicationId]
   )
 
-  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadblePage} />
+  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
 }
