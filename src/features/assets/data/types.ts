@@ -1,11 +1,8 @@
-import { AssetParams } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetResult as IndexerAssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export type AssetId = number
 
-export type AssetResult = {
-  index: AssetId
-  params: AssetParams
-}
+export type AssetResult = Omit<IndexerAssetResult, 'created-at-round' | 'destroyed-at-round'>
 
 type Arc16MetadataProperties = {
   traits?: Record<string, unknown>

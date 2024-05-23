@@ -1,4 +1,4 @@
-import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetResult } from '../data/types'
 import { AssetSummary } from '../models'
 
 export const asAssetSummary = (assetResult: AssetResult): AssetSummary => {

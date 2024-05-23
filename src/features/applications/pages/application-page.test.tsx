@@ -8,7 +8,7 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { indexer } from '@/features/common/data'
+import { algod, indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { atom, createStore } from 'jotai'
@@ -48,6 +48,7 @@ describe('application-page', () => {
   describe('when rendering an application with application Id that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: '123456' }))
+      vi.mocked(algod.getApplicationByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
       vi.mocked(indexer.lookupApplications(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
