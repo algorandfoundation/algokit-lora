@@ -2,11 +2,15 @@ import { JsonView as ReactJsonView, allExpanded } from 'react-json-view-lite'
 import 'react-json-view-lite/dist/index.css'
 import styles from './json-view.module.css'
 import { cn } from '../utils'
+import { Button } from './button'
+import { useCallback } from 'react'
+import { asJson } from '@/utils/as-json'
+import { toast } from './use-toast'
 
 export function JsonView({ json }: { json: object }) {
   // TODO: one we have the design, we need to support light/dard mode and custom themes
   const style: StyleProps = {
-    container: cn('overflow-auto'),
+    container: '',
     basicChildStyle: styles['basic-element-style'],
     collapseIcon: styles['collapse-icon'],
     expandIcon: styles['expand-icon'],
@@ -23,7 +27,24 @@ export function JsonView({ json }: { json: object }) {
     noQuotesForStringValues: false,
   }
 
-  return <ReactJsonView data={json} shouldExpandNode={allExpanded} style={style} />
+  const copyJsonToClipboard = useCallback(() => {
+    const jsonString = asJson(json)
+    navigator.clipboard.writeText(jsonString)
+
+    toast({
+      variant: 'default',
+      description: 'JSON copied to clipboard',
+    })
+  }, [json])
+
+  return (
+    <div className={cn('overflow-auto relative')}>
+      <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
+        Copy
+      </Button>
+      <ReactJsonView data={json} shouldExpandNode={allExpanded} style={style} />
+    </div>
+  )
 }
 
 export interface StyleProps {
