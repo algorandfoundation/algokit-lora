@@ -151,7 +151,12 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
                     bc.roles.includes(BalanceChangeRole.Sender) &&
                     bc.roles.includes(BalanceChangeRole.Receiver)
                   const isNonZeroAmount = bc.amount !== 0n // Can either be negative (decreased balance) or positive (increased balance)
-                  return isAssetOptIn || isNonZeroAmount
+                  const isAssetCreate = bc.roles.includes(BalanceChangeRole.AssetCreator) && bc.amount > 0n
+                  // This is technically not the correct handling, as the asset manager (assigned as the address in the balance change) must destroy the asset, however it's the creator who must hold the balance on destruction.
+                  // Unfortunately determining the asset creator is tricky once the asset is destroyed.
+                  // It's fairly common for the asset creator to be the asset manager, so simply assume that.
+                  const isAssetDestroy = bc.roles.includes(BalanceChangeRole.AssetDestroyer)
+                  return isAssetOptIn || isNonZeroAmount || isAssetCreate || isAssetDestroy
                 })
                 .map((bc) => bc.address)
                 .filter(distinct((x) => x)) ?? []
