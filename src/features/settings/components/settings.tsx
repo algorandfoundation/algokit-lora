@@ -1,4 +1,4 @@
-import { NetworkSelect } from '@/features/layout/components/network-select'
+import { NetworkSelect } from '@/features/settings/components/network-select'
 
 export function Settings() {
   return <NetworkSelect />

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, waitFor } from '@/tests/testing-library'
-import { ThemeToggle, themeTogglelabel } from '@/features/theme/components/theme-toggle'
+import { ThemeToggle, themeTogglelabel } from '@/features/settings/components/theme-toggle'
 import { executeComponentTest } from '@/tests/test-component'
 
 describe('when the theme is toggled to dark', () => {
