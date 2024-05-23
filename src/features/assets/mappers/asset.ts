@@ -110,7 +110,6 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
 }
 
 const asType = (assetResult: AssetResult): AssetType => {
-  // TODO: NC - Fix this
   if (assetResult.deleted === true) {
     return AssetType.Deleted
   }
