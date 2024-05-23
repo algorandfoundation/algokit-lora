@@ -8,8 +8,9 @@ import SvgHome from '@/features/common/components/icons/home'
 import { Button } from '@/features/common/components/button'
 import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
 import { useCallback } from 'react'
-import { useLayout } from '../hooks/use-layout'
 import SvgChevronRight from '@/features/common/components/icons/chevron-right'
+import SvgCog from '@/features/common/components/icons/cog'
+import { useLayout } from '@/features/settings/data'
 
 type Props = {
   className?: string
@@ -20,20 +21,23 @@ export function LeftSideBarMenu({ className }: Props) {
     { urlTemplate: Urls.Index, icon: <SvgHome />, text: 'Home' },
     { urlTemplate: Urls.Explore, icon: <SvgWallet />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <SvgCodeBlock />, text: 'App Studio' },
+    { urlTemplate: Urls.Settings, icon: <SvgCog />, text: 'Settings' },
   ]
-  const { isLeftSideBarExpanded, setIsLeftSideBarExpanded } = useLayout()
+  const [layout, setLayout] = useLayout()
 
   const toggleLeftSideBar = useCallback(
-    () => setIsLeftSideBarExpanded(!isLeftSideBarExpanded),
-    [isLeftSideBarExpanded, setIsLeftSideBarExpanded]
+    () => setLayout((prev) => ({ ...prev, isLeftSideBarExpanded: !prev.isLeftSideBarExpanded })),
+    [setLayout]
   )
 
   return (
-    <NavigationMenu className={cn('bg-card transition-all duration-300 min-h-screen', className, isLeftSideBarExpanded ? 'w-52' : 'w-10')}>
+    <NavigationMenu
+      className={cn('bg-card transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-10')}
+    >
       <NavigationMenuList className={cn('flex-col items-start')}>
         <NavigationMenuItem className={cn('flex justify-end')}>
           <Button variant="outline" size="icon" className={cn('text-primary')} onClick={toggleLeftSideBar}>
-            {isLeftSideBarExpanded ? <SvgChevronLeft /> : <SvgChevronRight />}
+            {layout.isLeftSideBarExpanded ? <SvgChevronLeft /> : <SvgChevronRight />}
           </Button>
         </NavigationMenuItem>
         {menuItems.map((menuItem, index) => (
@@ -44,7 +48,7 @@ export function LeftSideBarMenu({ className }: Props) {
                 className={cn('[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap')}
               >
                 <div className={cn('text-primary')}>{menuItem.icon}</div>
-                <div className={cn(isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
+                <div className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
               </TemplatedNavLink>
             </NavigationMenuLink>
           </NavigationMenuItem>
