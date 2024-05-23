@@ -3,6 +3,7 @@ import { AccountResult, Address } from './types'
 import { algod } from '@/features/common/data'
 import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
 import { assetResultsAtom } from '@/features/assets/data'
+import { applicationResultsAtom } from '@/features/applications/data'
 
 const getAccountResult = (address: Address) =>
   algod
@@ -15,6 +16,7 @@ const getAccountResult = (address: Address) =>
 const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set, address: Address) => {
   const accountResult = await getAccountResult(address)
   const assetResults = get(assetResultsAtom)
+  const applicationResults = get(applicationResultsAtom)
 
   const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
   if (assetsToAdd.length > 0) {
@@ -28,7 +30,18 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set,
       return next
     })
   }
-
+  const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
+  if (applicationsToAdd.length > 0) {
+    set(applicationResultsAtom, (prev) => {
+      const next = new Map(prev)
+      applicationsToAdd.forEach((application) => {
+        if (!next.has(application.id)) {
+          next.set(application.id, atom(application))
+        }
+      })
+      return next
+    })
+  }
   return accountResult
 })
 
