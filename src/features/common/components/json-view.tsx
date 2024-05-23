@@ -1,32 +1,29 @@
-import { JsonView, allExpanded, darkStyles } from 'react-json-view-lite'
+import { JsonView as ReactJsonView, allExpanded } from 'react-json-view-lite'
 import 'react-json-view-lite/dist/index.css'
+import styles from './json-view.module.css'
 import { cn } from '../utils'
 
-export function JsonViewer({ json }: { json: object }) {
-  // TODO: switch theme
+export function JsonView({ json }: { json: object }) {
+  // TODO: one we have the design, we need to support light/dard mode and custom themes
   const style: StyleProps = {
     container: cn('overflow-auto'),
-    basicChildStyle: '',
-    collapseIcon: '',
-    expandIcon: '',
-    collapsedContent: '...',
-    label: '',
-    clickableLabel: '',
+    basicChildStyle: styles['basic-element-style'],
+    collapseIcon: styles['collapse-icon'],
+    expandIcon: styles['expand-icon'],
+    collapsedContent: styles['collapsed-content'],
+    label: styles['label'],
+    clickableLabel: styles['clickable-label'],
     nullValue: '',
     undefinedValue: '',
-    numberValue: '',
     stringValue: '',
     booleanValue: '',
+    numberValue: '',
     otherValue: '',
-    punctuation: '',
+    punctuation: styles['punctuation'],
     noQuotesForStringValues: false,
   }
 
-  return (
-    <div className={cn('overflow-auto')}>
-      <JsonView data={json} shouldExpandNode={allExpanded} style={darkStyles} />
-    </div>
-  )
+  return <ReactJsonView data={json} shouldExpandNode={allExpanded} style={style} />
 }
 
 export interface StyleProps {

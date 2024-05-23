@@ -1,0 +1,39 @@
+.collapse-icon::after {
+  cursor: pointer;
+  margin-right: 5px;
+  content: '\25BE';
+}
+
+.expand-icon::after {
+  cursor: pointer;
+  margin-right: 5px;
+  content: '\25B8';
+}
+
+.basic-element-style {
+  margin: 0 10px;
+  padding: 0;
+}
+
+.label {
+  margin-right: 5px;
+}
+
+.clickable-label {
+  cursor: pointer;
+}
+
+.collapsed-content {
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.collapsed-content::after {
+  content: '...';
+  font-size: 0.8em;
+}
+
+.punctuation {
+  margin-right: 5px;
+  font-weight: bold;
+}
