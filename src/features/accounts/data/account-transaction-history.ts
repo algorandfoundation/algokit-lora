@@ -6,13 +6,12 @@ import { atomEffect } from 'jotai-effect'
 import { atom } from 'jotai'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 
-// TODO: work out the limit
 const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
   const results = (await indexer
     .searchForTransactions()
     .address(address)
     .nextToken(nextPageToken ?? '')
-    .limit(100)
+    .limit(200)
     .do()) as TransactionSearchResults
   return {
     transactionResults: results.transactions,
