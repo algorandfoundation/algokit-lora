@@ -56,11 +56,9 @@ export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
       }, [store, pageSize, pageNumber])
     }
 
-    const useLoadablePage = (pageNumber: number) => {
+    return (pageNumber: number) => {
       return useAtomValue(loadable(usePageAtom(pageSize, pageNumber)))
     }
-
-    return { useLoadablePage }
   }
 }
 
