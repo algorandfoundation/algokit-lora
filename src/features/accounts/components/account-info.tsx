@@ -22,8 +22,8 @@ export function AccountInfo({ account }: { account: Account }) {
   const totalAssetsHeld = account.assetsHeld.length
   const totalAssetsCreated = account.assetsCreated.length
   const totalAssetsOptedIn = account.assetsHeld.length + account.assetsOpted.length
-  const totalApplicationsCreated = account.applicationCreated.length
-  const totalApplicationsOptedIn = account.applicationOpted.length
+  const totalApplicationsCreated = account.applicationsCreated.length
+  const totalApplicationsOptedIn = account.applicationsOpted.length
 
   const accountInfoItems = useMemo(() => {
     const items = [
