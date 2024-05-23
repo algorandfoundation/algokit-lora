@@ -71,7 +71,7 @@ export function AccountActivityTabs({ account }: Props) {
     [account.address, account.assetsCreated, account.assetsHeld, account.assetsOpted]
   )
   return (
-    <Tabs defaultValue={accountHistoricalTransactionsTabId}>
+    <Tabs defaultValue={accountLiveTransactionsTabId}>
       <TabsList aria-label={accountActivityLabel}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')} value={tab.id}>
