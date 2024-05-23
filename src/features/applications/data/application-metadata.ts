@@ -1,6 +1,5 @@
-import { ApplicationResult } from '@/features/accounts/data/types'
 import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
-import { ApplicationMetadataResult } from './types'
+import { ApplicationMetadataResult, ApplicationResult } from './types'
 import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'

@@ -37,8 +37,6 @@ export const applicationResultMother = {
   },
   'mainnet-1196727051': () => {
     return new ApplicationResultBuilder({
-      'created-at-round': 32218016,
-      deleted: false,
       id: 1196727051,
       params: {
         'approval-program':
