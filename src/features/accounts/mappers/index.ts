@@ -27,8 +27,6 @@ export const asAccount = async (
     address: accountResult.address,
     balance: microAlgos(accountResult.amount),
     minBalance: microAlgos(accountResult['min-balance']),
-    totalApplicationsCreated: accountResult['total-created-apps'],
-    totalApplicationsOptedIn: accountResult['total-apps-opted-in'],
     applicationCreated: accountResult['created-apps'] ?? [],
     applicationOpted: accountResult['apps-local-state'] ?? [],
     assetsHeld,

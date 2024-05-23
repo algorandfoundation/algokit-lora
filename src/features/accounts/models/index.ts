@@ -14,8 +14,6 @@ export type Account = {
   address: Address
   balance: AlgoAmount
   minBalance: AlgoAmount
-  totalApplicationsCreated: number
-  totalApplicationsOptedIn: number
   applicationCreated: ApplicationResult[]
   applicationOpted: AppLocalState[]
   assetsHeld: AssetHolding[]
