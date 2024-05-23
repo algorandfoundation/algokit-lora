@@ -8,13 +8,10 @@ export type LoadDataResponse<TData> = {
   nextPageToken?: string
 }
 
+type FetchRawData<TData> = (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
+
 type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
-  fetchRawData: (nextPageToken?: string) => Atom<
-    Promise<{
-      items: TRawData[]
-      nextPageToken?: string
-    }>
-  >
+  fetchRawData: FetchRawData<TRawData>
   createViewModelPageAtom: (store: JotaiStore, rawDataPage: TRawData[]) => Atom<Promise<TViewModel[]> | TViewModel[]>
 }
 export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
@@ -34,7 +31,7 @@ export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
 
         if (itemsFromCache.length === pageSize) return itemsFromCache
 
-        const { items, nextPageToken } = await get(fetchRawData(store.get(nextPageTokenAtom)))
+        const { items, nextPageToken } = await get(fetchUntilTheNextPageIsFull(fetchRawData, pageSize, store.get(nextPageTokenAtom)))
         const nextCache = Array.from(cache).concat(items)
 
         store.set(itemsAtom, nextCache)
@@ -65,4 +62,27 @@ export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
 
     return { useLoadablePage }
   }
+}
+
+function fetchUntilTheNextPageIsFull<TData>(fetchRawData: FetchRawData<TData>, pageSize: number, nextPageToken?: string) {
+  // Sometimes, the fetchRawData function doesn't return the right amount of data
+  // for example, getting transactions for an account
+  // This function will fetch more data until the page is full
+  return atom(async (get) => {
+    const items: TData[] = []
+    let newNextPageToken: string | undefined = undefined
+
+    while (items.length < pageSize) {
+      const response: LoadDataResponse<TData> = await get(fetchRawData(newNextPageToken ?? nextPageToken))
+      if (response.items.length === 0) break
+
+      items.push(...response.items)
+      newNextPageToken = response.nextPageToken
+    }
+
+    return {
+      items: items,
+      nextPageToken: newNextPageToken,
+    } as const
+  })
 }
