@@ -6,7 +6,7 @@ import { useAtom } from 'jotai'
 import { settingsStore } from '@/features/settings/data'
 
 export function NetworkSelect() {
-  const [networkId, setNetworkId] = useAtom(selectedNetworkAtom, { store: settingsStore })
+  const [selectedNetwork, setSelectedNetwork] = useAtom(selectedNetworkAtom, { store: settingsStore })
 
   return (
     <div className={cn('flex w-48 flex-col')}>

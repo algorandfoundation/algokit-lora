@@ -6,7 +6,7 @@ Config.configure({
   logger: Config.getLogger(true),
 })
 
-export let indexer = getAlgoIndexerClient(mainnetConfig.indexer)
+export let indexer = getAlgoIndexerClient(localnetConfig.indexer)
 
 export let algod = getAlgoClient(mainnetConfig.algod)
 

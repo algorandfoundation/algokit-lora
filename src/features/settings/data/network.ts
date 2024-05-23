@@ -46,6 +46,7 @@ const localnetConfig: NetworkConfig = {
   indexer: {
     server: 'http://localhost/',
     port: 8980,
+    token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
   algod: {
     server: 'http://localhost/',
@@ -64,7 +65,7 @@ const networkConfigAtom = atom((get) => {
 
   if (!config) {
     // eslint-disable-next-line no-console
-    console.warn(`Unknown network: ${id}, fallback to LocalNet`)
+    console.warn(`Unknown network: ${id}, fallback to ${localnetConfig.name}`)
     return localnetConfig
   }
 
