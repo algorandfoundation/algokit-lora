@@ -6,14 +6,14 @@ import { useAtom } from 'jotai'
 import { settingsStore } from '@/features/settings/data'
 
 export function NetworkSelect() {
-  const [networkId, setNetworkId] = useAtom(selectedNetworkAtom, { store: settingsStore })
+  const [selectedNetwork, setSelectedNetwork] = useAtom(selectedNetworkAtom, { store: settingsStore })
 
   return (
     <div className={cn('flex w-48 flex-col')}>
       <Label htmlFor="network" className={cn('text-xs ml-0.5')}>
         Network
       </Label>
-      <Select onValueChange={(value) => setNetworkId(value)} value={networkId}>
+      <Select onValueChange={(value) => setSelectedNetwork(value)} value={selectedNetwork}>
         <SelectTrigger id="network" className={cn('h-7')}>
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
