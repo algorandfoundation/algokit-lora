@@ -6,4 +6,8 @@ export type ApplicationMetadataResult = {
   name: string
 } | null
 
-export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round' | 'deleted-at-round'>
+export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round' | 'deleted-at-round' | 'params'> & {
+  params: Omit<IndexerApplicationResult['params'], 'global-state'> & {
+    'global-state'?: IndexerApplicationResult['params']['global-state']
+  }
+}
