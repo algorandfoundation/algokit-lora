@@ -29,6 +29,9 @@ vi.mock('@/features/common/data', async () => {
       accountInformation: vi.fn().mockReturnValue({
         do: vi.fn().mockReturnValue({ then: vi.fn() }),
       }),
+      getApplicationByID: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
     },
     indexer: {
       ...(original.indexer as algosdk.Indexer),
