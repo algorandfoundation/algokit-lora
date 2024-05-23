@@ -7,15 +7,27 @@ import { atom } from 'jotai'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 
 const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
-  const results = (await indexer
-    .searchForTransactions()
-    .address(address)
-    .nextToken(nextPageToken ?? '')
-    .limit(200)
-    .do()) as TransactionSearchResults
+  const limit = 100
+  const transactions: TransactionResult[] = []
+  let nextToken: string | undefined = undefined
+
+  while (transactions.length < limit) {
+    const response = (await indexer
+      .searchForTransactions()
+      .address(address)
+      .nextToken(nextToken ?? nextPageToken ?? '')
+      .limit(limit)
+      .do()) as TransactionSearchResults
+
+    if (response.transactions.length === 0) break
+
+    transactions.push(...response.transactions)
+    nextToken = response['next-token']
+  }
+
   return {
-    transactionResults: results.transactions,
-    nextPageToken: results['next-token'],
+    transactionResults: transactions,
+    nextPageToken: nextToken,
   } as const
 }
 
