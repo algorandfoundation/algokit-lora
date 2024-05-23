@@ -4,6 +4,7 @@ export type AssetId = number
 
 export type AssetResult = {
   index: AssetId
+  deleted?: boolean
   params: AssetParams
 }
 

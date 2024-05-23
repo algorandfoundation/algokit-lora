@@ -1,7 +1,6 @@
-import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { asAssetSummary } from './asset-summary'
 import { Asset, AssetMediaType, AssetStandard, AssetType } from '../models'
-import { AssetId, AssetMetadataResult, AssetMetadataStandard } from '../data/types'
+import { AssetId, AssetMetadataResult, AssetMetadataStandard, AssetResult } from '../data/types'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import Decimal from 'decimal.js'
@@ -111,6 +110,7 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
 }
 
 const asType = (assetResult: AssetResult): AssetType => {
+  // TODO: NC - Fix this
   if (assetResult.deleted === true) {
     return AssetType.Deleted
   }
