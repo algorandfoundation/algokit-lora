@@ -31,18 +31,23 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
       : undefined,
     approvalProgram: application.params['approval-program'],
     clearStateProgram: application.params['clear-state-program'],
-    globalState: asGlobalStateValue(application),
+    globalState: asGlobalStateValue(application.params['global-state']),
     json: asJson(application),
   }
 }
 
-export const asGlobalStateValue = (application: ApplicationResult): Map<string, ApplicationGlobalStateValue> => {
-  const arr = application.params['global-state']
-    .map(({ key, value }) => {
-      return [getKey(key), getGlobalStateValue(value)] as const
-    })
-    .sort((a, b) => a[0].localeCompare(b[0]))
-  return new Map(arr)
+export const asGlobalStateValue = (globalState: ApplicationResult['params']['global-state']): Application['globalState'] => {
+  if (!globalState) {
+    return
+  }
+
+  return new Map(
+    globalState
+      .map(({ key, value }) => {
+        return [getKey(key), getGlobalStateValue(value)] as const
+      })
+      .sort((a, b) => a[0].localeCompare(b[0]))
+  )
 }
 
 const getKey = (key: string): string => {
