@@ -40,4 +40,5 @@ export const Urls = {
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
+  Settings: UrlTemplate`/settings`,
 }
