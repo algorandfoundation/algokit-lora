@@ -36,7 +36,7 @@ export type Asset = AssetSummary & {
   traits?: Record<string, string>
   metadata?: Record<string, string | number>
   media?: AssetMedia
-  json: string
+  json: object
 }
 
 export enum AssetStandard {

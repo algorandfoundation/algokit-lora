@@ -36,6 +36,7 @@ import { AssetMetadata } from './asset-metadata'
 import { AssetTransactionHistory } from './asset-transaction-history'
 import { AssetLiveTransactions } from './asset-live-transactions'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { JsonView } from '@/features/common/components/json-view'
 
 type Props = {
   asset: Asset
@@ -155,7 +156,7 @@ export function AssetDetails({ asset }: Props) {
             <CardContent className={cn('text-sm space-y-2')}>
               <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
               <div className={cn('border-solid border-2 border-border h-96 grid')}>
-                <pre className={cn('overflow-scroll p-4')}>{asset.json}</pre>
+                <JsonView json={asset.json} />
               </div>
             </CardContent>
           </Card>

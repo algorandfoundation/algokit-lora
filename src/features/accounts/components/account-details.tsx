@@ -4,6 +4,7 @@ import { cn } from '@/features/common/utils'
 import { AccountActivityTabs } from './account-activity-tabs'
 import { AccountInfo } from './account-info'
 import { accountActivityLabel, accountJsonLabel } from './labels'
+import { JsonView } from '@/features/common/components/json-view'
 
 type Props = {
   account: Account
@@ -25,7 +26,7 @@ export function AccountDetails({ account }: Props) {
         <CardContent aria-label={accountJsonLabel} className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{accountJsonLabel}</h1>
           <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <pre className={cn('overflow-scroll p-4')}>{account.json}</pre>
+            <JsonView json={account.json} />
           </div>
         </CardContent>
       </Card>

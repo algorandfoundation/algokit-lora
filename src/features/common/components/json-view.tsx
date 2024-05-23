@@ -38,7 +38,7 @@ export function JsonView({ json }: { json: object }) {
   }, [json])
 
   return (
-    <div className={cn('overflow-auto relative')}>
+    <div className={cn('overflow-auto relative p-2')}>
       <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
         Copy
       </Button>

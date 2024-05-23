@@ -1,7 +1,6 @@
 import { AssetSummary } from '@/features/assets/models'
 import { AccountResult, AssetHoldingResult, AssetResult } from '../data/types'
 import { Account, AccountAssetSummary, AssetHolding } from '../models'
-import { asJson } from '@/utils/as-json'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 export const asAccount = async (
@@ -33,7 +32,7 @@ export const asAccount = async (
     assetsCreated: await asAccountAssetSummaries(accountResult['created-assets'] ?? [], asAccountAssetSummary),
     assetsOpted,
     rekeyedTo: accountResult['auth-addr'],
-    json: asJson(accountResult),
+    json: accountResult,
   }
 }
 

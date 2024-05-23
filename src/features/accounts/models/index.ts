@@ -20,5 +20,5 @@ export type Account = {
   assetsCreated: AccountAssetSummary[]
   assetsOpted: AssetHolding[]
   rekeyedTo?: Address
-  json: string
+  json: object
 }
