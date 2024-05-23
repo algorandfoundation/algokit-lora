@@ -8,6 +8,7 @@ export type NetworkConfig = {
   indexer: {
     server: string
     port: number
+    token?: string
   }
   algod: {
     server: string
@@ -40,7 +41,7 @@ const testnetConfig: NetworkConfig = {
     port: 443,
   },
 }
-const localnetConfig: NetworkConfig = {
+export const localnetConfig: NetworkConfig = {
   id: 'localnet',
   name: 'LocalNet',
   indexer: {
