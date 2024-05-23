@@ -173,4 +173,89 @@ export const accountResultMother = {
       'total-created-assets': 1,
     } satisfies AccountResult)
   },
+
+  ['mainnet-DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4']: () => {
+    return new AccountResultBuilder({
+      address: 'DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4',
+      amount: 98433606,
+      'amount-without-pending-rewards': 98433606,
+      'apps-local-state': [
+        {
+          id: 811554792,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 811555774,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 811556459,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 811563899,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 811564745,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 811565811,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 812246978,
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 0,
+          },
+        },
+        {
+          id: 829144306,
+          'key-value': [],
+          schema: {
+            'num-byte-slice': 0,
+            'num-uint': 1,
+          },
+        },
+      ],
+      'apps-total-schema': {
+        'num-byte-slice': 0,
+        'num-uint': 1,
+      },
+      assets: [],
+      'auth-addr': 'K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E',
+      'created-apps': [],
+      'created-assets': [],
+      'min-balance': 2228500,
+      'pending-rewards': 0,
+      'reward-base': 218288,
+      rewards: 0,
+      round: 39090114,
+      status: AccountStatus.Offline,
+      'total-apps-opted-in': 8,
+      'total-assets-opted-in': 0,
+      'total-created-apps': 0,
+      'total-created-assets': 0,
+    })
+  },
 }

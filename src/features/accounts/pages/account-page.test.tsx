@@ -19,6 +19,7 @@ import {
   accountApplicationsOptedInLabel,
   accountAssetsOptedInLabel,
   accountActivityLabel,
+  accountRekeyedToLabel,
 } from '../components/labels'
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
@@ -129,6 +130,42 @@ describe('account-page', () => {
                 { term: accountAssetsOptedInLabel, description: '6' },
                 { term: accountApplicationsCreatedLabel, description: '4' },
                 { term: accountApplicationsOptedInLabel, description: '1' },
+              ],
+            })
+            const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
+            expect(activityTabList).toBeTruthy()
+            expect(activityTabList.children.length).toBe(7)
+          })
+        }
+      )
+    })
+  })
+  describe('when rendering an account with rekey', () => {
+    const accountResult = accountResultMother['mainnet-DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4' },
+                { term: accountBalanceLabel, description: '98.433606' },
+                { term: accountMinBalanceLabel, description: '2.2285' },
+                { term: accountAssetsHeldLabel, description: '0' },
+                { term: accountAssetsCreatedLabel, description: '0' },
+                { term: accountAssetsOptedInLabel, description: '0' },
+                { term: accountApplicationsCreatedLabel, description: '0' },
+                { term: accountApplicationsOptedInLabel, description: '8' },
+                { term: accountRekeyedToLabel, description: 'K7F3GQNOXIMJFF2NJSBHZ7OPNWVLIJM3BN6CYAZJBY3MS6C7TN24JTYX5E' },
               ],
             })
             const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
