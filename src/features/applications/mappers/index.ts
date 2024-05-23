@@ -1,9 +1,8 @@
 import { Application, ApplicationGlobalStateType, ApplicationGlobalStateValue, ApplicationSummary } from '../models'
-import { ApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
-import { ApplicationMetadataResult } from '../data/types'
+import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {

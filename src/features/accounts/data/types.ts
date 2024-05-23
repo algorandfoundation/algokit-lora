@@ -1,6 +1,6 @@
+import { ApplicationResult } from '@/features/applications/data/types'
 import { NoStringIndex } from '@/features/common/data/types'
 import {
-  ApplicationResult as IndexerApplicationResult,
   AssetHolding as IndexerAssetHolding,
   AssetResult as IndexerAssetResult,
   AppLocalState as IndexerAppLocalState,
@@ -12,7 +12,6 @@ export type Address = string
 
 export type AppLocalState = Omit<IndexerAppLocalState, 'closed-out-at-round' | 'deleted' | 'opted-in-at-round'>
 export type AssetHoldingResult = Omit<IndexerAssetHolding, 'deleted' | 'opted-in-at-round' | 'opted-out-at-round'>
-export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round' | 'deleted' | 'deleted-at-round'>
 export type AssetResult = {
   index: number
   params: IndexerAssetResult['params']

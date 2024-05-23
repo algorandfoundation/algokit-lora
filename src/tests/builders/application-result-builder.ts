@@ -1,4 +1,4 @@
-import { ApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationResult } from '@/features/applications/data/types'
 import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
 
 export class ApplicationResultBuilder extends DataBuilder<ApplicationResult> {

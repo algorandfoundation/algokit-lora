@@ -307,120 +307,6 @@ export const assetResultMother = {
       },
     })
   },
-  'mainnet-2254146': () => {
-    return new AssetResultBuilder({
-      index: 2254146,
-      params: {
-        clawback: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        decimals: 0,
-        'default-frozen': false,
-        freeze: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        manager: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        name: 'FIDE Online Arena Blitz Ranking',
-        'name-b64': encoder.encode('RklERSBPbmxpbmUgQXJlbmEgQmxpdHogUmFua2luZw=='),
-        reserve: 'C7RYOGEWDT7HZM3HKPSMU7QGWTRWR3EPOQTJ2OHXGYLARD3X62DNWELS34',
-        total: 9223372035000000000n,
-        'unit-name': 'FOABZR',
-        'unit-name-b64': encoder.encode('Rk9BQlpS'),
-      },
-    })
-  },
-  'mainnet-2254149': () => {
-    return new AssetResultBuilder({
-      index: 2254149,
-      params: {
-        clawback: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        decimals: 0,
-        'default-frozen': false,
-        freeze: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        manager: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        name: 'FIDE Online Arena Rapid Ranking',
-        'name-b64': encoder.encode('RklERSBPbmxpbmUgQXJlbmEgUmFwaWQgUmFua2luZw=='),
-        reserve: 'C7RYOGEWDT7HZM3HKPSMU7QGWTRWR3EPOQTJ2OHXGYLARD3X62DNWELS34',
-        total: 9223372035000000000n,
-        'unit-name': 'FOARDR',
-        'unit-name-b64': encoder.encode('Rk9BUkRS'),
-      },
-    })
-  },
-  'mainnet-2254150': () => {
-    return new AssetResultBuilder({
-      index: 2254150,
-      params: {
-        clawback: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        decimals: 0,
-        'default-frozen': false,
-        freeze: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        manager: 'VJVF3OHXRZRQB722U5UD7KDWNCTWPN44GHV7LMXP73IBK5WBQJ2WOCKHSM',
-        name: 'FIDE Online Arena Bullet Ranking',
-        'name-b64': encoder.encode('RklERSBPbmxpbmUgQXJlbmEgQnVsbGV0IFJhbmtpbmc='),
-        reserve: 'C7RYOGEWDT7HZM3HKPSMU7QGWTRWR3EPOQTJ2OHXGYLARD3X62DNWELS34',
-        total: 9223372035000000000n,
-        'unit-name': 'FOABTR',
-        'unit-name-b64': encoder.encode('Rk9BQlRS'),
-      },
-    })
-  },
-  'mainnet-127745593': () => {
-    return new AssetResultBuilder({
-      index: 127745593,
-      params: {
-        clawback: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        decimals: 0,
-        'default-frozen': false,
-        freeze: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        manager: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        name: 'LC Bullet Ranking',
-        'name-b64': encoder.encode('TEMgQnVsbGV0IFJhbmtpbmc='),
-        reserve: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        total: 9223372035000000000n,
-        'unit-name': 'LCBTR',
-        'unit-name-b64': encoder.encode('TENCVFI='),
-      },
-    })
-  },
-  'mainnet-127746157': () => {
-    return new AssetResultBuilder({
-      index: 127746157,
-      params: {
-        clawback: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        decimals: 0,
-        'default-frozen': false,
-        freeze: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        manager: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        name: 'LC Blitz Ranking',
-        'name-b64': encoder.encode('TEMgQmxpdHogUmFua2luZw=='),
-        reserve: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        total: 9223372035000000000n,
-        'unit-name': 'LCBZR',
-        'unit-name-b64': encoder.encode('TENCWlI='),
-      },
-    })
-  },
-  'mainnet-127746786': () => {
-    return new AssetResultBuilder({
-      index: 127746786,
-      params: {
-        clawback: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        creator: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        decimals: 0,
-        'default-frozen': false,
-        freeze: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        manager: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        name: 'LC Rapid Ranking',
-        'name-b64': encoder.encode('TEMgUmFwaWQgUmFua2luZw=='),
-        reserve: '2QGB6FMYJ6XHVBXAQKCNXZTSLAF4YXJRHSVELAXEE4HLPQAIKSJXUBW654',
-        total: 9223372035000000000n,
-        'unit-name': 'LCRDR',
-        'unit-name-b64': encoder.encode('TENSRFI='),
-      },
-    })
-  },
   'mainnet-924268058': () => {
     return new AssetResultBuilder({
       index: 924268058,
@@ -473,6 +359,85 @@ export const assetResultMother = {
         total: 4206899999999990000n,
         'unit-name': 'PEPE',
         'unit-name-b64': encoder.encode('UEVQRQ=='),
+      },
+    })
+  },
+  'mainnet-1162292622': () => {
+    return new AssetResultBuilder({
+      index: 1162292622,
+      params: {
+        clawback: 'X2GAK5VORHXKCO54XYSP3AMP2MRFLGJTLDTZ66OA5XH4UEXIMPWHFWTQTA',
+        creator: 'X2GAK5VORHXKCO54XYSP3AMP2MRFLGJTLDTZ66OA5XH4UEXIMPWHFWTQTA',
+        decimals: 0,
+        'default-frozen': true,
+        manager: 'X2GAK5VORHXKCO54XYSP3AMP2MRFLGJTLDTZ66OA5XH4UEXIMPWHFWTQTA',
+        name: 'orange.algo',
+        'name-b64': encoder.encode('b3JhbmdlLmFsZ28='),
+        reserve: 'D5SUIQBFNJTDKF6SQLSQHOBFIO72C3NT3B24LLA6IQFB6CY2AQZU3Z7A2M',
+        total: 1,
+        'unit-name': 'NFD',
+        'unit-name-b64': encoder.encode('TkZE'),
+        url: 'template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/nfd.json',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6ZGFnLXBiOnJlc2VydmU6c2hhMi0yNTZ9L25mZC5qc29u'),
+      },
+    })
+  },
+  'mainnet-1294765516': () => {
+    return new AssetResultBuilder({
+      index: 1294765516,
+      params: {
+        creator: 'XSKED5VKZZCSYNDWXZJI65JM2HP7HZFJWCOBIMOONKHTK5UVKENBNVDEYM',
+        decimals: 6,
+        'default-frozen': false,
+        'metadata-hash': encoder.encode('AAAAAEyPERwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='),
+        name: 'TinymanPool2.0 ORA-ALGO',
+        'name-b64': encoder.encode('VGlueW1hblBvb2wyLjAgT1JBLUFMR08='),
+        reserve: 'TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM',
+        total: 18446744073709551615n,
+        'unit-name': 'TMPOOL2',
+        'unit-name-b64': encoder.encode('VE1QT09MMg=='),
+        url: 'https://tinyman.org',
+        'url-b64': encoder.encode('aHR0cHM6Ly90aW55bWFuLm9yZw=='),
+      },
+    })
+  },
+  'mainnet-1355858325': () => {
+    return new AssetResultBuilder({
+      index: 1355858325,
+      params: {
+        clawback: 'JTVFQXCOHCRFZ6FE3WRNAKXTV32OWIJLG6XVVQPYNWGTWO3R3PIQEFVXEU',
+        creator: 'JTVFQXCOHCRFZ6FE3WRNAKXTV32OWIJLG6XVVQPYNWGTWO3R3PIQEFVXEU',
+        decimals: 0,
+        'default-frozen': true,
+        manager: 'JTVFQXCOHCRFZ6FE3WRNAKXTV32OWIJLG6XVVQPYNWGTWO3R3PIQEFVXEU',
+        name: 'ora.algo',
+        'name-b64': encoder.encode('b3JhLmFsZ28='),
+        reserve: 'QFHY7RDHAEEEG6JUPJWNSELKAUDEUCL6QQNVB3JZFSEFSQG75DYVODMPMU',
+        total: 1,
+        'unit-name': 'NFD',
+        'unit-name-b64': encoder.encode('TkZE'),
+        url: 'template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/nfd.json',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6ZGFnLXBiOnJlc2VydmU6c2hhMi0yNTZ9L25mZC5qc29u'),
+      },
+    })
+  },
+  'mainnet-1355898842': () => {
+    return new AssetResultBuilder({
+      index: 1355898842,
+      params: {
+        clawback: 'OOHFIBQPTGCV7XVSFC7A73ZW5GQRWX2Q2HM5SISPMTA3FN6S7N7ZPEJZLI',
+        creator: 'OOHFIBQPTGCV7XVSFC7A73ZW5GQRWX2Q2HM5SISPMTA3FN6S7N7ZPEJZLI',
+        decimals: 0,
+        'default-frozen': true,
+        manager: 'OOHFIBQPTGCV7XVSFC7A73ZW5GQRWX2Q2HM5SISPMTA3FN6S7N7ZPEJZLI',
+        name: 'rita.ora.algo',
+        'name-b64': encoder.encode('cml0YS5vcmEuYWxnbw=='),
+        reserve: 'NOR6VRUCOVUMD2FSP2XGUHXCEROOC7OHW6C4WK2NHVQMZN6LUWBZ4ERVJI',
+        total: 1,
+        'unit-name': 'NFD',
+        'unit-name-b64': encoder.encode('TkZE'),
+        url: 'template-ipfs://{ipfscid:1:dag-pb:reserve:sha2-256}/nfd.json',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjE6ZGFnLXBiOnJlc2VydmU6c2hhMi0yNTZ9L25mZC5qc29u'),
       },
     })
   },
