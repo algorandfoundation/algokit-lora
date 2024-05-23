@@ -8,35 +8,6 @@ export type LoadDataResponse<TData> = {
   nextPageToken?: string
 }
 
-type CreateLazyLoadRawDataPageAtom<TData> = {
-  pageSize: number
-  fetchData: (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
-}
-
-function createLazyLoadRawDataPageAtom<TData>({ pageSize, fetchData }: CreateLazyLoadRawDataPageAtom<TData>) {
-  const itemsAtom = atom<TData[]>([])
-  const nextPageTokenAtom = atom<string | undefined>(undefined)
-
-  return (store: JotaiStore, pageNumber: number) => {
-    return atom(async (get) => {
-      const index = pageNumber - 1
-
-      const cache = store.get(itemsAtom)
-      const itemsFromCache = cache.slice(index * pageSize, (index + 1) * pageSize)
-
-      if (itemsFromCache.length === pageSize) return itemsFromCache
-
-      const { items, nextPageToken } = await get(fetchData(store.get(nextPageTokenAtom)))
-      const nextCache = Array.from(cache).concat(items)
-
-      store.set(itemsAtom, nextCache)
-      store.set(nextPageTokenAtom, nextPageToken)
-
-      return nextCache.slice(index * pageSize, (index + 1) * pageSize)
-    })
-  }
-}
-
 type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
   fetchRawData: (nextPageToken?: string) => Atom<
     Promise<{
@@ -51,25 +22,45 @@ export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
   createViewModelPageAtom,
 }: CreateLoadableViewModelPageAtomInput<TRawData, TViewModel>) {
   return (pageSize: number) => {
-    const lazyLoadRawDataPageAtom = createLazyLoadRawDataPageAtom({ pageSize, fetchData: fetchRawData })
+    const itemsAtom = atom<TRawData[]>([])
+    const nextPageTokenAtom = atom<string | undefined>(undefined)
 
-    const createPageAtom = (store: JotaiStore, pageNumber: number) => {
+    const createRawPageAtom = (store: JotaiStore, pageSize: number, pageNumber: number) => {
       return atom(async (get) => {
-        const rawDataPage = await get(lazyLoadRawDataPageAtom(store, pageNumber))
+        const index = pageNumber - 1
+
+        const cache = store.get(itemsAtom)
+        const itemsFromCache = cache.slice(index * pageSize, (index + 1) * pageSize)
+
+        if (itemsFromCache.length === pageSize) return itemsFromCache
+
+        const { items, nextPageToken } = await get(fetchRawData(store.get(nextPageTokenAtom)))
+        const nextCache = Array.from(cache).concat(items)
+
+        store.set(itemsAtom, nextCache)
+        store.set(nextPageTokenAtom, nextPageToken)
+
+        return nextCache.slice(index * pageSize, (index + 1) * pageSize)
+      })
+    }
+
+    const createPageAtom = (store: JotaiStore, pageSize: number, pageNumber: number) => {
+      return atom(async (get) => {
+        const rawDataPage = await get(createRawPageAtom(store, pageSize, pageNumber))
         return get(createViewModelPageAtom(store, rawDataPage))
       })
     }
 
-    const usePageAtom = (pageNumber: number) => {
+    const usePageAtom = (pageSize: number, pageNumber: number) => {
       const store = useStore()
 
       return useMemo(() => {
-        return createPageAtom(store, pageNumber)
-      }, [store, pageNumber])
+        return createPageAtom(store, pageSize, pageNumber)
+      }, [store, pageSize, pageNumber])
     }
 
     const useLoadablePage = (pageNumber: number) => {
-      return useAtomValue(loadable(usePageAtom(pageNumber)))
+      return useAtomValue(loadable(usePageAtom(pageSize, pageNumber)))
     }
 
     return { useLoadablePage }
