@@ -8,7 +8,7 @@ type Props = {
 }
 
 export function ApplicationGlobalStateTable({ application }: Props) {
-  const entries = useMemo(() => Array.from(application.globalState.entries()), [application])
+  const entries = useMemo(() => Array.from(application.globalState?.entries() ?? []), [application])
   return <DataTable columns={tableColumns} data={entries} />
 }
 

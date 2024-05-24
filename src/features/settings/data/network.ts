@@ -60,7 +60,7 @@ export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
 export const selectedNetworkAtom = atomWithStorage('network', localnetConfig.id, undefined, { getOnInit: true })
 
-const networkConfigAtom = atom((get) => {
+export const networkConfigAtom = atom((get) => {
   const id = get(selectedNetworkAtom)
   const config = networksConfigs.find((n) => n.id === id)
 
