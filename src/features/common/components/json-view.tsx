@@ -5,6 +5,7 @@ import { cn } from '../utils'
 import { Button } from './button'
 import { useCallback } from 'react'
 import { asJson } from '@/utils/as-json'
+import { toast } from 'react-toastify'
 
 export function JsonView({ json }: { json: object }) {
   // TODO: one we have the design, we need to support light/dard mode and custom themes
@@ -29,6 +30,8 @@ export function JsonView({ json }: { json: object }) {
   const copyJsonToClipboard = useCallback(() => {
     const jsonString = asJson(json)
     navigator.clipboard.writeText(jsonString)
+
+    toast.success('JSON copied to clipboard')
   }, [json])
 
   return (
