@@ -4,10 +4,11 @@ import { useCallback, useMemo, useState } from 'react'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { Loader2 as Loader } from 'lucide-react'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
+import { ViewModelPage } from '../../data/lazy-load-pagination'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  createLoadablePage: (pageSize: number) => (pageNumber: number) => Loadable<Promise<TData[]>>
+  createLoadablePage: (pageSize: number) => (pageNumber: number) => Loadable<Promise<ViewModelPage<TData>>>
   getSubRows?: (row: TData) => TData[]
 }
 
@@ -33,7 +34,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
   const page = useMemo(() => (loadablePage.state === 'hasData' ? loadablePage.data : undefined), [loadablePage])
 
   const table = useReactTable({
-    data: page ?? [],
+    data: page?.items ?? [],
     state: {
       expanded: true,
     },
@@ -99,7 +100,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
         pageSize={pageSize}
         setPageSize={setPageSizeAndResetCurrentPage}
         currentPage={currentPage}
-        nextPageEnabled={true}
+        nextPageEnabled={!!page?.hasNextPage}
         nextPage={nextPage}
         previousPageEnabled={currentPage > 1}
         previousPage={previousPage}

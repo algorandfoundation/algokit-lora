@@ -8,11 +8,24 @@ export type LoadDataResponse<TData> = {
   nextPageToken?: string
 }
 
+export type RawDataPage<TData> = {
+  items: TData[]
+  hasNextPage: boolean
+}
+
+export type ViewModelPage<TViewModel> = {
+  items: TViewModel[]
+  hasNextPage: boolean
+}
+
 type FetchRawData<TData> = (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
 
 type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
   fetchRawData: FetchRawData<TRawData>
-  createViewModelPageAtom: (store: JotaiStore, rawDataPage: TRawData[]) => Atom<Promise<TViewModel[]> | TViewModel[]>
+  createViewModelPageAtom: (
+    store: JotaiStore,
+    rawDataPage: RawDataPage<TRawData>
+  ) => Atom<Promise<ViewModelPage<TViewModel>> | ViewModelPage<TViewModel>>
 }
 export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
   fetchRawData,
@@ -29,7 +42,11 @@ export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
         const cache = store.get(itemsAtom)
         const itemsFromCache = cache.slice(index * pageSize, (index + 1) * pageSize)
 
-        if (itemsFromCache.length === pageSize) return itemsFromCache
+        if (itemsFromCache.length === pageSize)
+          return {
+            items: itemsFromCache,
+            hasNextPage: true,
+          } satisfies RawDataPage<TRawData>
 
         const { items, nextPageToken } = await get(fetchUntilTheNextPageIsFull(fetchRawData, pageSize, store.get(nextPageTokenAtom)))
         const nextCache = Array.from(cache).concat(items)
@@ -37,7 +54,13 @@ export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
         store.set(itemsAtom, nextCache)
         store.set(nextPageTokenAtom, nextPageToken)
 
-        return nextCache.slice(index * pageSize, (index + 1) * pageSize)
+        // The way that we determine hasNextPage is not 100% foolproof
+        // because indexer return nextPageToken even if there is no more data
+        // we only know if there is no more data by fetching the next page
+        return {
+          items: nextCache.slice(index * pageSize, (index + 1) * pageSize),
+          hasNextPage: !!nextPageToken,
+        } satisfies RawDataPage<TRawData>
       })
     }
 
@@ -72,7 +95,10 @@ function fetchUntilTheNextPageIsFull<TData>(fetchRawData: FetchRawData<TData>, p
 
     while (items.length < pageSize) {
       const response: LoadDataResponse<TData> = await get(fetchRawData(newNextPageToken ?? nextPageToken))
-      if (response.items.length === 0) break
+      if (response.items.length === 0) {
+        newNextPageToken = undefined
+        break
+      }
 
       items.push(...response.items)
       newNextPageToken = response.nextPageToken

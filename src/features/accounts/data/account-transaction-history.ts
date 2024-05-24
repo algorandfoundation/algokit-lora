@@ -56,9 +56,12 @@ const createAccountTransactionResultsAtom = (address: Address, nextPageToken?: s
 export const createLoadableAccountTransactionsPage = (address: Address) => {
   return createLoadableViewModelPageAtom({
     fetchRawData: (nextPageToken?: string) => createAccountTransactionResultsAtom(address, nextPageToken),
-    createViewModelPageAtom: (store, transactionResults) =>
+    createViewModelPageAtom: (store, rawDataPage) =>
       atom(async (get) => {
-        return get(createTransactionsAtom(store, transactionResults))
+        return {
+          items: await get(createTransactionsAtom(store, rawDataPage.items)),
+          hasNextPage: rawDataPage.hasNextPage,
+        }
       }),
   })
 }
