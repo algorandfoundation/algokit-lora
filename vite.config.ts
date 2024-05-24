@@ -2,10 +2,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    nodePolyfills({
+      globals: {
+        Buffer: true,
+      },
+    }),
+  ],
   test: {
     environment: 'happy-dom',
     setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks.ts'],

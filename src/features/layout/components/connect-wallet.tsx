@@ -1,6 +1,7 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { useState } from 'react'
+import { useWallet } from '@txnlab/use-wallet'
 
 interface CustomDialogProps {
   open: boolean
@@ -38,6 +39,8 @@ export function ConnectWallet() {
     setDialogOpen(false)
   }
 
+  const { activeAddress, providers } = useWallet()
+
   return (
     <div className={cn('mt-1')}>
       <Button onClick={handleOpenDialog}>connect wallet</Button>
@@ -47,9 +50,23 @@ export function ConnectWallet() {
         title="Select Algorand Wallet Provider."
         content={
           <div className="flex flex-col space-y-2">
-            <Button onClick={handleCloseDialog}>Pera</Button>
-            <Button onClick={handleCloseDialog}>Delfy</Button>
-            <Button onClick={handleCloseDialog}>Daffi</Button>
+            {!activeAddress &&
+              providers?.map((provider) => (
+                <Button
+                  key={`provider-${provider.metadata.id}`}
+                  onClick={async () => {
+                    if (provider.isConnected) {
+                      provider.setActiveProvider()
+                    } else {
+                      await provider.connect()
+                    }
+                    handleCloseDialog()
+                  }}
+                >
+                  <img src={provider.metadata.icon} alt={`${provider.metadata.name} icon`} className="h-auto w-6 rounded object-contain" />
+                  <span>{provider.metadata.name}</span>
+                </Button>
+              ))}
           </div>
         }
       />
