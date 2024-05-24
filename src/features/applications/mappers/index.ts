@@ -31,7 +31,7 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
     approvalProgram: application.params['approval-program'],
     clearStateProgram: application.params['clear-state-program'],
     globalState: asGlobalStateValue(application.params['global-state']),
-    json:application,
+    json: application,
   }
 }
 
