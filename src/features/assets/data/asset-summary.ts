@@ -5,6 +5,11 @@ import { AssetId } from './types'
 import { getAssetResultAtom } from './asset-result'
 import { AssetSummary } from '../models'
 
+// TODO: NC - Consolidate this stuff
+export const createAssetResolver2 = (store: JotaiStore) => (assetId: AssetId) => {
+  return createAssetSummaryAtom(store, assetId)
+}
+
 export const createAssetResolver =
   (store: JotaiStore, get: Getter) =>
   (assetId: AssetId): Promise<AssetSummary> => {

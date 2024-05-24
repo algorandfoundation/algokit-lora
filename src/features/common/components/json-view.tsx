@@ -1,6 +1,6 @@
-import { JsonView as ReactJsonView, allExpanded } from 'react-json-view-lite'
+// import { JsonView as ReactJsonView, allExpanded } from 'react-json-view-lite'
 import 'react-json-view-lite/dist/index.css'
-import styles from './json-view.module.css'
+// import styles from './json-view.module.css'
 import { cn } from '../utils'
 import { Button } from './button'
 import { useCallback } from 'react'
@@ -9,23 +9,23 @@ import { toast } from 'react-toastify'
 
 export function JsonView({ json }: { json: object }) {
   // TODO: one we have the design, we need to support light/dard mode and custom themes
-  const style: StyleProps = {
-    container: '',
-    basicChildStyle: styles['basic-element-style'],
-    collapseIcon: styles['collapse-icon'],
-    expandIcon: styles['expand-icon'],
-    collapsedContent: styles['collapsed-content'],
-    label: styles['label'],
-    clickableLabel: styles['clickable-label'],
-    nullValue: '',
-    undefinedValue: '',
-    stringValue: '',
-    booleanValue: '',
-    numberValue: '',
-    otherValue: '',
-    punctuation: styles['punctuation'],
-    noQuotesForStringValues: false,
-  }
+  // const style: StyleProps = {
+  //   container: '',
+  //   basicChildStyle: styles['basic-element-style'],
+  //   collapseIcon: styles['collapse-icon'],
+  //   expandIcon: styles['expand-icon'],
+  //   collapsedContent: styles['collapsed-content'],
+  //   label: styles['label'],
+  //   clickableLabel: styles['clickable-label'],
+  //   nullValue: '',
+  //   undefinedValue: '',
+  //   stringValue: '',
+  //   booleanValue: '',
+  //   numberValue: '',
+  //   otherValue: '',
+  //   punctuation: styles['punctuation'],
+  //   noQuotesForStringValues: false,
+  // }
 
   const copyJsonToClipboard = useCallback(() => {
     const jsonString = asJson(json)
@@ -39,7 +39,7 @@ export function JsonView({ json }: { json: object }) {
       <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
         Copy
       </Button>
-      <ReactJsonView data={json} shouldExpandNode={allExpanded} style={style} />
+      {/* <ReactJsonView data={json} shouldExpandNode={allExpanded} style={style} /> */}
     </div>
   )
 }

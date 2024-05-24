@@ -5,12 +5,12 @@ import { JotaiStore } from '@/features/common/data/types'
 import { useMemo } from 'react'
 import { asAccount } from '../mappers'
 import { getAccountResultAtom } from './account-result'
-import { createAssetResolver } from '@/features/assets/data'
+import { createAssetResolver2 } from '@/features/assets/data'
 
 const createAccountAtom = (store: JotaiStore, address: Address) => {
   return atom(async (get) => {
     const accountResult = await get(getAccountResultAtom(store, address))
-    return asAccount(accountResult, createAssetResolver(store, get))
+    return asAccount(accountResult, createAssetResolver2(store))
   })
 }
 
