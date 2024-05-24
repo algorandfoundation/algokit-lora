@@ -33,6 +33,7 @@ import { ApplicationBoxes } from './application-boxes'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { ApplicationLiveTransactions } from './application-live-transactions'
 import { ApplicationTransactionHistory } from './application-transaction-history'
+import { JsonView } from '@/features/common/components/json-view'
 
 type Props = {
   application: Application
@@ -160,7 +161,7 @@ export function ApplicationDetails({ application }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{applicationJsonLabel}</h1>
           <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <pre className={cn('overflow-scroll p-4')}>{application.json}</pre>
+            <JsonView json={application.json} />
           </div>
         </CardContent>
       </Card>

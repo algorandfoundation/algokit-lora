@@ -4,7 +4,6 @@ import { AssetId, AssetMetadataResult, AssetMetadataStandard, AssetResult } from
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import Decimal from 'decimal.js'
-import { asJson } from '@/utils/as-json'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
 
@@ -23,7 +22,7 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
     traits: asTraits(metadataResult),
     media: asMedia(assetResult, metadataResult),
     metadata: asMetadata(metadataResult),
-    json: asJson(assetResult),
+    json: assetResult,
   }
 }
 

@@ -3,7 +3,6 @@ import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
-import { asJson } from '@/utils/as-json'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -32,7 +31,7 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
     approvalProgram: application.params['approval-program'],
     clearStateProgram: application.params['clear-state-program'],
     globalState: asGlobalStateValue(application.params['global-state']),
-    json: asJson(application),
+    json: application,
   }
 }
 
