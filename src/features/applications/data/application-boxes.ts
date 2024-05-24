@@ -5,12 +5,14 @@ import { atom, useAtomValue } from 'jotai'
 import { ApplicationBox, ApplicationBoxSummary } from '../models'
 import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
+import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
+import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 
-const getApplicationBoxes = async (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
+const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?: string) => {
   const results = await indexer
     .searchForApplicationBoxes(applicationId)
     .nextToken(nextPageToken ?? '')
-    .limit(pageSize)
+    .limit(DEFAULT_FETCH_SIZE)
     .do()
 
   return {
@@ -22,21 +24,15 @@ const getApplicationBoxes = async (applicationId: ApplicationId, pageSize: numbe
 const getApplicationBox = (applicationId: ApplicationId, boxName: string) =>
   indexer.lookupApplicationBoxByIDandName(applicationId, Buffer.from(boxName, 'base64')).do()
 
-const createApplicationBoxesAtom = (applicationId: ApplicationId, pageSize: number, nextPageToken?: string) => {
+const createApplicationBoxResultsAtom = (applicationId: ApplicationId, nextPageToken?: string) => {
   return atom(async () => {
-    const { boxes, nextPageToken: newNextPageToken } = await getApplicationBoxes(applicationId, pageSize, nextPageToken)
+    const { boxes, nextPageToken: newNextPageToken } = await getApplicationBoxes(applicationId, nextPageToken)
 
     return {
-      rows: boxes,
+      items: boxes,
       nextPageToken: newNextPageToken,
     }
   })
-}
-
-export const useFetchNextApplicationBoxPage = (applicationId: ApplicationId) => {
-  return useMemo(() => {
-    return (pageSize: number, nextPageToken?: string) => createApplicationBoxesAtom(applicationId, pageSize, nextPageToken)
-  }, [applicationId])
 }
 
 export const useApplicationBox = (applicationId: ApplicationId, boxName: string) => {
@@ -50,4 +46,11 @@ export const useApplicationBox = (applicationId: ApplicationId, boxName: string)
 
 export const useLoadableApplicationBox = (applicationId: ApplicationId, boxName: string) => {
   return useAtomValue(loadable(useApplicationBox(applicationId, boxName)))
+}
+
+export const createLoadableApplicationBoxesPage = (applicationId: ApplicationId) => {
+  return createLoadableViewModelPageAtom({
+    fetchRawData: (nextPageToken?: string) => createApplicationBoxResultsAtom(applicationId, nextPageToken),
+    createViewModelPageAtom: (_, rawDataPage) => atom(() => rawDataPage),
+  })
 }

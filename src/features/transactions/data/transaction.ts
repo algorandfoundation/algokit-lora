@@ -8,21 +8,12 @@ import { asTransaction } from '../mappers/transaction-mappers'
 import { getTransactionResultAtom } from './transaction-result'
 import { createAssetResolver } from '@/features/assets/data/asset-summary'
 
-export const createTransactionsAtom = (
-  store: JotaiStore,
-  transactionResults: TransactionResult[] | Atom<Promise<TransactionResult> | TransactionResult>[]
-) => {
+export const createTransactionsAtom = (store: JotaiStore, transactionResults: TransactionResult[]) => {
   return atom(async (get) => {
-    const txns = await Promise.all(
-      transactionResults.map(async (transactionResult) => {
-        return 'id' in transactionResult ? transactionResult : await get(transactionResult)
-      })
-    )
-
     const assetResolver = createAssetResolver(store, get)
 
     return await Promise.all(
-      txns.map((transactionResult) => {
+      transactionResults.map((transactionResult) => {
         return asTransaction(transactionResult, assetResolver)
       })
     )

@@ -1,5 +1,5 @@
 import { LazyLoadDataTable } from '@/features/common/components/lazy-load-data-table'
-import { useFetchNextApplicationBoxPage } from '../data/application-boxes'
+import { createLoadableApplicationBoxesPage } from '../data/application-boxes'
 import { ApplicationId } from '../data/types'
 import { ColumnDef } from '@tanstack/react-table'
 import { ApplicationBoxSummary } from '../models'
@@ -11,10 +11,10 @@ type Props = {
 }
 
 export function ApplicationBoxes({ applicationId }: Props) {
-  const fetchNextPage = useFetchNextApplicationBoxPage(applicationId)
+  const createLoadablePage = useMemo(() => createLoadableApplicationBoxesPage(applicationId), [applicationId])
   const tableColumns = useMemo(() => createTableColumns(applicationId), [applicationId])
 
-  return <LazyLoadDataTable columns={tableColumns} fetchNextPage={fetchNextPage} />
+  return <LazyLoadDataTable columns={tableColumns} createLoadablePage={createLoadablePage} />
 }
 
 const createTableColumns = (applicationId: ApplicationId): ColumnDef<ApplicationBoxSummary>[] => [
