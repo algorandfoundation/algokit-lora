@@ -16,7 +16,7 @@ export const createInnerTransactionAtom = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    const transaction = await asTransaction(txn, createAssetResolver(store, get))
+    const transaction = asTransaction(txn, createAssetResolver(store))
     if (transaction.type !== TransactionType.ApplicationCall) {
       throw new Error('Only application call transactions have inner transactions')
     }

@@ -1,20 +1,12 @@
-import { Getter, atom } from 'jotai'
+import { atom } from 'jotai'
 import { JotaiStore } from '@/features/common/data/types'
 import { asAssetSummary } from '../mappers/asset-summary'
 import { AssetId } from './types'
 import { getAssetResultAtom } from './asset-result'
-import { AssetSummary } from '../models'
 
-// TODO: NC - Consolidate this stuff
-export const createAssetResolver2 = (store: JotaiStore) => (assetId: AssetId) => {
+export const createAssetResolver = (store: JotaiStore) => (assetId: AssetId) => {
   return createAssetSummaryAtom(store, assetId)
 }
-
-export const createAssetResolver =
-  (store: JotaiStore, get: Getter) =>
-  (assetId: AssetId): Promise<AssetSummary> => {
-    return get(createAssetSummaryAtom(store, assetId))
-  }
 
 export const createAssetSummaryAtom = (store: JotaiStore, assetId: AssetId) => {
   return atom(async (get) => {

@@ -2,8 +2,8 @@ import { AssetSummary } from '@/features/assets/models'
 import { cn } from '../utils'
 import Decimal from 'decimal.js'
 import { Badge } from './badge'
-import { RenderAsyncAtom } from './render-async-atom'
 import { AsyncMaybeAtom } from '../data/types'
+import { RenderInlineAsyncAtom } from './render-inline-async-atom'
 
 type Props = {
   amount: number | bigint
@@ -29,9 +29,9 @@ export const DisplayAssetAmount = ({ amount, asset, isFrozen, className }: Props
   return (
     <div className={cn(className)}>
       {'read' in asset ? (
-        <RenderAsyncAtom atom={asset} fallback="...">
+        <RenderInlineAsyncAtom atom={asset}>
           {(asset) => <Amount asset={asset} amount={amount} isFrozen={isFrozen} />}
-        </RenderAsyncAtom>
+        </RenderInlineAsyncAtom>
       ) : (
         <Amount asset={asset} amount={amount} isFrozen={isFrozen} />
       )}

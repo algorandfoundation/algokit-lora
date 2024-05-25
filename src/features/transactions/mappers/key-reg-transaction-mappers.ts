@@ -1,34 +1,31 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { KeyRegistrationTransactionResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { KeyRegTransaction, BaseKeyRegTransaction, InnerKeyRegTransaction, TransactionType, KeyRegTransactionSubType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
+import { atom } from 'jotai'
+
+const onlineSubTypeAtom = atom(() => KeyRegTransactionSubType.Online)
+const offlineSubTypeAtom = atom(() => KeyRegTransactionSubType.Offline)
+
+const mapSubType = (keyreg: KeyRegistrationTransactionResult) =>
+  keyreg['vote-first-valid'] && keyreg['vote-last-valid'] && keyreg['vote-key-dilution'] && keyreg['vote-participation-key']
+    ? onlineSubTypeAtom
+    : offlineSubTypeAtom
 
 const mapCommonKeyRegTransactionProperties = (transactionResult: TransactionResult): BaseKeyRegTransaction => {
   invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
-
-  const subType = () => {
-    invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
-
-    // According to Algorand protocol, these fields shouldn't be presented
-    // But the indexer returns 0 value for them, therefore, we check for falsy here
-    return transactionResult['keyreg-transaction']['vote-first-valid'] &&
-      transactionResult['keyreg-transaction']['vote-last-valid'] &&
-      transactionResult['keyreg-transaction']['vote-key-dilution'] &&
-      transactionResult['keyreg-transaction']['vote-participation-key']
-      ? KeyRegTransactionSubType.Online
-      : KeyRegTransactionSubType.Offline
-  }
+  const keyReg = transactionResult['keyreg-transaction']
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.KeyReg,
-    voteParticipationKey: transactionResult['keyreg-transaction']['vote-participation-key'],
-    nonParticipation: transactionResult['keyreg-transaction']['non-participation'],
-    selectionParticipationKey: transactionResult['keyreg-transaction']['selection-participation-key'],
-    voteKeyDilution: transactionResult['keyreg-transaction']['vote-key-dilution'],
-    voteFirstValid: transactionResult['keyreg-transaction']['vote-first-valid'],
-    voteLastValid: transactionResult['keyreg-transaction']['vote-last-valid'],
-    subType: subType(),
+    subType: mapSubType(keyReg),
+    voteParticipationKey: keyReg['vote-participation-key'],
+    nonParticipation: keyReg['non-participation'],
+    selectionParticipationKey: keyReg['selection-participation-key'],
+    voteKeyDilution: keyReg['vote-key-dilution'],
+    voteFirstValid: keyReg['vote-first-valid'],
+    voteLastValid: keyReg['vote-last-valid'],
   }
 }
 

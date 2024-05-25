@@ -8,6 +8,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupLink } from '@/features/groups/components/group-link'
+import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -21,6 +22,7 @@ export const transactionGroupLabel = 'Group'
 export const transactionFeeLabel = 'Fee'
 
 export function TransactionInfo({ transaction }: Props) {
+  const subType = useAtomValue(transaction.subType)
   const transactionInfoItems = useMemo(
     () => [
       {
@@ -32,7 +34,7 @@ export function TransactionInfo({ transaction }: Props) {
         dd: (
           <>
             {transaction.type}
-            {transaction.subType && <Badge variant="outline">{transaction.subType}</Badge>}
+            {subType && <Badge variant="outline">{subType}</Badge>}
             {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
             {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
           </>
@@ -60,13 +62,13 @@ export function TransactionInfo({ transaction }: Props) {
       },
     ],
     [
+      subType,
       transaction.confirmedRound,
       transaction.fee,
       transaction.group,
       transaction.id,
       transaction.roundTime,
       transaction.signature?.type,
-      transaction.subType,
       transaction.type,
     ]
   )
