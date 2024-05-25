@@ -4,7 +4,7 @@ import { AssetHolding } from '../models'
 import { AssetLink } from '@/features/assets/components/asset-link'
 import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
 import { AssetSummary } from '@/features/assets/models'
-import { Atom } from 'jotai'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 export const accountAssetHoldingsTableColumns: ColumnDef<AssetHolding>[] = [
   {
@@ -16,7 +16,7 @@ export const accountAssetHoldingsTableColumns: ColumnDef<AssetHolding>[] = [
     header: 'Name',
     accessorFn: (item) => item.asset,
     cell: (c) => {
-      const assetSummaryAtom = c.getValue<Atom<Promise<AssetSummary> | AssetSummary>>()
+      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
       return (
         <RenderAsyncAtom atom={assetSummaryAtom} fallback="...">
           {(asset) => asset.name}

@@ -2,12 +2,12 @@ import { AssetSummary } from '@/features/assets/models'
 import { cn } from '../utils'
 import Decimal from 'decimal.js'
 import { Badge } from './badge'
-import { Atom } from 'jotai'
 import { RenderAsyncAtom } from './render-async-atom'
+import { AsyncMaybeAtom } from '../data/types'
 
 type Props = {
   amount: number | bigint
-  asset: AssetSummary | Atom<Promise<AssetSummary> | AssetSummary>
+  asset: AssetSummary | AsyncMaybeAtom<AssetSummary>
   isFrozen?: boolean
   className?: string
 }

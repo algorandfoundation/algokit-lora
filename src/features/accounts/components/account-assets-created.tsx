@@ -5,6 +5,7 @@ import { AccountAssetSummary } from '../models'
 import { Atom } from 'jotai'
 import { AssetSummary } from '@/features/assets/models'
 import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 type Props = {
   assetsCreated: AccountAssetSummary[]
@@ -20,7 +21,7 @@ const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
     header: 'Name',
     accessorFn: (item) => item.asset,
     cell: (c) => {
-      const assetSummaryAtom = c.getValue<Atom<Promise<AssetSummary> | AssetSummary>>()
+      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
       return (
         <RenderAsyncAtom atom={assetSummaryAtom} fallback="...">
           {(asset) => asset.name}
@@ -32,7 +33,7 @@ const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
     header: 'Unit',
     accessorFn: (item) => item.asset,
     cell: (c) => {
-      const assetSummaryAtom = c.getValue<Atom<Promise<AssetSummary> | AssetSummary>>()
+      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
       return (
         <RenderAsyncAtom atom={assetSummaryAtom} fallback="...">
           {(asset) => asset.unitName}

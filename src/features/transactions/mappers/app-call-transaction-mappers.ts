@@ -111,6 +111,7 @@ const asInnerTransaction = (networkTransactionId: string, index: string, transac
     return asInnerKeyRegTransaction(networkTransactionId, index, transactionResult)
   }
 
+  // TODO: NC - stpf transactions need to be handled
   // This could be dangerous as we haven't implemented all the transaction types
   throw new Error(`Unsupported inner transaction type: ${transactionResult['tx-type']}`)
 }
