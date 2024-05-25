@@ -1,5 +1,5 @@
 import { Atom, atom, useAtomValue, useStore } from 'jotai'
-import { AsyncMaybeAtom, JotaiStore } from './types'
+import { JotaiStore } from './types'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 
@@ -22,7 +22,7 @@ type FetchRawData<TData> = (nextPageToken?: string) => Atom<Promise<LoadDataResp
 
 type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
   fetchRawData: FetchRawData<TRawData>
-  createViewModelPageAtom: (store: JotaiStore, rawDataPage: RawDataPage<TRawData>) => AsyncMaybeAtom<ViewModelPage<TViewModel>>
+  createViewModelPageAtom: (store: JotaiStore, rawDataPage: RawDataPage<TRawData>) => Atom<ViewModelPage<TViewModel>>
 }
 export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
   fetchRawData,
