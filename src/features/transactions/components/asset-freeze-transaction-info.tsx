@@ -4,6 +4,7 @@ import { AssetFreezeTransaction, InnerAssetFreezeTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionSenderLabel } from './transactions-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { AssetLink } from '@/features/assets/components/asset-link'
 
 type Props = {
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction
@@ -22,12 +23,7 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
       },
       {
         dt: assetLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.assetId}
-            {`${transaction.assetName ? `(${transaction.assetName})` : ''}`}
-          </a>
-        ),
+        dd: <AssetLink assetId={transaction.assetId} assetName={transaction.assetName} />,
       },
       {
         dt: assetFreezeAddressLabel,

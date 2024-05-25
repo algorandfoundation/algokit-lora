@@ -12,7 +12,7 @@ type Props = {
   transactions: Transaction[]
 }
 
-export const columns: ColumnDef<Transaction>[] = [
+const columns: ColumnDef<Transaction>[] = [
   {
     accessorKey: 'id',
     header: 'Transaction ID',
@@ -45,8 +45,7 @@ export const columns: ColumnDef<Transaction>[] = [
       const value = c.getValue<Transaction>()
       if (value.type === TransactionType.Payment) {
         return <DisplayAlgo amount={value.amount} />
-      }
-      if (value.type === TransactionType.AssetTransfer) {
+      } else if (value.type === TransactionType.AssetTransfer) {
         return <DisplayAssetAmount amount={value.amount} asset={value.asset} />
       }
       return undefined

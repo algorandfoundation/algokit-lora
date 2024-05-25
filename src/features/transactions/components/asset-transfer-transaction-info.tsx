@@ -27,15 +27,11 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         dt: transactionReceiverLabel,
         dd: <AccountLink address={transaction.receiver} />,
       },
-      ...(transaction.subType === AssetTransferTransactionSubType.Clawback
+      ...(transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
         ? [
             {
               dt: transactionClawbackAddressLabel,
-              dd: (
-                <a href="#" className={cn('text-primary underline')}>
-                  {transaction.clawbackFrom}
-                </a>
-              ),
+              dd: <AccountLink address={transaction.clawbackFrom} />,
             },
           ]
         : []),
