@@ -34,6 +34,7 @@ export function JsonView({ json }: { json: object }) {
     toast.success('JSON copied to clipboard')
   }, [json])
 
+  // Only render the top level because sometimes the object has too many children to render
   const shouldExpandNode = useCallback((level: number) => {
     return level < 1
   }, [])
