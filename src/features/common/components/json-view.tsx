@@ -39,7 +39,7 @@ export function JsonView({ json }: { json: object }) {
       <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
         Copy
       </Button>
-      <ReactJsonView data={json} shouldExpandNode={allExpanded} style={style} />
+      <ReactJsonView data={json} shouldExpandNode={() => false} style={style} />
     </div>
   )
 }
