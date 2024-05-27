@@ -1,6 +1,7 @@
 import { WritableAtom, atom, type Atom } from 'jotai'
 import { JotaiStore } from './types'
 import { invariant } from '@/utils/invariant'
+import { dataStore } from './data-store'
 
 export function atomsInAtom<Args extends unknown[], Key extends string | number, Value>(
   createInitialValue: ((...args: Args) => Value) | WritableAtom<null, Args, Value>,
@@ -33,8 +34,9 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
   })
 
   // TODO: When we implement network switch, it's probably a good time to decide if we should make the store a global
-  const getValueAtom = (store: JotaiStore, ...args: Args) => {
-    return store.set(getOrCreateValueAtom, args)
+  const getValueAtom = (_store: JotaiStore, ...args: Args) => {
+    // return store.set(getOrCreateValueAtom, args)
+    return dataStore.set(getOrCreateValueAtom, args)
   }
 
   return [valuesAtom, getValueAtom] as const
