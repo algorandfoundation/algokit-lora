@@ -12,7 +12,7 @@ const createGroupAtom = (store: JotaiStore, groupId: GroupId, round: Round) => {
   return atom(async (get) => {
     const groupResult = await get(getGroupResultAtom(store, groupId, round))
     const transactionResults = await Promise.all(getTransactionResultAtoms(store, groupResult.transactionIds).map((txn) => get(txn)))
-    const transactions = await get(createTransactionsAtom(store, transactionResults))
+    const transactions = get(createTransactionsAtom(store, transactionResults))
     return asGroup(groupResult, transactions)
   })
 }

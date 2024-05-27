@@ -26,10 +26,7 @@ type FetchRawData<TData> = (nextPageToken?: string) => Atom<Promise<LoadDataResp
 // for example, when getting transactions with limit 10, it a maximum of 10 items, sometimes it returns 4 or 5 items
 type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
   fetchRawData: FetchRawData<TRawData>
-  createViewModelPageAtom: (
-    store: JotaiStore,
-    rawDataPage: RawDataPage<TRawData>
-  ) => Atom<Promise<ViewModelPage<TViewModel>> | ViewModelPage<TViewModel>>
+  createViewModelPageAtom: (store: JotaiStore, rawDataPage: RawDataPage<TRawData>) => Atom<ViewModelPage<TViewModel>>
 }
 export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
   fetchRawData,

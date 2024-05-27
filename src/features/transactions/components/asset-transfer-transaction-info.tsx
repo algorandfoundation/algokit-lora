@@ -6,6 +6,7 @@ import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabe
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetLink } from '@/features/assets/components/asset-link'
+import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
@@ -17,6 +18,7 @@ export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 export const transactionClawbackAddressLabel = 'Clawback From'
 
 export function AssetTransferTransactionInfo({ transaction }: Props) {
+  const subType = useAtomValue(transaction.subType)
   const items = useMemo(
     () => [
       {
@@ -27,21 +29,17 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         dt: transactionReceiverLabel,
         dd: <AccountLink address={transaction.receiver} />,
       },
-      ...(transaction.subType === AssetTransferTransactionSubType.Clawback
+      ...(subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
         ? [
             {
               dt: transactionClawbackAddressLabel,
-              dd: (
-                <a href="#" className={cn('text-primary underline')}>
-                  {transaction.clawbackFrom}
-                </a>
-              ),
+              dd: <AccountLink address={transaction.clawbackFrom} />,
             },
           ]
         : []),
       {
         dt: assetLabel,
-        dd: <AssetLink assetId={transaction.asset.id} assetName={transaction.asset.name} />,
+        dd: <AssetLink asset={transaction.asset} />,
       },
       {
         dt: transactionAmountLabel,
@@ -61,13 +59,13 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         : []),
     ],
     [
+      subType,
       transaction.amount,
       transaction.asset,
       transaction.clawbackFrom,
       transaction.closeRemainder,
       transaction.receiver,
       transaction.sender,
-      transaction.subType,
     ]
   )
 

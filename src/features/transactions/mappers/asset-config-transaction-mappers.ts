@@ -8,42 +8,43 @@ import {
 } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
+import { atom } from 'jotai'
+
+const destroySubTypeAtom = atom(() => AssetConfigTransactionSubType.Destroy)
+const reconfigureSubTypeAtom = atom(() => AssetConfigTransactionSubType.Reconfigure)
+const createSubTypeAtom = atom(() => AssetConfigTransactionSubType.Create)
 
 const mapCommonAssetConfigTransactionProperties = (transactionResult: TransactionResult): BaseAssetConfigTransaction => {
   invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
+  const assetConfig = transactionResult['asset-config-transaction']
 
-  if (!transactionResult['asset-config-transaction']['params']) {
+  if (!assetConfig['params']) {
     return {
       ...mapCommonTransactionProperties(transactionResult),
       type: TransactionType.AssetConfig,
-      subType: AssetConfigTransactionSubType.Destroy,
-      assetId: transactionResult['asset-config-transaction']['asset-id'],
+      subType: destroySubTypeAtom,
+      assetId: assetConfig['asset-id'],
     }
   }
 
-  const subType = transactionResult['asset-config-transaction']['asset-id']
-    ? AssetConfigTransactionSubType.Reconfigure
-    : AssetConfigTransactionSubType.Create
-  const assetId =
-    subType === AssetConfigTransactionSubType.Reconfigure
-      ? transactionResult['asset-config-transaction']['asset-id']
-      : transactionResult['created-asset-index']
+  const subType = assetConfig['asset-id'] ? AssetConfigTransactionSubType.Reconfigure : AssetConfigTransactionSubType.Create
+  const assetId = subType === AssetConfigTransactionSubType.Reconfigure ? assetConfig['asset-id'] : transactionResult['created-asset-index']
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetConfig,
+    subType: subType === AssetConfigTransactionSubType.Reconfigure ? reconfigureSubTypeAtom : createSubTypeAtom,
     assetId: assetId!,
-    name: transactionResult['asset-config-transaction']['params']['name'] ?? undefined,
-    url: transactionResult['asset-config-transaction']['params']['url'] ?? undefined,
-    unitName: transactionResult['asset-config-transaction']['params']['unit-name'] ?? undefined,
-    total: transactionResult['asset-config-transaction']['params']['total'] ?? undefined,
-    decimals: transactionResult['asset-config-transaction']['params']['decimals'] ?? undefined,
-    clawback: transactionResult['asset-config-transaction']['params']['clawback'] ?? undefined,
-    subType: subType,
-    manager: transactionResult['asset-config-transaction']['params']['manager'] ?? undefined,
-    reserve: transactionResult['asset-config-transaction']['params']['reserve'] ?? undefined,
-    freeze: transactionResult['asset-config-transaction']['params']['freeze'] ?? undefined,
-    defaultFrozen: transactionResult['asset-config-transaction']['params']['default-frozen'] ?? false,
+    name: assetConfig['params']['name'] ?? undefined,
+    url: assetConfig['params']['url'] ?? undefined,
+    unitName: assetConfig['params']['unit-name'] ?? undefined,
+    total: assetConfig['params']['total'] ?? undefined,
+    decimals: assetConfig['params']['decimals'] ?? undefined,
+    clawback: assetConfig['params']['clawback'] ?? undefined,
+    manager: assetConfig['params']['manager'] ?? undefined,
+    reserve: assetConfig['params']['reserve'] ?? undefined,
+    freeze: assetConfig['params']['freeze'] ?? undefined,
+    defaultFrozen: assetConfig['params']['default-frozen'] ?? false,
   }
 }
 

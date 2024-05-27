@@ -2,24 +2,62 @@ import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
+import { AssetSummary } from '../models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 
-type Props = PropsWithChildren<{
-  assetId: number
-  assetName?: string
+type CommonProps = {
   className?: string
-}>
+}
 
-export function AssetLink({ assetId, assetName, className, children }: Props) {
+type AssetIdLinkProps = PropsWithChildren<
+  {
+    assetId: number
+  } & CommonProps
+>
+
+type AssetIdAndNameLinkProps = PropsWithChildren<
+  {
+    assetId: number
+    assetName?: string
+  } & CommonProps
+>
+
+type AssetLinkProps = PropsWithChildren<
+  {
+    asset: AssetSummary | AsyncMaybeAtom<AssetSummary>
+  } & CommonProps
+>
+
+function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   return (
     <span>
       <TemplatedNavLink
-        className={cn(!children && 'text-primary underline', className)}
+        className={cn(!props.children && 'text-primary underline', props.className)}
         urlTemplate={Urls.Explore.Asset.ById}
-        urlParams={{ assetId: assetId.toString() }}
+        urlParams={{ assetId: props.assetId.toString() }}
       >
-        {children ? children : assetId}
+        {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
-      {assetName && ` (${assetName})`}
+      {'assetName' in props && props.assetName && ` (${props.assetName})`}
     </span>
   )
+}
+
+export function AssetLink({ asset, className }: AssetLinkProps) {
+  return 'read' in asset ? (
+    <RenderInlineAsyncAtom atom={asset}>
+      {(asset) => <Link assetId={asset.id} assetName={asset.name} className={className} />}
+    </RenderInlineAsyncAtom>
+  ) : (
+    <Link assetId={asset.id} assetName={asset.name} className={className} />
+  )
+}
+
+export function AssetIdAndNameLink({ assetId, assetName, className }: AssetIdAndNameLinkProps) {
+  return <Link assetId={assetId} assetName={assetName} className={className} />
+}
+
+export function AssetIdLink({ assetId, className }: AssetIdLinkProps) {
+  return <Link assetId={assetId} className={className} />
 }

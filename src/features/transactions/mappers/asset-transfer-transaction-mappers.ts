@@ -10,37 +10,54 @@ import { invariant } from '@/utils/invariant'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { atom } from 'jotai'
+import { unwrap } from 'jotai/utils'
 
-const mapCommonAssetTransferTransactionProperties = (transactionResult: TransactionResult, asset: AssetSummary) => {
+const optInSubTypeAtom = atom(() => AssetTransferTransactionSubType.OptIn)
+const optOutSubTypeAtom = atom(() => AssetTransferTransactionSubType.OptOut)
+
+const mapSubType = (transactionResult: TransactionResult, assetAtom: AsyncMaybeAtom<AssetSummary>) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+  const assetTransfer = transactionResult['asset-transfer-transaction']
 
-  const subType = () => {
-    invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+  if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
+    return optInSubTypeAtom
+  }
 
-    if (transactionResult['asset-transfer-transaction']['close-to']) {
-      return AssetTransferTransactionSubType.OptOut
-    }
+  if (assetTransfer['close-to']) {
+    return optOutSubTypeAtom
+  }
+
+  return atom((get) => {
+    const asset = get(unwrap(assetAtom))
     if (
-      transactionResult.sender === transactionResult['asset-transfer-transaction'].receiver &&
-      transactionResult['asset-transfer-transaction'].amount === 0
-    ) {
-      return AssetTransferTransactionSubType.OptIn
-    }
-    if (
+      asset &&
       transactionResult.sender === asset.clawback &&
-      transactionResult['asset-transfer-transaction'].sender &&
-      transactionResult['asset-transfer-transaction'].sender !== ZERO_ADDRESS
+      assetTransfer.sender &&
+      assetTransfer.sender !== ZERO_ADDRESS &&
+      assetTransfer.receiver &&
+      assetTransfer.receiver !== ZERO_ADDRESS
     ) {
       return AssetTransferTransactionSubType.Clawback
     }
+  })
+}
 
-    undefined
-  }
+const mapCommonAssetTransferTransactionProperties = (
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+) => {
+  invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+
+  const assetId = transactionResult['asset-transfer-transaction']['asset-id']
+  const asset = assetResolver(assetId)
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetTransfer,
-    subType: subType(),
+    subType: mapSubType(transactionResult, asset),
+    assetId,
     asset,
     receiver: transactionResult['asset-transfer-transaction'].receiver,
     amount: transactionResult['asset-transfer-transaction'].amount,
@@ -54,10 +71,13 @@ const mapCommonAssetTransferTransactionProperties = (transactionResult: Transact
   } satisfies BaseAssetTransferTransaction
 }
 
-export const asAssetTransferTransaction = (transactionResult: TransactionResult, asset: AssetSummary): AssetTransferTransaction => {
+export const asAssetTransferTransaction = (
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+): AssetTransferTransaction => {
   return {
     id: transactionResult.id,
-    ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),
+    ...mapCommonAssetTransferTransactionProperties(transactionResult, assetResolver),
   }
 }
 
@@ -65,10 +85,10 @@ export const asInnerAssetTransferTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  asset: AssetSummary
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): InnerAssetTransferTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAssetTransferTransactionProperties(transactionResult, asset),
+    ...mapCommonAssetTransferTransactionProperties(transactionResult, assetResolver),
   }
 }

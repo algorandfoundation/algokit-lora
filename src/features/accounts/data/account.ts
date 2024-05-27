@@ -10,7 +10,7 @@ import { createAssetResolver } from '@/features/assets/data'
 const createAccountAtom = (store: JotaiStore, address: Address) => {
   return atom(async (get) => {
     const accountResult = await get(getAccountResultAtom(store, address))
-    return asAccount(accountResult, createAssetResolver(store, get))
+    return asAccount(accountResult, createAssetResolver(store))
   })
 }
 

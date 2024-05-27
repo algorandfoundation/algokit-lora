@@ -11,7 +11,7 @@ export const getAssetTransactionsTableSubRows = (assetId: AssetId, transaction: 
     const txns = flattenInnerTransactions(innerTransaction)
     return txns.some(({ transaction }) => {
       return (
-        (transaction.type === TransactionType.AssetTransfer && transaction.asset.id === assetId) ||
+        (transaction.type === TransactionType.AssetTransfer && transaction.assetId === assetId) ||
         (transaction.type === TransactionType.AssetConfig && transaction.assetId === assetId) ||
         (transaction.type === TransactionType.AssetFreeze && transaction.assetId === assetId)
       )
