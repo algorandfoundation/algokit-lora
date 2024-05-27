@@ -19,10 +19,10 @@ const createNextRoundAvailableAtom = (store: JotaiStore, round: Round) => {
 
 const createBlockAtom = (store: JotaiStore, round: Round) => {
   return atom(async (get) => {
-    const blockResult = await get(getBlockResultAtom(store, round))
-    const transactionResults = await Promise.all(getTransactionResultAtoms(store, blockResult.transactionIds).map((txn) => get(txn)))
-    const transactions = get(createTransactionsAtom(store, transactionResults))
-    const nextRoundAvailable = get(createNextRoundAvailableAtom(store, round))
+    const blockResult = await get(getBlockResultAtom(round))
+    const transactionResults = await Promise.all(getTransactionResultAtoms(blockResult.transactionIds).map((txn) => get(txn)))
+    const transactions = get(createTransactionsAtom(transactionResults))
+    const nextRoundAvailable = get(createNextRoundAvailableAtom(store, round)) // TODO: NC - Try remove store usage here
     return asBlock(blockResult, transactions, nextRoundAvailable)
   })
 }

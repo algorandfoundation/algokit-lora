@@ -65,8 +65,8 @@ const createSearchAtoms = (store: JotaiStore) => {
           })
         }
 
-        const assetAtom = createAssetSummaryAtom(store, id)
-        const applicationAtom = createApplicationSummaryAtom(store, id)
+        const assetAtom = createAssetSummaryAtom(id)
+        const applicationAtom = createApplicationSummaryAtom(id)
 
         try {
           const [asset, application] = await Promise.all([

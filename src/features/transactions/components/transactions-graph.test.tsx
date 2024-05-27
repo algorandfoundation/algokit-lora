@@ -61,8 +61,8 @@ describe('asset-transfer-transaction-graph', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
-        const assetSummaryResolver = createAssetSummaryResolver([assetResult])
-        const transaction = asAssetTransferTransaction(transactionResult, assetSummaryResolver)
+        const assetResolver = createAssetResolver([assetResult])
+        const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
 
         return executeComponentTest(
           () => render(<TransactionsGraph transactions={[transaction]} />),
@@ -97,7 +97,7 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, createAssetSummaryResolver(assetResults))
+        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults))
 
         return executeComponentTest(
           () => render(<TransactionsGraph transactions={[model]} />),
@@ -162,8 +162,8 @@ describe('group-graph', () => {
       assetResults: AssetResult[]
     }) => {
       it('should match snapshot', () => {
-        const assetResolverResolver = createAssetSummaryResolver(assetResults)
-        const transactions = transactionResults.map((t) => asTransaction(t, assetResolverResolver))
+        const assetResolver = createAssetResolver(assetResults)
+        const transactions = transactionResults.map((t) => asTransaction(t, assetResolver))
         const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()
 
         const group = asGroup(groupResult, transactions)
@@ -181,7 +181,7 @@ describe('group-graph', () => {
   )
 })
 
-const createAssetSummaryResolver = (assetResults: AssetResult[]) => (assetId: number) => {
+const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {
   const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)
   return atom(() => asAssetSummary(assetResult))
