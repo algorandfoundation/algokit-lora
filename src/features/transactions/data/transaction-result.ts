@@ -1,7 +1,7 @@
 import { TransactionId } from './types'
 import { indexer } from '@/features/common/data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
-import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
+import { atomsInAtom } from '@/features/common/data'
 
 const getTransactionResult = (transactionId: TransactionId) =>
   lookupTransactionById(transactionId, indexer).then((result) => {

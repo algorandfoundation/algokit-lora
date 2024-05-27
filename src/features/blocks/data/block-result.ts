@@ -5,7 +5,7 @@ import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
-import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
+import { atomsInAtom } from '@/features/common/data'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks

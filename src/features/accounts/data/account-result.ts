@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
 import { algod } from '@/features/common/data'
-import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
+import { atomsInAtom } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 

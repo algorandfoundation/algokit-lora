@@ -9,10 +9,7 @@ type ContextualDataProviderProps = PropsWithChildren<{
   store?: JotaiStore // This is only used for unit tests
 }>
 
-// TODO: NC - Need to think about naming here
-function ContextualDataProvider({ children, networkConfig, store }: ContextualDataProviderProps) {
-  // Creates a new data store depending on the network
-  // TODO: NC - Can we describe this better?
+function JotaiDataProvider({ children, networkConfig, store }: ContextualDataProviderProps) {
   const dataStore = useDataStore(networkConfig, store)
 
   return (
@@ -46,8 +43,8 @@ export function DataProvider({ children, store }: Props) {
   }, [theme])
 
   return (
-    <ContextualDataProvider key={networkConfig.id} networkConfig={networkConfig} store={store}>
+    <JotaiDataProvider key={networkConfig.id} networkConfig={networkConfig} store={store}>
       {children}
-    </ContextualDataProvider>
+    </JotaiDataProvider>
   )
 }
