@@ -34,11 +34,6 @@ export function JsonView({ json }: { json: object }) {
     toast.success('JSON copied to clipboard')
   }, [json])
 
-  // Only render the top level because sometimes the object has too many children to render
-  const shouldExpandNode = useCallback((level: number) => {
-    return level < 1
-  }, [])
-
   return (
     <div className={cn('overflow-auto relative p-2')}>
       <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
@@ -47,6 +42,10 @@ export function JsonView({ json }: { json: object }) {
       <ReactJsonView data={json} shouldExpandNode={shouldExpandNode} style={style} />
     </div>
   )
+}
+// Only render the top level because sometimes the object has too many children to render
+const shouldExpandNode = (level: number) => {
+  return level < 1
 }
 
 export interface StyleProps {
