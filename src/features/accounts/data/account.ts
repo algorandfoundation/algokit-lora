@@ -1,25 +1,22 @@
-import { atom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { Address } from './types'
 import { loadable } from 'jotai/utils'
-import { JotaiStore } from '@/features/common/data/types'
 import { useMemo } from 'react'
 import { asAccount } from '../mappers'
 import { getAccountResultAtom } from './account-result'
-import { createAssetResolver } from '@/features/assets/data'
+import { assetSummaryResolver } from '@/features/assets/data'
 
-const createAccountAtom = (store: JotaiStore, address: Address) => {
+const createAccountAtom = (address: Address) => {
   return atom(async (get) => {
-    const accountResult = await get(getAccountResultAtom(store, address))
-    return asAccount(accountResult, createAssetResolver(store))
+    const accountResult = await get(getAccountResultAtom(address))
+    return asAccount(accountResult, assetSummaryResolver)
   })
 }
 
 const useAccountAtom = (address: Address) => {
-  const store = useStore()
-
   return useMemo(() => {
-    return createAccountAtom(store, address)
-  }, [store, address])
+    return createAccountAtom(address)
+  }, [address])
 }
 
 export const useLoadableAccountAtom = (address: Address) => {

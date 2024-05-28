@@ -51,6 +51,6 @@ export const useLoadableApplicationBox = (applicationId: ApplicationId, boxName:
 export const createLoadableApplicationBoxesPage = (applicationId: ApplicationId) => {
   return createLoadableViewModelPageAtom({
     fetchRawData: (nextPageToken?: string) => createApplicationBoxResultsAtom(applicationId, nextPageToken),
-    createViewModelPageAtom: (_, rawDataPage) => atom(() => rawDataPage),
+    createViewModelPageAtom: (rawDataPage) => atom(() => rawDataPage),
   })
 }

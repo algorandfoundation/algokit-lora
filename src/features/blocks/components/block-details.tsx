@@ -7,6 +7,7 @@ import { BlockLink } from './block-link'
 import { TransactionsTable } from './transactions'
 import { Block } from '../models'
 import { Badge } from '@/features/common/components/badge'
+import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 
 type Props = {
   block: Block
@@ -42,22 +43,14 @@ export function BlockDetails({ block }: Props) {
           </>
         ),
       },
-      ...(block.previousRound !== undefined
-        ? [
-            {
-              dt: previousRoundLabel,
-              dd: <BlockLink round={block.previousRound} />,
-            },
-          ]
-        : []),
-      ...(block.nextRound !== undefined
-        ? [
-            {
-              dt: nextRoundLabel,
-              dd: <BlockLink round={block.nextRound} />,
-            },
-          ]
-        : []),
+      {
+        dt: previousRoundLabel,
+        dd: block.previousRound !== undefined ? <BlockLink round={block.previousRound} /> : undefined,
+      },
+      {
+        dt: nextRoundLabel,
+        dd: <RenderInlineAsyncAtom atom={block.nextRound}>{(nextRound) => <BlockLink round={nextRound} />}</RenderInlineAsyncAtom>,
+      },
     ],
     [
       block.nextRound,
