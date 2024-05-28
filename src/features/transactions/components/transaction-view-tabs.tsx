@@ -15,7 +15,7 @@ export const transactionDetailsLabel = 'View Transaction Details'
 export const transactionVisualGraphTabLabel = 'Graph'
 export const transactionVisualTableTabLabel = 'Table'
 
-export function TransactionVisualTabs({ transaction }: Props) {
+export function TransactionViewTabs({ transaction }: Props) {
   return (
     <Tabs defaultValue={transactionVisualGraphTabId}>
       <TabsList aria-label={transactionDetailsLabel}>

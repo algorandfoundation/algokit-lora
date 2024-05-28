@@ -14,7 +14,7 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { algoAssetResult } from '@/features/assets/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-visual-tabs'
+import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-transactions-view-tabs'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 
@@ -115,10 +115,6 @@ describe('block-page', () => {
           tableAssertion({
             container: tableViewTab,
             // This table has 10+ row, we only test the first 2 rows
-
-            // TODO: NC - Inner transaction groups are a thing, handle this for example
-            // http://localhost:1420/explore/block/36591812/group/lvDxwGvbzQ7iJzkzI5EB90khVh3ior6XLgIJUbvpN4g%3D
-            // and this should work http://localhost:1420/explore/block/36591812/group/hUs3wtMN0EkMpUpovRox8EzCPSUL8jYWP5vTchrkVUo%3D
             rows: [
               {
                 cells: ['INDQXWQ...', '/oRSr2u...', 'AACC...EN4A', '1201559522', 'Application Call', ''],

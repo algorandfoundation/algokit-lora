@@ -20,7 +20,7 @@ import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
   transactionVisualGraphTabLabel,
-} from '../components/transaction-visual-tabs'
+} from '../components/transaction-view-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
 import {
   transactionBlockLabel,

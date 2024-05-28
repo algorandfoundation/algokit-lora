@@ -15,7 +15,7 @@ export const groupVisual = 'View Group'
 export const groupVisualGraphLabel = 'Graph'
 export const groupVisualTableLabel = 'Table'
 
-export function GroupVisualTabs({ group }: Props) {
+export function GroupTransactionsViewTabs({ group }: Props) {
   return (
     <Tabs defaultValue={graphTabId}>
       <TabsList aria-label={groupVisual}>
