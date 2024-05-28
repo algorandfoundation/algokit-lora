@@ -2,9 +2,10 @@ import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
 import { InnerPaymentTransaction, PaymentTransaction } from '../models'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transactions-table'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { transactionAmountLabel } from './transactions-table-columns'
+import { transactionReceiverLabel, transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: PaymentTransaction | InnerPaymentTransaction

@@ -7,7 +7,7 @@ import { AssetFreezeTransaction, InnerAssetFreezeTransaction, SignatureType } fr
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { AssetFreezeTransactionInfo } from './asset-freeze-transaction-info'
-import { TransactionVisualTabs } from './transaction-visual-tabs'
+import { TransactionViewTabs } from './transaction-view-tabs'
 
 type AssetFreezeTransactionProps = {
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction
@@ -20,7 +20,7 @@ export function AssetFreezeTransactionDetails({ transaction }: AssetFreezeTransa
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
           <AssetFreezeTransactionInfo transaction={transaction} />
-          <TransactionVisualTabs transaction={transaction} />
+          <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}

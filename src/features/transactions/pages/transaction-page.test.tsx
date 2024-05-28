@@ -20,7 +20,7 @@ import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
   transactionVisualGraphTabLabel,
-} from '../components/transaction-visual-tabs'
+} from '../components/transaction-view-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
 import {
   transactionBlockLabel,
@@ -31,7 +31,6 @@ import {
   transactionTypeLabel,
 } from '../components/transaction-info'
 import { arc2NoteTabLabel, base64NoteTabLabel, jsonNoteTabLabel, noteLabel, textNoteTabLabel } from '../components/transaction-note'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from '../components/transactions-table'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { algoAssetResult } from '@/features/assets/data'
 import {
@@ -48,7 +47,6 @@ import {
   appCallTransactionDetailsLabel,
   foreignAccountsTabLabel,
   applicationArgsTabLabel,
-  applicationIdLabel,
   foreignApplicationsTabLabel,
   foreignAssetsTabLabel,
   globalStateDeltaTabLabel,
@@ -78,6 +76,9 @@ import {
 } from '../components/key-reg-transaction-info'
 import { assetResultsAtom } from '@/features/assets/data'
 import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applications/components/application-program'
+import { transactionAmountLabel } from '../components/transactions-table-columns'
+import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
+import { applicationIdLabel } from '@/features/applications/components/labels'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -184,7 +185,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['FBORGSD...', 'M3IA...OXXM', 'KIZL...U5BQ', 'Payment', '236.07'],
+                cells: ['FBORGSD...', '', 'M3IA...OXXM', 'KIZL...U5BQ', 'Payment', '236.07'],
               },
             ],
           })
@@ -533,7 +534,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['V7GQPE5...', 'J2WK...FLBQ', 'LINT...CQE4', 'Asset Transfer', '0 CLY'],
+                cells: ['V7GQPE5...', '', 'J2WK...FLBQ', 'LINT...CQE4', 'Asset Transfer', '0 CLY'],
               },
             ],
           })
@@ -685,9 +686,9 @@ describe('transaction-page', () => {
           tableAssertion({
             container: tableViewTab,
             rows: [
-              { cells: ['KMNBSQ4...', 'W2IZ...NCEY', '971368268', 'Application Call'] },
-              { cells: ['Inner 1', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
-              { cells: ['Inner 2', '2ZPN...DJJ4', '971350278', 'Application Call'] },
+              { cells: ['KMNBSQ4...', 'Tjo3cLO...', 'W2IZ...NCEY', '971368268', 'Application Call', ''] },
+              { cells: ['Inner 1', '', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
+              { cells: ['Inner 2', '', '2ZPN...DJJ4', '971350278', 'Application Call', ''] },
             ],
           })
         }
@@ -777,8 +778,8 @@ describe('transaction-page', () => {
           tableAssertion({
             container: tableViewTab,
             rows: [
-              { cells: ['Inner 2', 'AACC...EN4A', '1002541853', 'Application Call'] },
-              { cells: ['Inner 2-1', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582 USDC'] },
+              { cells: ['Inner 2', 'aWpPwlo...', 'AACC...EN4A', '1002541853', 'Application Call', ''] },
+              { cells: ['Inner 2-1', '', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582 USDC'] },
             ],
           })
 
@@ -938,7 +939,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['ZXQMOO6...', 'EHYQ...KBPU', '1781083085', 'Asset Config'],
+                cells: ['ZXQMOO6...', '', 'EHYQ...KBPU', '1781083085', 'Asset Config', ''],
               },
             ],
           })
@@ -1026,7 +1027,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['2XFGVOH...', 'E4A6...VZHY', 'ZJU3...CBQQ', 'Asset Freeze'],
+                cells: ['2XFGVOH...', 'xERjxVT...', 'E4A6...VZHY', 'ZJU3...CBQQ', 'Asset Freeze', ''],
               },
             ],
           })

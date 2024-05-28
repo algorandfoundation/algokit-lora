@@ -138,7 +138,7 @@ describe('key-reg-graph', () => {
 describe('group-graph', () => {
   describe.each([
     {
-      groupId: 'group-1',
+      groupId: '/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=',
       transactionResults: [
         transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build(),
         transactionResultMother['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']().build(),
@@ -172,7 +172,7 @@ describe('group-graph', () => {
           () => render(<TransactionsGraph transactions={group.transactions} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-              `__snapshots__/group-graph.${groupId}.html`
+              `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`
             )
           }
         )

@@ -6,7 +6,7 @@ import { MultisigDetails } from './multisig-details'
 import { TransactionJson } from './transaction-json'
 import { TransactionNote } from './transaction-note'
 import { AppCallTransaction, InnerAppCallTransaction, SignatureType } from '../models'
-import { TransactionVisualTabs } from './transaction-visual-tabs'
+import { TransactionViewTabs } from './transaction-view-tabs'
 import { AppCallTransactionInfo } from './app-call-transaction-info'
 import { AppCallTransactionLogs } from './app-call-transaction-logs'
 
@@ -21,7 +21,7 @@ export function AppCallTransactionDetails({ transaction }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
           <AppCallTransactionInfo transaction={transaction} />
-          <TransactionVisualTabs transaction={transaction} />
+          <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           {transaction.logs.length > 0 && <AppCallTransactionLogs logs={transaction.logs} />}
           <TransactionJson json={transaction.json} />

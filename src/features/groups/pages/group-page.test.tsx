@@ -2,7 +2,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { GroupPage, blockInvalidRoundMessage, blockNotFoundMessage, groupFailedToLoadMessage } from './group-page'
+import { GroupPage, blockInvalidRoundMessage, groupNotFoundMessage, groupFailedToLoadMessage } from './group-page'
 import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
@@ -14,7 +14,7 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { algoAssetResult } from '@/features/assets/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-visual-tabs'
+import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-transactions-view-tabs'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 
@@ -40,7 +40,7 @@ describe('block-page', () => {
       return executeComponentTest(
         () => render(<GroupPage />),
         async (component) => {
-          await waitFor(() => expect(component.getByText(blockNotFoundMessage)).toBeTruthy())
+          await waitFor(() => expect(component.getByText(groupNotFoundMessage)).toBeTruthy())
         }
       )
     })
@@ -117,10 +117,10 @@ describe('block-page', () => {
             // This table has 10+ row, we only test the first 2 rows
             rows: [
               {
-                cells: ['INDQXWQ...', 'AACC...EN4A', '1201559522', 'Application Call'],
+                cells: ['INDQXWQ...', '/oRSr2u...', 'AACC...EN4A', '1201559522', 'Application Call', ''],
               },
               {
-                cells: ['Inner 1', 'AACC...EN4A', '2PIF...RNMM', 'Payment', '2.770045'],
+                cells: ['Inner 1', 'aWpPwlo...', 'AACC...EN4A', '2PIF...RNMM', 'Payment', '2.770045'],
               },
             ],
           })

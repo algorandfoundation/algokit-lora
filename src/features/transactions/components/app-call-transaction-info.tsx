@@ -4,11 +4,12 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
-import { transactionSenderLabel } from './transactions-table'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
+import { applicationIdLabel } from '@/features/applications/components/labels'
+import { transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -31,7 +32,6 @@ export const localStateDeltaTabLabel = 'Local State Delta'
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 export const actionLabel = 'Action'
-export const applicationIdLabel = 'Application Id'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
   const items = useMemo(
