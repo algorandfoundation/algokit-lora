@@ -2,7 +2,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
-import { GroupPage, blockInvalidRoundMessage, blockNotFoundMessage, groupFailedToLoadMessage } from './group-page'
+import { GroupPage, blockInvalidRoundMessage, groupNotFoundMessage, groupFailedToLoadMessage } from './group-page'
 import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
@@ -40,7 +40,7 @@ describe('block-page', () => {
       return executeComponentTest(
         () => render(<GroupPage />),
         async (component) => {
-          await waitFor(() => expect(component.getByText(blockNotFoundMessage)).toBeTruthy())
+          await waitFor(() => expect(component.getByText(groupNotFoundMessage)).toBeTruthy())
         }
       )
     })
@@ -115,12 +115,16 @@ describe('block-page', () => {
           tableAssertion({
             container: tableViewTab,
             // This table has 10+ row, we only test the first 2 rows
+
+            // TODO: NC - Inner transaction groups are a thing, handle this for example
+            // http://localhost:1420/explore/block/36591812/group/lvDxwGvbzQ7iJzkzI5EB90khVh3ior6XLgIJUbvpN4g%3D
+            // and this should work http://localhost:1420/explore/block/36591812/group/hUs3wtMN0EkMpUpovRox8EzCPSUL8jYWP5vTchrkVUo%3D
             rows: [
               {
-                cells: ['INDQXWQ...', 'AACC...EN4A', '1201559522', 'Application Call'],
+                cells: ['INDQXWQ...', '/oRSr2u...', 'AACC...EN4A', '1201559522', 'Application Call', ''],
               },
               {
-                cells: ['Inner 1', 'AACC...EN4A', '2PIF...RNMM', 'Payment', '2.770045'],
+                cells: ['Inner 1', 'aWpPwlo...', 'AACC...EN4A', '2PIF...RNMM', 'Payment', '2.770045'],
               },
             ],
           })

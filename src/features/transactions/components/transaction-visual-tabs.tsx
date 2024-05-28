@@ -3,6 +3,7 @@ import { TransactionsTable } from './transactions-table'
 import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionsGraph } from './transactions-graph'
+import { transactionsTableColumnsWithoutRound } from './transactions-table-columns'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -35,7 +36,7 @@ export function TransactionVisualTabs({ transaction }: Props) {
         <TransactionsGraph transactions={[transaction]} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={transactionVisualTableTabId}>
-        <TransactionsTable transactions={[transaction]} />
+        <TransactionsTable transactions={[transaction]} columns={transactionsTableColumnsWithoutRound} />
       </OverflowAutoTabsContent>
     </Tabs>
   )

@@ -4,11 +4,11 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
-import { transactionSenderLabel } from './transactions-table'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
+import { transactionSenderLabel } from './transaction-details'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction

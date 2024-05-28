@@ -26,7 +26,6 @@ import {
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transactions-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetLabel } from './asset-config-transaction-info'
@@ -36,6 +35,8 @@ import { TransactionLink } from './transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useAtomValue } from 'jotai'
+import { transactionAmountLabel } from './transactions-table-columns'
+import { transactionReceiverLabel, transactionSenderLabel } from './transaction-details'
 
 const graphConfig = {
   rowHeight: 40,

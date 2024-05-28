@@ -2,9 +2,9 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { KeyRegTransaction, InnerKeyRegTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionSenderLabel } from './transactions-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
+import { transactionSenderLabel } from './transaction-details'
 
 type Props = {
   transaction: KeyRegTransaction | InnerKeyRegTransaction

@@ -11,6 +11,9 @@ type Props = {
   transaction: Transaction | InnerTransaction
 }
 
+export const transactionSenderLabel = 'Sender'
+export const transactionReceiverLabel = 'Receiver'
+
 export function TransactionDetails({ transaction }: Props) {
   switch (transaction.type) {
     case TransactionType.Payment:
