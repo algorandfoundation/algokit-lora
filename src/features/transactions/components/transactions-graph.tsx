@@ -36,7 +36,8 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useAtomValue } from 'jotai'
 import { transactionAmountLabel } from './transactions-table-columns'
-import { transactionReceiverLabel, transactionSenderLabel } from './transaction-details'
+import { transactionReceiverLabel, transactionSenderLabel } from './labels'
+import { applicationIdLabel } from '@/features/applications/components/labels'
 
 const graphConfig = {
   rowHeight: 40,
@@ -63,8 +64,6 @@ type TransactionPoint = {
   type: 'point'
   from: number
 }
-
-export const applicationIdLabel = 'Application Id'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items

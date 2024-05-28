@@ -5,7 +5,7 @@ import { InnerPaymentTransaction, PaymentTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { transactionAmountLabel } from './transactions-table-columns'
-import { transactionReceiverLabel, transactionSenderLabel } from './transaction-details'
+import { transactionReceiverLabel, transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: PaymentTransaction | InnerPaymentTransaction

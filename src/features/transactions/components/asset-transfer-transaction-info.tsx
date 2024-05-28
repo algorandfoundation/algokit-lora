@@ -7,7 +7,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetLink } from '@/features/assets/components/asset-link'
 import { useAtomValue } from 'jotai'
 import { transactionAmountLabel } from './transactions-table-columns'
-import { transactionReceiverLabel, transactionSenderLabel } from './transaction-details'
+import { transactionReceiverLabel, transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction

@@ -47,7 +47,6 @@ import {
   appCallTransactionDetailsLabel,
   foreignAccountsTabLabel,
   applicationArgsTabLabel,
-  applicationIdLabel,
   foreignApplicationsTabLabel,
   foreignAssetsTabLabel,
   globalStateDeltaTabLabel,
@@ -78,7 +77,8 @@ import {
 import { assetResultsAtom } from '@/features/assets/data'
 import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applications/components/application-program'
 import { transactionAmountLabel } from '../components/transactions-table-columns'
-import { transactionReceiverLabel, transactionSenderLabel } from '../components/transaction-details'
+import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
+import { applicationIdLabel } from '@/features/applications/components/labels'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {

@@ -4,7 +4,7 @@ import { KeyRegTransaction, InnerKeyRegTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
-import { transactionSenderLabel } from './transaction-details'
+import { transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: KeyRegTransaction | InnerKeyRegTransaction

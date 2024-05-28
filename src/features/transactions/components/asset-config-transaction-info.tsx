@@ -7,7 +7,7 @@ import { isDefined } from '@/utils/is-defined'
 import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
 import { useAtomValue } from 'jotai'
-import { transactionSenderLabel } from './transaction-details'
+import { transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction
