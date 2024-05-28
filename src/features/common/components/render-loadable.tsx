@@ -2,7 +2,7 @@ import { asError } from '@/utils/error'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { Loader2 as Loader } from 'lucide-react'
 
-type RenderLoadableProps<T> = {
+export type RenderLoadableProps<T> = {
   loadable: Loadable<T>
   children: (data: Awaited<T>) => React.ReactNode
   fallback?: React.ReactNode

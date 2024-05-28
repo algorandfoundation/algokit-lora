@@ -22,11 +22,7 @@ export function PaymentTransactionInfo({ transaction }: Props) {
       },
       {
         dt: transactionReceiverLabel,
-        dd: (
-          <a href="#" className={cn('text-primary underline')}>
-            {transaction.receiver}
-          </a>
-        ),
+        dd: <AccountLink address={transaction.receiver}></AccountLink>,
       },
       {
         dt: transactionAmountLabel,
@@ -36,11 +32,7 @@ export function PaymentTransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionCloseRemainderToLabel,
-              dd: (
-                <a href="#" className={cn('text-primary underline')}>
-                  {transaction.closeRemainder.to}
-                </a>
-              ),
+              dd: <AccountLink address={transaction.closeRemainder.to}></AccountLink>,
             },
             {
               dt: transactionCloseRemainderAmountLabel,

@@ -7,31 +7,37 @@ import {
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
-import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
+import { asInnerTransactionId, mapCommonTransactionProperties, undefinedSubTypeAtom } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 const mapCommonAssetFreezeTransactionProperties = (
   transactionResult: TransactionResult,
-  asset: AssetSummary
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): BaseAssetFreezeTransaction => {
   invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
+  const assetFreeze = transactionResult['asset-freeze-transaction']
+  const assetId = assetFreeze['asset-id']
+  const asset = assetResolver(assetId)
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetFreeze,
-    address: transactionResult['asset-freeze-transaction']['address'],
-    assetId: transactionResult['asset-freeze-transaction']['asset-id'],
-    assetName: asset.name,
-    freezeStatus: transactionResult['asset-freeze-transaction']['new-freeze-status']
-      ? AssetFreezeStatus.Frozen
-      : AssetFreezeStatus.Unfrozen,
+    subType: undefinedSubTypeAtom,
+    address: assetFreeze['address'],
+    assetId,
+    asset,
+    freezeStatus: assetFreeze['new-freeze-status'] ? AssetFreezeStatus.Frozen : AssetFreezeStatus.Unfrozen,
   }
 }
 
-export const asAssetFreezeTransaction = (transactionResult: TransactionResult, asset: AssetSummary): AssetFreezeTransaction => {
+export const asAssetFreezeTransaction = (
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+): AssetFreezeTransaction => {
   return {
     id: transactionResult.id,
-    ...mapCommonAssetFreezeTransactionProperties(transactionResult, asset),
+    ...mapCommonAssetFreezeTransactionProperties(transactionResult, assetResolver),
   }
 }
 
@@ -39,10 +45,10 @@ export const asInnerAssetFreezeTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  asset: AssetSummary
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): InnerAssetFreezeTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAssetFreezeTransactionProperties(transactionResult, asset),
+    ...mapCommonAssetFreezeTransactionProperties(transactionResult, assetResolver),
   }
 }

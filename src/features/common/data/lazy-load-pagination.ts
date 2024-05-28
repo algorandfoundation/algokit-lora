@@ -20,12 +20,13 @@ export type ViewModelPage<TViewModel> = {
 
 type FetchRawData<TData> = (nextPageToken?: string) => Atom<Promise<LoadDataResponse<TData>>>
 
+// We had to implement this way, instead of fetching items page per page
+// because the indexer doesn't return a deterministic number of items
+// it supports "limit" param, but that means the upper limit.
+// for example, when getting transactions with limit 10, it a maximum of 10 items, sometimes it returns 4 or 5 items
 type CreateLoadableViewModelPageAtomInput<TRawData, TViewModel> = {
   fetchRawData: FetchRawData<TRawData>
-  createViewModelPageAtom: (
-    store: JotaiStore,
-    rawDataPage: RawDataPage<TRawData>
-  ) => Atom<Promise<ViewModelPage<TViewModel>> | ViewModelPage<TViewModel>>
+  createViewModelPageAtom: (store: JotaiStore, rawDataPage: RawDataPage<TRawData>) => Atom<ViewModelPage<TViewModel>>
 }
 export function createLoadableViewModelPageAtom<TRawData, TViewModel>({
   fetchRawData,

@@ -1,4 +1,4 @@
-import { JsonView as ReactJsonView, allExpanded } from 'react-json-view-lite'
+import { JsonView as ReactJsonView } from 'react-json-view-lite'
 import 'react-json-view-lite/dist/index.css'
 import styles from './json-view.module.css'
 import { cn } from '../utils'
@@ -39,9 +39,13 @@ export function JsonView({ json }: { json: object }) {
       <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
         Copy
       </Button>
-      <ReactJsonView data={json} shouldExpandNode={() => false} style={style} />
+      <ReactJsonView data={json} shouldExpandNode={shouldExpandNode} style={style} />
     </div>
   )
+}
+// Only render the top level because sometimes the object has too many children to render
+const shouldExpandNode = (level: number) => {
+  return level < 1
 }
 
 export interface StyleProps {

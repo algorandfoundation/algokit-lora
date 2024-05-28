@@ -35,6 +35,7 @@ import { Badge } from '@/features/common/components/badge'
 import { TransactionLink } from './transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { useAtomValue } from 'jotai'
 
 const graphConfig = {
   rowHeight: 40,
@@ -452,6 +453,7 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
 }
 
 function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegTransaction | InnerKeyRegTransaction }) {
+  const subType = useAtomValue(transaction.subType)
   const items = useMemo(
     () => [
       {
@@ -463,7 +465,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
         dd: (
           <label>
             {transaction.type}
-            <Badge variant="outline">{transaction.subType}</Badge>
+            <Badge variant="outline">{subType}</Badge>
           </label>
         ),
       },
@@ -472,7 +474,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
         dd: transaction.sender,
       },
     ],
-    [transaction.id, transaction.sender, transaction.subType, transaction.type]
+    [subType, transaction.id, transaction.sender, transaction.type]
   )
 
   return (

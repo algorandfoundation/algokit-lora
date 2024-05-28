@@ -6,47 +6,32 @@ import { asAppCallTransaction } from './app-call-transaction-mappers'
 import { asAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { asPaymentTransaction } from './payment-transaction-mappers'
 import { AssetSummary } from '@/features/assets/models'
-import { getAssetIdsForTransaction } from '../utils/get-asset-ids-for-transaction'
 import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
-export const asTransaction = async (
-  transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Promise<AssetSummary> | AssetSummary
-) => {
+export const asTransaction = (transactionResult: TransactionResult, assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
       return asPaymentTransaction(transactionResult)
     case algosdk.TransactionType.axfer: {
-      invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-      const assetId = transactionResult['asset-transfer-transaction']['asset-id']
-      const asset = await assetResolver(assetId)
-      return asAssetTransferTransaction(transactionResult, asset)
+      return asAssetTransferTransaction(transactionResult, assetResolver)
     }
     case algosdk.TransactionType.appl: {
-      invariant(transactionResult['application-transaction'], 'application-transaction is not set')
-      const assetIds = Array.from(new Set(getAssetIdsForTransaction(transactionResult)))
-      const assets = await Promise.all(assetIds.map((assetId) => assetResolver(assetId)))
-      return asAppCallTransaction(transactionResult, assets)
+      return asAppCallTransaction(transactionResult, assetResolver)
     }
     case algosdk.TransactionType.acfg: {
-      invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
       return asAssetConfigTransaction(transactionResult)
     }
     case algosdk.TransactionType.afrz: {
-      invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
-      const assetId = transactionResult['asset-freeze-transaction']['asset-id']
-      const asset = await assetResolver(assetId)
-      return asAssetFreezeTransaction(transactionResult, asset)
+      return asAssetFreezeTransaction(transactionResult, assetResolver)
     }
     case algosdk.TransactionType.stpf: {
-      invariant(transactionResult['state-proof-transaction'], 'state-proof-transaction is not set')
       return asStateProofTransaction(transactionResult)
     }
     case algosdk.TransactionType.keyreg: {
-      invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
       return asKeyRegTransaction(transactionResult)
     }
     default:

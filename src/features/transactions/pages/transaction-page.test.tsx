@@ -1004,7 +1004,7 @@ describe('transaction-page', () => {
               { term: transactionGroupLabel, description: 'xERjxVTlNb8jeHa16qmpxDMh4+dcDCokO69QnNESbFk=' },
               { term: transactionFeeLabel, description: '0.001' },
               { term: transactionSenderLabel, description: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY' },
-              { term: assetLabel, description: '1707148495(Verification Lofty #29297)' },
+              { term: assetLabel, description: '1707148495 (Verification Lofty #29297)' },
               { term: assetFreezeAddressLabel, description: 'ZJU3X2B2QN3BUBIJ64JZ565V363ANGBUDOLXAJHDXGIIMYK6WV3NSNCBQQ' },
               { term: assetFreezeStatusLabel, description: 'Frozen' },
             ],

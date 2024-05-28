@@ -9,14 +9,12 @@ import { getTransactionResultAtom } from './transaction-result'
 import { createAssetResolver } from '@/features/assets/data/asset-summary'
 
 export const createTransactionsAtom = (store: JotaiStore, transactionResults: TransactionResult[]) => {
-  return atom(async (get) => {
-    const assetResolver = createAssetResolver(store, get)
+  return atom((_get) => {
+    const assetResolver = createAssetResolver(store)
 
-    return await Promise.all(
-      transactionResults.map((transactionResult) => {
-        return asTransaction(transactionResult, assetResolver)
-      })
-    )
+    return transactionResults.map((transactionResult) => {
+      return asTransaction(transactionResult, assetResolver)
+    })
   })
 }
 
@@ -26,7 +24,7 @@ export const createTransactionAtom = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return await asTransaction(txn, createAssetResolver(store, get))
+    return asTransaction(txn, createAssetResolver(store))
   })
 }
 

@@ -1,7 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { AccountAssetSummary } from '../models'
 import { DataTable } from '@/features/common/components/data-table'
-import { AssetLink } from '@/features/assets/components/asset-link'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { AccountAssetSummary } from '../models'
+import { AssetSummary } from '@/features/assets/models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 
 type Props = {
   assetsCreated: AccountAssetSummary[]
@@ -10,16 +13,24 @@ type Props = {
 const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
   {
     header: 'ID',
-    accessorFn: (item) => item.id,
-    cell: (c) => <AssetLink assetId={c.getValue<number>()} />,
+    accessorFn: (item) => item.assetId,
+    cell: (c) => <AssetIdLink assetId={c.getValue<number>()} />,
   },
   {
     header: 'Name',
-    accessorFn: (item) => item.name,
+    accessorFn: (item) => item.asset,
+    cell: (c) => {
+      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
+      return <RenderInlineAsyncAtom atom={assetSummaryAtom}>{(asset) => asset.name}</RenderInlineAsyncAtom>
+    },
   },
   {
     header: 'Unit',
-    accessorFn: (item) => item.unitName,
+    accessorFn: (item) => item.asset,
+    cell: (c) => {
+      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
+      return <RenderInlineAsyncAtom atom={assetSummaryAtom}>{(asset) => asset.unitName}</RenderInlineAsyncAtom>
+    },
   },
 ]
 
