@@ -26,54 +26,45 @@ import { syncedRoundAtom } from './synced-round'
 
 const maxBlocksToDisplay = 5
 
-const createLatestBlockSummariesAtom = () => {
-  const latestBlockSummariesAtom = atom<BlockSummary[]>([])
-  const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
-    const syncedRound = get(syncedRoundAtom)
-    if (!syncedRound) {
-      return
-    }
+export const latestBlockSummariesAtom = atom<BlockSummary[]>([])
+const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
+  const syncedRound = get(syncedRoundAtom)
+  if (!syncedRound) {
+    return
+  }
 
-    const blockResults = get.peek(blockResultsAtom)
-    const transactionResults = get.peek(transactionResultsAtom)
+  const blockResults = get.peek(blockResultsAtom)
+  const transactionResults = get.peek(transactionResultsAtom)
 
-    ;(async () => {
-      const latestBlockSummaries = (
-        await Promise.all(
-          Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
-            const round = syncedRound - i
-            const blockAtom = blockResults.get(round)
+  ;(async () => {
+    const latestBlockSummaries = (
+      await Promise.all(
+        Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
+          const round = syncedRound - i
+          const blockAtom = blockResults.get(round)
 
-            if (blockAtom) {
-              const block = await get(blockAtom)
-              const transactionSummaries = await Promise.all(
-                block.transactionIds.map(async (transactionId) => {
-                  const transactionResult = await get.peek(transactionResults.get(transactionId)!)
+          if (blockAtom) {
+            const block = await get(blockAtom)
+            const transactionSummaries = await Promise.all(
+              block.transactionIds.map(async (transactionId) => {
+                const transactionResult = await get.peek(transactionResults.get(transactionId)!)
 
-                  return asTransactionSummary(transactionResult)
-                })
-              )
+                return asTransactionSummary(transactionResult)
+              })
+            )
 
-              return asBlockSummary(block, transactionSummaries)
-            }
-          })
-        )
-      ).filter(isDefined)
+            return asBlockSummary(block, transactionSummaries)
+          }
+        })
+      )
+    ).filter(isDefined)
 
-      set(latestBlockSummariesAtom, latestBlockSummaries)
-    })()
-  })
-
-  return atom((get) => {
-    get(refreshLatestBlockSummariesEffect)
-
-    return get(latestBlockSummariesAtom)
-  })
-}
-
-export const latestBlockSummariesAtom = createLatestBlockSummariesAtom()
+    set(latestBlockSummariesAtom, latestBlockSummaries)
+  })()
+})
 
 export const useLatestBlockSummaries = () => {
+  useAtom(refreshLatestBlockSummariesEffect)
   return useAtomValue(latestBlockSummariesAtom)
 }
 
