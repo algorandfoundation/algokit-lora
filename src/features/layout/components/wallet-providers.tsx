@@ -4,7 +4,7 @@ import { PeraWalletConnect } from '@perawallet/connect'
 import { DeflyWalletConnect } from '@blockshake/defly-connect'
 import { mainnetConfig } from '@/features/settings/data'
 import algosdk from 'algosdk'
-import { ConnectWallet } from './connect-wallet'
+import { ConnectWalletButton } from './connect-wallet'
 
 export function ProvidersSection() {
   const providers = useInitializeProviders({
@@ -25,7 +25,7 @@ export function ProvidersSection() {
     <div>
       <WalletProvider value={providers}>
         <div>
-          <ConnectWallet />
+          <ConnectWalletButton />
         </div>
       </WalletProvider>
     </div>

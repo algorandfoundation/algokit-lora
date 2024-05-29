@@ -1,6 +1,5 @@
 import { cn } from '@/features/common/utils'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
-import { ConnectWallet } from './connect-wallet'
 import { Search } from '@/features/search/components/search'
 import { useNetworkConfig } from '@/features/settings/data'
 import { ProvidersSection } from './wallet-providers'
