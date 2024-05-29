@@ -2,11 +2,12 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { AssetConfigTransaction, AssetConfigTransactionSubType, InnerAssetConfigTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionSenderLabel } from './transactions-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
-import { AssetLink } from '@/features/assets/components/asset-link'
+import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
+import { useAtomValue } from 'jotai'
+import { transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction
@@ -24,6 +25,7 @@ export const assetClawbackLabel = 'Clawback'
 export const assetDefaultFrozenLabel = 'Default Frozen'
 
 export function AssetConfigTransactionInfo({ transaction }: Props) {
+  const subType = useAtomValue(transaction.subType)
   const items = useMemo(
     () =>
       [
@@ -33,7 +35,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
         },
         {
           dt: assetLabel,
-          dd: <AssetLink assetId={transaction.assetId} assetName={transaction.name} />,
+          dd: <AssetIdAndNameLink assetId={transaction.assetId} assetName={transaction.name} />,
         },
         transaction.url
           ? {
@@ -51,7 +53,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
               dd: transaction.unitName,
             }
           : undefined,
-        ...(transaction.subType === AssetConfigTransactionSubType.Create
+        ...(subType === AssetConfigTransactionSubType.Create
           ? [
               transaction.total != null
                 ? {
@@ -99,6 +101,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
           : undefined,
       ].filter(isDefined),
     [
+      subType,
       transaction.assetId,
       transaction.clawback,
       transaction.decimals,
@@ -108,7 +111,6 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       transaction.name,
       transaction.reserve,
       transaction.sender,
-      transaction.subType,
       transaction.total,
       transaction.unitName,
       transaction.url,

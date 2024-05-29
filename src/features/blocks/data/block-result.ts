@@ -5,7 +5,8 @@ import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
-import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
+import { atomsInAtom } from '@/features/common/data'
+import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -15,17 +16,12 @@ export const getBlockAndExtractData = async (round: Round) => {
     .then((result) => {
       const [transactionIds, groupResults] = ((result.transactions ?? []) as TransactionResult[]).reduce(
         (acc, t) => {
+          // Accumulate transactions
           acc[0].push(t.id)
-          if (t.group) {
-            const group: GroupResult = acc[1].get(t.group) ?? {
-              id: t.group,
-              round: result.round as number,
-              timestamp: new Date(result.timestamp * 1000).toISOString(),
-              transactionIds: [],
-            }
-            group.transactionIds.push(t.id)
-            acc[1].set(t.group, group)
-          }
+
+          // Accumulate group results
+          accumulateGroupsFromTransaction(acc[1], t, result.round, result.timestamp)
+
           return acc
         },
         [[], new Map()] as [string[], Map<GroupId, GroupResult>]
@@ -43,6 +39,30 @@ export const getBlockAndExtractData = async (round: Round) => {
     })
 
   return result
+}
+
+export const accumulateGroupsFromTransaction = (
+  acc: Map<GroupId, GroupResult>,
+  transaction: TransactionResult,
+  round: number,
+  roundTime: number
+) => {
+  // Inner transactions can be part of a group, just like regular transactions.
+  // In this scenario we add the root transaction id to the group, as inner transactions don't have ids on the network.
+  flattenTransactionResult(transaction).forEach((txn) => {
+    if (txn.group) {
+      const group: GroupResult = acc.get(txn.group) ?? {
+        id: txn.group,
+        round,
+        timestamp: new Date(roundTime * 1000).toISOString(),
+        transactionIds: [],
+      }
+      if (!group.transactionIds.find((id) => id === transaction.id)) {
+        group.transactionIds.push(transaction.id)
+      }
+      acc.set(txn.group, group)
+    }
+  })
 }
 
 export const addStateExtractedFromBlocksAtom = atom(

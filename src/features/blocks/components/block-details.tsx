@@ -4,9 +4,11 @@ import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
 import { dateFormatter } from '@/utils/format'
 import { BlockLink } from './block-link'
-import { TransactionsTable } from './transactions'
 import { Block } from '../models'
 import { Badge } from '@/features/common/components/badge'
+import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { TransactionsTable } from '@/features/transactions/components/transactions-table'
+import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 
 type Props = {
   block: Block
@@ -42,22 +44,14 @@ export function BlockDetails({ block }: Props) {
           </>
         ),
       },
-      ...(block.previousRound !== undefined
-        ? [
-            {
-              dt: previousRoundLabel,
-              dd: <BlockLink round={block.previousRound} />,
-            },
-          ]
-        : []),
-      ...(block.nextRound !== undefined
-        ? [
-            {
-              dt: nextRoundLabel,
-              dd: <BlockLink round={block.nextRound} />,
-            },
-          ]
-        : []),
+      {
+        dt: previousRoundLabel,
+        dd: block.previousRound !== undefined ? <BlockLink round={block.previousRound} /> : undefined,
+      },
+      {
+        dt: nextRoundLabel,
+        dd: <RenderInlineAsyncAtom atom={block.nextRound}>{(nextRound) => <BlockLink round={nextRound} />}</RenderInlineAsyncAtom>,
+      },
     ],
     [
       block.nextRound,
@@ -79,7 +73,7 @@ export function BlockDetails({ block }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h1 className={cn('text-2xl text-primary font-bold')}>{transactionsLabel}</h1>
-          <TransactionsTable transactions={block.transactions} />
+          <TransactionsTable transactions={block.transactions} columns={transactionsTableColumnsWithoutRound} />
         </CardContent>
       </Card>
     </div>

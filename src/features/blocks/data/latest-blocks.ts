@@ -14,7 +14,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
-import { blockResultsAtom, addStateExtractedFromBlocksAtom } from './block-result'
+import { blockResultsAtom, addStateExtractedFromBlocksAtom, accumulateGroupsFromTransaction } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
@@ -121,17 +121,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
             acc[1].push(transaction)
 
             // Accumulate group results
-            if (t.group) {
-              const roundTime = transaction['round-time']
-              const group: GroupResult = acc[2].get(t.group) ?? {
-                id: t.group,
-                round: round,
-                timestamp: (roundTime ? new Date(roundTime * 1000) : new Date()).toISOString(),
-                transactionIds: [],
-              }
-              group.transactionIds.push(t.id)
-              acc[2].set(t.group, group)
-            }
+            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? new Date().getTime() / 1000)
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(t)

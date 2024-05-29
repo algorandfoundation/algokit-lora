@@ -26,7 +26,6 @@ import {
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
-import { transactionAmountLabel, transactionReceiverLabel, transactionSenderLabel } from './transactions-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { InnerTransactionLink } from './inner-transaction-link'
 import { assetLabel } from './asset-config-transaction-info'
@@ -35,6 +34,10 @@ import { Badge } from '@/features/common/components/badge'
 import { TransactionLink } from './transaction-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { useAtomValue } from 'jotai'
+import { transactionAmountLabel } from './transactions-table-columns'
+import { transactionReceiverLabel, transactionSenderLabel } from './labels'
+import { applicationIdLabel } from '@/features/applications/components/labels'
 
 const graphConfig = {
   rowHeight: 40,
@@ -61,8 +64,6 @@ type TransactionPoint = {
   type: 'point'
   from: number
 }
-
-export const applicationIdLabel = 'Application Id'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items
@@ -452,6 +453,7 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
 }
 
 function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegTransaction | InnerKeyRegTransaction }) {
+  const subType = useAtomValue(transaction.subType)
   const items = useMemo(
     () => [
       {
@@ -463,7 +465,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
         dd: (
           <label>
             {transaction.type}
-            <Badge variant="outline">{transaction.subType}</Badge>
+            <Badge variant="outline">{subType}</Badge>
           </label>
         ),
       },
@@ -472,7 +474,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
         dd: transaction.sender,
       },
     ],
-    [transaction.id, transaction.sender, transaction.subType, transaction.type]
+    [subType, transaction.id, transaction.sender, transaction.type]
   )
 
   return (

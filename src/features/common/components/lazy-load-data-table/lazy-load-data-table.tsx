@@ -65,7 +65,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
           <TableBody>
             {loadablePage.state === 'loading' && (
               <TableRow>
-                <TableCell colSpan={columns.length}>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   <div className="flex flex-col items-center">
                     <Loader className="size-10 animate-spin" />
                   </div>
@@ -74,7 +74,9 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
             )}
             {loadablePage.state === 'hasError' && (
               <TableRow>
-                <TableCell colSpan={columns.length}>Failed to load data.</TableCell>
+                <TableCell colSpan={columns.length} className="h-24 text-center">
+                  Failed to load data.
+                </TableCell>
               </TableRow>
             )}
             {loadablePage.state === 'hasData' &&

@@ -9,13 +9,13 @@ import { invariant } from '@/utils/invariant'
 import { isInteger } from '@/utils/is-integer'
 
 export const groupPageTitle = 'Transaction Group'
-export const blockNotFoundMessage = 'Block not found'
+export const groupNotFoundMessage = 'Transaction group not found'
 export const blockInvalidRoundMessage = 'Round is invalid'
 export const groupFailedToLoadMessage = 'Transaction group failed to load'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(blockNotFoundMessage)
+    return new Error(groupNotFoundMessage)
   }
 
   // eslint-disable-next-line no-console

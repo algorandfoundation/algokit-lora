@@ -1,6 +1,9 @@
 import { Address } from '@/features/accounts/data/types'
+import { AssetId } from '@/features/assets/data/types'
 import { AssetSummary } from '@/features/assets/models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { Atom } from 'jotai'
 
 export type CommonTransactionProperties = {
   type: TransactionType
@@ -42,10 +45,10 @@ export type CloseAssetRemainder = {
 
 export type BasePaymentTransaction = CommonTransactionProperties & {
   type: TransactionType.Payment
+  subType: Atom<undefined>
   receiver: Address
   amount: AlgoAmount
   closeRemainder?: CloseAlgoRemainder
-  subType?: undefined
 }
 
 export type PaymentTransaction = BasePaymentTransaction & {
@@ -54,11 +57,12 @@ export type PaymentTransaction = BasePaymentTransaction & {
 
 export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
-  subType?: AssetTransferTransactionSubType
+  subType: Atom<AssetTransferTransactionSubType | undefined>
   receiver: Address
   amount: number | bigint
   closeRemainder?: CloseAssetRemainder
-  asset: AssetSummary
+  assetId: AssetId
+  asset: AsyncMaybeAtom<AssetSummary>
   clawbackFrom?: Address
 }
 
@@ -121,6 +125,7 @@ export type LocalStateDelta = {
 
 export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.ApplicationCall
+  subType: Atom<undefined>
   applicationId: number
   applicationArgs: string[]
   foreignApps: number[]
@@ -129,7 +134,6 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   globalStateDeltas: GlobalStateDelta[]
   localStateDeltas: LocalStateDelta[]
   innerTransactions: InnerTransaction[]
-  subType?: undefined
   onCompletion: AppCallOnComplete
   action: 'Create' | 'Call'
   logs: string[]
@@ -164,9 +168,11 @@ export type InnerTransaction =
   | InnerAssetConfigTransaction
   | InnerAssetFreezeTransaction
   | InnerKeyRegTransaction
+  | InnerStateProofTransaction
 
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
+  subType: Atom<AssetConfigTransactionSubType>
   assetId: number
   url?: string
   name?: string
@@ -174,7 +180,6 @@ export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   decimals?: number | bigint
   unitName?: string
   clawback?: Address
-  subType: AssetConfigTransactionSubType
   manager?: Address
   reserve?: Address
   freeze?: Address
@@ -195,11 +200,11 @@ export enum AssetConfigTransactionSubType {
 
 export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetFreeze
+  subType: Atom<undefined>
   address: Address
   assetId: number
-  assetName?: string
+  asset: AsyncMaybeAtom<AssetSummary>
   freezeStatus: AssetFreezeStatus
-  subType?: undefined
 }
 
 export type AssetFreezeTransaction = BaseAssetFreezeTransaction & {
@@ -215,19 +220,21 @@ export enum AssetFreezeStatus {
 
 export type StateProofTransaction = CommonTransactionProperties & {
   type: TransactionType.StateProof
+  subType: Atom<undefined>
   id: string
-  subType?: undefined
 }
+
+export type InnerStateProofTransaction = Omit<StateProofTransaction, 'id'> & InnerTransactionId
 
 export type BaseKeyRegTransaction = CommonTransactionProperties & {
   type: TransactionType.KeyReg
+  subType: Atom<KeyRegTransactionSubType>
   nonParticipation?: boolean
   selectionParticipationKey?: string
   voteFirstValid?: number
   voteKeyDilution?: number
   voteLastValid?: number
   voteParticipationKey?: string
-  subType: KeyRegTransactionSubType
 }
 
 export enum KeyRegTransactionSubType {

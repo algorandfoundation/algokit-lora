@@ -56,10 +56,10 @@ const createApplicationTransactionResultsAtom = (applicationID: ApplicationId, n
 export const createLoadableApplicationTransactionsPage = (applicationID: ApplicationId) => {
   return createLoadableViewModelPageAtom({
     fetchRawData: (nextPageToken?: string) => createApplicationTransactionResultsAtom(applicationID, nextPageToken),
-    createViewModelPageAtom: (store, rawDataPage) =>
-      atom(async (get) => {
+    createViewModelPageAtom: (rawDataPage) =>
+      atom((get) => {
         return {
-          items: await get(createTransactionsAtom(store, rawDataPage.items)),
+          items: get(createTransactionsAtom(rawDataPage.items)),
           hasNextPage: rawDataPage.hasNextPage,
         }
       }),

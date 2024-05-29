@@ -12,6 +12,8 @@ import { asKeyRegTransaction } from '../mappers/key-reg-transaction-mappers'
 import { asGroup } from '@/features/groups/mappers'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { algoAssetResult } from '@/features/assets/data'
+import { atom } from 'jotai'
+import { invariant } from '@/utils/invariant'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -59,7 +61,8 @@ describe('asset-transfer-transaction-graph', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
-        const transaction = asAssetTransferTransaction(transactionResult, asAssetSummary(assetResult))
+        const assetResolver = createAssetResolver([assetResult])
+        const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
 
         return executeComponentTest(
           () => render(<TransactionsGraph transactions={[transaction]} />),
@@ -94,7 +97,7 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, assetResults.map(asAssetSummary))
+        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults))
 
         return executeComponentTest(
           () => render(<TransactionsGraph transactions={[model]} />),
@@ -135,7 +138,7 @@ describe('key-reg-graph', () => {
 describe('group-graph', () => {
   describe.each([
     {
-      groupId: 'group-1',
+      groupId: '/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=',
       transactionResults: [
         transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build(),
         transactionResultMother['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']().build(),
@@ -158,18 +161,9 @@ describe('group-graph', () => {
       transactionResults: TransactionResult[]
       assetResults: AssetResult[]
     }) => {
-      it('should match snapshot', async () => {
-        const transactions = await Promise.all(
-          transactionResults.map((t) =>
-            asTransaction(t, (assetId) => {
-              const assetResult = assetResults.find((a) => a.index === assetId)
-              if (!assetResult) {
-                throw new Error(`Could not find asset result ${assetId}`)
-              }
-              return asAssetSummary(assetResult)
-            })
-          )
-        )
+      it('should match snapshot', () => {
+        const assetResolver = createAssetResolver(assetResults)
+        const transactions = transactionResults.map((t) => asTransaction(t, assetResolver))
         const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()
 
         const group = asGroup(groupResult, transactions)
@@ -178,7 +172,7 @@ describe('group-graph', () => {
           () => render(<TransactionsGraph transactions={group.transactions} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
-              `__snapshots__/group-graph.${groupId}.html`
+              `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`
             )
           }
         )
@@ -186,3 +180,9 @@ describe('group-graph', () => {
     }
   )
 })
+
+const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {
+  const assetResult = assetResults.find((a) => a.index === assetId)
+  invariant(assetResult, `Could not find asset result ${assetId}`)
+  return atom(() => asAssetSummary(assetResult))
+}

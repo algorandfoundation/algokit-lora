@@ -1,5 +1,4 @@
-import { JotaiStore } from '@/features/common/data/types'
-import { atom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { asApplication } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
@@ -7,20 +6,18 @@ import { ApplicationId } from './types'
 import { getApplicationResultAtom } from './application-result'
 import { getApplicationMetadataResultAtom } from './application-metadata'
 
-export const createApplicationAtom = (store: JotaiStore, applicationId: ApplicationId) => {
+export const createApplicationAtom = (applicationId: ApplicationId) => {
   return atom(async (get) => {
-    const applicationResult = await get(getApplicationResultAtom(store, applicationId))
-    const applicationMetadata = await get(getApplicationMetadataResultAtom(store, applicationResult))
+    const applicationResult = await get(getApplicationResultAtom(applicationId))
+    const applicationMetadata = await get(getApplicationMetadataResultAtom(applicationResult))
     return asApplication(applicationResult, applicationMetadata)
   })
 }
 
 const useApplicationAtom = (applicationId: ApplicationId) => {
-  const store = useStore()
-
   return useMemo(() => {
-    return createApplicationAtom(store, applicationId)
-  }, [store, applicationId])
+    return createApplicationAtom(applicationId)
+  }, [applicationId])
 }
 
 export const useLoadableApplication = (applicationId: ApplicationId) => {

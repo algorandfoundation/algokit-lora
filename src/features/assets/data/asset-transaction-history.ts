@@ -56,10 +56,10 @@ const createAssetTransactionResultsAtom = (assetId: AssetId, nextPageToken?: str
 export const createLoadableAssetTransactionsPage = (assetId: AssetId) => {
   return createLoadableViewModelPageAtom({
     fetchRawData: (nextPageToken?: string) => createAssetTransactionResultsAtom(assetId, nextPageToken),
-    createViewModelPageAtom: (store, rawDataPage) =>
-      atom(async (get) => {
+    createViewModelPageAtom: (rawDataPage) =>
+      atom((get) => {
         return {
-          items: await get(createTransactionsAtom(store, rawDataPage.items)),
+          items: get(createTransactionsAtom(rawDataPage.items)),
           hasNextPage: rawDataPage.hasNextPage,
         }
       }),

@@ -2,7 +2,7 @@ import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/al
 import { AppCallOnComplete, AppCallTransaction, BaseAppCallTransaction, InnerAppCallTransaction, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
-import { mapCommonTransactionProperties, asInnerTransactionId } from './transaction-common-properties-mappers'
+import { mapCommonTransactionProperties, asInnerTransactionId, undefinedSubTypeAtom } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
@@ -10,11 +10,13 @@ import { AssetSummary } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
-  assets: AssetSummary[],
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -22,6 +24,7 @@ const mapCommonAppCallTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.ApplicationCall,
+    subType: undefinedSubTypeAtom,
     applicationId: transactionResult['application-transaction']['application-id']
       ? transactionResult['application-transaction']['application-id']
       : transactionResult['created-application-index']!,
@@ -35,7 +38,7 @@ const mapCommonAppCallTransactionProperties = (
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}-${index + 1}` : `${index + 1}`
-        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assets)
+        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver)
       }) ?? [],
     onCompletion: asAppCallOnComplete(transactionResult['application-transaction']['on-completion']),
     action: transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create',
@@ -43,8 +46,11 @@ const mapCommonAppCallTransactionProperties = (
   } satisfies BaseAppCallTransaction
 }
 
-export const asAppCallTransaction = (transactionResult: TransactionResult, assets: AssetSummary[]): AppCallTransaction => {
-  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assets)
+export const asAppCallTransaction = (
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+): AppCallTransaction => {
+  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver)
 
   return {
     id: transactionResult.id,
@@ -56,11 +62,11 @@ export const asInnerAppCallTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assets: AssetSummary[]
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assets, `${index}`),
+    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assetResolver, `${index}`),
   }
 }
 
@@ -81,36 +87,34 @@ const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnCompl
   }
 }
 
-const asInnerTransaction = (networkTransactionId: string, index: string, transactionResult: TransactionResult, assets: AssetSummary[]) => {
+const asInnerTransaction = (
+  networkTransactionId: string,
+  index: string,
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.axfer) {
-    invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-    const assetId = transactionResult['asset-transfer-transaction']['asset-id']
-    const asset = assets.find((asset) => asset.id === assetId)
-    invariant(asset, `Asset index ${transactionResult['asset-transfer-transaction']['asset-id']} not found in cache`)
-
-    return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, asset)
+    return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
-    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assets)
+    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.afrz) {
-    invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
-    const assetId = transactionResult['asset-freeze-transaction']['asset-id']
-    const asset = assets.find((asset) => asset.id === assetId)
-    invariant(asset, `Asset index ${transactionResult['asset-freeze-transaction']['asset-id']} not found in cache`)
-
-    return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, asset)
+    return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.keyreg) {
     return asInnerKeyRegTransaction(networkTransactionId, index, transactionResult)
   }
+  // I don't believe it's possible to have an inner stpf transaction, handling just in case.
+  if (transactionResult['tx-type'] === AlgoSdkTransactionType.stpf) {
+    return asInnerStateProofTransaction(networkTransactionId, index, transactionResult)
+  }
 
-  // This could be dangerous as we haven't implemented all the transaction types
   throw new Error(`Unsupported inner transaction type: ${transactionResult['tx-type']}`)
 }
