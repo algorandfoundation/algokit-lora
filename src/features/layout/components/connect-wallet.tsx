@@ -2,7 +2,11 @@ import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from '@/features/common/components/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
+import { ellipseAddress } from '@/utils/ellipse-address'
+import { useNavigate } from 'react-router-dom'
+import { buttonVariants } from '@/features/common/components/button'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common/components/hover-card'
 
 function InternalDialogContent() {
   const { activeAddress, providers } = useWallet()
@@ -47,13 +51,10 @@ export function ConnectWallet() {
   )
 }
 
-export const ellipseAddress = (address = '', width = 6) => {
-  return address ? `${address.slice(0, width)}...${address.slice(-width)}` : address
-}
-
 export function ConnectWalletButton() {
   const { activeAddress, providers, isReady } = useWallet()
   const activeProvider = providers?.find((p) => p.isActive)
+  const navigate = useNavigate()
 
   const disconnectWallet = () => {
     if (providers) {
@@ -73,28 +74,31 @@ export function ConnectWalletButton() {
   if (!isReady) {
     return <></>
   }
-
   return !activeAddress ? (
     <ConnectWallet />
   ) : (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild className={cn('mt-1')}>
-        <Button variant="default">
-          {activeProvider && (
-            <img
-              src={activeProvider.metadata.icon}
-              alt={`${activeProvider.metadata.name} icon`}
-              className={cn('h-auto w-4 rounded object-contain mr-2')}
-            />
-          )}
-          <abbr title={activeAddress} className="font-normal no-underline">
-            {ellipseAddress(activeAddress)}
-          </abbr>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={disconnectWallet}>Disconnect</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div>
+      <HoverCard openDelay={100}>
+        <HoverCardTrigger className={cn('mt-1')}>
+          <AccountLink address={activeAddress} className={buttonVariants({ variant: 'default' })}>
+            {activeProvider && (
+              <img
+                src={activeProvider.metadata.icon}
+                alt={`${activeProvider.metadata.name} icon`}
+                className={cn('h-auto w-4 rounded object-contain mr-2')}
+              />
+            )}
+            <abbr title={activeAddress} className="font-normal no-underline">
+              {ellipseAddress(activeAddress)}
+            </abbr>
+          </AccountLink>
+        </HoverCardTrigger>
+        <HoverCardContent align="end" className="border border-input bg-accent hover:text-accent-foreground ">
+          <Button onClick={disconnectWallet} className="w-full p-2  ">
+            Disconnect
+          </Button>
+        </HoverCardContent>
+      </HoverCard>
+    </div>
   )
 }
