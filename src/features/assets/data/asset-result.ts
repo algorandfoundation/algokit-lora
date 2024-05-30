@@ -41,5 +41,5 @@ const getAssetResult = async (assetId: AssetId) => {
 export const [assetResultsAtom, getAssetResultAtom] = atomsInAtom(
   getAssetResult,
   (assetId) => assetId,
-  new Map([[algoAssetResult.index, atom(algoAssetResult)]])
+  new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]])
 )

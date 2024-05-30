@@ -8,10 +8,10 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { algod, indexer } from '@/features/common/data'
+import { algod, createAtomAndTimestamp, indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { applicationResultsAtom } from '../data'
 import {
   applicationAccountLabel,
@@ -80,7 +80,7 @@ describe('application-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
@@ -193,7 +193,7 @@ describe('application-page', () => {
 
     it('should be rendered with the correct app name', () => {
       const myStore = createStore()
-      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
@@ -225,7 +225,7 @@ describe('application-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>

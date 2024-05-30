@@ -21,9 +21,9 @@ import {
   assetUrlLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { algoAssetResult } from '../data'
-import { indexer, algod } from '@/features/common/data'
+import { indexer, algod, createAtomAndTimestamp } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
 import { HttpError } from '@/tests/errors'
@@ -80,7 +80,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>
@@ -165,7 +165,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>
@@ -265,7 +265,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
@@ -349,7 +349,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
@@ -425,7 +425,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>
@@ -544,7 +544,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
@@ -582,7 +582,7 @@ describe('asset-page', () => {
   describe('when rendering the algo asset', () => {
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, atom(algoAssetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.index.toString() }))
 
@@ -629,7 +629,7 @@ describe('asset-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(fetch).mockImplementation(() =>

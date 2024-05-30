@@ -2,7 +2,7 @@ import { Search, noSearchResultsMessage, searchPlaceholderLabel } from './search
 import { describe, it, expect, vi } from 'vitest'
 import { render, waitFor } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
@@ -11,6 +11,7 @@ import { blockResultsAtom } from '@/features/blocks/data'
 import { useNavigate } from 'react-router-dom'
 import { SearchResultType } from '../models'
 import { assetResultsAtom } from '@/features/assets/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 
 describe('search', () => {
   describe('when no search results have been returned', () => {
@@ -36,9 +37,9 @@ describe('search', () => {
     const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
 
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[blockResult.round, atom(blockResult)]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
-    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+    myStore.set(blockResultsAtom, new Map([[blockResult.round, createAtomAndTimestamp(blockResult)]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
+    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
     describe.each([
       {

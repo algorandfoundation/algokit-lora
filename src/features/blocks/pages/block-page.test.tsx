@@ -3,10 +3,10 @@ import { getAllByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { BlockPage, blockFailedToLoadMessage, blockInvalidRoundMessage, blockNotFoundMessage } from './block-page'
-import { indexer } from '@/features/common/data'
+import { createAtomAndTimestamp, indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { blockResultsAtom, syncedRoundAtom } from '../data'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block-details'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -67,7 +67,7 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blockResultsAtom, new Map([[block.round, atom(block)]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(
@@ -102,9 +102,9 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blockResultsAtom, new Map([[block.round, atom(block)]]))
-        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
-        myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
+        myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(

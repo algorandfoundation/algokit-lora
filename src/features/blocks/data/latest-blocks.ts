@@ -41,13 +41,13 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
       await Promise.all(
         Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
           const round = syncedRound - i
-          const blockAtom = blockResults.get(round)
+          const blockResult = blockResults.get(round)
 
-          if (blockAtom) {
-            const block = await get(blockAtom)
+          if (blockResult) {
+            const block = await get(blockResult[0])
             const transactionSummaries = await Promise.all(
               block.transactionIds.map(async (transactionId) => {
-                const transactionResult = await get.peek(transactionResults.get(transactionId)!)
+                const transactionResult = await get.peek(transactionResults.get(transactionId)![0])
 
                 return asTransactionSummary(transactionResult)
               })
@@ -112,7 +112,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
             acc[1].push(transaction)
 
             // Accumulate group results
-            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? new Date().getTime() / 1000)
+            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? Math.floor(Date.now() / 1000))
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(t)
