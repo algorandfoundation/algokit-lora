@@ -17,7 +17,7 @@ export function WalletConnect() {
       {
         id: PROVIDER_ID.LUTE,
         clientStatic: LuteConnect,
-        clientOptions: { siteName: 'YourSiteName' }, // todo: replace with the site name
+        clientOptions: { siteName: 'Algorand Explorer' },
       },
     ],
     nodeConfig: {
