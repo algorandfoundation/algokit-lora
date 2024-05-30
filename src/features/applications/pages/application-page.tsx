@@ -7,6 +7,8 @@ import { useLoadableApplication } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { ApplicationDetails } from '../components/application-details'
 import { is404 } from '@/utils/error'
+import { RefreshButton } from '@/features/common/components/refresh-button'
+import { useCallback } from 'react'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -28,11 +30,18 @@ export function ApplicationPage() {
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 
   const applicationId = parseInt(_applicationId, 10)
-  const loadableApplication = useLoadableApplication(applicationId)
+  const [loadableApplication, refreshApplication, isStale] = useLoadableApplication(applicationId)
+
+  const refresh = useCallback(() => {
+    refreshApplication()
+  }, [refreshApplication])
 
   return (
     <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{applicationPageTitle}</h1>
+      <div className="flex">
+        <h1 className={cn('text-2xl text-primary font-bold')}>{applicationPageTitle}</h1>
+        {isStale && <RefreshButton onClick={refresh} />}
+      </div>
       <RenderLoadable loadable={loadableApplication} transformError={transformError}>
         {(application) => <ApplicationDetails application={application} />}
       </RenderLoadable>

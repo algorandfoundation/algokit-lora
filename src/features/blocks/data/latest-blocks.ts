@@ -167,6 +167,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
             const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToAppChanges)))
             acc[4].push(...staleAddresses)
 
+            // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(t)
               .filter((t) => t['tx-type'] === algosdk.TransactionType.appl)
               .map((t) => t['application-transaction']?.['application-id'])
@@ -198,47 +199,53 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       const currentAssetResults = get.peek(assetResultsAtom)
       const assetIdsToRemove = staleAssetIds.filter((staleAssetId) => currentAssetResults.has(staleAssetId))
 
-      set(assetMetadataResultsAtom, (prev) => {
-        const next = new Map(prev)
-        assetIdsToRemove.forEach((assetId) => {
-          next.delete(assetId)
+      if (assetIdsToRemove.length > 0) {
+        set(assetMetadataResultsAtom, (prev) => {
+          const next = new Map(prev)
+          assetIdsToRemove.forEach((assetId) => {
+            next.delete(assetId)
+          })
+          return next
         })
-        return next
-      })
 
-      set(assetResultsAtom, (prev) => {
-        const next = new Map(prev)
-        assetIdsToRemove.forEach((assetId) => {
-          next.delete(assetId)
+        set(assetResultsAtom, (prev) => {
+          const next = new Map(prev)
+          assetIdsToRemove.forEach((assetId) => {
+            next.delete(assetId)
+          })
+          return next
         })
-        return next
-      })
+      }
     }
 
     if (staleAddresses.length > 0) {
       const currentAccountResults = get.peek(accountResultsAtom)
       const addressesToRemove = staleAddresses.filter((staleAddress) => currentAccountResults.has(staleAddress))
 
-      set(accountResultsAtom, (prev) => {
-        const next = new Map(prev)
-        addressesToRemove.forEach((address) => {
-          next.delete(address)
+      if (addressesToRemove.length > 0) {
+        set(accountResultsAtom, (prev) => {
+          const next = new Map(prev)
+          addressesToRemove.forEach((address) => {
+            next.delete(address)
+          })
+          return next
         })
-        return next
-      })
+      }
     }
 
     if (staleApplicationIds.length > 0) {
       const currentApplicationResults = get.peek(applicationResultsAtom)
       const applicationIdsToRemove = staleApplicationIds.filter((staleApplicationId) => currentApplicationResults.has(staleApplicationId))
 
-      set(applicationResultsAtom, (prev) => {
-        const next = new Map(prev)
-        applicationIdsToRemove.forEach((applicationId) => {
-          next.delete(applicationId)
+      if (applicationIdsToRemove.length > 0) {
+        set(applicationResultsAtom, (prev) => {
+          const next = new Map(prev)
+          applicationIdsToRemove.forEach((applicationId) => {
+            next.delete(applicationId)
+          })
+          return next
         })
-        return next
-      })
+      }
     }
 
     set(addStateExtractedFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
