@@ -23,6 +23,7 @@ import {
 } from '../components/labels'
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
+import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {
@@ -140,6 +141,7 @@ describe('account-page', () => {
       )
     })
   })
+
   describe('when rendering an account with rekey', () => {
     const accountResult = accountResultMother['mainnet-DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4']().build()
 
@@ -171,6 +173,53 @@ describe('account-page', () => {
             const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
             expect(activityTabList).toBeTruthy()
             expect(activityTabList.children.length).toBe(7)
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an account that becomes stale', () => {
+    const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
+    const assetResults = new Map([
+      [924268058, atom(assetResultMother['mainnet-924268058']().build())],
+      [1010208883, atom(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467, atom(assetResultMother['mainnet-1096015467']().build())],
+    ])
+
+    it('should be rendered with the refresh button', () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+      myStore.set(assetResultsAtom, assetResults)
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [{ term: accountAddressLabel, description: 'BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA' }],
+            })
+
+            const refreshButton = component.queryByLabelText(refreshButtonLabel)
+            expect(refreshButton).toBeFalsy()
+          })
+
+          // Simulate the account being evicted from the store, due to staleness
+          myStore.set(accountResultsAtom, new Map())
+
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [{ term: accountAddressLabel, description: 'BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA' }],
+            })
+
+            const refreshButton = component.getByLabelText(refreshButtonLabel)
+            expect(refreshButton).toBeTruthy()
           })
         }
       )
