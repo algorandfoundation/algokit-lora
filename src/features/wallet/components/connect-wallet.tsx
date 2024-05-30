@@ -7,6 +7,8 @@ import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common/components/hover-card'
 
+export const connectWalletLabel = 'Connect Wallet'
+export const hoverCardLabel = 'Connected Wallet'
 function InternalDialogContent() {
   const { activeAddress, providers } = useWallet()
   return (
@@ -32,12 +34,12 @@ function InternalDialogContent() {
   )
 }
 
-export function ConnectWallet() {
+export function ConnectWalletDialog() {
   return (
     <div className={cn('mt-1')}>
       <Dialog>
         <DialogTrigger>
-          <Button>connect wallet</Button>
+          <Button aria-label={connectWalletLabel}>Connect Wallet</Button>
         </DialogTrigger>
         <DialogContent className="w-[500px] bg-card">
           <DialogHeader>
@@ -73,7 +75,7 @@ export function ConnectWalletButton() {
     return <></>
   }
   return !activeAddress ? (
-    <ConnectWallet />
+    <ConnectWalletDialog />
   ) : (
     <div>
       <HoverCard openDelay={100}>

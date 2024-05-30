@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { Search } from '@/features/search/components/search'
 import { useNetworkConfig } from '@/features/settings/data'
-import { ProvidersSection } from './wallet-providers'
+import { WalletConnect } from '../../wallet/components/wallet-providers'
 
 type Props = {
   className?: string
@@ -18,7 +18,7 @@ export function Header({ className }: Props) {
       </div>
       <div className={cn('flex flex-row items-center justify-end gap-2')}>
         <label>Network: {networkConfig.name}</label>
-        <ProvidersSection />
+        <WalletConnect />
         <ThemeToggle />
       </div>
     </div>

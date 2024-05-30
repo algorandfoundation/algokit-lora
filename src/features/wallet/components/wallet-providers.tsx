@@ -7,7 +7,7 @@ import algosdk from 'algosdk'
 import { ConnectWalletButton } from './connect-wallet'
 import LuteConnect from 'lute-connect'
 
-export function ProvidersSection() {
+export function WalletConnect() {
   const providers = useInitializeProviders({
     providers: [
       { id: PROVIDER_ID.DEFLY, clientStatic: DeflyWalletConnect },
@@ -17,7 +17,7 @@ export function ProvidersSection() {
       {
         id: PROVIDER_ID.LUTE,
         clientStatic: LuteConnect,
-        clientOptions: { siteName: 'YourSiteName' },
+        clientOptions: { siteName: 'YourSiteName' }, // todo: replace with the site name
       },
     ],
     nodeConfig: {
