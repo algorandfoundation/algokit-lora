@@ -5,6 +5,7 @@ import { DeflyWalletConnect } from '@blockshake/defly-connect'
 import { mainnetConfig } from '@/features/settings/data'
 import algosdk from 'algosdk'
 import { ConnectWalletButton } from './connect-wallet'
+import LuteConnect from 'lute-connect'
 
 export function ProvidersSection() {
   const providers = useInitializeProviders({
@@ -13,6 +14,11 @@ export function ProvidersSection() {
       { id: PROVIDER_ID.PERA, clientStatic: PeraWalletConnect },
       { id: PROVIDER_ID.DAFFI, clientStatic: DaffiWalletConnect },
       { id: PROVIDER_ID.EXODUS },
+      {
+        id: PROVIDER_ID.LUTE,
+        clientStatic: LuteConnect,
+        clientOptions: { siteName: 'YourSiteName' },
+      },
     ],
     nodeConfig: {
       network: mainnetConfig.id,

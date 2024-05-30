@@ -3,7 +3,6 @@ import { cn } from '@/features/common/utils'
 import { useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTrigger } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { useNavigate } from 'react-router-dom'
 import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common/components/hover-card'
@@ -26,7 +25,7 @@ function InternalDialogContent() {
             }}
           >
             <img src={provider.metadata.icon} alt={`${provider.metadata.name} icon`} className="h-auto w-6 rounded object-contain" />
-            <span>{provider.metadata.name}</span>
+            <span className="ml-1">{provider.metadata.name}</span>
           </Button>
         ))}
     </div>
@@ -40,9 +39,9 @@ export function ConnectWallet() {
         <DialogTrigger>
           <Button>connect wallet</Button>
         </DialogTrigger>
-        <DialogContent className="w-[800px]">
+        <DialogContent className="w-[500px] bg-card">
           <DialogHeader>
-            <h1 className={cn('text-2xl text-primary font-bold')}>Select Algorand Wallet Provider</h1>
+            <h2 className={cn('text-2xl text-primary font-bold')}>Select Algorand Wallet Provider</h2>
           </DialogHeader>
           <InternalDialogContent />
         </DialogContent>
@@ -54,7 +53,6 @@ export function ConnectWallet() {
 export function ConnectWalletButton() {
   const { activeAddress, providers, isReady } = useWallet()
   const activeProvider = providers?.find((p) => p.isActive)
-  const navigate = useNavigate()
 
   const disconnectWallet = () => {
     if (providers) {
@@ -79,7 +77,7 @@ export function ConnectWalletButton() {
   ) : (
     <div>
       <HoverCard openDelay={100}>
-        <HoverCardTrigger className={cn('mt-1')}>
+        <HoverCardTrigger>
           <AccountLink address={activeAddress} className={buttonVariants({ variant: 'default' })}>
             {activeProvider && (
               <img
@@ -88,13 +86,13 @@ export function ConnectWalletButton() {
                 className={cn('h-auto w-4 rounded object-contain mr-2')}
               />
             )}
-            <abbr title={activeAddress} className="font-normal no-underline">
+            <abbr title={activeAddress} className="no-underline">
               {ellipseAddress(activeAddress)}
             </abbr>
           </AccountLink>
         </HoverCardTrigger>
-        <HoverCardContent align="end" className="border border-input bg-accent hover:text-accent-foreground ">
-          <Button onClick={disconnectWallet} className="w-full p-2  ">
+        <HoverCardContent align="center" className="w-36 border border-input bg-card p-2 text-card-foreground">
+          <Button variant="default" onClick={disconnectWallet} className="w-full p-4">
             Disconnect
           </Button>
         </HoverCardContent>
