@@ -18,7 +18,11 @@ import {
   accountRekeyedToLabel,
 } from './labels'
 
-export function AccountInfo({ account }: { account: Account }) {
+type Props = {
+  account: Account
+}
+
+export function AccountInfo({ account }: Props) {
   const totalAssetsHeld = account.assetsHeld.length
   const totalAssetsCreated = account.assetsCreated.length
   const totalAssetsOptedIn = account.assetsHeld.length + account.assetsOpted.length
