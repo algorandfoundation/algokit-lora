@@ -1,5 +1,6 @@
 import { vi } from 'vitest'
 import algosdk from 'algosdk'
+import { useWallet } from '@txnlab/use-wallet'
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
@@ -78,4 +79,28 @@ vi.mock('@/features/common/data', async () => {
   }
 })
 
+vi.mock('@txnlab/use-wallet', async () => {
+  const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+  return {
+    ...original,
+    useWallet: vi.fn().mockImplementation(() => {
+      return original.useWallet()
+    }),
+  }
+})
+
+vi.mock('@/features/blocks/data', async () => {
+  const original = await vi.importActual('@/features/blocks/data')
+  return {
+    ...original,
+    useSubscribeToBlocksEffect: vi.fn(),
+  }
+})
+
 global.fetch = vi.fn()
+window.HTMLCanvasElement.prototype.getContext = () => {
+  return {
+    fillStyle: 'ok',
+    fillRect: () => {},
+  } as unknown as null // Hack so we don't need to implement the whole CanvasRenderingContext2D
+}
