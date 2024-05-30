@@ -5,7 +5,7 @@ type Props = {
   onClick: () => void
 }
 
-const refreshButtonLabel = 'Refresh'
+export const refreshButtonLabel = 'Refresh'
 
 export function RefreshButton({ onClick }: Props) {
   return (

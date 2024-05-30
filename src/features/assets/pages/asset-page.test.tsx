@@ -29,6 +29,7 @@ import { assetUnitLabel } from '@/features/transactions/components/asset-config-
 import { HttpError } from '@/tests/errors'
 import { ipfsGatewayUrl } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { assetResultsAtom } from '../data'
+import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 
 describe('asset-page', () => {
   describe('when rendering an asset using an invalid asset Id', () => {
@@ -616,6 +617,68 @@ describe('asset-page', () => {
 
             const activityTabList = component.queryByRole('tablist', { name: assetActivityLabel })
             expect(activityTabList).toBeNull()
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset that becomes stale', () => {
+    const assetResult = assetResultMother['mainnet-1284444444']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
+
+    it('should be rendered with the refresh button', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, atom(assetResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              name: 'Orange',
+              decimals: 8,
+              description:
+                "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
+              image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
+              image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
+              image_mimetype: 'image/png',
+            }),
+        } as Response)
+      )
+
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [{ term: assetIdLabel, description: '1284444444ARC-3Fungible' }],
+            })
+
+            const refreshButton = component.queryByLabelText(refreshButtonLabel)
+            expect(refreshButton).toBeFalsy()
+          })
+
+          // Simulate the asset being evicted from the store, due to staleness
+          myStore.set(assetResultsAtom, new Map())
+
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [{ term: assetIdLabel, description: '1284444444ARC-3Fungible' }],
+            })
+
+            const refreshButton = component.getByLabelText(refreshButtonLabel)
+            expect(refreshButton).toBeTruthy()
           })
         }
       )
