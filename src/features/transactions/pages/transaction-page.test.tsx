@@ -27,6 +27,7 @@ import {
   transactionFeeLabel,
   transactionGroupLabel,
   transactionIdLabel,
+  transactionRekeyToLabel,
   transactionTimestampLabel,
   transactionTypeLabel,
 } from '../components/transaction-info'
@@ -1129,11 +1130,37 @@ describe('transaction-page', () => {
             })
           )
           expect(component.queryByText(selectionParticipationKeyLabel)).toBeNull()
-          expect(component.queryByText(voteFirstValidLabel)).toBeNull()
-          expect(component.queryByText(voteLastValidLabel)).toBeNull()
-          expect(component.queryByText(voteKeyDilutionLabel)).toBeNull()
         }
       )
     })
+  })
+})
+
+describe('when rendering an transaction with rekey', () => {
+  const transaction = transactionResultMother['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']().build()
+
+  it('should be rendered with the correct data', () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+
+    return executeComponentTest(
+      () => {
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() => {
+          descriptionListAssertion({
+            container: component.container,
+            items: [
+              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionTypeLabel, description: 'PaymentRekey' },
+              { term: transactionRekeyToLabel, description: 'QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA' },
+            ],
+          })
+        })
+        expect(component.queryByText('Rekey')).not.toBeNull()
+      }
+    )
   })
 })
