@@ -141,6 +141,12 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
                 })
                 .map((bc) => bc.address)
                 .filter(distinct((x) => x)) ?? []
+
+            const addressesStaleDueToRekeyTo = flattenTransactionResult(t)
+              .filter((t) => t['rekey-to'])
+              .map((t) => t.sender)
+              .filter(distinct((x) => x))
+
             const addressesStaleDueToAppChanges = flattenTransactionResult(t)
               .filter((t) => {
                 if (t['tx-type'] !== algosdk.TransactionType.appl) {
@@ -155,7 +161,9 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
               })
               .map((t) => t.sender)
               .filter(distinct((x) => x))
-            const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToAppChanges)))
+            const staleAddresses = Array.from(
+              new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToAppChanges).concat(addressesStaleDueToRekeyTo))
+            )
             acc[4].push(...staleAddresses)
 
             // Accumulate stale application ids
