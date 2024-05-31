@@ -142,29 +142,14 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
                 .map((bc) => bc.address)
                 .filter(distinct((x) => x)) ?? []
 
-            const flattenedTransactions = flattenTransactionResult(t)
-            const addressesStaleDueToRekeyTo = flattenedTransactions
-              .filter((t) => t['rekey-to'])
-              .map((t) => t.sender)
-              .filter(distinct((x) => x))
-
-            const addressesStaleDueToAppChanges = flattenedTransactions
+            const addressesStaleDueToTransactions = flattenTransactionResult(t)
               .filter((t) => {
-                if (t['tx-type'] !== algosdk.TransactionType.appl) {
-                  return false
-                }
-                const appCallTransaction = t['application-transaction']!
-                const isAppCreate =
-                  appCallTransaction['on-completion'] === ApplicationOnComplete.noop && !appCallTransaction['application-id']
-                const isAppOptIn =
-                  appCallTransaction['on-completion'] === ApplicationOnComplete.optin && appCallTransaction['application-id']
-                return isAppCreate || isAppOptIn
+                const accountIsStaleDueToRekey = t['rekey-to']
+                return accountIsStaleDueToAppChanges(t) || accountIsStaleDueToRekey
               })
               .map((t) => t.sender)
               .filter(distinct((x) => x))
-            const staleAddresses = Array.from(
-              new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToAppChanges).concat(addressesStaleDueToRekeyTo))
-            )
+            const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToTransactions)))
             acc[4].push(...staleAddresses)
 
             // Accumulate stale application ids
@@ -264,4 +249,14 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
 
 export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
+}
+
+const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
+  if (txn['tx-type'] !== algosdk.TransactionType.appl) {
+    return false
+  }
+  const appCallTransaction = txn['application-transaction']!
+  const isAppCreate = appCallTransaction['on-completion'] === ApplicationOnComplete.noop && !appCallTransaction['application-id']
+  const isAppOptIn = appCallTransaction['on-completion'] === ApplicationOnComplete.optin && appCallTransaction['application-id']
+  return isAppCreate || isAppOptIn
 }
