@@ -1139,7 +1139,7 @@ describe('transaction-page', () => {
   })
 })
 
-describe('when rendering an transaction with rekey', () => {
+describe('when rendering a rekey transaction', () => {
   const transaction = transactionResultMother['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']().build()
 
   it('should be rendered with the correct data', () => {
