@@ -27,6 +27,7 @@ import {
   transactionFeeLabel,
   transactionGroupLabel,
   transactionIdLabel,
+  transactionRekeyToLabel,
   transactionTimestampLabel,
   transactionTypeLabel,
 } from '../components/transaction-info'
@@ -1135,5 +1136,33 @@ describe('transaction-page', () => {
         }
       )
     })
+  })
+})
+
+describe('when rendering a rekey transaction', () => {
+  const transaction = transactionResultMother['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']().build()
+
+  it('should be rendered with the correct data', () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+
+    return executeComponentTest(
+      () => {
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() => {
+          descriptionListAssertion({
+            container: component.container,
+            items: [
+              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionTypeLabel, description: 'PaymentRekey' },
+              { term: transactionRekeyToLabel, description: 'QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA' },
+            ],
+          })
+        })
+      }
+    )
   })
 })

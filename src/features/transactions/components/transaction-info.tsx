@@ -9,6 +9,7 @@ import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupLink } from '@/features/groups/components/group-link'
 import { useAtomValue } from 'jotai'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -20,6 +21,7 @@ export const transactionTimestampLabel = 'Timestamp'
 export const transactionBlockLabel = 'Block'
 export const transactionGroupLabel = 'Group'
 export const transactionFeeLabel = 'Fee'
+export const transactionRekeyToLabel = 'Rekey To'
 
 export function TransactionInfo({ transaction }: Props) {
   const subType = useAtomValue(transaction.subType)
@@ -37,6 +39,7 @@ export function TransactionInfo({ transaction }: Props) {
             {subType && <Badge variant="outline">{subType}</Badge>}
             {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
             {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
+            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </>
         ),
       },
@@ -60,6 +63,14 @@ export function TransactionInfo({ transaction }: Props) {
         dt: transactionFeeLabel,
         dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
       },
+      ...(transaction.rekeyTo
+        ? [
+            {
+              dt: transactionRekeyToLabel,
+              dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
     ],
     [
       subType,
@@ -67,6 +78,7 @@ export function TransactionInfo({ transaction }: Props) {
       transaction.fee,
       transaction.group,
       transaction.id,
+      transaction.rekeyTo,
       transaction.roundTime,
       transaction.signature?.type,
       transaction.type,

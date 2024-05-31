@@ -1354,4 +1354,33 @@ export const transactionResultMother = {
       'tx-type': 'appl',
     } as unknown as TransactionResult)
   },
+  ['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']: () => {
+    return new TransactionResultBuilder({
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 28236256,
+      fee: 1000,
+      'first-valid': 28236253,
+      'genesis-hash': 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+      'genesis-id': 'testnet-v1.0',
+      id: '24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ',
+      'intra-round-offset': 0,
+      'last-valid': 28237253,
+      note: 'UmVrZXkgdG8gUVVBTlNDMkdUWlE3R0w1Q0E0MkNNT1lJWDJMSEoyRTdRRDJaRFpLUUpHMldBS0dXT1lCTU5BREhTQQ==',
+      'payment-transaction': {
+        amount: 0,
+        'close-amount': 0,
+        receiver: 'WK3LE77YNSRUC3GVNP6FA7PF67GWAOLAGTNKOII4YBFSRQ3DW7C72MD4TM',
+      },
+      'receiver-rewards': 0,
+      'rekey-to': 'QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA',
+      'round-time': 1678206268,
+      sender: 'WK3LE77YNSRUC3GVNP6FA7PF67GWAOLAGTNKOII4YBFSRQ3DW7C72MD4TM',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'G9NwYqLXA8L92cauKXyHeY/Jp5cBUTWwL+Ri2w5ex18mIsWQBq7gNg1EU07mzfKU6i93EqkcVZLyVmA2HJkmDg==',
+      },
+      'tx-type': TransactionType.pay,
+    } as unknown as TransactionResult)
+  },
 }
