@@ -20,6 +20,7 @@ export const mapCommonTransactionProperties = (transactionResult: TransactionRes
     signature: transformSignature(transactionResult.signature),
     note: transactionResult.note,
     json: transactionResult,
+    rekeyTo: transactionResult['rekey-to'],
   }
 }
 

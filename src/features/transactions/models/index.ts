@@ -15,6 +15,7 @@ export type CommonTransactionProperties = {
   note?: string
   signature?: Singlesig | Multisig | Logicsig
   json: object
+  rekeyTo?: Address
 }
 
 export enum TransactionType {
