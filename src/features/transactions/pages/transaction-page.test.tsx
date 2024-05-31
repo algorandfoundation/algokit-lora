@@ -1130,6 +1130,9 @@ describe('transaction-page', () => {
             })
           )
           expect(component.queryByText(selectionParticipationKeyLabel)).toBeNull()
+          expect(component.queryByText(voteFirstValidLabel)).toBeNull()
+          expect(component.queryByText(voteLastValidLabel)).toBeNull()
+          expect(component.queryByText(voteKeyDilutionLabel)).toBeNull()
         }
       )
     })
