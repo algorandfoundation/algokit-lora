@@ -142,12 +142,13 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
                 .map((bc) => bc.address)
                 .filter(distinct((x) => x)) ?? []
 
-            const addressesStaleDueToRekeyTo = flattenTransactionResult(t)
+            const flattenedTransactions = flattenTransactionResult(t)
+            const addressesStaleDueToRekeyTo = flattenedTransactions
               .filter((t) => t['rekey-to'])
               .map((t) => t.sender)
               .filter(distinct((x) => x))
 
-            const addressesStaleDueToAppChanges = flattenTransactionResult(t)
+            const addressesStaleDueToAppChanges = flattenedTransactions
               .filter((t) => {
                 if (t['tx-type'] !== algosdk.TransactionType.appl) {
                   return false
