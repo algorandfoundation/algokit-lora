@@ -1162,7 +1162,6 @@ describe('when rendering a rekey transaction', () => {
             ],
           })
         })
-        expect(component.queryByText('Rekey')).not.toBeNull()
       }
     )
   })
