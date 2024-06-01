@@ -9,13 +9,24 @@ export const createAtomAndTimestamp = <T>(value: T) => {
   return [defaultCreateInitialValueAtom(value), createTimestamp()] as const
 }
 
+/**
+ * Creates a atoms in atom map structure for storing collections of data indexeable via a key.
+ * If the size of the collection is unbound, then the memory usage will grow indefinitely.
+ * It's highly recommended to register some cleanup code in `state-cleanup.ts` to remove old entries.
+ * @param createInitialValue A function or WriteAtom to create the initial value of the value atom (child atom)
+ * @param keySelector A function to select the key (used in the map) from the args
+ * @param initialValues The initial value of the atom (parent atom)
+ * @param createInitialValueAtom A function to create the value atom (child atom) from the initial value
+ * @returns A tuple containing the values atom and a function to get the value atom for a given key
+ */
 export function atomsInAtom<Args extends unknown[], Key extends string | number, Value>(
   createInitialValue: ((...args: Args) => Value) | WritableAtom<null, Args, Value>,
   keySelector: (...args: Args) => Key,
   initialValues: Map<Key, readonly [Atom<Value | Awaited<Value>>, number]> = new Map(),
   createInitialValueAtom: (value: Value) => Atom<Value | Awaited<Value>> = defaultCreateInitialValueAtom
 ) {
-  // TODO: Size should be capped at some limit, so memory usage doesn't grow indefinitely
+  // Note: The for unbound collections, this will grow indefinitely.
+  // stale date should be cleaned up in state-cleanup.ts
   const valuesAtom = atom(initialValues)
 
   const getOrCreateValueAtom = atom(null, (get, set, args: Args) => {
@@ -24,8 +35,9 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
     if (values.has(key)) {
       const [valueAtom] = values.get(key)!
       set(valuesAtom, (prev) => {
-        // Mutate the timestamp without creating a new Map reference (like we do elsewhere).
-        // This ensure jotai doesn't notify dependent atoms of the change.
+        // Update the timestamp each time the atom is accessed.
+        // We mutate without creating a new Map reference (like we do elsewhere).
+        // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
         return prev.set(key, [valueAtom, createTimestamp()])
       })
       return valueAtom
