@@ -1148,7 +1148,7 @@ describe('when rendering a rekey transaction', () => {
   it('should be rendered with the correct data', () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
     const myStore = createStore()
-    myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
     return executeComponentTest(
       () => {
