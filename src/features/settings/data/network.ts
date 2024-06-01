@@ -1,6 +1,7 @@
 import { atom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
+import { PROVIDER_ID } from '@txnlab/use-wallet'
 
 export type NetworkConfig = {
   id: string
@@ -15,9 +16,10 @@ export type NetworkConfig = {
     port: number
     token?: string
   }
+  walletProviders: PROVIDER_ID[]
 }
 
-export const mainnetConfig: NetworkConfig = {
+const mainnetConfig: NetworkConfig = {
   id: 'mainnet',
   name: 'MainNet',
   indexer: {
@@ -28,8 +30,9 @@ export const mainnetConfig: NetworkConfig = {
     server: 'https://mainnet-api.algonode.cloud/',
     port: 443,
   },
+  walletProviders: [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE],
 }
-const testnetConfig: NetworkConfig = {
+export const testnetConfig: NetworkConfig = {
   id: 'testnet',
   name: 'TestNet',
   indexer: {
@@ -40,8 +43,9 @@ const testnetConfig: NetworkConfig = {
     server: 'https://testnet-api.algonode.cloud/',
     port: 443,
   },
+  walletProviders: mainnetConfig.walletProviders,
 }
-export const localnetConfig: NetworkConfig = {
+const localnetConfig: NetworkConfig = {
   id: 'localnet',
   name: 'LocalNet',
   indexer: {
@@ -54,6 +58,7 @@ export const localnetConfig: NetworkConfig = {
     port: 4001,
     token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
+  walletProviders: [],
 }
 
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
