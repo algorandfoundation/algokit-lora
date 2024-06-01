@@ -11,18 +11,18 @@ type Props = PropsWithChildren<{
   className?: string
 }>
 
-export const AccountLink = fixedForwardRef((props: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
-  const { address, short, className, children, ...rest } = props
-
-  return (
-    <TemplatedNavLink
-      className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Explore.Account.ById}
-      urlParams={{ address }}
-      ref={ref}
-      {...rest}
-    >
-      {children ? children : short ? ellipseAddress(address) : address}
-    </TemplatedNavLink>
-  )
-})
+export const AccountLink = fixedForwardRef(
+  ({ address, short, className, children, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
+    return (
+      <TemplatedNavLink
+        className={cn(!children && 'text-primary underline', className)}
+        urlTemplate={Urls.Explore.Account.ById}
+        urlParams={{ address }}
+        ref={ref}
+        {...rest}
+      >
+        {children ? children : short ? ellipseAddress(address) : address}
+      </TemplatedNavLink>
+    )
+  }
+)

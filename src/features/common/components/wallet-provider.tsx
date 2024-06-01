@@ -11,7 +11,7 @@ function WalletProviderInner({ networkConfig, children }: Omit<Props, 'walletPro
   const { providers } = useWallet()
 
   useEffect(() => {
-    // Disconnect wallets that aren't application to the chosen network
+    // Disconnect wallets that aren't applicable to the chosen network
     providers?.forEach((provider) => {
       if (provider.isConnected && !networkConfig.walletProviders.includes(provider.metadata.id)) {
         provider.disconnect()
