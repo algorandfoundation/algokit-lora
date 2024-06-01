@@ -7,6 +7,7 @@ import { NetworkConfig, useTheme } from '@/features/settings/data'
 import { SupportedProviders } from '@txnlab/use-wallet'
 
 type Props = PropsWithChildren<{
+  key: string
   networkConfig: NetworkConfig
   walletProviders: SupportedProviders | null
   store?: JotaiStore // This is only used for unit tests
