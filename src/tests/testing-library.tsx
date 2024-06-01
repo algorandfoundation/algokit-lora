@@ -5,7 +5,7 @@ import type { PropsWithChildren } from 'react'
 import { MemoryRouter } from 'react-router'
 import { ErrorBoundary } from './error-boundary'
 import * as getDescriptionQueries from './custom-queries/get-description'
-import { DataProvider } from '@/features/common/components/data-provider'
+import { TestPlatformProvider } from './test-platform-provider'
 
 const allQueries = {
   ...queries,
@@ -23,13 +23,13 @@ const Providers =
   (store?: JotaiStore) =>
   ({ children }: PropsWithChildren) => {
     return (
-      <DataProvider store={store}>
+      <TestPlatformProvider store={store}>
         <TooltipProvider>
           <ErrorBoundary>
             <MemoryRouter>{children}</MemoryRouter>
           </ErrorBoundary>
         </TooltipProvider>
-      </DataProvider>
+      </TestPlatformProvider>
     )
   }
 

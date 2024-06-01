@@ -3,7 +3,7 @@ import { render, waitFor } from '@/tests/testing-library'
 import MatchMediaMock from '@/tests/mock-match-media'
 import { executeComponentTest } from '@/tests/test-component'
 
-describe('data-provider', () => {
+describe('platform-provider', () => {
   describe('when using the default system light theme', () => {
     it('the theme is set to light', () => {
       return executeComponentTest(
