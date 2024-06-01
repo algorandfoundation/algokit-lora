@@ -23,7 +23,7 @@ export function TestPlatformProvider({ children, store }: Props) {
   })
 
   return (
-    <PlatformProviderInner networkConfig={networkConfig} walletProviders={walletProviders} store={store}>
+    <PlatformProviderInner key={networkConfig.id} networkConfig={networkConfig} walletProviders={walletProviders} store={store}>
       {children}
     </PlatformProviderInner>
   )

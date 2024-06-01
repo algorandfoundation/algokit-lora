@@ -33,7 +33,8 @@ export function PlatformProvider({ children }: PropsWithChildren) {
   })
 
   return (
-    <PlatformProviderInner networkConfig={networkConfig} walletProviders={walletProviders}>
+    // The key passed to PlatformProviderInner is important as it controls the storeRef in useDataStore
+    <PlatformProviderInner key={networkConfig.id} networkConfig={networkConfig} walletProviders={walletProviders}>
       {children}
     </PlatformProviderInner>
   )
