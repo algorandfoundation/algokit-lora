@@ -12,6 +12,7 @@ import { AccountPage, accountPageTitle } from './features/accounts/pages/account
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
+import { LandingPage } from './features/landing/pages/landing-page'
 
 export const routes = evalTemplates([
   {
@@ -25,11 +26,7 @@ export const routes = evalTemplates([
     children: [
       {
         template: Urls.Index,
-        element: (
-          <div>
-            <h1 className="font-bold">Home</h1>
-          </div>
-        ),
+        element: <LandingPage />,
       },
       {
         template: Urls.Explore,
