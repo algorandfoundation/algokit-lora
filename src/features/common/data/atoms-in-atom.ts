@@ -29,17 +29,22 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
   // stale date should be cleaned up in state-cleanup.ts
   const valuesAtom = atom(initialValues)
 
-  const getOrCreateValueAtom = atom(null, (get, set, args: Args) => {
+  const getOrCreateValueAtom = atom(null, (get, set, params: [...args: Args, options?: Options]) => {
+    const _options = params.length > 1 ? params[params.length - 1] : undefined
+    const options = _options && typeof _options === 'object' && 'skipTimestampUpdate' in _options ? (_options as Options) : undefined
+    const args = (options ? params.slice(0, -1) : params) as Args
     const key = keySelector(...args)
     const values = get(valuesAtom)
     if (values.has(key)) {
       const [valueAtom] = values.get(key)!
-      set(valuesAtom, (prev) => {
-        // Update the timestamp each time the atom is accessed.
-        // We mutate without creating a new Map reference (like we do elsewhere).
-        // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
-        return prev.set(key, [valueAtom, createTimestamp()])
-      })
+      if (!options || (options && options.skipTimestampUpdate === false)) {
+        set(valuesAtom, (prev) => {
+          // Update the timestamp each time the atom is accessed.
+          // We mutate without creating a new Map reference (like we do elsewhere).
+          // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
+          return prev.set(key, [valueAtom, createTimestamp()])
+        })
+      }
       return valueAtom
     }
 
@@ -55,9 +60,13 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
     return valueAtom
   })
 
-  const getValueAtom = (...args: Args) => {
-    return dataStore.set(getOrCreateValueAtom, args)
+  const getValueAtom = (...params: [...args: Args, options?: Options]) => {
+    return dataStore.set(getOrCreateValueAtom, params)
   }
 
   return [valuesAtom, getValueAtom] as const
+}
+
+type Options = {
+  skipTimestampUpdate: boolean
 }

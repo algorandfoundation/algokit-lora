@@ -1,7 +1,7 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { getTransactionResultAtom } from '@/features/transactions/data'
 import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
@@ -23,6 +23,7 @@ import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
+import { latestTransactionIdsAtom } from '@/features/transactions/data/latest-transaction-ids'
 
 const maxBlocksToDisplay = 5
 
@@ -34,7 +35,6 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
   }
 
   const blockResults = get.peek(blockResultsAtom)
-  const transactionResults = get.peek(transactionResultsAtom)
 
   ;(async () => {
     const latestBlockSummaries = (
@@ -42,13 +42,11 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
         Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
           const round = syncedRound - i
           const blockResult = blockResults.get(round)
-
           if (blockResult) {
             const block = await get(blockResult[0])
             const transactionSummaries = await Promise.all(
               block.transactionIds.map(async (transactionId) => {
-                const transactionResult = await get.peek(transactionResults.get(transactionId)![0])
-
+                const transactionResult = await get(getTransactionResultAtom(transactionId, { skipTimestampUpdate: true }))
                 return asTransactionSummary(transactionResult)
               })
             )
@@ -64,7 +62,6 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
 })
 
 export const useLatestBlockSummaries = () => {
-  useAtom(refreshLatestBlockSummariesEffect)
   return useAtomValue(latestBlockSummariesAtom)
 }
 
@@ -235,8 +232,12 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
 
     set(addStateExtractedFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
 
-    set(liveTransactionIdsAtom, (prev) => {
-      return transactionResults.map((txn) => txn.id).concat(prev)
+    set(latestTransactionIdsAtom, (prev) => {
+      return transactionResults
+        .reverse()
+        .map((txn) => txn.id)
+        .concat(prev)
+        .slice(0, 10_000)
     })
   })
 
@@ -249,6 +250,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
 
 export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
+  useAtom(refreshLatestBlockSummariesEffect)
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
