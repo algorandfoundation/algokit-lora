@@ -7,7 +7,7 @@ import { KeyRegTransaction, InnerKeyRegTransaction, SignatureType } from '../mod
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { KeyRegTransactionInfo } from './key-reg-transaction-info'
-import { TransactionVisualTabs } from './transaction-visual-tabs'
+import { TransactionViewTabs } from './transaction-view-tabs'
 
 type KeyRegTransactionProps = {
   transaction: KeyRegTransaction | InnerKeyRegTransaction
@@ -20,7 +20,7 @@ export function KeyRegTransactionDetails({ transaction }: KeyRegTransactionProps
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
           <KeyRegTransactionInfo transaction={transaction} />
-          <TransactionVisualTabs transaction={transaction} />
+          <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}

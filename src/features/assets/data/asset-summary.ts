@@ -1,16 +1,15 @@
 import { atom } from 'jotai'
-import { JotaiStore } from '@/features/common/data/types'
 import { asAssetSummary } from '../mappers/asset-summary'
 import { AssetId } from './types'
 import { getAssetResultAtom } from './asset-result'
 
-export const createAssetResolver = (store: JotaiStore) => (assetId: AssetId) => {
-  return createAssetSummaryAtom(store, assetId)
+export const assetSummaryResolver = (assetId: AssetId) => {
+  return createAssetSummaryAtom(assetId)
 }
 
-export const createAssetSummaryAtom = (store: JotaiStore, assetId: AssetId) => {
+export const createAssetSummaryAtom = (assetId: AssetId) => {
   return atom(async (get) => {
-    const assetResult = await get(getAssetResultAtom(store, assetId))
+    const assetResult = await get(getAssetResultAtom(assetId))
     return asAssetSummary(assetResult)
   })
 }

@@ -7,7 +7,7 @@ import { indexer } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { atom, createStore } from 'jotai'
-import { blockResultsAtom } from '../data'
+import { blockResultsAtom, syncedRoundAtom } from '../data'
 import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block-details'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
@@ -68,6 +68,7 @@ describe('block-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, atom(block)]]))
+        myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
@@ -104,6 +105,7 @@ describe('block-page', () => {
         myStore.set(blockResultsAtom, new Map([[block.round, atom(block)]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
         myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
+        myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),

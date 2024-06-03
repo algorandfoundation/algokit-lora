@@ -14,7 +14,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
 import { BlockSummary } from '../models'
-import { blockResultsAtom, addStateExtractedFromBlocksAtom } from './block-result'
+import { blockResultsAtom, addStateExtractedFromBlocksAtom, accumulateGroupsFromTransaction } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
@@ -26,54 +26,45 @@ import { syncedRoundAtom } from './synced-round'
 
 const maxBlocksToDisplay = 5
 
-const createLatestBlockSummariesAtom = () => {
-  const latestBlockSummariesAtom = atom<BlockSummary[]>([])
-  const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
-    const syncedRound = get(syncedRoundAtom)
-    if (!syncedRound) {
-      return
-    }
+export const latestBlockSummariesAtom = atom<BlockSummary[]>([])
+const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
+  const syncedRound = get(syncedRoundAtom)
+  if (!syncedRound) {
+    return
+  }
 
-    const blockResults = get.peek(blockResultsAtom)
-    const transactionResults = get.peek(transactionResultsAtom)
+  const blockResults = get.peek(blockResultsAtom)
+  const transactionResults = get.peek(transactionResultsAtom)
 
-    ;(async () => {
-      const latestBlockSummaries = (
-        await Promise.all(
-          Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
-            const round = syncedRound - i
-            const blockAtom = blockResults.get(round)
+  ;(async () => {
+    const latestBlockSummaries = (
+      await Promise.all(
+        Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
+          const round = syncedRound - i
+          const blockAtom = blockResults.get(round)
 
-            if (blockAtom) {
-              const block = await get(blockAtom)
-              const transactionSummaries = await Promise.all(
-                block.transactionIds.map(async (transactionId) => {
-                  const transactionResult = await get.peek(transactionResults.get(transactionId)!)
+          if (blockAtom) {
+            const block = await get(blockAtom)
+            const transactionSummaries = await Promise.all(
+              block.transactionIds.map(async (transactionId) => {
+                const transactionResult = await get.peek(transactionResults.get(transactionId)!)
 
-                  return asTransactionSummary(transactionResult)
-                })
-              )
+                return asTransactionSummary(transactionResult)
+              })
+            )
 
-              return asBlockSummary(block, transactionSummaries)
-            }
-          })
-        )
-      ).filter(isDefined)
+            return asBlockSummary(block, transactionSummaries)
+          }
+        })
+      )
+    ).filter(isDefined)
 
-      set(latestBlockSummariesAtom, latestBlockSummaries)
-    })()
-  })
-
-  return atom((get) => {
-    get(refreshLatestBlockSummariesEffect)
-
-    return get(latestBlockSummariesAtom)
-  })
-}
-
-export const latestBlockSummariesAtom = createLatestBlockSummariesAtom()
+    set(latestBlockSummariesAtom, latestBlockSummaries)
+  })()
+})
 
 export const useLatestBlockSummaries = () => {
+  useAtom(refreshLatestBlockSummariesEffect)
   return useAtomValue(latestBlockSummariesAtom)
 }
 
@@ -121,17 +112,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
             acc[1].push(transaction)
 
             // Accumulate group results
-            if (t.group) {
-              const roundTime = transaction['round-time']
-              const group: GroupResult = acc[2].get(t.group) ?? {
-                id: t.group,
-                round: round,
-                timestamp: (roundTime ? new Date(roundTime * 1000) : new Date()).toISOString(),
-                transactionIds: [],
-              }
-              group.transactionIds.push(t.id)
-              acc[2].set(t.group, group)
-            }
+            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? new Date().getTime() / 1000)
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(t)
@@ -160,23 +141,18 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
                 })
                 .map((bc) => bc.address)
                 .filter(distinct((x) => x)) ?? []
-            const addressesStaleDueToAppChanges = flattenTransactionResult(t)
+
+            const addressesStaleDueToTransactions = flattenTransactionResult(t)
               .filter((t) => {
-                if (t['tx-type'] !== algosdk.TransactionType.appl) {
-                  return false
-                }
-                const appCallTransaction = t['application-transaction']!
-                const isAppCreate =
-                  appCallTransaction['on-completion'] === ApplicationOnComplete.noop && !appCallTransaction['application-id']
-                const isAppOptIn =
-                  appCallTransaction['on-completion'] === ApplicationOnComplete.optin && appCallTransaction['application-id']
-                return isAppCreate || isAppOptIn
+                const accountIsStaleDueToRekey = t['rekey-to']
+                return accountIsStaleDueToAppChanges(t) || accountIsStaleDueToRekey
               })
               .map((t) => t.sender)
               .filter(distinct((x) => x))
-            const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToAppChanges)))
+            const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToTransactions)))
             acc[4].push(...staleAddresses)
 
+            // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(t)
               .filter((t) => t['tx-type'] === algosdk.TransactionType.appl)
               .map((t) => t['application-transaction']?.['application-id'])
@@ -208,47 +184,53 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
       const currentAssetResults = get.peek(assetResultsAtom)
       const assetIdsToRemove = staleAssetIds.filter((staleAssetId) => currentAssetResults.has(staleAssetId))
 
-      set(assetMetadataResultsAtom, (prev) => {
-        const next = new Map(prev)
-        assetIdsToRemove.forEach((assetId) => {
-          next.delete(assetId)
+      if (assetIdsToRemove.length > 0) {
+        set(assetMetadataResultsAtom, (prev) => {
+          const next = new Map(prev)
+          assetIdsToRemove.forEach((assetId) => {
+            next.delete(assetId)
+          })
+          return next
         })
-        return next
-      })
 
-      set(assetResultsAtom, (prev) => {
-        const next = new Map(prev)
-        assetIdsToRemove.forEach((assetId) => {
-          next.delete(assetId)
+        set(assetResultsAtom, (prev) => {
+          const next = new Map(prev)
+          assetIdsToRemove.forEach((assetId) => {
+            next.delete(assetId)
+          })
+          return next
         })
-        return next
-      })
+      }
     }
 
     if (staleAddresses.length > 0) {
       const currentAccountResults = get.peek(accountResultsAtom)
       const addressesToRemove = staleAddresses.filter((staleAddress) => currentAccountResults.has(staleAddress))
 
-      set(accountResultsAtom, (prev) => {
-        const next = new Map(prev)
-        addressesToRemove.forEach((address) => {
-          next.delete(address)
+      if (addressesToRemove.length > 0) {
+        set(accountResultsAtom, (prev) => {
+          const next = new Map(prev)
+          addressesToRemove.forEach((address) => {
+            next.delete(address)
+          })
+          return next
         })
-        return next
-      })
+      }
     }
 
     if (staleApplicationIds.length > 0) {
       const currentApplicationResults = get.peek(applicationResultsAtom)
       const applicationIdsToRemove = staleApplicationIds.filter((staleApplicationId) => currentApplicationResults.has(staleApplicationId))
 
-      set(applicationResultsAtom, (prev) => {
-        const next = new Map(prev)
-        applicationIdsToRemove.forEach((applicationId) => {
-          next.delete(applicationId)
+      if (applicationIdsToRemove.length > 0) {
+        set(applicationResultsAtom, (prev) => {
+          const next = new Map(prev)
+          applicationIdsToRemove.forEach((applicationId) => {
+            next.delete(applicationId)
+          })
+          return next
         })
-        return next
-      })
+      }
     }
 
     set(addStateExtractedFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
@@ -267,4 +249,14 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
 
 export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
+}
+
+const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
+  if (txn['tx-type'] !== algosdk.TransactionType.appl) {
+    return false
+  }
+  const appCallTransaction = txn['application-transaction']!
+  const isAppCreate = appCallTransaction['on-completion'] === ApplicationOnComplete.noop && !appCallTransaction['application-id']
+  const isAppOptIn = appCallTransaction['on-completion'] === ApplicationOnComplete.optin && appCallTransaction['application-id']
+  return isAppCreate || isAppOptIn
 }

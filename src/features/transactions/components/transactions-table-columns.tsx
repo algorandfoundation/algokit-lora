@@ -7,12 +7,18 @@ import { TransactionLink } from '@/features/transactions/components/transaction-
 import { asTo } from '@/features/common/mappers/to'
 import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
+import { GroupLink } from '@/features/groups/components/group-link'
 
 const indentationWidth = 20
 
+export const transactionFromLabel = 'From'
+export const transactionToLabel = 'To'
+export const transactionAmountLabel = 'Amount'
+export const transactionRoundLabel = 'Round'
+
 export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
   {
-    header: 'Transaction Id',
+    header: 'Transaction ID',
     accessorFn: (transaction) => transaction,
     cell: ({ row, getValue }) => {
       const transaction = getValue<Transaction | InnerTransaction>()
@@ -32,24 +38,32 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
     },
   },
   {
-    header: 'Round',
-    accessorKey: 'confirmedRound',
+    header: 'Group ID',
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const transaction = c.getValue<Transaction>()
+      return transaction.group ? <GroupLink round={transaction.confirmedRound} groupId={transaction.group} short={true} /> : undefined
+    },
   },
   {
-    header: 'From',
-    accessorKey: 'sender',
+    header: transactionRoundLabel,
+    accessorFn: (transaction) => transaction.confirmedRound,
+  },
+  {
+    header: transactionFromLabel,
+    accessorFn: (transaction) => transaction.sender,
     cell: (c) => ellipseAddress(c.getValue<string>()),
   },
   {
-    header: 'To',
+    header: transactionToLabel,
     accessorFn: asTo,
   },
   {
     header: 'Type',
-    accessorKey: 'type',
+    accessorFn: (transaction) => transaction.type,
   },
   {
-    header: 'Amount',
+    header: transactionAmountLabel,
     accessorFn: (transaction) => transaction,
     cell: (c) => {
       const transaction = c.getValue<Transaction>()
@@ -61,3 +75,4 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
     },
   },
 ]
+export const transactionsTableColumnsWithoutRound = transactionsTableColumns.filter((x) => x.header !== transactionRoundLabel)

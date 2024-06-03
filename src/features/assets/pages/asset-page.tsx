@@ -7,6 +7,8 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
 import { useLoadableAsset } from '../data'
+import { useCallback } from 'react'
+import { RefreshButton } from '@/features/common/components/refresh-button'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -28,11 +30,18 @@ export function AssetPage() {
   invariant(isInteger(_assetId), assetInvalidIdMessage)
 
   const assetId = parseInt(_assetId, 10)
-  const loadableAsset = useLoadableAsset(assetId)
+  const [loadableAsset, refreshAsset, isStale] = useLoadableAsset(assetId)
+
+  const refresh = useCallback(() => {
+    refreshAsset()
+  }, [refreshAsset])
 
   return (
     <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
+      <div className="flex">
+        <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
+        {isStale && <RefreshButton onClick={refresh} />}
+      </div>
       <RenderLoadable loadable={loadableAsset} transformError={transformError}>
         {(asset) => <AssetDetails asset={asset} />}
       </RenderLoadable>

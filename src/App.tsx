@@ -2,17 +2,17 @@ import './App.css'
 import { routes } from './App.routes'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { TooltipProvider } from './features/common/components/tooltip'
-import { SettingsProvider } from './features/settings/components/settings-provider'
+import { PlatformProvider } from './features/common/components/platform-provider'
 
 const router = createBrowserRouter(routes)
 
 function App() {
   return (
-    <SettingsProvider>
+    <PlatformProvider>
       <TooltipProvider>
         <RouterProvider router={router} />
       </TooltipProvider>
-    </SettingsProvider>
+    </PlatformProvider>
   )
 }
 

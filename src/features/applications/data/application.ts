@@ -1,28 +1,38 @@
-import { JotaiStore } from '@/features/common/data/types'
-import { atom, useAtomValue, useStore } from 'jotai'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { asApplication } from '../mappers'
 import { useMemo } from 'react'
-import { loadable } from 'jotai/utils'
+import { atomWithRefresh, loadable } from 'jotai/utils'
 import { ApplicationId } from './types'
-import { getApplicationResultAtom } from './application-result'
+import { applicationResultsAtom, getApplicationResultAtom } from './application-result'
 import { getApplicationMetadataResultAtom } from './application-metadata'
+import { atomEffect } from 'jotai-effect'
 
-export const createApplicationAtom = (store: JotaiStore, applicationId: ApplicationId) => {
-  return atom(async (get) => {
-    const applicationResult = await get(getApplicationResultAtom(store, applicationId))
-    const applicationMetadata = await get(getApplicationMetadataResultAtom(store, applicationResult))
-    return asApplication(applicationResult, applicationMetadata)
+const createApplicationAtoms = (applicationId: ApplicationId) => {
+  const isStaleAtom = atom(false)
+  const detectIsStaleEffect = atomEffect((get, set) => {
+    const applicationResults = get(applicationResultsAtom)
+    const isStale = applicationResults.get(applicationId) === undefined ? true : false
+    set(isStaleAtom, isStale)
   })
+
+  return [
+    atomWithRefresh(async (get) => {
+      const applicationResult = await get(getApplicationResultAtom(applicationId))
+      const applicationMetadata = await get(getApplicationMetadataResultAtom(applicationResult))
+      get(detectIsStaleEffect)
+      return asApplication(applicationResult, applicationMetadata)
+    }),
+    isStaleAtom,
+  ] as const
 }
 
-const useApplicationAtom = (applicationId: ApplicationId) => {
-  const store = useStore()
-
+const useApplicationAtoms = (applicationId: ApplicationId) => {
   return useMemo(() => {
-    return createApplicationAtom(store, applicationId)
-  }, [store, applicationId])
+    return createApplicationAtoms(applicationId)
+  }, [applicationId])
 }
 
 export const useLoadableApplication = (applicationId: ApplicationId) => {
-  return useAtomValue(loadable(useApplicationAtom(applicationId)))
+  const [applicationAtom, isStaleAtom] = useApplicationAtoms(applicationId)
+  return [useAtomValue(loadable(applicationAtom)), useSetAtom(applicationAtom), useAtomValue(isStaleAtom)] as const
 }

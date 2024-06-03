@@ -3,6 +3,7 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { Group } from '../models'
 import { TransactionsGraph } from '@/features/transactions/components/transactions-graph'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
+import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 
 type Props = {
   group: Group
@@ -14,7 +15,7 @@ export const groupVisual = 'View Group'
 export const groupVisualGraphLabel = 'Graph'
 export const groupVisualTableLabel = 'Table'
 
-export function GroupVisualTabs({ group }: Props) {
+export function GroupTransactionsViewTabs({ group }: Props) {
   return (
     <Tabs defaultValue={graphTabId}>
       <TabsList aria-label={groupVisual}>
@@ -29,7 +30,7 @@ export function GroupVisualTabs({ group }: Props) {
         <TransactionsGraph transactions={group.transactions} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={tableTabId}>
-        <TransactionsTable transactions={group.transactions} />
+        <TransactionsTable transactions={group.transactions} columns={transactionsTableColumnsWithoutRound} />
       </OverflowAutoTabsContent>
     </Tabs>
   )

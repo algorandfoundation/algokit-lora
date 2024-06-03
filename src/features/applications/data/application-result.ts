@@ -1,6 +1,6 @@
 import { algod, indexer } from '@/features/common/data'
 import { ApplicationId, ApplicationResult } from './types'
-import { atomsInAtom } from '@/features/common/data/atoms-in-atom'
+import { atomsInAtom } from '@/features/common/data'
 import { asError, is404 } from '@/utils/error'
 
 const getApplicationResult = async (applicationId: ApplicationId) => {

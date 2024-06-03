@@ -6,8 +6,10 @@ import { isAddress } from '@/utils/is-address'
 import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Account } from '../models'
-import { useLoadableAccountAtom } from '../data'
+import { useLoadableAccount } from '../data'
 import { AccountDetails } from '../components/account-details'
+import { useCallback } from 'react'
+import { RefreshButton } from '@/features/common/components/refresh-button'
 
 export const accountPageTitle = 'Account'
 export const accountInvalidAddressMessage = 'Address is invalid'
@@ -26,11 +28,18 @@ const transformError = (e: Error) => {
 export function AccountPage() {
   const { address } = useRequiredParam(UrlParams.Address)
   invariant(isAddress(address), accountInvalidAddressMessage)
-  const loadableAccount = useLoadableAccountAtom(address)
+  const [loadableAccount, refreshAccount, isStale] = useLoadableAccount(address)
+
+  const refresh = useCallback(() => {
+    refreshAccount()
+  }, [refreshAccount])
 
   return (
     <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{accountPageTitle}</h1>
+      <div className="flex">
+        <h1 className={cn('text-2xl text-primary font-bold')}>{accountPageTitle}</h1>
+        {isStale && <RefreshButton onClick={refresh} />}
+      </div>
       <RenderLoadable loadable={loadableAccount} transformError={transformError}>
         {(account: Account) => <AccountDetails account={account} />}
       </RenderLoadable>

@@ -30,6 +30,7 @@ import { descriptionListAssertion } from '@/tests/assertions/description-list-as
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
+import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -213,6 +214,92 @@ describe('application-page', () => {
                 { term: applicationNameLabel, description: 'cryptoless-JIUK4YAO2GU7UX36JHH35KWI4AJ3PDEYSRQ75PCJJKR5UBX6RQ6Y5UZSJQ' },
               ],
             })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an application that becomes stale', () => {
+    const applicationResult = applicationResultMother['mainnet-80441968']().build()
+
+    it('should be rendered with the refresh button', () => {
+      const myStore = createStore()
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+        Promise.resolve(
+          new indexerModels.BoxesResponse({
+            applicationId: 80441968,
+            boxes: [
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0=',
+              }),
+              new modelsv2.BoxDescriptor({
+                name: 'AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
+              }),
+            ],
+            nextToken: 'b64:AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
+          })
+        )
+      )
+      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(async () => {
+            const detailsCard = component.getByLabelText(applicationDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [{ term: applicationIdLabel, description: '80441968' }],
+            })
+
+            const refreshButton = component.queryByLabelText(refreshButtonLabel)
+            expect(refreshButton).toBeFalsy()
+          })
+
+          // Simulate the application being evicted from the store, due to staleness
+          myStore.set(applicationResultsAtom, new Map())
+
+          await waitFor(async () => {
+            const detailsCard = component.getByLabelText(applicationDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [{ term: applicationIdLabel, description: '80441968' }],
+            })
+
+            const refreshButton = component.getByLabelText(refreshButtonLabel)
+            expect(refreshButton).toBeTruthy()
           })
         }
       )

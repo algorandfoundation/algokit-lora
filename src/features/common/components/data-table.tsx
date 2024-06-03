@@ -1,17 +1,24 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getPaginationRowModel } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable, getPaginationRowModel, getExpandedRowModel } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { DataTablePagination } from './data-table-pagination'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  getSubRows?: (row: TData) => TData[]
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, getSubRows }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
+    paginateExpandedRows: false,
+    state: {
+      expanded: true,
+    },
+    getSubRows: getSubRows,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
 

@@ -93,7 +93,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       }
     }
     case algosdk.TransactionType.keyreg: {
-      invariant(transactionResult['key-reg-transaction'], 'key-reg-transaction is not set')
+      invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
       return {
         ...common,
         type: TransactionType.KeyReg,

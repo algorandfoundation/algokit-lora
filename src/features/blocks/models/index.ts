@@ -1,3 +1,4 @@
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionsSummary } from '@/features/common/models'
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
 
@@ -9,7 +10,7 @@ export type CommonBlockProperties = {
 
 export type Block = CommonBlockProperties & {
   previousRound?: number
-  nextRound?: number
+  nextRound: AsyncMaybeAtom<number>
   transactions: Transaction[]
 }
 

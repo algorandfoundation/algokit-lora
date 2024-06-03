@@ -2,12 +2,12 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { AssetConfigTransaction, AssetConfigTransactionSubType, InnerAssetConfigTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionSenderLabel } from './transactions-table'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
 import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
 import { useAtomValue } from 'jotai'
+import { transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction

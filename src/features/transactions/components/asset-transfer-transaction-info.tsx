@@ -2,11 +2,12 @@ import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { AssetTransferTransaction, AssetTransferTransactionSubType, InnerAssetTransferTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionSenderLabel, transactionReceiverLabel, transactionAmountLabel } from './transactions-table'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetLink } from '@/features/assets/components/asset-link'
 import { useAtomValue } from 'jotai'
+import { transactionAmountLabel } from './transactions-table-columns'
+import { transactionReceiverLabel, transactionSenderLabel } from './labels'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction

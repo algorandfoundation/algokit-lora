@@ -34,6 +34,7 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { ApplicationLiveTransactions } from './application-live-transactions'
 import { ApplicationTransactionHistory } from './application-transaction-history'
 import { JsonView } from '@/features/common/components/json-view'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
   application: Application
@@ -54,11 +55,11 @@ export function ApplicationDetails({ application }: Props) {
         : undefined,
       {
         dt: applicationCreatorAccountLabel,
-        dd: application.creator,
+        dd: <AccountLink address={application.creator}></AccountLink>,
       },
       {
         dt: applicationAccountLabel,
-        dd: application.account,
+        dd: <AccountLink address={application.account}></AccountLink>,
       },
       application.globalStateSchema
         ? {
@@ -99,7 +100,6 @@ export function ApplicationDetails({ application }: Props) {
     <div className={cn('space-y-6 pt-7')}>
       <Card aria-label={applicationDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationDetailsLabel}</h1>
           <DescriptionList items={applicationItems} />
         </CardContent>
       </Card>
