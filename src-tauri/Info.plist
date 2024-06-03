@@ -7,7 +7,6 @@
         <array>
             <dict>
                 <key>CFBundleURLName</key>
-                <!-- Obviously needs to be replaced with your app's bundle identifier -->
                 <string>dev.tauri-poc.pat</string>
                 <key>CFBundleURLSchemes</key>
                 <array>
