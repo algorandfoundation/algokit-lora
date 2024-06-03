@@ -10,7 +10,7 @@
                 <string>dev.tauri-poc.pat</string>
                 <key>CFBundleURLSchemes</key>
                 <array>
-                    <!-- register the myapp:// and myscheme:// schemes -->
+                    <!-- register the algokit-explorer:// scheme -->
                     <string>algokit-explorer</string>
                 </array>
             </dict>
