@@ -1,7 +1,7 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { getTransactionResultAtom } from '@/features/transactions/data'
+import { latestTransactionIdsAtom, getTransactionResultAtom } from '@/features/transactions/data'
 import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
@@ -23,7 +23,6 @@ import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
-import { latestTransactionIdsAtom } from '@/features/transactions/data/latest-transaction-ids'
 
 const maxBlocksToDisplay = 5
 

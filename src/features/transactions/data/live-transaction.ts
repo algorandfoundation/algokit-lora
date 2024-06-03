@@ -1,11 +1,10 @@
 import { useMemo } from 'react'
-import { createTransactionAtom, getTransactionResultAtom } from '@/features/transactions/data'
+import { createTransactionAtom, getTransactionResultAtom, latestTransactionIdsAtom } from '@/features/transactions/data'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { atomEffect } from 'jotai-effect'
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { latestTransactionIdsAtom } from './latest-transaction-ids'
 
 export const useLiveTransactions = (filter: (transactionResult: TransactionResult) => boolean, maxRows: number) => {
   const { liveTransactionsAtomEffect, liveTransactionsAtom } = useMemo(() => {

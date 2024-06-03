@@ -26,7 +26,7 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
   createInitialValueAtom: (value: Value) => Atom<Value | Awaited<Value>> = defaultCreateInitialValueAtom
 ) {
   // Note: The for unbound collections, this will grow indefinitely.
-  // stale date should be cleaned up in state-cleanup.ts
+  // Stale data should be cleaned up in state-cleanup.ts
   const valuesAtom = atom(initialValues)
 
   const getOrCreateValueAtom = atom(null, (get, set, params: [...args: Args, options?: Options]) => {
