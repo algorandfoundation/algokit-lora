@@ -3,7 +3,7 @@ import { getAllByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { BlockPage, blockFailedToLoadMessage, blockInvalidRoundMessage, blockNotFoundMessage } from './block-page'
-import { createAtomAndTimestamp, indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
@@ -17,6 +17,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
+import { indexer } from '@/features/common/data/algo-client'
 
 describe('block-page', () => {
   describe('when rendering a block using an invalid round number', () => {

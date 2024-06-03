@@ -15,7 +15,7 @@ import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
-import { algod, createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
@@ -80,6 +80,7 @@ import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applicati
 import { transactionAmountLabel } from '../components/transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
+import { algod } from '@/features/common/data/algo-client'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {

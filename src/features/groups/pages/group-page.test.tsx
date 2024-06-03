@@ -3,7 +3,7 @@ import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { GroupPage, blockInvalidRoundMessage, groupNotFoundMessage, groupFailedToLoadMessage } from './group-page'
-import { createAtomAndTimestamp, indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { createStore } from 'jotai'
@@ -17,8 +17,9 @@ import { transactionResultsAtom } from '@/features/transactions/data'
 import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-transactions-view-tabs'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
+import { indexer } from '@/features/common/data/algo-client'
 
-describe('block-page', () => {
+describe('group-page', () => {
   describe('when rendering a group using an invalid round number', () => {
     it('should display invalid round message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: 'invalid-id', groupId: 'some-id' }))
@@ -35,7 +36,7 @@ describe('block-page', () => {
   describe('when rendering a group with a round number that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
-      vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupBlock(123456).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => render(<GroupPage />),

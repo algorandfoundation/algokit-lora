@@ -3,7 +3,7 @@ import { render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
-import { algod, createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { accountResultMother } from '@/tests/object-mother/account-result'
 import { createStore } from 'jotai'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
@@ -24,6 +24,7 @@ import {
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
+import { algod } from '@/features/common/data/algo-client'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {

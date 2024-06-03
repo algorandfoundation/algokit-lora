@@ -1,9 +1,9 @@
 import { atom } from 'jotai'
 import { AssetId, AssetResult } from './types'
-import { indexer, algod } from '@/features/common/data'
 import { asError, is404 } from '@/utils/error'
 import { atomsInAtom } from '@/features/common/data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
+import { algod, indexer } from '@/features/common/data/algo-client'
 
 export const algoAssetResult = {
   index: 0,

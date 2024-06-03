@@ -23,13 +23,14 @@ import {
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
 import { algoAssetResult } from '../data'
-import { indexer, algod, createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetUnitLabel } from '@/features/transactions/components/asset-config-transaction-info'
 import { HttpError } from '@/tests/errors'
 import { ipfsGatewayUrl } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { assetResultsAtom } from '../data'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
+import { algod, indexer } from '@/features/common/data/algo-client'
 
 describe('asset-page', () => {
   describe('when rendering an asset using an invalid asset Id', () => {

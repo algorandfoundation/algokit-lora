@@ -8,7 +8,7 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { algod, createAtomAndTimestamp, indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { createStore } from 'jotai'
@@ -31,6 +31,7 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
+import { algod, indexer } from '@/features/common/data/algo-client'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {

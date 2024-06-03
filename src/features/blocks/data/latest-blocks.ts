@@ -5,7 +5,6 @@ import { latestTransactionIdsAtom, getTransactionResultAtom } from '@/features/t
 import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
-import { algod } from '@/features/common/data'
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
@@ -23,6 +22,7 @@ import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
+import { algod } from '@/features/common/data/algo-client'
 
 const maxBlocksToDisplay = 5
 
@@ -61,6 +61,7 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
 })
 
 export const useLatestBlockSummaries = () => {
+  useAtom(refreshLatestBlockSummariesEffect)
   return useAtomValue(latestBlockSummariesAtom)
 }
 
@@ -249,7 +250,6 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
 
 export const useSubscribeToBlocksEffect = () => {
   useAtom(subscribeToBlocksEffect)
-  useAtom(refreshLatestBlockSummariesEffect)
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {

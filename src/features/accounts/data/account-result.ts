@@ -1,9 +1,10 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
-import { algod, createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { atomsInAtom } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
+import { algod } from '@/features/common/data/algo-client'
 
 const getAccountResult = (address: Address) =>
   algod

@@ -1,11 +1,12 @@
 import { ApplicationId } from './types'
-import { createAtomAndTimestamp, indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom } from 'jotai'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
+import { indexer } from '@/features/common/data/algo-client'
 
 const getApplicationTransactionResults = async (applicationID: ApplicationId, nextPageToken?: string) => {
   const results = (await indexer
