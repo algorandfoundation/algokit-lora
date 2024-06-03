@@ -39,6 +39,7 @@ fn register_deep_link_mac(app: &mut tauri::App, url_schema: &str, window_title: 
     .unwrap();
 }
 
+#[cfg(not(target_os = "macos"))]
 fn register_deep_link_window_linux(app: &mut tauri::App, url_schema: &str, window_title: &str) {
     let handle: tauri::AppHandle = app.handle();
     let window: tauri::Window = app.get_window(window_title).unwrap();
