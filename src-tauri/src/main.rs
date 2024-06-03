@@ -13,26 +13,42 @@ fn main() {
 
     tauri::Builder::default()
         .setup(|app| {
-            let handle: tauri::AppHandle = app.handle();
-            let window = app.get_window(window_title).unwrap();
+            #[cfg(target_os = "macos")]
+            register_deep_link_mac(app, url_schema, window_title);
 
-            tauri_plugin_deep_link::register(url_schema, move |request| {
-                dbg!(&request);
-                // set window.deepLink here as well because the macOS plugin handles it
-                let _ = window.eval(format!("window.deepLink='{}'", request).as_str());
-                handle.emit_all("deep-link-received", request).unwrap();
-            })
-            .unwrap();
-
-            // Handle the url scheme request on startup for non macOS.
-            // On macOS the plugin handles this because it doesn't use cli args for the url.
             #[cfg(not(target_os = "macos"))]
-            if let Some(url) = std::env::args().nth(1) {
-                let _ = window.eval(format!("window.deepLink='{}'", url).as_str());
-            }
+            register_deep_link_window_linux(app, url_schema, window_title);
 
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+#[cfg(target_os = "macos")]
+fn register_deep_link_mac(app: &mut tauri::App, url_schema: &str, window_title: &str) {
+    let handle: tauri::AppHandle = app.handle();
+    let window: tauri::Window = app.get_window(window_title).unwrap();
+
+    tauri_plugin_deep_link::register(url_schema, move |request| {
+        // set window.deepLink here as well because the macOS doesn't use cli args for the url
+        let _ = window.eval(format!("window.deepLink='{}'", request).as_str());
+
+        handle.emit_all("deep-link-received", request).unwrap();
+    })
+    .unwrap();
+}
+
+fn register_deep_link_window_linux(app: &mut tauri::App, url_schema: &str, window_title: &str) {
+    let handle: tauri::AppHandle = app.handle();
+    let window: tauri::Window = app.get_window(window_title).unwrap();
+
+    tauri_plugin_deep_link::register(url_schema, move |request| {
+        handle.emit_all("deep-link-received", request).unwrap();
+    })
+    .unwrap();
+
+    if let Some(url) = std::env::args().nth(1) {
+        let _ = window.eval(format!("window.deepLink='{}'", url).as_str());
+    }
 }
