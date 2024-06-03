@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useCallback, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
@@ -15,8 +15,8 @@ export function DeepLinkPage({ children }: Props) {
   const setSelectedNetwork = useSetAtom(selectedNetworkAtom, { store: settingsStore })
   const navigate = useNavigate()
 
-  useEffect(() => {
-    function handleDeepLink(url: string | undefined) {
+  const handleDeepLink = useCallback(
+    (url: string | undefined) => {
       const options = parseDeepLink(url)
       if (options) {
         setSelectedNetwork(options.networkId)
@@ -26,11 +26,17 @@ export function DeepLinkPage({ children }: Props) {
           navigate(Urls.Explore.Transaction.ById.build({ transactionId: options.transactionId }))
         }
       }
+    },
+    [navigate, setSelectedNetwork]
+  )
+
+  useEffect(() => {
+    if (window.deepLink) {
+      // On init
+      handleDeepLink(window.deepLink)
+      // Reset so that it won't be used again
+      window.deepLink = undefined
     }
-
-    // On init
-    handleDeepLink(window.deepLink)
-
     // On deep link event while the app is open
     const unlisten = listen('deep-link-received', (event) => {
       handleDeepLink(event.payload as string)
@@ -39,7 +45,7 @@ export function DeepLinkPage({ children }: Props) {
     return () => {
       unlisten.then((f) => f())
     }
-  }, [navigate, setSelectedNetwork])
+  })
 
   return <>{children}</>
 }
