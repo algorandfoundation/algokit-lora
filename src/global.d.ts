@@ -1,3 +1,3 @@
 interface Window {
-  urlSchemeRequest?: string
+  deepLink?: string
 }

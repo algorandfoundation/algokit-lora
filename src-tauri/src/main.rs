@@ -4,34 +4,34 @@
 use tauri::Manager;
 
 fn main() {
-    tauri_plugin_deep_link::prepare("dev.tauri-poc.pat");
+    // The app identifier must match the identifier in info.plist
+    let app_identifier = "dev.tauri-poc.pat";
+    let url_schema = "algokit-explorer";
+    let window_title = "main";
+
+    tauri_plugin_deep_link::prepare(app_identifier);
 
     tauri::Builder::default()
         .setup(|app| {
-          // If you need macOS support this must be called in .setup() !
-          // Otherwise this could be called right after prepare() but then you don't have access to tauri APIs
-          let handle: tauri::AppHandle = app.handle();
-          let window = app.get_window("main").unwrap();
+            let handle: tauri::AppHandle = app.handle();
+            let window = app.get_window(window_title).unwrap();
 
-          tauri_plugin_deep_link::register(
-            "algokit-explorer",
-            move |request| {
-              dbg!(&request);
-              let _ = window.eval(format!("window.urlSchemeRequest='{}'", request).as_str());
-              handle.emit_all("scheme-request-received", request).unwrap();
-            },
-          )
-          .unwrap(/* If listening to the scheme is optional for your app, you don't want to unwrap here. */);
+            tauri_plugin_deep_link::register(url_schema, move |request| {
+                dbg!(&request);
+                // set window.deepLink here as well because the macOS plugin handles it
+                let _ = window.eval(format!("window.deepLink='{}'", request).as_str());
+                handle.emit_all("deep-link-received", request).unwrap();
+            })
+            .unwrap();
 
-          // If you also need the url when the primary instance was started by the custom scheme, you currently have to read it yourself
+            // Handle the url scheme request on startup for non macOS.
+            // On macOS the plugin handles this because it doesn't use cli args for the url.
+            #[cfg(not(target_os = "macos"))]
+            if let Some(url) = std::env::args().nth(1) {
+                let _ = window.eval(format!("window.deepLink='{}'", url).as_str());
+            }
 
-          #[cfg(not(target_os = "macos"))] // on macos the plugin handles this (macos doesn't use cli args for the url)
-          if let Some(url) = std::env::args().nth(1) {
-            let _ = window.eval(format!("window.urlSchemeRequest='{}'", url).as_str());
-            app.emit_all("scheme-request-received", url).unwrap();
-          }
-
-          Ok(())
+            Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
