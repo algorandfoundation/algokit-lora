@@ -31,6 +31,10 @@ export function DeepLinkPage({ children }: Props) {
   )
 
   useEffect(() => {
+    if (!window.__TAURI__) {
+      return
+    }
+
     if (window.deepLink) {
       // On init
       handleDeepLink(window.deepLink)
