@@ -8,5 +8,8 @@
   "eslint.validate": ["typescript"],
   "files.associations": {
     "*.css": "tailwindcss"
+  },
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
   }
 }

@@ -120,3 +120,11 @@ global.HTMLCanvasElement.prototype.getContext = () => {
     fillRect: vi.fn(),
   } as unknown as null // Hack so we don't need to implement the whole CanvasRenderingContext2D
 }
+
+vi.mock('@tauri-apps/api/event', async () => {
+  const original = await vi.importActual('@tauri-apps/api/event')
+  return {
+    ...original,
+    listen: vi.fn(),
+  }
+})

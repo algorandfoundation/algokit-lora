@@ -1,6 +1,5 @@
 import { useNetworkConfig } from '@/features/settings/data'
 import { PropsWithChildren } from 'react'
-
 import { PROVIDER_ID, useInitializeProviders } from '@txnlab/use-wallet'
 import { DaffiWalletConnect } from '@daffiwallet/connect'
 import { PeraWalletConnect } from '@perawallet/connect'
