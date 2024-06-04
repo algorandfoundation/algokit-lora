@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
@@ -7,11 +7,7 @@ import { selectedNetworkAtom, settingsStore } from '@/features/settings/data'
 import { parseDeepLink } from '@/features/deep-link/parse-deep-link'
 import { Urls } from '@/routes/urls'
 
-type Props = {
-  children?: ReactNode
-}
-
-export function DeepLinkPage({ children }: Props) {
+export function useDeepLink() {
   const setSelectedNetwork = useSetAtom(selectedNetworkAtom, { store: settingsStore })
   const navigate = useNavigate()
 
@@ -20,10 +16,10 @@ export function DeepLinkPage({ children }: Props) {
       const options = parseDeepLink(url)
       if (options) {
         setSelectedNetwork(options.networkId)
-        // TODO: we should navigate to somewhere when the network is changed
-
         if (options.transactionId) {
           navigate(Urls.Explore.Transaction.ById.build({ transactionId: options.transactionId }))
+        } else {
+          navigate(Urls.Explore.build({}))
         }
       }
     },
@@ -50,6 +46,4 @@ export function DeepLinkPage({ children }: Props) {
       unlisten.then((f) => f())
     }
   })
-
-  return <>{children}</>
 }

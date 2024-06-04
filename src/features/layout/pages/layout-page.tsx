@@ -5,6 +5,7 @@ import { cn } from '@/features/common/utils'
 import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
 
 export interface LayoutPageProps {
   children?: ReactNode
@@ -12,6 +13,7 @@ export interface LayoutPageProps {
 
 export function LayoutPage({ children }: LayoutPageProps) {
   useSubscribeToBlocksEffect()
+  useDeepLink()
 
   return (
     <div className="w-full xl:max-w-screen-xl">

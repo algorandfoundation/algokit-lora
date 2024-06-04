@@ -12,17 +12,14 @@ import { AccountPage, accountPageTitle } from './features/accounts/pages/account
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
-import { DeepLinkPage } from './features/deep-link/pages/deep-link-page'
 
 export const routes = evalTemplates([
   {
     template: Urls.Index,
     element: (
-      <DeepLinkPage>
-        <LayoutPage>
-          <Outlet />
-        </LayoutPage>
-      </DeepLinkPage>
+      <LayoutPage>
+        <Outlet />
+      </LayoutPage>
     ),
     errorElement: <ErrorPage />,
     children: [

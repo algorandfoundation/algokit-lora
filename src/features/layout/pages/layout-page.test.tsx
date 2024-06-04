@@ -1,9 +1,13 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
 import { useWallet } from '@txnlab/use-wallet'
+import { Event as TauriEvent, listen } from '@tauri-apps/api/event'
+import { networkConfigAtom, settingsStore } from '@/features/settings/data'
+import { useNavigate } from 'react-router-dom'
+import { createStore } from 'jotai'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -62,6 +66,107 @@ describe('when rendering the layout page', () => {
             const linkElement = component.getByRole('link', { name: /CGRS...LQ5Q/i })
             expect(linkElement.getAttribute('href')).toBe('/explore/account/CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
           })
+        }
+      )
+    })
+  })
+
+  describe('and mainnet is selected', () => {
+    const mockNavigate = vi.fn()
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
+    beforeAll(() => {
+      window.__TAURI__ = {}
+      window.deepLink = 'algokit-explorer://network/mainnet'
+    })
+
+    it('mainnet should be selected', async () => {
+      vi.mocked(listen).mockImplementation(() => {
+        return Promise.resolve({
+          then: () => {},
+          catch: () => {},
+        })
+      })
+
+      await executeComponentTest(
+        () => render(<LayoutPage />, undefined),
+        async () => {
+          const networkConfig = settingsStore.get(networkConfigAtom)
+          expect(networkConfig.id).toBe('mainnet')
+        }
+      )
+    })
+
+    describe('then the user triggers a deep link to testnet', () => {
+      beforeAll(() => {
+        vi.mocked(listen).mockImplementation((_, handler: (event: TauriEvent<string>) => void) => {
+          handler({
+            event: 'deep-link-received',
+            windowLabel: 'main',
+            id: 1,
+            payload: 'algokit-explorer://network/testnet',
+          })
+
+          return Promise.resolve({
+            then: () => {},
+            catch: () => {},
+          })
+        })
+      })
+
+      it('testnet should be selected', async () => {
+        await executeComponentTest(
+          () => render(<LayoutPage />),
+          async () => {
+            const networkConfig = settingsStore.get(networkConfigAtom)
+            expect(networkConfig.id).toBe('testnet')
+          }
+        )
+      })
+    })
+
+    describe('then the user triggers a deep link to a transaction', () => {
+      beforeAll(() => {
+        vi.mocked(listen).mockImplementation((_, handler: (event: TauriEvent<string>) => void) => {
+          handler({
+            event: 'deep-link-received',
+            windowLabel: 'main',
+            id: 1,
+            payload: 'algokit-explorer://network/mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
+          })
+
+          return Promise.resolve({
+            then: () => {},
+            catch: () => {},
+          })
+        })
+      })
+
+      it('should navigate to the transaction page', async () => {
+        await executeComponentTest(
+          () => render(<LayoutPage />),
+          async () => {
+            const networkConfig = settingsStore.get(networkConfigAtom)
+
+            expect(networkConfig.id).toBe('mainnet')
+            expect(mockNavigate).toHaveBeenCalledWith(
+              `/explore/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`
+            )
+          }
+        )
+      })
+    })
+  })
+
+  describe('and no deep link is selected', () => {
+    vi.mocked(settingsStore).get.mockReturnValue(createStore())
+
+    it('localnet should be selected', () => {
+      return executeComponentTest(
+        () => render(<LayoutPage />),
+        async () => {
+          const networkConfig = settingsStore.get(networkConfigAtom)
+          expect(networkConfig.id).toBe('localnet')
         }
       )
     })
