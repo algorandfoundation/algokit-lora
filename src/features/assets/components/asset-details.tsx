@@ -73,11 +73,11 @@ export function AssetDetails({ asset }: Props) {
         : undefined,
       {
         dt: assetTotalSupplyLabel,
-        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals.toString()))} ${asset.unitName ?? ''}`,
+        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
       },
       {
         dt: assetDecimalsLabel,
-        dd: asset.decimals.toString(),
+        dd: asset.decimals,
       },
       {
         dt: assetDefaultFrozenLabel,
