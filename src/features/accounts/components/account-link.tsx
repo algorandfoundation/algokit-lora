@@ -16,7 +16,7 @@ export const AccountLink = fixedForwardRef(
     return (
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline', className)}
-        urlTemplate={Urls.Explore.Account.ById}
+        urlTemplate={Urls.Explore.Account.ByAddress}
         urlParams={{ address }}
         ref={ref}
         {...rest}

@@ -23,14 +23,14 @@ export const Urls = {
       }),
     }),
     Block: UrlTemplate`/block`.extend({
-      ById: UrlTemplate`/${UrlParams.Round}`.extend({
+      ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
         Group: UrlTemplate`/group`.extend({
           ById: UrlTemplate`/${UrlParams.GroupId}`,
         }),
       }),
     }),
     Account: UrlTemplate`/account`.extend({
-      ById: UrlTemplate`/${UrlParams.Address}`,
+      ByAddress: UrlTemplate`/${UrlParams.Address}`,
     }),
     Asset: UrlTemplate`/asset`.extend({
       ById: UrlTemplate`/${UrlParams.AssetId}`,

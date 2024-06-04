@@ -8,7 +8,7 @@ import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
 
 export function JsonView({ json }: { json: object }) {
-  // TODO: one we have the design, we need to support light/dard mode and custom themes
+  // TODO: one we have the design, we need to support light/dark mode and custom themes
   const style: StyleProps = {
     container: '',
     basicChildStyle: styles['basic-element-style'],

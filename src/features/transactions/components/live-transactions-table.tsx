@@ -15,6 +15,7 @@ interface Props {
 export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   const [maxRows, setMaxRows] = useState(10)
   const transactions = useLiveTransactions(filter, maxRows)
+
   const table = useReactTable({
     data: transactions,
     columns,

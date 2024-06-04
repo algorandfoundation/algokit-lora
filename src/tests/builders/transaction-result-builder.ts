@@ -29,7 +29,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
             fee: randomNumberBetween(1_000, 100_000),
             sender: randomString(52, 52),
             'confirmed-round': randomNumber(),
-            'round-time': randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000,
+            'round-time': Math.floor(randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000),
             signature: {
               sig: randomString(88, 88),
             },

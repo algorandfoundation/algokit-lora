@@ -3,9 +3,9 @@ import { render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
-import { algod } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { accountResultMother } from '@/tests/object-mother/account-result'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { accountResultsAtom } from '../data'
 import {
@@ -24,6 +24,7 @@ import {
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
+import { algod } from '@/features/common/data/algo-client'
 
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {
@@ -58,14 +59,14 @@ describe('account-page', () => {
   describe('when rendering an account', () => {
     const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
     const assetResults = new Map([
-      [924268058, atom(assetResultMother['mainnet-924268058']().build())],
-      [1010208883, atom(assetResultMother['mainnet-1010208883']().build())],
-      [1096015467, atom(assetResultMother['mainnet-1096015467']().build())],
+      [924268058, createAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883, createAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467, createAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
     ])
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -100,17 +101,17 @@ describe('account-page', () => {
   describe('when rendering an account with assets and applications', () => {
     const accountResult = accountResultMother['mainnet-ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA']().build()
     const assetResults = new Map([
-      [1336655079, atom(accountResult['created-assets']![0])],
-      [1284444444, atom(assetResultMother['mainnet-1284444444']().build())],
-      [1162292622, atom(assetResultMother['mainnet-1162292622']().build())],
-      [1294765516, atom(assetResultMother['mainnet-1294765516']().build())],
-      [1355858325, atom(assetResultMother['mainnet-1355858325']().build())],
-      [1355898842, atom(assetResultMother['mainnet-1355898842']().build())],
+      [1336655079, createAtomAndTimestamp(accountResult['created-assets']![0])],
+      [1284444444, createAtomAndTimestamp(assetResultMother['mainnet-1284444444']().build())],
+      [1162292622, createAtomAndTimestamp(assetResultMother['mainnet-1162292622']().build())],
+      [1294765516, createAtomAndTimestamp(assetResultMother['mainnet-1294765516']().build())],
+      [1355858325, createAtomAndTimestamp(assetResultMother['mainnet-1355858325']().build())],
+      [1355898842, createAtomAndTimestamp(assetResultMother['mainnet-1355898842']().build())],
     ])
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -147,7 +148,7 @@ describe('account-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
@@ -182,14 +183,14 @@ describe('account-page', () => {
   describe('when rendering an account that becomes stale', () => {
     const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
     const assetResults = new Map([
-      [924268058, atom(assetResultMother['mainnet-924268058']().build())],
-      [1010208883, atom(assetResultMother['mainnet-1010208883']().build())],
-      [1096015467, atom(assetResultMother['mainnet-1096015467']().build())],
+      [924268058, createAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883, createAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467, createAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
     ])
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, atom(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))

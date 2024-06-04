@@ -12,7 +12,7 @@ const syncAssociatedDataAndReturnGroupResultAtom = atom(null, async (_get, set, 
   invariant(groupIndex !== -1, `Group ${groupId} does not exist in block ${round}`)
   const [group] = groupResults.splice(groupIndex, 1)
 
-  // Don't need to sync the group, as it's synced by atomsInAtom, due to this atom returning the group
+  // Don't need to sync the group (hence the splice), as it's synced by atomsInAtom, due to this atom returning the group
   set(addStateExtractedFromBlocksAtom, [blockResult], transactionResults, groupResults)
 
   return group

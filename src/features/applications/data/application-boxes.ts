@@ -1,5 +1,4 @@
 import { ApplicationId } from './types'
-import { indexer } from '@/features/common/data'
 import { useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai'
 import { ApplicationBox, ApplicationBoxSummary } from '../models'
@@ -7,6 +6,7 @@ import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
+import { indexer } from '@/features/common/data/algo-client'
 
 const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?: string) => {
   const results = await indexer

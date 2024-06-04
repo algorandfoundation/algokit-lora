@@ -3,10 +3,10 @@ import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { GroupPage, blockInvalidRoundMessage, groupNotFoundMessage, groupFailedToLoadMessage } from './group-page'
-import { indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { groupResultsAtom } from '../data'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { blockLabel, groupIdLabel, timestampLabel, transactionsLabel } from '../components/group-details'
@@ -17,8 +17,9 @@ import { transactionResultsAtom } from '@/features/transactions/data'
 import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../components/group-transactions-view-tabs'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
+import { indexer } from '@/features/common/data/algo-client'
 
-describe('block-page', () => {
+describe('group-page', () => {
   describe('when rendering a group using an invalid round number', () => {
     it('should display invalid round message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: 'invalid-id', groupId: 'some-id' }))
@@ -35,7 +36,7 @@ describe('block-page', () => {
   describe('when rendering a group with a round number that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: '123456', groupId: 'some-id' }))
-      vi.mocked(indexer.lookupBlock(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupBlock(123456).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => render(<GroupPage />),
@@ -79,11 +80,14 @@ describe('block-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
       const myStore = createStore()
-      myStore.set(groupResultsAtom, new Map([[group.id, atom(group)]]))
-      myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
+      myStore.set(groupResultsAtom, new Map([[group.id, createAtomAndTimestamp(group)]]))
+      myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
       myStore.set(
         assetResultsAtom,
-        new Map([[algoAssetResult.index, atom(algoAssetResult)], ...assets.map((a) => [a.index, atom(a)] as const)])
+        new Map([
+          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createAtomAndTimestamp(a)] as const),
+        ])
       )
 
       return executeComponentTest(

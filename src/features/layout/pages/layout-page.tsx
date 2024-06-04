@@ -3,6 +3,7 @@ import { Header } from '../components/header'
 import { LeftSideBarMenu } from '../components/left-side-bar-menu'
 import { cn } from '@/features/common/utils'
 import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
+import { useStateCleanupEffect } from '@/features/common/data'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
@@ -13,6 +14,7 @@ export interface LayoutPageProps {
 
 export function LayoutPage({ children }: LayoutPageProps) {
   useSubscribeToBlocksEffect()
+  useStateCleanupEffect()
   useDeepLink()
 
   return (

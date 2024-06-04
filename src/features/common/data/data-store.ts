@@ -1,4 +1,4 @@
-import { updateClientConfig } from '@/features/common/data'
+import { updateClientConfig } from '@/features/common/data/algo-client'
 import { JotaiStore } from '@/features/common/data/types'
 import { createStore } from 'jotai'
 import { useRef } from 'react'

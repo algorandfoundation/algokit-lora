@@ -17,7 +17,7 @@ export function GroupLink({ round, groupId, short = false, className, children }
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Explore.Block.ById.Group.ById}
+      urlTemplate={Urls.Explore.Block.ByRound.Group.ById}
       urlParams={{ round: round.toString(), groupId: encodeURIComponent(groupId) }}
     >
       {children ? children : short ? ellipseId(groupId) : groupId}

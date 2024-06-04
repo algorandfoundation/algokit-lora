@@ -15,8 +15,11 @@ vi.mock('@algorandfoundation/algokit-utils', async () => ({
   lookupTransactionById: vi.fn(),
 }))
 
-vi.mock('@/features/common/data', async () => {
-  const original = (await vi.importActual('@/features/common/data')) satisfies { algod: algosdk.Algodv2; indexer: algosdk.Indexer }
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = (await vi.importActual('@/features/common/data/algo-client')) satisfies {
+    algod: algosdk.Algodv2
+    indexer: algosdk.Indexer
+  }
   return {
     ...original,
     algod: {
@@ -76,6 +79,7 @@ vi.mock('@/features/common/data', async () => {
         }),
       }),
     },
+    updateClientConfig: vi.fn(),
   }
 })
 

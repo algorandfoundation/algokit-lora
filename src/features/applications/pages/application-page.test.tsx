@@ -8,10 +8,10 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { algod, indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { applicationResultsAtom } from '../data'
 import {
   applicationAccountLabel,
@@ -31,6 +31,7 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
+import { algod, indexer } from '@/features/common/data/algo-client'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -80,7 +81,7 @@ describe('application-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
@@ -193,7 +194,7 @@ describe('application-page', () => {
 
     it('should be rendered with the correct app name', () => {
       const myStore = createStore()
-      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
@@ -225,7 +226,7 @@ describe('application-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, atom(applicationResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
