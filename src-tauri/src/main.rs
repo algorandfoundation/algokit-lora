@@ -31,9 +31,10 @@ fn register_deep_link_mac(app: &mut tauri::App, url_schema: &str, window_title: 
     let window: tauri::Window = app.get_window(window_title).unwrap();
 
     tauri_plugin_deep_link::register(url_schema, move |request| {
-        // set window.deepLink here as well because the macOS doesn't use cli args for the url
+        // On macOS, tauri_plugin_deep_link handles the start up scenario for us.
+        // But that also means when a deep link is triggered, we don't know if the app is opened or not
+        // Therefore, we set the window.deepLink property as well as emit the event
         let _ = window.eval(format!("window.deepLink='{}'", request).as_str());
-
         handle.emit_all("deep-link-received", request).unwrap();
     })
     .unwrap();
@@ -49,6 +50,8 @@ fn register_deep_link_windows_linux(app: &mut tauri::App, url_schema: &str, wind
     })
     .unwrap();
 
+    // On Windows and Linux, when the user uses deep link to open the app, the URL is passed in as a command line argument.
+    // We set the window.deepLink property so that the frontend can read it.
     if let Some(url) = std::env::args().nth(1) {
         let _ = window.eval(format!("window.deepLink='{}'", url).as_str());
     }
