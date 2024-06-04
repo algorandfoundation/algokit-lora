@@ -45,5 +45,5 @@ export function useDeepLink() {
     return () => {
       unlisten.then((f) => f())
     }
-  })
+  }, [handleDeepLink])
 }
