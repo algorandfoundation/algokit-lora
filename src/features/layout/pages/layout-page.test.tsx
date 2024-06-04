@@ -1,6 +1,6 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
 import { useWallet } from '@txnlab/use-wallet'
@@ -70,16 +70,20 @@ describe('when rendering the layout page', () => {
     })
   })
 
-  describe('and the user triggers a deep link to mainnet', () => {
-    const mockNavigate = vi.fn()
-    vi.mocked(useNavigate).mockReturnValue(mockNavigate)
-
+  describe('and the user opens a deep link to mainnet', () => {
     beforeAll(() => {
       window.__TAURI__ = {}
       window.deepLink = 'algokit-explorer://network/mainnet'
     })
+    afterAll(() => {
+      window.__TAURI__ = undefined
+      localStorage.clear()
+    })
 
     it('mainnet should be selected', async () => {
+      const mockNavigate = vi.fn()
+      vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
       vi.mocked(listen).mockImplementation(() => {
         return Promise.resolve({
           then: () => {},
@@ -96,8 +100,17 @@ describe('when rendering the layout page', () => {
       )
     })
 
-    describe('then the user triggers a deep link to testnet', () => {
-      beforeAll(() => {
+    describe('then they open another deep link to testnet', () => {
+      beforeAll(() => {})
+      afterAll(() => {
+        window.__TAURI__ = undefined
+        localStorage.clear()
+      })
+
+      it('testnet should be selected', async () => {
+        const mockNavigate = vi.fn()
+        vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
         vi.mocked(listen).mockImplementation((_, handler: (event: TauriEvent<string>) => void) => {
           handler({
             event: 'deep-link-received',
@@ -111,9 +124,6 @@ describe('when rendering the layout page', () => {
             catch: () => {},
           })
         })
-      })
-
-      it('testnet should be selected', async () => {
         await executeComponentTest(
           () => render(<LayoutPage />),
           async () => {
@@ -123,43 +133,42 @@ describe('when rendering the layout page', () => {
         )
       })
     })
+  })
 
-    describe('then the user triggers a deep link to a transaction', () => {
-      beforeAll(() => {
-        vi.mocked(listen).mockImplementation((_, handler: (event: TauriEvent<string>) => void) => {
-          handler({
-            event: 'deep-link-received',
-            windowLabel: 'main',
-            id: 1,
-            payload: 'algokit-explorer://network/mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
-          })
+  describe('and the user opens a deep link to a transaction', () => {
+    beforeAll(() => {
+      window.__TAURI__ = {}
+      window.deepLink = 'algokit-explorer://network/mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1'
 
-          return Promise.resolve({
-            then: () => {},
-            catch: () => {},
-          })
+      vi.mocked(listen).mockImplementation(() => {
+        return Promise.resolve({
+          then: () => {},
+          catch: () => {},
         })
       })
+    })
+    afterAll(() => {
+      window.__TAURI__ = undefined
+      localStorage.clear()
+    })
 
-      it('should navigate to the transaction page', async () => {
-        await executeComponentTest(
-          () => render(<LayoutPage />),
-          async () => {
-            const networkConfig = settingsStore.get(networkConfigAtom)
+    it('should navigate to the transaction page', async () => {
+      const mockNavigate = vi.fn()
+      vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
-            expect(networkConfig.id).toBe('mainnet')
-            expect(mockNavigate).toHaveBeenCalledWith(
-              `/explore/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`
-            )
-          }
-        )
-      })
+      await executeComponentTest(
+        () => render(<LayoutPage />),
+        async () => {
+          const networkConfig = settingsStore.get(networkConfigAtom)
+
+          expect(networkConfig.id).toBe('mainnet')
+          expect(mockNavigate).toHaveBeenCalledWith(`/explore/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`)
+        }
+      )
     })
   })
 
-  // TODO: fix this test
-  // it fails because the settingsStore is shared between tests, it shouldn't be
-  describe.skip('and no deep link is selected', () => {
+  describe('and no deep link is selected', () => {
     it('localnet should be selected', () => {
       return executeComponentTest(
         () => render(<LayoutPage />),
