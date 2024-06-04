@@ -7,7 +7,6 @@ import { useWallet } from '@txnlab/use-wallet'
 import { Event as TauriEvent, listen } from '@tauri-apps/api/event'
 import { networkConfigAtom, settingsStore } from '@/features/settings/data'
 import { useNavigate } from 'react-router-dom'
-import { createStore } from 'jotai'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -71,7 +70,7 @@ describe('when rendering the layout page', () => {
     })
   })
 
-  describe('and mainnet is selected', () => {
+  describe('and the user triggers a deep link to mainnet', () => {
     const mockNavigate = vi.fn()
     vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
@@ -89,7 +88,7 @@ describe('when rendering the layout page', () => {
       })
 
       await executeComponentTest(
-        () => render(<LayoutPage />, undefined),
+        () => render(<LayoutPage />),
         async () => {
           const networkConfig = settingsStore.get(networkConfigAtom)
           expect(networkConfig.id).toBe('mainnet')
@@ -159,14 +158,14 @@ describe('when rendering the layout page', () => {
   })
 
   describe('and no deep link is selected', () => {
-    vi.mocked(settingsStore).get.mockReturnValue(createStore())
-
     it('localnet should be selected', () => {
       return executeComponentTest(
         () => render(<LayoutPage />),
         async () => {
-          const networkConfig = settingsStore.get(networkConfigAtom)
-          expect(networkConfig.id).toBe('localnet')
+          waitFor(() => {
+            const networkConfig = settingsStore.get(networkConfigAtom)
+            expect(networkConfig.id).toBe('localnet')
+          })
         }
       )
     })
