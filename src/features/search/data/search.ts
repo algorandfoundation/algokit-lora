@@ -43,7 +43,7 @@ const createSearchAtoms = (store: JotaiStore) => {
         type: SearchResultType.Account,
         id: term,
         label: ellipseAddress(term),
-        url: Urls.Explore.Account.ById.build({ address: term }),
+        url: Urls.Explore.Account.ByAddress.build({ address: term }),
       })
     } else if (isTransactionId(term)) {
       results.push({
@@ -61,7 +61,7 @@ const createSearchAtoms = (store: JotaiStore) => {
             type: SearchResultType.Block,
             id: id,
             label: id.toString(),
-            url: Urls.Explore.Block.ById.build({ round: id.toString() }),
+            url: Urls.Explore.Block.ByRound.build({ round: id.toString() }),
           })
         }
 

@@ -10,12 +10,12 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
-import { algod } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
@@ -80,6 +80,7 @@ import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applicati
 import { transactionAmountLabel } from '../components/transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
+import { algod } from '@/features/common/data/algo-client'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -142,7 +143,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -204,7 +205,7 @@ describe('transaction-page', () => {
 
     it('should show the multisig information', () => {
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -245,7 +246,7 @@ describe('transaction-page', () => {
 
     it('should show 2 tabs with the logicsig base64 as default', () => {
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -270,7 +271,7 @@ describe('transaction-page', () => {
       vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -298,7 +299,7 @@ describe('transaction-page', () => {
       const base64Note = Buffer.from(note).toString('base64')
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -348,7 +349,7 @@ describe('transaction-page', () => {
       const base64Note = Buffer.from(note).toString('base64')
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -415,7 +416,7 @@ describe('transaction-page', () => {
       const base64Note = Buffer.from(note).toString('base64')
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -490,8 +491,8 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -551,8 +552,8 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -576,8 +577,8 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -609,12 +610,12 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, atom(algoAssetResult)],
-          [asset.index, atom(asset)],
+          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createAtomAndTimestamp(asset)],
         ])
       )
 
@@ -708,10 +709,13 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, innerTransactionId: '2' }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
-        new Map([[algoAssetResult.index, atom(algoAssetResult)], ...assets.map((a) => [a.index, atom(a)] as const)])
+        new Map([
+          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createAtomAndTimestamp(a)] as const),
+        ])
       )
 
       return executeComponentTest(
@@ -830,12 +834,12 @@ describe('transaction-page', () => {
     it('should be rendered without error', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, atom(algoAssetResult)],
-          [asset.index, atom(asset)],
+          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createAtomAndTimestamp(asset)],
         ])
       )
 
@@ -861,7 +865,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -894,7 +898,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -955,7 +959,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -985,8 +989,8 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, atom(asset)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -1048,7 +1052,7 @@ describe('transaction-page', () => {
     it('should be rendered correctly', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
       return executeComponentTest(
         () => {
           return render(<TransactionPage />, undefined, myStore)
@@ -1077,7 +1081,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -1113,7 +1117,7 @@ describe('transaction-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -1145,7 +1149,7 @@ describe('when rendering a rekey transaction', () => {
   it('should be rendered with the correct data', () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
     const myStore = createStore()
-    myStore.set(transactionResultsAtom, new Map([[transaction.id, atom(transaction)]]))
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
     return executeComponentTest(
       () => {

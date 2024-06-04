@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { createTransactionAtom, getTransactionResultAtom, liveTransactionIdsAtom } from '@/features/transactions/data'
+import { createTransactionAtom, getTransactionResultAtom, latestTransactionIdsAtom } from '@/features/transactions/data'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { atomEffect } from 'jotai-effect'
 import { atom, useAtom, useAtomValue } from 'jotai'
@@ -13,24 +13,28 @@ export const useLiveTransactions = (filter: (transactionResult: TransactionResul
 
     const liveTransactionsAtomEffect = atomEffect((get, set) => {
       ;(async () => {
-        const liveTransactionIds = get(liveTransactionIdsAtom)
+        const latestTransactionIds = get(latestTransactionIdsAtom)
 
-        const newTransactionResults: TransactionResult[] = []
-        for (const transactionId of liveTransactionIds) {
+        const newTransactions: Transaction[] = []
+        for (const transactionId of latestTransactionIds) {
           if (transactionId === syncedTransactionId) {
             break
           }
-          const transactionResultAtom = getTransactionResultAtom(transactionId)
 
+          const transactionResultAtom = getTransactionResultAtom(transactionId, { skipTimestampUpdate: true })
           const transactionResult = await get.peek(transactionResultAtom)
-          newTransactionResults.push(transactionResult)
-        }
-        syncedTransactionId = liveTransactionIds[0]
+          if (filter(transactionResult)) {
+            newTransactions.push(await get(createTransactionAtom(transactionResult)))
+          }
 
-        const newTransactions = await Promise.all(
-          newTransactionResults.filter(filter).map(async (transactionResult) => await get(createTransactionAtom(transactionResult)))
-        )
-        if (newTransactions.length) {
+          if (newTransactions.length >= maxRows) {
+            break
+          }
+        }
+
+        syncedTransactionId = latestTransactionIds[0]
+
+        if (newTransactions.length > 0) {
           set(liveTransactionsAtom, (prev) => {
             return newTransactions.concat(prev).slice(0, maxRows)
           })

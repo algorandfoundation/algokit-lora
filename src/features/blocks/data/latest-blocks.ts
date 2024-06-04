@@ -1,11 +1,10 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
-import { liveTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
+import { latestTransactionIdsAtom, getTransactionResultAtom } from '@/features/transactions/data'
 import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
-import { algod } from '@/features/common/data'
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
@@ -23,6 +22,7 @@ import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
+import { algod } from '@/features/common/data/algo-client'
 
 const maxBlocksToDisplay = 5
 
@@ -34,21 +34,18 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
   }
 
   const blockResults = get.peek(blockResultsAtom)
-  const transactionResults = get.peek(transactionResultsAtom)
 
   ;(async () => {
     const latestBlockSummaries = (
       await Promise.all(
         Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
           const round = syncedRound - i
-          const blockAtom = blockResults.get(round)
-
-          if (blockAtom) {
-            const block = await get(blockAtom)
+          const blockResult = blockResults.get(round)
+          if (blockResult) {
+            const block = await get(blockResult[0])
             const transactionSummaries = await Promise.all(
               block.transactionIds.map(async (transactionId) => {
-                const transactionResult = await get.peek(transactionResults.get(transactionId)!)
-
+                const transactionResult = await get(getTransactionResultAtom(transactionId, { skipTimestampUpdate: true }))
                 return asTransactionSummary(transactionResult)
               })
             )
@@ -112,7 +109,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
             acc[1].push(transaction)
 
             // Accumulate group results
-            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? new Date().getTime() / 1000)
+            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? Math.floor(Date.now() / 1000))
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(t)
@@ -235,8 +232,12 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
 
     set(addStateExtractedFromBlocksAtom, blockResults, transactionResults, Array.from(groupResults.values()))
 
-    set(liveTransactionIdsAtom, (prev) => {
-      return transactionResults.map((txn) => txn.id).concat(prev)
+    set(latestTransactionIdsAtom, (prev) => {
+      return transactionResults
+        .reverse()
+        .map((txn) => txn.id)
+        .concat(prev)
+        .slice(0, 10_000)
     })
   })
 

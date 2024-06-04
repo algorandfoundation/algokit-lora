@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { getByRole, render, waitFor } from '../../../tests/testing-library'
 import { ApplicationProgram, base64ProgramTabLabel, tealProgramTabLabel } from './application-program'
-import { algod } from '@/features/common/data'
 import { executeComponentTest } from '@/tests/test-component'
+import { algod } from '@/features/common/data/algo-client'
 
 describe('application-program', () => {
   describe('when rendering an application program', () => {

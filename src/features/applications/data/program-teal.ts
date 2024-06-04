@@ -1,8 +1,8 @@
-import { algod } from '@/features/common/data'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { loadable } from 'jotai/utils'
 import { useMemo } from 'react'
 import { Buffer } from 'buffer'
+import { algod } from '@/features/common/data/algo-client'
 
 export const useProgramTeal = (base64Program: string) => {
   const [tealAtom, getTealAtom] = useMemo(() => {

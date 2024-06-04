@@ -1,5 +1,4 @@
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
-import { indexer } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
 import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetMetadataStandard, AssetResult } from './types'
@@ -9,6 +8,7 @@ import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { atomsInAtom } from '@/features/common/data'
+import { indexer } from '@/features/common/data/algo-client'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases

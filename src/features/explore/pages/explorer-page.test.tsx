@@ -1,6 +1,6 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { getAllByRole, getByRole, queryAllByRole, render, waitFor } from '@/tests/testing-library'
-import { Atom, atom, createStore } from 'jotai'
+import { Atom, createStore } from 'jotai'
 import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
@@ -15,6 +15,7 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { createAtomAndTimestamp } from '@/features/common/data'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
@@ -54,8 +55,8 @@ describe('explore-page', () => {
     const transactionResults = [transactionResult1]
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[block.round, atom(block)]]))
-    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, atom(x)])))
+    myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
+    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
     myStore.set(syncedRoundAtom, block.round)
 
     it('the processed blocks are displayed', () => {
@@ -109,14 +110,14 @@ describe('explore-page', () => {
       (acc, [block, transactions]) => {
         return {
           syncedRound: block.round > acc.syncedRound ? block.round : acc.syncedRound,
-          blocks: new Map([...acc.blocks, [block.round, atom(block)]]),
-          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, atom(t)] as const)]),
+          blocks: new Map([...acc.blocks, [block.round, createAtomAndTimestamp(block)]]),
+          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, createAtomAndTimestamp(t)] as const)]),
         }
       },
       {
         syncedRound: 0,
-        blocks: new Map<Round, Atom<BlockResult>>(),
-        transactions: new Map<TransactionId, Atom<TransactionResult>>(),
+        blocks: new Map<Round, readonly [Atom<BlockResult>, number]>(),
+        transactions: new Map<TransactionId, readonly [Atom<TransactionResult>, number]>(),
       }
     )
 

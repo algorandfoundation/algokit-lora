@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { indexer } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
@@ -7,6 +7,7 @@ import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { atomsInAtom } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
+import { indexer } from '@/features/common/data/algo-client'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -75,7 +76,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
           if (!next.has(transactionResult.id)) {
-            next.set(transactionResult.id, atom(transactionResult))
+            next.set(transactionResult.id, createAtomAndTimestamp(transactionResult))
           }
         })
         return next
@@ -89,7 +90,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         groupResultsToAdd.forEach((groupResult) => {
           if (!next.has(groupResult.id)) {
-            next.set(groupResult.id, atom(groupResult))
+            next.set(groupResult.id, createAtomAndTimestamp(groupResult))
           }
         })
         return next
@@ -103,7 +104,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         blockResultsToAdd.forEach((blockResult) => {
           if (!next.has(blockResult.round)) {
-            next.set(blockResult.round, atom(blockResult))
+            next.set(blockResult.round, createAtomAndTimestamp(blockResult))
           }
         })
         return next
