@@ -32,7 +32,7 @@ export function LiveTransactionsTable({ filter, columns, getSubRows, subRowsExpa
   })
 
   useEffect(() => {
-    table.toggleAllRowsExpanded(subRowsExpanded)
+    table.toggleAllRowsExpanded(subRowsExpanded ?? false)
   }, [subRowsExpanded, table])
 
   return (

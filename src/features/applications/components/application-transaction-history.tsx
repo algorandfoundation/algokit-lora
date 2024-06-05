@@ -23,12 +23,5 @@ export function ApplicationTransactionHistory({ applicationId }: Props) {
     [applicationId]
   )
 
-  return (
-    <LazyLoadDataTable
-      columns={transactionsTableColumns}
-      subRowsExpanded={false}
-      getSubRows={getSubRows}
-      createLoadablePage={createLoadablePage}
-    />
-  )
+  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
 }

@@ -28,5 +28,5 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     [applicationId]
   )
 
-  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={transactionsTableColumns} />
+  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={transactionsTableColumns} subRowsExpanded={true} />
 }

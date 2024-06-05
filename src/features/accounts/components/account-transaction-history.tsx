@@ -14,12 +14,5 @@ export function AccountTransactionHistory({ address }: Props) {
   const createLoadablePage = useMemo(() => createLoadableAccountTransactionsPage(address), [address])
   const getSubRows = useCallback((row: Transaction | InnerTransaction) => getAccountTransactionsTableSubRows(address, row), [address])
 
-  return (
-    <LazyLoadDataTable
-      columns={transactionsTableColumns}
-      subRowsExpanded={false}
-      getSubRows={getSubRows}
-      createLoadablePage={createLoadablePage}
-    />
-  )
+  return <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
 }

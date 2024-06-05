@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
   })
 
   useEffect(() => {
-    table.toggleAllRowsExpanded(subRowsExpanded)
+    table.toggleAllRowsExpanded(subRowsExpanded ?? false)
   }, [subRowsExpanded, table])
 
   return (

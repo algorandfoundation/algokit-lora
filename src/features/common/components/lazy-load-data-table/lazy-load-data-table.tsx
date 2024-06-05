@@ -48,7 +48,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
   })
 
   useEffect(() => {
-    table.toggleAllRowsExpanded(subRowsExpanded)
+    table.toggleAllRowsExpanded(subRowsExpanded ?? false)
   }, [subRowsExpanded, table])
 
   return (
