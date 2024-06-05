@@ -4,6 +4,7 @@ import Decimal from 'decimal.js'
 import { Badge } from './badge'
 import { AsyncMaybeAtom } from '../data/types'
 import { RenderInlineAsyncAtom } from './render-inline-async-atom'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
 
 type Props = {
   amount: number | bigint
@@ -19,7 +20,12 @@ const Amount = ({ asset, amount, isFrozen }: { asset: AssetSummary; amount: numb
 
   return (
     <>
-      {amountToDisplay} {asset.unitName ?? ''}
+      {amountToDisplay}{' '}
+      {asset.unitName ? (
+        <AssetIdLink assetId={asset.id} className={cn('text-primary underline')}>
+          {asset.unitName}
+        </AssetIdLink>
+      ) : null}
       {isFrozen && <Badge variant="outline">Frozen</Badge>}
     </>
   )

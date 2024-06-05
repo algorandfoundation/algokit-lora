@@ -20,7 +20,7 @@ export function GroupLink({ round, groupId, short = false, className, children }
       urlTemplate={Urls.Explore.Block.ByRound.Group.ById}
       urlParams={{ round: round.toString(), groupId: encodeURIComponent(groupId) }}
     >
-      {children ? children : short ? ellipseId(groupId) : groupId}
+      {children ? children : short ? <abbr title={groupId}>{ellipseId(groupId)}</abbr> : groupId}
     </TemplatedNavLink>
   )
 }

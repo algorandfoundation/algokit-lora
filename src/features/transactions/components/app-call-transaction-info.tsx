@@ -5,7 +5,6 @@ import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@/features/common/components/data-table'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { applicationIdLabel } from '@/features/applications/components/labels'
@@ -186,7 +185,7 @@ export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
   {
     accessorKey: 'address',
     header: 'Address',
-    cell: (c) => ellipseAddress(c.getValue<string>()),
+    cell: (c) => <AccountLink address={c.getValue<string>()} short={true} />,
   },
   {
     accessorKey: 'key',

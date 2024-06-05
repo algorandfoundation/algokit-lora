@@ -32,12 +32,14 @@ import { assetLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
 import { Badge } from '@/features/common/components/badge'
 import { TransactionLink } from './transaction-link'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useAtomValue } from 'jotai'
 import { transactionAmountLabel } from './transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from './labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { ApplicationLink } from '@/features/applications/components/application-link'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
 
 const graphConfig = {
   rowHeight: 40,
@@ -115,8 +117,9 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
 function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
   return (
     <h1 className={cn('text-l font-semibold')}>
-      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
-      {collaborator.type !== 'Account' && collaborator.id}
+      {collaborator.type === 'Account' && <AccountLink address={collaborator.id} short={true} />}
+      {collaborator.type === 'Application' && <ApplicationLink applicationId={parseInt(collaborator.id)} />}
+      {collaborator.type === 'Asset' && <AssetIdLink assetId={parseInt(collaborator.id)} />}
     </h1>
   )
 }
@@ -287,7 +290,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -295,11 +298,11 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: transaction.receiver,
+        dd: <AccountLink address={transaction.receiver} />,
       },
       {
         dt: transactionAmountLabel,
@@ -325,7 +328,7 @@ function AssetTransferTransactionToolTipContent({
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -333,11 +336,11 @@ function AssetTransferTransactionToolTipContent({
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: transaction.receiver,
+        dd: <AccountLink address={transaction.receiver} />,
       },
       {
         dt: transactionAmountLabel,
@@ -359,7 +362,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -367,11 +370,11 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: applicationIdLabel,
-        dd: transaction.applicationId,
+        dd: <ApplicationLink applicationId={transaction.applicationId} />,
       },
     ],
     [transaction.applicationId, transaction.id, transaction.sender]
@@ -389,7 +392,7 @@ function AssetConfigTransactionToolTipContent({ transaction }: { transaction: As
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -397,11 +400,11 @@ function AssetConfigTransactionToolTipContent({ transaction }: { transaction: As
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: assetLabel,
-        dd: transaction.assetId,
+        dd: <AssetIdLink assetId={transaction.assetId} />,
       },
     ],
     [transaction.assetId, transaction.id, transaction.sender]
@@ -419,7 +422,7 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -427,15 +430,15 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: assetLabel,
-        dd: transaction.assetId,
+        dd: <AssetIdLink assetId={transaction.assetId} />,
       },
       {
         dt: assetFreezeAddressLabel,
-        dd: transaction.address,
+        dd: <AccountLink address={transaction.address} />,
       },
       {
         dt: assetFreezeStatusLabel,
@@ -458,7 +461,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -471,7 +474,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
     ],
     [subType, transaction.id, transaction.sender, transaction.type]

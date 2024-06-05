@@ -17,7 +17,7 @@ export function TransactionLink({ transactionId, short = false, className, child
       urlTemplate={Urls.Explore.Transaction.ById}
       urlParams={{ transactionId: transactionId }}
     >
-      {children ? children : short ? ellipseId(transactionId) : transactionId}
+      {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
     </TemplatedNavLink>
   )
 }
