@@ -1,4 +1,4 @@
-import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, ExpandedState, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { useCallback, useMemo, useState } from 'react'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
@@ -10,14 +10,15 @@ interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   createLoadablePage: (pageSize: number) => (pageNumber: number) => Loadable<Promise<ViewModelPage<TData>>>
   getSubRows?: (row: TData) => TData[]
+  collapsible?: boolean
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, getSubRows }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, getSubRows, collapsible }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
   const useLoadablePage = useMemo(() => createLoadablePage(pageSize), [createLoadablePage, pageSize])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
-
+  const [expanded, setExpanded] = useState<ExpandedState>({})
   const nextPage = useCallback(() => {
     setCurrentPage((prev) => prev + 1)
   }, [])
@@ -36,8 +37,9 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
   const table = useReactTable({
     data: page?.items ?? [],
     state: {
-      expanded: true,
+      expanded: collapsible ? expanded : true,
     },
+    onExpandedChange: setExpanded,
     getSubRows: getSubRows,
     columns,
     getCoreRowModel: getCoreRowModel(),
