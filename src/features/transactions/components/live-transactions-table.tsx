@@ -10,10 +10,9 @@ interface Props {
   columns: ColumnDef<Transaction>[]
   filter: (transactionResult: TransactionResult) => boolean
   getSubRows?: (row: Transaction | InnerTransaction) => InnerTransaction[]
-  subRowsExpanded?: boolean
 }
 
-export function LiveTransactionsTable({ filter, columns, getSubRows, subRowsExpanded }: Props) {
+export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const [maxRows, setMaxRows] = useState(10)
   const transactions = useLiveTransactions(filter, maxRows)
@@ -32,8 +31,8 @@ export function LiveTransactionsTable({ filter, columns, getSubRows, subRowsExpa
   })
 
   useEffect(() => {
-    table.toggleAllRowsExpanded(subRowsExpanded ?? false)
-  }, [subRowsExpanded, table])
+    table.toggleAllRowsExpanded(true)
+  }, [table])
 
   return (
     <div>
