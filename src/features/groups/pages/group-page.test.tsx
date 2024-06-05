@@ -123,9 +123,6 @@ describe('group-page', () => {
               {
                 cells: ['INDQXWQ...', '/oRSr2u...', 'AACC...EN4A', '1201559522', 'Application Call', ''],
               },
-              {
-                cells: ['Inner 1', 'aWpPwlo...', 'AACC...EN4A', '2PIF...RNMM', 'Payment', '2.770045'],
-              },
             ],
           })
         }

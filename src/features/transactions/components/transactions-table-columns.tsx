@@ -8,6 +8,8 @@ import { asTo } from '@/features/common/mappers/to'
 import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { GroupLink } from '@/features/groups/components/group-link'
+import SvgChevronDown from '@/features/common/components/icons/chevron-down'
+import SvgChevronRight from '@/features/common/components/icons/chevron-right'
 
 const indentationWidth = 20
 
@@ -28,6 +30,11 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
             marginLeft: `${indentationWidth * row.depth}px`,
           }}
         >
+          <div className={cn('inline-block min-w-6')}>
+            {row.getCanExpand() ? (
+              <button onClick={row.getToggleExpandedHandler()}>{row.getIsExpanded() ? <SvgChevronDown /> : <SvgChevronRight />}</button>
+            ) : null}
+          </div>
           {'innerId' in transaction ? (
             <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
           ) : (

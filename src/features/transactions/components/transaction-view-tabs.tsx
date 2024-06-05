@@ -36,7 +36,7 @@ export function TransactionViewTabs({ transaction }: Props) {
         <TransactionsGraph transactions={[transaction]} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={transactionVisualTableTabId}>
-        <TransactionsTable transactions={[transaction]} columns={transactionsTableColumnsWithoutRound} />
+        <TransactionsTable transactions={[transaction]} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={true} />
       </OverflowAutoTabsContent>
     </Tabs>
   )
