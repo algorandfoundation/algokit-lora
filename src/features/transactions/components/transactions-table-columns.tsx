@@ -1,13 +1,14 @@
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { cn } from '@/features/common/utils'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { ColumnDef } from '@tanstack/react-table'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { asTo } from '@/features/common/mappers/to'
 import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { GroupLink } from '@/features/groups/components/group-link'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { TransactionTo } from './transaction-to'
+import { BlockLink } from '@/features/blocks/components/block-link'
 
 const indentationWidth = 20
 
@@ -47,16 +48,21 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
   },
   {
     header: transactionRoundLabel,
-    accessorFn: (transaction) => transaction.confirmedRound,
+    accessorFn: (transaction) => transaction,
+    cell: (c) => {
+      const transaction = c.getValue<Transaction>()
+      return <BlockLink round={transaction.confirmedRound} />
+    },
   },
   {
     header: transactionFromLabel,
     accessorFn: (transaction) => transaction.sender,
-    cell: (c) => ellipseAddress(c.getValue<string>()),
+    cell: (c) => <AccountLink address={c.getValue<string>()} short={true} />,
   },
   {
     header: transactionToLabel,
-    accessorFn: asTo,
+    accessorFn: (transaction) => transaction,
+    cell: (c) => <TransactionTo transaction={c.getValue<Transaction>()} />,
   },
   {
     header: 'Type',

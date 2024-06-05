@@ -32,12 +32,14 @@ import { assetLabel } from './asset-config-transaction-info'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
 import { Badge } from '@/features/common/components/badge'
 import { TransactionLink } from './transaction-link'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { useAtomValue } from 'jotai'
 import { transactionAmountLabel } from './transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from './labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { ApplicationLink } from '@/features/applications/components/application-link'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
 
 const graphConfig = {
   rowHeight: 40,
@@ -115,8 +117,9 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
 function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
   return (
     <h1 className={cn('text-l font-semibold')}>
-      {collaborator.type === 'Account' && ellipseAddress(collaborator.id)}
-      {collaborator.type !== 'Account' && collaborator.id}
+      {collaborator.type === 'Account' && <AccountLink address={collaborator.id} short={true} />}
+      {collaborator.type === 'Application' && <ApplicationLink applicationId={parseInt(collaborator.id)} />}
+      {collaborator.type === 'Asset' && <AssetIdLink assetId={parseInt(collaborator.id)} />}
     </h1>
   )
 }

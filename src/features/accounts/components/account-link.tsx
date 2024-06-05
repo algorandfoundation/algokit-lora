@@ -21,7 +21,7 @@ export const AccountLink = fixedForwardRef(
         ref={ref}
         {...rest}
       >
-        {children ? children : short ? ellipseAddress(address) : address}
+        {children ? children : short ? <abbr title={address}>{ellipseAddress(address)}</abbr> : address}
       </TemplatedNavLink>
     )
   }
