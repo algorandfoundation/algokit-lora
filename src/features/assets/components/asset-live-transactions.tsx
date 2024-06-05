@@ -20,5 +20,5 @@ export function AssetLiveTransactions({ assetId }: Props) {
     [assetId]
   )
   const getSubRows = useCallback((row: Transaction | InnerTransaction) => getAssetTransactionsTableSubRows(assetId, row), [assetId])
-  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={transactionsTableColumns} subRowsExpanded={true} />
+  return <LiveTransactionsTable filter={filter} getSubRows={getSubRows} columns={transactionsTableColumns} />
 }
