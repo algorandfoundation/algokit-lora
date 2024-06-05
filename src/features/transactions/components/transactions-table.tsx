@@ -17,5 +17,5 @@ const getSubRows = (transaction: Transaction | InnerTransaction) => {
 
 export function TransactionsTable({ transactions, columns: _columns }: Props) {
   const columns = _columns || transactionsTableColumns
-  return <DataTable columns={columns} data={transactions} getSubRows={getSubRows} subRowsExpanded={false} />
+  return <DataTable columns={columns} data={transactions} getSubRows={getSubRows} subRowsExpanded={true} />
 }
