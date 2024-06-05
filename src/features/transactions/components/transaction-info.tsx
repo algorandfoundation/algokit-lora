@@ -10,6 +10,7 @@ import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupLink } from '@/features/groups/components/group-link'
 import { useAtomValue } from 'jotai'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { TransactionLink } from './transaction-link'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -29,7 +30,7 @@ export function TransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} supportCopy={true} />,
       },
       {
         dt: transactionTypeLabel,
