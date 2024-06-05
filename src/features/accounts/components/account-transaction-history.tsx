@@ -4,7 +4,7 @@ import { createLoadableAccountTransactionsPage } from '../data/account-transacti
 import { useCallback, useMemo } from 'react'
 import { getAccountTransactionsTableSubRows } from '../utils/get-account-transactions-table-sub-rows'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
-import { transactionsTableColumnsWithCollapsibleSubRows } from '@/features/transactions/components/transactions-table-columns'
+import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
 
 type Props = {
   address: Address
@@ -16,8 +16,8 @@ export function AccountTransactionHistory({ address }: Props) {
 
   return (
     <LazyLoadDataTable
-      columns={transactionsTableColumnsWithCollapsibleSubRows}
-      collapsible={true}
+      columns={transactionsTableColumns}
+      subRowsExpanded={false}
       getSubRows={getSubRows}
       createLoadablePage={createLoadablePage}
     />

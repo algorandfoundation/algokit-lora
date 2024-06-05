@@ -4,7 +4,7 @@ import { createLoadableAssetTransactionsPage } from '../data/asset-transaction-h
 import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { useCallback, useMemo } from 'react'
 import { getAssetTransactionsTableSubRows } from '../utils/get-asset-transactions-table-sub-rows'
-import { transactionsTableColumnsWithCollapsibleSubRows } from '@/features/transactions/components/transactions-table-columns'
+import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
 
 type Props = {
   assetId: AssetId
@@ -16,8 +16,8 @@ export function AssetTransactionHistory({ assetId }: Props) {
 
   return (
     <LazyLoadDataTable
-      columns={transactionsTableColumnsWithCollapsibleSubRows}
-      collapsible={true}
+      columns={transactionsTableColumns}
+      subRowsExpanded={false}
       getSubRows={getSubRows}
       createLoadablePage={createLoadablePage}
     />

@@ -4,7 +4,7 @@ import { createLoadableApplicationTransactionsPage } from '../data/application-t
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { useCallback, useMemo } from 'react'
 import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
-import { transactionsTableColumnsWithCollapsibleSubRows } from '@/features/transactions/components/transactions-table-columns'
+import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
 
 type Props = {
   applicationId: ApplicationId
@@ -25,8 +25,8 @@ export function ApplicationTransactionHistory({ applicationId }: Props) {
 
   return (
     <LazyLoadDataTable
-      columns={transactionsTableColumnsWithCollapsibleSubRows}
-      collapsible={true}
+      columns={transactionsTableColumns}
+      subRowsExpanded={false}
       getSubRows={getSubRows}
       createLoadablePage={createLoadablePage}
     />

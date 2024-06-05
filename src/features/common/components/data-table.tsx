@@ -9,22 +9,22 @@ import {
 } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { DataTablePagination } from './data-table-pagination'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   getSubRows?: (row: TData) => TData[]
-  collapsible?: boolean
+  subRowsExpanded?: boolean
 }
 
-export function DataTable<TData, TValue>({ columns, data, getSubRows, collapsible }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExpanded }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const table = useReactTable({
     data,
     paginateExpandedRows: false,
     state: {
-      expanded: collapsible ? expanded : true,
+      expanded: expanded,
     },
     onExpandedChange: setExpanded,
     getSubRows: getSubRows,
@@ -33,6 +33,10 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, collapsibl
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   })
+
+  useEffect(() => {
+    table.toggleAllRowsExpanded(subRowsExpanded)
+  }, [subRowsExpanded, table])
 
   return (
     <div>
