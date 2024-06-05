@@ -44,20 +44,20 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   )
 }
 
-export function AssetLink({ asset, className }: AssetLinkProps) {
+export function AssetLink({ asset, className, ...rest }: AssetLinkProps) {
   return 'read' in asset ? (
     <RenderInlineAsyncAtom atom={asset}>
-      {(asset) => <Link assetId={asset.id} assetName={asset.name} className={className} />}
+      {(asset) => <Link assetId={asset.id} assetName={asset.name} className={className} {...rest} />}
     </RenderInlineAsyncAtom>
   ) : (
-    <Link assetId={asset.id} assetName={asset.name} className={className} />
+    <Link assetId={asset.id} assetName={asset.name} className={className} {...rest} />
   )
 }
 
-export function AssetIdAndNameLink({ assetId, assetName, className }: AssetIdAndNameLinkProps) {
-  return <Link assetId={assetId} assetName={assetName} className={className} />
+export function AssetIdAndNameLink({ assetId, assetName, className, ...rest }: AssetIdAndNameLinkProps) {
+  return <Link assetId={assetId} assetName={assetName} className={className} {...rest} />
 }
 
-export function AssetIdLink({ assetId, className }: AssetIdLinkProps) {
-  return <Link assetId={assetId} className={className} />
+export function AssetIdLink({ assetId, className, ...rest }: AssetIdLinkProps) {
+  return <Link assetId={assetId} className={className} {...rest} />
 }
