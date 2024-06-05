@@ -290,7 +290,7 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -298,11 +298,11 @@ function PaymentTransactionToolTipContent({ transaction }: { transaction: Paymen
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: transaction.receiver,
+        dd: <AccountLink address={transaction.receiver} />,
       },
       {
         dt: transactionAmountLabel,
@@ -328,7 +328,7 @@ function AssetTransferTransactionToolTipContent({
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -336,11 +336,11 @@ function AssetTransferTransactionToolTipContent({
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: transaction.receiver,
+        dd: <AccountLink address={transaction.receiver} />,
       },
       {
         dt: transactionAmountLabel,
@@ -362,7 +362,7 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -370,11 +370,11 @@ function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCal
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: applicationIdLabel,
-        dd: transaction.applicationId,
+        dd: <ApplicationLink applicationId={transaction.applicationId} />,
       },
     ],
     [transaction.applicationId, transaction.id, transaction.sender]
@@ -392,7 +392,7 @@ function AssetConfigTransactionToolTipContent({ transaction }: { transaction: As
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -400,11 +400,11 @@ function AssetConfigTransactionToolTipContent({ transaction }: { transaction: As
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: assetLabel,
-        dd: transaction.assetId,
+        dd: <AssetIdLink assetId={transaction.assetId} />,
       },
     ],
     [transaction.assetId, transaction.id, transaction.sender]
@@ -422,7 +422,7 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -430,15 +430,15 @@ function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: As
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
       {
         dt: assetLabel,
-        dd: transaction.assetId,
+        dd: <AssetIdLink assetId={transaction.assetId} />,
       },
       {
         dt: assetFreezeAddressLabel,
-        dd: transaction.address,
+        dd: <AccountLink address={transaction.address} />,
       },
       {
         dt: assetFreezeStatusLabel,
@@ -461,7 +461,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
     () => [
       {
         dt: transactionIdLabel,
-        dd: transaction.id,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -474,7 +474,7 @@ function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegT
       },
       {
         dt: transactionSenderLabel,
-        dd: transaction.sender,
+        dd: <AccountLink address={transaction.sender} />,
       },
     ],
     [subType, transaction.id, transaction.sender, transaction.type]
