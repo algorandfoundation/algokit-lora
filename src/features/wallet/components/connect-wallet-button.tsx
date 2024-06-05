@@ -1,6 +1,6 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Provider, useWallet } from '@txnlab/use-wallet'
+import { Account, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { buttonVariants } from '@/features/common/components/button'
@@ -8,7 +8,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common/components/hover-card'
 import { Loader2 as Loader } from 'lucide-react'
 import { useNetworkConfig } from '@/features/settings/data'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const hoverCardLabel = 'Connected Wallet'
@@ -67,10 +67,13 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
 type ConnectedWalletProps = {
   activeAddress: string
   providers: Provider[] | null
+  connectedActiveAccounts: Account[]
 }
 
-export function ConnectedWallet({ activeAddress, providers }: ConnectedWalletProps) {
+export function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
+  const [currentActiveAddress, setCurrentActiveAddress] = useState(activeAddress)
+  const connectedActiveAccountsRef = useRef(connectedActiveAccounts)
 
   const disconnectWallet = useCallback(() => {
     if (activeProvider) {
@@ -82,10 +85,21 @@ export function ConnectedWallet({ activeAddress, providers }: ConnectedWalletPro
     }
   }, [activeProvider])
 
+  const changeAccount = useCallback(
+    (newAccount: Account) => {
+      const previousActiveAddress = currentActiveAddress
+      setCurrentActiveAddress(newAccount.address)
+      connectedActiveAccountsRef.current = connectedActiveAccountsRef.current.map((account) =>
+        account.address === newAccount.address ? { ...account, address: previousActiveAddress } : account
+      )
+    },
+    [currentActiveAddress]
+  )
+
   return (
     <HoverCard openDelay={100}>
       <HoverCardTrigger asChild>
-        <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default' }), 'w-32')}>
+        <AccountLink address={currentActiveAddress} className={cn(buttonVariants({ variant: 'default' }), 'w-32')}>
           {activeProvider && (
             <img
               src={activeProvider.metadata.icon}
@@ -93,12 +107,21 @@ export function ConnectedWallet({ activeAddress, providers }: ConnectedWalletPro
               className={cn('h-auto w-4 rounded object-contain mr-2')}
             />
           )}
-          <abbr title={activeAddress} className="no-underline">
-            {ellipseAddress(activeAddress)}
+          <abbr title={currentActiveAddress} className="no-underline">
+            {ellipseAddress(currentActiveAddress)}
           </abbr>
         </AccountLink>
       </HoverCardTrigger>
       <HoverCardContent align="center" className="w-36 border border-input bg-card p-2 text-card-foreground">
+        {connectedActiveAccounts
+          .filter((account) => account.address !== currentActiveAddress)
+          .map((account) => (
+            <div key={account.address} className="my-2 text-center">
+              <Button variant="default" onClick={() => changeAccount(account)} className="w-full p-4">
+                {ellipseAddress(account.address)}
+              </Button>
+            </div>
+          ))}
         <Button variant="default" onClick={disconnectWallet} className="w-full p-4">
           Disconnect
         </Button>
@@ -108,7 +131,7 @@ export function ConnectedWallet({ activeAddress, providers }: ConnectedWalletPro
 }
 
 export function ConnectWalletButton() {
-  const { activeAddress, providers, isReady } = useWallet()
+  const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
 
   if (!isReady) {
     return (
@@ -119,7 +142,7 @@ export function ConnectWalletButton() {
   }
 
   if (activeAddress) {
-    return <ConnectedWallet activeAddress={activeAddress} providers={providers} />
+    return <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
   }
 
   return <ConnectWallet activeAddress={activeAddress} providers={providers} />
