@@ -1,6 +1,6 @@
-import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, ExpandedState, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { Loader2 as Loader } from 'lucide-react'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
@@ -10,14 +10,15 @@ interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   createLoadablePage: (pageSize: number) => (pageNumber: number) => Loadable<Promise<ViewModelPage<TData>>>
   getSubRows?: (row: TData) => TData[]
+  subRowsExpanded?: boolean
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, getSubRows }: Props<TData, TValue>) {
+export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, getSubRows, subRowsExpanded }: Props<TData, TValue>) {
   const [pageSize, setPageSize] = useState(10)
   const useLoadablePage = useMemo(() => createLoadablePage(pageSize), [createLoadablePage, pageSize])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
-
+  const [expanded, setExpanded] = useState<ExpandedState>({})
   const nextPage = useCallback(() => {
     setCurrentPage((prev) => prev + 1)
   }, [])
@@ -36,14 +37,19 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
   const table = useReactTable({
     data: page?.items ?? [],
     state: {
-      expanded: true,
+      expanded: expanded,
     },
+    onExpandedChange: setExpanded,
     getSubRows: getSubRows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     manualPagination: true,
   })
+
+  useEffect(() => {
+    table.toggleAllRowsExpanded(subRowsExpanded ?? false)
+  }, [subRowsExpanded, table])
 
   return (
     <div>
