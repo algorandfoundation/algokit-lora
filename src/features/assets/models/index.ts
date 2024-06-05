@@ -1,7 +1,7 @@
 export type AssetSummary = {
   id: number
   name?: string
-  decimals: number | bigint
+  decimals: number
   unitName?: string
   clawback?: string
 }
