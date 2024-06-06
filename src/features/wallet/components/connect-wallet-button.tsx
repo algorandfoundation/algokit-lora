@@ -109,7 +109,7 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
           </abbr>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="center" className="w-72 border border-input bg-card p-2 text-card-foreground">
+      <PopoverContent align="end" className="w-72 border border-input bg-card p-2 text-card-foreground">
         <div className={cn('flex items-center')}>
           {activeProvider && (
             <img
