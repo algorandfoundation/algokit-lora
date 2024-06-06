@@ -88,10 +88,7 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Network,
-        children: [
-          { template: Urls.Network, element: <LandingPage /> },
-          { template: Urls.Network.Any, element: <LandingPage /> },
-        ],
+        element: <LandingPage />,
       },
     ],
   },

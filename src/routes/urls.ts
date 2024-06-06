@@ -41,7 +41,5 @@ export const Urls = {
   }),
   AppStudio: UrlTemplate`/app-studio`,
   Settings: UrlTemplate`/settings`,
-  Network: UrlTemplate`/${UrlParams.NetworkId}`.extend({
-    Any: UrlTemplate`/*`,
-  }),
+  Network: UrlTemplate`/${UrlParams.NetworkId}/*`,
 }
