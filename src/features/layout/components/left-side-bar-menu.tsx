@@ -29,8 +29,8 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
-  // The little hack to make the index menu item active when transaction, block, account, asset, application are viewed
-  // This needs to be done because by default React router doesn't match the index URLs with any sub-path
+  // The little hack to make the index (root) menu item active when transaction, block, account, asset, application are viewed
+  // This needs to be done because React router doesn't match the root URL with any sub-path
   // The doc: https://reactrouter.com/en/main/components/nav-link#end
   const location = useLocation()
   const isIndexActive = useMemo(() => {
