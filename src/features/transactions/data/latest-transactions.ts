@@ -2,7 +2,7 @@ import { latestBlockSummariesAtom } from '@/features/blocks/data'
 import { atom, useAtomValue } from 'jotai'
 import { TransactionSummary } from '../models'
 
-const maxTransactionsToDisplay = 50
+const maxTransactionsToDisplay = 10
 
 const createLatestTransactionSummariesAtom = () => {
   return atom((get) => {
