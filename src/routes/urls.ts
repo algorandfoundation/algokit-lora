@@ -22,6 +22,7 @@ export const Urls = {
       }),
     }),
   }),
+  Tx: UrlTemplate`/tx/*`,
   Block: UrlTemplate`/block`.extend({
     ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
       Group: UrlTemplate`/group`.extend({

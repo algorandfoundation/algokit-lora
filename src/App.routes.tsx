@@ -13,6 +13,7 @@ import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
 import { LandingPage } from './features/landing/pages/landing-pages'
+import { TxPage } from './features/transactions/pages/tx-page'
 
 export const routes = evalTemplates([
   {
@@ -80,6 +81,10 @@ export const routes = evalTemplates([
       {
         template: Urls.Settings,
         element: <SettingsPage />,
+      },
+      {
+        template: Urls.Tx,
+        element: <TxPage />,
       },
       {
         template: Urls.Network,

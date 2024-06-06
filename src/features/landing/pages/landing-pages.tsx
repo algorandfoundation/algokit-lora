@@ -12,6 +12,7 @@ export function LandingPage() {
   const location = useLocation()
   const navigate = useNavigate()
 
+  // TODO: return 404 if networkId is not valid
   useEffect(() => {
     setSelectedNetwork(networkId)
     let to = location.pathname.replace(`/${networkId}`, '')
