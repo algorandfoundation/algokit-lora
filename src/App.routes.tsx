@@ -12,6 +12,7 @@ import { AccountPage, accountPageTitle } from './features/accounts/pages/account
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
+import { LandingPage } from './features/landing/pages/landing-pages'
 
 export const routes = evalTemplates([
   {
@@ -79,6 +80,13 @@ export const routes = evalTemplates([
       {
         template: Urls.Settings,
         element: <SettingsPage />,
+      },
+      {
+        template: Urls.Network,
+        children: [
+          { template: Urls.Network, element: <LandingPage /> },
+          { template: Urls.Network.Any, element: <LandingPage /> },
+        ],
       },
     ],
   },

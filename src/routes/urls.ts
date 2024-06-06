@@ -10,6 +10,7 @@ export const UrlParams = {
   Address: 'address:string',
   AssetId: 'assetId:string',
   ApplicationId: 'applicationId:string',
+  NetworkId: 'networkId:string',
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
@@ -39,4 +40,7 @@ export const Urls = {
   }),
   AppStudio: UrlTemplate`/app-studio`,
   Settings: UrlTemplate`/settings`,
+  Network: UrlTemplate`/${UrlParams.NetworkId}`.extend({
+    Any: UrlTemplate`/*`,
+  }),
 }
