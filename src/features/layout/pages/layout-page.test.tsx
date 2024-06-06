@@ -61,9 +61,6 @@ describe('when rendering the layout page', () => {
 
             const walletAddressText = component.getByText('CGRS...LQ5Q')
             expect(walletAddressText).toBeTruthy()
-
-            const linkElement = component.getByRole('link', { name: /CGRS...LQ5Q/i })
-            expect(linkElement.getAttribute('href')).toBe('/explore/account/CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
           })
         }
       )

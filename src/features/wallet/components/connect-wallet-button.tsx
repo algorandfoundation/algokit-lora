@@ -5,11 +5,12 @@ import { Dialog, DialogContent, DialogHeader } from '@/features/common/component
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { Loader2 as Loader, Wallet, Copy } from 'lucide-react'
+import { Loader2 as Loader, CircleMinus } from 'lucide-react'
 import { useNetworkConfig } from '@/features/settings/data'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
-import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/features/common/components/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
+import { Label } from '@/features/common/components/label'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const hoverCardLabel = 'Connected Wallet'
@@ -42,7 +43,7 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
 
   return (
     <div className={cn('mt-1')}>
-      <Button variant="default" onClick={() => setDialogOpen(true)} aria-label={connectWalletLabel} className="w-32">
+      <Button className="w-36" variant="default" onClick={() => setDialogOpen(true)} aria-label={connectWalletLabel}>
         Connect Wallet
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -71,94 +72,80 @@ type ConnectedWalletProps = {
   connectedActiveAccounts: Account[]
 }
 
+const preventDefault = (e: Event) => {
+  e.preventDefault()
+}
+
+const forceRemoveConnectedWallet = () => {
+  // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
+  localStorage.removeItem('txnlab-use-wallet')
+  window.location.reload()
+}
+
 export function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
-  const [currentActiveAddress, setCurrentActiveAddress] = useState(activeAddress)
-  const connectedActiveAccountsRef = useRef(connectedActiveAccounts)
 
   const disconnectWallet = useCallback(() => {
     if (activeProvider) {
       activeProvider.disconnect()
     } else {
-      // Fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-      localStorage.removeItem('txnlab-use-wallet')
-      window.location.reload()
+      forceRemoveConnectedWallet()
     }
   }, [activeProvider])
 
-  const changeAccount = useCallback(
-    (newAccount: Account) => {
-      const previousActiveAddress = currentActiveAddress
-      setCurrentActiveAddress(newAccount.address)
-      connectedActiveAccountsRef.current = connectedActiveAccountsRef.current.map((account) =>
-        account.address === newAccount.address ? { ...account, address: previousActiveAddress } : account
-      )
+  const switchAccount = useCallback(
+    (address: string) => {
+      if (activeProvider) {
+        activeProvider.setActiveAccount(address)
+      } else {
+        forceRemoveConnectedWallet()
+      }
     },
-    [currentActiveAddress]
+    [activeProvider]
   )
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className={cn(buttonVariants({ variant: 'default' }))}>
-          <div className={cn('h-auto w-4 rounded object-contain mr-3')}>
-            <Wallet />
-          </div>
-          <abbr title={currentActiveAddress} className="no-underline">
-            {ellipseAddress(currentActiveAddress)}
-          </abbr>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent align="end" className="w-72 border border-input bg-card p-2 text-card-foreground">
-        <div className={cn('flex items-center')}>
+        <Button className="w-36" variant="default">
           {activeProvider && (
             <img
               src={activeProvider.metadata.icon}
               alt={`${activeProvider.metadata.name} icon`}
-              className={cn('h-auto w-6 rounded object-contain mr-2')}
+              className={cn('size-6 rounded object-contain mr-2')}
             />
           )}
-          <p>{ellipseAddress(currentActiveAddress, 9)}</p>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 rounded-md px-3"
-            onClick={() => navigator.clipboard.writeText(currentActiveAddress)}
-          >
-            <Copy />
-          </Button>
-        </div>
-        <div className={cn('grid grid-cols-2 gap-4')}>
-          <div className={cn('flex items-center')}>
-            <AccountLink address={currentActiveAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }))}>
-              View Account
-            </AccountLink>
-          </div>
-          <Button variant="destructive" size="sm" onClick={disconnectWallet}>
-            Disconnect
-          </Button>
-        </div>
-        <SelectSeparator />
-        <div className={cn('flex w-42 flex-col')}>
-          <Select
-            onValueChange={(selectedAddress) => {
-              const selectedAccount = connectedActiveAccounts.find((account) => ellipseAddress(account.address) === selectedAddress)
-              if (selectedAccount) {
-                changeAccount(selectedAccount)
-              }
-            }}
-          >
-            <SelectTrigger className={cn('h-7')}>
-              <SelectValue placeholder={ellipseAddress(currentActiveAddress, 10)} />
+          <abbr title={activeAddress} className="no-underline">
+            {ellipseAddress(activeAddress)}
+          </abbr>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-60 border border-input bg-card p-2 text-card-foreground" onOpenAutoFocus={preventDefault}>
+        <div className={cn('flex items-center')}>
+          <Label hidden={true} htmlFor="account">
+            Select Account
+          </Label>
+          <Select onValueChange={switchAccount} value={activeAddress}>
+            <SelectTrigger id="account" className={cn('h-9')}>
+              <SelectValue placeholder="Select account" />
             </SelectTrigger>
             <SelectContent className={cn('bg-card text-card-foreground')}>
               {connectedActiveAccounts.map((account) => (
-                <SelectItem key={account.address} value={ellipseAddress(account.address)}>
-                  {ellipseAddress(account.address, 10)}
+                <SelectItem key={account.address} value={account.address}>
+                  {ellipseAddress(account.address)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'ml-2')}>
+            Details
+          </AccountLink>
+        </div>
+        <div className={cn('flex items-center')}>
+          <Button variant="outline" size="sm" onClick={disconnectWallet} className="mt-2 w-full bg-card">
+            <CircleMinus className="mr-2 size-4" />
+            Disconnect
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
@@ -170,8 +157,9 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     return (
-      <Button className="w-32">
-        <Loader className="size-5 animate-spin" />
+      <Button className="w-36" disabled>
+        <Loader className="mr-2 size-4 animate-spin" />
+        Loading
       </Button>
     )
   }
