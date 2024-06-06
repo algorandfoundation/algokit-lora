@@ -63,4 +63,19 @@ describe('landing page', () => {
       )
     })
   })
+
+  describe('when the landing url is not a valid network', () => {
+    it('should render a 404 page', () => {
+      const landingUrl = '/unknown-network'
+      vi.mocked(useParams).mockImplementation(() => ({ networkId: landingUrl.split('/')[1] }))
+      vi.mocked(useLocation).mockImplementation(() => ({ pathname: landingUrl, search: '', key: '', state: undefined, hash: '' }))
+
+      return executeComponentTest(
+        () => render(<LandingPage />),
+        async (component) => {
+          await waitFor(() => expect(component.getByText('404 - Page Not Found')).toBeTruthy())
+        }
+      )
+    })
+  })
 })
