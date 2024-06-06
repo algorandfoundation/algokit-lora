@@ -24,7 +24,7 @@ import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
 import { algod } from '@/features/common/data/algo-client'
 
-const maxBlocksToDisplay = 5
+const maxBlocksToDisplay = 10
 
 export const latestBlockSummariesAtom = atom<BlockSummary[]>([])
 const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
@@ -76,9 +76,9 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
           },
         },
       ],
-      maxRoundsToSync: 1,
+      maxRoundsToSync: maxBlocksToDisplay,
       waitForBlockWhenAtTip: true,
-      syncBehaviour: 'skip-sync-newest',
+      syncBehaviour: 'sync-oldest-start-now',
       watermarkPersistence: {
         get: async () => get(syncedRoundAtom) ?? 0,
         set: async (watermark) => {
