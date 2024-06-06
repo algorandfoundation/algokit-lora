@@ -12,7 +12,7 @@ export function BlockLink({ round, className, children }: Props) {
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Explore.Block.ByRound}
+      urlTemplate={Urls.Block.ByRound}
       urlParams={{ round: round.toString() }}
     >
       {children ? children : round}

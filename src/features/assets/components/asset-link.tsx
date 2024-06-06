@@ -34,7 +34,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
     <span>
       <TemplatedNavLink
         className={cn(!props.children && 'text-primary underline', props.className)}
-        urlTemplate={Urls.Explore.Asset.ById}
+        urlTemplate={Urls.Asset.ById}
         urlParams={{ assetId: props.assetId.toString() }}
       >
         {props.children ? props.children : props.assetId}

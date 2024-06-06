@@ -14,30 +14,28 @@ export const UrlParams = {
 
 export const Urls = {
   Index: UrlTemplate`/`,
-  Explore: UrlTemplate`/explore`.extend({
-    Transaction: UrlTemplate`/transaction`.extend({
-      ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
-        Inner: UrlTemplate`/inner`.extend({
-          ById: UrlTemplate`/${UrlParams.InnerTransactionId}`,
-        }),
+  Transaction: UrlTemplate`/transaction`.extend({
+    ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
+      Inner: UrlTemplate`/inner`.extend({
+        ById: UrlTemplate`/${UrlParams.InnerTransactionId}`,
       }),
     }),
-    Block: UrlTemplate`/block`.extend({
-      ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
-        Group: UrlTemplate`/group`.extend({
-          ById: UrlTemplate`/${UrlParams.GroupId}`,
-        }),
+  }),
+  Block: UrlTemplate`/block`.extend({
+    ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
+      Group: UrlTemplate`/group`.extend({
+        ById: UrlTemplate`/${UrlParams.GroupId}`,
       }),
     }),
-    Account: UrlTemplate`/account`.extend({
-      ByAddress: UrlTemplate`/${UrlParams.Address}`,
-    }),
-    Asset: UrlTemplate`/asset`.extend({
-      ById: UrlTemplate`/${UrlParams.AssetId}`,
-    }),
-    Application: UrlTemplate`/application`.extend({
-      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
-    }),
+  }),
+  Account: UrlTemplate`/account`.extend({
+    ByAddress: UrlTemplate`/${UrlParams.Address}`,
+  }),
+  Asset: UrlTemplate`/asset`.extend({
+    ById: UrlTemplate`/${UrlParams.AssetId}`,
+  }),
+  Application: UrlTemplate`/application`.extend({
+    ById: UrlTemplate`/${UrlParams.ApplicationId}`,
   }),
   AppStudio: UrlTemplate`/app-studio`,
   Settings: UrlTemplate`/settings`,

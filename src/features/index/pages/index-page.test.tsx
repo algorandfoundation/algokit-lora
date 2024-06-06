@@ -2,7 +2,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getAllByRole, getByRole, queryAllByRole, render, waitFor } from '@/tests/testing-library'
 import { Atom, createStore } from 'jotai'
 import { describe, expect, it } from 'vitest'
-import { ExplorePage } from './explore-page'
+import { IndexPage } from './index-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
 import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data'
@@ -17,13 +17,13 @@ import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createAtomAndTimestamp } from '@/features/common/data'
 
-describe('explore-page', () => {
+describe('indx-page', () => {
   describe('when no blocks are available', () => {
     const myStore = createStore()
 
     it('no latest blocks are displayed', () => {
       return executeComponentTest(
-        () => render(<ExplorePage />, undefined, myStore),
+        () => render(<IndexPage />, undefined, myStore),
         async (component) => {
           waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
@@ -37,7 +37,7 @@ describe('explore-page', () => {
 
     it('no latest transactions are displayed', () => {
       return executeComponentTest(
-        () => render(<ExplorePage />, undefined, myStore),
+        () => render(<IndexPage />, undefined, myStore),
         async (component) => {
           await waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })
@@ -61,7 +61,7 @@ describe('explore-page', () => {
 
     it('the processed blocks are displayed', () => {
       return executeComponentTest(
-        () => render(<ExplorePage />, undefined, myStore),
+        () => render(<IndexPage />, undefined, myStore),
         async (component) => {
           await waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
@@ -80,7 +80,7 @@ describe('explore-page', () => {
 
     it('the available transactions are displayed', () => {
       return executeComponentTest(
-        () => render(<ExplorePage />, undefined, myStore),
+        () => render(<IndexPage />, undefined, myStore),
         async (component) => {
           waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })
@@ -128,7 +128,7 @@ describe('explore-page', () => {
       myStore.set(syncedRoundAtom, data.syncedRound)
 
       return executeComponentTest(
-        () => render(<ExplorePage />, undefined, myStore),
+        () => render(<IndexPage />, undefined, myStore),
         async (component) => {
           await waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
@@ -149,7 +149,7 @@ describe('explore-page', () => {
       myStore.set(syncedRoundAtom, data.syncedRound)
 
       return executeComponentTest(
-        () => render(<ExplorePage />, undefined, myStore),
+        () => render(<IndexPage />, undefined, myStore),
         async (component) => {
           await waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })

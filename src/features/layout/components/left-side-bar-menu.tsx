@@ -2,7 +2,6 @@ import { TemplatedNavLink } from '../../routing/components/templated-nav-link/te
 import { Urls } from '../../../routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/common/components/navigation-menu'
 import { cn } from '@/features/common/utils'
-import SvgWallet from '@/features/common/components/icons/wallet'
 import SvgCodeBlock from '@/features/common/components/icons/code-block'
 import SvgHome from '@/features/common/components/icons/home'
 import { Button } from '@/features/common/components/button'
@@ -19,7 +18,6 @@ type Props = {
 export function LeftSideBarMenu({ className }: Props) {
   const menuItems = [
     { urlTemplate: Urls.Index, icon: <SvgHome />, text: 'Home' },
-    { urlTemplate: Urls.Explore, icon: <SvgWallet />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <SvgCodeBlock />, text: 'App Studio' },
     { urlTemplate: Urls.Settings, icon: <SvgCog />, text: 'Settings' },
   ]

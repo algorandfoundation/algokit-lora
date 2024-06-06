@@ -3,7 +3,7 @@ import { LayoutPage } from './features/layout/pages/layout-page'
 import { Urls } from './routes/urls'
 import { evalTemplates } from './routes/templated-route'
 import { TransactionPage, transactionPageTitle } from './features/transactions/pages/transaction-page'
-import { ExplorePage, explorePageTitle } from './features/explore/pages/explore-page'
+import { IndexPage, indexPageTitle } from './features/index/pages/index-page'
 import { GroupPage, groupPageTitle } from './features/groups/pages/group-page'
 import { ErrorPage } from './features/common/pages/error-page'
 import { BlockPage, blockPageTitle } from './features/blocks/pages/block-page'
@@ -25,66 +25,52 @@ export const routes = evalTemplates([
     children: [
       {
         template: Urls.Index,
-        element: (
-          <div>
-            <h1 className="font-bold">Home</h1>
-          </div>
-        ),
+        element: <IndexPage />,
+        errorElement: <ErrorPage title={indexPageTitle} />,
       },
       {
-        template: Urls.Explore,
-        errorElement: <ErrorPage />,
+        template: Urls.Transaction.ById,
+        errorElement: <ErrorPage title={transactionPageTitle} />,
         children: [
           {
-            template: Urls.Explore,
-            element: <ExplorePage />,
-            errorElement: <ErrorPage title={explorePageTitle} />,
+            template: Urls.Transaction.ById,
+            element: <TransactionPage />,
           },
           {
-            template: Urls.Explore.Transaction.ById,
-            errorElement: <ErrorPage title={transactionPageTitle} />,
-            children: [
-              {
-                template: Urls.Explore.Transaction.ById,
-                element: <TransactionPage />,
-              },
-              {
-                template: Urls.Explore.Transaction.ById.Inner.ById,
-                element: <InnerTransactionPage />,
-              },
-            ],
-          },
-          {
-            template: Urls.Explore.Block.ByRound,
-            children: [
-              {
-                template: Urls.Explore.Block.ByRound,
-                errorElement: <ErrorPage title={blockPageTitle} />,
-                element: <BlockPage />,
-              },
-              {
-                template: Urls.Explore.Block.ByRound.Group.ById,
-                errorElement: <ErrorPage title={groupPageTitle} />,
-                element: <GroupPage />,
-              },
-            ],
-          },
-          {
-            template: Urls.Explore.Account.ByAddress,
-            element: <AccountPage />,
-            errorElement: <ErrorPage title={accountPageTitle} />,
-          },
-          {
-            template: Urls.Explore.Asset.ById,
-            element: <AssetPage />,
-            errorElement: <ErrorPage title={assetPageTitle} />,
-          },
-          {
-            template: Urls.Explore.Application.ById,
-            errorElement: <ErrorPage title={applicationPageTitle} />,
-            element: <ApplicationPage />,
+            template: Urls.Transaction.ById.Inner.ById,
+            element: <InnerTransactionPage />,
           },
         ],
+      },
+      {
+        template: Urls.Block.ByRound,
+        children: [
+          {
+            template: Urls.Block.ByRound,
+            errorElement: <ErrorPage title={blockPageTitle} />,
+            element: <BlockPage />,
+          },
+          {
+            template: Urls.Block.ByRound.Group.ById,
+            errorElement: <ErrorPage title={groupPageTitle} />,
+            element: <GroupPage />,
+          },
+        ],
+      },
+      {
+        template: Urls.Account.ByAddress,
+        element: <AccountPage />,
+        errorElement: <ErrorPage title={accountPageTitle} />,
+      },
+      {
+        template: Urls.Asset.ById,
+        element: <AssetPage />,
+        errorElement: <ErrorPage title={assetPageTitle} />,
+      },
+      {
+        template: Urls.Application.ById,
+        errorElement: <ErrorPage title={applicationPageTitle} />,
+        element: <ApplicationPage />,
       },
       {
         template: Urls.AppStudio,

@@ -63,7 +63,7 @@ describe('when rendering the layout page', () => {
             expect(walletAddressText).toBeTruthy()
 
             const linkElement = component.getByRole('link', { name: /CGRS...LQ5Q/i })
-            expect(linkElement.getAttribute('href')).toBe('/explore/account/CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
+            expect(linkElement.getAttribute('href')).toBe('/account/CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
           })
         }
       )
@@ -162,7 +162,7 @@ describe('when rendering the layout page', () => {
           const networkConfig = settingsStore.get(networkConfigAtom)
 
           expect(networkConfig.id).toBe('mainnet')
-          expect(mockNavigate).toHaveBeenCalledWith(`/explore/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`)
+          expect(mockNavigate).toHaveBeenCalledWith(`/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`)
         }
       )
     })
