@@ -100,7 +100,7 @@ describe('explore-page', () => {
   })
 
   describe('when a large number of blocks have been processed', () => {
-    const data = Array.from({ length: randomNumberBetween(6, 100) }, () => {
+    const data = Array.from({ length: randomNumberBetween(11, 100) }, () => {
       const transactions = Array.from({ length: randomNumberBetween(10, 100) }, () => {
         return transactionResultMother.payment().build()
       })
@@ -121,7 +121,7 @@ describe('explore-page', () => {
       }
     )
 
-    it('only the latest 5 blocks are displayed', () => {
+    it('only the latest 10 blocks are displayed', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, data.transactions)
       myStore.set(blockResultsAtom, data.blocks)
@@ -136,13 +136,13 @@ describe('explore-page', () => {
             const container = latestBlocks.parentElement!
             expect(data.blocks.size).toBeGreaterThan(5)
             const blockCards = getAllByRole(container, 'link')
-            expect(blockCards.length).toBe(5)
+            expect(blockCards.length).toBe(10)
           })
         }
       )
     })
 
-    it('the latest 50 transactions are displayed', () => {
+    it('the latest 10 transactions are displayed', () => {
       const myStore = createStore()
       myStore.set(transactionResultsAtom, data.transactions)
       myStore.set(blockResultsAtom, data.blocks)
@@ -157,7 +157,7 @@ describe('explore-page', () => {
             const container = latestTransactions.parentElement!
             expect(data.transactions.size).toBeGreaterThan(50)
             const transactionCards = getAllByRole(container, 'link')
-            expect(transactionCards.length).toBe(50)
+            expect(transactionCards.length).toBe(10)
           })
         }
       )
