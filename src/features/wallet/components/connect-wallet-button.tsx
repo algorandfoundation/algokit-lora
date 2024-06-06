@@ -5,10 +5,11 @@ import { Dialog, DialogContent, DialogHeader } from '@/features/common/component
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common/components/hover-card'
-import { Loader2 as Loader } from 'lucide-react'
+import { Loader2 as Loader, Wallet, Copy } from 'lucide-react'
 import { useNetworkConfig } from '@/features/settings/data'
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
+import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from '@/features/common/components/select'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const hoverCardLabel = 'Connected Wallet'
@@ -97,36 +98,70 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
   )
 
   return (
-    <HoverCard openDelay={100}>
-      <HoverCardTrigger asChild>
-        <AccountLink address={currentActiveAddress} className={cn(buttonVariants({ variant: 'default' }), 'w-32')}>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button className={cn(buttonVariants({ variant: 'default' }))}>
+          <div className={cn('h-auto w-4 rounded object-contain mr-3')}>
+            <Wallet />
+          </div>
+          <abbr title={currentActiveAddress} className="no-underline">
+            {ellipseAddress(currentActiveAddress)}
+          </abbr>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent align="center" className="w-72 border border-input bg-card p-2 text-card-foreground">
+        <div className={cn('flex items-center')}>
           {activeProvider && (
             <img
               src={activeProvider.metadata.icon}
               alt={`${activeProvider.metadata.name} icon`}
-              className={cn('h-auto w-4 rounded object-contain mr-2')}
+              className={cn('h-auto w-6 rounded object-contain mr-2')}
             />
           )}
-          <abbr title={currentActiveAddress} className="no-underline">
-            {ellipseAddress(currentActiveAddress)}
-          </abbr>
-        </AccountLink>
-      </HoverCardTrigger>
-      <HoverCardContent align="center" className="w-36 border border-input bg-card p-2 text-card-foreground">
-        {connectedActiveAccounts
-          .filter((account) => account.address !== currentActiveAddress)
-          .map((account) => (
-            <div key={account.address} className="my-2 text-center">
-              <Button variant="default" onClick={() => changeAccount(account)} className="w-full p-4">
-                {ellipseAddress(account.address)}
-              </Button>
-            </div>
-          ))}
-        <Button variant="default" onClick={disconnectWallet} className="w-full p-4">
-          Disconnect
-        </Button>
-      </HoverCardContent>
-    </HoverCard>
+          <p>{ellipseAddress(currentActiveAddress, 9)}</p>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-9 rounded-md px-3"
+            onClick={() => navigator.clipboard.writeText(currentActiveAddress)}
+          >
+            <Copy />
+          </Button>
+        </div>
+        <div className={cn('grid grid-cols-2 gap-4')}>
+          <div className={cn('flex items-center')}>
+            <AccountLink address={currentActiveAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }))}>
+              View Account
+            </AccountLink>
+          </div>
+          <Button variant="destructive" size="sm" onClick={disconnectWallet}>
+            Disconnect
+          </Button>
+        </div>
+        <SelectSeparator />
+        <div className={cn('flex w-42 flex-col')}>
+          <Select
+            onValueChange={(selectedAddress) => {
+              const selectedAccount = connectedActiveAccounts.find((account) => ellipseAddress(account.address) === selectedAddress)
+              if (selectedAccount) {
+                changeAccount(selectedAccount)
+              }
+            }}
+          >
+            <SelectTrigger className={cn('h-7')}>
+              <SelectValue placeholder={ellipseAddress(currentActiveAddress, 10)} />
+            </SelectTrigger>
+            <SelectContent className={cn('bg-card text-card-foreground')}>
+              {connectedActiveAccounts.map((account) => (
+                <SelectItem key={account.address} value={ellipseAddress(account.address)}>
+                  {ellipseAddress(account.address, 10)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
