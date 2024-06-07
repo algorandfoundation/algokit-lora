@@ -19,9 +19,5 @@ export function TestWalletProvider({ networkConfig, children }: Props) {
     algosdkStatic: algosdk,
   } as Parameters<typeof useInitializeProviders>[0]
 
-  return (
-    <WalletProviderInner networkConfig={networkConfig} initOptions={options}>
-      {children}
-    </WalletProviderInner>
-  )
+  return <WalletProviderInner initOptions={options}>{children}</WalletProviderInner>
 }

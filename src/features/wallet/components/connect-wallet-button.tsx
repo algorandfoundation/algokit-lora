@@ -9,6 +9,8 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common
 import { Loader2 as Loader } from 'lucide-react'
 import { useNetworkConfig } from '@/features/settings/data'
 import { useCallback, useMemo, useState } from 'react'
+import { asError } from '@/utils/error'
+import { toast } from 'react-toastify'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const hoverCardLabel = 'Connected Wallet'
@@ -30,17 +32,22 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
   const selectProvider = useCallback(
     (provider: Provider) => async () => {
       setTimeout(() => setDialogOpen(false), 1000)
-      if (provider.isConnected) {
-        provider.setActiveProvider()
-      } else {
-        await provider.connect()
+      try {
+        if (provider.isConnected) {
+          provider.setActiveProvider()
+        } else {
+          await provider.connect(undefined, true)
+        }
+      } catch (e: unknown) {
+        const error = asError(e)
+        toast.error(error.message)
       }
     },
     []
   )
 
   return (
-    <div className={cn('mt-1')}>
+    <>
       <Button variant="default" onClick={() => setDialogOpen(true)} aria-label={connectWalletLabel} className="w-32">
         Connect Wallet
       </Button>
@@ -60,7 +67,7 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }
 
@@ -72,11 +79,12 @@ type ConnectedWalletProps = {
 export function ConnectedWallet({ activeAddress, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
 
-  const disconnectWallet = useCallback(() => {
+  const disconnectWallet = useCallback(async () => {
     if (activeProvider) {
-      activeProvider.disconnect()
+      await activeProvider.disconnect()
     } else {
       // Fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
+      // TODO: NC - We can probably use the clearAccounts function instead of this
       localStorage.removeItem('txnlab-use-wallet')
       window.location.reload()
     }
