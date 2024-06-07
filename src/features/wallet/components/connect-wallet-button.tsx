@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader } from '@/features/common/component
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { Loader2 as Loader, CircleMinus } from 'lucide-react'
+import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
 import { useNetworkConfig } from '@/features/settings/data'
 import { useCallback, useMemo, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
@@ -55,7 +55,15 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
             {!activeAddress &&
               availableProviders.map((provider) => (
                 <Button key={`provider-${provider.metadata.id}`} onClick={selectProvider(provider)}>
-                  <img src={provider.metadata.icon} alt={`${provider.metadata.name} icon`} className="h-auto w-6 rounded object-contain" />
+                  {provider.metadata.id !== 'mnemonic' && provider.metadata.id !== 'kmd' ? (
+                    <img
+                      src={provider.metadata.icon}
+                      alt={`${provider.metadata.name} icon`}
+                      className="h-auto w-6 rounded object-contain"
+                    />
+                  ) : (
+                    <Wallet className={cn('size-6 rounded object-contain mr-2')} />
+                  )}
                   <span className="ml-1">{provider.metadata.name}</span>
                 </Button>
               ))}
@@ -108,12 +116,14 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
     <Popover>
       <PopoverTrigger asChild>
         <Button className="w-36" variant="default">
-          {activeProvider && (
+          {activeProvider && activeProvider.metadata.id !== 'mnemonic' && activeProvider.metadata.id !== 'kmd' ? (
             <img
               src={activeProvider.metadata.icon}
               alt={`${activeProvider.metadata.name} icon`}
               className={cn('size-6 rounded object-contain mr-2')}
             />
+          ) : (
+            <Wallet className={cn('size-6 rounded object-contain mr-2')} />
           )}
           <abbr title={activeAddress} className="no-underline">
             {ellipseAddress(activeAddress)}

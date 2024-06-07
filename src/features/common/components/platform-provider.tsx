@@ -22,6 +22,7 @@ export function PlatformProvider({ children }: PropsWithChildren) {
         clientStatic: LuteConnect,
         clientOptions: { siteName: 'Algorand Studio' },
       },
+      PROVIDER_ID.MNEMONIC,
     ],
     nodeConfig: {
       network: networkConfig.id,
