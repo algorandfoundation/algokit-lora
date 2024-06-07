@@ -13,7 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/features/common/components/label'
 
 export const connectWalletLabel = 'Connect Wallet'
-export const hoverCardLabel = 'Connected Wallet'
+export const disconnectWalletLabel = 'Disconnect Wallet'
+export const selectAccountLabel = 'Account Selector'
 
 type ConnectWalletProps = {
   activeAddress?: string
@@ -140,8 +141,8 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
               <Label hidden={true} htmlFor="account">
                 Select Account
               </Label>
-              <Select onValueChange={switchAccount} value={activeAddress} aria-label="accountSwitcher">
-                <SelectTrigger id="account" className={cn('h-9')}>
+              <Select onValueChange={switchAccount} value={activeAddress}>
+                <SelectTrigger id="account" aria-label={selectAccountLabel} className={cn('h-9')}>
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent className={cn('bg-card text-card-foreground')}>
@@ -159,7 +160,7 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
           </AccountLink>
         </div>
         <div className={cn('flex items-center')}>
-          <Button variant="outline" size="sm" onClick={disconnectWallet} className="mt-2 w-full bg-card">
+          <Button variant="outline" size="sm" onClick={disconnectWallet} className="mt-2 w-full bg-card" aria-label={disconnectWalletLabel}>
             <CircleMinus className="mr-2 size-4" />
             Disconnect
           </Button>
