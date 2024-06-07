@@ -10,17 +10,17 @@ type Props = PropsWithChildren<{
   transactionId: string
   short?: boolean
   className?: string
-  supportCopy?: boolean
+  showCopyButton?: boolean
 }>
 
-export function TransactionLink({ transactionId, short = false, className, children, supportCopy }: Props) {
-  const copyClipboard = useCallback(() => {
-    navigator.clipboard.writeText(transactionId)
+export function TransactionLink({ transactionId, short = false, className, children, showCopyButton }: Props) {
+  const copyClipboard = useCallback(async () => {
+    await navigator.clipboard.writeText(transactionId)
     toast.success('Transaction ID copied to clipboard')
   }, [transactionId])
 
   return (
-    <div className={cn('flex gap-2 items-center')}>
+    <div className={cn('inline-flex gap-2 items-center')}>
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline', className)}
         urlTemplate={Urls.Explore.Transaction.ById}
@@ -28,7 +28,7 @@ export function TransactionLink({ transactionId, short = false, className, child
       >
         {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
       </TemplatedNavLink>
-      {supportCopy && <CopyButton onClick={copyClipboard} />}
+      {showCopyButton && <CopyButton onClick={copyClipboard} />}
     </div>
   )
 }

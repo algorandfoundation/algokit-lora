@@ -30,7 +30,7 @@ export function TransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} supportCopy={true} />,
+        dd: <TransactionLink transactionId={transaction.id} showCopyButton={true} />,
       },
       {
         dt: transactionTypeLabel,

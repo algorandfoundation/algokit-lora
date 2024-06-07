@@ -11,17 +11,17 @@ type Props = PropsWithChildren<{
   address: string
   short?: boolean
   className?: string
-  supportCopy?: boolean
+  showCopyButton?: boolean
 }>
 
 export const AccountLink = fixedForwardRef(
-  ({ address, short, className, children, supportCopy, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
-    const copyClipboard = useCallback(() => {
-      navigator.clipboard.writeText(address)
+  ({ address, short, className, children, showCopyButton, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
+    const copyClipboard = useCallback(async () => {
+      await navigator.clipboard.writeText(address)
       toast.success('Address copied to clipboard')
     }, [address])
     return (
-      <div className={cn('flex gap-2 items-center')}>
+      <div className={cn('inline-flex gap-2 items-center')}>
         <TemplatedNavLink
           className={cn(!children && 'text-primary underline', className)}
           urlTemplate={Urls.Explore.Account.ByAddress}
@@ -31,7 +31,7 @@ export const AccountLink = fixedForwardRef(
         >
           {children ? children : short ? <abbr title={address}>{ellipseAddress(address)}</abbr> : address}
         </TemplatedNavLink>
-        {supportCopy && <CopyButton onClick={copyClipboard} />}
+        {showCopyButton && <CopyButton onClick={copyClipboard} />}
       </div>
     )
   }
