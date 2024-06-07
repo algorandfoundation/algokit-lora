@@ -1,13 +1,16 @@
 import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, useCallback } from 'react'
 import { AssetSummary } from '../models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { CopyButton } from '@/features/common/components/copy-button.tsx'
+import { toast } from 'react-toastify'
 
 type CommonProps = {
   className?: string
+  showCopyButton?: boolean
 }
 
 type AssetIdLinkProps = PropsWithChildren<
@@ -30,8 +33,13 @@ type AssetLinkProps = PropsWithChildren<
 >
 
 function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
+  const copyClipboard = useCallback(async () => {
+    await navigator.clipboard.writeText(props.assetId.toString())
+    toast.success('Asset ID copied to clipboard')
+  }, [props.assetId])
+
   return (
-    <span>
+    <div className={cn('inline-flex gap-2 items-center')}>
       <TemplatedNavLink
         className={cn(!props.children && 'text-primary underline', props.className)}
         urlTemplate={Urls.Asset.ById}
@@ -40,7 +48,8 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
         {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
       {'assetName' in props && props.assetName && ` (${props.assetName})`}
-    </span>
+      {props.showCopyButton && <CopyButton onClick={copyClipboard} />}
+    </div>
   )
 }
 

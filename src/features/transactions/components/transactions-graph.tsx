@@ -328,7 +328,7 @@ function AssetTransferTransactionToolTipContent({
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
+        dd: <TransactionLink transactionId={transaction.id} showCopyButton={true} />,
       },
       {
         dt: transactionTypeLabel,
