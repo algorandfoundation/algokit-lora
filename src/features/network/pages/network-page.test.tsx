@@ -1,9 +1,10 @@
-import { selectedNetworkAtom, settingsStore } from '@/features/settings/data'
+import { networkConfigAtom, selectedNetworkAtom, settingsStore } from '@/features/settings/data'
 import { executeComponentTest } from '@/tests/test-component'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { NetworkPage } from './network-pages.tsx'
-import { render, waitFor } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { RESET } from 'jotai/utils'
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
@@ -39,41 +40,35 @@ describe('network page', () => {
       expectedNetworkId: 'mainnet',
       expectedRedirectUrl: '/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
     },
-  ])('when the landing url is $landingUrl', ({ landingUrl, expectedNetworkId, expectedRedirectUrl }) => {
+    {
+      landingUrl: '/testnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
+      expectedNetworkId: 'testnet',
+      expectedRedirectUrl: '/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
+    },
+    {
+      landingUrl: '/invalid-network/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
+      expectedNetworkId: 'localnet',
+      expectedRedirectUrl: '/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
+    },
+  ])('when the network url is $landingUrl', ({ landingUrl, expectedNetworkId, expectedRedirectUrl }) => {
     afterEach(() => {
-      localStorage.clear()
+      settingsStore.set(selectedNetworkAtom, RESET)
     })
 
-    it('should select the expected network and redirect to the expected url', () => {
+    it('should select the expected network and redirect to the expected url', async () => {
       const network = landingUrl.split('/')[1]
       vi.mocked(useParams).mockImplementation(() => ({ networkId: network }))
       vi.mocked(useLocation).mockImplementation(() => ({ pathname: landingUrl, search: '', key: '', state: undefined, hash: '' }))
       const mockNavigate = vi.fn()
       vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
-      return executeComponentTest(
+      await executeComponentTest(
         () => render(<NetworkPage />),
         async () => {
-          await waitFor(async () => {
-            expect(mockNavigate).toHaveBeenCalledWith(expectedRedirectUrl)
-            const selectedNetwork = settingsStore.get(selectedNetworkAtom)
-            expect(selectedNetwork).toBe(expectedNetworkId)
-          })
-        }
-      )
-    })
-  })
+          const selectedNetwork = settingsStore.get(networkConfigAtom)
+          expect(selectedNetwork.id).toBe(expectedNetworkId)
 
-  describe('when the landing url is not a valid network', () => {
-    it('should render a 404 page', () => {
-      const landingUrl = '/unknown-network'
-      vi.mocked(useParams).mockImplementation(() => ({ networkId: landingUrl.split('/')[1] }))
-      vi.mocked(useLocation).mockImplementation(() => ({ pathname: landingUrl, search: '', key: '', state: undefined, hash: '' }))
-
-      return executeComponentTest(
-        () => render(<NetworkPage />),
-        async (component) => {
-          await waitFor(() => expect(component.getByText('404 - Page Not Found')).toBeTruthy())
+          expect(mockNavigate).toHaveBeenCalledWith(expectedRedirectUrl)
         }
       )
     })
