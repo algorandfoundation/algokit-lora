@@ -11,7 +11,6 @@ export function CopyButton({ onClick }: Props) {
   return (
     <Button onClick={onClick} variant="no-style" size="sm-icon" aria-label={copyButtonLabel} className="hover:bg-transparent">
       <CopyIcon className="size-4" />
-      <span className="sr-only">{copyButtonLabel}</span>
     </Button>
   )
 }
