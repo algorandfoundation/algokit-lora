@@ -122,21 +122,27 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
       </PopoverTrigger>
       <PopoverContent align="end" className="w-60 border border-input bg-card p-2 text-card-foreground" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
-          <Label hidden={true} htmlFor="account">
-            Select Account
-          </Label>
-          <Select onValueChange={switchAccount} value={activeAddress}>
-            <SelectTrigger id="account" className={cn('h-9')}>
-              <SelectValue placeholder="Select account" />
-            </SelectTrigger>
-            <SelectContent className={cn('bg-card text-card-foreground')}>
-              {connectedActiveAccounts.map((account) => (
-                <SelectItem key={account.address} value={account.address}>
-                  {ellipseAddress(account.address)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {connectedActiveAccounts.length === 1 ? (
+            <abbr className="ml-1 ">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+          ) : (
+            <>
+              <Label hidden={true} htmlFor="account">
+                Select Account
+              </Label>
+              <Select onValueChange={switchAccount} value={activeAddress}>
+                <SelectTrigger id="account" className={cn('h-9')}>
+                  <SelectValue placeholder="Select account" />
+                </SelectTrigger>
+                <SelectContent className={cn('bg-card text-card-foreground')}>
+                  {connectedActiveAccounts.map((account) => (
+                    <SelectItem key={account.address} value={account.address}>
+                      {ellipseAddress(account.address)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
           <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'ml-2')}>
             Details
           </AccountLink>
