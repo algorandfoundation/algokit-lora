@@ -2,7 +2,7 @@ import { selectedNetworkAtom, settingsStore } from '@/features/settings/data'
 import { executeComponentTest } from '@/tests/test-component'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { LandingPage } from './landing-pages'
+import { NetworkPage } from './network-pages.tsx'
 import { render, waitFor } from '@testing-library/react'
 
 vi.mock('react-router-dom', async () => ({
@@ -12,7 +12,7 @@ vi.mock('react-router-dom', async () => ({
   useNavigate: vi.fn(),
 }))
 
-describe('landing page', () => {
+describe('network page', () => {
   describe.each([
     {
       landingUrl: '/mainnet/transaction/db677wzp7hzfou5gc2uebg3onxgtng2nj2zoi6s6rgu244p6he4q',
@@ -52,7 +52,7 @@ describe('landing page', () => {
       vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
       return executeComponentTest(
-        () => render(<LandingPage />),
+        () => render(<NetworkPage />),
         async () => {
           await waitFor(async () => {
             expect(mockNavigate).toHaveBeenCalledWith(expectedRedirectUrl)
@@ -71,7 +71,7 @@ describe('landing page', () => {
       vi.mocked(useLocation).mockImplementation(() => ({ pathname: landingUrl, search: '', key: '', state: undefined, hash: '' }))
 
       return executeComponentTest(
-        () => render(<LandingPage />),
+        () => render(<NetworkPage />),
         async (component) => {
           await waitFor(() => expect(component.getByText('404 - Page Not Found')).toBeTruthy())
         }

@@ -6,7 +6,7 @@ import { useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-export function LandingPage() {
+export function NetworkPage() {
   const { networkId } = useRequiredParam(UrlParams.NetworkId)
   const setSelectedNetwork = useSetAtom(selectedNetworkAtom, { store: settingsStore })
   const location = useLocation()

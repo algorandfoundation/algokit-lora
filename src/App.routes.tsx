@@ -12,8 +12,8 @@ import { AccountPage, accountPageTitle } from './features/accounts/pages/account
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
-import { LandingPage } from './features/landing/pages/landing-pages'
 import { TxPage } from './features/transactions/pages/tx-page'
+import { NetworkPage } from '@/features/network/pages/network-pages.tsx'
 
 export const routes = evalTemplates([
   {
@@ -88,7 +88,7 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Network,
-        element: <LandingPage />,
+        element: <NetworkPage />,
       },
     ],
   },
