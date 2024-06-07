@@ -8,6 +8,8 @@ type Props = {
   className?: string
 }
 
+export const networkLabel = 'Network:'
+
 export function Header({ className }: Props) {
   const networkConfig = useNetworkConfig()
 
@@ -17,7 +19,9 @@ export function Header({ className }: Props) {
         <Search />
       </div>
       <div className={cn('flex flex-row items-center justify-end gap-2')}>
-        <label>Network: {networkConfig.name}</label>
+        <label>
+          {networkLabel} {networkConfig.name}
+        </label>
         <ConnectWalletButton />
         <ThemeToggle />
       </div>

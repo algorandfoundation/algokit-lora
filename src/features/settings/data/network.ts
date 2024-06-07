@@ -110,13 +110,15 @@ export const useSetSelectedNetwork = () => {
 
   return useCallback(
     async (selectedNetwork: string) => {
-      await Promise.all(
-        providers?.map(async (provider) => {
-          if (provider.isConnected) {
-            await provider.disconnect()
-          }
-        }) ?? []
-      )
+      if (providers) {
+        await Promise.all(
+          providers.map(async (provider) => {
+            if (provider.isConnected) {
+              await provider.disconnect()
+            }
+          })
+        )
+      }
       setSelectedNetwork(selectedNetwork)
     },
     [providers, setSelectedNetwork]

@@ -11,10 +11,10 @@ export function useDeepLink() {
   const navigate = useNavigate()
 
   const handleDeepLink = useCallback(
-    (url: string | undefined) => {
+    async (url: string | undefined) => {
       const options = parseDeepLink(url)
       if (options) {
-        setSelectedNetwork(options.networkId)
+        await setSelectedNetwork(options.networkId)
         if (options.transactionId) {
           navigate(Urls.Explore.Transaction.ById.build({ transactionId: options.transactionId }))
         } else {
@@ -32,9 +32,10 @@ export function useDeepLink() {
 
     if (window.deepLink) {
       // On init
-      handleDeepLink(window.deepLink)
-      // Reset so that it won't be used again
-      window.deepLink = undefined
+      handleDeepLink(window.deepLink).then(() => {
+        // Reset so that it won't be used again
+        window.deepLink = undefined
+      })
     }
     // On deep link event while the app is open
     const unlisten = listen('deep-link-received', (event) => {

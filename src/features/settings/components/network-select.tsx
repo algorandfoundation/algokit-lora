@@ -2,24 +2,7 @@ import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
-import { useAtom, useAtomValue } from 'jotai'
-import { settingsStore } from '@/features/settings/data'
-import { useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
-
-// 1. Network is changed whilst the app is loaded
-// 2. Network is change before the app is loaded
-
-// const useNetworkChange = () => {
-//   const selectedNetwork = useAtomValue(selectedNetworkAtom, { store: settingsStore })
-//   const { providers, activeAccount } = useWallet()
-
-//   await Promise.all(
-//     providers?.forEach(async (provider) => {
-//       await provider.disconnect()
-//     }) ?? []
-//   )
-// }
 
 export function NetworkSelect() {
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
