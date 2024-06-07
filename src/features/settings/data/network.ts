@@ -63,7 +63,7 @@ export const localnetConfig: NetworkConfig = {
     port: 4002,
     token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
-  walletProviders: [PROVIDER_ID.KMD],
+  walletProviders: [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC],
 }
 
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]

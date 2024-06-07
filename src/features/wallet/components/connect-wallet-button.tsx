@@ -1,19 +1,22 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Provider, useWallet } from '@txnlab/use-wallet'
+import { Account, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/features/common/components/hover-card'
-import { Loader2 as Loader } from 'lucide-react'
-import { useNetworkConfig } from '@/features/settings/data'
+import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
+import { localnetConfig, useNetworkConfig } from '@/features/settings/data'
 import { useCallback, useMemo, useState } from 'react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
+import { Label } from '@/features/common/components/label'
 import { asError } from '@/utils/error'
 import { toast } from 'react-toastify'
 
 export const connectWalletLabel = 'Connect Wallet'
-export const hoverCardLabel = 'Connected Wallet'
+export const disconnectWalletLabel = 'Disconnect Wallet'
+export const selectAccountLabel = 'Account Selector'
 
 type ConnectWalletProps = {
   activeAddress?: string
@@ -48,7 +51,7 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
 
   return (
     <>
-      <Button variant="default" onClick={() => setDialogOpen(true)} aria-label={connectWalletLabel} className="w-32">
+      <Button className="w-36" variant="default" onClick={() => setDialogOpen(true)} aria-label={connectWalletLabel}>
         Connect Wallet
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -60,7 +63,15 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
             {!activeAddress &&
               availableProviders.map((provider) => (
                 <Button key={`provider-${provider.metadata.id}`} onClick={selectProvider(provider)}>
-                  <img src={provider.metadata.icon} alt={`${provider.metadata.name} icon`} className="h-auto w-6 rounded object-contain" />
+                  {localnetConfig.walletProviders.includes(provider.metadata.id) ? (
+                    <Wallet className={cn('size-6 rounded object-contain mr-2')} />
+                  ) : (
+                    <img
+                      src={provider.metadata.icon}
+                      alt={`${provider.metadata.name} icon`}
+                      className="h-auto w-6 rounded object-contain"
+                    />
+                  )}
                   <span className="ml-1">{provider.metadata.name}</span>
                 </Button>
               ))}
@@ -74,60 +85,113 @@ export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) 
 type ConnectedWalletProps = {
   activeAddress: string
   providers: Provider[] | null
+  connectedActiveAccounts: Account[]
 }
 
-export function ConnectedWallet({ activeAddress, providers }: ConnectedWalletProps) {
+const preventDefault = (e: Event) => {
+  e.preventDefault()
+}
+
+// TODO: NC - We can probably use the clearAccounts function instead of this
+const forceRemoveConnectedWallet = () => {
+  // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
+  localStorage.removeItem('txnlab-use-wallet')
+  window.location.reload()
+}
+
+export function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
 
   const disconnectWallet = useCallback(async () => {
     if (activeProvider) {
       await activeProvider.disconnect()
     } else {
-      // Fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-      // TODO: NC - We can probably use the clearAccounts function instead of this
-      localStorage.removeItem('txnlab-use-wallet')
-      window.location.reload()
+      forceRemoveConnectedWallet()
     }
   }, [activeProvider])
 
+  const switchAccount = useCallback(
+    (address: string) => {
+      if (activeProvider) {
+        activeProvider.setActiveAccount(address)
+      } else {
+        forceRemoveConnectedWallet()
+      }
+    },
+    [activeProvider]
+  )
+
   return (
-    <HoverCard openDelay={100}>
-      <HoverCardTrigger asChild>
-        <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default' }), 'w-32')}>
-          {activeProvider && (
-            <img
-              src={activeProvider.metadata.icon}
-              alt={`${activeProvider.metadata.name} icon`}
-              className={cn('h-auto w-4 rounded object-contain mr-2')}
-            />
-          )}
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button className="w-36" variant="default">
+          {activeProvider &&
+            (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
+              <Wallet className={cn('size-6 rounded object-contain mr-2')} />
+            ) : (
+              <img
+                src={activeProvider.metadata.icon}
+                alt={`${activeProvider.metadata.name} icon`}
+                className={cn('size-6 rounded object-contain mr-2')}
+              />
+            ))}
           <abbr title={activeAddress} className="no-underline">
             {ellipseAddress(activeAddress)}
           </abbr>
-        </AccountLink>
-      </HoverCardTrigger>
-      <HoverCardContent align="center" className="w-36 border border-input bg-card p-2 text-card-foreground">
-        <Button variant="default" onClick={disconnectWallet} className="w-full p-4">
-          Disconnect
         </Button>
-      </HoverCardContent>
-    </HoverCard>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-60 border border-input bg-card p-2 text-card-foreground" onOpenAutoFocus={preventDefault}>
+        <div className={cn('flex items-center')}>
+          {connectedActiveAccounts.length === 1 ? (
+            <abbr className="ml-1 ">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+          ) : (
+            <>
+              <Label hidden={true} htmlFor="account">
+                Select Account
+              </Label>
+              <Select onValueChange={switchAccount} value={activeAddress}>
+                <SelectTrigger id="account" aria-label={selectAccountLabel} className={cn('h-9')}>
+                  <SelectValue placeholder="Select account" />
+                </SelectTrigger>
+                <SelectContent className={cn('bg-card text-card-foreground')}>
+                  {connectedActiveAccounts.map((account) => (
+                    <SelectItem key={account.address} value={account.address}>
+                      {ellipseAddress(account.address)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'ml-2')}>
+            Details
+          </AccountLink>
+        </div>
+        <div className={cn('flex items-center')}>
+          <Button variant="outline" size="sm" onClick={disconnectWallet} className="mt-2 w-full bg-card" aria-label={disconnectWalletLabel}>
+            <CircleMinus className="mr-2 size-4" />
+            Disconnect
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
 
 export function ConnectWalletButton() {
-  const { activeAddress, providers, isReady } = useWallet()
+  const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
 
   if (!isReady) {
     return (
-      <Button className="w-32">
-        <Loader className="size-5 animate-spin" />
+      <Button className="w-36" disabled>
+        <Loader className="mr-2 size-4 animate-spin" />
+        Loading
       </Button>
     )
   }
 
   if (activeAddress) {
-    return <ConnectedWallet activeAddress={activeAddress} providers={providers} />
+    return <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
   }
 
   return <ConnectWallet activeAddress={activeAddress} providers={providers} />

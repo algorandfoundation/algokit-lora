@@ -1,7 +1,6 @@
 import { vi } from 'vitest'
 import algosdk from 'algosdk'
 import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
-
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useParams: vi.fn(),
@@ -92,6 +91,8 @@ vi.mock('@txnlab/use-wallet', async () => {
         ...original.useWallet(),
         providers: [
           {
+            disconnect: vi.fn(),
+            isActive: true,
             metadata: {
               id: PROVIDER_ID.PERA,
               name: 'Pera',
