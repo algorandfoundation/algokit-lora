@@ -23,7 +23,7 @@ export function TransactionLink({ transactionId, short = false, className, child
     <div className={cn('inline-flex gap-2 items-center')}>
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline', className)}
-        urlTemplate={Urls.Explore.Transaction.ById}
+        urlTemplate={Urls.Transaction.ById}
         urlParams={{ transactionId: transactionId }}
       >
         {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
