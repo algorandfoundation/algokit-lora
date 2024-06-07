@@ -45,7 +45,7 @@ export const testnetConfig: NetworkConfig = {
   },
   walletProviders: mainnetConfig.walletProviders,
 }
-const localnetConfig: NetworkConfig = {
+export const localnetConfig: NetworkConfig = {
   id: 'localnet',
   name: 'LocalNet',
   indexer: {
@@ -58,7 +58,7 @@ const localnetConfig: NetworkConfig = {
     port: 4001,
     token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
-  walletProviders: [],
+  walletProviders: [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC],
 }
 
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]

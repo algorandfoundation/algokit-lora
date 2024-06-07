@@ -1,9 +1,9 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { render, waitFor } from '@/tests/testing-library'
+import { fireEvent, render, waitFor } from '@/tests/testing-library'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
-import { connectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
-import { useWallet } from '@txnlab/use-wallet'
+import { connectWalletLabel, selectAccountLabel, disconnectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
+import { PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Event as TauriEvent, listen } from '@tauri-apps/api/event'
 import { networkConfigAtom, settingsStore } from '@/features/settings/data'
 import { useNavigate } from 'react-router-dom'
@@ -61,15 +61,94 @@ describe('when rendering the layout page', () => {
 
             const walletAddressText = component.getByText('CGRS...LQ5Q')
             expect(walletAddressText).toBeTruthy()
-
-            const linkElement = component.getByRole('link', { name: /CGRS...LQ5Q/i })
-            expect(linkElement.getAttribute('href')).toBe('/explore/account/CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
           })
         }
       )
     })
-  })
+    describe('and there is more than one account', () => {
+      it('the account switcher should be shown', async () => {
+        const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+        vi.mocked(useWallet).mockImplementation(() => {
+          return {
+            ...original.useWallet(),
+            activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
+            status: 'active',
+            isActive: true,
+            isReady: true,
+            connectedActiveAccounts: [
+              {
+                providerId: PROVIDER_ID.PERA,
+                address: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
+                name: 'Account 1',
+              },
+              {
+                providerId: PROVIDER_ID.PERA,
+                address: 'SOMEOTHERADDRESS',
+                name: 'Account 2',
+              },
+            ],
+          }
+        })
 
+        await executeComponentTest(
+          () => render(<LayoutPage />, undefined),
+          async (component) => {
+            await waitFor(async () => {
+              const selectAccountTrigger = component.getByTitle('CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
+              expect(selectAccountTrigger).toBeTruthy()
+              fireEvent.click(selectAccountTrigger)
+
+              const selectElement = component.getByLabelText(selectAccountLabel)
+              expect(selectElement).toBeTruthy()
+            })
+          }
+        )
+      })
+    })
+
+    describe('and the user disconnects the wallet', () => {
+      it('the wallet should be disconnected', async () => {
+        const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+        const disconnect = vi.fn()
+        vi.mocked(useWallet).mockImplementation(() => {
+          return {
+            ...original.useWallet(),
+            activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
+            status: 'active',
+            isActive: true,
+            isReady: true,
+            providers: [
+              {
+                disconnect,
+                isActive: true,
+                metadata: {
+                  id: PROVIDER_ID.PERA,
+                  name: 'Pera',
+                  icon: 'someicon.png',
+                  isWalletConnect: true,
+                },
+              } as unknown as Provider,
+            ],
+          }
+        })
+        await executeComponentTest(
+          () => render(<LayoutPage />, undefined),
+          async (component) => {
+            await waitFor(async () => {
+              const selectAccountTrigger = component.getByTitle('CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
+              expect(selectAccountTrigger).toBeTruthy()
+              fireEvent.click(selectAccountTrigger)
+
+              const disconnectButton = component.getByLabelText(disconnectWalletLabel)
+              expect(disconnectButton).toBeTruthy()
+              fireEvent.click(disconnectButton)
+              expect(disconnect).toHaveBeenCalled()
+            })
+          }
+        )
+      })
+    })
+  })
   describe('and the user opens a deep link to mainnet', () => {
     beforeAll(() => {
       window.__TAURI__ = {}
