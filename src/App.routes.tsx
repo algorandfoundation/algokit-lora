@@ -3,7 +3,7 @@ import { LayoutPage } from './features/layout/pages/layout-page'
 import { Urls } from './routes/urls'
 import { evalTemplates } from './routes/templated-route'
 import { TransactionPage, transactionPageTitle } from './features/transactions/pages/transaction-page'
-import { IndexPage, indexPageTitle } from './features/index/pages/index-page'
+import { IndexPage, explorePageTitle } from './features/index/pages/index-page'
 import { GroupPage, groupPageTitle } from './features/groups/pages/group-page'
 import { ErrorPage } from './features/common/pages/error-page'
 import { BlockPage, blockPageTitle } from './features/blocks/pages/block-page'
@@ -28,7 +28,7 @@ export const routes = evalTemplates([
       {
         template: Urls.Index,
         element: <IndexPage />,
-        errorElement: <ErrorPage title={indexPageTitle} />,
+        errorElement: <ErrorPage title={explorePageTitle} />,
       },
       {
         template: Urls.Transaction.ById,
