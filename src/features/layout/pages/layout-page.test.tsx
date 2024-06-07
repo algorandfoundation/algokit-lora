@@ -65,7 +65,7 @@ describe('when rendering the layout page', () => {
         }
       )
     })
-    describe('and there are more than one account', () => {
+    describe('and there is more than one account', () => {
       it('the account switcher should be shown', async () => {
         const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
         vi.mocked(useWallet).mockImplementation(() => {
