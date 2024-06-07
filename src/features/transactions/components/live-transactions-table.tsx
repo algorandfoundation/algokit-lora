@@ -1,7 +1,7 @@
-import { ColumnDef, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, ExpandedState, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useLiveTransactions } from '../data/live-transaction'
@@ -13,6 +13,7 @@ interface Props {
 }
 
 export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
+  const [expanded, setExpanded] = useState<ExpandedState>({})
   const [maxRows, setMaxRows] = useState(10)
   const transactions = useLiveTransactions(filter, maxRows)
 
@@ -24,9 +25,14 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
     getSubRows: getSubRows,
     getExpandedRowModel: getExpandedRowModel(),
     state: {
-      expanded: true,
+      expanded: expanded,
     },
+    onExpandedChange: setExpanded,
   })
+
+  useEffect(() => {
+    table.toggleAllRowsExpanded(true)
+  }, [table])
 
   return (
     <div>
