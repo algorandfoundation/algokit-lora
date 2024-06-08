@@ -1,5 +1,5 @@
 import { Config, getAlgoClient, getAlgoIndexerClient, getAlgoKmdClient } from '@algorandfoundation/algokit-utils'
-import { NetworkConfig, networkConfigAtom } from '../../settings/data/network'
+import { NetworkConfig, localnetConfig, networkConfigAtom } from '../../settings/data/network'
 import { settingsStore } from '@/features/settings/data'
 import algosdk from 'algosdk'
 
@@ -16,5 +16,5 @@ export let kmd: algosdk.Kmd | undefined = networkConfig.kmd ? getAlgoKmdClient(n
 export const updateClientConfig = (networkConfig: NetworkConfig) => {
   indexer = getAlgoIndexerClient(networkConfig.indexer)
   algod = getAlgoClient(networkConfig.algod)
-  kmd = networkConfig.id === 'localnet' ? getAlgoKmdClient(networkConfig.kmd) : undefined
+  kmd = networkConfig.id === localnetConfig.id ? getAlgoKmdClient(networkConfig.kmd) : undefined
 }

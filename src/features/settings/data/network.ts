@@ -19,7 +19,7 @@ export type NetworkConfig = {
   walletProviders: PROVIDER_ID[]
 }
 
-const mainnetConfig: NetworkConfig = {
+export const mainnetConfig: NetworkConfig = {
   id: 'mainnet',
   name: 'MainNet',
   indexer: {
@@ -32,7 +32,7 @@ const mainnetConfig: NetworkConfig = {
   },
   walletProviders: [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE],
 }
-export const testnetConfig: NetworkConfig = {
+const testnetConfig: NetworkConfig = {
   id: 'testnet',
   name: 'TestNet',
   indexer: {
@@ -73,8 +73,7 @@ const selectedNetworkAtom = atomWithStorage('network', localnetConfig.id, undefi
 export const networkConfigAtom = atom((get) => {
   const id = get(selectedNetworkAtom)
 
-  // TODO: NC - Use an enum
-  if (id === 'localnet') {
+  if (id === localnetConfig.id) {
     mainnetConfig.walletProviders.forEach((provider) => {
       clearAccounts(provider)
     })

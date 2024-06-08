@@ -1,4 +1,4 @@
-import { testnetConfig } from '@/features/settings/data'
+import { localnetConfig } from '@/features/settings/data'
 import { PropsWithChildren } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
 import { DataProvider } from '@/features/common/components/data-provider'
@@ -10,7 +10,7 @@ type Props = PropsWithChildren<{
 }>
 
 export function TestPlatformProvider({ children, store }: Props) {
-  const networkConfig = testnetConfig
+  const networkConfig = localnetConfig
   useTheme()
 
   return (

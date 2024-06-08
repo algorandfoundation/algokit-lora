@@ -7,7 +7,7 @@ export const defaultKmdWallet = 'unencrypted-default-wallet'
 
 const getKmdWalletsResult = () => {
   if (!kmd) {
-    return []
+    return [] as KmdWalletResult[]
   }
 
   return kmd?.listWallets().then((result) => {
@@ -21,8 +21,7 @@ const getKmdWalletsResult = () => {
   })
 }
 
-// TODO: NC - Do we need to auto refresh when the network changes?
-const availableKmdWalletsAtom = atomWithRefresh((_get) => {
+export const availableKmdWalletsAtom = atomWithRefresh((_get) => {
   return getKmdWalletsResult()
 })
 
@@ -35,3 +34,5 @@ export const useSelectedKmdWallet = () => {
 export const useAvailableKmdWallets = () => {
   return [useAtomValue(loadable(availableKmdWalletsAtom)), useSetAtom(availableKmdWalletsAtom)] as const
 }
+
+export const walletDialogOpenAtom = atom(false)

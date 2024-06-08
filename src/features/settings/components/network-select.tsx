@@ -20,7 +20,7 @@ export function NetworkSelect() {
         Network
       </Label>
       <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
-        <SelectTrigger id="network" className={cn('h-7')}>
+        <SelectTrigger id="network">
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
         <SelectContent className={cn('bg-card text-card-foreground')}>

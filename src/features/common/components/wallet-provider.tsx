@@ -1,4 +1,4 @@
-import { NetworkConfig } from '@/features/settings/data'
+import { NetworkConfig, localnetConfig } from '@/features/settings/data'
 import { DeflyWalletConnect } from '@blockshake/defly-connect'
 import { DaffiWalletConnect } from '@daffiwallet/connect'
 import { PeraWalletConnect } from '@perawallet/connect'
@@ -20,7 +20,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
 
   const initOptions = {
     providers:
-      networkConfig.id === 'localnet'
+      networkConfig.id === localnetConfig.id
         ? [
             {
               id: PROVIDER_ID.KMD,
@@ -32,6 +32,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
                 port: String(networkConfig.kmd?.port ?? 0),
               },
             },
+            PROVIDER_ID.MNEMONIC,
           ]
         : [
             { id: PROVIDER_ID.DEFLY, clientStatic: DeflyWalletConnect },

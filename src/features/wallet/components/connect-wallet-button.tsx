@@ -1,84 +1,43 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Account, Provider, useWallet } from '@txnlab/use-wallet'
+import { Account, PROVIDER_ID, Provider, clearAccounts, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { localnetConfig, useNetworkConfig } from '@/features/settings/data'
-import { useCallback, useMemo, useState } from 'react'
+import { localnetConfig, mainnetConfig, useNetworkConfig } from '@/features/settings/data'
+import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { Label } from '@/features/common/components/label'
 import { asError } from '@/utils/error'
 import { toast } from 'react-toastify'
+import { availableKmdWalletsAtom, walletDialogOpenAtom } from '../data/kmd'
+import { useAtom, useSetAtom } from 'jotai'
+import { ProviderConnectButton } from './provider-connect-button'
+import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
 export const selectAccountLabel = 'Account Selector'
 
 type ConnectWalletProps = {
-  activeAddress?: string
-  providers: Provider[] | null
+  onConnect?: () => void
 }
 
-export function ConnectWallet({ activeAddress, providers }: ConnectWalletProps) {
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const networkConfig = useNetworkConfig()
+function ConnectWallet({ onConnect }: ConnectWalletProps) {
+  const setDialogOpen = useSetAtom(walletDialogOpenAtom)
 
-  const availableProviders = useMemo(
-    () => providers?.filter((p) => networkConfig.walletProviders.includes(p.metadata.id)) ?? [],
-    [networkConfig.walletProviders, providers]
-  )
-
-  const selectProvider = useCallback(
-    (provider: Provider) => async () => {
-      setTimeout(() => setDialogOpen(false), 1000)
-      try {
-        if (provider.isConnected) {
-          provider.setActiveProvider()
-        } else {
-          await provider.connect(undefined, true)
-        }
-      } catch (e: unknown) {
-        const error = asError(e)
-        toast.error(error.message)
-      }
-    },
-    []
-  )
+  const connect = useCallback(() => {
+    setDialogOpen(true)
+    onConnect && onConnect()
+  }, [onConnect, setDialogOpen])
 
   return (
-    <>
-      <Button className="w-36" variant="default" onClick={() => setDialogOpen(true)} aria-label={connectWalletLabel}>
-        Connect Wallet
-      </Button>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-[500px] bg-card">
-          <DialogHeader>
-            <h2 className={cn('text-2xl text-primary font-bold')}>Select Algorand Wallet Provider</h2>
-          </DialogHeader>
-          <div className="flex flex-col space-y-2">
-            {!activeAddress &&
-              availableProviders.map((provider) => (
-                <Button key={`provider-${provider.metadata.id}`} onClick={selectProvider(provider)}>
-                  {localnetConfig.walletProviders.includes(provider.metadata.id) ? (
-                    <Wallet className={cn('size-6 rounded object-contain mr-2')} />
-                  ) : (
-                    <img
-                      src={provider.metadata.icon}
-                      alt={`${provider.metadata.name} icon`}
-                      className="h-auto w-6 rounded object-contain"
-                    />
-                  )}
-                  <span className="ml-1">{provider.metadata.name}</span>
-                </Button>
-              ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Button className="w-36" variant="default" onClick={connect} aria-label={connectWalletLabel}>
+      Connect Wallet
+    </Button>
   )
 }
 
@@ -92,14 +51,17 @@ const preventDefault = (e: Event) => {
   e.preventDefault()
 }
 
-// TODO: NC - We can probably use the clearAccounts function instead of this
 const forceRemoveConnectedWallet = () => {
   // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-  localStorage.removeItem('txnlab-use-wallet')
-  window.location.reload()
+  mainnetConfig.walletProviders.forEach((provider) => {
+    clearAccounts(provider)
+  })
+  localnetConfig.walletProviders.forEach((provider) => {
+    clearAccounts(provider)
+  })
 }
 
-export function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
+function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
 
   const disconnectWallet = useCallback(async () => {
@@ -180,19 +142,81 @@ export function ConnectedWallet({ activeAddress, connectedActiveAccounts, provid
 
 export function ConnectWalletButton() {
   const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
+  const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
+  const networkConfig = useNetworkConfig()
+  const refreshAvailableKmdWallets = useSetAtom(availableKmdWalletsAtom)
+
+  let button = <></>
+
+  const availableProviders = useMemo(
+    () => providers?.filter((p) => networkConfig.walletProviders.includes(p.metadata.id)) ?? [],
+    [networkConfig.walletProviders, providers]
+  )
+
+  const selectProvider = useCallback(
+    (provider: Provider) => async () => {
+      setTimeout(() => setDialogOpen(false), 1000)
+      try {
+        if (provider.isConnected) {
+          provider.setActiveProvider()
+        } else {
+          await provider.connect(undefined, true)
+        }
+      } catch (e: unknown) {
+        const error = asError(e)
+        toast.error(error.message)
+      }
+    },
+    [setDialogOpen]
+  )
 
   if (!isReady) {
-    return (
+    button = (
       <Button className="w-36" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>
     )
+  } else if (activeAddress) {
+    button = <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
+  } else {
+    if (networkConfig.id === localnetConfig.id) {
+      button = <ConnectWallet onConnect={refreshAvailableKmdWallets} />
+    } else {
+      button = <ConnectWallet />
+    }
   }
 
-  if (activeAddress) {
-    return <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
-  }
+  // TODO: NC - Handle the modal animations
 
-  return <ConnectWallet activeAddress={activeAddress} providers={providers} />
+  return (
+    <>
+      {button}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
+        <DialogContent className="min-h-40 w-[500px] bg-card" onOpenAutoFocus={preventDefault} forceMount={true}>
+          <DialogHeader>
+            <h2 className={cn('text-2xl text-primary font-bold')}>Wallet Providers</h2>
+          </DialogHeader>
+          <div className="flex flex-col space-y-2">
+            {!activeAddress &&
+              availableProviders.map((provider) =>
+                provider.metadata.id === PROVIDER_ID.KMD ? (
+                  <KmdProviderConnectButton
+                    key={`provider-${provider.metadata.id}`}
+                    provider={provider}
+                    onConnect={selectProvider(provider)}
+                  />
+                ) : (
+                  <ProviderConnectButton
+                    key={`provider-${provider.metadata.id}`}
+                    provider={provider}
+                    onConnect={selectProvider(provider)}
+                  />
+                )
+              )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
 }
