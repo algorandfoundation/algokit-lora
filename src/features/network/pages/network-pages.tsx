@@ -13,7 +13,6 @@ export function NetworkPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    console.log('location', location.pathname)
     const config = networksConfigs.find((n) => n.id === networkId)
     if (config) {
       setSelectedNetwork(networkId)
