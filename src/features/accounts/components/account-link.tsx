@@ -21,7 +21,7 @@ export const AccountLink = fixedForwardRef(
       toast.success('Address copied to clipboard')
     }, [address])
     return (
-      <div className={cn('inline-flex gap-2 items-center')}>
+      <>
         <TemplatedNavLink
           className={cn(!children && 'text-primary underline', className)}
           urlTemplate={Urls.Explore.Account.ByAddress}
@@ -31,8 +31,8 @@ export const AccountLink = fixedForwardRef(
         >
           {children ? children : short ? <abbr title={address}>{ellipseAddress(address)}</abbr> : address}
         </TemplatedNavLink>
-        {showCopyButton && <CopyButton onClick={copyClipboard} />}
-      </div>
+        {showCopyButton && <CopyButton onClick={copyClipboard} className={cn('align-middle ml-2')} />}
+      </>
     )
   }
 )
