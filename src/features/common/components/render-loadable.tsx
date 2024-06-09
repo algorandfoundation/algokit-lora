@@ -22,7 +22,7 @@ export function RenderLoadable<T>({ loadable, children, fallback, transformError
   }
 
   if (error) {
-    return <>{error}</>
+    return error
   }
 
   return <></>

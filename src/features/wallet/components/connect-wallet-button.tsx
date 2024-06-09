@@ -13,10 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/features/common/components/label'
 import { asError } from '@/utils/error'
 import { toast } from 'react-toastify'
-import { availableKmdWalletsAtom, walletDialogOpenAtom } from '../data/kmd'
+import { useRefreshAvailableKmdWallets } from '../data/kmd'
 import { useAtom, useSetAtom } from 'jotai'
 import { ProviderConnectButton } from './provider-connect-button'
 import { KmdProviderConnectButton } from './kmd-provider-connect-button'
+import { walletDialogOpenAtom } from '../data/wallet-dialog'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -144,7 +145,7 @@ export function ConnectWalletButton() {
   const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
   const networkConfig = useNetworkConfig()
-  const refreshAvailableKmdWallets = useSetAtom(availableKmdWalletsAtom)
+  const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
 
   let button = <></>
 

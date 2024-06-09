@@ -21,7 +21,7 @@ const getKmdWalletsResult = () => {
   })
 }
 
-export const availableKmdWalletsAtom = atomWithRefresh((_get) => {
+const availableKmdWalletsAtom = atomWithRefresh((_get) => {
   return getKmdWalletsResult()
 })
 
@@ -31,8 +31,10 @@ export const useSelectedKmdWallet = () => {
   return useAtomValue(selectedKmdWalletAtom)
 }
 
-export const useAvailableKmdWallets = () => {
-  return [useAtomValue(loadable(availableKmdWalletsAtom)), useSetAtom(availableKmdWalletsAtom)] as const
+export const useLoadableAvailableKmdWallets = () => {
+  return useAtomValue(loadable(availableKmdWalletsAtom))
 }
 
-export const walletDialogOpenAtom = atom(false)
+export const useRefreshAvailableKmdWallets = () => {
+  return useSetAtom(availableKmdWalletsAtom)
+}

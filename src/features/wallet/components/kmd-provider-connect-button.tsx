@@ -2,7 +2,7 @@ import { Button } from '@/features/common/components/button'
 import { Provider } from '@txnlab/use-wallet'
 import { cn } from '@/features/common/utils'
 import { Loader2 as Loader, Wallet } from 'lucide-react'
-import { defaultKmdWallet, selectedKmdWalletAtom, useAvailableKmdWallets } from '../data/kmd'
+import { defaultKmdWallet, selectedKmdWalletAtom, useLoadableAvailableKmdWallets } from '../data/kmd'
 import { useAtom } from 'jotai'
 import { useCallback } from 'react'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -17,7 +17,7 @@ type Props = {
 }
 
 export function KmdProviderConnectButton({ provider, onConnect }: Props) {
-  const [loadableAvailableKmdWallets] = useAvailableKmdWallets() // TODO: NC - Fix this
+  const loadableAvailableKmdWallets = useLoadableAvailableKmdWallets()
   const [selectedKmdWallet, setSelectedKmdWallet] = useAtom(selectedKmdWalletAtom)
 
   const disabledKmdButton = (
