@@ -15,6 +15,18 @@ import { SettingsPage } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
 import { NetworkPage } from '@/features/network/pages/network-pages.tsx'
 
+const networkChildrenRoutes = [
+  Urls.Network,
+  Urls.Network.Block.ByRound,
+  Urls.Network.Block.ByRound.Group.ById,
+  Urls.Network.Transaction.ById,
+  Urls.Network.Transaction.ById.Inner.ById,
+  Urls.Network.Tx,
+  Urls.Network.Account.ByAddress,
+  Urls.Network.Asset.ById,
+  Urls.Network.Application.ById,
+]
+
 export const routes = evalTemplates([
   {
     template: Urls.Index,
@@ -88,7 +100,10 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Network,
-        element: <NetworkPage />,
+        children: networkChildrenRoutes.map((route) => ({
+          template: route,
+          element: <NetworkPage />,
+        })),
       },
     ],
   },
