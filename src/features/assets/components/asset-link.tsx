@@ -39,7 +39,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   }, [props.assetId])
 
   return (
-    <div className={cn('inline-flex gap-2 items-center')}>
+    <>
       <TemplatedNavLink
         className={cn(!props.children && 'text-primary underline', props.className)}
         urlTemplate={Urls.Asset.ById}
@@ -48,8 +48,8 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
         {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
       {'assetName' in props && props.assetName && ` (${props.assetName})`}
-      {props.showCopyButton && <CopyButton onClick={copyClipboard} />}
-    </div>
+      {props.showCopyButton && <CopyButton onClick={copyClipboard} className={cn('align-middle ml-2')} />}
+    </>
   )
 }
 

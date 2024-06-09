@@ -20,15 +20,15 @@ export function TransactionLink({ transactionId, short = false, className, child
   }, [transactionId])
 
   return (
-    <div className={cn('inline-flex gap-2 items-center')}>
+    <>
       <TemplatedNavLink
-        className={cn(!children && 'text-primary underline', className)}
-        urlTemplate={Urls.Transaction.ById}
+        className={cn(!children && 'text-primary underline inline', className)}
+        urlTemplate={Urls.Explore.Transaction.ById}
         urlParams={{ transactionId: transactionId }}
       >
         {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
       </TemplatedNavLink>
-      {showCopyButton && <CopyButton onClick={copyClipboard} />}
-    </div>
+      {showCopyButton && <CopyButton onClick={copyClipboard} className={cn('align-middle ml-2')} />}
+    </>
   )
 }
