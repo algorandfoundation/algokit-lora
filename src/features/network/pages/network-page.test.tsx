@@ -2,7 +2,7 @@ import { networkConfigAtom, selectedNetworkAtom, settingsStore } from '@/feature
 import { executeComponentTest } from '@/tests/test-component'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { NetworkPage } from './network-pages.tsx'
+import { NetworkPage } from './network-page.tsx'
 import { render } from '@testing-library/react'
 import { RESET } from 'jotai/utils'
 

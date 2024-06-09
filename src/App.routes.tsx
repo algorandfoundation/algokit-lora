@@ -13,7 +13,7 @@ import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
-import { NetworkPage } from '@/features/network/pages/network-pages.tsx'
+import { NetworkPage } from '@/features/network/pages/network-page.tsx'
 
 const networkChildrenRoutes = [
   Urls.Network,
