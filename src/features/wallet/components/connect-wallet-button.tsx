@@ -105,7 +105,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       <PopoverContent align="end" className="w-60 border border-input bg-card p-2 text-card-foreground" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1 ">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+            <abbr className="ml-1 w-full">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">
@@ -187,33 +187,38 @@ export function ConnectWalletButton() {
     }
   }
 
-  // TODO: NC - Handle the modal animations
-
   return (
     <>
       {button}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="min-h-40 w-[500px] bg-card" onOpenAutoFocus={preventDefault} forceMount={true}>
+        <DialogContent className="w-[500px] bg-card" onOpenAutoFocus={preventDefault}>
           <DialogHeader>
             <h2 className={cn('text-2xl text-primary font-bold')}>Wallet Providers</h2>
           </DialogHeader>
           <div className="flex flex-col space-y-2">
-            {!activeAddress &&
-              availableProviders.map((provider) =>
-                provider.metadata.id === PROVIDER_ID.KMD ? (
-                  <KmdProviderConnectButton
-                    key={`provider-${provider.metadata.id}`}
-                    provider={provider}
-                    onConnect={selectProvider(provider)}
-                  />
-                ) : (
-                  <ProviderConnectButton
-                    key={`provider-${provider.metadata.id}`}
-                    provider={provider}
-                    onConnect={selectProvider(provider)}
-                  />
-                )
-              )}
+            {!isReady
+              ? networkConfig.walletProviders.map((providerId) => (
+                  // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
+                  <div className="h-10" key={`placeholder-${providerId}`}>
+                    &nbsp;
+                  </div>
+                ))
+              : !activeAddress &&
+                availableProviders.map((provider) =>
+                  provider.metadata.id === PROVIDER_ID.KMD ? (
+                    <KmdProviderConnectButton
+                      key={`provider-${provider.metadata.id}`}
+                      provider={provider}
+                      onConnect={selectProvider(provider)}
+                    />
+                  ) : (
+                    <ProviderConnectButton
+                      key={`provider-${provider.metadata.id}`}
+                      provider={provider}
+                      onConnect={selectProvider(provider)}
+                    />
+                  )
+                )}
           </div>
         </DialogContent>
       </Dialog>
