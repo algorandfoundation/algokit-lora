@@ -1,0 +1,32 @@
+diff --git a/node_modules/@txnlab/use-wallet/dist/cjs/index.js b/node_modules/@txnlab/use-wallet/dist/cjs/index.js
+index 8c5021f..724728b 100644
+--- a/node_modules/@txnlab/use-wallet/dist/cjs/index.js
++++ b/node_modules/@txnlab/use-wallet/dist/cjs/index.js
+@@ -3951,4 +3951,5 @@ exports.reconnectProviders = reconnectProviders;
+ exports.useInitializeProviders = useInitializeProviders;
+ exports.useWallet = useWallet;
+ exports.walletconnect = WalletConnectClient;
++exports.clearAccounts = clearAccounts;
+ //# sourceMappingURL=index.js.map
+diff --git a/node_modules/@txnlab/use-wallet/dist/esm/index.js b/node_modules/@txnlab/use-wallet/dist/esm/index.js
+index 8940f35..8408167 100644
+--- a/node_modules/@txnlab/use-wallet/dist/esm/index.js
++++ b/node_modules/@txnlab/use-wallet/dist/esm/index.js
+@@ -3928,4 +3928,4 @@ function useInitializeProviders({ providers, nodeConfig, algosdkStatic, debug =
+     return walletProviders;
+ }
+ 
+-export { DEFAULT_NETWORK, DEFAULT_NODE_BASEURL, DEFAULT_NODE_PORT, DEFAULT_NODE_TOKEN, PROVIDER_ID, WalletProvider, AlgoSignerClient as algosigner, CustomWalletClient as custom, DeflyWalletClient as defly, encodeNFDTransactionsArray, ExodusClient as exodus, KibisisClient as kibisis, KMDWalletClient as kmd, LuteClient as lute, MagicAuth as magic, MnemonicWalletClient as mnemonic, MyAlgoWalletClient as myalgo, PeraWalletClient as pera, reconnectProviders, useInitializeProviders, useWallet, WalletConnectClient as walletconnect };
++export { DEFAULT_NETWORK, DEFAULT_NODE_BASEURL, DEFAULT_NODE_PORT, DEFAULT_NODE_TOKEN, PROVIDER_ID, WalletProvider, AlgoSignerClient as algosigner, CustomWalletClient as custom, DeflyWalletClient as defly, encodeNFDTransactionsArray, ExodusClient as exodus, KibisisClient as kibisis, KMDWalletClient as kmd, LuteClient as lute, MagicAuth as magic, MnemonicWalletClient as mnemonic, MyAlgoWalletClient as myalgo, PeraWalletClient as pera, reconnectProviders, useInitializeProviders, useWallet, WalletConnectClient as walletconnect, clearAccounts };
+diff --git a/node_modules/@txnlab/use-wallet/dist/index.d.ts b/node_modules/@txnlab/use-wallet/dist/index.d.ts
+index 46f5cb6..22191cf 100644
+--- a/node_modules/@txnlab/use-wallet/dist/index.d.ts
++++ b/node_modules/@txnlab/use-wallet/dist/index.d.ts
+@@ -974,4 +974,6 @@ interface InitializeProvidersOptions {
+ }
+ declare function useInitializeProviders({ providers, nodeConfig, algosdkStatic, debug }: InitializeProvidersOptions): Partial<Record<PROVIDER_ID, BaseClient | null>> | null;
+ 
+-export { Account, AccountInfo, AlgodClientOptions, Asset, ClientOptions, CommonInitParams, ConfirmedTxn, CustomProvider, DEFAULT_NETWORK, DEFAULT_NODE_BASEURL, DEFAULT_NODE_PORT, DEFAULT_NODE_TOKEN, DecodedSignedTransaction, DecodedTransaction, InitParams, Metadata, Network, NodeConfig, PROVIDER_ID, Provider, ProviderConfig, ProviderConfigMapping, ProvidersArray, PublicNetwork, RawTxnResponse, SupportedProviders, TransactionsArray, Txn, TxnInfo, TxnType, Wallet, WalletClient, WalletProvider, AlgoSignerClient as algosigner, CustomWalletClient as custom, DeflyWalletClient as defly, encodeNFDTransactionsArray, ExodusClient as exodus, KibisisClient as kibisis, KMDWalletClient as kmd, LuteClient as lute, MagicAuth as magic, MnemonicWalletClient as mnemonic, MyAlgoWalletClient as myalgo, PeraWalletClient as pera, reconnectProviders, useInitializeProviders, useWallet, WalletConnectClient as walletconnect };
++declare function clearAccounts(id: PROVIDER_ID): void;
++
++export { Account, AccountInfo, AlgodClientOptions, Asset, ClientOptions, CommonInitParams, ConfirmedTxn, CustomProvider, DEFAULT_NETWORK, DEFAULT_NODE_BASEURL, DEFAULT_NODE_PORT, DEFAULT_NODE_TOKEN, DecodedSignedTransaction, DecodedTransaction, InitParams, Metadata, Network, NodeConfig, PROVIDER_ID, Provider, ProviderConfig, ProviderConfigMapping, ProvidersArray, PublicNetwork, RawTxnResponse, SupportedProviders, TransactionsArray, Txn, TxnInfo, TxnType, Wallet, WalletClient, WalletProvider, AlgoSignerClient as algosigner, CustomWalletClient as custom, DeflyWalletClient as defly, encodeNFDTransactionsArray, ExodusClient as exodus, KibisisClient as kibisis, KMDWalletClient as kmd, LuteClient as lute, MagicAuth as magic, MnemonicWalletClient as mnemonic, MyAlgoWalletClient as myalgo, PeraWalletClient as pera, reconnectProviders, useInitializeProviders, useWallet, WalletConnectClient as walletconnect, clearAccounts };

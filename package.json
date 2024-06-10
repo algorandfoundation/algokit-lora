@@ -19,7 +19,8 @@
     "audit": "better-npm-audit audit",
     "check-types": "tsc --noEmit && npx --yes madge src/App.tsx --circular",
     "tauri": "tauri",
-    "pre-commit": "run-s check-types lint:fix audit test"
+    "pre-commit": "run-s check-types lint:fix audit test",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^1.3.0",
@@ -39,7 +40,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-table": "^8.16.0",
     "@tauri-apps/api": "^1.5.3",
-    "@txnlab/use-wallet": "^2.8.2",
+    "@txnlab/use-wallet": "2.8.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
@@ -85,6 +86,7 @@
     "eslint-plugin-tailwindcss": "^3.15.1",
     "happy-dom": "^14.4.0",
     "npm-run-all": "^4.1.5",
+    "patch-package": "^8.0.0",
     "postcss": "^8.4.35",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.12",

@@ -6,7 +6,7 @@ export type RenderLoadableProps<T> = {
   loadable: Loadable<T>
   children: (data: Awaited<T>) => React.ReactNode
   fallback?: React.ReactNode
-  transformError?: (error: Error) => Error | undefined
+  transformError?: (error: Error) => Error | React.ReactNode | undefined
 }
 
 export function RenderLoadable<T>({ loadable, children, fallback, transformError }: RenderLoadableProps<T>) {
@@ -17,8 +17,12 @@ export function RenderLoadable<T>({ loadable, children, fallback, transformError
   }
 
   const error = transformError ? transformError(asError(loadable.error)) : asError(loadable.error)
-  if (error) {
+  if (error && error instanceof Error) {
     throw error
+  }
+
+  if (error) {
+    return error
   }
 
   return <></>
