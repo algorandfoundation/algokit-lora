@@ -71,7 +71,7 @@ export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 const networkLocalStorageKey = 'network'
 // On page load, set the network to the one in the URL
 const url = new URL(window.location.href)
-const network = url.searchParams.get(networkLocalStorageKey)
+const network = url.searchParams.get(networkLocalStorageKey)?.toLowerCase()
 if (network) {
   if (networksConfigs.find((n) => n.id === network)) {
     localStorage.setItem('network', `"${network}"`)
