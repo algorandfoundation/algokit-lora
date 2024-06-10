@@ -1,5 +1,5 @@
 import { Config, getAlgoClient, getAlgoIndexerClient, getAlgoKmdClient } from '@algorandfoundation/algokit-utils'
-import { NetworkConfig, localnetConfig, networkConfigAtom } from '../../settings/data/network'
+import { NetworkConfig, localnetConfig, networkConfigAtom } from '@/features/settings/data'
 import { settingsStore } from '@/features/settings/data'
 import algosdk from 'algosdk'
 

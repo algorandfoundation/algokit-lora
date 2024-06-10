@@ -68,6 +68,15 @@ export const localnetConfig: NetworkConfig = {
 
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
+// On page load, set the network to the one in the URL
+const url = new URL(window.location.href)
+const network = url.searchParams.get('network')
+if (network) {
+  localStorage.setItem('network', `"${network}"`)
+  url.searchParams.delete('network')
+  history.pushState({}, '', url.href)
+}
+
 const selectedNetworkAtom = atomWithStorage('network', localnetConfig.id, undefined, { getOnInit: true })
 
 export const networkConfigAtom = atom((get) => {
