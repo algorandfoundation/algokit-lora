@@ -2,7 +2,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getAllByRole, getByRole, queryAllByRole, render, waitFor } from '@/tests/testing-library'
 import { Atom, createStore } from 'jotai'
 import { describe, expect, it } from 'vitest'
-import { ExplorePage } from './explore-page'
+import { ExplorePage } from './explore-page.tsx'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
 import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data'
@@ -25,7 +25,7 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          waitFor(() => {
+          await waitFor(() => {
             const latestBlocks = getByRole(component.container, 'heading', { name: latestBlocksTitle })
             expect(latestBlocks).toBeDefined()
             const container = latestBlocks.parentElement!
@@ -82,7 +82,7 @@ describe('explore-page', () => {
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
-          waitFor(() => {
+          await waitFor(() => {
             const latestTransactions = getByRole(component.container, 'heading', { name: latestTransactionsTitle })
             expect(latestTransactions).toBeDefined()
             const container = latestTransactions.parentElement!

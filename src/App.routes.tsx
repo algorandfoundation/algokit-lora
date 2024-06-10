@@ -12,6 +12,7 @@ import { AccountPage, accountPageTitle } from './features/accounts/pages/account
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
+import { TxPage } from './features/transactions/pages/tx-page'
 
 export const routes = evalTemplates([
   {
@@ -25,66 +26,52 @@ export const routes = evalTemplates([
     children: [
       {
         template: Urls.Index,
-        element: (
-          <div>
-            <h1 className="font-bold">Home</h1>
-          </div>
-        ),
+        element: <ExplorePage />,
+        errorElement: <ErrorPage title={explorePageTitle} />,
       },
       {
-        template: Urls.Explore,
-        errorElement: <ErrorPage />,
+        template: Urls.Transaction.ById,
+        errorElement: <ErrorPage title={transactionPageTitle} />,
         children: [
           {
-            template: Urls.Explore,
-            element: <ExplorePage />,
-            errorElement: <ErrorPage title={explorePageTitle} />,
+            template: Urls.Transaction.ById,
+            element: <TransactionPage />,
           },
           {
-            template: Urls.Explore.Transaction.ById,
-            errorElement: <ErrorPage title={transactionPageTitle} />,
-            children: [
-              {
-                template: Urls.Explore.Transaction.ById,
-                element: <TransactionPage />,
-              },
-              {
-                template: Urls.Explore.Transaction.ById.Inner.ById,
-                element: <InnerTransactionPage />,
-              },
-            ],
-          },
-          {
-            template: Urls.Explore.Block.ByRound,
-            children: [
-              {
-                template: Urls.Explore.Block.ByRound,
-                errorElement: <ErrorPage title={blockPageTitle} />,
-                element: <BlockPage />,
-              },
-              {
-                template: Urls.Explore.Block.ByRound.Group.ById,
-                errorElement: <ErrorPage title={groupPageTitle} />,
-                element: <GroupPage />,
-              },
-            ],
-          },
-          {
-            template: Urls.Explore.Account.ByAddress,
-            element: <AccountPage />,
-            errorElement: <ErrorPage title={accountPageTitle} />,
-          },
-          {
-            template: Urls.Explore.Asset.ById,
-            element: <AssetPage />,
-            errorElement: <ErrorPage title={assetPageTitle} />,
-          },
-          {
-            template: Urls.Explore.Application.ById,
-            errorElement: <ErrorPage title={applicationPageTitle} />,
-            element: <ApplicationPage />,
+            template: Urls.Transaction.ById.Inner.ById,
+            element: <InnerTransactionPage />,
           },
         ],
+      },
+      {
+        template: Urls.Block.ByRound,
+        children: [
+          {
+            template: Urls.Block.ByRound,
+            errorElement: <ErrorPage title={blockPageTitle} />,
+            element: <BlockPage />,
+          },
+          {
+            template: Urls.Block.ByRound.Group.ById,
+            errorElement: <ErrorPage title={groupPageTitle} />,
+            element: <GroupPage />,
+          },
+        ],
+      },
+      {
+        template: Urls.Account.ByAddress,
+        element: <AccountPage />,
+        errorElement: <ErrorPage title={accountPageTitle} />,
+      },
+      {
+        template: Urls.Asset.ById,
+        element: <AssetPage />,
+        errorElement: <ErrorPage title={assetPageTitle} />,
+      },
+      {
+        template: Urls.Application.ById,
+        errorElement: <ErrorPage title={applicationPageTitle} />,
+        element: <ApplicationPage />,
       },
       {
         template: Urls.AppStudio,
@@ -93,6 +80,10 @@ export const routes = evalTemplates([
       {
         template: Urls.Settings,
         element: <SettingsPage />,
+      },
+      {
+        template: Urls.Tx,
+        element: <TxPage />,
       },
     ],
   },

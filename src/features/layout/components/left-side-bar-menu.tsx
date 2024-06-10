@@ -2,15 +2,15 @@ import { TemplatedNavLink } from '../../routing/components/templated-nav-link/te
 import { Urls } from '../../../routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/common/components/navigation-menu'
 import { cn } from '@/features/common/utils'
-import SvgWallet from '@/features/common/components/icons/wallet'
 import SvgCodeBlock from '@/features/common/components/icons/code-block'
 import SvgHome from '@/features/common/components/icons/home'
 import { Button } from '@/features/common/components/button'
 import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import SvgChevronRight from '@/features/common/components/icons/chevron-right'
 import SvgCog from '@/features/common/components/icons/cog'
 import { useLayout } from '@/features/settings/data'
+import { useLocation } from 'react-router-dom'
 
 type Props = {
   className?: string
@@ -19,7 +19,6 @@ type Props = {
 export function LeftSideBarMenu({ className }: Props) {
   const menuItems = [
     { urlTemplate: Urls.Index, icon: <SvgHome />, text: 'Home' },
-    { urlTemplate: Urls.Explore, icon: <SvgWallet />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <SvgCodeBlock />, text: 'App Studio' },
     { urlTemplate: Urls.Settings, icon: <SvgCog />, text: 'Settings' },
   ]
@@ -29,6 +28,21 @@ export function LeftSideBarMenu({ className }: Props) {
     () => setLayout((prev) => ({ ...prev, isLeftSideBarExpanded: !prev.isLeftSideBarExpanded })),
     [setLayout]
   )
+
+  // The little hack to make the index (root) menu item active when transaction, block, account, asset, application are viewed
+  // This needs to be done because React router doesn't match the root URL with any sub-path
+  // The doc: https://reactrouter.com/en/main/components/nav-link#end
+  const location = useLocation()
+  const isIndexActive = useMemo(() => {
+    const forceMatchWithIndex = [
+      Urls.Transaction.build({}),
+      Urls.Block.build({}),
+      Urls.Account.build({}),
+      Urls.Asset.build({}),
+      Urls.Application.build({}),
+    ]
+    return forceMatchWithIndex.some((path) => location.pathname.startsWith(path))
+  }, [location.pathname])
 
   return (
     <NavigationMenu
@@ -45,7 +59,10 @@ export function LeftSideBarMenu({ className }: Props) {
             <NavigationMenuLink asChild>
               <TemplatedNavLink
                 urlTemplate={menuItem.urlTemplate}
-                className={cn('[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap')}
+                className={cn(
+                  '[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap',
+                  menuItem.urlTemplate === Urls.Index && isIndexActive ? 'active' : ''
+                )}
               >
                 <div className={cn('text-primary')}>{menuItem.icon}</div>
                 <div className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
