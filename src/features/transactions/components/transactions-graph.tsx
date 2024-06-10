@@ -645,6 +645,8 @@ export function TransactionsGraph({ transactions }: Props) {
       type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
+  // When there are applications, the header height is increased to make room for the application address
+  const headerHeight = collaborators.some((c) => c.type === 'Application') ? graphConfig.rowHeight * 1.5 : graphConfig.rowHeight
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
   const gridCollaboratorColumns = collaborators.length
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
@@ -654,7 +656,7 @@ export function TransactionsGraph({ transactions }: Props) {
       className={cn('relative grid')}
       style={{
         gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridCollaboratorColumns}, ${graphConfig.colWidth}px)`,
-        gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
+        gridTemplateRows: `${headerHeight}px repeat(${transactionCount}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
@@ -664,7 +666,7 @@ export function TransactionsGraph({ transactions }: Props) {
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
-      <div className={cn('absolute left-0')} style={{ top: `${graphConfig.rowHeight}px` }}>
+      <div className={cn('absolute left-0')} style={{ top: `${headerHeight}px` }}>
         <div>
           <div className={cn('p-0')}></div>
           <div
