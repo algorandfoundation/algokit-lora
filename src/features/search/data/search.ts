@@ -43,14 +43,14 @@ const createSearchAtoms = (store: JotaiStore) => {
         type: SearchResultType.Account,
         id: term,
         label: ellipseAddress(term),
-        url: Urls.Explore.Account.ByAddress.build({ address: term }),
+        url: Urls.Account.ByAddress.build({ address: term }),
       })
     } else if (isTransactionId(term)) {
       results.push({
         type: SearchResultType.Transaction,
         id: term,
         label: ellipseId(term),
-        url: Urls.Explore.Transaction.ById.build({ transactionId: term }),
+        url: Urls.Transaction.ById.build({ transactionId: term }),
       })
     } else if (isInteger(term)) {
       const id = parseInt(term, 10)
@@ -61,7 +61,7 @@ const createSearchAtoms = (store: JotaiStore) => {
             type: SearchResultType.Block,
             id: id,
             label: id.toString(),
-            url: Urls.Explore.Block.ByRound.build({ round: id.toString() }),
+            url: Urls.Block.ByRound.build({ round: id.toString() }),
           })
         }
 
@@ -79,7 +79,7 @@ const createSearchAtoms = (store: JotaiStore) => {
               type: SearchResultType.Asset,
               id: id,
               label: asset.name ? `${id} (${asset.name})` : id.toString(),
-              url: Urls.Explore.Asset.ById.build({ assetId: id.toString() }),
+              url: Urls.Asset.ById.build({ assetId: id.toString() }),
             })
           }
 
@@ -88,7 +88,7 @@ const createSearchAtoms = (store: JotaiStore) => {
               type: SearchResultType.Application,
               id: id,
               label: id.toString(),
-              url: Urls.Explore.Application.ById.build({ applicationId: id.toString() }),
+              url: Urls.Application.ById.build({ applicationId: id.toString() }),
             })
           }
         } catch (e) {

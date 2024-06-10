@@ -13,7 +13,7 @@ export function InnerTransactionLink({ transactionId, innerTransactionId, classN
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Explore.Transaction.ById.Inner.ById}
+      urlTemplate={Urls.Transaction.ById.Inner.ById}
       urlParams={{
         transactionId: transactionId,
         innerTransactionId: innerTransactionId,

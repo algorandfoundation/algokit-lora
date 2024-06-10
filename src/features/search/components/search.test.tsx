@@ -81,7 +81,7 @@ describe('search', () => {
               const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
               const result = results.find((result) => result!.textContent!.includes(type))!
               await user.click(result)
-              expect(mockNavigate).toHaveBeenCalledWith(`/explore/${type.toLowerCase()}/${id}`)
+              expect(mockNavigate).toHaveBeenCalledWith(`/${type.toLowerCase()}/${id}`)
             })
           }
         )
