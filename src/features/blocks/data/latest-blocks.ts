@@ -23,6 +23,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
 import { algod } from '@/features/common/data/algo-client'
+import { createTimestamp } from '@/features/common/data'
 
 const maxBlocksToDisplay = 10
 
@@ -93,6 +94,8 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
       return
     }
+
+    const timestamp = createTimestamp()
 
     const [blockTransactionIds, transactionResults, groupResults, staleAssetIds, staleAddresses, staleApplicationIds] =
       result.subscribedTransactions.reduce(
@@ -235,9 +238,9 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     set(latestTransactionIdsAtom, (prev) => {
       return transactionResults
         .reverse()
-        .map((txn) => txn.id)
+        .map((txn) => [txn.id, timestamp] as const) // This timestamp will always be earlier than the corresponding transaction timestamp, so it always expires before the transaction.
         .concat(prev)
-        .slice(0, 10_000)
+        .slice(0, 50_000)
     })
   })
 
