@@ -73,7 +73,9 @@ const networkLocalStorageKey = 'network'
 const url = new URL(window.location.href)
 const network = url.searchParams.get(networkLocalStorageKey)
 if (network) {
-  localStorage.setItem('network', `"${network}"`)
+  if (networksConfigs.find((n) => n.id === network)) {
+    localStorage.setItem('network', `"${network}"`)
+  }
   url.searchParams.delete('network')
   history.pushState({}, '', url.href)
 }
