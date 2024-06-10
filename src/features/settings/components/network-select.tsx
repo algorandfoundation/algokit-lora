@@ -1,20 +1,26 @@
-import { selectedNetworkAtom, networksConfigs } from '@/features/settings/data'
+import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
-import { useAtom } from 'jotai'
-import { settingsStore } from '@/features/settings/data'
+import { useCallback } from 'react'
 
 export function NetworkSelect() {
-  const [selectedNetwork, setSelectedNetwork] = useAtom(selectedNetworkAtom, { store: settingsStore })
+  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+
+  const handleNetworkChange = useCallback(
+    async (value: string) => {
+      await setSelectedNetwork(value)
+    },
+    [setSelectedNetwork]
+  )
 
   return (
     <div className={cn('flex w-48 flex-col')}>
       <Label htmlFor="network" className={cn('text-xs ml-0.5')}>
         Network
       </Label>
-      <Select onValueChange={(value) => setSelectedNetwork(value)} value={selectedNetwork}>
-        <SelectTrigger id="network" className={cn('h-7')}>
+      <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
+        <SelectTrigger id="network">
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
         <SelectContent className={cn('bg-card text-card-foreground')}>

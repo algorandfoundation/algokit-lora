@@ -13,7 +13,7 @@ type Props = { applicationId: ApplicationId; boxName: string }
 const dialogTitle = 'Application Box'
 export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
   return (
-    <Dialog>
+    <Dialog modal={true}>
       <DialogTrigger>
         <label className={cn('text-primary underline cursor-pointer')}>{boxName}</label>
       </DialogTrigger>

@@ -1,31 +1,62 @@
-import { NetworkConfig } from '@/features/settings/data'
-import { SupportedProviders, WalletProvider as UseWalletProvider, useWallet } from '@txnlab/use-wallet'
-import { PropsWithChildren, useEffect } from 'react'
+import { NetworkConfig, localnetConfig } from '@/features/settings/data'
+import { DeflyWalletConnect } from '@blockshake/defly-connect'
+import { DaffiWalletConnect } from '@daffiwallet/connect'
+import { PeraWalletConnect } from '@perawallet/connect'
+import { PROVIDER_ID, useInitializeProviders } from '@txnlab/use-wallet'
+import LuteConnect from 'lute-connect'
+import { PropsWithChildren } from 'react'
+import algosdk from 'algosdk'
+import { WalletProviderInner } from './wallet-provider-inner'
+import { defaultKmdWallet, useSelectedKmdWallet } from '@/features/wallet/data/kmd'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfig
-  walletProviders: SupportedProviders | null
 }>
 
-function WalletProviderInner({ networkConfig, children }: Omit<Props, 'walletProviders'>) {
-  const { providers } = useWallet()
+export function WalletProvider({ networkConfig, children }: Props) {
+  const selectedKmdWallet = useSelectedKmdWallet()
 
-  useEffect(() => {
-    // Disconnect wallets that aren't applicable to the chosen network
-    providers?.forEach((provider) => {
-      if (provider.isConnected && !networkConfig.walletProviders.includes(provider.metadata.id)) {
-        provider.disconnect()
-      }
-    })
-  }, [networkConfig.walletProviders, providers])
+  const key = `${networkConfig.id}-${selectedKmdWallet ?? ''}`
 
-  return children
-}
+  const initOptions = {
+    providers:
+      networkConfig.id === localnetConfig.id
+        ? [
+            {
+              id: PROVIDER_ID.KMD,
+              clientOptions: {
+                wallet: selectedKmdWallet ?? defaultKmdWallet,
+                password: '', // This is never actually used by the provider, however needs to be set.
+                host: networkConfig.kmd?.server ?? '',
+                token: networkConfig.kmd?.token ?? '',
+                port: String(networkConfig.kmd?.port ?? 0),
+              },
+            },
+            PROVIDER_ID.MNEMONIC,
+          ]
+        : [
+            { id: PROVIDER_ID.DEFLY, clientStatic: DeflyWalletConnect },
+            { id: PROVIDER_ID.DAFFI, clientStatic: DaffiWalletConnect },
+            { id: PROVIDER_ID.PERA, clientStatic: PeraWalletConnect },
+            { id: PROVIDER_ID.EXODUS },
+            {
+              id: PROVIDER_ID.LUTE,
+              clientStatic: LuteConnect,
+              clientOptions: { siteName: 'Algorand Studio' },
+            },
+          ],
+    nodeConfig: {
+      network: networkConfig.id,
+      nodeServer: networkConfig.algod.server,
+      nodePort: networkConfig.algod.port,
+    },
+    algosdkStatic: algosdk,
+  } as Parameters<typeof useInitializeProviders>[0]
 
-export function WalletProvider({ networkConfig, walletProviders, children }: Props) {
   return (
-    <UseWalletProvider value={walletProviders}>
-      <WalletProviderInner networkConfig={networkConfig}>{children}</WalletProviderInner>
-    </UseWalletProvider>
+    // The key prop is super important it governs if the provider is reinitialized
+    <WalletProviderInner key={key} initOptions={initOptions}>
+      {children}
+    </WalletProviderInner>
   )
 }

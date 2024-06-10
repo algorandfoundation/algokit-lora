@@ -6,6 +6,6 @@ export type Theme = 'dark' | 'light' | 'system'
 
 export const selectedThemeAtom = atomWithStorage<Theme>('theme', 'system', undefined, { getOnInit: true })
 
-export const useTheme = () => {
+export const useSelectedTheme = () => {
   return useAtom(selectedThemeAtom, { store: settingsStore })
 }
