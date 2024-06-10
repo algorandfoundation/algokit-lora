@@ -703,13 +703,15 @@ export function TransactionsGraph({ transactions }: Props) {
 }
 
 const getTransactionsCollaborators = (transactions: Transaction[]): Collaborator[] => {
-  // TODO: explain this logic
   const collaborators = transactions.flatMap(getTransactionCollaborators)
   return collaborators.reduce<Collaborator[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
+      // When the collaborator type is account, we don't know if it's a independent account or an application account
+      // We won't add it to the list if an account or application with the same address is already in the list
       if (acc.some((c) => (c.type === 'Account' || c.type === 'Application') && c.address === current.address)) {
         return acc
       }
+      // If there is an application with the same address, we add it to the list instead of the account
       const application = array.find((c) => c.type === 'Application' && c.address === current.address)
       if (application) {
         return [...acc, application]
