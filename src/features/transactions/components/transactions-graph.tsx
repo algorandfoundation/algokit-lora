@@ -587,7 +587,7 @@ function getTransactionRepresentation(
 ): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return collaborators.findIndex((c) => c.type === 'Account' && transaction.receiver === c.address)
+      return collaborators.findIndex((c) => (c.type === 'Account' || c.type === 'Application') && transaction.receiver === c.address)
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
@@ -701,15 +701,32 @@ export function TransactionsGraph({ transactions }: Props) {
 }
 
 const getTransactionsCollaborators = (transactions: Transaction[]): Collaborator[] => {
-  return transactions.reduce((acc, transaction) => {
-    const collaborators = getTransactionCollaborators(transaction)
-    collaborators.forEach((collaborator) => {
-      if (!acc.some((c) => areTheSameCollaborator(c, collaborator))) {
-        acc.push(collaborator)
+  // TODO: explain this logic
+  const collaborators = transactions.flatMap(getTransactionCollaborators)
+  return collaborators.reduce<Collaborator[]>((acc, current, _, array) => {
+    if (current.type === 'Account') {
+      if (acc.some((c) => (c.type === 'Account' || c.type === 'Application') && c.address === current.address)) {
+        return acc
       }
-    })
-    return acc
-  }, new Array<Collaborator>())
+      const application = array.find((c) => c.type === 'Application' && c.address === current.address)
+      if (application) {
+        return [...acc, application]
+      }
+      return [...acc, current]
+    }
+    if (current.type === 'Application') {
+      if (acc.some((c) => c.type === 'Application' && c.id === current.id)) {
+        return acc
+      }
+      return [...acc, current]
+    }
+    if (current.type === 'Asset') {
+      if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
+        return acc
+      }
+      return [...acc, current]
+    } else return acc
+  }, [])
 }
 
 const getTransactionCollaborators = (transaction: Transaction | InnerTransaction): Collaborator[] => {
@@ -747,37 +764,17 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
   return collaborators
 }
 
-const areTheSameCollaborator = (a: Collaborator, b: Collaborator): boolean => {
-  if (a.type === 'Account' && b.type === 'Account') {
-    return a.address === b.address
-  }
-  if (a.type === 'Account' && b.type === 'Application') {
-    return a.address === b.address
-  }
-  if (a.type === 'Application' && b.type === 'Account') {
-    return a.address === b.address
-  }
-  if (a.type === 'Application' && b.type === 'Application') {
-    return a.id === b.id
-  }
-  if (a.type === 'Asset' && b.type === 'Asset') {
-    return a.id === b.id
-  }
-  return false
+type Account = {
+  type: 'Account'
+  address: string
 }
-
-type Collaborator =
-  | {
-      type: 'Account'
-      address: string
-    }
-  | {
-      type: 'Application'
-      id: string
-      address: string
-    }
-  | {
-      type: 'Asset'
-      id: string
-    }
-  | { type: 'Placeholder' }
+type Application = {
+  type: 'Application'
+  id: string
+  address: string
+}
+type Asset = {
+  type: 'Asset'
+  id: string
+}
+type Collaborator = Account | Application | Asset | { type: 'Placeholder' }
