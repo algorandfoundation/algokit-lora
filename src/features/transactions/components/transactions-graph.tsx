@@ -40,6 +40,7 @@ import { applicationIdLabel } from '@/features/applications/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { getApplicationAddress } from 'algosdk'
 
 const graphConfig = {
   rowHeight: 40,
@@ -117,8 +118,13 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
 function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
   return (
     <h1 className={cn('text-l font-semibold')}>
-      {collaborator.type === 'Account' && <AccountLink address={collaborator.id} short={true} />}
-      {collaborator.type === 'Application' && <ApplicationLink applicationId={parseInt(collaborator.id)} />}
+      {collaborator.type === 'Account' && <AccountLink address={collaborator.address} short={true} />}
+      {collaborator.type === 'Application' && (
+        <div className={cn('grid')}>
+          <ApplicationLink applicationId={parseInt(collaborator.id)} />
+          <AccountLink address={collaborator.address} short={true} />
+        </div>
+      )}
       {collaborator.type === 'Asset' && <AssetIdLink assetId={parseInt(collaborator.id)} />}
     </h1>
   )
@@ -581,25 +587,25 @@ function getTransactionRepresentation(
 ): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return collaborators.findIndex((a) => transaction.receiver === a.id)
+      return collaborators.findIndex((c) => c.type === 'Account' && transaction.receiver === c.address)
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
-      return collaborators.findIndex((a) => transaction.applicationId.toString() === a.id)
+      return collaborators.findIndex((c) => c.type === 'Application' && transaction.applicationId.toString() === c.id)
     }
 
     if (transaction.type === TransactionType.AssetConfig) {
-      return collaborators.findIndex((a) => transaction.assetId.toString() === a.id)
+      return collaborators.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
     }
 
     if (transaction.type === TransactionType.AssetFreeze) {
-      return collaborators.findIndex((a) => transaction.address.toString() === a.id)
+      return collaborators.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
     }
 
     throw new Error('Not supported transaction type')
   }
 
-  const from = collaborators.findIndex((a) => transaction.sender === a.id)
+  const from = collaborators.findIndex((c) => (c.type === 'Account' || c.type === 'Application') && transaction.sender === c.address)
   if (transaction.type === TransactionType.KeyReg) {
     return {
       from: from,
@@ -636,8 +642,7 @@ export function TransactionsGraph({ transactions }: Props) {
   const collaborators: Collaborator[] = [
     ...getTransactionsCollaborators(flattenedTransactions.map((t) => t.transaction)),
     {
-      type: 'Account',
-      id: '',
+      type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
@@ -678,7 +683,7 @@ export function TransactionsGraph({ transactions }: Props) {
             >
               <div></div>
               {collaborators
-                .filter((a) => a.id) // Don't need to draw for the empty collaborator
+                .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty collaborator
                 .map((_, index) => (
                   <div key={index} className={cn('flex justify-center')}>
                     <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
@@ -699,7 +704,7 @@ const getTransactionsCollaborators = (transactions: Transaction[]): Collaborator
   return transactions.reduce((acc, transaction) => {
     const collaborators = getTransactionCollaborators(transaction)
     collaborators.forEach((collaborator) => {
-      if (!acc.some((c) => c.type === collaborator.type && c.id === collaborator.id)) {
+      if (!acc.some((c) => areTheSameCollaborator(c, collaborator))) {
         acc.push(collaborator)
       }
     })
@@ -711,19 +716,20 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
   const collaborators: Collaborator[] = [
     {
       type: 'Account',
-      id: transaction.sender,
+      address: transaction.sender,
     },
   ]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
     collaborators.push({
       type: 'Account',
-      id: transaction.receiver,
+      address: transaction.receiver,
     })
   }
   if (transaction.type === TransactionType.ApplicationCall) {
     collaborators.push({
       type: 'Application',
       id: transaction.applicationId.toString(),
+      address: getApplicationAddress(transaction.applicationId),
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
@@ -735,13 +741,43 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
   if (transaction.type === TransactionType.AssetFreeze) {
     collaborators.push({
       type: 'Account',
-      id: transaction.address.toString(),
+      address: transaction.address.toString(),
     })
   }
   return collaborators
 }
 
-type Collaborator = {
-  type: 'Account' | 'Application' | 'Asset'
-  id: string
+const areTheSameCollaborator = (a: Collaborator, b: Collaborator): boolean => {
+  if (a.type === 'Account' && b.type === 'Account') {
+    return a.address === b.address
+  }
+  if (a.type === 'Account' && b.type === 'Application') {
+    return a.address === b.address
+  }
+  if (a.type === 'Application' && b.type === 'Account') {
+    return a.address === b.address
+  }
+  if (a.type === 'Application' && b.type === 'Application') {
+    return a.id === b.id
+  }
+  if (a.type === 'Asset' && b.type === 'Asset') {
+    return a.id === b.id
+  }
+  return false
 }
+
+type Collaborator =
+  | {
+      type: 'Account'
+      address: string
+    }
+  | {
+      type: 'Application'
+      id: string
+      address: string
+    }
+  | {
+      type: 'Asset'
+      id: string
+    }
+  | { type: 'Placeholder' }
