@@ -5,7 +5,7 @@ import { Command as CommandPrimitive } from 'cmdk'
 import { Dialog, DialogContent } from '@/features/common/components/dialog'
 import { cn } from '../utils'
 import { XIcon } from 'lucide-react'
-import { Button } from '@/features/common/components/button.tsx'
+import { Button } from '@/features/common/components/button'
 
 const Command = React.forwardRef<React.ElementRef<typeof CommandPrimitive>, React.ComponentPropsWithoutRef<typeof CommandPrimitive>>(
   ({ className, ...props }, ref) => (
