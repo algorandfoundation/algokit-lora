@@ -49,17 +49,17 @@ export const localnetConfig: NetworkConfig = {
   id: 'localnet',
   name: 'LocalNet',
   indexer: {
-    server: 'http://localhost/',
+    server: 'http://localtest.me/',
     port: 8980,
     token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
   algod: {
-    server: 'http://localhost/',
+    server: 'http://localtest.me/',
     port: 4001,
     token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
   kmd: {
-    server: 'http://localhost/',
+    server: 'http://localtest.me/',
     port: 4002,
     token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   },
