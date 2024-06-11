@@ -156,8 +156,5 @@
       ],
       "semantic-release-export-data"
     ]
-  },
-  "overrides": {
-    "braces": "3.0.3"
   }
 }
