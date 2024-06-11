@@ -6,22 +6,19 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../models'
+import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
-import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
-import { getApplicationAddress } from 'algosdk'
-import { distinct } from '@/utils/distinct'
 import { PaymentTransactionTooltipContent } from './payment-transaction-tooltip-content'
 import { AssetTransferTransactionTooltipContent } from './asset-transfer-transaction-tooltip-content'
 import { AppCallTransactionTooltipContent } from './app-call-transaction-tooltip-content'
 import { AssetConfigTransactionTooltipContent } from './asset-config-transaction-tooltip-content'
 import { AssetFreezeTransactionTooltipContent } from './asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from './key-reg-transaction-tooltip-content'
-import { ApplicationSwimlane, getRandomColor, Swimlane } from '@/features/transactions/components/transactions-graph/models'
-import { graphConfig } from '@/features/transactions/components/transactions-graph/graph-config'
-import { TransactionId } from '@/features/transactions/components/transactions-graph/transaction-id'
-import { SwimlaneId } from '@/features/transactions/components/transactions-graph/swimlane-id'
+import { ApplicationSwimlane, Swimlane, TransactionsGraph } from '../models'
+import { graphConfig } from '@/features/transactions-graph/components/graph-config'
+import { TransactionId } from '@/features/transactions-graph/components/transaction-id'
+import { SwimlaneId } from '@/features/transactions-graph/components/swimlane-id'
 
 type TransactionVector = {
   from: number
@@ -383,20 +380,11 @@ function getTransactionRepresentation(
 }
 
 type Props = {
-  transactions: Transaction[] | InnerTransaction[]
+  transactionsGraph: TransactionsGraph
 }
-
-export function TransactionsGraph({ transactions }: Props) {
-  const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
-
-  const transactionCount = flattenedTransactions.length
-  const swimlanes: Swimlane[] = [
-    ...getTransactionsSwimlanes(flattenedTransactions.map((t) => t.transaction)),
-    {
-      type: 'Placeholder',
-    }, // an empty account to make room to show transactions with the same sender and receiver
-  ]
-  const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
+export function TransactionsGraphView({ transactionsGraph }: Props) {
+  const { transactions, swimlanes, maxNestingLevel, rowCount } = transactionsGraph
+  const transactionCount = rowCount
   const gridSwimlanes = swimlanes.length
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
   // TODO: why?
@@ -452,91 +440,4 @@ export function TransactionsGraph({ transactions }: Props) {
       ))}
     </div>
   )
-}
-
-const getTransactionsSwimlanes = (transactions: Transaction[] | InnerTransaction[]): Swimlane[] => {
-  const swimlanes = transactions.flatMap(getTransactionSwimlanes)
-  return swimlanes.reduce<Swimlane[]>((acc, current, _, array) => {
-    if (current.type === 'Account') {
-      // TODO: why?
-      if (
-        acc.some(
-          (c) => (c.type === 'Account' && c.address === current.address) || (c.type === 'Application' && c.address === current.address)
-        )
-      ) {
-        return acc
-      }
-      const app = array.find((a) => a.type === 'Application' && a.address === current.address)
-      if (app) {
-        return [...acc, app]
-      }
-
-      return [...acc, current]
-    }
-    if (current.type === 'Application') {
-      const index = acc.findIndex((c) => c.type === 'Application' && c.id === current.id)
-      // TODO: why?
-      if (index > -1) {
-        const newFoo = {
-          type: 'Application' as const,
-          id: current.id,
-          address: current.address,
-          accounts: [...(acc[index] as ApplicationSwimlane).accounts, ...current.accounts].filter(distinct((x) => x.address)),
-        }
-        acc.splice(index, 1, newFoo)
-        return acc
-      } else {
-        return [...acc, current]
-      }
-    }
-    if (current.type === 'Asset') {
-      if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
-        return acc
-      }
-      return [...acc, current]
-    } else return acc
-  }, [])
-}
-
-const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): Swimlane[] => {
-  const swimlanes: Swimlane[] = [
-    {
-      type: 'Account',
-      address: transaction.sender,
-    },
-  ]
-  if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
-    swimlanes.push({
-      type: 'Account',
-      address: transaction.receiver,
-    })
-  }
-  if (transaction.type === TransactionType.ApplicationCall) {
-    swimlanes.push({
-      type: 'Application',
-      id: transaction.applicationId,
-      address: getApplicationAddress(transaction.applicationId),
-      accounts: transaction.innerTransactions
-        .flatMap((innerTransaction) => innerTransaction.sender)
-        .filter((address) => address !== getApplicationAddress(transaction.applicationId))
-        .filter(distinct((x) => x))
-        .map((address) => ({
-          address,
-          color: getRandomColor(),
-        })),
-    })
-  }
-  if (transaction.type === TransactionType.AssetConfig) {
-    swimlanes.push({
-      type: 'Asset',
-      id: transaction.assetId.toString(),
-    })
-  }
-  if (transaction.type === TransactionType.AssetFreeze) {
-    swimlanes.push({
-      type: 'Account',
-      address: transaction.address.toString(),
-    })
-  }
-  return swimlanes
 }

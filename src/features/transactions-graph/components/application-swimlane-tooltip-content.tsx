@@ -1,4 +1,4 @@
-import { ApplicationSwimlane, colors } from '@/features/transactions/components/transactions-graph/models'
+import { ApplicationSwimlane, colors } from '@/features/transactions-graph/components/models'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'

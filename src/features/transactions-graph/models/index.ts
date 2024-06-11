@@ -1,3 +1,12 @@
+import { Transaction } from '@/features/transactions/models'
+
+export type TransactionsGraph = {
+  transactions: Transaction[]
+  swimlanes: Swimlane[]
+  rowCount: number
+  maxNestingLevel: number
+}
+
 export const colors = [
   'rgb(255, 99, 132)',
   'rgb(54, 162, 235)',

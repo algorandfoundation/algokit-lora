@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { cn } from '@/features/common/utils'
-import { graphConfig } from '@/features/transactions/components/transactions-graph/graph-config'
+import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 
 export function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
   const component = useMemo(() => {
