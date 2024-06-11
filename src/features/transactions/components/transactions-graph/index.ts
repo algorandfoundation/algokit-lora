@@ -1,7 +1,1 @@
 export * from './transactions-graph'
-export { PaymentTransactionTooltipContent } from '@/features/transactions/components/transactions-graph/payment-transaction-tooltip-content'
-export { AssetTransferTransactionTooltipContent } from '@/features/transactions/components/transactions-graph/asset-transfer-transaction-tooltip-content'
-export { AppCallTransactionTooltipContent } from '@/features/transactions/components/transactions-graph/app-call-transaction-tooltip-content'
-export { AssetConfigTransactionTooltipContent } from '@/features/transactions/components/transactions-graph/asset-config-transaction-tooltip-content'
-export { AssetFreezeTransactionTooltipContent } from '@/features/transactions/components/transactions-graph/asset-freeze-transaction-tooltip-content'
-export { KeyRegTransactionTooltipContent } from '@/features/transactions/components/transactions-graph/key-reg-transaction-tooltip-content'

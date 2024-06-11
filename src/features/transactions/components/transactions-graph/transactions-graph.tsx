@@ -9,12 +9,7 @@ import { useMemo } from 'react'
 import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
-import { InnerTransactionLink } from '../inner-transaction-link'
-import { TransactionLink } from '../transaction-link'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
-import { AccountLink } from '@/features/accounts/components/account-link'
-import { ApplicationLink } from '@/features/applications/components/application-link'
-import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { getApplicationAddress } from 'algosdk'
 import { distinct } from '@/utils/distinct'
 import { PaymentTransactionTooltipContent } from './payment-transaction-tooltip-content'
@@ -24,15 +19,9 @@ import { AssetConfigTransactionTooltipContent } from './asset-config-transaction
 import { AssetFreezeTransactionTooltipContent } from './asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from './key-reg-transaction-tooltip-content'
 import { ApplicationSwimlane, getRandomColor, Swimlane } from '@/features/transactions/components/transactions-graph/models'
-
-const graphConfig = {
-  rowHeight: 40,
-  colWidth: 128,
-  indentationWidth: 20,
-  lineWidth: 2,
-  circleDimension: 20,
-  paymentTransactionColor: 'rgb(126 200 191)',
-}
+import { graphConfig } from '@/features/transactions/components/transactions-graph/graph-config'
+import { TransactionId } from '@/features/transactions/components/transactions-graph/transaction-id'
+import { SwimlaneId } from '@/features/transactions/components/transactions-graph/swimlane-id'
 
 type TransactionVector = {
   from: number
@@ -76,52 +65,6 @@ function ConnectionToParent() {
         width: `${graphConfig.indentationWidth + 8}px`,
       }}
     ></div>
-  )
-}
-
-function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
-  const component = useMemo(() => {
-    if ('innerId' in transaction) {
-      return <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
-    }
-    return <TransactionLink transactionId={transaction.id} short={true} />
-  }, [transaction])
-
-  return (
-    <div
-      className={cn('inline')}
-      style={{
-        marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
-      }}
-    >
-      {component}
-    </div>
-  )
-}
-
-function SwimlaneId({ swimlane }: { swimlane: Swimlane }) {
-  return (
-    <h1 className={cn('text-l font-semibold')}>
-      {swimlane.type === 'Account' && <AccountLink address={swimlane.address} short={true} />}
-      {swimlane.type === 'Application' && (
-        <div className={cn('grid')}>
-          <ApplicationLink applicationId={swimlane.id} />
-          <AccountLink address={swimlane.address} style={{ color: graphConfig.paymentTransactionColor }} short={true} />
-          {swimlane.accounts.map(({ address, color }, index) => (
-            <AccountLink key={index} address={address} style={{ color: color }} short={true} />
-          ))}
-        </div>
-        // <Tooltip>
-        //   <TooltipTrigger className={cn('grid')}>
-        //     <ApplicationLink applicationId={swimlane.id} />
-        //   </TooltipTrigger>
-        //   <TooltipContent className={cn('font-normal')}>
-        //     <ApplicationSwimlaneTooltipContent application={swimlane} />
-        //   </TooltipContent>
-        // </Tooltip>
-      )}
-      {swimlane.type === 'Asset' && <AssetIdLink assetId={parseInt(swimlane.id)} />}
-    </h1>
   )
 }
 
