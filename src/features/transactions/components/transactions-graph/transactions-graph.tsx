@@ -374,11 +374,7 @@ function getTransactionRepresentation(
 ): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return collaborators.findIndex(
-        (c) =>
-          (c.type === 'Account' && transaction.receiver === c.address) ||
-          (c.type === 'Application' && c.addresses.includes(transaction.receiver))
-      )
+      return collaborators.findIndex((c) => c.type === 'Account' && transaction.receiver === c.address)
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
@@ -505,28 +501,26 @@ const getTransactionsCollaborators = (transactions: Transaction[] | InnerTransac
   return collaborators.reduce<Collaborator[]>(
     (acc, current, _, array) => {
       if (current.type === 'Account') {
-        // When the collaborator type is account, we don't know if it's a independent account or an application account
-        // We won't add it to the list if an account or application with the same address is already in the list
-        if (
-          acc.some(
-            (c) =>
-              (c.type === 'Account' && c.address === current.address) || (c.type === 'Application' && c.addresses.includes(current.address))
-          )
-        ) {
+        if (acc.some((c) => c.type === 'Account' && c.address === current.address)) {
           return acc
         }
-        // If there is an application with the same address, we add it to the list instead of the account
-        const application = array.find((c) => c.type === 'Application' && c.addresses.includes(current.address))
-        if (application) {
-          return [...acc, application]
-        }
+
         return [...acc, current]
       }
       if (current.type === 'Application') {
-        if (acc.some((c) => c.type === 'Application' && c.id === current.id)) {
+        const index = acc.findIndex((c) => c.type === 'Application' && c.id === current.id)
+
+        if (index > -1) {
+          const newFoo = {
+            type: 'Application' as const,
+            id: current.id,
+            addresses: [...(acc[index] as Application).addresses, ...current.addresses].filter(distinct((x) => x)),
+          }
+          acc.splice(index, 1, newFoo)
           return acc
+        } else {
+          return [...acc, current]
         }
-        return [...acc, current]
       }
       if (current.type === 'Asset') {
         if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
