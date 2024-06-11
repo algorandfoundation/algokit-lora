@@ -1,5 +1,4 @@
 export const colors = [
-  'rgb(126 200 191)',
   'rgb(255, 99, 132)',
   'rgb(54, 162, 235)',
   'rgb(255, 206, 86)',
@@ -21,10 +20,16 @@ export type AccountSwimlane = {
 export type ApplicationSwimlane = {
   type: 'Application'
   id: number
-  addresses: string[]
+  address: string
+  accounts: {
+    address: string
+    color: string
+  }[]
 }
 export type AssetSwimlane = {
   type: 'Asset'
   id: string
 }
 export type Swimlane = AccountSwimlane | ApplicationSwimlane | AssetSwimlane | { type: 'Placeholder' }
+
+export const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)]
