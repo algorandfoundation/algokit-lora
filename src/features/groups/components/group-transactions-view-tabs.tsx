@@ -1,7 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { Group } from '../models'
-import { TransactionsGraph } from '@/features/transactions/components/transactions-graph'
+import { TransactionsGraph } from '@/features/transactions/components/transactions-graph/transactions-graph'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 

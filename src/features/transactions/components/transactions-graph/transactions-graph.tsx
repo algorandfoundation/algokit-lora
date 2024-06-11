@@ -6,41 +6,23 @@ import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
 import { useMemo } from 'react'
-import {
-  AppCallTransaction,
-  AssetConfigTransaction,
-  AssetFreezeTransaction,
-  AssetTransferTransaction,
-  InnerAppCallTransaction,
-  InnerAssetConfigTransaction,
-  InnerAssetFreezeTransaction,
-  InnerAssetTransferTransaction,
-  InnerKeyRegTransaction,
-  InnerPaymentTransaction,
-  InnerTransaction,
-  KeyRegTransaction,
-  PaymentTransaction,
-  Transaction,
-  TransactionType,
-} from '../models'
+import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
-import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionIdLabel, transactionTypeLabel } from './transaction-info'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
-import { InnerTransactionLink } from './inner-transaction-link'
-import { assetLabel } from './asset-config-transaction-info'
-import { assetFreezeAddressLabel, assetFreezeStatusLabel } from './asset-freeze-transaction-info'
-import { Badge } from '@/features/common/components/badge'
-import { TransactionLink } from './transaction-link'
+import { InnerTransactionLink } from '../inner-transaction-link'
+import { TransactionLink } from '../transaction-link'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
-import { useAtomValue } from 'jotai'
-import { transactionAmountLabel } from './transactions-table-columns'
-import { transactionReceiverLabel, transactionSenderLabel } from './labels'
-import { applicationIdLabel } from '@/features/applications/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { getApplicationAddress } from 'algosdk'
+import { distinct } from '@/utils/distinct'
+import { PaymentTransactionToolTipContent } from './payment-transaction-tool-tip-content'
+import { AssetTransferTransactionToolTipContent } from './asset-transfer-transaction-tool-tip-content'
+import { AppCallTransactionToolTipContent } from './app-call-transaction-tool-tip-content'
+import { AssetConfigTransactionToolTipContent } from './asset-config-transaction-tool-tip-content'
+import { AssetFreezeTransactionToolTipContent } from './asset-freeze-transaction-tool-tip-content'
+import { KeyRegTransactionToolTipContent } from './key-reg-transaction-tool-tip-content'
 
 const graphConfig = {
   rowHeight: 40,
@@ -122,7 +104,9 @@ function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
       {collaborator.type === 'Application' && (
         <div className={cn('grid')}>
           <ApplicationLink applicationId={parseInt(collaborator.id)} />
-          <AccountLink address={collaborator.address} short={true} />
+          {collaborator.addresses.map((address) => (
+            <AccountLink key={address} address={address} short={true} />
+          ))}
         </div>
       )}
       {collaborator.type === 'Asset' && <AssetIdLink assetId={parseInt(collaborator.id)} />}
@@ -291,211 +275,9 @@ const RenderTransactionPoint = fixedForwardRef(
   }
 )
 
-function PaymentTransactionToolTipContent({ transaction }: { transaction: PaymentTransaction | InnerPaymentTransaction }) {
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
-      },
-      {
-        dt: transactionTypeLabel,
-        dd: 'Payment',
-      },
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
-      },
-      {
-        dt: transactionReceiverLabel,
-        dd: <AccountLink address={transaction.receiver} />,
-      },
-      {
-        dt: transactionAmountLabel,
-        dd: <DisplayAlgo amount={transaction.amount} />,
-      },
-    ],
-    [transaction.amount, transaction.id, transaction.receiver, transaction.sender]
-  )
-
-  return (
-    <div className={cn('p-4')}>
-      <DescriptionList items={items} />
-    </div>
-  )
-}
-
-function AssetTransferTransactionToolTipContent({
-  transaction,
-}: {
-  transaction: AssetTransferTransaction | InnerAssetTransferTransaction
-}) {
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} showCopyButton={true} />,
-      },
-      {
-        dt: transactionTypeLabel,
-        dd: 'Asset Transfer',
-      },
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
-      },
-      {
-        dt: transactionReceiverLabel,
-        dd: <AccountLink address={transaction.receiver} />,
-      },
-      {
-        dt: transactionAmountLabel,
-        dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
-      },
-    ],
-    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.sender]
-  )
-
-  return (
-    <div className={cn('p-4')}>
-      <DescriptionList items={items} />
-    </div>
-  )
-}
-
-function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
-      },
-      {
-        dt: transactionTypeLabel,
-        dd: 'Application Call',
-      },
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
-      },
-      {
-        dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} />,
-      },
-    ],
-    [transaction.applicationId, transaction.id, transaction.sender]
-  )
-
-  return (
-    <div className={cn('p-4')}>
-      <DescriptionList items={items} />
-    </div>
-  )
-}
-
-function AssetConfigTransactionToolTipContent({ transaction }: { transaction: AssetConfigTransaction | InnerAssetConfigTransaction }) {
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
-      },
-      {
-        dt: transactionTypeLabel,
-        dd: 'Asset Config',
-      },
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
-      },
-      {
-        dt: assetLabel,
-        dd: <AssetIdLink assetId={transaction.assetId} />,
-      },
-    ],
-    [transaction.assetId, transaction.id, transaction.sender]
-  )
-
-  return (
-    <div className={cn('p-4')}>
-      <DescriptionList items={items} />
-    </div>
-  )
-}
-
-function AssetFreezeTransactionToolTipContent({ transaction }: { transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction }) {
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
-      },
-      {
-        dt: transactionTypeLabel,
-        dd: TransactionType.AssetFreeze,
-      },
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
-      },
-      {
-        dt: assetLabel,
-        dd: <AssetIdLink assetId={transaction.assetId} />,
-      },
-      {
-        dt: assetFreezeAddressLabel,
-        dd: <AccountLink address={transaction.address} />,
-      },
-      {
-        dt: assetFreezeStatusLabel,
-        dd: transaction.freezeStatus,
-      },
-    ],
-    [transaction.address, transaction.assetId, transaction.freezeStatus, transaction.id, transaction.sender]
-  )
-
-  return (
-    <div className={cn('p-4')}>
-      <DescriptionList items={items} />
-    </div>
-  )
-}
-
-function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegTransaction | InnerKeyRegTransaction }) {
-  const subType = useAtomValue(transaction.subType)
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
-      },
-      {
-        dt: transactionTypeLabel,
-        dd: (
-          <label>
-            {transaction.type}
-            <Badge variant="outline">{subType}</Badge>
-          </label>
-        ),
-      },
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
-      },
-    ],
-    [subType, transaction.id, transaction.sender, transaction.type]
-  )
-
-  return (
-    <div className={cn('p-4')}>
-      <DescriptionList items={items} />
-    </div>
-  )
-}
-
 type TransactionGraphProps = {
   transaction: Transaction | InnerTransaction
-  hasParent?: boolean
+  parent?: AppCallTransaction | InnerAppCallTransaction
   hasNextSibling?: boolean
   hasChildren?: boolean
   collaborators: Collaborator[]
@@ -505,12 +287,16 @@ type TransactionGraphProps = {
 function TransactionGraph({
   transaction,
   collaborators,
-  hasParent = false,
+  parent,
   hasNextSibling = false,
   indentLevel,
   verticalBars,
 }: TransactionGraphProps) {
-  const transactionRepresentation = useMemo(() => getTransactionRepresentation(transaction, collaborators), [collaborators, transaction])
+  const transactionRepresentation = useMemo(
+    () => getTransactionRepresentation(transaction, collaborators, parent),
+    [collaborators, parent, transaction]
+  )
+  const hasParent = !!parent
   const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
 
   return (
@@ -521,7 +307,7 @@ function TransactionGraph({
           className={cn(`relative h-full p-0 flex items-center`, 'px-0')}
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
-          {hasParent && <ConnectionToParent />}
+          {parent && <ConnectionToParent />}
           <TransactionId hasParent={hasParent} transaction={transaction} />
           {hasParent && hasNextSibling && <ConnectionToSibling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
@@ -570,7 +356,7 @@ function TransactionGraph({
           <TransactionGraph
             key={index}
             transaction={childTransaction}
-            hasParent={true}
+            parent={transaction}
             hasNextSibling={index < arr.length - 1}
             collaborators={collaborators}
             indentLevel={indentLevel == null ? 0 : indentLevel + 1}
@@ -583,11 +369,16 @@ function TransactionGraph({
 
 function getTransactionRepresentation(
   transaction: Transaction | InnerTransaction,
-  collaborators: Collaborator[]
+  collaborators: Collaborator[],
+  parent?: AppCallTransaction | InnerAppCallTransaction
 ): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return collaborators.findIndex((c) => (c.type === 'Account' || c.type === 'Application') && transaction.receiver === c.address)
+      return collaborators.findIndex(
+        (c) =>
+          (c.type === 'Account' && transaction.receiver === c.address) ||
+          (c.type === 'Application' && c.addresses.includes(transaction.receiver))
+      )
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
@@ -605,7 +396,14 @@ function getTransactionRepresentation(
     throw new Error('Not supported transaction type')
   }
 
-  const from = collaborators.findIndex((c) => (c.type === 'Account' || c.type === 'Application') && transaction.sender === c.address)
+  // TODO: why?
+  const from = !parent
+    ? collaborators.findIndex(
+        (c) =>
+          (c.type === 'Account' && transaction.sender === c.address) ||
+          (c.type === 'Application' && c.addresses.includes(transaction.sender))
+      )
+    : collaborators.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId.toString())
   if (transaction.type === TransactionType.KeyReg) {
     return {
       from: from,
@@ -696,41 +494,49 @@ export function TransactionsGraph({ transactions }: Props) {
         </div>
       </div>
       {transactions.map((transaction, index) => (
-        <TransactionGraph key={index} transaction={transaction} hasParent={false} collaborators={collaborators} verticalBars={[]} />
+        <TransactionGraph key={index} transaction={transaction} parent={undefined} collaborators={collaborators} verticalBars={[]} />
       ))}
     </div>
   )
 }
 
-const getTransactionsCollaborators = (transactions: Transaction[]): Collaborator[] => {
+const getTransactionsCollaborators = (transactions: Transaction[] | InnerTransaction[]): Collaborator[] => {
   const collaborators = transactions.flatMap(getTransactionCollaborators)
-  return collaborators.reduce<Collaborator[]>((acc, current, _, array) => {
-    if (current.type === 'Account') {
-      // When the collaborator type is account, we don't know if it's a independent account or an application account
-      // We won't add it to the list if an account or application with the same address is already in the list
-      if (acc.some((c) => (c.type === 'Account' || c.type === 'Application') && c.address === current.address)) {
-        return acc
+  return collaborators.reduce<Collaborator[]>(
+    (acc, current, _, array) => {
+      if (current.type === 'Account') {
+        // When the collaborator type is account, we don't know if it's a independent account or an application account
+        // We won't add it to the list if an account or application with the same address is already in the list
+        if (
+          acc.some(
+            (c) =>
+              (c.type === 'Account' && c.address === current.address) || (c.type === 'Application' && c.addresses.includes(current.address))
+          )
+        ) {
+          return acc
+        }
+        // If there is an application with the same address, we add it to the list instead of the account
+        const application = array.find((c) => c.type === 'Application' && c.addresses.includes(current.address))
+        if (application) {
+          return [...acc, application]
+        }
+        return [...acc, current]
       }
-      // If there is an application with the same address, we add it to the list instead of the account
-      const application = array.find((c) => c.type === 'Application' && c.address === current.address)
-      if (application) {
-        return [...acc, application]
+      if (current.type === 'Application') {
+        if (acc.some((c) => c.type === 'Application' && c.id === current.id)) {
+          return acc
+        }
+        return [...acc, current]
       }
-      return [...acc, current]
-    }
-    if (current.type === 'Application') {
-      if (acc.some((c) => c.type === 'Application' && c.id === current.id)) {
-        return acc
-      }
-      return [...acc, current]
-    }
-    if (current.type === 'Asset') {
-      if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
-        return acc
-      }
-      return [...acc, current]
-    } else return acc
-  }, [])
+      if (current.type === 'Asset') {
+        if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
+          return acc
+        }
+        return [...acc, current]
+      } else return acc
+    },
+    [collaborators[0]] // TODO: why?
+  )
 }
 
 const getTransactionCollaborators = (transaction: Transaction | InnerTransaction): Collaborator[] => {
@@ -750,7 +556,10 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
     collaborators.push({
       type: 'Application',
       id: transaction.applicationId.toString(),
-      address: getApplicationAddress(transaction.applicationId),
+      addresses: [
+        getApplicationAddress(transaction.applicationId),
+        ...transaction.innerTransactions.flatMap((innerTransaction) => innerTransaction.sender),
+      ].filter(distinct((x) => x)),
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
@@ -775,7 +584,7 @@ type Account = {
 type Application = {
   type: 'Application'
   id: string
-  address: string
+  addresses: string[]
 }
 type Asset = {
   type: 'Asset'

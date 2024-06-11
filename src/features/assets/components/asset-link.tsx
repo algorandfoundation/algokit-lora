@@ -5,7 +5,7 @@ import { PropsWithChildren, useCallback } from 'react'
 import { AssetSummary } from '../models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
-import { CopyButton } from '@/features/common/components/copy-button.tsx'
+import { CopyButton } from '@/features/common/components/copy-button'
 import { toast } from 'react-toastify'
 
 type CommonProps = {

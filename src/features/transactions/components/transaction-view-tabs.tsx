@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { TransactionsTable } from './transactions-table'
 import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionsGraph } from './transactions-graph'
+import { TransactionsGraph } from './transactions-graph/transactions-graph'
 import { transactionsTableColumnsWithoutRound } from './transactions-table-columns'
 
 type Props = {
