@@ -1,4 +1,4 @@
-import { AppCallTransaction, InnerAppCallTransaction } from '@/features/transactions/models'
+import { AppCallTransaction, InnerAppCallTransaction, TransactionType } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -8,6 +8,7 @@ import { applicationIdLabel } from '@/features/applications/components/labels'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { Badge } from '@/features/common/components/badge'
 
 export function AppCallTransactionTooltipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
   const items = useMemo(
@@ -18,7 +19,12 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
       },
       {
         dt: transactionTypeLabel,
-        dd: 'Application Call',
+        dd: (
+          <>
+            {TransactionType.ApplicationCall}
+            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
+          </>
+        ),
       },
       {
         dt: transactionSenderLabel,

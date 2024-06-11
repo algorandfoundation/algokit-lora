@@ -23,6 +23,7 @@ export function KeyRegTransactionTooltipContent({ transaction }: { transaction: 
           <label>
             {transaction.type}
             <Badge variant="outline">{subType}</Badge>
+            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </label>
         ),
       },

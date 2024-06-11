@@ -1,4 +1,4 @@
-import { AssetConfigTransaction, InnerAssetConfigTransaction } from '@/features/transactions/models'
+import { AssetConfigTransaction, InnerAssetConfigTransaction, TransactionType } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -8,6 +8,7 @@ import { assetLabel } from '@/features/transactions/components/asset-config-tran
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { Badge } from '@/features/common/components/badge'
 
 export function AssetConfigTransactionTooltipContent({
   transaction,
@@ -22,7 +23,12 @@ export function AssetConfigTransactionTooltipContent({
       },
       {
         dt: transactionTypeLabel,
-        dd: 'Asset Config',
+        dd: (
+          <>
+            {TransactionType.AssetConfig}
+            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
+          </>
+        ),
       },
       {
         dt: transactionSenderLabel,

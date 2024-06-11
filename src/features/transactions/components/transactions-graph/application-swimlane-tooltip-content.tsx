@@ -15,7 +15,7 @@ export function ApplicationSwimlaneTooltipContent({ application }: { application
       },
       ...application.addresses.map((address) => ({
         dt: 'Address',
-        dd: <AccountLink address={address} short={true} />,
+        dd: <AccountLink address={address} />,
       })),
     ],
     [application.addresses, application.id]

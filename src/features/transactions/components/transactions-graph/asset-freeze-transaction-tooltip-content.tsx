@@ -9,6 +9,7 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from '@/features/transactions/components/asset-freeze-transaction-info'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { Badge } from '@/features/common/components/badge'
 
 export function AssetFreezeTransactionTooltipContent({
   transaction,
@@ -23,7 +24,12 @@ export function AssetFreezeTransactionTooltipContent({
       },
       {
         dt: transactionTypeLabel,
-        dd: TransactionType.AssetFreeze,
+        dd: (
+          <>
+            {TransactionType.AssetFreeze}
+            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
+          </>
+        ),
       },
       {
         dt: transactionSenderLabel,
