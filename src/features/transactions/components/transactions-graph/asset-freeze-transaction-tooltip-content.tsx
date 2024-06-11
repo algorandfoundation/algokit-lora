@@ -10,7 +10,7 @@ import { assetFreezeAddressLabel, assetFreezeStatusLabel } from '@/features/tran
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 
-export function AssetFreezeTransactionToolTipContent({
+export function AssetFreezeTransactionTooltipContent({
   transaction,
 }: {
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction

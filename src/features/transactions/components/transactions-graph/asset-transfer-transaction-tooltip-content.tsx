@@ -9,7 +9,7 @@ import { DisplayAssetAmount } from '@/features/common/components/display-asset-a
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 
-export function AssetTransferTransactionToolTipContent({
+export function AssetTransferTransactionTooltipContent({
   transaction,
 }: {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction

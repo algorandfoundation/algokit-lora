@@ -1,15 +1,15 @@
-import { AppCallTransaction, InnerAppCallTransaction } from '@/features/transactions/models'
+import { InnerPaymentTransaction, PaymentTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { transactionSenderLabel } from '@/features/transactions/components/labels'
+import { transactionReceiverLabel, transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { applicationIdLabel } from '@/features/applications/components/labels'
-import { ApplicationLink } from '@/features/applications/components/application-link'
+import { transactionAmountLabel } from '@/features/transactions/components/transactions-table-columns'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 
-export function AppCallTransactionToolTipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
+export function PaymentTransactionTooltipContent({ transaction }: { transaction: PaymentTransaction | InnerPaymentTransaction }) {
   const items = useMemo(
     () => [
       {
@@ -18,18 +18,22 @@ export function AppCallTransactionToolTipContent({ transaction }: { transaction:
       },
       {
         dt: transactionTypeLabel,
-        dd: 'Application Call',
+        dd: 'Payment',
       },
       {
         dt: transactionSenderLabel,
         dd: <AccountLink address={transaction.sender} />,
       },
       {
-        dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} />,
+        dt: transactionReceiverLabel,
+        dd: <AccountLink address={transaction.receiver} />,
+      },
+      {
+        dt: transactionAmountLabel,
+        dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction.applicationId, transaction.id, transaction.sender]
+    [transaction.amount, transaction.id, transaction.receiver, transaction.sender]
   )
 
   return (

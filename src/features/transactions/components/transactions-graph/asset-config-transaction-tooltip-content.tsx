@@ -9,7 +9,7 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 
-export function AssetConfigTransactionToolTipContent({
+export function AssetConfigTransactionTooltipContent({
   transaction,
 }: {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction

@@ -9,7 +9,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 
-export function KeyRegTransactionToolTipContent({ transaction }: { transaction: KeyRegTransaction | InnerKeyRegTransaction }) {
+export function KeyRegTransactionTooltipContent({ transaction }: { transaction: KeyRegTransaction | InnerKeyRegTransaction }) {
   const subType = useAtomValue(transaction.subType)
   const items = useMemo(
     () => [

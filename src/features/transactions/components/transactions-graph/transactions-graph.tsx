@@ -17,12 +17,14 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { getApplicationAddress } from 'algosdk'
 import { distinct } from '@/utils/distinct'
-import { PaymentTransactionToolTipContent } from './payment-transaction-tool-tip-content'
-import { AssetTransferTransactionToolTipContent } from './asset-transfer-transaction-tool-tip-content'
-import { AppCallTransactionToolTipContent } from './app-call-transaction-tool-tip-content'
-import { AssetConfigTransactionToolTipContent } from './asset-config-transaction-tool-tip-content'
-import { AssetFreezeTransactionToolTipContent } from './asset-freeze-transaction-tool-tip-content'
-import { KeyRegTransactionToolTipContent } from './key-reg-transaction-tool-tip-content'
+import { PaymentTransactionTooltipContent } from './payment-transaction-tooltip-content'
+import { AssetTransferTransactionTooltipContent } from './asset-transfer-transaction-tooltip-content'
+import { AppCallTransactionTooltipContent } from './app-call-transaction-tooltip-content'
+import { AssetConfigTransactionTooltipContent } from './asset-config-transaction-tooltip-content'
+import { AssetFreezeTransactionTooltipContent } from './asset-freeze-transaction-tooltip-content'
+import { KeyRegTransactionTooltipContent } from './key-reg-transaction-tooltip-content'
+import { ApplicationSwimlane, Swimlane } from '@/features/transactions/components/transactions-graph/models'
+import { ApplicationSwimlaneTooltipContent } from '@/features/transactions/components/transactions-graph/application-swimlane-tooltip-content'
 
 const graphConfig = {
   rowHeight: 40,
@@ -97,19 +99,21 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
   )
 }
 
-function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
+function SwimlaneId({ swimlane }: { swimlane: Swimlane }) {
   return (
     <h1 className={cn('text-l font-semibold')}>
-      {collaborator.type === 'Account' && <AccountLink address={collaborator.address} short={true} />}
-      {collaborator.type === 'Application' && (
-        <div className={cn('grid')}>
-          <ApplicationLink applicationId={parseInt(collaborator.id)} />
-          {collaborator.addresses.map((address) => (
-            <AccountLink key={address} address={address} short={true} />
-          ))}
-        </div>
+      {swimlane.type === 'Account' && <AccountLink address={swimlane.address} short={true} />}
+      {swimlane.type === 'Application' && (
+        <Tooltip>
+          <TooltipTrigger className={cn('grid')}>
+            <ApplicationLink applicationId={swimlane.id} />
+          </TooltipTrigger>
+          <TooltipContent className={cn('font-normal')}>
+            <ApplicationSwimlaneTooltipContent application={swimlane} />
+          </TooltipContent>
+        </Tooltip>
       )}
-      {collaborator.type === 'Asset' && <AssetIdLink assetId={parseInt(collaborator.id)} />}
+      {swimlane.type === 'Asset' && <AssetIdLink assetId={parseInt(swimlane.id)} />}
     </h1>
   )
 }
@@ -280,21 +284,14 @@ type TransactionGraphProps = {
   parent?: AppCallTransaction | InnerAppCallTransaction
   hasNextSibling?: boolean
   hasChildren?: boolean
-  collaborators: Collaborator[]
+  swimlanes: Swimlane[]
   indentLevel?: number
   verticalBars: (number | undefined)[]
 }
-function TransactionGraph({
-  transaction,
-  collaborators,
-  parent,
-  hasNextSibling = false,
-  indentLevel,
-  verticalBars,
-}: TransactionGraphProps) {
+function TransactionGraph({ transaction, swimlanes, parent, hasNextSibling = false, indentLevel, verticalBars }: TransactionGraphProps) {
   const transactionRepresentation = useMemo(
-    () => getTransactionRepresentation(transaction, collaborators, parent),
-    [collaborators, parent, transaction]
+    () => getTransactionRepresentation(transaction, swimlanes, parent),
+    [swimlanes, parent, transaction]
   )
   const hasParent = !!parent
   const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
@@ -313,7 +310,7 @@ function TransactionGraph({
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
         </div>
       </div>
-      {collaborators.map((_, index) => {
+      {swimlanes.map((_, index) => {
         if (
           transactionRepresentation.type === 'vector' &&
           (index < transactionRepresentation.from || index > transactionRepresentation.to)
@@ -339,12 +336,12 @@ function TransactionGraph({
                 ) : null}
               </TooltipTrigger>
               <TooltipContent>
-                {transaction.type === TransactionType.Payment && <PaymentTransactionToolTipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionToolTipContent transaction={transaction} />}
-                {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionToolTipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionToolTipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionToolTipContent transaction={transaction} />}
-                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionToolTipContent transaction={transaction} />}
+                {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
@@ -358,7 +355,7 @@ function TransactionGraph({
             transaction={childTransaction}
             parent={transaction}
             hasNextSibling={index < arr.length - 1}
-            collaborators={collaborators}
+            swimlanes={swimlanes}
             indentLevel={indentLevel == null ? 0 : indentLevel + 1}
             verticalBars={[...(verticalBars ?? []), hasNextSibling ? indentLevel ?? 0 : undefined]}
           />
@@ -369,24 +366,24 @@ function TransactionGraph({
 
 function getTransactionRepresentation(
   transaction: Transaction | InnerTransaction,
-  collaborators: Collaborator[],
+  swimlanes: Swimlane[],
   parent?: AppCallTransaction | InnerAppCallTransaction
 ): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return collaborators.findIndex((c) => c.type === 'Account' && transaction.receiver === c.address)
+      return swimlanes.findIndex((c) => c.type === 'Account' && transaction.receiver === c.address)
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
-      return collaborators.findIndex((c) => c.type === 'Application' && transaction.applicationId.toString() === c.id)
+      return swimlanes.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
     }
 
     if (transaction.type === TransactionType.AssetConfig) {
-      return collaborators.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
+      return swimlanes.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
     }
 
     if (transaction.type === TransactionType.AssetFreeze) {
-      return collaborators.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
+      return swimlanes.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
     }
 
     throw new Error('Not supported transaction type')
@@ -394,12 +391,12 @@ function getTransactionRepresentation(
 
   // TODO: why?
   const from = !parent
-    ? collaborators.findIndex(
+    ? swimlanes.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.sender === c.address) ||
           (c.type === 'Application' && c.addresses.includes(transaction.sender))
       )
-    : collaborators.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId.toString())
+    : swimlanes.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId)
   if (transaction.type === TransactionType.KeyReg) {
     return {
       from: from,
@@ -433,53 +430,51 @@ export function TransactionsGraph({ transactions }: Props) {
   const flattenedTransactions = useMemo(() => transactions.flatMap((transaction) => flattenInnerTransactions(transaction)), [transactions])
 
   const transactionCount = flattenedTransactions.length
-  const collaborators: Collaborator[] = [
-    ...getTransactionsCollaborators(flattenedTransactions.map((t) => t.transaction)),
+  const swimlanes: Swimlane[] = [
+    ...getTransactionsSwimlanes(flattenedTransactions.map((t) => t.transaction)),
     {
       type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
-  // When there are applications, the header height is increased to make room for the application address
-  const headerHeight = collaborators.some((c) => c.type === 'Application') ? graphConfig.rowHeight * 1.5 : graphConfig.rowHeight
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
-  const gridCollaboratorColumns = collaborators.length
+  const gridSwimlanes = swimlanes.length
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
 
   return (
     <div
       className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridCollaboratorColumns}, ${graphConfig.colWidth}px)`,
-        gridTemplateRows: `${headerHeight}px repeat(${transactionCount}, ${graphConfig.rowHeight}px)`,
+        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridSwimlanes}, ${graphConfig.colWidth}px)`,
+        gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
-      {collaborators.map((collaborator, index) => (
+      {swimlanes.map((swimlane, index) => (
         <div className={cn('p-2 flex justify-center')} key={index}>
-          <CollaboratorId collaborator={collaborator} />
+          <SwimlaneId swimlane={swimlane} />
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
-      <div className={cn('absolute left-0')} style={{ top: `${headerHeight}px` }}>
+      <div className={cn('absolute left-0')} style={{ top: `${graphConfig.rowHeight}px` }}>
         <div>
           <div className={cn('p-0')}></div>
           <div
             className={cn('p-0')}
             style={{
               height: `${transactionCount * graphConfig.rowHeight}px`,
-              width: `${graphConfig.colWidth * gridCollaboratorColumns}px`,
+              width: `${graphConfig.colWidth * gridSwimlanes}px`,
             }}
           >
             <div
               className={cn('grid h-full')}
               style={{
-                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridCollaboratorColumns}, ${graphConfig.colWidth}px)`,
+                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridSwimlanes}, ${graphConfig.colWidth}px)`,
                 height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
               <div></div>
-              {collaborators
-                .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty collaborator
+              {swimlanes
+                .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty swimlane
                 .map((_, index) => (
                   <div key={index} className={cn('flex justify-center')}>
                     <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
@@ -490,16 +485,16 @@ export function TransactionsGraph({ transactions }: Props) {
         </div>
       </div>
       {transactions.map((transaction, index) => (
-        <TransactionGraph key={index} transaction={transaction} parent={undefined} collaborators={collaborators} verticalBars={[]} />
+        <TransactionGraph key={index} transaction={transaction} parent={undefined} swimlanes={swimlanes} verticalBars={[]} />
       ))}
     </div>
   )
 }
 
-const getTransactionsCollaborators = (transactions: Transaction[] | InnerTransaction[]): Collaborator[] => {
-  const collaborators = transactions.flatMap(getTransactionCollaborators)
-  return collaborators.reduce<Collaborator[]>(
-    (acc, current, _, array) => {
+const getTransactionsSwimlanes = (transactions: Transaction[] | InnerTransaction[]): Swimlane[] => {
+  const swimlanes = transactions.flatMap(getTransactionSwimlanes)
+  return swimlanes.reduce<Swimlane[]>(
+    (acc, current) => {
       if (current.type === 'Account') {
         if (acc.some((c) => c.type === 'Account' && c.address === current.address)) {
           return acc
@@ -514,7 +509,7 @@ const getTransactionsCollaborators = (transactions: Transaction[] | InnerTransac
           const newFoo = {
             type: 'Application' as const,
             id: current.id,
-            addresses: [...(acc[index] as Application).addresses, ...current.addresses].filter(distinct((x) => x)),
+            addresses: [...(acc[index] as ApplicationSwimlane).addresses, ...current.addresses].filter(distinct((x) => x)),
           }
           acc.splice(index, 1, newFoo)
           return acc
@@ -529,27 +524,27 @@ const getTransactionsCollaborators = (transactions: Transaction[] | InnerTransac
         return [...acc, current]
       } else return acc
     },
-    [collaborators[0]] // TODO: why?
+    [swimlanes[0]] // TODO: why?
   )
 }
 
-const getTransactionCollaborators = (transaction: Transaction | InnerTransaction): Collaborator[] => {
-  const collaborators: Collaborator[] = [
+const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): Swimlane[] => {
+  const swimlanes: Swimlane[] = [
     {
       type: 'Account',
       address: transaction.sender,
     },
   ]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
-    collaborators.push({
+    swimlanes.push({
       type: 'Account',
       address: transaction.receiver,
     })
   }
   if (transaction.type === TransactionType.ApplicationCall) {
-    collaborators.push({
+    swimlanes.push({
       type: 'Application',
-      id: transaction.applicationId.toString(),
+      id: transaction.applicationId,
       addresses: [
         getApplicationAddress(transaction.applicationId),
         ...transaction.innerTransactions.flatMap((innerTransaction) => innerTransaction.sender),
@@ -557,31 +552,16 @@ const getTransactionCollaborators = (transaction: Transaction | InnerTransaction
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
-    collaborators.push({
+    swimlanes.push({
       type: 'Asset',
       id: transaction.assetId.toString(),
     })
   }
   if (transaction.type === TransactionType.AssetFreeze) {
-    collaborators.push({
+    swimlanes.push({
       type: 'Account',
       address: transaction.address.toString(),
     })
   }
-  return collaborators
+  return swimlanes
 }
-
-type Account = {
-  type: 'Account'
-  address: string
-}
-type Application = {
-  type: 'Application'
-  id: string
-  addresses: string[]
-}
-type Asset = {
-  type: 'Asset'
-  id: string
-}
-type Collaborator = Account | Application | Asset | { type: 'Placeholder' }
