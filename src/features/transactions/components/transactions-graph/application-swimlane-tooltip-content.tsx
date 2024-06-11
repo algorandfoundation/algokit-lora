@@ -1,4 +1,4 @@
-import { ApplicationSwimlane } from '@/features/transactions/components/transactions-graph/models'
+import { ApplicationSwimlane, colors } from '@/features/transactions/components/transactions-graph/models'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
@@ -13,9 +13,9 @@ export function ApplicationSwimlaneTooltipContent({ application }: { application
         dt: applicationIdLabel,
         dd: <ApplicationLink applicationId={application.id} />,
       },
-      ...application.addresses.map((address) => ({
+      ...application.addresses.map((address, index) => ({
         dt: 'Address',
-        dd: <AccountLink address={address} />,
+        dd: <AccountLink address={address} style={{ color: colors[index] }} />,
       })),
     ],
     [application.addresses, application.id]

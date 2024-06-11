@@ -23,8 +23,7 @@ import { AppCallTransactionTooltipContent } from './app-call-transaction-tooltip
 import { AssetConfigTransactionTooltipContent } from './asset-config-transaction-tooltip-content'
 import { AssetFreezeTransactionTooltipContent } from './asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from './key-reg-transaction-tooltip-content'
-import { ApplicationSwimlane, Swimlane } from '@/features/transactions/components/transactions-graph/models'
-import { ApplicationSwimlaneTooltipContent } from '@/features/transactions/components/transactions-graph/application-swimlane-tooltip-content'
+import { ApplicationSwimlane, colors, Swimlane } from '@/features/transactions/components/transactions-graph/models'
 
 const graphConfig = {
   rowHeight: 40,
@@ -40,6 +39,7 @@ type TransactionVector = {
   to: number
   type: 'vector'
   direction: 'leftToRight' | 'rightToLeft'
+  color: string
 }
 
 type TransactionSelfLoop = {
@@ -104,14 +104,20 @@ function SwimlaneId({ swimlane }: { swimlane: Swimlane }) {
     <h1 className={cn('text-l font-semibold')}>
       {swimlane.type === 'Account' && <AccountLink address={swimlane.address} short={true} />}
       {swimlane.type === 'Application' && (
-        <Tooltip>
-          <TooltipTrigger className={cn('grid')}>
-            <ApplicationLink applicationId={swimlane.id} />
-          </TooltipTrigger>
-          <TooltipContent className={cn('font-normal')}>
-            <ApplicationSwimlaneTooltipContent application={swimlane} />
-          </TooltipContent>
-        </Tooltip>
+        <div className={cn('grid')}>
+          <ApplicationLink applicationId={swimlane.id} />
+          {swimlane.addresses.map((address, index) => (
+            <AccountLink key={index} address={address} style={{ color: colors[index] }} short={true} />
+          ))}
+        </div>
+        // <Tooltip>
+        //   <TooltipTrigger className={cn('grid')}>
+        //     <ApplicationLink applicationId={swimlane.id} />
+        //   </TooltipTrigger>
+        //   <TooltipContent className={cn('font-normal')}>
+        //     <ApplicationSwimlaneTooltipContent application={swimlane} />
+        //   </TooltipContent>
+        // </Tooltip>
       )}
       {swimlane.type === 'Asset' && <AssetIdLink assetId={parseInt(swimlane.id)} />}
     </h1>
@@ -154,7 +160,7 @@ const RenderTransactionVector = fixedForwardRef(
     { transaction, vector, ...rest }: { transaction: Transaction | InnerTransaction; vector: TransactionVector },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.paymentTransactionColor
+    const color = vector.color
 
     return (
       <div
@@ -371,7 +377,11 @@ function getTransactionRepresentation(
 ): TransactionVector | TransactionSelfLoop | TransactionPoint {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return swimlanes.findIndex((c) => c.type === 'Account' && transaction.receiver === c.address)
+      return swimlanes.findIndex(
+        (c) =>
+          (c.type === 'Account' && transaction.receiver === c.address) ||
+          (c.type === 'Application' && transaction.receiver === c.addresses[0])
+      )
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
@@ -397,6 +407,13 @@ function getTransactionRepresentation(
           (c.type === 'Application' && c.addresses.includes(transaction.sender))
       )
     : swimlanes.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId)
+  const color = !parent
+    ? graphConfig.paymentTransactionColor
+    : colors[
+        (swimlanes.find((c) => c.type === 'Application' && c.id === parent.applicationId)! as ApplicationSwimlane).addresses.findIndex(
+          (a) => a === transaction.sender
+        )
+      ]
   if (transaction.type === TransactionType.KeyReg) {
     return {
       from: from,
@@ -419,6 +436,7 @@ function getTransactionRepresentation(
     to: Math.max(from, to),
     direction: direction,
     type: 'vector',
+    color: color,
   } satisfies TransactionVector
 }
 
@@ -439,13 +457,16 @@ export function TransactionsGraph({ transactions }: Props) {
   const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
   const gridSwimlanes = swimlanes.length
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
+  // TODO: why?
+  const headerLines = Math.max(...swimlanes.map((s) => (s.type === 'Application' ? s.addresses.length : 1)))
+  const headerHeight = headerLines > 1 ? headerLines * 0.75 * graphConfig.rowHeight : graphConfig.rowHeight
 
   return (
     <div
       className={cn('relative grid')}
       style={{
         gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridSwimlanes}, ${graphConfig.colWidth}px)`,
-        gridTemplateRows: `repeat(${transactionCount + 1}, ${graphConfig.rowHeight}px)`,
+        gridTemplateRows: `${headerHeight}px repeat(${transactionCount}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
@@ -455,7 +476,7 @@ export function TransactionsGraph({ transactions }: Props) {
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
-      <div className={cn('absolute left-0')} style={{ top: `${graphConfig.rowHeight}px` }}>
+      <div className={cn('absolute left-0')} style={{ top: `${headerHeight}px` }}>
         <div>
           <div className={cn('p-0')}></div>
           <div
@@ -493,39 +514,45 @@ export function TransactionsGraph({ transactions }: Props) {
 
 const getTransactionsSwimlanes = (transactions: Transaction[] | InnerTransaction[]): Swimlane[] => {
   const swimlanes = transactions.flatMap(getTransactionSwimlanes)
-  return swimlanes.reduce<Swimlane[]>(
-    (acc, current) => {
-      if (current.type === 'Account') {
-        if (acc.some((c) => c.type === 'Account' && c.address === current.address)) {
-          return acc
-        }
+  return swimlanes.reduce<Swimlane[]>((acc, current, _, array) => {
+    if (current.type === 'Account') {
+      // TODO: why?
+      if (
+        acc.some(
+          (c) => (c.type === 'Account' && c.address === current.address) || (c.type === 'Application' && c.addresses[0] === current.address)
+        )
+      ) {
+        return acc
+      }
+      const app = array.find((a) => a.type === 'Application' && a.addresses[0] === current.address)
+      if (app) {
+        return [...acc, app]
+      }
 
+      return [...acc, current]
+    }
+    if (current.type === 'Application') {
+      const index = acc.findIndex((c) => c.type === 'Application' && c.id === current.id)
+      // TODO: why?
+      if (index > -1) {
+        const newFoo = {
+          type: 'Application' as const,
+          id: current.id,
+          addresses: [...(acc[index] as ApplicationSwimlane).addresses, ...current.addresses].filter(distinct((x) => x)),
+        }
+        acc.splice(index, 1, newFoo)
+        return acc
+      } else {
         return [...acc, current]
       }
-      if (current.type === 'Application') {
-        const index = acc.findIndex((c) => c.type === 'Application' && c.id === current.id)
-
-        if (index > -1) {
-          const newFoo = {
-            type: 'Application' as const,
-            id: current.id,
-            addresses: [...(acc[index] as ApplicationSwimlane).addresses, ...current.addresses].filter(distinct((x) => x)),
-          }
-          acc.splice(index, 1, newFoo)
-          return acc
-        } else {
-          return [...acc, current]
-        }
+    }
+    if (current.type === 'Asset') {
+      if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
+        return acc
       }
-      if (current.type === 'Asset') {
-        if (acc.some((c) => c.type === 'Asset' && c.id === current.id)) {
-          return acc
-        }
-        return [...acc, current]
-      } else return acc
-    },
-    [swimlanes[0]] // TODO: why?
-  )
+      return [...acc, current]
+    } else return acc
+  }, [])
 }
 
 const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): Swimlane[] => {
