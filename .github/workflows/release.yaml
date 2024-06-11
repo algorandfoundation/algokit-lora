@@ -152,7 +152,17 @@ jobs:
 
       - name: Handle Netlify redirect
         run: |
-          echo "/* /index.html 200" > artifacts/website/_redirects
+          echo "[[redirects]]
+          from = \"/algod/*\"
+          to = \"http://localhost:4001/:splat\"
+          status = 200
+          force = true
+          headers = {X-Algo-Api-Token = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}
+
+          [[redirects]]
+          from = \"/*\"
+          to = \"/index.html\"
+          status = 200" > artifacts/website/netlify.toml
 
       - name: Deploy website to Netlify
         run: |
