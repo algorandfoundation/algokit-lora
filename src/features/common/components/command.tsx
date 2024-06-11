@@ -36,6 +36,8 @@ const clearSearchButtonLabel = 'Clear search'
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+    // CmdK doesn't have the option to specify search type input
+    // so we handle it ourselves
     onSearchClear?: () => void
   }
 >(({ className, onSearchClear, ...props }, ref) => (
