@@ -4,6 +4,8 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Command as CommandPrimitive } from 'cmdk'
 import { Dialog, DialogContent } from '@/features/common/components/dialog'
 import { cn } from '../utils'
+import { XIcon } from 'lucide-react'
+import { Button } from '@/features/common/components/button.tsx'
 
 const Command = React.forwardRef<React.ElementRef<typeof CommandPrimitive>, React.ComponentPropsWithoutRef<typeof CommandPrimitive>>(
   ({ className, ...props }, ref) => (
@@ -30,10 +32,13 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   )
 }
 
+const clearSearchButtonLabel = 'Clear search'
 const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input> & {
+    onSearchClear?: () => void
+  }
+>(({ className, onSearchClear, ...props }, ref) => (
   <div className="flex items-center px-3" cmdk-input-wrapper="">
     <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
@@ -44,6 +49,17 @@ const CommandInput = React.forwardRef<
       )}
       {...props}
     />
+    {onSearchClear && (
+      <Button
+        onClick={onSearchClear}
+        variant="no-style"
+        size="icon"
+        aria-label={clearSearchButtonLabel}
+        className={cn('size-4 text-muted-foreground')}
+      >
+        <XIcon size={'1rem'} />
+      </Button>
+    )}
   </div>
 ))
 

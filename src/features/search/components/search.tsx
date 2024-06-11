@@ -60,7 +60,13 @@ export function Search() {
 
   return (
     <Command className={cn('bg-card text-card-foreground w-80 h-auto z-20 border')} shouldFilter={false} loop>
-      <CommandInput placeholder={searchPlaceholderLabel} value={term} onValueChange={handleInput} ref={searchInputRef} />
+      <CommandInput
+        placeholder={searchPlaceholderLabel}
+        value={term}
+        onValueChange={handleInput}
+        ref={searchInputRef}
+        onSearchClear={clearTerm}
+      />
       <CommandList>
         <RenderLoadable
           loadable={loadableResults}
