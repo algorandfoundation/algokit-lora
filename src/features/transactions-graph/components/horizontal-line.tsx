@@ -48,7 +48,7 @@ const RenderTransactionVector = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.paymentTransactionColor
+    const color = graphConfig.defaultTransactionColor
 
     return (
       <div
@@ -109,7 +109,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.paymentTransactionColor
+    const color = graphConfig.defaultTransactionColor
 
     return (
       <div
@@ -165,7 +165,7 @@ const RenderTransactionPoint = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.paymentTransactionColor
+    const color = graphConfig.defaultTransactionColor
 
     return (
       <div

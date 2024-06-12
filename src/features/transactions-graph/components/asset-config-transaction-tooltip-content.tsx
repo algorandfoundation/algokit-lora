@@ -39,7 +39,7 @@ export function AssetConfigTransactionTooltipContent({
         dd: <AssetIdLink assetId={transaction.assetId} />,
       },
     ],
-    [transaction.assetId, transaction.id, transaction.sender]
+    [transaction.assetId, transaction.id, transaction.rekeyTo, transaction.sender]
   )
 
   return (

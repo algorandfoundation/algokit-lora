@@ -43,7 +43,7 @@ export function AssetTransferTransactionTooltipContent({
         dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.sender]
+    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.rekeyTo, transaction.sender]
   )
 
   return (

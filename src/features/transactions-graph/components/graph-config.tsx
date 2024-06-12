@@ -4,5 +4,5 @@ export const graphConfig = {
   indentationWidth: 20,
   lineWidth: 2,
   circleDimension: 20,
-  paymentTransactionColor: 'rgb(126 200 191)',
+  defaultTransactionColor: 'rgb(126 200 191)',
 }

@@ -33,10 +33,12 @@ const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTran
   const verticalLines = transactions.flatMap(getVerticalLinesForTransaction)
   return verticalLines.reduce<TransactionGraphVerticalLine[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
-      // TODO: why?
       if (
         acc.some(
-          (c) => (c.type === 'Account' && c.address === current.address) || (c.type === 'Application' && c.address === current.address)
+          (c) =>
+            (c.type === 'Account' && c.address === current.address) ||
+            // An application has its own account too
+            (c.type === 'Application' && c.address === current.address)
         )
       ) {
         return acc
@@ -50,9 +52,10 @@ const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTran
     }
     if (current.type === 'Application') {
       const index = acc.findIndex((c) => c.type === 'Application' && c.id === current.id)
-      // TODO: why?
+      // An application can send transactions on behalf of multiple accounts
+      // We merge all the accounts, so we only show one application on the graph
       if (index > -1) {
-        const newFoo = {
+        const applicationVerticalLine = {
           type: 'Application' as const,
           id: current.id,
           address: current.address,
@@ -60,7 +63,7 @@ const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTran
             distinct((x) => x.address)
           ),
         }
-        acc.splice(index, 1, newFoo)
+        acc.splice(index, 1, applicationVerticalLine)
         return acc
       } else {
         return [...acc, current]
@@ -177,16 +180,22 @@ const getTransactionVisualization = (
 
     throw new Error('Not supported transaction type')
   }
-
-  // TODO: why?
-  const from = !parent
-    ? verticalLines.findIndex(
+  const calculateFrom = () => {
+    // If the transaction is child, the parent transaction must be an application call
+    // The "from" must be the parent application call transaction
+    if (!parent) {
+      return verticalLines.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.sender === c.address) ||
           (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
       )
-    : // TODO: fix the typing
-      verticalLines.findIndex((c) => c.type === 'Application' && c.id === (parent.transaction as AppCallTransaction).applicationId)
+    }
+
+    const parentApplicationCallTransaction = parent.transaction as AppCallTransaction
+    return verticalLines.findIndex((c) => c.type === 'Application' && c.id === parentApplicationCallTransaction.applicationId)
+  }
+
+  const from = calculateFrom()
 
   if (transaction.type === TransactionType.KeyReg) {
     return {

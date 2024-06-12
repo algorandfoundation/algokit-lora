@@ -1,4 +1,5 @@
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
+import { Address } from '@/features/accounts/data/types'
 
 export type TransactionsGraphData = {
   horizontalLines: TransactionGraphHorizontalLine[]
@@ -42,9 +43,9 @@ export type TransactionGraphAccountVerticalLine = {
 export type TransactionGraphApplicationVerticalLine = {
   type: 'Application'
   id: number
-  address: string //TODO: use Address type
+  address: Address
   accounts: {
-    address: string
+    address: Address
   }[]
 }
 export type TransactionGraphAssetVerticalLine = {

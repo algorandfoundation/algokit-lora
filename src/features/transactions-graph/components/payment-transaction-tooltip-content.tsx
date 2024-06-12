@@ -39,7 +39,7 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.id, transaction.receiver, transaction.sender]
+    [transaction.amount, transaction.id, transaction.receiver, transaction.rekeyTo, transaction.sender]
   )
 
   return (

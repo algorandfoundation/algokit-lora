@@ -32,7 +32,7 @@ export function KeyRegTransactionTooltipContent({ transaction }: { transaction: 
         dd: <AccountLink address={transaction.sender} />,
       },
     ],
-    [subType, transaction.id, transaction.sender, transaction.type]
+    [subType, transaction.id, transaction.rekeyTo, transaction.sender, transaction.type]
   )
 
   return (

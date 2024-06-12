@@ -48,7 +48,7 @@ export function AssetFreezeTransactionTooltipContent({
         dd: transaction.freezeStatus,
       },
     ],
-    [transaction.address, transaction.assetId, transaction.freezeStatus, transaction.id, transaction.sender]
+    [transaction.address, transaction.assetId, transaction.freezeStatus, transaction.id, transaction.rekeyTo, transaction.sender]
   )
 
   return (

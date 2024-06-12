@@ -35,7 +35,7 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
         dd: <ApplicationLink applicationId={transaction.applicationId} />,
       },
     ],
-    [transaction.applicationId, transaction.id, transaction.sender]
+    [transaction.applicationId, transaction.id, transaction.rekeyTo, transaction.sender]
   )
 
   return (

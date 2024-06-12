@@ -9,11 +9,11 @@ type Props = {
 }
 export function TransactionsGraph({ transactionsGraphData }: Props) {
   const { verticalLines, horizontalLines } = transactionsGraphData
-  const transactionCount = horizontalLines.length
+  const transactionsCount = horizontalLines.length
   const maxNestingLevel = Math.max(...horizontalLines.map((h) => h.depth))
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
   const verticalLinesCount = verticalLines.length
-  // TODO: why?
+  // An application can have multiple addresses, the headerHeight is the make room for all of them
   const headerLines = Math.max(...verticalLines.map((s) => (s.type === 'Application' ? s.accounts.length + 1 : 1)))
   const headerHeight = headerLines > 1 ? headerLines * 0.75 * graphConfig.rowHeight : graphConfig.rowHeight
 
@@ -22,7 +22,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
       className={cn('relative grid')}
       style={{
         gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalLinesCount}, ${graphConfig.colWidth}px)`,
-        gridTemplateRows: `${headerHeight}px repeat(${transactionCount}, ${graphConfig.rowHeight}px)`,
+        gridTemplateRows: `${headerHeight}px repeat(${transactionsCount}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
@@ -38,7 +38,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
           <div
             className={cn('p-0')}
             style={{
-              height: `${transactionCount * graphConfig.rowHeight}px`,
+              height: `${transactionsCount * graphConfig.rowHeight}px`,
               width: `${graphConfig.colWidth * verticalLinesCount}px`,
             }}
           >
@@ -46,7 +46,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
               className={cn('grid h-full')}
               style={{
                 gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalLinesCount}, ${graphConfig.colWidth}px)`,
-                height: `${transactionCount * graphConfig.rowHeight}px`,
+                height: `${transactionsCount * graphConfig.rowHeight}px`,
               }}
             >
               <div></div>
