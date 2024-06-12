@@ -100,7 +100,10 @@ export function ApplicationDetails({ application }: Props) {
     <div className={cn('space-y-6 pt-7')}>
       <Card aria-label={applicationDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <DescriptionList items={applicationItems} />
+          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+            <DescriptionList items={applicationItems} />
+            <JsonView json={application.json} />
+          </div>
         </CardContent>
       </Card>
       <Card aria-label={applicationApprovalProgramLabel} className={cn('p-4')}>
@@ -155,14 +158,6 @@ export function ApplicationDetails({ application }: Props) {
               <ApplicationTransactionHistory applicationId={application.id} />
             </OverflowAutoTabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationJsonLabel}</h1>
-          <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <JsonView json={application.json} />
-          </div>
         </CardContent>
       </Card>
     </div>

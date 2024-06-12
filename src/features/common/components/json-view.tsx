@@ -3,12 +3,19 @@ import 'react-json-view-lite/dist/index.css'
 import styles from './json-view.module.css'
 import { cn } from '../utils'
 import { Button } from './button'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
+import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 
 export function JsonView({ json }: { json: object }) {
-  // TODO: one we have the design, we need to support light/dark mode and custom themes
+  const [dialogOpen, setDialogOpen] = useState(false)
+
+  const openJsonView = useCallback(() => {
+    setDialogOpen(true)
+  }, [setDialogOpen])
+
+  // TODO: once we have the design, we need to support light/dark mode and custom themes
   const style: StyleProps = {
     container: '',
     basicChildStyle: styles['basic-element-style'],
@@ -35,11 +42,23 @@ export function JsonView({ json }: { json: object }) {
   }, [json])
 
   return (
-    <div className={cn('overflow-auto relative p-2')}>
-      <Button className={cn('absolute top-4 right-4')} onClick={copyJsonToClipboard}>
-        Copy
+    <div>
+      <Button className={cn('mb-2 ml-2 rounded')} onClick={openJsonView}>
+        View JSON
       </Button>
-      <ReactJsonView data={json} shouldExpandNode={shouldExpandNode} style={style} />
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
+        <DialogContent className="w-[900px] bg-card">
+          <DialogHeader>
+            <h4 className={cn('text-xl text-primary font-bold')}>Json</h4>
+          </DialogHeader>
+          <div className={cn('border-solid border-2 border-border h-96 grid')}>
+            <Button variant="default" className={cn('absolute top-20 right-9')} onClick={copyJsonToClipboard}>
+              Copy
+            </Button>
+            <ReactJsonView data={json} shouldExpandNode={shouldExpandNode} style={style} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

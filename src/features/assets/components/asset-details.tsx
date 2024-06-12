@@ -137,7 +137,10 @@ export function AssetDetails({ asset }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
-            <AssetMedia asset={asset} />
+            <div>
+              <JsonView json={asset.json} />
+              <AssetMedia asset={asset} />
+            </div>
           </div>
         </CardContent>
       </Card>
