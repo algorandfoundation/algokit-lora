@@ -166,16 +166,10 @@ export function AssetDetails({ asset }: Props) {
               <h2>{assetActivityLabel}</h2>
               <Tabs defaultValue={assetLiveTransactionsTabId}>
                 <TabsList aria-label={assetActivityLabel}>
-                  <TabsTrigger
-                    className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
-                    value={assetLiveTransactionsTabId}
-                  >
+                  <TabsTrigger className="w-48" value={assetLiveTransactionsTabId}>
                     {assetLiveTransactionsTabLabel}
                   </TabsTrigger>
-                  <TabsTrigger
-                    className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
-                    value={assetHistoricalTransactionsTabId}
-                  >
+                  <TabsTrigger className="w-48" value={assetHistoricalTransactionsTabId}>
                     {assetHistoricalTransactionsTabLabel}
                   </TabsTrigger>
                 </TabsList>

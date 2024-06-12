@@ -19,26 +19,20 @@ export function AccountDetails({ account }: Props) {
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h2>{accountActivityLabel}</h2>
-          <div className={cn('border-solid border-2 border-border grid')}>
-            <AccountActivityTabs account={account} />
-          </div>
+          <AccountActivityTabs account={account} />
         </CardContent>
       </Card>
 
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h2>{accountAssetLabel}</h2>
-          <div className={cn('border-solid border-2 border-border grid')}>
-            <AccountAssetTabs account={account} />
-          </div>
+          <AccountAssetTabs account={account} />
         </CardContent>
       </Card>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <h2>{accountApplicationLabel}</h2>
-          <div className={cn('border-solid border-2 border-border grid')}>
-            <AccountApplicationTabs account={account} />
-          </div>
+          <AccountApplicationTabs account={account} />
         </CardContent>
       </Card>
 

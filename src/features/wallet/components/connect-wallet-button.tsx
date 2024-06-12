@@ -36,7 +36,7 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="w-36" variant="default" onClick={connect} aria-label={connectWalletLabel}>
+    <Button className="w-36" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
       Connect Wallet
     </Button>
   )
@@ -87,7 +87,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="w-36" variant="default">
+        <Button className="w-36 bg-card" variant="outline">
           {activeProvider &&
             (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -103,7 +103,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
           </abbr>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-60 border border-input bg-card p-2 text-card-foreground" onOpenAutoFocus={preventDefault}>
+      <PopoverContent align="end" className="w-60 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
             <abbr className="ml-1 w-full">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
@@ -126,7 +126,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
               </Select>
             </>
           )}
-          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'ml-2')}>
+          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'ml-2')}>
             Details
           </AccountLink>
         </div>
@@ -173,7 +173,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="w-36" disabled>
+      <Button className="w-36" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>

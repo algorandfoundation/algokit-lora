@@ -23,19 +23,19 @@ export function AppCallTransactionLogs({ logs }: Props) {
       <h3>Logs</h3>
       <Tabs defaultValue={base64LogTabId}>
         <TabsList aria-label={logsLabel}>
-          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64LogTabId}>
+          <TabsTrigger className="w-32" value={base64LogTabId}>
             {base64LogsTabLabel}
           </TabsTrigger>
-          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={textLogTabId}>
+          <TabsTrigger className="w-32" value={textLogTabId}>
             {textLogsTabLabel}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={base64LogTabId} className={cn('border-solid border-2 p-4')}>
+        <TabsContent value={base64LogTabId} className="p-4">
           {logs.map((log, index) => (
             <div key={index}>{log}</div>
           ))}
         </TabsContent>
-        <TabsContent value={textLogTabId} className={cn('border-solid border-2 p-4')}>
+        <TabsContent value={textLogTabId} className="p-4">
           {texts.map((text, index) => (
             <div key={index}>{text}</div>
           ))}

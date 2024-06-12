@@ -41,19 +41,19 @@ export function TransactionNote({ note }: TransactionNoteProps) {
       <h3>Note</h3>
       <Tabs defaultValue={activeTabId}>
         <TabsList aria-label={noteLabel}>
-          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64NoteTabId}>
+          <TabsTrigger className="w-32" value={base64NoteTabId}>
             {base64NoteTabLabel}
           </TabsTrigger>
-          <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={textNoteTabId}>
+          <TabsTrigger className="w-32" value={textNoteTabId}>
             {textNoteTabLabel}
           </TabsTrigger>
           {json && (
-            <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={jsonNoteTabId}>
+            <TabsTrigger className="w-32" value={jsonNoteTabId}>
               {jsonNoteTabLabel}
             </TabsTrigger>
           )}
           {arc2 && (
-            <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={arc2NoteTabId}>
+            <TabsTrigger className="w-32" value={arc2NoteTabId}>
               {arc2NoteTabLabel}
             </TabsTrigger>
           )}

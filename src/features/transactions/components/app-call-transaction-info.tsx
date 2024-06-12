@@ -97,17 +97,13 @@ export function AppCallTransactionInfo({ transaction }: Props) {
       <Tabs defaultValue={applicationArgsTabId}>
         <TabsList aria-label={appCallTransactionDetailsLabel}>
           {tabs.map((tab) => (
-            <TabsTrigger
-              key={tab.id}
-              className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')}
-              value={tab.id}
-            >
+            <TabsTrigger key={tab.id} className="w-44" value={tab.id}>
               {tab.label}
             </TabsTrigger>
           ))}
         </TabsList>
         {tabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id} className={cn('border-solid border-2 border-border')}>
+          <TabsContent key={tab.id} value={tab.id}>
             <div className="grid">
               <div className="overflow-auto p-4">{tab.children}</div>
             </div>

@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useLayout } from '@/features/settings/data'
 import { useLocation } from 'react-router-dom'
 import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 
 type Props = {
   className?: string
@@ -42,7 +43,7 @@ export function LeftSideBarMenu({ className }: Props) {
 
   return (
     <NavigationMenu
-      className={cn('bg-card transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-12')}
+      className={cn('bg-card border-r transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-12')}
     >
       <NavigationMenuList className={cn('flex-col items-start')}>
         <NavigationMenuItem className={cn('flex justify-end')}>
@@ -66,6 +67,7 @@ export function LeftSideBarMenu({ className }: Props) {
             </NavigationMenuLink>
           </NavigationMenuItem>
         ))}
+        <ThemeToggle />
       </NavigationMenuList>
     </NavigationMenu>
   )

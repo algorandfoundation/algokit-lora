@@ -1,6 +1,5 @@
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { cn } from '@/features/common/utils'
 import { useProgramTeal } from '../data/program-teal'
 
 const base64ProgramTabId = 'base64'
@@ -25,10 +24,10 @@ export function ApplicationProgram({ tabsListAriaLabel, base64Program }: Props) 
       }}
     >
       <TabsList aria-label={tabsListAriaLabel}>
-        <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64ProgramTabId}>
+        <TabsTrigger className="w-32" value={base64ProgramTabId}>
           {base64ProgramTabLabel}
         </TabsTrigger>
-        <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={tealProgramTabId}>
+        <TabsTrigger className="w-32" value={tealProgramTabId}>
           {tealProgramTabLabel}
         </TabsTrigger>
       </TabsList>

@@ -7,65 +7,68 @@
 
 @layer base {
   :root {
-    --background: 245 245 245;
-    --foreground: 0 0 0;
+    --background: 248 248 249;
+    --foreground: 26 43 58;
 
     --card: 255 255 255;
-    --card-foreground: 0 0 0;
+    --card-foreground: 26 43 58;
 
     --popover: 255 255 255;
-    --popover-foreground: 0 0 0;
+    --popover-foreground: 26 43 58;
 
-    --primary: 3 100 85;
+    --primary: 14 129 127;
     --primary-foreground: 255 255 255;
 
-    --secondary: 15 23 42;
-    --secondary-foreground: 241 245 249;
+    --secondary: 45 45 241;
+    --secondary-foreground: 255 255 255;
 
-    --muted: 217 217 217;
-    --muted-foreground: 100 116 139;
+    --muted: 243 244 245;
+    --muted-foreground: 133 146 165;
 
-    --accent: 64 64 64;
-    --accent-foreground: 255 255 255;
+    --accent: 243 244 245;
+    --accent-foreground: 26 43 58;
 
     --destructive: 239 68 68;
-    --destructive-foreground: 248 250 252;
+    --destructive-foreground: 255 255 255;
 
-    --border: 226 232 240;
+    --border: 224 227 231;
 
-    --input: 226 232 240;
-    --ring: 153 153 153;
+    --input: 224 227 231;
+    --ring: 224 227 231;
 
-    --radius: 0.25rem;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 34 34 34;
-    --foreground: 255 255 255;
+    --background: 7 25 42;
+    --foreground: 174 181 192;
 
-    --card: 51 51 51;
-    --card-foreground: 255 255 255;
+    --card: 0 19 36;
+    --card-foreground: 174 181 192;
 
-    --popover: 255 255 255;
-    --popover-foreground: 0 0 0;
+    --popover: 0 19 36;
+    --popover-foreground: 174 181 192;
 
-    --primary: 126 200 191;
+    --primary: 19 162 159;
     --primary-foreground: 15 23 42;
 
-    --secondary: 18 18 18;
-    --secondary-foreground: 255 255 255;
+    --secondary: 66 117 255;
+    --secondary-foreground: 0 19 36;
 
-    --muted: 30 41 59;
-    --muted-foreground: 148 163 184;
+    --muted: 12 30 46;
+    --muted-foreground: 90 98 114;
+
+    --accent: 12 30 46;
+    --accent-foreground: 174 181 192;
 
     --destructive: 127 29 29;
     --destructive-foreground: 255 255 255;
 
-    --border: 65 65 65;
+    --border: 26 43 58;
 
-    --input: 65 65 65;
+    --input: 90 98 114;
 
-    --ring: 203 213 225;
+    --ring: 90 98 114;
   }
 }
 
