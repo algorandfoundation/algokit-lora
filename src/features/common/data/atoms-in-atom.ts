@@ -3,7 +3,7 @@ import { dataStore } from './data-store'
 
 const defaultCreateInitialValueAtom = <T>(value: T) => atom(() => value)
 
-const createTimestamp = () => Date.now()
+export const createTimestamp = (): number => Date.now()
 
 export const createAtomAndTimestamp = <T>(value: T) => {
   return [defaultCreateInitialValueAtom(value), createTimestamp()] as const

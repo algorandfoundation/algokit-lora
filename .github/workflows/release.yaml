@@ -150,10 +150,6 @@ jobs:
           mkdir -p website
           unzip website.zip -d website
 
-      - name: Handle Netlify redirect
-        run: |
-          echo "/* /index.html 200" > artifacts/website/_redirects
-
       - name: Deploy website to Netlify
         run: |
           npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --alias staging

@@ -12,11 +12,10 @@ export const useLiveTransactions = (filter: (transactionResult: TransactionResul
     const liveTransactionsAtom = atom<(Transaction | InnerTransaction)[]>([])
 
     const liveTransactionsAtomEffect = atomEffect((get, set) => {
+      const latestTransactionIds = get(latestTransactionIdsAtom)
       ;(async () => {
-        const latestTransactionIds = get(latestTransactionIdsAtom)
-
         const newTransactions: Transaction[] = []
-        for (const transactionId of latestTransactionIds) {
+        for (const [transactionId] of latestTransactionIds) {
           if (transactionId === syncedTransactionId) {
             break
           }
@@ -32,7 +31,8 @@ export const useLiveTransactions = (filter: (transactionResult: TransactionResul
           }
         }
 
-        syncedTransactionId = latestTransactionIds[0]
+        const [latestTransactionId] = latestTransactionIds.length > 0 ? latestTransactionIds[0] : ([undefined] as const)
+        syncedTransactionId = latestTransactionId
 
         if (newTransactions.length > 0) {
           set(liveTransactionsAtom, (prev) => {
