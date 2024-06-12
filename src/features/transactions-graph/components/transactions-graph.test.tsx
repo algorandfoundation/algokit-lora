@@ -14,6 +14,7 @@ import { groupResultMother } from '@/tests/object-mother/group-result'
 import { algoAssetResult } from '@/features/assets/data'
 import { atom } from 'jotai'
 import { invariant } from '@/utils/invariant'
+import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -34,9 +35,9 @@ describe('payment-transaction-graph', () => {
   ])('when rendering transaction $id', (transactionResult: TransactionResult) => {
     it('should match snapshot', () => {
       const model = asPaymentTransaction(transactionResult)
-
+      const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
-        () => render(<TransactionsGraph transactions={[model]} />),
+        () => render(<TransactionsGraph transactionsGraphData={graphData} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-graph.${transactionResult.id}.html`
@@ -63,9 +64,9 @@ describe('asset-transfer-transaction-graph', () => {
       it('should match snapshot', () => {
         const assetResolver = createAssetResolver([assetResult])
         const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
-
+        const graphData = asTransactionsGraphData([transaction])
         return executeComponentTest(
-          () => render(<TransactionsGraph transactions={[transaction]} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
@@ -98,9 +99,9 @@ describe('application-call-graph', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
         const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults))
-
+        const graphData = asTransactionsGraphData([model])
         return executeComponentTest(
-          () => render(<TransactionsGraph transactions={[model]} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
@@ -122,9 +123,9 @@ describe('key-reg-graph', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
       const model = asKeyRegTransaction(transactionResult)
-
+      const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
-        () => render(<TransactionsGraph transactions={[model]} />),
+        () => render(<TransactionsGraph transactionsGraphData={graphData} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/key-reg-graph.${transactionResult.id}.html`
@@ -167,9 +168,10 @@ describe('group-graph', () => {
         const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()
 
         const group = asGroup(groupResult, transactions)
+        const graphData = asTransactionsGraphData(group.transactions)
 
         return executeComponentTest(
-          () => render(<TransactionsGraph transactions={group.transactions} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`

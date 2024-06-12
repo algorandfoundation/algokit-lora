@@ -4,7 +4,7 @@ import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionsGraph } from '@/features/transactions-graph'
 import { transactionsTableColumnsWithoutRound } from './transactions-table-columns'
-import { asTransactionsGraph } from '@/features/transactions-graph/mappers'
+import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { useMemo } from 'react'
 
 type Props = {
@@ -18,7 +18,7 @@ export const transactionVisualGraphTabLabel = 'Graph'
 export const transactionVisualTableTabLabel = 'Table'
 
 export function TransactionViewTabs({ transaction }: Props) {
-  const transactionsGraph = useMemo(() => asTransactionsGraph([transaction]), [transaction])
+  const transactionsGraph = useMemo(() => asTransactionsGraphData([transaction]), [transaction])
   return (
     <Tabs defaultValue={transactionVisualGraphTabId}>
       <TabsList aria-label={transactionDetailsLabel}>

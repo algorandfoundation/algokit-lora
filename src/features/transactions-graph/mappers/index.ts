@@ -13,7 +13,7 @@ import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
-export const asTransactionsGraph = (transactions: Transaction[]): TransactionsGraphData => {
+export const asTransactionsGraphData = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
   const verticalLines: TransactionGraphVerticalLine[] = [
     ...getVerticalLinesForTransactions(flattenedTransactions.map((t) => t.transaction)),

@@ -5,7 +5,7 @@ import { TransactionsGraph } from '@/features/transactions-graph/components/tran
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 import { useMemo } from 'react'
-import { asTransactionsGraph } from '@/features/transactions-graph/mappers'
+import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 
 type Props = {
   group: Group
@@ -18,7 +18,7 @@ export const groupVisualGraphLabel = 'Graph'
 export const groupVisualTableLabel = 'Table'
 
 export function GroupTransactionsViewTabs({ group }: Props) {
-  const transactionsGraph = useMemo(() => asTransactionsGraph(group.transactions), [group.transactions])
+  const transactionsGraph = useMemo(() => asTransactionsGraphData(group.transactions), [group.transactions])
 
   return (
     <Tabs defaultValue={graphTabId}>
