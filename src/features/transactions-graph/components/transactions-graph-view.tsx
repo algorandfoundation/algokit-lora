@@ -5,8 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
-import { useMemo } from 'react'
-import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
+import { InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { PaymentTransactionTooltipContent } from './payment-transaction-tooltip-content'
@@ -15,28 +14,17 @@ import { AppCallTransactionTooltipContent } from './app-call-transaction-tooltip
 import { AssetConfigTransactionTooltipContent } from './asset-config-transaction-tooltip-content'
 import { AssetFreezeTransactionTooltipContent } from './asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from './key-reg-transaction-tooltip-content'
-import { ApplicationSwimlane, Swimlane, TransactionsGraph } from '../models'
+import {
+  Swimlane,
+  TransactionGraphPoint,
+  TransactionGraphRow,
+  TransactionGraphSelfLoop,
+  TransactionGraphVector,
+  TransactionsGraph,
+} from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { TransactionId } from '@/features/transactions-graph/components/transaction-id'
 import { SwimlaneId } from '@/features/transactions-graph/components/swimlane-id'
-
-type TransactionVector = {
-  from: number
-  to: number
-  type: 'vector'
-  direction: 'leftToRight' | 'rightToLeft'
-  color: string
-}
-
-type TransactionSelfLoop = {
-  from: number
-  type: 'selfLoop'
-}
-
-type TransactionPoint = {
-  type: 'point'
-  from: number
-}
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items
@@ -98,10 +86,10 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
 
 const RenderTransactionVector = fixedForwardRef(
   (
-    { transaction, vector, ...rest }: { transaction: Transaction | InnerTransaction; vector: TransactionVector },
+    { transaction, vector, ...rest }: { transaction: Transaction | InnerTransaction; vector: TransactionGraphVector },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = vector.color
+    const color = graphConfig.paymentTransactionColor
 
     return (
       <div
@@ -153,7 +141,7 @@ const RenderTransactionVector = fixedForwardRef(
 
 const RenderTransactionSelfLoop = fixedForwardRef(
   (
-    { transaction, loop, ...rest }: { transaction: Transaction | InnerTransaction; loop: TransactionSelfLoop },
+    { transaction, loop, ...rest }: { transaction: Transaction | InnerTransaction; loop: TransactionGraphSelfLoop },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -203,7 +191,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
 
 const RenderTransactionPoint = fixedForwardRef(
   (
-    { transaction, point, ...rest }: { transaction: Transaction | InnerTransaction; point: TransactionPoint },
+    { transaction, point, ...rest }: { transaction: Transaction | InnerTransaction; point: TransactionGraphPoint },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -226,22 +214,14 @@ const RenderTransactionPoint = fixedForwardRef(
   }
 )
 
-type TransactionGraphProps = {
-  transaction: Transaction | InnerTransaction
-  parent?: AppCallTransaction | InnerAppCallTransaction
-  hasNextSibling?: boolean
-  hasChildren?: boolean
+type TransactionRowProps = {
+  row: TransactionGraphRow
   swimlanes: Swimlane[]
-  indentLevel?: number
-  verticalBars: (number | undefined)[]
 }
-function TransactionGraph({ transaction, swimlanes, parent, hasNextSibling = false, indentLevel, verticalBars }: TransactionGraphProps) {
-  const transactionRepresentation = useMemo(
-    () => getTransactionRepresentation(transaction, swimlanes, parent),
-    [swimlanes, parent, transaction]
-  )
+function TransactionRow({ row, swimlanes }: TransactionRowProps) {
+  const { transaction, visualization, parent, nestingLevel, hasChildren, hasNextSibling, verticalBars } = row
   const hasParent = !!parent
-  const hasChildren = transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0
+  const indentLevel = nestingLevel > 0 ? nestingLevel - 1 : undefined
 
   return (
     <>
@@ -258,28 +238,25 @@ function TransactionGraph({ transaction, swimlanes, parent, hasNextSibling = fal
         </div>
       </div>
       {swimlanes.map((_, index) => {
-        if (
-          transactionRepresentation.type === 'vector' &&
-          (index < transactionRepresentation.from || index > transactionRepresentation.to)
-        ) {
+        if (visualization.type === 'vector' && (index < visualization.from || index > visualization.to)) {
           return <div key={index}></div>
         }
-        if (transactionRepresentation.type === 'point' && index > transactionRepresentation.from) return <div key={index}></div>
+        if (visualization.type === 'point' && index > visualization.from) return <div key={index}></div>
         // The `index > transactionRepresentation.from + 1` is here
         // because a self-loop vector is renderred across 2 grid cells (see RenderTransactionSelfLoop).
         // Therefore, we skip this cell so that we won't cause overflowing
-        if (transactionRepresentation.type === 'selfLoop' && index > transactionRepresentation.from + 1) return <div key={index}></div>
+        if (visualization.type === 'selfLoop' && index > visualization.from + 1) return <div key={index}></div>
 
-        if (index === transactionRepresentation.from)
+        if (index === visualization.from)
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                {transactionRepresentation.type === 'vector' ? (
-                  <RenderTransactionVector key={index} vector={transactionRepresentation} transaction={transaction} />
-                ) : transactionRepresentation.type === 'selfLoop' ? (
-                  <RenderTransactionSelfLoop key={index} loop={transactionRepresentation} transaction={transaction} />
-                ) : transactionRepresentation.type === 'point' ? (
-                  <RenderTransactionPoint key={index} point={transactionRepresentation} transaction={transaction} />
+                {visualization.type === 'vector' ? (
+                  <RenderTransactionVector key={index} vector={visualization} transaction={transaction} />
+                ) : visualization.type === 'selfLoop' ? (
+                  <RenderTransactionSelfLoop key={index} loop={visualization} transaction={transaction} />
+                ) : visualization.type === 'point' ? (
+                  <RenderTransactionPoint key={index} point={visualization} transaction={transaction} />
                 ) : null}
               </TooltipTrigger>
               <TooltipContent>
@@ -294,97 +271,17 @@ function TransactionGraph({ transaction, swimlanes, parent, hasNextSibling = fal
           )
         return null
       })}
-
-      {hasChildren &&
-        transaction.innerTransactions.map((childTransaction, index, arr) => (
-          <TransactionGraph
-            key={index}
-            transaction={childTransaction}
-            parent={transaction}
-            hasNextSibling={index < arr.length - 1}
-            swimlanes={swimlanes}
-            indentLevel={indentLevel == null ? 0 : indentLevel + 1}
-            verticalBars={[...(verticalBars ?? []), hasNextSibling ? indentLevel ?? 0 : undefined]}
-          />
-        ))}
     </>
   )
-}
-
-function getTransactionRepresentation(
-  transaction: Transaction | InnerTransaction,
-  swimlanes: Swimlane[],
-  parent?: AppCallTransaction | InnerAppCallTransaction
-): TransactionVector | TransactionSelfLoop | TransactionPoint {
-  const calculateTo = () => {
-    if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return swimlanes.findIndex(
-        (c) =>
-          (c.type === 'Account' && transaction.receiver === c.address) || (c.type === 'Application' && transaction.receiver === c.address)
-      )
-    }
-
-    if (transaction.type === TransactionType.ApplicationCall) {
-      return swimlanes.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
-    }
-
-    if (transaction.type === TransactionType.AssetConfig) {
-      return swimlanes.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
-    }
-
-    if (transaction.type === TransactionType.AssetFreeze) {
-      return swimlanes.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
-    }
-
-    throw new Error('Not supported transaction type')
-  }
-
-  // TODO: why?
-  const from = !parent
-    ? swimlanes.findIndex(
-        (c) =>
-          (c.type === 'Account' && transaction.sender === c.address) ||
-          (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
-      )
-    : swimlanes.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId)
-  // TODO: why and fix?
-  const color = !parent
-    ? graphConfig.paymentTransactionColor
-    : (swimlanes.find((c) => c.type === 'Application' && c.id === parent.applicationId)! as ApplicationSwimlane).accounts.find(
-        (a) => a.address === transaction.sender
-      )?.color ?? graphConfig.paymentTransactionColor
-  if (transaction.type === TransactionType.KeyReg) {
-    return {
-      from: from,
-      type: 'point',
-    } satisfies TransactionPoint
-  }
-
-  const to = calculateTo()
-  if (from === to) {
-    return {
-      from: from,
-      type: 'selfLoop',
-    } satisfies TransactionSelfLoop
-  }
-
-  const direction = from < to ? 'leftToRight' : 'rightToLeft'
-
-  return {
-    from: Math.min(from, to),
-    to: Math.max(from, to),
-    direction: direction,
-    type: 'vector',
-    color: color,
-  } satisfies TransactionVector
 }
 
 type Props = {
   transactionsGraph: TransactionsGraph
 }
 export function TransactionsGraphView({ transactionsGraph }: Props) {
-  const { transactions, swimlanes, maxNestingLevel, rowCount } = transactionsGraph
-  const transactionCount = rowCount
+  const { swimlanes, rows } = transactionsGraph
+  const transactionCount = rows.length
+  const maxNestingLevel = Math.max(...rows.map((h) => h.nestingLevel))
   const gridSwimlanes = swimlanes.length
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
   // TODO: why?
@@ -435,8 +332,8 @@ export function TransactionsGraphView({ transactionsGraph }: Props) {
           </div>
         </div>
       </div>
-      {transactions.map((transaction, index) => (
-        <TransactionGraph key={index} transaction={transaction} parent={undefined} swimlanes={swimlanes} verticalBars={[]} />
+      {rows.map((row, index) => (
+        <TransactionRow key={index} swimlanes={swimlanes} row={row} />
       ))}
     </div>
   )

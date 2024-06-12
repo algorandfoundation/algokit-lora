@@ -1,25 +1,35 @@
-import { ApplicationSwimlane, getRandomColor, Swimlane, TransactionsGraph } from '@/features/transactions-graph'
-import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import {
+  ApplicationSwimlane,
+  getRandomColor,
+  Swimlane,
+  TransactionGraphPoint,
+  TransactionGraphRow,
+  TransactionGraphSelfLoop,
+  TransactionGraphVector,
+  TransactionGraphVisualization,
+  TransactionsGraph,
+} from '@/features/transactions-graph'
+import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 export const asTransactionsGraph = (transactions: Transaction[]): TransactionsGraph => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
-  const maxNestingLevel = Math.max(...flattenedTransactions.map((t) => t.nestingLevel))
-
   const swimlanes: Swimlane[] = [
     ...getTransactionsSwimlanes(flattenedTransactions.map((t) => t.transaction)),
     {
       type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
+  const rows = transactions.flatMap((txn, index) =>
+    getTransactionGraphRows(txn, swimlanes, 0, undefined, index < transactions.length - 1, [])
+  )
 
   return {
     transactions, //TODO: probably rename to top level transactions
+    rows,
     swimlanes,
-    rowCount: flattenedTransactions.length,
-    maxNestingLevel,
   }
 }
 
@@ -108,4 +118,104 @@ const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): S
     })
   }
   return swimlanes
+}
+
+const getTransactionGraphRows = (
+  transaction: Transaction | InnerTransaction,
+  swimlanes: Swimlane[],
+  nestingLevel: number = 0,
+  parent: AppCallTransaction | InnerAppCallTransaction | undefined,
+  hasNextSibling: boolean,
+  verticalBars: (number | undefined)[]
+): TransactionGraphRow[] => {
+  const visualization = getTransactionVisualization(transaction, swimlanes, parent)
+  const indentLevel = nestingLevel - 1
+  const thisRow: TransactionGraphRow = {
+    transaction,
+    visualization,
+    nestingLevel: nestingLevel,
+    parent,
+    hasNextSibling,
+    hasChildren: transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0,
+    // TODO: consider vertical bars concept
+    verticalBars: [...(verticalBars ?? []), hasNextSibling ? indentLevel ?? 0 : undefined],
+  }
+  if (transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0) {
+    return [
+      thisRow,
+      ...transaction.innerTransactions.flatMap((innerTransaction, index) =>
+        getTransactionGraphRows(
+          innerTransaction,
+          swimlanes,
+          nestingLevel + 1,
+          transaction,
+          index < transaction.innerTransactions.length - 1,
+          thisRow.verticalBars
+        )
+      ),
+    ]
+  }
+  return [thisRow]
+}
+
+const getTransactionVisualization = (
+  transaction: Transaction | InnerTransaction,
+  swimlanes: Swimlane[],
+  parent?: AppCallTransaction | InnerAppCallTransaction
+): TransactionGraphVisualization => {
+  const calculateTo = () => {
+    if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
+      return swimlanes.findIndex(
+        (c) =>
+          (c.type === 'Account' && transaction.receiver === c.address) || (c.type === 'Application' && transaction.receiver === c.address)
+      )
+    }
+
+    if (transaction.type === TransactionType.ApplicationCall) {
+      return swimlanes.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
+    }
+
+    if (transaction.type === TransactionType.AssetConfig) {
+      return swimlanes.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
+    }
+
+    if (transaction.type === TransactionType.AssetFreeze) {
+      return swimlanes.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
+    }
+
+    throw new Error('Not supported transaction type')
+  }
+
+  // TODO: why?
+  const from = !parent
+    ? swimlanes.findIndex(
+        (c) =>
+          (c.type === 'Account' && transaction.sender === c.address) ||
+          (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
+      )
+    : swimlanes.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId)
+
+  if (transaction.type === TransactionType.KeyReg) {
+    return {
+      from: from,
+      type: 'point',
+    } satisfies TransactionGraphPoint
+  }
+
+  const to = calculateTo()
+  if (from === to) {
+    return {
+      from: from,
+      type: 'selfLoop',
+    } satisfies TransactionGraphSelfLoop
+  }
+
+  const direction = from < to ? 'leftToRight' : 'rightToLeft'
+
+  return {
+    from: Math.min(from, to),
+    to: Math.max(from, to),
+    direction: direction,
+    type: 'vector',
+  } satisfies TransactionGraphVector
 }

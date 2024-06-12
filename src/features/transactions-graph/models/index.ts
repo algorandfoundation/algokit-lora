@@ -1,10 +1,38 @@
-import { Transaction } from '@/features/transactions/models'
+import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction } from '@/features/transactions/models'
 
 export type TransactionsGraph = {
   transactions: Transaction[]
+  rows: TransactionGraphRow[]
   swimlanes: Swimlane[]
-  rowCount: number
-  maxNestingLevel: number
+}
+
+export type TransactionGraphRow = {
+  parent?: AppCallTransaction | InnerAppCallTransaction
+  hasNextSibling: boolean
+  hasChildren: boolean
+  transaction: Transaction | InnerTransaction
+  visualization: TransactionGraphVisualization
+  nestingLevel: number
+  verticalBars: (number | undefined)[]
+}
+
+export type TransactionGraphVisualization = TransactionGraphVector | TransactionGraphSelfLoop | TransactionGraphPoint
+
+export type TransactionGraphVector = {
+  from: number
+  to: number
+  type: 'vector'
+  direction: 'leftToRight' | 'rightToLeft'
+}
+
+export type TransactionGraphSelfLoop = {
+  from: number
+  type: 'selfLoop'
+}
+
+export type TransactionGraphPoint = {
+  type: 'point'
+  from: number
 }
 
 export const colors = [
