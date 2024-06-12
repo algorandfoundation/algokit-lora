@@ -20,6 +20,8 @@ import {
   accountAssetsOptedInLabel,
   accountActivityLabel,
   accountRekeyedToLabel,
+  accountAssetLabel,
+  accountApplicationLabel,
 } from '../components/labels'
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
@@ -91,7 +93,15 @@ describe('account-page', () => {
             })
             const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
             expect(activityTabList).toBeTruthy()
-            expect(activityTabList.children.length).toBe(7)
+            expect(activityTabList.children.length).toBe(2)
+
+            const assetTabList = component.getByRole('tablist', { name: accountAssetLabel })
+            expect(assetTabList).toBeTruthy()
+            expect(assetTabList.children.length).toBe(3)
+
+            const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
+            expect(applicationTabList).toBeTruthy()
+            expect(applicationTabList.children.length).toBe(2)
           })
         }
       )
@@ -136,7 +146,15 @@ describe('account-page', () => {
             })
             const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
             expect(activityTabList).toBeTruthy()
-            expect(activityTabList.children.length).toBe(7)
+            expect(activityTabList.children.length).toBe(2)
+
+            const assetTabList = component.getByRole('tablist', { name: accountAssetLabel })
+            expect(assetTabList).toBeTruthy()
+            expect(assetTabList.children.length).toBe(3)
+
+            const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
+            expect(applicationTabList).toBeTruthy()
+            expect(applicationTabList.children.length).toBe(2)
           })
         }
       )
@@ -173,7 +191,15 @@ describe('account-page', () => {
             })
             const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
             expect(activityTabList).toBeTruthy()
-            expect(activityTabList.children.length).toBe(7)
+            expect(activityTabList.children.length).toBe(2)
+
+            const assetTabList = component.getByRole('tablist', { name: accountAssetLabel })
+            expect(assetTabList).toBeTruthy()
+            expect(assetTabList.children.length).toBe(3)
+
+            const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
+            expect(applicationTabList).toBeTruthy()
+            expect(applicationTabList.children.length).toBe(2)
           })
         }
       )

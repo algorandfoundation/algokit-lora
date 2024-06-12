@@ -2,39 +2,38 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { Account } from '../models'
-import { AccountTransactionHistory } from './account-transaction-history'
-import { AccountLiveTransactions } from './account-live-transactions'
 import {
-  accountActivityLabel,
-  accountLiveTransactionsTabId,
-  accountHistoricalTransactionsTabId,
-  accountLiveTransactionsTabLabel,
-  accountHistoricalTransactionsTabLabel,
+  accountCreatedApplicationsTabId,
+  accountOptedApplicationsTabId,
+  accountCreatedApplicationsTabLabel,
+  accountOptedApplicationsTabLabel,
+  accountApplicationLabel,
 } from './labels'
+import { AccountApplications } from './account-applications'
 
 type Props = {
   account: Account
 }
 
-export function AccountActivityTabs({ account }: Props) {
+export function AccountApplicationTabs({ account }: Props) {
   const tabs = useMemo(
     () => [
       {
-        id: accountLiveTransactionsTabId,
-        label: accountLiveTransactionsTabLabel,
-        children: <AccountLiveTransactions address={account.address} />,
+        id: accountCreatedApplicationsTabId,
+        label: accountCreatedApplicationsTabLabel,
+        children: <AccountApplications applications={account.applicationsCreated} />,
       },
       {
-        id: accountHistoricalTransactionsTabId,
-        label: accountHistoricalTransactionsTabLabel,
-        children: <AccountTransactionHistory address={account.address} />,
+        id: accountOptedApplicationsTabId,
+        label: accountOptedApplicationsTabLabel,
+        children: <AccountApplications applications={account.applicationsOpted} />,
       },
     ],
-    [account.address]
+    [account.applicationsCreated, account.applicationsOpted]
   )
   return (
-    <Tabs defaultValue={accountLiveTransactionsTabId}>
-      <TabsList aria-label={accountActivityLabel}>
+    <Tabs defaultValue={accountCreatedApplicationsTabId}>
+      <TabsList aria-label={accountApplicationLabel}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')} value={tab.id}>
             {tab.label}
