@@ -1,4 +1,4 @@
-import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction } from '@/features/transactions/models'
+import { InnerTransaction, Transaction } from '@/features/transactions/models'
 
 export type TransactionsGraph = {
   transactions: Transaction[]
@@ -7,13 +7,10 @@ export type TransactionsGraph = {
 }
 
 export type TransactionGraphRow = {
-  parent?: AppCallTransaction | InnerAppCallTransaction
-  hasNextSibling: boolean
-  hasChildren: boolean
+  parent?: TransactionGraphRow
   transaction: Transaction | InnerTransaction
   visualization: TransactionGraphVisualization
   nestingLevel: number
-  verticalBars: (number | undefined)[]
 }
 
 export type TransactionGraphVisualization = TransactionGraphVector | TransactionGraphSelfLoop | TransactionGraphPoint

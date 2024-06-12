@@ -9,7 +9,7 @@ import {
   TransactionGraphVisualization,
   TransactionsGraph,
 } from '@/features/transactions-graph'
-import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -22,9 +22,7 @@ export const asTransactionsGraph = (transactions: Transaction[]): TransactionsGr
       type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
-  const rows = transactions.flatMap((txn, index) =>
-    getTransactionGraphRows(txn, swimlanes, 0, undefined, index < transactions.length - 1, [])
-  )
+  const rows = transactions.flatMap((txn) => getTransactionGraphRows(txn, swimlanes, 0, undefined))
 
   return {
     transactions, //TODO: probably rename to top level transactions
@@ -124,34 +122,20 @@ const getTransactionGraphRows = (
   transaction: Transaction | InnerTransaction,
   swimlanes: Swimlane[],
   nestingLevel: number = 0,
-  parent: AppCallTransaction | InnerAppCallTransaction | undefined,
-  hasNextSibling: boolean,
-  verticalBars: (number | undefined)[]
+  parent: TransactionGraphRow | undefined
 ): TransactionGraphRow[] => {
   const visualization = getTransactionVisualization(transaction, swimlanes, parent)
-  const indentLevel = nestingLevel - 1
   const thisRow: TransactionGraphRow = {
     transaction,
     visualization,
     nestingLevel: nestingLevel,
     parent,
-    hasNextSibling,
-    hasChildren: transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0,
-    // TODO: consider vertical bars concept
-    verticalBars: [...(verticalBars ?? []), hasNextSibling ? indentLevel ?? 0 : undefined],
   }
   if (transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0) {
     return [
       thisRow,
-      ...transaction.innerTransactions.flatMap((innerTransaction, index) =>
-        getTransactionGraphRows(
-          innerTransaction,
-          swimlanes,
-          nestingLevel + 1,
-          transaction,
-          index < transaction.innerTransactions.length - 1,
-          thisRow.verticalBars
-        )
+      ...transaction.innerTransactions.flatMap((innerTransaction) =>
+        getTransactionGraphRows(innerTransaction, swimlanes, nestingLevel + 1, thisRow)
       ),
     ]
   }
@@ -161,7 +145,7 @@ const getTransactionGraphRows = (
 const getTransactionVisualization = (
   transaction: Transaction | InnerTransaction,
   swimlanes: Swimlane[],
-  parent?: AppCallTransaction | InnerAppCallTransaction
+  parent?: TransactionGraphRow
 ): TransactionGraphVisualization => {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
@@ -193,7 +177,8 @@ const getTransactionVisualization = (
           (c.type === 'Account' && transaction.sender === c.address) ||
           (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
       )
-    : swimlanes.findIndex((c) => c.type === 'Application' && c.id === parent.applicationId)
+    : // HACK: fix the typing
+      swimlanes.findIndex((c) => c.type === 'Application' && c.id === (parent.transaction as AppCallTransaction).applicationId)
 
   if (transaction.type === TransactionType.KeyReg) {
     return {

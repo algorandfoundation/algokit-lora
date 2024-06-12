@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
-import { InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
+import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { PaymentTransactionTooltipContent } from './payment-transaction-tooltip-content'
@@ -25,6 +25,7 @@ import {
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { TransactionId } from '@/features/transactions-graph/components/transaction-id'
 import { SwimlaneId } from '@/features/transactions-graph/components/swimlane-id'
+import { useMemo } from 'react'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
   // The side vertical bars when there are nested items
@@ -219,9 +220,30 @@ type TransactionRowProps = {
   swimlanes: Swimlane[]
 }
 function TransactionRow({ row, swimlanes }: TransactionRowProps) {
-  const { transaction, visualization, parent, nestingLevel, hasChildren, hasNextSibling, verticalBars } = row
+  const { transaction, visualization, parent, nestingLevel } = row
+  const hasChildren = row.transaction.type === TransactionType.ApplicationCall && row.transaction.innerTransactions.length > 0
   const hasParent = !!parent
   const indentLevel = nestingLevel > 0 ? nestingLevel - 1 : undefined
+  const hasNextSibling = parent
+    ? (parent.transaction as AppCallTransaction).innerTransactions.indexOf(transaction as InnerTransaction) <
+      (parent.transaction as AppCallTransaction).innerTransactions.length - 1
+    : false
+  const verticalBars = useMemo(() => {
+    const results = []
+    let cursor = parent
+    while (cursor) {
+      const parentOfCursor = cursor.parent
+      const foo = parentOfCursor
+        ? (parentOfCursor.transaction as AppCallTransaction).innerTransactions.indexOf(parentOfCursor.transaction as InnerTransaction) <
+          (parentOfCursor.transaction as AppCallTransaction).innerTransactions.length - 1
+        : false
+      if (foo) {
+        results.push(parentOfCursor!.nestingLevel)
+      }
+      cursor = parentOfCursor?.parent
+    }
+    return results
+  }, [parent])
 
   return (
     <>
@@ -231,7 +253,7 @@ function TransactionRow({ row, swimlanes }: TransactionRowProps) {
           className={cn(`relative h-full p-0 flex items-center`, 'px-0')}
           style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
         >
-          {parent && <ConnectionToParent />}
+          {hasParent && <ConnectionToParent />}
           <TransactionId hasParent={hasParent} transaction={transaction} />
           {hasParent && hasNextSibling && <ConnectionToSibling />}
           {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
