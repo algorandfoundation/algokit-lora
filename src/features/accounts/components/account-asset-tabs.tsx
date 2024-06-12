@@ -44,7 +44,7 @@ export function AccountAssetTabs({ account }: Props) {
     <Tabs defaultValue={accountHeldAssetsTabId}>
       <TabsList aria-label={accountAssetLabel}>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-44')} value={tab.id}>
+          <TabsTrigger key={tab.id} className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-36')} value={tab.id}>
             {tab.label}
           </TabsTrigger>
         ))}
