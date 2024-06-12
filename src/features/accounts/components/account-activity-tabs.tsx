@@ -1,30 +1,16 @@
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { AccountAssetsHeld } from './account-assets-held'
 import { Account } from '../models'
 import { AccountTransactionHistory } from './account-transaction-history'
 import { AccountLiveTransactions } from './account-live-transactions'
 import {
   accountActivityLabel,
   accountLiveTransactionsTabId,
-  accountCreatedApplicationsTabId,
-  accountCreatedAssetsTabId,
-  accountHeldAssetsTabId,
   accountHistoricalTransactionsTabId,
-  accountOptedApplicationsTabId,
   accountLiveTransactionsTabLabel,
   accountHistoricalTransactionsTabLabel,
-  accountHeldAssetsTabLabel,
-  accountCreatedAssetsTabLabel,
-  accountCreatedApplicationsTabLabel,
-  accountOptedApplicationsTabLabel,
-  accountOptedAssetsTabId,
-  accountOptedAssetsTabLabel,
 } from './labels'
-import { AccountAssetsCreated } from './account-assets-created'
-import { AccountAssetsOpted } from './account-assets-opted'
-import { AccountApplications } from './account-applications'
 
 type Props = {
   account: Account
@@ -43,40 +29,8 @@ export function AccountActivityTabs({ account }: Props) {
         label: accountHistoricalTransactionsTabLabel,
         children: <AccountTransactionHistory address={account.address} />,
       },
-      {
-        id: accountHeldAssetsTabId,
-        label: accountHeldAssetsTabLabel,
-        children: <AccountAssetsHeld assetsHeld={account.assetsHeld} />,
-      },
-      {
-        id: accountCreatedAssetsTabId,
-        label: accountCreatedAssetsTabLabel,
-        children: <AccountAssetsCreated assetsCreated={account.assetsCreated} />,
-      },
-      {
-        id: accountOptedAssetsTabId,
-        label: accountOptedAssetsTabLabel,
-        children: <AccountAssetsOpted assetsOpted={account.assetsOpted} />,
-      },
-      {
-        id: accountCreatedApplicationsTabId,
-        label: accountCreatedApplicationsTabLabel,
-        children: <AccountApplications applications={account.applicationsCreated} />,
-      },
-      {
-        id: accountOptedApplicationsTabId,
-        label: accountOptedApplicationsTabLabel,
-        children: <AccountApplications applications={account.applicationsOpted} />,
-      },
     ],
-    [
-      account.address,
-      account.applicationsCreated,
-      account.applicationsOpted,
-      account.assetsCreated,
-      account.assetsHeld,
-      account.assetsOpted,
-    ]
+    [account.address]
   )
   return (
     <Tabs defaultValue={accountLiveTransactionsTabId}>
