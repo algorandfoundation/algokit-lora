@@ -1,6 +1,5 @@
 import {
   ApplicationSwimlane,
-  getRandomColor,
   Swimlane,
   TransactionGraphPoint,
   TransactionGraphRow,
@@ -25,7 +24,6 @@ export const asTransactionsGraph = (transactions: Transaction[]): TransactionsGr
   const rows = transactions.flatMap((txn) => getTransactionGraphRows(txn, swimlanes, 0, undefined))
 
   return {
-    transactions, //TODO: probably rename to top level transactions
     rows,
     swimlanes,
   }
@@ -99,7 +97,6 @@ const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): S
         .filter(distinct((x) => x))
         .map((address) => ({
           address,
-          color: getRandomColor(),
         })),
     })
   }

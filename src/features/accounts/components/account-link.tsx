@@ -12,7 +12,6 @@ type Props = PropsWithChildren<{
   short?: boolean
   className?: string
   showCopyButton?: boolean
-  style?: React.CSSProperties
 }>
 
 export const AccountLink = fixedForwardRef(
