@@ -158,7 +158,7 @@ export function AssetDetails({ asset }: Props) {
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
               <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
-              <div className={cn('border-solid border-2 border-border h-96 grid')}>
+              <div className={cn('border-solid border-2 border-border grid')}>
                 <JsonView json={asset.json} />
               </div>
             </CardContent>

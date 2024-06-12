@@ -8,7 +8,10 @@ import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 
-export function JsonView({ json }: { json: object }) {
+type Props = {
+  json: object
+}
+export function JsonView({ json }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openJsonView = useCallback(() => {
@@ -47,12 +50,12 @@ export function JsonView({ json }: { json: object }) {
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="w-[900px] bg-card">
+        <DialogContent className="bg-card">
           <DialogHeader>
             <h4 className={cn('text-xl text-primary font-bold')}>Json</h4>
           </DialogHeader>
-          <div className={cn('border-solid border-2 border-border h-96 grid')}>
-            <Button variant="default" className={cn('absolute top-20 right-9')} onClick={copyJsonToClipboard}>
+          <div className={cn('border-solid border-2 border-border grid w-[900px] h-[600px] overflow-auto ')}>
+            <Button variant="default" className={cn('absolute top-20 right-12')} onClick={copyJsonToClipboard}>
               Copy
             </Button>
             <ReactJsonView data={json} shouldExpandNode={shouldExpandNode} style={style} />
