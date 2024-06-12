@@ -1,37 +1,37 @@
 import {
-  ApplicationSwimlane,
-  Swimlane,
-  TransactionGraphPoint,
-  TransactionGraphRow,
-  TransactionGraphSelfLoop,
-  TransactionGraphVector,
+  TransactionGraphApplicationVerticalLine,
+  TransactionGraphVerticalLine,
+  TransactionGraphPointVisualization,
+  TransactionGraphHorizontalLine,
+  TransactionGraphSelfLoopVisualization,
+  TransactionGraphVectorVisualization,
   TransactionGraphVisualization,
-  TransactionsGraph,
+  TransactionsGraphData,
 } from '@/features/transactions-graph'
 import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
-export const asTransactionsGraph = (transactions: Transaction[]): TransactionsGraph => {
+export const asTransactionsGraph = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
-  const swimlanes: Swimlane[] = [
-    ...getTransactionsSwimlanes(flattenedTransactions.map((t) => t.transaction)),
+  const verticalLines: TransactionGraphVerticalLine[] = [
+    ...getVerticalLinesForTransactions(flattenedTransactions.map((t) => t.transaction)),
     {
       type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
-  const rows = transactions.flatMap((txn) => getTransactionGraphRows(txn, swimlanes, 0, undefined))
+  const horizontalLines = transactions.flatMap((txn) => getHorizontalLinesForTransaction(txn, verticalLines, [], false, 0))
 
   return {
-    rows,
-    swimlanes,
+    horizontalLines: horizontalLines,
+    verticalLines: verticalLines,
   }
 }
 
-const getTransactionsSwimlanes = (transactions: Transaction[] | InnerTransaction[]): Swimlane[] => {
-  const swimlanes = transactions.flatMap(getTransactionSwimlanes)
-  return swimlanes.reduce<Swimlane[]>((acc, current, _, array) => {
+const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVerticalLine[] => {
+  const verticalLines = transactions.flatMap(getVerticalLinesForTransaction)
+  return verticalLines.reduce<TransactionGraphVerticalLine[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
       // TODO: why?
       if (
@@ -56,7 +56,9 @@ const getTransactionsSwimlanes = (transactions: Transaction[] | InnerTransaction
           type: 'Application' as const,
           id: current.id,
           address: current.address,
-          accounts: [...(acc[index] as ApplicationSwimlane).accounts, ...current.accounts].filter(distinct((x) => x.address)),
+          accounts: [...(acc[index] as TransactionGraphApplicationVerticalLine).accounts, ...current.accounts].filter(
+            distinct((x) => x.address)
+          ),
         }
         acc.splice(index, 1, newFoo)
         return acc
@@ -73,21 +75,21 @@ const getTransactionsSwimlanes = (transactions: Transaction[] | InnerTransaction
   }, [])
 }
 
-const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): Swimlane[] => {
-  const swimlanes: Swimlane[] = [
+const getVerticalLinesForTransaction = (transaction: Transaction | InnerTransaction): TransactionGraphVerticalLine[] => {
+  const verticalLines: TransactionGraphVerticalLine[] = [
     {
       type: 'Account',
       address: transaction.sender,
     },
   ]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
-    swimlanes.push({
+    verticalLines.push({
       type: 'Account',
       address: transaction.receiver,
     })
   }
   if (transaction.type === TransactionType.ApplicationCall) {
-    swimlanes.push({
+    verticalLines.push({
       type: 'Application',
       id: transaction.applicationId,
       address: getApplicationAddress(transaction.applicationId),
@@ -101,38 +103,47 @@ const getTransactionSwimlanes = (transaction: Transaction | InnerTransaction): S
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
-    swimlanes.push({
+    verticalLines.push({
       type: 'Asset',
       id: transaction.assetId.toString(),
     })
   }
   if (transaction.type === TransactionType.AssetFreeze) {
-    swimlanes.push({
+    verticalLines.push({
       type: 'Account',
       address: transaction.address.toString(),
     })
   }
-  return swimlanes
+  return verticalLines
 }
 
-const getTransactionGraphRows = (
+const getHorizontalLinesForTransaction = (
   transaction: Transaction | InnerTransaction,
-  swimlanes: Swimlane[],
-  nestingLevel: number = 0,
-  parent: TransactionGraphRow | undefined
-): TransactionGraphRow[] => {
-  const visualization = getTransactionVisualization(transaction, swimlanes, parent)
-  const thisRow: TransactionGraphRow = {
+  verticalLines: TransactionGraphVerticalLine[],
+  ancestors: TransactionGraphHorizontalLine[],
+  hasNextSibling: boolean,
+  depth: number
+): TransactionGraphHorizontalLine[] => {
+  const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
+  const visualization = getTransactionVisualization(transaction, verticalLines, parent)
+  const thisRow: TransactionGraphHorizontalLine = {
     transaction,
     visualization,
-    nestingLevel: nestingLevel,
-    parent,
+    ancestors,
+    hasNextSibling,
+    depth,
   }
   if (transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0) {
     return [
       thisRow,
-      ...transaction.innerTransactions.flatMap((innerTransaction) =>
-        getTransactionGraphRows(innerTransaction, swimlanes, nestingLevel + 1, thisRow)
+      ...transaction.innerTransactions.flatMap((innerTxn, index) =>
+        getHorizontalLinesForTransaction(
+          innerTxn,
+          verticalLines,
+          [...ancestors, thisRow],
+          index < transaction.innerTransactions.length - 1,
+          depth + 1
+        )
       ),
     ]
   }
@@ -141,27 +152,27 @@ const getTransactionGraphRows = (
 
 const getTransactionVisualization = (
   transaction: Transaction | InnerTransaction,
-  swimlanes: Swimlane[],
-  parent?: TransactionGraphRow
+  verticalLines: TransactionGraphVerticalLine[],
+  parent?: TransactionGraphHorizontalLine
 ): TransactionGraphVisualization => {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return swimlanes.findIndex(
+      return verticalLines.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.receiver === c.address) || (c.type === 'Application' && transaction.receiver === c.address)
       )
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
-      return swimlanes.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
+      return verticalLines.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
     }
 
     if (transaction.type === TransactionType.AssetConfig) {
-      return swimlanes.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
+      return verticalLines.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
     }
 
     if (transaction.type === TransactionType.AssetFreeze) {
-      return swimlanes.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
+      return verticalLines.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
     }
 
     throw new Error('Not supported transaction type')
@@ -169,19 +180,19 @@ const getTransactionVisualization = (
 
   // TODO: why?
   const from = !parent
-    ? swimlanes.findIndex(
+    ? verticalLines.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.sender === c.address) ||
           (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
       )
-    : // HACK: fix the typing
-      swimlanes.findIndex((c) => c.type === 'Application' && c.id === (parent.transaction as AppCallTransaction).applicationId)
+    : // TODO: fix the typing
+      verticalLines.findIndex((c) => c.type === 'Application' && c.id === (parent.transaction as AppCallTransaction).applicationId)
 
   if (transaction.type === TransactionType.KeyReg) {
     return {
       from: from,
       type: 'point',
-    } satisfies TransactionGraphPoint
+    } satisfies TransactionGraphPointVisualization
   }
 
   const to = calculateTo()
@@ -189,7 +200,7 @@ const getTransactionVisualization = (
     return {
       from: from,
       type: 'selfLoop',
-    } satisfies TransactionGraphSelfLoop
+    } satisfies TransactionGraphSelfLoopVisualization
   }
 
   const direction = from < to ? 'leftToRight' : 'rightToLeft'
@@ -199,5 +210,5 @@ const getTransactionVisualization = (
     to: Math.max(from, to),
     direction: direction,
     type: 'vector',
-  } satisfies TransactionGraphVector
+  } satisfies TransactionGraphVectorVisualization
 }

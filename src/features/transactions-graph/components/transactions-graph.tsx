@@ -5,7 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { cn } from '@/features/common/utils'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { isDefined } from '@/utils/is-defined'
-import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
+import { InnerTransaction, Transaction, TransactionType } from '../../transactions/models'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { PaymentTransactionTooltipContent } from './payment-transaction-tooltip-content'
@@ -15,16 +15,16 @@ import { AssetConfigTransactionTooltipContent } from './asset-config-transaction
 import { AssetFreezeTransactionTooltipContent } from './asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from './key-reg-transaction-tooltip-content'
 import {
-  Swimlane,
-  TransactionGraphPoint,
-  TransactionGraphRow,
-  TransactionGraphSelfLoop,
-  TransactionGraphVector,
-  TransactionsGraph,
+  TransactionGraphVerticalLine,
+  TransactionGraphPointVisualization,
+  TransactionGraphHorizontalLine,
+  TransactionGraphSelfLoopVisualization,
+  TransactionGraphVectorVisualization,
+  TransactionsGraphData,
 } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
-import { TransactionId } from '@/features/transactions-graph/components/transaction-id'
-import { SwimlaneId } from '@/features/transactions-graph/components/swimlane-id'
+import { HorizontalLineTitle } from '@/features/transactions-graph/components/horizontal-line-title'
+import { VerticalLineTitle } from '@/features/transactions-graph/components/vertical-line-title'
 import { useMemo } from 'react'
 
 function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }) {
@@ -35,7 +35,7 @@ function VerticalBars({ verticalBars }: { verticalBars: (number | undefined)[] }
       <div
         key={i}
         className={cn('h-full border-primary absolute')}
-        style={{ marginLeft: b * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
+        style={{ marginLeft: (b - 1) * graphConfig.indentationWidth, borderLeftWidth: `${graphConfig.lineWidth}px` }}
       ></div>
     ))
 }
@@ -69,13 +69,13 @@ function ConnectionToSibling() {
   )
 }
 
-function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined }) {
+function ConnectionToChildren({ indentLevel }: { indentLevel: number }) {
   // The connection between this transaction and the children
   return (
     <div
       className={cn('w-2', 'border-primary rounded-tl-lg', 'absolute left-0')}
       style={{
-        marginLeft: indentLevel != null ? `${graphConfig.indentationWidth}px` : undefined,
+        marginLeft: indentLevel > 0 ? `${graphConfig.indentationWidth}px` : undefined,
         borderLeftWidth: `${graphConfig.lineWidth}px`,
         borderTopWidth: `${graphConfig.lineWidth}px`,
         height: `calc(50% + ${graphConfig.lineWidth}px)`,
@@ -87,7 +87,7 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number | undefined
 
 const RenderTransactionVector = fixedForwardRef(
   (
-    { transaction, vector, ...rest }: { transaction: Transaction | InnerTransaction; vector: TransactionGraphVector },
+    { transaction, vector, ...rest }: { transaction: Transaction | InnerTransaction; vector: TransactionGraphVectorVisualization },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -142,7 +142,7 @@ const RenderTransactionVector = fixedForwardRef(
 
 const RenderTransactionSelfLoop = fixedForwardRef(
   (
-    { transaction, loop, ...rest }: { transaction: Transaction | InnerTransaction; loop: TransactionGraphSelfLoop },
+    { transaction, loop, ...rest }: { transaction: Transaction | InnerTransaction; loop: TransactionGraphSelfLoopVisualization },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -192,7 +192,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
 
 const RenderTransactionPoint = fixedForwardRef(
   (
-    { transaction, point, ...rest }: { transaction: Transaction | InnerTransaction; point: TransactionGraphPoint },
+    { transaction, point, ...rest }: { transaction: Transaction | InnerTransaction; point: TransactionGraphPointVisualization },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
     const color = graphConfig.paymentTransactionColor
@@ -215,35 +215,21 @@ const RenderTransactionPoint = fixedForwardRef(
   }
 )
 
-type TransactionRowProps = {
-  row: TransactionGraphRow
-  swimlanes: Swimlane[]
+type HorizontalLineProps = {
+  horizontalLine: TransactionGraphHorizontalLine
+  verticalLines: TransactionGraphVerticalLine[]
 }
-function TransactionRow({ row, swimlanes }: TransactionRowProps) {
-  const { transaction, visualization, parent, nestingLevel } = row
-  const hasChildren = row.transaction.type === TransactionType.ApplicationCall && row.transaction.innerTransactions.length > 0
+function HorizontalLine({ horizontalLine, verticalLines }: HorizontalLineProps) {
+  const { transaction, visualization, hasNextSibling, ancestors, depth } = horizontalLine
+  const parent = ancestors.length > 0 ? ancestors[0] : undefined
+  const hasChildren =
+    horizontalLine.transaction.type === TransactionType.ApplicationCall && horizontalLine.transaction.innerTransactions.length > 0
   const hasParent = !!parent
-  const indentLevel = nestingLevel > 0 ? nestingLevel - 1 : undefined
-  const hasNextSibling = parent
-    ? (parent.transaction as AppCallTransaction).innerTransactions.indexOf(transaction as InnerTransaction) <
-      (parent.transaction as AppCallTransaction).innerTransactions.length - 1
-    : false
+  const indentLevel = depth > 0 ? depth - 1 : 0
+  // TODO: rename verticalBars to something like "connections between parents to parents next sibling"
   const verticalBars = useMemo(() => {
-    const results = []
-    let cursor = parent
-    while (cursor) {
-      const parentOfCursor = cursor.parent
-      const foo = parentOfCursor
-        ? (parentOfCursor.transaction as AppCallTransaction).innerTransactions.indexOf(parentOfCursor.transaction as InnerTransaction) <
-          (parentOfCursor.transaction as AppCallTransaction).innerTransactions.length - 1
-        : false
-      if (foo) {
-        results.push(parentOfCursor!.nestingLevel)
-      }
-      cursor = parentOfCursor?.parent
-    }
-    return results
-  }, [parent])
+    return ancestors.map((a) => (a.hasNextSibling ? a.depth : undefined))
+  }, [ancestors])
 
   return (
     <>
@@ -251,15 +237,15 @@ function TransactionRow({ row, swimlanes }: TransactionRowProps) {
         <VerticalBars verticalBars={verticalBars} />
         <div
           className={cn(`relative h-full p-0 flex items-center`, 'px-0')}
-          style={{ marginLeft: (indentLevel ?? 0) * graphConfig.indentationWidth }}
+          style={{ marginLeft: indentLevel * graphConfig.indentationWidth }}
         >
           {hasParent && <ConnectionToParent />}
-          <TransactionId hasParent={hasParent} transaction={transaction} />
+          <HorizontalLineTitle transaction={transaction} hasParent={hasParent} />
           {hasParent && hasNextSibling && <ConnectionToSibling />}
-          {hasChildren && <ConnectionToChildren indentLevel={indentLevel} />}
+          {hasChildren && <ConnectionToChildren indentLevel={depth} />}
         </div>
       </div>
-      {swimlanes.map((_, index) => {
+      {verticalLines.map((_, index) => {
         if (visualization.type === 'vector' && (index < visualization.from || index > visualization.to)) {
           return <div key={index}></div>
         }
@@ -298,30 +284,30 @@ function TransactionRow({ row, swimlanes }: TransactionRowProps) {
 }
 
 type Props = {
-  transactionsGraph: TransactionsGraph
+  transactionsGraphData: TransactionsGraphData
 }
-export function TransactionsGraphView({ transactionsGraph }: Props) {
-  const { swimlanes, rows } = transactionsGraph
-  const transactionCount = rows.length
-  const maxNestingLevel = Math.max(...rows.map((h) => h.nestingLevel))
-  const gridSwimlanes = swimlanes.length
+export function TransactionsGraph({ transactionsGraphData }: Props) {
+  const { verticalLines, horizontalLines } = transactionsGraphData
+  const transactionCount = horizontalLines.length
+  const maxNestingLevel = Math.max(...horizontalLines.map((h) => h.depth))
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
+  const verticalLinesCount = verticalLines.length
   // TODO: why?
-  const headerLines = Math.max(...swimlanes.map((s) => (s.type === 'Application' ? s.accounts.length + 1 : 1)))
+  const headerLines = Math.max(...verticalLines.map((s) => (s.type === 'Application' ? s.accounts.length + 1 : 1)))
   const headerHeight = headerLines > 1 ? headerLines * 0.75 * graphConfig.rowHeight : graphConfig.rowHeight
 
   return (
     <div
       className={cn('relative grid')}
       style={{
-        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridSwimlanes}, ${graphConfig.colWidth}px)`,
+        gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalLinesCount}, ${graphConfig.colWidth}px)`,
         gridTemplateRows: `${headerHeight}px repeat(${transactionCount}, ${graphConfig.rowHeight}px)`,
       }}
     >
       <div>{/* The first header cell is empty */}</div>
-      {swimlanes.map((swimlane, index) => (
+      {verticalLines.map((swimlane, index) => (
         <div className={cn('p-2 flex justify-center')} key={index}>
-          <SwimlaneId swimlane={swimlane} />
+          <VerticalLineTitle verticalLine={swimlane} />
         </div>
       ))}
       {/* The below div is for drawing the background dash lines */}
@@ -332,18 +318,18 @@ export function TransactionsGraphView({ transactionsGraph }: Props) {
             className={cn('p-0')}
             style={{
               height: `${transactionCount * graphConfig.rowHeight}px`,
-              width: `${graphConfig.colWidth * gridSwimlanes}px`,
+              width: `${graphConfig.colWidth * verticalLinesCount}px`,
             }}
           >
             <div
               className={cn('grid h-full')}
               style={{
-                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${gridSwimlanes}, ${graphConfig.colWidth}px)`,
+                gridTemplateColumns: `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalLinesCount}, ${graphConfig.colWidth}px)`,
                 height: `${transactionCount * graphConfig.rowHeight}px`,
               }}
             >
               <div></div>
-              {swimlanes
+              {verticalLines
                 .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty swimlane
                 .map((_, index) => (
                   <div key={index} className={cn('flex justify-center')}>
@@ -354,8 +340,8 @@ export function TransactionsGraphView({ transactionsGraph }: Props) {
           </div>
         </div>
       </div>
-      {rows.map((row, index) => (
-        <TransactionRow key={index} swimlanes={swimlanes} row={row} />
+      {horizontalLines.map((row, index) => (
+        <HorizontalLine key={index} verticalLines={verticalLines} horizontalLine={row} />
       ))}
     </div>
   )

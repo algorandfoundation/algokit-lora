@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { TransactionsTable } from './transactions-table'
 import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { TransactionsGraphView } from '@/features/transactions-graph'
+import { TransactionsGraph } from '@/features/transactions-graph'
 import { transactionsTableColumnsWithoutRound } from './transactions-table-columns'
 import { asTransactionsGraph } from '@/features/transactions-graph/mappers'
 import { useMemo } from 'react'
@@ -36,7 +36,7 @@ export function TransactionViewTabs({ transaction }: Props) {
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={transactionVisualGraphTabId}>
-        <TransactionsGraphView transactionsGraph={transactionsGraph} />
+        <TransactionsGraph transactionsGraphData={transactionsGraph} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={transactionVisualTableTabId}>
         <TransactionsTable transactions={[transaction]} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={true} />

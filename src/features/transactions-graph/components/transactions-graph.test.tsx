@@ -7,7 +7,7 @@ import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-util
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAssetSummary } from '@/features/assets/mappers/asset-summary'
-import { TransactionsGraphView } from './transactions-graph-view'
+import { TransactionsGraph } from './transactions-graph'
 import { asKeyRegTransaction } from '../../transactions/mappers/key-reg-transaction-mappers'
 import { asGroup } from '@/features/groups/mappers'
 import { groupResultMother } from '@/tests/object-mother/group-result'
@@ -36,7 +36,7 @@ describe('payment-transaction-graph', () => {
       const model = asPaymentTransaction(transactionResult)
 
       return executeComponentTest(
-        () => render(<TransactionsGraphView transactions={[model]} />),
+        () => render(<TransactionsGraph transactions={[model]} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-graph.${transactionResult.id}.html`
@@ -65,7 +65,7 @@ describe('asset-transfer-transaction-graph', () => {
         const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
 
         return executeComponentTest(
-          () => render(<TransactionsGraphView transactions={[transaction]} />),
+          () => render(<TransactionsGraph transactions={[transaction]} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
@@ -100,7 +100,7 @@ describe('application-call-graph', () => {
         const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults))
 
         return executeComponentTest(
-          () => render(<TransactionsGraphView transactions={[model]} />),
+          () => render(<TransactionsGraph transactions={[model]} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
@@ -124,7 +124,7 @@ describe('key-reg-graph', () => {
       const model = asKeyRegTransaction(transactionResult)
 
       return executeComponentTest(
-        () => render(<TransactionsGraphView transactions={[model]} />),
+        () => render(<TransactionsGraph transactions={[model]} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/key-reg-graph.${transactionResult.id}.html`
@@ -169,7 +169,7 @@ describe('group-graph', () => {
         const group = asGroup(groupResult, transactions)
 
         return executeComponentTest(
-          () => render(<TransactionsGraphView transactions={group.transactions} />),
+          () => render(<TransactionsGraph transactions={group.transactions} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`

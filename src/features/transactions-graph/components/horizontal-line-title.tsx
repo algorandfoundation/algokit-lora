@@ -5,7 +5,7 @@ import { TransactionLink } from '@/features/transactions/components/transaction-
 import { cn } from '@/features/common/utils'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 
-export function TransactionId({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
+export function HorizontalLineTitle({ hasParent, transaction }: { hasParent: boolean; transaction: Transaction | InnerTransaction }) {
   const component = useMemo(() => {
     if ('innerId' in transaction) {
       return <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />

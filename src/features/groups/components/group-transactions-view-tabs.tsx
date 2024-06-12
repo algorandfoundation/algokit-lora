@@ -1,7 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { Group } from '../models'
-import { TransactionsGraphView } from '@/features/transactions-graph/components/transactions-graph-view'
+import { TransactionsGraph } from '@/features/transactions-graph/components/transactions-graph'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 import { useMemo } from 'react'
@@ -31,7 +31,7 @@ export function GroupTransactionsViewTabs({ group }: Props) {
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={graphTabId}>
-        <TransactionsGraphView transactionsGraph={transactionsGraph} />
+        <TransactionsGraph transactionsGraphData={transactionsGraph} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={tableTabId}>
         <TransactionsTable transactions={group.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />

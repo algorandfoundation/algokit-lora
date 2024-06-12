@@ -1,2 +1,2 @@
 export * from './models'
-export * from './components/transactions-graph-view'
+export * from './components/transactions-graph'

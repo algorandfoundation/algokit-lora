@@ -1,50 +1,58 @@
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 
-export type TransactionsGraph = {
-  rows: TransactionGraphRow[]
-  swimlanes: Swimlane[]
+export type TransactionsGraphData = {
+  horizontalLines: TransactionGraphHorizontalLine[]
+  verticalLines: TransactionGraphVerticalLine[]
 }
 
-export type TransactionGraphRow = {
-  parent?: TransactionGraphRow
+export type TransactionGraphHorizontalLine = {
+  ancestors: TransactionGraphHorizontalLine[]
   transaction: Transaction | InnerTransaction
   visualization: TransactionGraphVisualization
-  nestingLevel: number
+  hasNextSibling: boolean
+  depth: number
 }
 
-export type TransactionGraphVisualization = TransactionGraphVector | TransactionGraphSelfLoop | TransactionGraphPoint
+export type TransactionGraphVisualization =
+  | TransactionGraphVectorVisualization
+  | TransactionGraphSelfLoopVisualization
+  | TransactionGraphPointVisualization
 
-export type TransactionGraphVector = {
+export type TransactionGraphVectorVisualization = {
   from: number
   to: number
   type: 'vector'
   direction: 'leftToRight' | 'rightToLeft'
 }
 
-export type TransactionGraphSelfLoop = {
+export type TransactionGraphSelfLoopVisualization = {
   from: number
   type: 'selfLoop'
 }
 
-export type TransactionGraphPoint = {
+export type TransactionGraphPointVisualization = {
   type: 'point'
   from: number
 }
 
-export type AccountSwimlane = {
+export type TransactionGraphAccountVerticalLine = {
   type: 'Account'
   address: string
 }
-export type ApplicationSwimlane = {
+export type TransactionGraphApplicationVerticalLine = {
   type: 'Application'
   id: number
-  address: string
+  address: string //TODO: use Address type
   accounts: {
     address: string
   }[]
 }
-export type AssetSwimlane = {
+export type TransactionGraphAssetVerticalLine = {
   type: 'Asset'
   id: string
 }
-export type Swimlane = AccountSwimlane | ApplicationSwimlane | AssetSwimlane | { type: 'Placeholder' }
+export type TransactionGraphVerticalLine =
+  | TransactionGraphAccountVerticalLine
+  | TransactionGraphApplicationVerticalLine
+  | TransactionGraphAssetVerticalLine
+  | { type: 'Placeholder' }
