@@ -18,7 +18,7 @@ export function useDeepLink() {
         if (options.transactionId) {
           navigate(Urls.Transaction.ById.build({ transactionId: options.transactionId }))
         } else {
-          navigate(Urls.Index.build({}))
+          navigate(Urls.Explore.build({}))
         }
       }
     },

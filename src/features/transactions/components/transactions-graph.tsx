@@ -116,11 +116,11 @@ function TransactionId({ hasParent, transaction }: { hasParent: boolean; transac
 
 function CollaboratorId({ collaborator }: { collaborator: Collaborator }) {
   return (
-    <h1 className={cn('text-l font-semibold')}>
+    <>
       {collaborator.type === 'Account' && <AccountLink address={collaborator.id} short={true} />}
       {collaborator.type === 'Application' && <ApplicationLink applicationId={parseInt(collaborator.id)} />}
       {collaborator.type === 'Asset' && <AssetIdLink assetId={parseInt(collaborator.id)} />}
-    </h1>
+    </>
   )
 }
 

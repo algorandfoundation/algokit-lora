@@ -97,7 +97,7 @@ export function ApplicationDetails({ application }: Props) {
   ).filter(isDefined)
 
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <Card aria-label={applicationDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <DescriptionList items={applicationItems} />
@@ -105,13 +105,13 @@ export function ApplicationDetails({ application }: Props) {
       </Card>
       <Card aria-label={applicationApprovalProgramLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationApprovalProgramLabel}</h1>
+          <h2>{applicationApprovalProgramLabel}</h2>
           <ApplicationProgram tabsListAriaLabel={applicationApprovalProgramTabsListAriaLabel} base64Program={application.approvalProgram} />
         </CardContent>
       </Card>
       <Card aria-label={applicationClearStateProgramLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationClearStateProgramLabel}</h1>
+          <h2>{applicationClearStateProgramLabel}</h2>
           <ApplicationProgram
             tabsListAriaLabel={applicationClearStateProgramTabsListAriaLabel}
             base64Program={application.clearStateProgram}
@@ -120,19 +120,19 @@ export function ApplicationDetails({ application }: Props) {
       </Card>
       <Card aria-label={applicationGlobalStateLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationGlobalStateLabel}</h1>
+          <h2>{applicationGlobalStateLabel}</h2>
           <ApplicationGlobalStateTable application={application} />
         </CardContent>
       </Card>
       <Card aria-label={applicationBoxesLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationBoxesLabel}</h1>
+          <h2>{applicationBoxesLabel}</h2>
           <ApplicationBoxes applicationId={application.id} />
         </CardContent>
       </Card>
       <Card aria-label={applicationTransactionsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationTransactionsLabel}</h1>
+          <h2>{applicationTransactionsLabel}</h2>
           <Tabs defaultValue={applicationLiveTransactionsTabId}>
             <TabsList aria-label={applicationTransactionsLabel}>
               <TabsTrigger
@@ -159,7 +159,7 @@ export function ApplicationDetails({ application }: Props) {
       </Card>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{applicationJsonLabel}</h1>
+          <h2>{applicationJsonLabel}</h2>
           <div className={cn('border-solid border-2 border-border h-96 grid')}>
             <JsonView json={application.json} />
           </div>

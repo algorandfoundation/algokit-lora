@@ -19,7 +19,7 @@ export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
       </DialogTrigger>
       <DialogContent className="w-[800px]">
         <DialogHeader>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{dialogTitle}</h1>
+          <h2>{dialogTitle}</h2>
         </DialogHeader>
         <InternalDialogContent applicationId={applicationId} boxName={boxName} />
       </DialogContent>

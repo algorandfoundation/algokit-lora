@@ -2,11 +2,11 @@ import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { cn } from '@/features/common/utils'
 import { BlockDetails } from '../components/block-details'
 import { is404 } from '@/utils/error'
 import { useLoadableBlock } from '../data'
 import { isInteger } from '@/utils/is-integer'
+import { PageTitle } from '@/features/common/components/page-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -30,11 +30,11 @@ export function BlockPage() {
   const loadableBlock = useLoadableBlock(round)
 
   return (
-    <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{blockPageTitle}</h1>
+    <>
+      <PageTitle title={blockPageTitle} />
       <RenderLoadable loadable={loadableBlock} transformError={transformError}>
         {(block) => <BlockDetails block={block} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

@@ -1,14 +1,13 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { cn } from '@/features/common/utils'
 import { isInteger } from '@/utils/is-integer'
 import { useLoadableApplication } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { ApplicationDetails } from '../components/application-details'
 import { is404 } from '@/utils/error'
-import { RefreshButton } from '@/features/common/components/refresh-button'
 import { useCallback } from 'react'
+import { PageTitle } from '@/features/common/components/page-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -37,14 +36,11 @@ export function ApplicationPage() {
   }, [refreshApplication])
 
   return (
-    <div>
-      <div className="flex">
-        <h1 className={cn('text-2xl text-primary font-bold')}>{applicationPageTitle}</h1>
-        {isStale && <RefreshButton onClick={refresh} />}
-      </div>
+    <>
+      <PageTitle title={applicationPageTitle} canRefreshPage={isStale} onRefresh={refresh} />
       <RenderLoadable loadable={loadableApplication} transformError={transformError}>
         {(application) => <ApplicationDetails application={application} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

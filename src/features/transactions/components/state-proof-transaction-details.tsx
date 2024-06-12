@@ -13,12 +13,12 @@ type Props = {
 
 export function StateProofTransactionDetails({ transaction }: Props) {
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <TransactionInfo transaction={transaction} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>
           <div className={cn('flex items-center justify-between')}>
-            <h1 className={cn('text-2xl text-primary font-bold')}>State Proof</h1>
+            <h2>State Proof</h2>
           </div>
           {transaction.note && <TransactionNote note={transaction.note} />}
           <TransactionJson json={transaction.json} />

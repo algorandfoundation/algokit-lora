@@ -14,7 +14,7 @@ export const UrlParams = {
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
-  Index: UrlTemplate`/`,
+  Explore: UrlTemplate`/`,
   Transaction: UrlTemplate`/transaction`.extend({
     ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
       Inner: UrlTemplate`/inner`.extend({

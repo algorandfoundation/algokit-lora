@@ -4,9 +4,9 @@ import { useLoadableGroup } from '../data'
 import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { GroupDetails } from '../components/group-details'
-import { cn } from '@/features/common/utils'
 import { invariant } from '@/utils/invariant'
 import { isInteger } from '@/utils/is-integer'
+import { PageTitle } from '@/features/common/components/page-title'
 
 export const groupPageTitle = 'Transaction Group'
 export const groupNotFoundMessage = 'Transaction group not found'
@@ -32,11 +32,11 @@ export function GroupPage() {
   const loadableGroup = useLoadableGroup(groupId, round)
 
   return (
-    <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{groupPageTitle}</h1>
+    <>
+      <PageTitle title={groupPageTitle} />
       <RenderLoadable loadable={loadableGroup} transformError={transformError}>
         {(group) => <GroupDetails group={group} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

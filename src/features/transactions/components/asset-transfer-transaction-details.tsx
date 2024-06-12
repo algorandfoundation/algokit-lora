@@ -15,7 +15,7 @@ type AssetTransaferTransactionProps = {
 
 export function AssetTranserTransactionDetails({ transaction }: AssetTransaferTransactionProps) {
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <TransactionInfo transaction={transaction} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-4')}>

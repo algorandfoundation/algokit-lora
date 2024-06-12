@@ -2,15 +2,11 @@ import { TemplatedNavLink } from '../../routing/components/templated-nav-link/te
 import { Urls } from '../../../routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/common/components/navigation-menu'
 import { cn } from '@/features/common/utils'
-import SvgCodeBlock from '@/features/common/components/icons/code-block'
-import SvgHome from '@/features/common/components/icons/home'
 import { Button } from '@/features/common/components/button'
-import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
 import { useCallback, useMemo } from 'react'
-import SvgChevronRight from '@/features/common/components/icons/chevron-right'
-import SvgCog from '@/features/common/components/icons/cog'
 import { useLayout } from '@/features/settings/data'
 import { useLocation } from 'react-router-dom'
+import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 type Props = {
   className?: string
@@ -18,9 +14,9 @@ type Props = {
 
 export function LeftSideBarMenu({ className }: Props) {
   const menuItems = [
-    { urlTemplate: Urls.Index, icon: <SvgHome />, text: 'Home' },
-    { urlTemplate: Urls.AppStudio, icon: <SvgCodeBlock />, text: 'App Studio' },
-    { urlTemplate: Urls.Settings, icon: <SvgCog />, text: 'Settings' },
+    { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
+    { urlTemplate: Urls.AppStudio, icon: <Braces />, text: 'App Studio' },
+    { urlTemplate: Urls.Settings, icon: <Settings />, text: 'Settings' },
   ]
   const [layout, setLayout] = useLayout()
 
@@ -46,12 +42,12 @@ export function LeftSideBarMenu({ className }: Props) {
 
   return (
     <NavigationMenu
-      className={cn('bg-card transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-10')}
+      className={cn('bg-card transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-12')}
     >
       <NavigationMenuList className={cn('flex-col items-start')}>
         <NavigationMenuItem className={cn('flex justify-end')}>
-          <Button variant="outline" size="icon" className={cn('text-primary')} onClick={toggleLeftSideBar}>
-            {layout.isLeftSideBarExpanded ? <SvgChevronLeft /> : <SvgChevronRight />}
+          <Button variant="ghost" size="icon" onClick={toggleLeftSideBar}>
+            {layout.isLeftSideBarExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
           </Button>
         </NavigationMenuItem>
         {menuItems.map((menuItem, index) => (
@@ -61,10 +57,10 @@ export function LeftSideBarMenu({ className }: Props) {
                 urlTemplate={menuItem.urlTemplate}
                 className={cn(
                   '[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap',
-                  menuItem.urlTemplate === Urls.Index && isIndexActive ? 'active' : ''
+                  menuItem.urlTemplate === Urls.Explore && isIndexActive ? 'active' : ''
                 )}
               >
-                <div className={cn('text-primary')}>{menuItem.icon}</div>
+                <div className={cn(isIndexActive && 'text-primary')}>{menuItem.icon}</div>
                 <div className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
               </TemplatedNavLink>
             </NavigationMenuLink>

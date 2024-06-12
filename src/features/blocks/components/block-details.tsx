@@ -64,7 +64,7 @@ export function BlockDetails({ block }: Props) {
   )
 
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <DescriptionList items={blockItems} />
@@ -72,7 +72,7 @@ export function BlockDetails({ block }: Props) {
       </Card>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{transactionsLabel}</h1>
+          <h2>{transactionsLabel}</h2>
           <TransactionsTable transactions={block.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />
         </CardContent>
       </Card>

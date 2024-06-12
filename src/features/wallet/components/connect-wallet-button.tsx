@@ -194,7 +194,7 @@ export function ConnectWalletButton() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="w-[500px] bg-card" onOpenAutoFocus={preventDefault}>
           <DialogHeader>
-            <h2 className={cn('text-2xl text-primary font-bold')}>Wallet Providers</h2>
+            <h2>Wallet Providers</h2>
           </DialogHeader>
           <div className="flex flex-col space-y-2">
             {!isReady

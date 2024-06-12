@@ -132,7 +132,7 @@ export function AssetDetails({ asset }: Props) {
   ).filter(isDefined)
 
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <Card aria-label={assetDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
@@ -145,7 +145,7 @@ export function AssetDetails({ asset }: Props) {
         <>
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetAddressesLabel}</h1>
+              <h2>{assetAddressesLabel}</h2>
               <DescriptionList items={assetAddresses} />
             </CardContent>
           </Card>
@@ -154,7 +154,7 @@ export function AssetDetails({ asset }: Props) {
           <AssetTraits traits={asset.traits} />
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
+              <h2>{assetJsonLabel}</h2>
               <div className={cn('border-solid border-2 border-border h-96 grid')}>
                 <JsonView json={asset.json} />
               </div>
@@ -163,7 +163,7 @@ export function AssetDetails({ asset }: Props) {
 
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetActivityLabel}</h1>
+              <h2>{assetActivityLabel}</h2>
               <Tabs defaultValue={assetLiveTransactionsTabId}>
                 <TabsList aria-label={assetActivityLabel}>
                   <TabsTrigger

@@ -16,7 +16,7 @@ import { TxPage } from './features/transactions/pages/tx-page'
 
 export const routes = evalTemplates([
   {
-    template: Urls.Index,
+    template: Urls.Explore,
     element: (
       <LayoutPage>
         <Outlet />
@@ -25,7 +25,7 @@ export const routes = evalTemplates([
     errorElement: <ErrorPage />,
     children: [
       {
-        template: Urls.Index,
+        template: Urls.Explore,
         element: <ExplorePage />,
         errorElement: <ErrorPage title={explorePageTitle} />,
       },

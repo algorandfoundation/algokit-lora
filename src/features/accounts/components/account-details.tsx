@@ -14,11 +14,11 @@ type Props = {
 
 export function AccountDetails({ account }: Props) {
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <AccountInfo account={account} />
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{accountActivityLabel}</h1>
+          <h2>{accountActivityLabel}</h2>
           <div className={cn('border-solid border-2 border-border grid')}>
             <AccountActivityTabs account={account} />
           </div>
@@ -27,7 +27,7 @@ export function AccountDetails({ account }: Props) {
 
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{accountAssetLabel}</h1>
+          <h2>{accountAssetLabel}</h2>
           <div className={cn('border-solid border-2 border-border grid')}>
             <AccountAssetTabs account={account} />
           </div>
@@ -35,7 +35,7 @@ export function AccountDetails({ account }: Props) {
       </Card>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{accountApplicationLabel}</h1>
+          <h2>{accountApplicationLabel}</h2>
           <div className={cn('border-solid border-2 border-border grid')}>
             <AccountApplicationTabs account={account} />
           </div>
@@ -44,7 +44,7 @@ export function AccountDetails({ account }: Props) {
 
       <Card className={cn('p-4')}>
         <CardContent aria-label={accountJsonLabel} className={cn('text-sm space-y-2')}>
-          <h1 className={cn('text-2xl text-primary font-bold')}>{accountJsonLabel}</h1>
+          <h2>{accountJsonLabel}</h2>
           <div className={cn('border-solid border-2 border-border h-96 grid')}>
             <JsonView json={account.json} />
           </div>

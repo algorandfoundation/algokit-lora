@@ -1,14 +1,13 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { cn } from '@/features/common/utils'
 import { isInteger } from '@/utils/is-integer'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
 import { useLoadableAsset } from '../data'
 import { useCallback } from 'react'
-import { RefreshButton } from '@/features/common/components/refresh-button'
+import { PageTitle } from '@/features/common/components/page-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -37,14 +36,11 @@ export function AssetPage() {
   }, [refreshAsset])
 
   return (
-    <div>
-      <div className="flex">
-        <h1 className={cn('text-2xl text-primary font-bold')}>{assetPageTitle}</h1>
-        {isStale && <RefreshButton onClick={refresh} />}
-      </div>
+    <>
+      <PageTitle title={assetPageTitle} canRefreshPage={isStale} onRefresh={refresh} />
       <RenderLoadable loadable={loadableAsset} transformError={transformError}>
         {(asset) => <AssetDetails asset={asset} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

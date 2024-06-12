@@ -1,11 +1,11 @@
-import { cn } from '@/features/common/utils'
 import { Settings } from '../components/settings'
+import { PageTitle } from '@/features/common/components/page-title'
 
 export function SettingsPage() {
   return (
-    <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>Settings</h1>
+    <>
+      <PageTitle title="Settings" />
       <Settings />
-    </div>
+    </>
   )
 }

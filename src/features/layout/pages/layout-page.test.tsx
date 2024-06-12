@@ -7,7 +7,6 @@ import { PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Event as TauriEvent, listen } from '@tauri-apps/api/event'
 import { networkConfigAtom, settingsStore } from '@/features/settings/data'
 import { useNavigate } from 'react-router-dom'
-import { networkLabel } from '../components/header'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -175,7 +174,7 @@ describe('when rendering the layout page', () => {
         () => render(<LayoutPage />),
         async (component) => {
           await waitFor(() => {
-            const network = component.getByText(`${networkLabel} MainNet`)
+            const network = component.getByText('MainNet')
             expect(network).toBeTruthy()
             const networkConfig = settingsStore.get(networkConfigAtom)
             expect(networkConfig.id).toBe('mainnet')
@@ -212,7 +211,7 @@ describe('when rendering the layout page', () => {
           () => render(<LayoutPage />),
           async (component) => {
             await waitFor(() => {
-              const network = component.getByText(`${networkLabel} TestNet`)
+              const network = component.getByText('TestNet')
               expect(network).toBeTruthy()
               const networkConfig = settingsStore.get(networkConfigAtom)
               expect(networkConfig.id).toBe('testnet')
@@ -248,7 +247,7 @@ describe('when rendering the layout page', () => {
         () => render(<LayoutPage />),
         async (component) => {
           await waitFor(() => {
-            const network = component.getByText(`${networkLabel} MainNet`)
+            const network = component.getByText('MainNet')
             expect(network).toBeTruthy()
             const networkConfig = settingsStore.get(networkConfigAtom)
             expect(networkConfig.id).toBe('mainnet')
@@ -265,7 +264,7 @@ describe('when rendering the layout page', () => {
         () => render(<LayoutPage />),
         async (component) => {
           await waitFor(() => {
-            const network = component.getByText(`${networkLabel} LocalNet`)
+            const network = component.getByText('LocalNet')
             expect(network).toBeTruthy()
             const networkConfig = settingsStore.get(networkConfigAtom)
             expect(networkConfig.id).toBe('localnet')

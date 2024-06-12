@@ -73,7 +73,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
   return (
     <div className={cn('space-y-2')}>
       <div className={cn('flex items-center justify-between')}>
-        <h1 className={cn('text-2xl text-primary font-bold')}>Asset Transfer</h1>
+        <h2>Asset Transfer</h2>
       </div>
       <DescriptionList items={items} />
     </div>

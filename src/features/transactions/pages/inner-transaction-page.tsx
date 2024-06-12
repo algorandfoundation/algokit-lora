@@ -4,10 +4,10 @@ import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { TransactionDetails } from '../components/transaction-details'
 import { useLoadableInnerTransactionAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { cn } from '@/features/common/utils'
 import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-id'
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { is404 } from '@/utils/error'
+import { PageTitle } from '@/features/common/components/page-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -34,11 +34,11 @@ export function InnerTransactionPage() {
   const loadableTransaction = useLoadableInnerTransactionAtom(transactionId, innerTransactionId)
 
   return (
-    <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageTitle}</h1>
+    <>
+      <PageTitle title={transactionPageTitle} />
       <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
         {(data) => <TransactionDetails transaction={data} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

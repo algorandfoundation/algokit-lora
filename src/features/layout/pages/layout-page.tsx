@@ -14,11 +14,11 @@ export function LayoutPage({ children }: LayoutPageProps) {
   useDeepLink()
 
   return (
-    <div className="w-full xl:max-w-screen-xl">
-      <Header className={cn('mb-1')} />
+    <div className="w-full">
+      <Header />
       <div className={cn('grid grid-flow-col grid-cols-[minmax(min-content,auto)_1fr]')}>
         <LeftSideBarMenu />
-        <div className={cn('pl-4 pt-4')}>{children}</div>
+        <div className={cn('px-4 pb-4')}>{children}</div>
         <ToastContainer />
       </div>
     </div>

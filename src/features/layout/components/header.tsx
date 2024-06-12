@@ -8,23 +8,22 @@ type Props = {
   className?: string
 }
 
-export const networkLabel = 'Network:'
-
 export function Header({ className }: Props) {
   const networkConfig = useNetworkConfig()
 
   return (
-    <div className={cn('bg-card flex h-20 flex-row justify-between px-5 pt-4 gap-5', className)}>
-      <div className={cn('flex flex-row items-baseline justify-start mt-1')}>
+    <header className={cn('bg-card flex h-20 flex-row px-4 items-center justify-start', className)}>
+      <div className={cn('flex flex-row mr-4')}>
+        <span className="text-2xl">[algokit]</span>
+      </div>
+      <div className={cn('flex flex-row mr-4')}>
         <Search />
       </div>
-      <div className={cn('flex flex-row items-center justify-end gap-2')}>
-        <label>
-          {networkLabel} {networkConfig.name}
-        </label>
+      <div className={cn('flex flex-row items-center justify-end gap-2 ml-auto')}>
+        <span className="flex flex-row">{networkConfig.name}</span>
         <ConnectWalletButton />
         <ThemeToggle />
       </div>
-    </div>
+    </header>
   )
 }

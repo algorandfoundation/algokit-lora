@@ -20,7 +20,7 @@ export function AppCallTransactionLogs({ logs }: Props) {
 
   return (
     <div className={cn('space-y-2')}>
-      <h2 className={cn('text-xl font-bold')}>Logs</h2>
+      <h3>Logs</h3>
       <Tabs defaultValue={base64LogTabId}>
         <TabsList aria-label={logsLabel}>
           <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64LogTabId}>

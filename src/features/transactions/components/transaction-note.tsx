@@ -38,7 +38,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
 
   return (
     <div className={cn('space-y-2')}>
-      <h2 className={cn('text-xl font-bold')}>Note</h2>
+      <h3>Note</h3>
       <Tabs defaultValue={activeTabId}>
         <TabsList aria-label={noteLabel}>
           <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={base64NoteTabId}>
