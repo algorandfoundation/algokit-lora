@@ -252,7 +252,9 @@ describe('when rendering the layout page', () => {
             expect(network).toBeTruthy()
             const networkConfig = settingsStore.get(networkConfigAtom)
             expect(networkConfig.id).toBe('mainnet')
-            expect(mockNavigate).toHaveBeenCalledWith(`/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`)
+            expect(mockNavigate).toHaveBeenCalledWith(
+              `/mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`
+            )
           })
         }
       )

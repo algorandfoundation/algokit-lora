@@ -3,6 +3,7 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { ApplicationId } from '../data/types'
+import { useSelectedNetwork } from '@/features/settings/data'
 
 type Props = PropsWithChildren<{
   applicationId: ApplicationId
@@ -10,11 +11,12 @@ type Props = PropsWithChildren<{
 }>
 
 export function ApplicationLink({ applicationId, className, children }: Props) {
+  const [selectedNetwork] = useSelectedNetwork()
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
       urlTemplate={Urls.Network.Application.ById}
-      urlParams={{ applicationId: applicationId.toString() }}
+      urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
     >
       {children ? children : applicationId}
     </TemplatedNavLink>
