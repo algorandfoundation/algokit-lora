@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
 import { PROVIDER_ID, clearAccounts, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
@@ -69,16 +69,15 @@ export const localnetConfig: NetworkConfig = {
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
 const networkLocalStorageKey = 'network'
-// TODO: find and remove logic of the query string
+
 const storageNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
-const urlNetworkAtom = atom<string | undefined>(() => {
+const selectedNetworkAtom = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
   if (networksConfigs.find((c) => c.id === networkId)) {
     return networkId
   }
-  return undefined
+  return get(storageNetworkAtom)
 })
-const selectedNetworkAtom = atom((get) => get(urlNetworkAtom) || get(storageNetworkAtom))
 
 export const networkConfigAtom = atom((get) => {
   const id = get(selectedNetworkAtom)
@@ -115,7 +114,7 @@ export const useSelectedNetwork = () => {
 
 export const useSetSelectedNetwork = () => {
   const { providers } = useWallet()
-  const setSelectedNetwork = useSetAtom(storageNetworkAtom, { store: settingsStore })
+  const setStorageNetwork = useSetAtom(storageNetworkAtom, { store: settingsStore })
 
   return useCallback(
     async (selectedNetwork: string) => {
@@ -128,8 +127,10 @@ export const useSetSelectedNetwork = () => {
           })
         )
       }
-      setSelectedNetwork(selectedNetwork)
+      setStorageNetwork(selectedNetwork)
+      // Refresh selected network atom value
+      settingsStore.set(selectedNetworkAtom)
     },
-    [providers, setSelectedNetwork]
+    [providers, setStorageNetwork]
   )
 }

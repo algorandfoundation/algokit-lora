@@ -14,6 +14,7 @@ import { ApplicationPage, applicationPageTitle } from './features/applications/p
 import { SettingsPage } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
 import { IndexPage } from '@/index-page'
+import { NetworkPage } from '@/features/network/pages/network-page'
 
 export const routes = evalTemplates([
   {
@@ -32,6 +33,11 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Network,
+        element: (
+          <NetworkPage>
+            <Outlet />
+          </NetworkPage>
+        ),
         children: [
           {
             template: Urls.Network,

@@ -17,8 +17,10 @@ type Props = {
 }
 
 export function LeftSideBarMenu({ className }: Props) {
+  const [selectedNetwork] = useSelectedNetwork()
+
   const menuItems = [
-    { urlTemplate: Urls.Index, icon: <SvgHome />, text: 'Home' },
+    { urlTemplate: Urls.Network, icon: <SvgHome />, text: 'Home' },
     { urlTemplate: Urls.AppStudio, icon: <SvgCodeBlock />, text: 'App Studio' },
     { urlTemplate: Urls.Settings, icon: <SvgCog />, text: 'Settings' },
   ]
@@ -29,7 +31,6 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
-  const [selectedNetwork] = useSelectedNetwork()
   // The little hack to make the index (root) menu item active when transaction, block, account, asset, application are viewed
   // This needs to be done because React router doesn't match the root URL with any sub-path
   // The doc: https://reactrouter.com/en/main/components/nav-link#end
@@ -61,6 +62,7 @@ export function LeftSideBarMenu({ className }: Props) {
             <NavigationMenuLink asChild>
               <TemplatedNavLink
                 urlTemplate={menuItem.urlTemplate}
+                urlParams={{ networkId: selectedNetwork }}
                 className={cn(
                   '[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap',
                   menuItem.urlTemplate === Urls.Index && isIndexActive ? 'active' : ''

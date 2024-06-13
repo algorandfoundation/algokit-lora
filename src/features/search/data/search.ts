@@ -15,7 +15,7 @@ import { isTransactionId } from '@/utils/is-transaction-id'
 import { isInteger } from '@/utils/is-integer'
 import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
-import { networkConfigAtom } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/settings/data'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -24,8 +24,7 @@ const handle404 = (e: Error) => {
   throw e
 }
 
-const createSearchAtoms = (store: JotaiStore) => {
-  const selectedNetwork = store.get(networkConfigAtom).id
+const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
   const [currentTermAtom, termAtom, isDebouncingAtom] = atomWithDebounce<string>('')
   const searchResultsAtom = atom(async (get) => {
     // Return an async forever value if we are debouncing, so we can render a loader
@@ -108,9 +107,10 @@ const createSearchAtoms = (store: JotaiStore) => {
 
 const useSearchAtoms = () => {
   const store = useStore()
+  const [selectedNetwork] = useSelectedNetwork()
   return useMemo(() => {
-    return createSearchAtoms(store)
-  }, [store])
+    return createSearchAtoms(store, selectedNetwork)
+  }, [selectedNetwork, store])
 }
 
 export const useSearch = () => {
