@@ -16,7 +16,7 @@ type Props = {
 export function OpenJsonViewDialogButton({ json, exapandJsonLevel = defaultExpandLevel }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  const openJsonView = useCallback(() => {
+  const openJsonViewDialog = useCallback(() => {
     setDialogOpen(true)
   }, [setDialogOpen])
 
@@ -67,7 +67,7 @@ export function OpenJsonViewDialogButton({ json, exapandJsonLevel = defaultExpan
 
   return (
     <div>
-      <Button variant="outline" className={cn('mb-2 ml-1 rounded w-32')} onClick={openJsonView}>
+      <Button variant="outline" className={cn('mb-2 ml-1 rounded w-32')} onClick={openJsonViewDialog}>
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
