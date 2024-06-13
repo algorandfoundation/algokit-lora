@@ -45,6 +45,7 @@
 
 .key-light {
   color: rgb(27 108 135);
+  padding: 10px 0;
 }
 .value-string-light {
   color: rgb(169 48 59);
@@ -65,6 +66,7 @@
 
 .key-dark {
   color: rgb(43 157 195);
+  padding: 10px 0;
 }
 .value-string-dark {
   color: rgb(234 100 104);

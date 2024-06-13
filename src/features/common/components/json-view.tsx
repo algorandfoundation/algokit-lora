@@ -66,24 +66,24 @@ export function OpenJsonViewDialogButton({ json, exapandJsonLevel = defaultExpan
   }, [json])
 
   return (
-    <div>
-      <Button variant="outline" className={cn('mb-2 ml-1 rounded w-32')} onClick={openJsonViewDialog}>
+    <>
+      <Button variant="outline" onClick={openJsonViewDialog}>
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <DialogHeader>
-            <h4 className={cn('text-xl text-primary font-bold')}>Json</h4>
+            <h4 className={cn('text-xl text-primary font-bold')}>JSON</h4>
           </DialogHeader>
-          <div className={cn('border-solid border-2 border-border grid w-[900px] min-h-[200px] max-h-[500px] overflow-auto')}>
-            <Button variant="default" className={cn('absolute top-20 right-12')} onClick={copyJsonToClipboard}>
+          <div className={cn('border-solid border-2 border-border grid w-[900px] min-h-[200px] max-h-[500px] overflow-auto relative')}>
+            <Button variant="default" className={cn('absolute top-2 right-2')} onClick={copyJsonToClipboard}>
               Copy
             </Button>
             <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   )
 }
 // Only render the top level because sometimes the object has too many children to render

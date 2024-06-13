@@ -140,7 +140,7 @@ export function AssetDetails({ asset }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
-            <div>
+            <div className="ml-2 grid gap-2">
               <OpenJsonViewDialogButton json={asset.json} exapandJsonLevel={expandAssetJsonLevel} />
               <AssetMedia asset={asset} />
             </div>
