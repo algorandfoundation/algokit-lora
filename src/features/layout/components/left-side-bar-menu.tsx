@@ -1,16 +1,15 @@
 import { TemplatedNavLink } from '../../routing/components/templated-nav-link/templated-nav-link'
-import { Urls } from '../../../routes/urls'
+import { Urls } from '@/routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/common/components/navigation-menu'
 import { cn } from '@/features/common/utils'
 import SvgCodeBlock from '@/features/common/components/icons/code-block'
 import SvgHome from '@/features/common/components/icons/home'
 import { Button } from '@/features/common/components/button'
 import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import SvgChevronRight from '@/features/common/components/icons/chevron-right'
 import SvgCog from '@/features/common/components/icons/cog'
 import { useLayout, useSelectedNetwork } from '@/features/settings/data'
-import { useLocation } from 'react-router-dom'
 
 type Props = {
   className?: string
@@ -31,22 +30,6 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
-  // The little hack to make the index (root) menu item active when transaction, block, account, asset, application are viewed
-  // This needs to be done because React router doesn't match the root URL with any sub-path
-  // The doc: https://reactrouter.com/en/main/components/nav-link#end
-  const location = useLocation()
-  const isIndexActive = useMemo(() => {
-    const forceMatchWithIndex = [
-      Urls.Network.build({ networkId: selectedNetwork }),
-      Urls.Network.Transaction.build({ networkId: selectedNetwork }),
-      Urls.Network.Block.build({ networkId: selectedNetwork }),
-      Urls.Network.Account.build({ networkId: selectedNetwork }),
-      Urls.Network.Asset.build({ networkId: selectedNetwork }),
-      Urls.Network.Application.build({ networkId: selectedNetwork }),
-    ]
-    return forceMatchWithIndex.some((path) => location.pathname.startsWith(path))
-  }, [location.pathname])
-
   return (
     <NavigationMenu
       className={cn('bg-card transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-10')}
@@ -63,10 +46,7 @@ export function LeftSideBarMenu({ className }: Props) {
               <TemplatedNavLink
                 urlTemplate={menuItem.urlTemplate}
                 urlParams={{ networkId: selectedNetwork }}
-                className={cn(
-                  '[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap',
-                  menuItem.urlTemplate === Urls.Index && isIndexActive ? 'active' : ''
-                )}
+                className={cn('[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap')}
               >
                 <div className={cn('text-primary')}>{menuItem.icon}</div>
                 <div className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
