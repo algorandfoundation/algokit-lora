@@ -1,4 +1,3 @@
-export const accountJsonLabel = 'Account JSON'
 export const accountActivityLabel = 'Activity'
 export const accountAssetLabel = 'Assets'
 export const accountApplicationLabel = 'Applications'

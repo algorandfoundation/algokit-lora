@@ -23,7 +23,6 @@ import {
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
   applicationTransactionsLabel,
-  applicationJsonLabel,
   applicationNameLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'

@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogHeader } from '@/features/common/component
 
 type Props = {
   json: object
+  exapandJsonLevel?: (level: number) => boolean
 }
-export function JsonView({ json }: Props) {
+export function JsonView({ json, exapandJsonLevel = defaultExpandLevel }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openJsonView = useCallback(() => {
@@ -46,7 +47,7 @@ export function JsonView({ json }: Props) {
 
   return (
     <div>
-      <Button className={cn('mb-2 ml-2 rounded')} onClick={openJsonView}>
+      <Button variant="outline" className={cn('mb-2 ml-1 rounded w-32')} onClick={openJsonView}>
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
@@ -54,11 +55,11 @@ export function JsonView({ json }: Props) {
           <DialogHeader>
             <h4 className={cn('text-xl text-primary font-bold')}>Json</h4>
           </DialogHeader>
-          <div className={cn('border-solid border-2 border-border grid w-[900px] h-[600px] overflow-auto ')}>
+          <div className={cn('border-solid border-2 border-border grid w-[900px] min-h-[200px] max-h-[500px] overflow-auto')}>
             <Button variant="default" className={cn('absolute top-20 right-12')} onClick={copyJsonToClipboard}>
               Copy
             </Button>
-            <ReactJsonView data={json} shouldExpandNode={shouldExpandNode} style={style} />
+            <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={style} />
           </div>
         </DialogContent>
       </Dialog>
@@ -66,7 +67,7 @@ export function JsonView({ json }: Props) {
   )
 }
 // Only render the top level because sometimes the object has too many children to render
-const shouldExpandNode = (level: number) => {
+const defaultExpandLevel = (level: number) => {
   return level < 1
 }
 
