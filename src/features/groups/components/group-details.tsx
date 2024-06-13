@@ -4,9 +4,9 @@ import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { Badge } from '@/features/common/components/badge'
-import { dateFormatter } from '@/utils/format'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupTransactionsViewTabs } from './group-transactions-view-tabs'
+import { DateFormatted } from '@/features/common/components/date-formatted'
 
 type Props = {
   group: Group
@@ -34,7 +34,7 @@ export function GroupDetails({ group }: Props) {
           <>
             {group.transactionsSummary.count}
             {group.transactionsSummary.countByType.map(([type, count]) => (
-              <Badge key={type} variant="outline">
+              <Badge key={type} variant={type}>
                 {type}={count}
               </Badge>
             ))}
@@ -43,7 +43,7 @@ export function GroupDetails({ group }: Props) {
       },
       {
         dt: timestampLabel,
-        dd: dateFormatter.asLongDateTime(new Date(group.timestamp)),
+        dd: <DateFormatted date={new Date(group.timestamp)} />,
       },
     ],
     [group.id, group.round, group.timestamp, group.transactionsSummary.count, group.transactionsSummary.countByType]

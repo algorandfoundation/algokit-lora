@@ -2,13 +2,13 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
-import { dateFormatter } from '@/utils/format'
 import { BlockLink } from './block-link'
 import { Block } from '../models'
 import { Badge } from '@/features/common/components/badge'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
+import { DateFormatted } from '@/features/common/components/date-formatted'
 
 type Props = {
   block: Block
@@ -29,19 +29,19 @@ export function BlockDetails({ block }: Props) {
       },
       {
         dt: timestampLabel,
-        dd: dateFormatter.asLongDateTime(new Date(block.timestamp)),
+        dd: <DateFormatted date={new Date(block.timestamp)} />,
       },
       {
         dt: transactionsLabel,
         dd: (
-          <>
+          <div className="flex">
             {block.transactionsSummary.count}
             {block.transactionsSummary.countByType.map(([type, count]) => (
-              <Badge key={type} variant="outline">
+              <Badge key={type} variant={type}>
                 {type}={count}
               </Badge>
             ))}
-          </>
+          </div>
         ),
       },
       {

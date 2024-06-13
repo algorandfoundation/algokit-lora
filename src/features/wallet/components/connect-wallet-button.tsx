@@ -36,8 +36,8 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="w-36" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
-      Connect Wallet
+    <Button className="w-36 bg-card" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
+      {connectWalletLabel}
     </Button>
   )
 }
@@ -173,7 +173,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="w-36" variant="outline" disabled>
+      <Button className="w-36 bg-card" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>

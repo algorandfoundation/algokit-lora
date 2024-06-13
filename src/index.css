@@ -36,7 +36,28 @@
     --input: 224 227 231;
     --ring: 224 227 231;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    --payment: 169 48 59;
+    --payment-foreground: 255 255 255;
+
+    --asset-transfer: 154 50 148;
+    --asset-transfer-foreground: 255 255 255;
+
+    --application-call: 27 108 135;
+    --application-call-foreground: 255 255 255;
+
+    --asset-config: 121 58 240;
+    --asset-config-foreground: 255 255 255;
+
+    --asset-freeze: 67 100 99;
+    --asset-freeze-foreground: 255 255 255;
+
+    --state-proof: 25 109 11;
+    --state-proof-foreground: 255 255 255;
+
+    --key-registration: 107 94 9;
+    --key-registration-foreground: 255 255 255;
   }
 
   .dark {
@@ -69,6 +90,27 @@
     --input: 90 98 114;
 
     --ring: 90 98 114;
+
+    --payment: 234 100 104;
+    --payment-foreground: 0 19 36;
+
+    --asset-transfer: 235 117 226;
+    --asset-transfer-foreground: 0 19 36;
+
+    --application-call: 43 157 195;
+    --application-call-foreground: 0 19 36;
+
+    --asset-config: 170 121 245;
+    --asset-config-foreground: 0 19 36;
+
+    --asset-freeze: 105 154 152;
+    --asset-freeze-foreground: 0 19 36;
+
+    --state-proof: 43 167 22;
+    --state-proof-foreground: 0 19 36;
+
+    --key-registration: 164 144 20;
+    --key-registration-foreground: 0 19 36;
   }
 }
 
@@ -77,7 +119,7 @@
     @apply border-border;
   }
   html {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto Mono', sans-serif;
   }
   body {
     @apply bg-background text-foreground;

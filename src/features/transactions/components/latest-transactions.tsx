@@ -6,6 +6,7 @@ import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ArrowRightLeft } from 'lucide-react'
+import { Badge } from '@/features/common/components/badge'
 
 export const latestTransactionsTitle = 'Latest Transactions'
 
@@ -14,12 +15,12 @@ export function LatestTransactions() {
 
   return (
     <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm space-y-2')}>
+      <CardContent className={cn('text-sm')}>
         <h2>{latestTransactionsTitle}</h2>
-        <div className={cn('grid grid-cols-1 gap-3')}>
+        <ul className={cn('grid grid-cols-1')}>
           {latestTransactions.map((transaction) => (
-            <TransactionLink key={transaction.id} transactionId={transaction.id}>
-              <div className="flex border-b px-2 pb-2 text-sm">
+            <li key={transaction.id} className="border-b last:border-0">
+              <TransactionLink transactionId={transaction.id} className="flex p-[0.705rem] text-sm hover:bg-accent">
                 <ArrowRightLeft className="text-primary" />
                 <div className={cn('mx-2')}>
                   <h3 className={cn('leading-none mb-2')}>{ellipseId(transaction.id)}</h3>
@@ -33,11 +34,13 @@ export function LatestTransactions() {
                     ]}
                   />
                 </div>
-                <span className={cn('ml-auto')}>{transaction.type}</span>
-              </div>
-            </TransactionLink>
+                <div className="ml-auto">
+                  <Badge variant={transaction.type}>{transaction.type}</Badge>
+                </div>
+              </TransactionLink>
+            </li>
           ))}
-        </div>
+        </ul>
       </CardContent>
     </Card>
   )

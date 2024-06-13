@@ -75,7 +75,7 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.AppStudio,
-        element: <div>App Studio</div>,
+        element: <ErrorPage title="App Studio" />,
       },
       {
         template: Urls.Settings,

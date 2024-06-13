@@ -1,9 +1,9 @@
 import { cn } from '@/features/common/utils'
 import { BlockLink } from './block-link'
 import { Card, CardContent } from '@/features/common/components/card'
-import { dateFormatter } from '@/utils/format'
 import { useLatestBlockSummaries } from '../data'
 import { Box } from 'lucide-react'
+import { DateFormatted } from '@/features/common/components/date-formatted'
 
 export const latestBlocksTitle = 'Latest Blocks'
 
@@ -12,24 +12,24 @@ export function LatestBlocks() {
 
   return (
     <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm space-y-2')}>
+      <CardContent className={cn('text-sm')}>
         <h2>{latestBlocksTitle}</h2>
-        <div className={cn('grid grid-cols-1 gap-3')}>
+        <ul className={cn('grid grid-cols-1')}>
           {latestBlocks.map((block) => (
-            <BlockLink key={block.round} round={block.round}>
-              <div className="flex border-b px-2 pb-2 text-sm">
+            <li key={block.round} className="border-b last:border-0">
+              <BlockLink round={block.round} className="flex p-3 text-sm hover:bg-accent">
                 <Box className="text-primary" />
                 <div className={cn('mx-2')}>
                   <h3 className={cn('leading-none mb-2')}>{block.round}</h3>
-                  <span>{dateFormatter.asLongDateTime(new Date(block.timestamp))}</span>
+                  <DateFormatted date={new Date(block.timestamp)} />
                 </div>
                 <span className={cn('ml-auto')}>
                   {block.transactionsSummary.count} transaction{block.transactionsSummary.count === 1 ? '' : 's'}
                 </span>
-              </div>
-            </BlockLink>
+              </BlockLink>
+            </li>
           ))}
-        </div>
+        </ul>
       </CardContent>
     </Card>
   )

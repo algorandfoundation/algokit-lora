@@ -1,6 +1,5 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { dateFormatter } from '@/utils/format'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
 import { Transaction, SignatureType, InnerTransaction } from '../models'
@@ -11,6 +10,7 @@ import { GroupLink } from '@/features/groups/components/group-link'
 import { useAtomValue } from 'jotai'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionLink } from './transaction-link'
+import { DateFormatted } from '@/features/common/components/date-formatted'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -36,7 +36,9 @@ export function TransactionInfo({ transaction }: Props) {
         dt: transactionTypeLabel,
         dd: (
           <>
-            {transaction.type}
+            <Badge className="ml-0" variant={transaction.type}>
+              {transaction.type}
+            </Badge>
             {subType && <Badge variant="outline">{subType}</Badge>}
             {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
             {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
@@ -46,7 +48,7 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: transactionTimestampLabel,
-        dd: dateFormatter.asLongDateTime(new Date(transaction.roundTime)),
+        dd: <DateFormatted date={new Date(transaction.roundTime)} />,
       },
       {
         dt: transactionBlockLabel,

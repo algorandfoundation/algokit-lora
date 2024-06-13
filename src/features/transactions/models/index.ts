@@ -248,3 +248,5 @@ export type KeyRegTransaction = BaseKeyRegTransaction & {
 }
 
 export type InnerKeyRegTransaction = BaseKeyRegTransaction & InnerTransactionId
+
+export type TransactionVariant = 'payment' | 'transfer'
