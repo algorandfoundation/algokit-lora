@@ -64,16 +64,16 @@
 }
 
 .key-dark {
-  color: rgb(119 211 249);
+  color: rgb(43 157 195);
 }
 .value-string-dark {
-  color: rgb(240 158 155);
+  color: rgb(234 100 104);
 }
 
 .value-number-dark {
-  color: rgb(86 240 58);
+  color: rgb(43 167 22);
 }
 
 .value-boolean-dark {
-  color: rgb(132 192 190);
+  color: rgb(105 154 152);
 }
