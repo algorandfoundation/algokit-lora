@@ -69,18 +69,16 @@ export const localnetConfig: NetworkConfig = {
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
 const networkLocalStorageKey = 'network'
-// On page load, set the network to the one in the URL
-const url = new URL(window.location.href)
-const network = url.searchParams.get(networkLocalStorageKey)?.toLowerCase()
-if (network) {
-  if (networksConfigs.find((n) => n.id === network)) {
-    localStorage.setItem('network', `"${network}"`)
+// TODO: find and remove logic of the query string
+const storageNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
+const urlNetworkAtom = atom<string | undefined>(() => {
+  const networkId = window.location.pathname.split('/')[1]
+  if (networksConfigs.find((c) => c.id === networkId)) {
+    return networkId
   }
-  url.searchParams.delete('network')
-  history.pushState({}, '', url.href)
-}
-
-const selectedNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
+  return undefined
+})
+const selectedNetworkAtom = atom((get) => get(urlNetworkAtom) || get(storageNetworkAtom))
 
 export const networkConfigAtom = atom((get) => {
   const id = get(selectedNetworkAtom)
@@ -117,7 +115,7 @@ export const useSelectedNetwork = () => {
 
 export const useSetSelectedNetwork = () => {
   const { providers } = useWallet()
-  const setSelectedNetwork = useSetAtom(selectedNetworkAtom, { store: settingsStore })
+  const setSelectedNetwork = useSetAtom(storageNetworkAtom, { store: settingsStore })
 
   return useCallback(
     async (selectedNetwork: string) => {

@@ -9,7 +9,7 @@ import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
 import { useCallback, useMemo } from 'react'
 import SvgChevronRight from '@/features/common/components/icons/chevron-right'
 import SvgCog from '@/features/common/components/icons/cog'
-import { useLayout } from '@/features/settings/data'
+import { useLayout, useSelectedNetwork } from '@/features/settings/data'
 import { useLocation } from 'react-router-dom'
 
 type Props = {
@@ -29,17 +29,19 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
+  const [selectedNetwork] = useSelectedNetwork()
   // The little hack to make the index (root) menu item active when transaction, block, account, asset, application are viewed
   // This needs to be done because React router doesn't match the root URL with any sub-path
   // The doc: https://reactrouter.com/en/main/components/nav-link#end
   const location = useLocation()
   const isIndexActive = useMemo(() => {
     const forceMatchWithIndex = [
-      Urls.Transaction.build({}),
-      Urls.Block.build({}),
-      Urls.Account.build({}),
-      Urls.Asset.build({}),
-      Urls.Application.build({}),
+      Urls.Network.build({ networkId: selectedNetwork }),
+      Urls.Network.Transaction.build({ networkId: selectedNetwork }),
+      Urls.Network.Block.build({ networkId: selectedNetwork }),
+      Urls.Network.Account.build({ networkId: selectedNetwork }),
+      Urls.Network.Asset.build({ networkId: selectedNetwork }),
+      Urls.Network.Application.build({ networkId: selectedNetwork }),
     ]
     return forceMatchWithIndex.some((path) => location.pathname.startsWith(path))
   }, [location.pathname])

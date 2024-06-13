@@ -13,7 +13,7 @@ export function ApplicationLink({ applicationId, className, children }: Props) {
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Application.ById}
+      urlTemplate={Urls.Network.Application.ById}
       urlParams={{ applicationId: applicationId.toString() }}
     >
       {children ? children : applicationId}

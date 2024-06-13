@@ -13,7 +13,7 @@ import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
-import { NetworkPage } from '@/features/network/pages/network-page'
+import { IndexPage } from '@/index-page'
 
 export const routes = evalTemplates([
   {
@@ -27,7 +27,7 @@ export const routes = evalTemplates([
     children: [
       {
         template: Urls.Index,
-        element: <ExplorePage />,
+        element: <IndexPage />,
         errorElement: <ErrorPage title={explorePageTitle} />,
       },
       {
@@ -35,7 +35,8 @@ export const routes = evalTemplates([
         children: [
           {
             template: Urls.Network,
-            element: <NetworkPage />,
+            element: <ExplorePage />,
+            errorElement: <ErrorPage title={explorePageTitle} />,
           },
           {
             template: Urls.Network.Transaction.ById,
