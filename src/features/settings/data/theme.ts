@@ -4,11 +4,11 @@ import { settingsStore } from './settings'
 
 export type Theme = 'dark' | 'light' | 'system'
 
-export type EffectiveTheme = 'dark' | 'light'
+export type ResolvedTheme = 'dark' | 'light'
 
 export const selectedThemeAtom = atomWithStorage<Theme>('theme', 'system', undefined, { getOnInit: true })
 
-const effectiveThemeAtom = atom<EffectiveTheme>((get) => {
+const effectiveThemeAtom = atom<ResolvedTheme>((get) => {
   const theme = get(selectedThemeAtom)
   if (theme === 'system') {
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -21,6 +21,6 @@ export const useSelectedTheme = () => {
   return useAtom(selectedThemeAtom, { store: settingsStore })
 }
 
-export const useEffectiveSelectedTheme = () => {
+export const useResolvedTheme = () => {
   return useAtomValue(effectiveThemeAtom, { store: settingsStore })
 }

@@ -1,8 +1,8 @@
-import { useEffectiveSelectedTheme } from '@/features/settings/data'
+import { useResolvedTheme } from '@/features/settings/data'
 import { useEffect } from 'react'
 
 export const useTheme = () => {
-  const theme = useEffectiveSelectedTheme()
+  const theme = useResolvedTheme()
 
   useEffect(() => {
     const root = window.document.documentElement
