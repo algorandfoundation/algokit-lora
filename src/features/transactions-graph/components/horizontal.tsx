@@ -1,11 +1,11 @@
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import {
-  TransactionGraphHorizontalLine,
+  TransactionGraphHorizontal,
   TransactionGraphPointVisualization,
   TransactionGraphSelfLoopVisualization,
   TransactionGraphVectorVisualization,
-  TransactionGraphVerticalLine,
+  TransactionGraphVertical,
 } from '@/features/transactions-graph'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
@@ -13,7 +13,7 @@ import SvgCircle from '@/features/common/components/svg/circle'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
-import { HorizontalLineTitle } from '@/features/transactions-graph/components/horizontal-line-title'
+import { HorizontalTitle } from '@/features/transactions-graph/components/horizontal-title'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 import { PaymentTransactionTooltipContent } from '@/features/transactions-graph/components/payment-transaction-tooltip-content'
 import { AssetTransferTransactionTooltipContent } from '@/features/transactions-graph/components/asset-transfer-transaction-tooltip-content'
@@ -23,7 +23,7 @@ import { AssetFreezeTransactionTooltipContent } from '@/features/transactions-gr
 import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/components/key-reg-transaction-tooltip-content'
 import SvgPointerRight from '@/features/common/components/svg/pointer-right'
 
-function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontalLine[] }) {
+function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
   return ancestors.map((ancestor, i) => (
     <div
       key={i}
@@ -186,19 +186,19 @@ const RenderTransactionPoint = fixedForwardRef(
 )
 
 type Props = {
-  horizontalLine: TransactionGraphHorizontalLine
-  verticalLines: TransactionGraphVerticalLine[]
+  horizontal: TransactionGraphHorizontal
+  verticals: TransactionGraphVertical[]
 }
-export function HorizontalLine({ horizontalLine, verticalLines }: Props) {
-  const { transaction, visualization, ancestors } = horizontalLine
+export function Horizontal({ horizontal, verticals }: Props) {
+  const { transaction, visualization, ancestors } = horizontal
 
   return (
     <>
       <div className={cn('p-0 relative pr-8')}>
         <ConnectionsFromAncestorsToAncestorsNextSiblings ancestors={ancestors} />
-        <HorizontalLineTitle horizontalLine={horizontalLine} />
+        <HorizontalTitle horizontal={horizontal} />
       </div>
-      {verticalLines.map((_, index) => {
+      {verticals.map((_, index) => {
         if (visualization.type === 'vector' && (index < visualization.from || index > visualization.to)) {
           return <div key={index}></div>
         }

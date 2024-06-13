@@ -2,12 +2,12 @@ import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { Address } from '@/features/accounts/data/types'
 
 export type TransactionsGraphData = {
-  horizontalLines: TransactionGraphHorizontalLine[]
-  verticalLines: TransactionGraphVerticalLine[]
+  horizontals: TransactionGraphHorizontal[]
+  verticals: TransactionGraphVertical[]
 }
 
-export type TransactionGraphHorizontalLine = {
-  ancestors: TransactionGraphHorizontalLine[]
+export type TransactionGraphHorizontal = {
+  ancestors: TransactionGraphHorizontal[]
   transaction: Transaction | InnerTransaction
   visualization: TransactionGraphVisualization
   hasNextSibling: boolean
@@ -36,11 +36,11 @@ export type TransactionGraphPointVisualization = {
   from: number
 }
 
-export type TransactionGraphAccountVerticalLine = {
+export type TransactionGraphAccountVertical = {
   type: 'Account'
   address: string
 }
-export type TransactionGraphApplicationVerticalLine = {
+export type TransactionGraphApplicationVertical = {
   type: 'Application'
   id: number
   address: Address
@@ -48,12 +48,12 @@ export type TransactionGraphApplicationVerticalLine = {
     address: Address
   }[]
 }
-export type TransactionGraphAssetVerticalLine = {
+export type TransactionGraphAssetVertical = {
   type: 'Asset'
   id: string
 }
-export type TransactionGraphVerticalLine =
-  | TransactionGraphAccountVerticalLine
-  | TransactionGraphApplicationVerticalLine
-  | TransactionGraphAssetVerticalLine
+export type TransactionGraphVertical =
+  | TransactionGraphAccountVertical
+  | TransactionGraphApplicationVertical
+  | TransactionGraphAssetVertical
   | { type: 'Placeholder' }

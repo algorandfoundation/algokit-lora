@@ -1,8 +1,8 @@
 import {
-  TransactionGraphApplicationVerticalLine,
-  TransactionGraphVerticalLine,
+  TransactionGraphApplicationVertical,
+  TransactionGraphVertical,
   TransactionGraphPointVisualization,
-  TransactionGraphHorizontalLine,
+  TransactionGraphHorizontal,
   TransactionGraphSelfLoopVisualization,
   TransactionGraphVectorVisualization,
   TransactionGraphVisualization,
@@ -15,23 +15,23 @@ import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 
 export const asTransactionsGraphData = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
-  const verticalLines: TransactionGraphVerticalLine[] = [
-    ...getVerticalLinesForTransactions(flattenedTransactions.map((t) => t.transaction)),
+  const verticals: TransactionGraphVertical[] = [
+    ...getVerticalsForTransactions(flattenedTransactions.map((t) => t.transaction)),
     {
       type: 'Placeholder',
     }, // an empty account to make room to show transactions with the same sender and receiver
   ]
-  const horizontalLines = transactions.flatMap((txn) => getHorizontalLinesForTransaction(txn, verticalLines, [], false, 0))
+  const horizontals = transactions.flatMap((txn) => getHorizontalsForTransaction(txn, verticals, [], false, 0))
 
   return {
-    horizontalLines: horizontalLines,
-    verticalLines: verticalLines,
+    horizontals: horizontals,
+    verticals: verticals,
   }
 }
 
-const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVerticalLine[] => {
-  const verticalLines = transactions.flatMap(getVerticalLinesForTransaction)
-  return verticalLines.reduce<TransactionGraphVerticalLine[]>((acc, current, _, array) => {
+const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVertical[] => {
+  const verticals = transactions.flatMap(getVerticalsForTransaction)
+  return verticals.reduce<TransactionGraphVertical[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
       if (
         acc.some(
@@ -55,15 +55,15 @@ const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTran
       // An application can send transactions on behalf of multiple accounts
       // We merge all the accounts, so we only show one application on the graph
       if (index > -1) {
-        const applicationVerticalLine = {
+        const applicationVertical = {
           type: 'Application' as const,
           id: current.id,
           address: current.address,
-          accounts: [...(acc[index] as TransactionGraphApplicationVerticalLine).accounts, ...current.accounts].filter(
+          accounts: [...(acc[index] as TransactionGraphApplicationVertical).accounts, ...current.accounts].filter(
             distinct((x) => x.address)
           ),
         }
-        acc.splice(index, 1, applicationVerticalLine)
+        acc.splice(index, 1, applicationVertical)
         return acc
       } else {
         return [...acc, current]
@@ -78,21 +78,21 @@ const getVerticalLinesForTransactions = (transactions: Transaction[] | InnerTran
   }, [])
 }
 
-const getVerticalLinesForTransaction = (transaction: Transaction | InnerTransaction): TransactionGraphVerticalLine[] => {
-  const verticalLines: TransactionGraphVerticalLine[] = [
+const getVerticalsForTransaction = (transaction: Transaction | InnerTransaction): TransactionGraphVertical[] => {
+  const verticals: TransactionGraphVertical[] = [
     {
       type: 'Account',
       address: transaction.sender,
     },
   ]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
-    verticalLines.push({
+    verticals.push({
       type: 'Account',
       address: transaction.receiver,
     })
   }
   if (transaction.type === TransactionType.ApplicationCall) {
-    verticalLines.push({
+    verticals.push({
       type: 'Application',
       id: transaction.applicationId,
       address: getApplicationAddress(transaction.applicationId),
@@ -106,30 +106,30 @@ const getVerticalLinesForTransaction = (transaction: Transaction | InnerTransact
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
-    verticalLines.push({
+    verticals.push({
       type: 'Asset',
       id: transaction.assetId.toString(),
     })
   }
   if (transaction.type === TransactionType.AssetFreeze) {
-    verticalLines.push({
+    verticals.push({
       type: 'Account',
       address: transaction.address.toString(),
     })
   }
-  return verticalLines
+  return verticals
 }
 
-const getHorizontalLinesForTransaction = (
+const getHorizontalsForTransaction = (
   transaction: Transaction | InnerTransaction,
-  verticalLines: TransactionGraphVerticalLine[],
-  ancestors: TransactionGraphHorizontalLine[],
+  verticals: TransactionGraphVertical[],
+  ancestors: TransactionGraphHorizontal[],
   hasNextSibling: boolean,
   depth: number
-): TransactionGraphHorizontalLine[] => {
+): TransactionGraphHorizontal[] => {
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
-  const visualization = getTransactionVisualization(transaction, verticalLines, parent)
-  const thisRow: TransactionGraphHorizontalLine = {
+  const visualization = getTransactionVisualization(transaction, verticals, parent)
+  const thisRow: TransactionGraphHorizontal = {
     transaction,
     visualization,
     ancestors,
@@ -140,9 +140,9 @@ const getHorizontalLinesForTransaction = (
     return [
       thisRow,
       ...transaction.innerTransactions.flatMap((innerTxn, index) =>
-        getHorizontalLinesForTransaction(
+        getHorizontalsForTransaction(
           innerTxn,
-          verticalLines,
+          verticals,
           [...ancestors, thisRow],
           index < transaction.innerTransactions.length - 1,
           depth + 1
@@ -155,27 +155,27 @@ const getHorizontalLinesForTransaction = (
 
 const getTransactionVisualization = (
   transaction: Transaction | InnerTransaction,
-  verticalLines: TransactionGraphVerticalLine[],
-  parent?: TransactionGraphHorizontalLine
+  verticals: TransactionGraphVertical[],
+  parent?: TransactionGraphHorizontal
 ): TransactionGraphVisualization => {
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
-      return verticalLines.findIndex(
+      return verticals.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.receiver === c.address) || (c.type === 'Application' && transaction.receiver === c.address)
       )
     }
 
     if (transaction.type === TransactionType.ApplicationCall) {
-      return verticalLines.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
+      return verticals.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
     }
 
     if (transaction.type === TransactionType.AssetConfig) {
-      return verticalLines.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
+      return verticals.findIndex((c) => c.type === 'Asset' && transaction.assetId.toString() === c.id)
     }
 
     if (transaction.type === TransactionType.AssetFreeze) {
-      return verticalLines.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
+      return verticals.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
     }
 
     throw new Error('Unsupported transaction type')
@@ -184,7 +184,7 @@ const getTransactionVisualization = (
     // If the transaction is child, the parent transaction must be an application call
     // The "from" must be the parent application call transaction
     if (!parent) {
-      return verticalLines.findIndex(
+      return verticals.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.sender === c.address) ||
           (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
@@ -192,7 +192,7 @@ const getTransactionVisualization = (
     }
 
     const parentApplicationCallTransaction = parent.transaction as AppCallTransaction
-    return verticalLines.findIndex((c) => c.type === 'Application' && c.id === parentApplicationCallTransaction.applicationId)
+    return verticals.findIndex((c) => c.type === 'Application' && c.id === parentApplicationCallTransaction.applicationId)
   }
 
   const from = calculateFrom()

@@ -1,19 +1,19 @@
 import { cn } from '@/features/common/utils'
 import { TransactionsGraphData } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
-import { VerticalLineTitle } from '@/features/transactions-graph/components/vertical-line-title'
-import { HorizontalLine } from '@/features/transactions-graph/components/horizontal-line'
+import { VerticalTitle } from '@/features/transactions-graph/components/vertical-title'
+import { Horizontal } from '@/features/transactions-graph/components/horizontal'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
 }
 export function TransactionsGraph({ transactionsGraphData }: Props) {
-  const { verticalLines, horizontalLines } = transactionsGraphData
-  const transactionsCount = horizontalLines.length
-  const maxNestingLevel = Math.max(...horizontalLines.map((h) => h.depth))
+  const { verticals, horizontals } = transactionsGraphData
+  const transactionsCount = horizontals.length
+  const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
   const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
-  const verticalLinesCount = verticalLines.length
-  const gridTemplateColumns = `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalLinesCount}, ${graphConfig.colWidth}px)`
+  const verticalsCount = verticals.length
+  const gridTemplateColumns = `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
 
   return (
     <>
@@ -24,9 +24,9 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
         }}
       >
         <div>{/* The first header cell is empty */}</div>
-        {verticalLines.map((swimlane, index) => (
+        {verticals.map((swimlane, index) => (
           <div className={cn('p-2 flex justify-center')} key={index}>
-            <VerticalLineTitle verticalLine={swimlane} />
+            <VerticalTitle vertical={swimlane} />
           </div>
         ))}
       </div>
@@ -45,7 +45,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
               className={cn('p-0')}
               style={{
                 height: `${transactionsCount * graphConfig.rowHeight}px`,
-                width: `${graphConfig.colWidth * verticalLinesCount}px`,
+                width: `${graphConfig.colWidth * verticalsCount}px`,
               }}
             >
               <div
@@ -56,7 +56,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
                 }}
               >
                 <div></div>
-                {verticalLines
+                {verticals
                   .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty vertical
                   .map((_, index) => (
                     <div key={index} className={cn('flex justify-center')}>
@@ -67,8 +67,8 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
             </div>
           </div>
         </div>
-        {horizontalLines.map((row, index) => (
-          <HorizontalLine key={index} verticalLines={verticalLines} horizontalLine={row} />
+        {horizontals.map((row, index) => (
+          <Horizontal key={index} verticals={verticals} horizontal={row} />
         ))}
       </div>
     </>

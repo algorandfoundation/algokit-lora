@@ -4,16 +4,15 @@ import { InnerTransactionLink } from '@/features/transactions/components/inner-t
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { cn } from '@/features/common/utils'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
-import { TransactionGraphHorizontalLine } from '@/features/transactions-graph'
+import { TransactionGraphHorizontal } from '@/features/transactions-graph'
 
 type Props = {
-  horizontalLine: TransactionGraphHorizontalLine
+  horizontal: TransactionGraphHorizontal
 }
-export function HorizontalLineTitle({ horizontalLine }: Props) {
-  const { transaction, hasNextSibling, ancestors, depth } = horizontalLine
+export function HorizontalTitle({ horizontal }: Props) {
+  const { transaction, hasNextSibling, ancestors, depth } = horizontal
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
-  const hasChildren =
-    horizontalLine.transaction.type === TransactionType.ApplicationCall && horizontalLine.transaction.innerTransactions.length > 0
+  const hasChildren = horizontal.transaction.type === TransactionType.ApplicationCall && horizontal.transaction.innerTransactions.length > 0
   const hasParent = !!parent
   // Top and second level transactions aren't indented to save space
   const marginMultiplier = depth > 0 ? depth - 1 : 0
