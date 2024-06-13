@@ -4,7 +4,6 @@ import { TransactionInfo } from './transaction-info'
 import { cn } from '@/features/common/utils'
 import { LogicsigDetails } from './logicsig-details'
 import { MultisigDetails } from './multisig-details'
-import { TransactionJson } from './transaction-json'
 import { TransactionNote } from './transaction-note'
 
 type Props = {
@@ -21,7 +20,6 @@ export function StateProofTransactionDetails({ transaction }: Props) {
             <h1 className={cn('text-2xl text-primary font-bold')}>State Proof</h1>
           </div>
           {transaction.note && <TransactionNote note={transaction.note} />}
-          <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
           {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
         </CardContent>

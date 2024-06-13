@@ -11,7 +11,7 @@ import { GroupLink } from '@/features/groups/components/group-link'
 import { useAtomValue } from 'jotai'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionLink } from './transaction-link'
-import { JsonView } from '@/features/common/components/json-view'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -92,7 +92,7 @@ export function TransactionInfo({ transaction }: Props) {
       <CardContent className={cn('text-sm space-y-2')}>
         <div className={cn('grid grid-cols-[1fr_max-content]')}>
           <DescriptionList items={transactionInfoItems} />
-          <JsonView json={transaction.json} />
+          <OpenJsonViewDialogButton json={transaction.json} />
         </div>
       </CardContent>
     </Card>

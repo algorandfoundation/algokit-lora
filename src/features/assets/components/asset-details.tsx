@@ -35,7 +35,7 @@ import { AssetMetadata } from './asset-metadata'
 import { AssetTransactionHistory } from './asset-transaction-history'
 import { AssetLiveTransactions } from './asset-live-transactions'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { JsonView } from '@/features/common/components/json-view'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view'
 
 type Props = {
   asset: Asset
@@ -141,7 +141,7 @@ export function AssetDetails({ asset }: Props) {
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
             <div>
-              <JsonView json={asset.json} exapandJsonLevel={expandAssetJsonLevel} />
+              <OpenJsonViewDialogButton json={asset.json} exapandJsonLevel={expandAssetJsonLevel} />
               <AssetMedia asset={asset} />
             </div>
           </div>

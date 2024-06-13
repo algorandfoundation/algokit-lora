@@ -7,21 +7,21 @@ import { useCallback, useState } from 'react'
 import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
+import { useEffectiveSelectedTheme } from '@/features/settings/data/theme'
 
 type Props = {
   json: object
   exapandJsonLevel?: (level: number) => boolean
 }
-export function JsonView({ json, exapandJsonLevel = defaultExpandLevel }: Props) {
+export function OpenJsonViewDialogButton({ json, exapandJsonLevel = defaultExpandLevel }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openJsonView = useCallback(() => {
     setDialogOpen(true)
   }, [setDialogOpen])
 
-  // TODO: once we have the design, we need to support light/dark mode and custom themes
-  const style: StyleProps = {
-    container: '',
+  const styleDark: StyleProps = {
+    container: styles['key-dark'],
     basicChildStyle: styles['basic-element-style'],
     collapseIcon: styles['collapse-icon'],
     expandIcon: styles['expand-icon'],
@@ -30,13 +30,33 @@ export function JsonView({ json, exapandJsonLevel = defaultExpandLevel }: Props)
     clickableLabel: styles['clickable-label'],
     nullValue: '',
     undefinedValue: '',
-    stringValue: '',
-    booleanValue: '',
-    numberValue: '',
+    stringValue: styles['value-string-dark'],
+    booleanValue: styles['value-boolean-dark'],
+    numberValue: styles['value-number-dark'],
     otherValue: '',
-    punctuation: styles['punctuation'],
+    punctuation: styles['punctuation-dark'],
     noQuotesForStringValues: false,
   }
+  const styleLight: StyleProps = {
+    container: styles['key-light'],
+    basicChildStyle: styles['basic-element-style'],
+    collapseIcon: styles['collapse-icon'],
+    expandIcon: styles['expand-icon'],
+    collapsedContent: styles['collapsed-content'],
+    label: styles['label'],
+    clickableLabel: styles['clickable-label'],
+    nullValue: '',
+    undefinedValue: '',
+    stringValue: styles['value-string-light'],
+    booleanValue: styles['value-boolean-light'],
+    numberValue: styles['value-number-light'],
+    otherValue: '',
+    punctuation: styles['punctuation-light'],
+    noQuotesForStringValues: false,
+  }
+
+  const theme = useEffectiveSelectedTheme()
+  const currentStyle = theme === 'dark' ? styleDark : styleLight
 
   const copyJsonToClipboard = useCallback(() => {
     const jsonString = asJson(json)
@@ -59,7 +79,7 @@ export function JsonView({ json, exapandJsonLevel = defaultExpandLevel }: Props)
             <Button variant="default" className={cn('absolute top-20 right-12')} onClick={copyJsonToClipboard}>
               Copy
             </Button>
-            <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={style} />
+            <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
           </div>
         </DialogContent>
       </Dialog>

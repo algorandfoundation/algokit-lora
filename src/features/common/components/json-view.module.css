@@ -33,7 +33,47 @@
   font-size: 0.8em;
 }
 
-.punctuation {
+.punctuation-base {
   margin-right: 5px;
-  font-weight: bold;
+  font-weight: normal;
+}
+
+.punctuation-light {
+  composes: punctuation-base;
+  color: rgb(15 23 42);
+}
+
+.key-light {
+  color: rgb(27 108 135);
+}
+.value-string-light {
+  color: rgb(169 48 59);
+}
+
+.value-number-light {
+  color: rgb(25 109 11);
+}
+
+.value-boolean-light {
+  color: rgb(67 100 99);
+}
+
+.punctuation-dark {
+  composes: punctuation-base;
+  color: rgb(255 255 255);
+}
+
+.key-dark {
+  color: rgb(119 211 249);
+}
+.value-string-dark {
+  color: rgb(240 158 155);
+}
+
+.value-number-dark {
+  color: rgb(86 240 58);
+}
+
+.value-boolean-dark {
+  color: rgb(132 192 190);
 }

@@ -17,7 +17,7 @@ import {
   accountMinBalanceLabel,
   accountRekeyedToLabel,
 } from './labels'
-import { JsonView } from '@/features/common/components/json-view'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view'
 
 type Props = {
   account: Account
@@ -90,7 +90,7 @@ export function AccountInfo({ account }: Props) {
       <CardContent className={cn('text-sm space-y-2')}>
         <div className={cn('grid grid-cols-[1fr_max-content]')}>
           <DescriptionList items={accountInfoItems} />
-          <JsonView json={account.json} />
+          <OpenJsonViewDialogButton json={account.json} />
         </div>
       </CardContent>
     </Card>
