@@ -178,7 +178,7 @@ const getTransactionVisualization = (
       return verticalLines.findIndex((c) => c.type === 'Account' && transaction.address.toString() === c.address)
     }
 
-    throw new Error('Not supported transaction type')
+    throw new Error('Unsupported transaction type')
   }
   const calculateFrom = () => {
     // If the transaction is child, the parent transaction must be an application call

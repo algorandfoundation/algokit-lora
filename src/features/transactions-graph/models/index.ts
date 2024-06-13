@@ -20,15 +20,15 @@ export type TransactionGraphVisualization =
   | TransactionGraphPointVisualization
 
 export type TransactionGraphVectorVisualization = {
+  type: 'vector'
   from: number
   to: number
-  type: 'vector'
   direction: 'leftToRight' | 'rightToLeft'
 }
 
 export type TransactionGraphSelfLoopVisualization = {
-  from: number
   type: 'selfLoop'
+  from: number
 }
 
 export type TransactionGraphPointVisualization = {

@@ -15,7 +15,7 @@ export function HorizontalLineTitle({ horizontalLine }: Props) {
   const hasChildren =
     horizontalLine.transaction.type === TransactionType.ApplicationCall && horizontalLine.transaction.innerTransactions.length > 0
   const hasParent = !!parent
-  // Top and second level transactions aren't indented to safe space
+  // Top and second level transactions aren't indented to save space
   const marginMultiplier = depth > 0 ? depth - 1 : 0
 
   const component = useMemo(() => {
