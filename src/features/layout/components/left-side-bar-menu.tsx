@@ -12,13 +12,14 @@ type Props = {
   className?: string
 }
 
+const navIconClassName = cn('border rounded-md p-2 ml-1')
+
 export function LeftSideBarMenu({ className }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
 
   const menuItems = [
     { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <Braces />, text: 'App Studio' },
-    { urlTemplate: Urls.Settings, icon: <Settings />, text: 'Settings' },
   ]
   const [layout, setLayout] = useLayout()
 
@@ -27,34 +28,52 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
+  const navLinkClassName = cn(
+    layout.isLeftSideBarExpanded && 'mr-2',
+    !layout.isLeftSideBarExpanded && 'mr-1',
+    '[&.active]:border-border [&.active]:bg-accent [&.active]:text-primary border border-card rounded-r-md p-1 gap-2 flex items-center whitespace-nowrap'
+  )
+
+  const navTextClassName = cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible w-0 delay-100')
+
   return (
-    <NavigationMenu
-      className={cn('bg-card border-r transition-all duration-300 min-h-screen', className, layout.isLeftSideBarExpanded ? 'w-52' : 'w-12')}
+    <aside
+      className={cn(
+        'flex flex-col bg-card border-r transition-all duration-300',
+        className,
+        layout.isLeftSideBarExpanded ? 'w-56' : 'w-[3.8rem]'
+      )}
     >
-      <NavigationMenuList className={cn('flex-col items-start')}>
-        <NavigationMenuItem className={cn('flex justify-end')}>
-          <Button variant="ghost" size="icon" onClick={toggleLeftSideBar}>
-            {layout.isLeftSideBarExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
-          </Button>
-        </NavigationMenuItem>
-        {menuItems.map((menuItem, index) => (
-          <NavigationMenuItem key={index}>
-            <NavigationMenuLink asChild>
-              <TemplatedNavLink
-                urlTemplate={menuItem.urlTemplate}
-                urlParams={{ networkId: selectedNetwork }}
-                className={cn('[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap')}
-              >
-                <div className={cn('[&.active]:text-primary')}>{menuItem.icon}</div>
-                <span className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible w-0 delay-100')}>{menuItem.text}</span>
-              </TemplatedNavLink>
-            </NavigationMenuLink>
-          </NavigationMenuItem>
-        ))}
-        <NavigationMenuItem>
-          <ThemeToggle isLeftSideBarExpanded={layout.isLeftSideBarExpanded} />
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+      <Button className="ml-auto size-9 text-muted-foreground" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
+        {layout.isLeftSideBarExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
+      </Button>
+      <NavigationMenu>
+        <NavigationMenuList>
+          {menuItems.map((menuItem, index) => (
+            <NavigationMenuItem key={index}>
+              <NavigationMenuLink asChild>
+                <TemplatedNavLink
+                  urlTemplate={menuItem.urlTemplate}
+                  urlParams={{ networkId: selectedNetwork }}
+                  className={navLinkClassName}
+                >
+                  <div className={navIconClassName}>{menuItem.icon}</div>
+                  <span className={navTextClassName}>{menuItem.text}</span>
+                </TemplatedNavLink>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          ))}
+        </NavigationMenuList>
+      </NavigationMenu>
+      <div className="mb-4 mt-auto">
+        <ThemeToggle navTextClassName={navTextClassName} />
+        <TemplatedNavLink urlTemplate={Urls.Settings} className={navLinkClassName}>
+          <div className={navIconClassName}>
+            <Settings />
+          </div>
+          <span className={navTextClassName}>Settings</span>
+        </TemplatedNavLink>
+      </div>
+    </aside>
   )
 }

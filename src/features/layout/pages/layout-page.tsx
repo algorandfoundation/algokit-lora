@@ -14,13 +14,15 @@ export function LayoutPage({ children }: LayoutPageProps) {
   useDeepLink()
 
   return (
-    <div className="w-full">
+    <>
       <Header />
-      <div className={cn('grid grid-flow-col grid-cols-[minmax(min-content,auto)_1fr]')}>
+      <div className="flex flex-1 overflow-hidden">
         <LeftSideBarMenu />
-        <div className={cn('px-4 pb-4')}>{children}</div>
-        <ToastContainer />
+        <main className="flex flex-1 items-start overflow-y-auto px-4">
+          <div className={cn('grid w-full mb-4')}>{children}</div>
+        </main>
       </div>
-    </div>
+      <ToastContainer />
+    </>
   )
 }

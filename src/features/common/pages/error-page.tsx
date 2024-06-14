@@ -12,7 +12,9 @@ export function ErrorPage({ title }: ErrorPageProps) {
   return (
     <>
       <PageTitle title={title ?? 'Error'} />
-      <p>Error: {error.message}</p>
+      <div>
+        <p>Error: {error.message}</p>
+      </div>
     </>
   )
 }
