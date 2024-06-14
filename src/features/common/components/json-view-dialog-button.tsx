@@ -1,6 +1,6 @@
 import { JsonView as ReactJsonView } from 'react-json-view-lite'
 import 'react-json-view-lite/dist/index.css'
-import styles from './json-view.module.css'
+import styles from './json-view-dialog.module.css'
 import { cn } from '../utils'
 import { Button } from './button'
 import { useCallback, useState } from 'react'
@@ -11,9 +11,10 @@ import { useResolvedTheme } from '@/features/settings/data/theme'
 
 type Props = {
   json: object
-  exapandJsonLevel?: (level: number) => boolean
+  expandJsonLevel?: (level: number) => boolean
 }
-export function OpenJsonViewDialogButton({ json, exapandJsonLevel = defaultExpandLevel }: Props) {
+
+export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLevel = defaultExpandLevel }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openJsonViewDialog = useCallback(() => {
@@ -86,7 +87,7 @@ export function OpenJsonViewDialogButton({ json, exapandJsonLevel = defaultExpan
     </>
   )
 }
-// Only render the top level because sometimes the object has too many children to render
+// By default only render the top level because sometimes the object has too many children, which result in the UI thread being blocked on mount.
 const defaultExpandLevel = (level: number) => {
   return level < 1
 }

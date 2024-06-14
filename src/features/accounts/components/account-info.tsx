@@ -17,7 +17,7 @@ import {
   accountMinBalanceLabel,
   accountRekeyedToLabel,
 } from './labels'
-import { OpenJsonViewDialogButton } from '@/features/common/components/json-view'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 
 type Props = {
   account: Account

@@ -11,7 +11,7 @@ import { GroupLink } from '@/features/groups/components/group-link'
 import { useAtomValue } from 'jotai'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionLink } from './transaction-link'
-import { OpenJsonViewDialogButton } from '@/features/common/components/json-view'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 
 type Props = {
   transaction: Transaction | InnerTransaction

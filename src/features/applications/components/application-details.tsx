@@ -32,8 +32,8 @@ import { ApplicationBoxes } from './application-boxes'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { ApplicationLiveTransactions } from './application-live-transactions'
 import { ApplicationTransactionHistory } from './application-transaction-history'
-import { OpenJsonViewDialogButton } from '@/features/common/components/json-view'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 
 type Props = {
   application: Application
