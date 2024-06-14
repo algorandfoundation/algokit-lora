@@ -12,7 +12,7 @@ type Props = {
 export function HorizontalTitle({ horizontal }: Props) {
   const { transaction, hasNextSibling, ancestors, depth } = horizontal
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
-  const hasChildren = horizontal.transaction.type === TransactionType.ApplicationCall && horizontal.transaction.innerTransactions.length > 0
+  const hasChildren = horizontal.transaction.type === TransactionType.AppCall && horizontal.transaction.innerTransactions.length > 0
   const hasParent = !!parent
   // Top and second level transactions aren't indented to save space
   const marginMultiplier = depth > 0 ? depth - 1 : 0

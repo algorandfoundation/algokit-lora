@@ -65,7 +65,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       invariant(transactionResult['application-transaction'], 'application-transaction is not set')
       return {
         ...common,
-        type: TransactionType.ApplicationCall,
+        type: TransactionType.AppCall,
         to: transactionResult['application-transaction']['application-id'],
       }
     }

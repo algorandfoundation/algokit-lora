@@ -21,7 +21,7 @@ export type CommonTransactionProperties = {
 export enum TransactionType {
   Payment = 'Payment',
   AssetTransfer = 'Asset Transfer',
-  ApplicationCall = 'Application Call',
+  AppCall = 'Application Call',
   AssetConfig = 'Asset Config',
   AssetFreeze = 'Asset Freeze',
   StateProof = 'State Proof',
@@ -125,7 +125,7 @@ export type LocalStateDelta = {
 }
 
 export type BaseAppCallTransaction = CommonTransactionProperties & {
-  type: TransactionType.ApplicationCall
+  type: TransactionType.AppCall
   subType: Atom<undefined>
   applicationId: number
   applicationArgs: string[]

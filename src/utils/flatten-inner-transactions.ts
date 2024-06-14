@@ -15,7 +15,7 @@ export function flattenInnerTransactions(transaction: Transaction | InnerTransac
     },
   ]
 
-  if (transaction.type !== TransactionType.ApplicationCall) {
+  if (transaction.type !== TransactionType.AppCall) {
     return results
   }
 

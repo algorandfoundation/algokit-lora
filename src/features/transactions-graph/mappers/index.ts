@@ -91,7 +91,7 @@ const getVerticalsForTransaction = (transaction: Transaction | InnerTransaction)
       address: transaction.receiver,
     })
   }
-  if (transaction.type === TransactionType.ApplicationCall) {
+  if (transaction.type === TransactionType.AppCall) {
     verticals.push({
       type: 'Application',
       id: transaction.applicationId,
@@ -136,7 +136,7 @@ const getHorizontalsForTransaction = (
     hasNextSibling,
     depth,
   }
-  if (transaction.type === TransactionType.ApplicationCall && transaction.innerTransactions.length > 0) {
+  if (transaction.type === TransactionType.AppCall && transaction.innerTransactions.length > 0) {
     return [
       thisRow,
       ...transaction.innerTransactions.flatMap((innerTxn, index) =>
@@ -166,7 +166,7 @@ const getTransactionVisualization = (
       )
     }
 
-    if (transaction.type === TransactionType.ApplicationCall) {
+    if (transaction.type === TransactionType.AppCall) {
       return verticals.findIndex((c) => c.type === 'Application' && transaction.applicationId === c.id)
     }
 
@@ -191,13 +191,13 @@ const getTransactionVisualization = (
       )
     }
 
-    const parentApplicationCallTransaction = parent.transaction as AppCallTransaction
-    return verticals.findIndex((c) => c.type === 'Application' && c.id === parentApplicationCallTransaction.applicationId)
+    const parentAppCallTransaction = parent.transaction as AppCallTransaction
+    return verticals.findIndex((c) => c.type === 'Application' && c.id === parentAppCallTransaction.applicationId)
   }
 
   const from = calculateFrom()
 
-  if (transaction.type === TransactionType.KeyReg) {
+  if (transaction.type === TransactionType.KeyReg || transaction.type === TransactionType.StateProof) {
     return {
       from: from,
       type: 'point',

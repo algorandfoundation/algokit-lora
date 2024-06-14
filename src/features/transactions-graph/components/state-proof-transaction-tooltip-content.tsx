@@ -1,16 +1,14 @@
-import { AppCallTransaction, InnerAppCallTransaction, TransactionType } from '@/features/transactions/models'
+import { StateProofTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { Badge } from '@/features/common/components/badge'
 import { transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { applicationIdLabel } from '@/features/applications/components/labels'
-import { ApplicationLink } from '@/features/applications/components/application-link'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { Badge } from '@/features/common/components/badge'
 
-export function AppCallTransactionTooltipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
+export function StateProofTransactionTooltipContent({ transaction }: { transaction: StateProofTransaction }) {
   const items = useMemo(
     () => [
       {
@@ -20,22 +18,18 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
       {
         dt: transactionTypeLabel,
         dd: (
-          <>
-            {TransactionType.AppCall}
+          <label>
+            {transaction.type}
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </>
+          </label>
         ),
       },
       {
         dt: transactionSenderLabel,
         dd: <AccountLink address={transaction.sender} />,
       },
-      {
-        dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} />,
-      },
     ],
-    [transaction.applicationId, transaction.id, transaction.rekeyTo, transaction.sender]
+    [transaction.id, transaction.rekeyTo, transaction.sender, transaction.type]
   )
 
   return (

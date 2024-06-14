@@ -22,6 +22,7 @@ import { AssetConfigTransactionTooltipContent } from '@/features/transactions-gr
 import { AssetFreezeTransactionTooltipContent } from '@/features/transactions-graph/components/asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/components/key-reg-transaction-tooltip-content'
 import SvgPointerRight from '@/features/common/components/svg/pointer-right'
+import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
   return ancestors.map((ancestor, i) => (
@@ -87,7 +88,7 @@ const RenderTransactionVector = fixedForwardRef(
               <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
             </>
           )}
-          {transaction.type === TransactionType.ApplicationCall && <>App Call</>}
+          {transaction.type === TransactionType.AppCall && <>App Call</>}
           {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
           {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
         </div>
@@ -223,10 +224,11 @@ export function Horizontal({ horizontal, verticals }: Props) {
               <TooltipContent>
                 {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.ApplicationCall && <AppCallTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionTooltipContent transaction={transaction} />}
                 {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionTooltipContent transaction={transaction} />}
                 {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
               </TooltipContent>
             </Tooltip>
           )
