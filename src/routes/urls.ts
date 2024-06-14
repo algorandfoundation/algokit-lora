@@ -14,32 +14,33 @@ export const UrlParams = {
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
-  Explore: UrlTemplate`/`,
-  Transaction: UrlTemplate`/transaction`.extend({
-    ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
-      Inner: UrlTemplate`/inner`.extend({
-        ById: UrlTemplate`/${UrlParams.InnerTransactionId}`,
+  Index: UrlTemplate`/`,
+  Network: UrlTemplate`/${UrlParams.NetworkId}`.extend({
+    Transaction: UrlTemplate`/transaction`.extend({
+      ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
+        Inner: UrlTemplate`/inner`.extend({
+          ById: UrlTemplate`/${UrlParams.InnerTransactionId}`,
+        }),
       }),
     }),
-  }),
-  Tx: UrlTemplate`/tx/*`,
-  Block: UrlTemplate`/block`.extend({
-    ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
-      Group: UrlTemplate`/group`.extend({
-        ById: UrlTemplate`/${UrlParams.GroupId}`,
+    Tx: UrlTemplate`/tx/*`,
+    Block: UrlTemplate`/block`.extend({
+      ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
+        Group: UrlTemplate`/group`.extend({
+          ById: UrlTemplate`/${UrlParams.GroupId}`,
+        }),
       }),
     }),
-  }),
-  Account: UrlTemplate`/account`.extend({
-    ByAddress: UrlTemplate`/${UrlParams.Address}`,
-  }),
-  Asset: UrlTemplate`/asset`.extend({
-    ById: UrlTemplate`/${UrlParams.AssetId}`,
-  }),
-  Application: UrlTemplate`/application`.extend({
-    ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+    Account: UrlTemplate`/account`.extend({
+      ByAddress: UrlTemplate`/${UrlParams.Address}`,
+    }),
+    Asset: UrlTemplate`/asset`.extend({
+      ById: UrlTemplate`/${UrlParams.AssetId}`,
+    }),
+    Application: UrlTemplate`/application`.extend({
+      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+    }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
   Settings: UrlTemplate`/settings`,
-  Network: UrlTemplate`/${UrlParams.NetworkId}/*`,
 }

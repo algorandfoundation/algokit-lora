@@ -13,10 +13,12 @@ import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
+import { IndexPage } from '@/index-page'
+import { NetworkPage } from '@/features/network/pages/network-page'
 
 export const routes = evalTemplates([
   {
-    template: Urls.Explore,
+    template: Urls.Index,
     element: (
       <LayoutPage>
         <Outlet />
@@ -25,53 +27,72 @@ export const routes = evalTemplates([
     errorElement: <ErrorPage />,
     children: [
       {
-        template: Urls.Explore,
-        element: <ExplorePage />,
+        template: Urls.Index,
+        element: <IndexPage />,
         errorElement: <ErrorPage title={explorePageTitle} />,
       },
       {
-        template: Urls.Transaction.ById,
-        errorElement: <ErrorPage title={transactionPageTitle} />,
+        template: Urls.Network,
+        element: (
+          <NetworkPage>
+            <Outlet />
+          </NetworkPage>
+        ),
         children: [
           {
-            template: Urls.Transaction.ById,
-            element: <TransactionPage />,
+            template: Urls.Network,
+            element: <ExplorePage />,
+            errorElement: <ErrorPage title={explorePageTitle} />,
           },
           {
-            template: Urls.Transaction.ById.Inner.ById,
-            element: <InnerTransactionPage />,
+            template: Urls.Network.Transaction.ById,
+            errorElement: <ErrorPage title={transactionPageTitle} />,
+            children: [
+              {
+                template: Urls.Network.Transaction.ById,
+                element: <TransactionPage />,
+              },
+              {
+                template: Urls.Network.Transaction.ById.Inner.ById,
+                element: <InnerTransactionPage />,
+              },
+            ],
+          },
+          {
+            template: Urls.Network.Block.ByRound,
+            children: [
+              {
+                template: Urls.Network.Block.ByRound,
+                errorElement: <ErrorPage title={blockPageTitle} />,
+                element: <BlockPage />,
+              },
+              {
+                template: Urls.Network.Block.ByRound.Group.ById,
+                errorElement: <ErrorPage title={groupPageTitle} />,
+                element: <GroupPage />,
+              },
+            ],
+          },
+          {
+            template: Urls.Network.Account.ByAddress,
+            element: <AccountPage />,
+            errorElement: <ErrorPage title={accountPageTitle} />,
+          },
+          {
+            template: Urls.Network.Asset.ById,
+            element: <AssetPage />,
+            errorElement: <ErrorPage title={assetPageTitle} />,
+          },
+          {
+            template: Urls.Network.Application.ById,
+            errorElement: <ErrorPage title={applicationPageTitle} />,
+            element: <ApplicationPage />,
+          },
+          {
+            template: Urls.Network.Tx,
+            element: <TxPage />,
           },
         ],
-      },
-      {
-        template: Urls.Block.ByRound,
-        children: [
-          {
-            template: Urls.Block.ByRound,
-            errorElement: <ErrorPage title={blockPageTitle} />,
-            element: <BlockPage />,
-          },
-          {
-            template: Urls.Block.ByRound.Group.ById,
-            errorElement: <ErrorPage title={groupPageTitle} />,
-            element: <GroupPage />,
-          },
-        ],
-      },
-      {
-        template: Urls.Account.ByAddress,
-        element: <AccountPage />,
-        errorElement: <ErrorPage title={accountPageTitle} />,
-      },
-      {
-        template: Urls.Asset.ById,
-        element: <AssetPage />,
-        errorElement: <ErrorPage title={assetPageTitle} />,
-      },
-      {
-        template: Urls.Application.ById,
-        errorElement: <ErrorPage title={applicationPageTitle} />,
-        element: <ApplicationPage />,
       },
       {
         template: Urls.AppStudio,
@@ -80,10 +101,6 @@ export const routes = evalTemplates([
       {
         template: Urls.Settings,
         element: <SettingsPage />,
-      },
-      {
-        template: Urls.Tx,
-        element: <TxPage />,
       },
     ],
   },

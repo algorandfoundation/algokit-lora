@@ -2,7 +2,6 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
 import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
-import { TransactionJson } from './transaction-json'
 import { AssetTransferTransaction, InnerAssetTransferTransaction, SignatureType } from '../models'
 import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
@@ -22,7 +21,6 @@ export function AssetTranserTransactionDetails({ transaction }: AssetTransaferTr
           <AssetTransferTransactionInfo transaction={transaction} />
           <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
-          <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
           {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
         </CardContent>

@@ -35,7 +35,7 @@ export function AccountActivityTabs({ account }: Props) {
     <Tabs defaultValue={accountLiveTransactionsTabId}>
       <TabsList aria-label={accountActivityLabel}>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} className="w-44" value={tab.id}>
+          <TabsTrigger key={tab.id} className="w-56" value={tab.id}>
             {tab.label}
           </TabsTrigger>
         ))}

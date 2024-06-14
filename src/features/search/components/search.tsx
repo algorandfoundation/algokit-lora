@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../data'
 import { Loader } from 'lucide-react'
 import { useLocationChange } from '@/features/common/hooks/use-location-change'
-import { isMacOs } from '@/utils/is-mac-platform.ts'
+import { isMacOs } from '@/utils/is-mac-platform'
 
 export const searchPlaceholderLabel = `Search by ID or Address ${isMacOs ? '(⌘K)' : '(Ctrl+K)'}`
 export const noSearchResultsMessage = 'No results.'
