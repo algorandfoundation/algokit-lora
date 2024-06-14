@@ -9,7 +9,7 @@ export function ExplorePage() {
   return (
     <>
       <PageTitle title={explorePageTitle} />
-      <div className={cn('grid grid-cols-2 gap-4')}>
+      <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-4')}>
         <LatestBlocks />
         <LatestTransactions />
       </div>

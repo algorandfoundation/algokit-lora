@@ -17,11 +17,11 @@ export function LatestTransactions() {
     <Card className={cn('p-4')}>
       <CardContent className={cn('text-sm')}>
         <h2>{latestTransactionsTitle}</h2>
-        <ul className={cn('grid grid-cols-1')}>
+        <ul>
           {latestTransactions.map((transaction) => (
             <li key={transaction.id} className="border-b last:border-0">
               <TransactionLink transactionId={transaction.id} className="flex p-[0.705rem] text-sm hover:bg-accent">
-                <ArrowRightLeft className="text-primary" />
+                <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
                 <div className={cn('mx-2')}>
                   <h3 className={cn('leading-none mb-2')}>{ellipseId(transaction.id)}</h3>
                   <DescriptionList
@@ -34,9 +34,9 @@ export function LatestTransactions() {
                     ]}
                   />
                 </div>
-                <div className="ml-auto">
-                  <Badge variant={transaction.type}>{transaction.type}</Badge>
-                </div>
+                <Badge className="ml-auto truncate" variant={transaction.type}>
+                  {transaction.type}
+                </Badge>
               </TransactionLink>
             </li>
           ))}

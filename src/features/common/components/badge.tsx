@@ -5,7 +5,7 @@ import { CircleDollarSign, SquareArrowRight, SquareArrowOutDownLeft, Bolt, Snowf
 import { TransactionType } from '@/features/transactions/models'
 
 const badgeVariants = cva(
-  'ml-2 inline-flex items-center rounded-full border px-2 py-0.5 text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'ml-2 inline-flex h-6 items-center rounded-full border px-2 py-0.5 text-xs tracking-tighter transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {

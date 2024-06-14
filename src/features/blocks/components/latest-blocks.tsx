@@ -14,16 +14,16 @@ export function LatestBlocks() {
     <Card className={cn('p-4')}>
       <CardContent className={cn('text-sm')}>
         <h2>{latestBlocksTitle}</h2>
-        <ul className={cn('grid grid-cols-1')}>
+        <ul>
           {latestBlocks.map((block) => (
             <li key={block.round} className="border-b last:border-0">
               <BlockLink round={block.round} className="flex p-3 text-sm hover:bg-accent">
-                <Box className="text-primary" />
+                <Box className="hidden text-primary sm:max-lg:block xl:block" />
                 <div className={cn('mx-2')}>
                   <h3 className={cn('leading-none mb-2')}>{block.round}</h3>
-                  <DateFormatted date={new Date(block.timestamp)} />
+                  <DateFormatted className="truncate" date={new Date(block.timestamp)} />
                 </div>
-                <span className={cn('ml-auto')}>
+                <span className={cn('ml-auto tracking-tight truncate')}>
                   {block.transactionsSummary.count} transaction{block.transactionsSummary.count === 1 ? '' : 's'}
                 </span>
               </BlockLink>
