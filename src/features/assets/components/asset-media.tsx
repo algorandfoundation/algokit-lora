@@ -7,7 +7,7 @@ type Props = {
 
 export function AssetMedia({ asset }: Props) {
   return asset.media ? (
-    <div className={cn('pl-2 w-32 h-auto')}>
+    <div className={cn('w-32 h-auto')}>
       {asset.media.type === AssetMediaType.Image && <img src={asset.media.url} alt={asset.name} />}
       {asset.media.type === AssetMediaType.Video && (
         <video title={asset.name} autoPlay playsInline loop controls muted>
@@ -15,5 +15,5 @@ export function AssetMedia({ asset }: Props) {
         </video>
       )}
     </div>
-  ) : null
+  ) : undefined
 }

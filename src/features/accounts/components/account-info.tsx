@@ -17,6 +17,7 @@ import {
   accountMinBalanceLabel,
   accountRekeyedToLabel,
 } from './labels'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 
 type Props = {
   account: Account
@@ -87,7 +88,10 @@ export function AccountInfo({ account }: Props) {
   return (
     <Card aria-label={accountInformationLabel} className={cn('p-4')}>
       <CardContent className={cn('text-sm space-y-2')}>
-        <DescriptionList items={accountInfoItems} />
+        <div className={cn('grid grid-cols-[1fr_max-content]')}>
+          <DescriptionList items={accountInfoItems} />
+          <OpenJsonViewDialogButton json={account.json} />
+        </div>
       </CardContent>
     </Card>
   )

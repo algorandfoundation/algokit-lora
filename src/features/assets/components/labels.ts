@@ -20,8 +20,6 @@ export const assetTraitsLabel = 'Asset Traits'
 
 export const assetMetadataLabel = 'Asset Metadata'
 
-export const assetJsonLabel = 'Asset JSON'
-
 export const assetActivityLabel = 'Activity'
 export const assetLiveTransactionsTabId = 'live-transactions'
 export const assetLiveTransactionsTabLabel = 'Live Transactions'

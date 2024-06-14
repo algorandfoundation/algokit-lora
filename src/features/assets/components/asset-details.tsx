@@ -18,7 +18,6 @@ import {
   assetHistoricalTransactionsTabId,
   assetHistoricalTransactionsTabLabel,
   assetIdLabel,
-  assetJsonLabel,
   assetLiveTransactionsTabId,
   assetLiveTransactionsTabLabel,
   assetManagerLabel,
@@ -36,10 +35,14 @@ import { AssetMetadata } from './asset-metadata'
 import { AssetTransactionHistory } from './asset-transaction-history'
 import { AssetLiveTransactions } from './asset-live-transactions'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { JsonView } from '@/features/common/components/json-view'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 
 type Props = {
   asset: Asset
+}
+
+const expandAssetJsonLevel = (level: number) => {
+  return level < 2
 }
 
 export function AssetDetails({ asset }: Props) {
@@ -137,7 +140,10 @@ export function AssetDetails({ asset }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
-            <AssetMedia asset={asset} />
+            <div className="ml-2 grid gap-2">
+              <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
+              <AssetMedia asset={asset} />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -152,14 +158,6 @@ export function AssetDetails({ asset }: Props) {
 
           <AssetMetadata metadata={asset.metadata} />
           <AssetTraits traits={asset.traits} />
-          <Card className={cn('p-4')}>
-            <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetJsonLabel}</h1>
-              <div className={cn('border-solid border-2 border-border h-96 grid')}>
-                <JsonView json={asset.json} />
-              </div>
-            </CardContent>
-          </Card>
 
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>

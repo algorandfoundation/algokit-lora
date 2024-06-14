@@ -1,0 +1,81 @@
+.collapse-icon::after {
+  cursor: pointer;
+  margin-right: 5px;
+  content: '\25BE';
+}
+
+.expand-icon::after {
+  cursor: pointer;
+  margin-right: 5px;
+  content: '\25B8';
+}
+
+.basic-element-style {
+  margin: 0 10px;
+  padding: 0;
+}
+
+.label {
+  margin-right: 5px;
+}
+
+.clickable-label {
+  cursor: pointer;
+}
+
+.collapsed-content {
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.collapsed-content::after {
+  content: '...';
+  font-size: 0.8em;
+}
+
+.punctuation-base {
+  margin-right: 5px;
+  font-weight: normal;
+}
+
+.punctuation-light {
+  composes: punctuation-base;
+  color: rgb(15 23 42);
+}
+
+.key-light {
+  color: rgb(27 108 135);
+  padding: 10px 0;
+}
+.value-string-light {
+  color: rgb(169 48 59);
+}
+
+.value-number-light {
+  color: rgb(25 109 11);
+}
+
+.value-boolean-light {
+  color: rgb(67 100 99);
+}
+
+.punctuation-dark {
+  composes: punctuation-base;
+  color: rgb(255 255 255);
+}
+
+.key-dark {
+  color: rgb(43 157 195);
+  padding: 10px 0;
+}
+.value-string-dark {
+  color: rgb(234 100 104);
+}
+
+.value-number-dark {
+  color: rgb(43 167 22);
+}
+
+.value-boolean-dark {
+  color: rgb(105 154 152);
+}

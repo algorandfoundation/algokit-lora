@@ -3,7 +3,6 @@ import { TransactionInfo } from './transaction-info'
 import { Card, CardContent } from '@/features/common/components/card'
 import { LogicsigDetails } from './logicsig-details'
 import { MultisigDetails } from './multisig-details'
-import { TransactionJson } from './transaction-json'
 import { TransactionNote } from './transaction-note'
 import { AppCallTransaction, InnerAppCallTransaction, SignatureType } from '../models'
 import { TransactionViewTabs } from './transaction-view-tabs'
@@ -24,7 +23,6 @@ export function AppCallTransactionDetails({ transaction }: Props) {
           <TransactionViewTabs transaction={transaction} />
           {transaction.note && <TransactionNote note={transaction.note} />}
           {transaction.logs.length > 0 && <AppCallTransactionLogs logs={transaction.logs} />}
-          <TransactionJson json={transaction.json} />
           {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
           {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
         </CardContent>

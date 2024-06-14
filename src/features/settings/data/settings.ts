@@ -1,3 +1,7 @@
 import { createStore } from 'jotai'
 
-export const settingsStore = createStore()
+export let settingsStore = createStore()
+
+export function resetSettingsStore() {
+  settingsStore = createStore()
+}
