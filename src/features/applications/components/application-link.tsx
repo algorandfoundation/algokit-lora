@@ -15,7 +15,7 @@ export function ApplicationLink({ applicationId, className, children }: Props) {
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Network.Application.ById}
+      urlTemplate={Urls.Explore.Application.ById}
       urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
     >
       {children ? children : applicationId}

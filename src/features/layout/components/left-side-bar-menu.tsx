@@ -16,7 +16,7 @@ export function LeftSideBarMenu({ className }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
 
   const menuItems = [
-    { urlTemplate: Urls.Network, icon: <Telescope />, text: 'Explore' },
+    { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <Braces />, text: 'App Studio' },
     { urlTemplate: Urls.Settings, icon: <Settings />, text: 'Settings' },
   ]

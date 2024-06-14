@@ -25,7 +25,7 @@ export function TransactionLink({ transactionId, short = false, className, child
     <>
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline inline', className)}
-        urlTemplate={Urls.Network.Transaction.ById}
+        urlTemplate={Urls.Explore.Transaction.ById}
         urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
       >
         {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
