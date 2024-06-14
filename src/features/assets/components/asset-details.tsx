@@ -90,7 +90,7 @@ export function AssetDetails({ asset }: Props) {
         ? {
             dt: assetUrlLabel,
             dd: (
-              <a href={asset.url} className={cn('text-primary underline')}>
+              <a href={asset.url} className={cn('text-primary underline')} rel="nofollow" target="_blank">
                 {asset.url}
               </a>
             ),

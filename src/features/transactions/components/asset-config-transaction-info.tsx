@@ -41,7 +41,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
           ? {
               dt: assetUrlLabel,
               dd: (
-                <a href={transaction.url} className={cn('text-primary underline')}>
+                <a href={transaction.url} className={cn('text-primary underline')} rel="nofollow" target="_blank">
                   {transaction.url}
                 </a>
               ),
