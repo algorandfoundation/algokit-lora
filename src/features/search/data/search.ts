@@ -15,6 +15,7 @@ import { isTransactionId } from '@/utils/is-transaction-id'
 import { isInteger } from '@/utils/is-integer'
 import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
+import { useSelectedNetwork } from '@/features/settings/data'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -23,7 +24,7 @@ const handle404 = (e: Error) => {
   throw e
 }
 
-const createSearchAtoms = (store: JotaiStore) => {
+const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
   const [currentTermAtom, termAtom, isDebouncingAtom] = atomWithDebounce<string>('')
   const searchResultsAtom = atom(async (get) => {
     // Return an async forever value if we are debouncing, so we can render a loader
@@ -43,14 +44,14 @@ const createSearchAtoms = (store: JotaiStore) => {
         type: SearchResultType.Account,
         id: term,
         label: ellipseAddress(term),
-        url: Urls.Account.ByAddress.build({ address: term }),
+        url: Urls.Network.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isTransactionId(term)) {
       results.push({
         type: SearchResultType.Transaction,
         id: term,
         label: ellipseId(term),
-        url: Urls.Transaction.ById.build({ transactionId: term }),
+        url: Urls.Network.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
       })
     } else if (isInteger(term)) {
       const id = parseInt(term, 10)
@@ -61,7 +62,7 @@ const createSearchAtoms = (store: JotaiStore) => {
             type: SearchResultType.Block,
             id: id,
             label: id.toString(),
-            url: Urls.Block.ByRound.build({ round: id.toString() }),
+            url: Urls.Network.Block.ByRound.build({ round: id.toString(), networkId: selectedNetwork }),
           })
         }
 
@@ -79,7 +80,7 @@ const createSearchAtoms = (store: JotaiStore) => {
               type: SearchResultType.Asset,
               id: id,
               label: asset.name ? `${id} (${asset.name})` : id.toString(),
-              url: Urls.Asset.ById.build({ assetId: id.toString() }),
+              url: Urls.Network.Asset.ById.build({ assetId: id.toString(), networkId: selectedNetwork }),
             })
           }
 
@@ -88,7 +89,7 @@ const createSearchAtoms = (store: JotaiStore) => {
               type: SearchResultType.Application,
               id: id,
               label: id.toString(),
-              url: Urls.Application.ById.build({ applicationId: id.toString() }),
+              url: Urls.Network.Application.ById.build({ applicationId: id.toString(), networkId: selectedNetwork }),
             })
           }
         } catch (e) {
@@ -106,9 +107,10 @@ const createSearchAtoms = (store: JotaiStore) => {
 
 const useSearchAtoms = () => {
   const store = useStore()
+  const [selectedNetwork] = useSelectedNetwork()
   return useMemo(() => {
-    return createSearchAtoms(store)
-  }, [store])
+    return createSearchAtoms(store, selectedNetwork)
+  }, [selectedNetwork, store])
 }
 
 export const useSearch = () => {

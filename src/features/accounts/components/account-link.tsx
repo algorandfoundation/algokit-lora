@@ -6,6 +6,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { PropsWithChildren, useCallback } from 'react'
 import { toast } from 'react-toastify'
+import { useSelectedNetwork } from '@/features/settings/data'
 
 type Props = PropsWithChildren<{
   address: string
@@ -16,6 +17,7 @@ type Props = PropsWithChildren<{
 
 export const AccountLink = fixedForwardRef(
   ({ address, short, className, children, showCopyButton, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
+    const [selectedNetwork] = useSelectedNetwork()
     const copyClipboard = useCallback(async () => {
       await navigator.clipboard.writeText(address)
       toast.success('Address copied to clipboard')
@@ -24,8 +26,8 @@ export const AccountLink = fixedForwardRef(
       <>
         <TemplatedNavLink
           className={cn(!children && 'text-primary underline', className)}
-          urlTemplate={Urls.Account.ByAddress}
-          urlParams={{ address }}
+          urlTemplate={Urls.Network.Account.ByAddress}
+          urlParams={{ address, networkId: selectedNetwork }}
           ref={ref}
           {...rest}
         >

@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
 import { PROVIDER_ID, clearAccounts, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
@@ -69,18 +69,15 @@ export const localnetConfig: NetworkConfig = {
 export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
 const networkLocalStorageKey = 'network'
-// On page load, set the network to the one in the URL
-const url = new URL(window.location.href)
-const network = url.searchParams.get(networkLocalStorageKey)?.toLowerCase()
-if (network) {
-  if (networksConfigs.find((n) => n.id === network)) {
-    localStorage.setItem('network', `"${network}"`)
-  }
-  url.searchParams.delete('network')
-  history.pushState({}, '', url.href)
-}
 
-const selectedNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
+const storedSelectedNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
+const selectedNetworkAtom = atomWithRefresh((get) => {
+  const networkId = window.location.pathname.split('/')[1]
+  if (networksConfigs.find((c) => c.id === networkId)) {
+    return networkId
+  }
+  return get(storedSelectedNetworkAtom)
+})
 
 export const networkConfigAtom = atom((get) => {
   const id = get(selectedNetworkAtom)
@@ -117,7 +114,7 @@ export const useSelectedNetwork = () => {
 
 export const useSetSelectedNetwork = () => {
   const { providers } = useWallet()
-  const setSelectedNetwork = useSetAtom(selectedNetworkAtom, { store: settingsStore })
+  const setStorageNetwork = useSetAtom(storedSelectedNetworkAtom, { store: settingsStore })
 
   return useCallback(
     async (selectedNetwork: string) => {
@@ -130,8 +127,10 @@ export const useSetSelectedNetwork = () => {
           })
         )
       }
-      setSelectedNetwork(selectedNetwork)
+      setStorageNetwork(selectedNetwork)
+      // Refresh selected network atom value
+      settingsStore.set(selectedNetworkAtom)
     },
-    [providers, setSelectedNetwork]
+    [providers, setStorageNetwork]
   )
 }

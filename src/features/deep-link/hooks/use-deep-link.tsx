@@ -1,13 +1,12 @@
 import { useCallback, useEffect } from 'react'
-import 'react-toastify/dist/ReactToastify.css'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
-import { useSetSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/settings/data'
 import { parseDeepLink } from '@/features/deep-link/parse-deep-link'
 import { Urls } from '@/routes/urls'
 
 export function useDeepLink() {
-  const setSelectedNetwork = useSetSelectedNetwork()
+  const [_, setSelectedNetwork] = useSelectedNetwork()
   const navigate = useNavigate()
 
   const handleDeepLink = useCallback(
@@ -16,7 +15,7 @@ export function useDeepLink() {
       if (options) {
         await setSelectedNetwork(options.networkId)
         if (options.transactionId) {
-          navigate(Urls.Transaction.ById.build({ transactionId: options.transactionId }))
+          navigate(Urls.Network.Transaction.ById.build({ transactionId: options.transactionId, networkId: options.networkId }))
         } else {
           navigate(Urls.Index.build({}))
         }

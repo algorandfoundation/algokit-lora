@@ -5,6 +5,7 @@ import { Urls } from '@/routes/urls'
 import { ellipseId } from '@/utils/ellipse-id'
 import { PropsWithChildren, useCallback } from 'react'
 import { toast } from 'react-toastify'
+import { useSelectedNetwork } from '@/features/settings/data'
 
 type Props = PropsWithChildren<{
   transactionId: string
@@ -14,6 +15,7 @@ type Props = PropsWithChildren<{
 }>
 
 export function TransactionLink({ transactionId, short = false, className, children, showCopyButton }: Props) {
+  const [selectedNetwork] = useSelectedNetwork()
   const copyClipboard = useCallback(async () => {
     await navigator.clipboard.writeText(transactionId)
     toast.success('Transaction ID copied to clipboard')
@@ -23,8 +25,8 @@ export function TransactionLink({ transactionId, short = false, className, child
     <>
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline inline', className)}
-        urlTemplate={Urls.Transaction.ById}
-        urlParams={{ transactionId: transactionId }}
+        urlTemplate={Urls.Network.Transaction.ById}
+        urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
       >
         {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
       </TemplatedNavLink>
