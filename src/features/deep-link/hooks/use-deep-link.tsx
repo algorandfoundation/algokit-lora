@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from 'react'
-import 'react-toastify/dist/ReactToastify.css'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
 import { useSelectedNetwork } from '@/features/settings/data'
