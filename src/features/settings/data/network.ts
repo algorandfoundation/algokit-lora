@@ -70,13 +70,13 @@ export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 
 const networkLocalStorageKey = 'network'
 
-const storageNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
+const storedSelectedNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
 const selectedNetworkAtom = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
   if (networksConfigs.find((c) => c.id === networkId)) {
     return networkId
   }
-  return get(storageNetworkAtom)
+  return get(storedSelectedNetworkAtom)
 })
 
 export const networkConfigAtom = atom((get) => {
@@ -114,7 +114,7 @@ export const useSelectedNetwork = () => {
 
 export const useSetSelectedNetwork = () => {
   const { providers } = useWallet()
-  const setStorageNetwork = useSetAtom(storageNetworkAtom, { store: settingsStore })
+  const setStorageNetwork = useSetAtom(storedSelectedNetworkAtom, { store: settingsStore })
 
   return useCallback(
     async (selectedNetwork: string) => {
