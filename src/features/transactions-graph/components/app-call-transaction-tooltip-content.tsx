@@ -21,7 +21,9 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
         dt: transactionTypeLabel,
         dd: (
           <>
-            {TransactionType.AppCall}
+            <Badge className="ml-0" variant={TransactionType.AppCall}>
+              {TransactionType.AppCall}
+            </Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </>
         ),

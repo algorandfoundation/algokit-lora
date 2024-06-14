@@ -14,7 +14,7 @@ export function LayoutPage({ children }: LayoutPageProps) {
   useDeepLink()
 
   return (
-    <>
+    <div className="flex h-screen flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <LeftSideBarMenu />
@@ -23,6 +23,6 @@ export function LayoutPage({ children }: LayoutPageProps) {
         </main>
       </div>
       <ToastContainer />
-    </>
+    </div>
   )
 }

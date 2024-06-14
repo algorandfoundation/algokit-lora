@@ -25,7 +25,9 @@ export function AssetConfigTransactionTooltipContent({
         dt: transactionTypeLabel,
         dd: (
           <>
-            {TransactionType.AssetConfig}
+            <Badge className="ml-0" variant={TransactionType.AssetConfig}>
+              {TransactionType.AssetConfig}
+            </Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </>
         ),

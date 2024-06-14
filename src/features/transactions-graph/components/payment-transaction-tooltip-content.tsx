@@ -21,7 +21,9 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
         dt: transactionTypeLabel,
         dd: (
           <>
-            {TransactionType.Payment}
+            <Badge className="ml-0" variant={TransactionType.Payment}>
+              {TransactionType.Payment}
+            </Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </>
         ),

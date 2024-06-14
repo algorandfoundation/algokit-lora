@@ -34,14 +34,14 @@ export function BlockDetails({ block }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <div className="flex">
-            {block.transactionsSummary.count}
+          <>
+            <span>{block.transactionsSummary.count}</span>
             {block.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>
                 {type}={count}
               </Badge>
             ))}
-          </div>
+          </>
         ),
       },
       {

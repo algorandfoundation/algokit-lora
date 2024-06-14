@@ -19,7 +19,9 @@ export function StateProofTransactionTooltipContent({ transaction }: { transacti
         dt: transactionTypeLabel,
         dd: (
           <label>
-            {transaction.type}
+            <Badge className="ml-0" variant={transaction.type}>
+              {transaction.type}
+            </Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </label>
         ),

@@ -26,7 +26,9 @@ export function AssetFreezeTransactionTooltipContent({
         dt: transactionTypeLabel,
         dd: (
           <>
-            {TransactionType.AssetFreeze}
+            <Badge className="ml-0" variant={TransactionType.AssetFreeze}>
+              {TransactionType.AssetFreeze}
+            </Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
           </>
         ),
