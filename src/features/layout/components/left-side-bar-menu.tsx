@@ -45,13 +45,15 @@ export function LeftSideBarMenu({ className }: Props) {
                 urlParams={{ networkId: selectedNetwork }}
                 className={cn('[&.active]:text-primary flex items-center p-2 gap-2 min-h-10 pl-3 whitespace-nowrap')}
               >
-                <div className={cn('text-primary')}>{menuItem.icon}</div>
-                <div className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible delay-100')}>{menuItem.text}</div>
+                <div className={cn('[&.active]:text-primary')}>{menuItem.icon}</div>
+                <span className={cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible w-0 delay-100')}>{menuItem.text}</span>
               </TemplatedNavLink>
             </NavigationMenuLink>
           </NavigationMenuItem>
         ))}
-        <ThemeToggle />
+        <NavigationMenuItem>
+          <ThemeToggle isLeftSideBarExpanded={layout.isLeftSideBarExpanded} />
+        </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>
   )

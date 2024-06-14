@@ -127,7 +127,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
             </>
           )}
           <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'ml-2')}>
-            Details
+            View
           </AccountLink>
         </div>
         <div className={cn('flex items-center')}>
