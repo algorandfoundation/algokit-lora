@@ -1,6 +1,6 @@
 import { CopyIcon } from 'lucide-react'
 import { Button } from './button'
-import { cn } from '@/features/common/utils.ts'
+import { cn } from '@/features/common/utils'
 
 type Props = {
   onClick: () => void
