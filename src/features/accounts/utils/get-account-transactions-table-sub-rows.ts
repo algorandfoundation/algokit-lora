@@ -3,7 +3,7 @@ import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { Address } from '../data/types'
 
 export const getAccountTransactionsTableSubRows = (address: Address, transaction: Transaction | InnerTransaction) => {
-  if (transaction.type !== TransactionType.ApplicationCall || transaction.innerTransactions.length === 0) {
+  if (transaction.type !== TransactionType.AppCall || transaction.innerTransactions.length === 0) {
     return []
   }
 

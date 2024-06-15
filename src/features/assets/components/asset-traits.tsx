@@ -26,7 +26,7 @@ export function AssetTraits({ traits }: Props) {
   return (
     <Card className={cn('p-4')}>
       <CardContent className={cn('text-sm space-y-2')}>
-        <h1 className={cn('text-2xl text-primary font-bold')}>{assetTraitsLabel}</h1>
+        <h2>{assetTraitsLabel}</h2>
         <DescriptionList items={items} />
       </CardContent>
     </Card>

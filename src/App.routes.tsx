@@ -32,7 +32,7 @@ export const routes = evalTemplates([
         errorElement: <ErrorPage title={explorePageTitle} />,
       },
       {
-        template: Urls.Network,
+        template: Urls.Explore,
         element: (
           <NetworkPage>
             <Outlet />
@@ -40,63 +40,63 @@ export const routes = evalTemplates([
         ),
         children: [
           {
-            template: Urls.Network,
+            template: Urls.Explore,
             element: <ExplorePage />,
             errorElement: <ErrorPage title={explorePageTitle} />,
           },
           {
-            template: Urls.Network.Transaction.ById,
+            template: Urls.Explore.Transaction.ById,
             errorElement: <ErrorPage title={transactionPageTitle} />,
             children: [
               {
-                template: Urls.Network.Transaction.ById,
+                template: Urls.Explore.Transaction.ById,
                 element: <TransactionPage />,
               },
               {
-                template: Urls.Network.Transaction.ById.Inner.ById,
+                template: Urls.Explore.Transaction.ById.Inner.ById,
                 element: <InnerTransactionPage />,
               },
             ],
           },
           {
-            template: Urls.Network.Block.ByRound,
+            template: Urls.Explore.Block.ByRound,
             children: [
               {
-                template: Urls.Network.Block.ByRound,
+                template: Urls.Explore.Block.ByRound,
                 errorElement: <ErrorPage title={blockPageTitle} />,
                 element: <BlockPage />,
               },
               {
-                template: Urls.Network.Block.ByRound.Group.ById,
+                template: Urls.Explore.Block.ByRound.Group.ById,
                 errorElement: <ErrorPage title={groupPageTitle} />,
                 element: <GroupPage />,
               },
             ],
           },
           {
-            template: Urls.Network.Account.ByAddress,
+            template: Urls.Explore.Account.ByAddress,
             element: <AccountPage />,
             errorElement: <ErrorPage title={accountPageTitle} />,
           },
           {
-            template: Urls.Network.Asset.ById,
+            template: Urls.Explore.Asset.ById,
             element: <AssetPage />,
             errorElement: <ErrorPage title={assetPageTitle} />,
           },
           {
-            template: Urls.Network.Application.ById,
+            template: Urls.Explore.Application.ById,
             errorElement: <ErrorPage title={applicationPageTitle} />,
             element: <ApplicationPage />,
           },
           {
-            template: Urls.Network.Tx,
+            template: Urls.Explore.Tx,
             element: <TxPage />,
           },
         ],
       },
       {
         template: Urls.AppStudio,
-        element: <div>App Studio</div>,
+        element: <ErrorPage title="App Studio" />,
       },
       {
         template: Urls.Settings,

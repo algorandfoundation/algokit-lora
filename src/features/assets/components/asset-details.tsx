@@ -51,7 +51,7 @@ export function AssetDetails({ asset }: Props) {
       {
         dt: assetIdLabel,
         dd: (
-          <>
+          <div className="flex items-center gap-2">
             <span>{asset.id}</span>
             {asset.standardsUsed.map((s, i) => (
               <Badge key={i} variant="outline">
@@ -59,7 +59,7 @@ export function AssetDetails({ asset }: Props) {
               </Badge>
             ))}
             <Badge variant="outline">{asset.type}</Badge>
-          </>
+          </div>
         ),
       },
       asset.name
@@ -135,7 +135,7 @@ export function AssetDetails({ asset }: Props) {
   ).filter(isDefined)
 
   return (
-    <div className={cn('space-y-6 pt-7')}>
+    <div className={cn('space-y-4')}>
       <Card aria-label={assetDetailsLabel} className={cn('p-4')}>
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
@@ -151,7 +151,7 @@ export function AssetDetails({ asset }: Props) {
         <>
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetAddressesLabel}</h1>
+              <h2>{assetAddressesLabel}</h2>
               <DescriptionList items={assetAddresses} />
             </CardContent>
           </Card>
@@ -161,19 +161,13 @@ export function AssetDetails({ asset }: Props) {
 
           <Card className={cn('p-4')}>
             <CardContent className={cn('text-sm space-y-2')}>
-              <h1 className={cn('text-2xl text-primary font-bold')}>{assetActivityLabel}</h1>
+              <h2>{assetActivityLabel}</h2>
               <Tabs defaultValue={assetLiveTransactionsTabId}>
                 <TabsList aria-label={assetActivityLabel}>
-                  <TabsTrigger
-                    className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
-                    value={assetLiveTransactionsTabId}
-                  >
+                  <TabsTrigger className="w-48" value={assetLiveTransactionsTabId}>
                     {assetLiveTransactionsTabLabel}
                   </TabsTrigger>
-                  <TabsTrigger
-                    className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-48')}
-                    value={assetHistoricalTransactionsTabId}
-                  >
+                  <TabsTrigger className="w-48" value={assetHistoricalTransactionsTabId}>
                     {assetHistoricalTransactionsTabLabel}
                   </TabsTrigger>
                 </TabsList>

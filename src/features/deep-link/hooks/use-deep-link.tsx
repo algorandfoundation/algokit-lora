@@ -15,7 +15,7 @@ export function useDeepLink() {
       if (options) {
         await setSelectedNetwork(options.networkId)
         if (options.transactionId) {
-          navigate(Urls.Network.Transaction.ById.build({ transactionId: options.transactionId, networkId: options.networkId }))
+          navigate(Urls.Explore.Transaction.ById.build({ transactionId: options.transactionId, networkId: options.networkId }))
         } else {
           navigate(Urls.Index.build({}))
         }

@@ -80,7 +80,7 @@ const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive.Empty ref={ref} className={cn('py-6 text-center text-sm border-t', className)} {...props} />
+  <CommandPrimitive.Empty ref={ref} className={cn('py-6 text-center text-sm border-t border-input', className)} {...props} />
 ))
 
 CommandEmpty.displayName = CommandPrimitive.Empty.displayName
@@ -89,7 +89,7 @@ const CommandLoading = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Loading>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Loading>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive.Loading ref={ref} className={cn('py-6 text-center text-sm border-t', className)} {...props} />
+  <CommandPrimitive.Loading ref={ref} className={cn('py-6 text-center text-sm border-t border-input', className)} {...props} />
 ))
 
 CommandLoading.displayName = CommandPrimitive.Loading.displayName

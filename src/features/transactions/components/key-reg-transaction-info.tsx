@@ -68,7 +68,7 @@ export function KeyRegTransactionInfo({ transaction }: Props) {
   return (
     <div className={cn('space-y-2')}>
       <div className={cn('flex items-center justify-between')}>
-        <h1 className={cn('text-2xl text-primary font-bold')}>Key Registration</h1>
+        <h2>Key Registration</h2>
       </div>
       <DescriptionList items={items} />
     </div>

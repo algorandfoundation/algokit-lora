@@ -74,7 +74,7 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <DialogHeader>
-            <h4 className={cn('text-xl text-primary font-bold')}>JSON</h4>
+            <h2>JSON</h2>
           </DialogHeader>
           <div className={cn('border-solid border-2 border-border grid w-[900px] min-h-[200px] max-h-[500px] overflow-auto relative')}>
             <Button variant="default" className={cn('absolute top-2 right-2')} onClick={copyJsonToClipboard}>

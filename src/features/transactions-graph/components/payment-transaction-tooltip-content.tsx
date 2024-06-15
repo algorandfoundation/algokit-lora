@@ -20,10 +20,10 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
       {
         dt: transactionTypeLabel,
         dd: (
-          <>
-            {TransactionType.Payment}
+          <div className="flex items-center gap-2">
+            <Badge variant={TransactionType.Payment}>{TransactionType.Payment}</Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </>
+          </div>
         ),
       },
       {

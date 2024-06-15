@@ -44,14 +44,14 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         type: SearchResultType.Account,
         id: term,
         label: ellipseAddress(term),
-        url: Urls.Network.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
+        url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isTransactionId(term)) {
       results.push({
         type: SearchResultType.Transaction,
         id: term,
         label: ellipseId(term),
-        url: Urls.Network.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
+        url: Urls.Explore.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
       })
     } else if (isInteger(term)) {
       const id = parseInt(term, 10)
@@ -62,7 +62,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
             type: SearchResultType.Block,
             id: id,
             label: id.toString(),
-            url: Urls.Network.Block.ByRound.build({ round: id.toString(), networkId: selectedNetwork }),
+            url: Urls.Explore.Block.ByRound.build({ round: id.toString(), networkId: selectedNetwork }),
           })
         }
 
@@ -80,7 +80,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
               type: SearchResultType.Asset,
               id: id,
               label: asset.name ? `${id} (${asset.name})` : id.toString(),
-              url: Urls.Network.Asset.ById.build({ assetId: id.toString(), networkId: selectedNetwork }),
+              url: Urls.Explore.Asset.ById.build({ assetId: id.toString(), networkId: selectedNetwork }),
             })
           }
 
@@ -89,7 +89,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
               type: SearchResultType.Application,
               id: id,
               label: id.toString(),
-              url: Urls.Network.Application.ById.build({ applicationId: id.toString(), networkId: selectedNetwork }),
+              url: Urls.Explore.Application.ById.build({ applicationId: id.toString(), networkId: selectedNetwork }),
             })
           }
         } catch (e) {

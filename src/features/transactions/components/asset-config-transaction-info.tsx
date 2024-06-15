@@ -120,7 +120,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
   return (
     <div className={cn('space-y-2')}>
       <div className={cn('flex items-center justify-between')}>
-        <h1 className={cn('text-2xl text-primary font-bold')}>Asset Config</h1>
+        <h2>Asset Config</h2>
       </div>
       <DescriptionList items={items} />
     </div>

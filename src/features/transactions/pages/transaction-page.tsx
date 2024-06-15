@@ -3,10 +3,10 @@ import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { TransactionDetails } from '../components/transaction-details'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { cn } from '@/features/common/utils'
 import { is404 } from '@/utils/error'
 import { useLoadableTransactionAtom } from '../data'
 import { isTransactionId } from '@/utils/is-transaction-id'
+import { PageTitle } from '@/features/common/components/page-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -29,11 +29,11 @@ export function TransactionPage() {
   const loadableTransaction = useLoadableTransactionAtom(transactionId)
 
   return (
-    <div>
-      <h1 className={cn('text-2xl text-primary font-bold')}>{transactionPageTitle}</h1>
+    <>
+      <PageTitle title={transactionPageTitle} />
       <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
         {(transaction) => <TransactionDetails transaction={transaction} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

@@ -13,7 +13,6 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../data'
 import { Loader } from 'lucide-react'
-import { Badge } from '@/features/common/components/badge'
 import { useLocationChange } from '@/features/common/hooks/use-location-change'
 import { isMacOs } from '@/utils/is-mac-platform'
 
@@ -59,7 +58,7 @@ export function Search() {
   }, [setTerm])
 
   return (
-    <Command className={cn('bg-card text-card-foreground w-80 h-auto z-20 border')} shouldFilter={false} loop>
+    <Command className={cn('bg-popover text-popover-foreground w-80 h-auto z-20 border border-input')} shouldFilter={false} loop>
       <CommandInput
         placeholder={searchPlaceholderLabel}
         value={term}
@@ -84,14 +83,12 @@ export function Search() {
               return <CommandEmpty>{noSearchResultsMessage}</CommandEmpty>
             }
             return (
-              <CommandGroup heading="Results" className={cn('border-t')}>
+              <CommandGroup heading="Results" className={cn('border-t border-input')}>
                 {results.map((result) => {
                   return (
                     <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
                       <span>{result.label}</span>
-                      <Badge className={cn('ml-auto')} variant="outline">
-                        {result.type}
-                      </Badge>
+                      <span className={cn('ml-auto text-xs')}>{result.type}</span>
                     </CommandItem>
                   )
                 })}

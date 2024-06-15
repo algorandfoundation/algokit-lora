@@ -15,14 +15,14 @@ export const createInnerTransactionAtom = (
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
     const transaction = asTransaction(txn, assetSummaryResolver)
-    if (transaction.type !== TransactionType.ApplicationCall) {
+    if (transaction.type !== TransactionType.AppCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
 
     const indexes = innerId.split('-').map((s) => parseInt(s))
     let current: Transaction | InnerTransaction = transaction
     for (const i of indexes) {
-      if (current.type === TransactionType.ApplicationCall) {
+      if (current.type === TransactionType.AppCall) {
         current = current.innerTransactions[i - 1]
       }
     }

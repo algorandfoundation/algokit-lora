@@ -19,15 +19,15 @@ const Amount = ({ asset, amount, isFrozen }: { asset: AssetSummary; amount: numb
   const amountToDisplay = new Decimal(amount.toString()).div(new Decimal(10).pow(asset.decimals)).toString()
 
   return (
-    <>
-      {amountToDisplay}{' '}
+    <div className="flex items-center gap-1">
+      <span>{amountToDisplay}</span>
       {asset.unitName ? (
         <AssetIdLink assetId={asset.id} className={cn('text-primary underline')}>
           {asset.unitName}
         </AssetIdLink>
-      ) : null}
+      ) : undefined}
       {isFrozen && <Badge variant="outline">Frozen</Badge>}
-    </>
+    </div>
   )
 }
 

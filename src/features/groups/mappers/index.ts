@@ -12,7 +12,7 @@ export const asGroup = (groupResult: GroupResult, transactions: Transaction[]): 
       if (txn.group === groupResult.id) {
         // transaction in the group is at the root level, no need to search further
         acc.push(txn)
-      } else if (txn.type === TransactionType.ApplicationCall && txn.innerTransactions.length > 0) {
+      } else if (txn.type === TransactionType.AppCall && txn.innerTransactions.length > 0) {
         const txns = flattenInnerTransactions(txn)
         txns.forEach((flat) => {
           if (flat.transaction.group === groupResult.id) {

@@ -1,4 +1,3 @@
-import { cn } from '@/features/common/utils'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { Group } from '../models'
 import { TransactionsGraph } from '@/features/transactions-graph'
@@ -23,10 +22,10 @@ export function GroupTransactionsViewTabs({ group }: Props) {
   return (
     <Tabs defaultValue={graphTabId}>
       <TabsList aria-label={groupVisual}>
-        <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={graphTabId}>
+        <TabsTrigger className="w-32" value={graphTabId}>
           {groupVisualGraphLabel}
         </TabsTrigger>
-        <TabsTrigger className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')} value={tableTabId}>
+        <TabsTrigger className="w-32" value={tableTabId}>
           {groupVisualTableLabel}
         </TabsTrigger>
       </TabsList>

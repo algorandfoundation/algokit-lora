@@ -48,6 +48,34 @@ export default {
           DEFAULT: 'rgb(var(--card) / <alpha-value>)',
           foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
         },
+        payment: {
+          DEFAULT: 'rgb(var(--payment) / <alpha-value>)',
+          foreground: 'rgb(var(--payment-foreground) / <alpha-value>)',
+        },
+        ['asset-transfer']: {
+          DEFAULT: 'rgb(var(--asset-transfer) / <alpha-value>)',
+          foreground: 'rgb(var(--asset-transfer-foreground) / <alpha-value>)',
+        },
+        ['application-call']: {
+          DEFAULT: 'rgb(var(--application-call) / <alpha-value>)',
+          foreground: 'rgb(var(--application-call-foreground) / <alpha-value>)',
+        },
+        ['asset-config']: {
+          DEFAULT: 'rgb(var(--asset-config) / <alpha-value>)',
+          foreground: 'rgb(var(--asset-config-foreground) / <alpha-value>)',
+        },
+        ['asset-freeze']: {
+          DEFAULT: 'rgb(var(--asset-freeze) / <alpha-value>)',
+          foreground: 'rgb(var(--asset-freeze-foreground) / <alpha-value>)',
+        },
+        ['state-proof']: {
+          DEFAULT: 'rgb(var(--state-proof) / <alpha-value>)',
+          foreground: 'rgb(var(--state-proof-foreground) / <alpha-value>)',
+        },
+        ['key-registration']: {
+          DEFAULT: 'rgb(var(--key-registration) / <alpha-value>)',
+          foreground: 'rgb(var(--key-registration-foreground) / <alpha-value>)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

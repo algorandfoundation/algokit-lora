@@ -48,7 +48,7 @@ export function PaymentTransactionInfo({ transaction }: Props) {
   return (
     <div className={cn('space-y-2')}>
       <div className={cn('flex items-center justify-between')}>
-        <h1 className={cn('text-2xl text-primary font-bold')}>Payment</h1>
+        <h2>Payment</h2>
       </div>
       <DescriptionList items={paymentTransactionItems} />
     </div>

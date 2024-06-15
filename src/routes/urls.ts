@@ -15,7 +15,7 @@ export const UrlParams = {
 
 export const Urls = {
   Index: UrlTemplate`/`,
-  Network: UrlTemplate`/${UrlParams.NetworkId}`.extend({
+  Explore: UrlTemplate`/${UrlParams.NetworkId}`.extend({
     Transaction: UrlTemplate`/transaction`.extend({
       ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
         Inner: UrlTemplate`/inner`.extend({

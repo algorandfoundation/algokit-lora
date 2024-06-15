@@ -1,7 +1,6 @@
 import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
-import { cn } from '@/features/common/utils'
 import { isAddress } from '@/utils/is-address'
 import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -9,7 +8,7 @@ import { Account } from '../models'
 import { useLoadableAccount } from '../data'
 import { AccountDetails } from '../components/account-details'
 import { useCallback } from 'react'
-import { RefreshButton } from '@/features/common/components/refresh-button'
+import { PageTitle } from '@/features/common/components/page-title'
 
 export const accountPageTitle = 'Account'
 export const accountInvalidAddressMessage = 'Address is invalid'
@@ -35,14 +34,11 @@ export function AccountPage() {
   }, [refreshAccount])
 
   return (
-    <div>
-      <div className="flex">
-        <h1 className={cn('text-2xl text-primary font-bold')}>{accountPageTitle}</h1>
-        {isStale && <RefreshButton onClick={refresh} />}
-      </div>
+    <>
+      <PageTitle title={accountPageTitle} canRefreshPage={isStale} onRefresh={refresh} />
       <RenderLoadable loadable={loadableAccount} transformError={transformError}>
         {(account: Account) => <AccountDetails account={account} />}
       </RenderLoadable>
-    </div>
+    </>
   )
 }

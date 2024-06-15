@@ -23,7 +23,7 @@ const mapCommonAppCallTransactionProperties = (
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
-    type: TransactionType.ApplicationCall,
+    type: TransactionType.AppCall,
     subType: undefinedSubTypeAtom,
     applicationId: transactionResult['application-transaction']['application-id']
       ? transactionResult['application-transaction']['application-id']

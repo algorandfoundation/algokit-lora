@@ -10,7 +10,7 @@ type Props = {
 }
 
 const getSubRows = (transaction: Transaction | InnerTransaction) => {
-  if (transaction.type !== TransactionType.ApplicationCall || transaction.innerTransactions.length === 0) {
+  if (transaction.type !== TransactionType.AppCall || transaction.innerTransactions.length === 0) {
     return []
   }
   return transaction.innerTransactions

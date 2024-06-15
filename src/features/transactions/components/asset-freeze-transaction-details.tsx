@@ -1,6 +1,5 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
-import { TransactionInfo } from './transaction-info'
 import { TransactionNote } from './transaction-note'
 import { AssetFreezeTransaction, InnerAssetFreezeTransaction, SignatureType } from '../models'
 import { MultisigDetails } from './multisig-details'
@@ -14,17 +13,14 @@ type AssetFreezeTransactionProps = {
 
 export function AssetFreezeTransactionDetails({ transaction }: AssetFreezeTransactionProps) {
   return (
-    <div className={cn('space-y-6 pt-7')}>
-      <TransactionInfo transaction={transaction} />
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-4')}>
-          <AssetFreezeTransactionInfo transaction={transaction} />
-          <TransactionViewTabs transaction={transaction} />
-          {transaction.note && <TransactionNote note={transaction.note} />}
-          {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
-          {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
-        </CardContent>
-      </Card>
-    </div>
+    <Card className={cn('p-4')}>
+      <CardContent className={cn('text-sm space-y-4')}>
+        <AssetFreezeTransactionInfo transaction={transaction} />
+        <TransactionViewTabs transaction={transaction} />
+        {transaction.note && <TransactionNote note={transaction.note} />}
+        {transaction.signature?.type === SignatureType.Multi && <MultisigDetails signature={transaction.signature} />}
+        {transaction.signature?.type === SignatureType.Logic && <LogicsigDetails signature={transaction.signature} />}
+      </CardContent>
+    </Card>
   )
 }

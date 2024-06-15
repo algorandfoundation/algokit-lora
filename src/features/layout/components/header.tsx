@@ -1,30 +1,28 @@
 import { cn } from '@/features/common/utils'
-import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { Search } from '@/features/search/components/search'
 import { useNetworkConfig } from '@/features/settings/data'
 import { ConnectWalletButton } from '@/features/wallet/components/connect-wallet-button'
+import { Urls } from '@/routes/urls'
 
 type Props = {
   className?: string
 }
 
-export const networkLabel = 'Network:'
-
 export function Header({ className }: Props) {
   const networkConfig = useNetworkConfig()
 
   return (
-    <div className={cn('bg-card flex h-20 flex-row justify-between px-5 pt-4 gap-5', className)}>
-      <div className={cn('flex flex-row items-baseline justify-start mt-1')}>
+    <header className={cn('bg-card text-card-foreground flex h-20 px-4 justify-start border-b', className)}>
+      <div className={cn('flex items-baseline gap-4 mt-5')}>
+        <a href={Urls.Explore.build({ networkId: networkConfig.id })} className="text-[26px]">
+          [algokit]
+        </a>
         <Search />
       </div>
-      <div className={cn('flex flex-row items-center justify-end gap-2')}>
-        <label>
-          {networkLabel} {networkConfig.name}
-        </label>
+      <div className={cn('flex items-center gap-4 ml-auto')}>
+        <span className="flex">{networkConfig.name}</span>
         <ConnectWalletButton />
-        <ThemeToggle />
       </div>
-    </div>
+    </header>
   )
 }

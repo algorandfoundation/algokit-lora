@@ -1,4 +1,3 @@
-import { cn } from '@/features/common/utils'
 import { TransactionsTable } from './transactions-table'
 import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
@@ -22,16 +21,10 @@ export function TransactionViewTabs({ transaction }: Props) {
   return (
     <Tabs defaultValue={transactionVisualGraphTabId}>
       <TabsList aria-label={transactionDetailsLabel}>
-        <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
-          value={transactionVisualGraphTabId}
-        >
+        <TabsTrigger className="w-32" value={transactionVisualGraphTabId}>
           {transactionVisualGraphTabLabel}
         </TabsTrigger>
-        <TabsTrigger
-          className={cn('data-[state=active]:border-primary data-[state=active]:border-b-2 w-32')}
-          value={transactionVisualTableTabId}
-        >
+        <TabsTrigger className="w-32" value={transactionVisualTableTabId}>
           {transactionVisualTableTabLabel}
         </TabsTrigger>
       </TabsList>

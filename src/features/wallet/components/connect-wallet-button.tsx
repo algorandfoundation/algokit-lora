@@ -36,8 +36,8 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="w-36" variant="default" onClick={connect} aria-label={connectWalletLabel}>
-      Connect Wallet
+    <Button className="w-36" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
+      {connectWalletLabel}
     </Button>
   )
 }
@@ -87,7 +87,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="w-36" variant="default">
+        <Button className="w-36" variant="outline">
           {activeProvider &&
             (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -103,7 +103,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
           </abbr>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-60 border border-input bg-card p-2 text-card-foreground" onOpenAutoFocus={preventDefault}>
+      <PopoverContent align="end" className="w-60 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
             <abbr className="ml-1 w-full">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
@@ -126,12 +126,12 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
               </Select>
             </>
           )}
-          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'default', size: 'sm' }), 'ml-2')}>
-            Details
+          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'ml-2')}>
+            View
           </AccountLink>
         </div>
         <div className={cn('flex items-center')}>
-          <Button variant="outline" size="sm" onClick={disconnectWallet} className="mt-2 w-full bg-card" aria-label={disconnectWalletLabel}>
+          <Button variant="outline" size="sm" onClick={disconnectWallet} className="mt-2 w-full" aria-label={disconnectWalletLabel}>
             <CircleMinus className="mr-2 size-4" />
             Disconnect
           </Button>
@@ -173,7 +173,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="w-36" disabled>
+      <Button className="w-36" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>
@@ -194,7 +194,7 @@ export function ConnectWalletButton() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="w-[500px] bg-card" onOpenAutoFocus={preventDefault}>
           <DialogHeader>
-            <h2 className={cn('text-2xl text-primary font-bold')}>Wallet Providers</h2>
+            <h2>Wallet Providers</h2>
           </DialogHeader>
           <div className="flex flex-col space-y-2">
             {!isReady

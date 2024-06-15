@@ -6,7 +6,7 @@ import { executeComponentTest } from '@/tests/test-component'
 describe('when the theme is toggled to dark', () => {
   it('the theme is set to dark', async () => {
     return executeComponentTest(
-      () => render(<ThemeToggle />),
+      () => render(<ThemeToggle navTextClassName="" />),
       async (component, user) => {
         user.click(await component.findByRole('button', { name: themeTogglelabel }))
         user.click(await component.findByText('Dark'))

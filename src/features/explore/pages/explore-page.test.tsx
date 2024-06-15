@@ -157,7 +157,7 @@ describe('explore-page', () => {
             const container = latestTransactions.parentElement!
             expect(data.transactions.size).toBeGreaterThan(50)
             const transactionCards = getAllByRole(container, 'link')
-            expect(transactionCards.length).toBe(10)
+            expect(transactionCards.length).toBe(8)
           })
         }
       )

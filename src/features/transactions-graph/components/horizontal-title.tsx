@@ -12,7 +12,7 @@ type Props = {
 export function HorizontalTitle({ horizontal }: Props) {
   const { transaction, hasNextSibling, ancestors, depth } = horizontal
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
-  const hasChildren = horizontal.transaction.type === TransactionType.ApplicationCall && horizontal.transaction.innerTransactions.length > 0
+  const hasChildren = horizontal.transaction.type === TransactionType.AppCall && horizontal.transaction.innerTransactions.length > 0
   const hasParent = !!parent
   // Top and second level transactions aren't indented to save space
   const marginMultiplier = depth > 0 ? depth - 1 : 0
@@ -48,7 +48,7 @@ function ConnectionToParent() {
   // The connection between this transaction and the parent
   return (
     <div
-      className={cn(`border-primary rounded-bl-lg`, `h-1/2`, `absolute top-0 left-0`)}
+      className={cn(`border-primary rounded-bl`, `h-1/2`, `absolute top-0 left-0`)}
       style={{
         borderLeftWidth: `${graphConfig.lineWidth}px`,
         borderBottomWidth: `${graphConfig.lineWidth}px`,
@@ -77,7 +77,7 @@ function ConnectionToChildren({ indentLevel }: { indentLevel: number }) {
   // The connection between this transaction and the children
   return (
     <div
-      className={cn('w-2', 'border-primary rounded-tl-lg', 'absolute left-0')}
+      className={cn('w-2', 'border-primary rounded-tl', 'absolute left-0')}
       style={{
         marginLeft: indentLevel > 0 ? `${graphConfig.indentationWidth}px` : undefined,
         borderLeftWidth: `${graphConfig.lineWidth}px`,

@@ -5,22 +5,38 @@ import { useSelectedTheme } from '@/features/settings/data'
 
 export const themeTogglelabel = 'Toggle theme'
 
-export function ThemeToggle() {
-  const [_, setTheme] = useSelectedTheme()
+type Props = {
+  navTextClassName: string
+}
+
+const themeLabels = new Map([
+  ['light', 'Light'],
+  ['dark', 'Dark'],
+  ['system', 'System'],
+])
+
+export function ThemeToggle({ navTextClassName }: Props) {
+  const [theme, setTheme] = useSelectedTheme()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="default" size="icon" aria-label={themeTogglelabel}>
-          <Sun className="size-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute size-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
+        <Button
+          variant="no-style"
+          aria-label={themeTogglelabel}
+          className="flex h-12 items-center gap-2 whitespace-nowrap p-1 text-base font-normal"
+        >
+          <div className="ml-[0.28rem] flex rounded-md border p-2">
+            <Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </div>
+          <span className={navTextClassName}>{themeLabels.get(theme)}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+      <DropdownMenuContent align="end" side="right">
+        <DropdownMenuItem onClick={() => setTheme('light')}>{themeLabels.get('light')}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('dark')}>{themeLabels.get('dark')}</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('system')}>{themeLabels.get('system')}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
