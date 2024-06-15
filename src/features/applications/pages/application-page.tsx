@@ -8,6 +8,7 @@ import { ApplicationDetails } from '../components/application-details'
 import { is404 } from '@/utils/error'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -38,7 +39,7 @@ export function ApplicationPage() {
   return (
     <>
       <PageTitle title={applicationPageTitle} canRefreshPage={isStale} onRefresh={refresh} />
-      <RenderLoadable loadable={loadableApplication} transformError={transformError}>
+      <RenderLoadable loadable={loadableApplication} transformError={transformError} fallback={<PageLoader />}>
         {(application) => <ApplicationDetails application={application} />}
       </RenderLoadable>
     </>

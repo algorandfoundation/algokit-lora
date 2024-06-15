@@ -7,6 +7,7 @@ import { is404 } from '@/utils/error'
 import { useLoadableBlock } from '../data'
 import { isInteger } from '@/utils/is-integer'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -32,7 +33,7 @@ export function BlockPage() {
   return (
     <>
       <PageTitle title={blockPageTitle} />
-      <RenderLoadable loadable={loadableBlock} transformError={transformError}>
+      <RenderLoadable loadable={loadableBlock} transformError={transformError} fallback={<PageLoader />}>
         {(block) => <BlockDetails block={block} />}
       </RenderLoadable>
     </>
