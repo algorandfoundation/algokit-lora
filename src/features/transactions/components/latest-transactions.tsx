@@ -20,7 +20,7 @@ export function LatestTransactions() {
         <ul>
           {latestTransactions.map((transaction) => (
             <li key={transaction.id} className="border-b last:border-0">
-              <TransactionLink transactionId={transaction.id} className="flex p-[0.705rem] text-sm hover:bg-accent">
+              <TransactionLink transactionId={transaction.id} className="flex p-[0.666rem] text-sm hover:bg-accent">
                 <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
                 <div className={cn('mx-2')}>
                   <h3 className={cn('leading-none mb-2')}>{ellipseId(transaction.id)}</h3>
