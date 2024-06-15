@@ -36,7 +36,7 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
 
   return (
     <div>
-      <div className="grid rounded-md border">
+      <div className="grid border-y">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

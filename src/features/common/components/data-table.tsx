@@ -40,7 +40,7 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
 
   return (
     <div>
-      <div className="grid rounded-md border">
+      <div className="grid border-y">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -53,7 +53,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
 
   return (
     <div>
-      <div className="grid rounded-md border">
+      <div className="grid border-y">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
