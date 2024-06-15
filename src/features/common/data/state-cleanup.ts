@@ -9,8 +9,8 @@ import { applicationResultsAtom } from '@/features/applications/data'
 import { assetMetadataResultsAtom, assetResultsAtom } from '@/features/assets/data'
 
 const cleanUpIntervalMillis = 600_000 // 10 minutes
-const expirationMillis = 3_600_000 // 1 hour
-// Run every 10 minutes and cleanup data that hasn't been accessed in the last 1 hour
+const expirationMillis = 1_800_000 // 30 minutes
+// Run every 10 minutes and cleanup data that hasn't been accessed in the last 30 minutes
 
 const stateCleanupEffect = atomEffect((get, set) => {
   const cleanup = setInterval(() => {
