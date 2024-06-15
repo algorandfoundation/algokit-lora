@@ -147,7 +147,7 @@ describe('block-page', () => {
                     ellipseAddress(transactionResult2.sender),
                     ellipseAddress(transactionResult2['asset-transfer-transaction']!.receiver),
                     'Asset Transfer',
-                    `${(transactionResult2['asset-transfer-transaction']!.amount as number) / 1e6} USDt`,
+                    `${(transactionResult2['asset-transfer-transaction']!.amount as number) / 1e6}USDt`,
                   ],
                 },
               ],

@@ -20,12 +20,10 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
       {
         dt: transactionTypeLabel,
         dd: (
-          <>
-            <Badge className="ml-0" variant={TransactionType.AppCall}>
-              {TransactionType.AppCall}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={TransactionType.AppCall}>{TransactionType.AppCall}</Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </>
+          </div>
         ),
       },
       {

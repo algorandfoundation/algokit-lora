@@ -20,13 +20,11 @@ export function KeyRegTransactionTooltipContent({ transaction }: { transaction: 
       {
         dt: transactionTypeLabel,
         dd: (
-          <label>
-            <Badge className="ml-0" variant={transaction.type}>
-              {transaction.type}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={transaction.type}>{transaction.type}</Badge>
             <Badge variant="outline">{subType}</Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </label>
+          </div>
         ),
       },
       {

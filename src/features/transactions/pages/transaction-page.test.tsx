@@ -513,9 +513,9 @@ describe('transaction-page', () => {
               { term: transactionSenderLabel, description: 'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ' },
               { term: transactionReceiverLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
               { term: assetLabel, description: '140479105 (Clyders)' },
-              { term: transactionAmountLabel, description: '0 CLY' },
+              { term: transactionAmountLabel, description: '0CLY' },
               { term: assetTransactionCloseRemainderToLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
-              { term: assetTransactionCloseRemainderAmountLabel, description: '0 CLY' },
+              { term: assetTransactionCloseRemainderAmountLabel, description: '0CLY' },
             ],
           })
           expect(component.queryByText(transactionGroupLabel)).toBeNull()
@@ -536,7 +536,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['V7GQPE5...', '', 'J2WK...FLBQ', 'LINT...CQE4', 'Asset Transfer', '0 CLY'],
+                cells: ['V7GQPE5...', '', 'J2WK...FLBQ', 'LINT...CQE4', 'Asset Transfer', '0CLY'],
               },
             ],
           })
@@ -784,7 +784,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               { cells: ['Inner 2', 'aWpPwlo...', 'AACC...EN4A', '1002541853', 'Application Call', ''] },
-              { cells: ['Inner 2-1', '', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582 USDC'] },
+              { cells: ['Inner 2-1', '', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582USDC'] },
             ],
           })
 

@@ -31,14 +31,14 @@ export function GroupDetails({ group }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <>
-            {group.transactionsSummary.count}
+          <div className="flex items-center gap-2">
+            <span>{group.transactionsSummary.count}</span>
             {group.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>
                 {type}={count}
               </Badge>
             ))}
-          </>
+          </div>
         ),
       },
       {

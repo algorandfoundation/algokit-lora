@@ -51,7 +51,7 @@ export function AssetDetails({ asset }: Props) {
       {
         dt: assetIdLabel,
         dd: (
-          <>
+          <div className="flex items-center gap-2">
             <span>{asset.id}</span>
             {asset.standardsUsed.map((s, i) => (
               <Badge key={i} variant="outline">
@@ -59,7 +59,7 @@ export function AssetDetails({ asset }: Props) {
               </Badge>
             ))}
             <Badge variant="outline">{asset.type}</Badge>
-          </>
+          </div>
         ),
       },
       asset.name

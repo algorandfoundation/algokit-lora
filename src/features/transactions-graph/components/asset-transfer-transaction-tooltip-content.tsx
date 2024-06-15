@@ -24,12 +24,10 @@ export function AssetTransferTransactionTooltipContent({
       {
         dt: transactionTypeLabel,
         dd: (
-          <>
-            <Badge className="ml-0" variant={TransactionType.AssetTransfer}>
-              {TransactionType.AssetTransfer}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={TransactionType.AssetTransfer}>{TransactionType.AssetTransfer}</Badge>
             {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </>
+          </div>
         ),
       },
       {
