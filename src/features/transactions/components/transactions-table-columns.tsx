@@ -10,7 +10,6 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionTo } from './transaction-to'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Button } from '@/features/common/components/button'
 
 const indentationWidth = 12
 
