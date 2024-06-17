@@ -13,7 +13,7 @@ type Props = {
 const transactionVisualGraphTabId = 'visual'
 const transactionVisualTableTabId = 'table'
 export const transactionDetailsLabel = 'View Transaction Details'
-export const transactionVisualGraphTabLabel = 'Graph'
+export const transactionVisualGraphTabLabel = 'Visual'
 export const transactionVisualTableTabLabel = 'Table'
 
 export function TransactionViewTabs({ transaction }: Props) {
