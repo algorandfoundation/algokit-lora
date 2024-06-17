@@ -39,6 +39,9 @@ type Props = {
   application: Application
 }
 
+const expandApplicationJsonLevel = (level: number) => {
+  return level < 2
+}
 export function ApplicationDetails({ application }: Props) {
   const applicationItems = useMemo(
     () => [
@@ -101,7 +104,7 @@ export function ApplicationDetails({ application }: Props) {
         <CardContent className={cn('text-sm space-y-2')}>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={applicationItems} />
-            <OpenJsonViewDialogButton json={application.json} />
+            <OpenJsonViewDialogButton json={application.json} expandJsonLevel={expandApplicationJsonLevel} />
           </div>
         </CardContent>
       </Card>
