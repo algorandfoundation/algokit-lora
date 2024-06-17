@@ -34,6 +34,7 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Explore,
+        errorElement: <ErrorPage />,
         element: (
           <NetworkPage>
             <Outlet />
