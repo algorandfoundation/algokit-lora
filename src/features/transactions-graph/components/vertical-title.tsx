@@ -10,7 +10,7 @@ export function AccountLink({ address, index }: { address: Address; index: numbe
   return (
     <AccountLinkComponent address={address} className="flex items-center text-primary">
       <abbr title={address}>{ellipseAddress(address)}</abbr>
-      <div className="ml-1 inline-flex size-[18px] items-center justify-center rounded-full border border-primary text-[0.75rem]">
+      <div className="ml-1 inline-flex size-4 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem]">
         {index}
       </div>
     </AccountLinkComponent>
