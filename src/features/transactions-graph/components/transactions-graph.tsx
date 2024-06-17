@@ -24,9 +24,9 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
         }}
       >
         <div>{/* The first header cell is empty */}</div>
-        {verticals.map((swimlane, index) => (
+        {verticals.map((vertical, index) => (
           <div className={cn('p-2 flex justify-center')} key={index}>
-            <VerticalTitle vertical={swimlane} />
+            <VerticalTitle vertical={vertical} />
           </div>
         ))}
       </div>

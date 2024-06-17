@@ -37,6 +37,7 @@ export type TransactionGraphPointVisualization = {
 }
 
 export type TransactionGraphAccountVertical = {
+  index: number
   type: 'Account'
   address: string
 }
@@ -45,6 +46,7 @@ export type TransactionGraphApplicationVertical = {
   id: number
   address: Address
   accounts: {
+    index: number
     address: Address
   }[]
 }

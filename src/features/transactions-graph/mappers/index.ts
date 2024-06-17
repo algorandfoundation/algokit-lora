@@ -1,10 +1,12 @@
 import {
+  TransactionGraphAccountVertical,
   TransactionGraphApplicationVertical,
-  TransactionGraphVertical,
-  TransactionGraphPointVisualization,
+  TransactionGraphAssetVertical,
   TransactionGraphHorizontal,
+  TransactionGraphPointVisualization,
   TransactionGraphSelfLoopVisualization,
   TransactionGraphVectorVisualization,
+  TransactionGraphVertical,
   TransactionGraphVisualization,
   TransactionsGraphData,
 } from '@/features/transactions-graph'
@@ -12,6 +14,7 @@ import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } fr
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
+import { Address } from '@/features/accounts/data/types.ts'
 
 export const asTransactionsGraphData = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
@@ -29,9 +32,39 @@ export const asTransactionsGraphData = (transactions: Transaction[]): Transactio
   }
 }
 
+type TransactionGraphVerticalNoIndex =
+  | Omit<TransactionGraphAccountVertical, 'index'>
+  | (Omit<TransactionGraphApplicationVertical, 'index' | 'accounts'> & {
+      accounts: {
+        address: Address
+      }[]
+    })
+  | Omit<TransactionGraphAssetVertical, 'index'>
+
 const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVertical[] => {
-  const verticals = transactions.flatMap(getVerticalsForTransaction)
-  return verticals.reduce<TransactionGraphVertical[]>((acc, current, _, array) => {
+  const transactionsVerticals = transactions.flatMap(getVerticalsForTransaction)
+  const mergedVerticals = mergeTransactionsVerticals(transactionsVerticals)
+  return indexTransactionsVerticals(mergedVerticals)
+}
+
+const indexTransactionsVerticals = (transactionsVerticals: TransactionGraphVerticalNoIndex[]): TransactionGraphVertical[] => {
+  let index = 1
+  return transactionsVerticals.map((vertical) =>
+    vertical.type !== 'Application'
+      ? {
+          ...vertical,
+          index: index++,
+        }
+      : {
+          ...vertical,
+          index: index++,
+          accounts: vertical.accounts.map((account) => ({ ...account, index: index++ })),
+        }
+  )
+}
+
+const mergeTransactionsVerticals = (transactionsVerticals: TransactionGraphVerticalNoIndex[]): TransactionGraphVerticalNoIndex[] => {
+  return transactionsVerticals.reduce<TransactionGraphVerticalNoIndex[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
       if (
         acc.some(
@@ -78,8 +111,8 @@ const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransact
   }, [])
 }
 
-const getVerticalsForTransaction = (transaction: Transaction | InnerTransaction): TransactionGraphVertical[] => {
-  const verticals: TransactionGraphVertical[] = [
+const getVerticalsForTransaction = (transaction: Transaction | InnerTransaction): TransactionGraphVerticalNoIndex[] => {
+  const verticals: TransactionGraphVerticalNoIndex[] = [
     {
       type: 'Account',
       address: transaction.sender,
