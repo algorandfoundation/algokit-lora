@@ -44,8 +44,8 @@ export type TransactionGraphAccountVertical = {
 export type TransactionGraphApplicationVertical = {
   type: 'Application'
   id: number
-  address: Address
-  accounts: {
+  linkedAccount: { index: number; address: Address }
+  rekeyedAccounts: {
     index: number
     address: Address
   }[]

@@ -1,6 +1,6 @@
 export const graphConfig = {
   rowHeight: 40,
-  colWidth: 128,
+  colWidth: 140,
   indentationWidth: 20,
   lineWidth: 2,
   circleDimension: 20,

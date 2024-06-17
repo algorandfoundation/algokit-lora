@@ -34,12 +34,13 @@ export const asTransactionsGraphData = (transactions: Transaction[]): Transactio
 
 type TransactionGraphVerticalNoIndex =
   | Omit<TransactionGraphAccountVertical, 'index'>
-  | (Omit<TransactionGraphApplicationVertical, 'index' | 'accounts'> & {
-      accounts: {
+  | (Omit<TransactionGraphApplicationVertical, 'linkedAccount' | 'rekeyedAccounts'> & {
+      linkedAccount: { address: Address }
+      rekeyedAccounts: {
         address: Address
       }[]
     })
-  | Omit<TransactionGraphAssetVertical, 'index'>
+  | TransactionGraphAssetVertical
 
 const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVertical[] => {
   const transactionsVerticals = transactions.flatMap(getVerticalsForTransaction)
@@ -48,38 +49,56 @@ const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransact
 }
 
 const indexTransactionsVerticals = (transactionsVerticals: TransactionGraphVerticalNoIndex[]): TransactionGraphVertical[] => {
-  let index = 1
-  return transactionsVerticals.map((vertical) =>
-    vertical.type !== 'Application'
-      ? {
+  const uniqueAddresses = transactionsVerticals
+    .flatMap((vertical) => {
+      switch (vertical.type) {
+        case 'Account':
+          return [vertical.address]
+        case 'Asset':
+          return []
+        case 'Application':
+          return [vertical.linkedAccount.address, ...vertical.rekeyedAccounts.map((account) => account.address)]
+      }
+    })
+    .filter(distinct((x) => x))
+
+  return transactionsVerticals.map((vertical) => {
+    switch (vertical.type) {
+      case 'Account':
+        return {
           ...vertical,
-          index: index++,
+          index: uniqueAddresses.indexOf(vertical.address) + 1,
         }
-      : {
+      case 'Asset':
+        return { ...vertical }
+      case 'Application':
+        return {
           ...vertical,
-          index: index++,
-          accounts: vertical.accounts.map((account) => ({ ...account, index: index++ })),
+          linkedAccount: { index: uniqueAddresses.indexOf(vertical.linkedAccount.address) + 1, address: vertical.linkedAccount.address },
+          rekeyedAccounts: vertical.rekeyedAccounts.map((account) => ({ ...account, index: uniqueAddresses.indexOf(account.address) + 1 })),
         }
-  )
+    }
+  })
 }
 
 const mergeTransactionsVerticals = (transactionsVerticals: TransactionGraphVerticalNoIndex[]): TransactionGraphVerticalNoIndex[] => {
-  return transactionsVerticals.reduce<TransactionGraphVerticalNoIndex[]>((acc, current, _, array) => {
+  return transactionsVerticals.reduce<TransactionGraphVerticalNoIndex[]>((acc, current) => {
     if (current.type === 'Account') {
       if (
         acc.some(
           (c) =>
             (c.type === 'Account' && c.address === current.address) ||
             // An application has its own account too
-            (c.type === 'Application' && c.address === current.address)
+            (c.type === 'Application' && c.linkedAccount.address === current.address)
         )
       ) {
         return acc
       }
-      const app = array.find((a) => a.type === 'Application' && a.address === current.address)
-      if (app) {
-        return [...acc, app]
-      }
+      // TODO: check if this is still needed
+      // const app = array.find((a) => a.type === 'Application' && a.linkedAccount.address === current.address)
+      // if (app) {
+      //   return [...acc, app]
+      // }
 
       return [...acc, current]
     }
@@ -91,8 +110,8 @@ const mergeTransactionsVerticals = (transactionsVerticals: TransactionGraphVerti
         const applicationVertical = {
           type: 'Application' as const,
           id: current.id,
-          address: current.address,
-          accounts: [...(acc[index] as TransactionGraphApplicationVertical).accounts, ...current.accounts].filter(
+          linkedAccount: current.linkedAccount,
+          rekeyedAccounts: [...(acc[index] as TransactionGraphApplicationVertical).rekeyedAccounts, ...current.rekeyedAccounts].filter(
             distinct((x) => x.address)
           ),
         }
@@ -128,8 +147,10 @@ const getVerticalsForTransaction = (transaction: Transaction | InnerTransaction)
     verticals.push({
       type: 'Application',
       id: transaction.applicationId,
-      address: getApplicationAddress(transaction.applicationId),
-      accounts: transaction.innerTransactions
+      linkedAccount: {
+        address: getApplicationAddress(transaction.applicationId),
+      },
+      rekeyedAccounts: transaction.innerTransactions
         .flatMap((innerTransaction) => innerTransaction.sender)
         .filter((address) => address !== getApplicationAddress(transaction.applicationId))
         .filter(distinct((x) => x))
@@ -195,7 +216,8 @@ const getTransactionVisualization = (
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
       return verticals.findIndex(
         (c) =>
-          (c.type === 'Account' && transaction.receiver === c.address) || (c.type === 'Application' && transaction.receiver === c.address)
+          (c.type === 'Account' && transaction.receiver === c.address) ||
+          (c.type === 'Application' && transaction.receiver === c.linkedAccount.address)
       )
     }
 
@@ -220,7 +242,7 @@ const getTransactionVisualization = (
       return verticals.findIndex(
         (c) =>
           (c.type === 'Account' && transaction.sender === c.address) ||
-          (c.type === 'Application' && c.accounts.map((a) => a.address).includes(transaction.sender))
+          (c.type === 'Application' && c.rekeyedAccounts.map((a) => a.address).includes(transaction.sender))
       )
     }
 
