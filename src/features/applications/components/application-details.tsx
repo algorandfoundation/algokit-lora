@@ -140,10 +140,10 @@ export function ApplicationDetails({ application }: Props) {
           <h2>{applicationTransactionsLabel}</h2>
           <Tabs defaultValue={applicationLiveTransactionsTabId}>
             <TabsList aria-label={applicationTransactionsLabel}>
-              <TabsTrigger className="w-48" value={applicationLiveTransactionsTabId}>
+              <TabsTrigger className="w-56" value={applicationLiveTransactionsTabId}>
                 {applicationLiveTransactionsTabLabel}
               </TabsTrigger>
-              <TabsTrigger className="w-48" value={applicationHistoricalTransactionsTabId}>
+              <TabsTrigger className="w-56" value={applicationHistoricalTransactionsTabId}>
                 {applicationHistoricalTransactionsTabLabel}
               </TabsTrigger>
             </TabsList>
