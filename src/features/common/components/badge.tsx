@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/features/common/utils'
-import { CircleDollarSign, SquareArrowRight, SquareArrowOutDownLeft, Bolt, Snowflake, ShieldCheck, Key } from 'lucide-react'
+import { CircleDollarSign, SquareArrowRight, Bolt, Snowflake, ShieldCheck, Key, Parentheses } from 'lucide-react'
 import { TransactionType } from '@/features/transactions/models'
 
 const badgeVariants = cva(
@@ -35,7 +35,7 @@ const iconClasses = 'mr-1 size-4'
 const transactionTypeBadgeIcon = new Map([
   [TransactionType.Payment.toString(), <CircleDollarSign className={iconClasses} />],
   [TransactionType.AssetTransfer.toString(), <SquareArrowRight className={iconClasses} />],
-  [TransactionType.AppCall.toString(), <SquareArrowOutDownLeft className={iconClasses} />],
+  [TransactionType.AppCall.toString(), <Parentheses className={iconClasses} />],
   [TransactionType.AssetConfig.toString(), <Bolt className={iconClasses} />],
   [TransactionType.AssetFreeze.toString(), <Snowflake className={iconClasses} />],
   [TransactionType.StateProof.toString(), <ShieldCheck className={iconClasses} />],

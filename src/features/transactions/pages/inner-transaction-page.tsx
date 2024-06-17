@@ -8,6 +8,7 @@ import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-i
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { is404 } from '@/utils/error'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -36,7 +37,7 @@ export function InnerTransactionPage() {
   return (
     <>
       <PageTitle title={transactionPageTitle} />
-      <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
+      <RenderLoadable loadable={loadableTransaction} transformError={transformError} fallback={<PageLoader />}>
         {(data) => <TransactionDetails transaction={data} />}
       </RenderLoadable>
     </>

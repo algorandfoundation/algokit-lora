@@ -8,6 +8,7 @@ import { AssetDetails } from '../components/asset-details'
 import { useLoadableAsset } from '../data'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -38,7 +39,7 @@ export function AssetPage() {
   return (
     <>
       <PageTitle title={assetPageTitle} canRefreshPage={isStale} onRefresh={refresh} />
-      <RenderLoadable loadable={loadableAsset} transformError={transformError}>
+      <RenderLoadable loadable={loadableAsset} transformError={transformError} fallback={<PageLoader />}>
         {(asset) => <AssetDetails asset={asset} />}
       </RenderLoadable>
     </>

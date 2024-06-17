@@ -1,7 +1,6 @@
-import SvgChevronLeft from '@/features/common/components/icons/chevron-left'
-import SvgChevronRight from '@/features/common/components/icons/chevron-right'
 import { Button } from '@/features/common/components/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface Props {
   pageSize: number
@@ -49,13 +48,13 @@ export function LazyLoadDataTablePagination({
         </div>
         <div className="flex shrink grow basis-0 items-center justify-center text-sm font-medium">Page {currentPage}</div>
         <div className="flex shrink grow basis-0 items-center justify-end space-x-2">
-          <Button variant="outline" className="size-8 p-0" onClick={() => previousPage()} disabled={!previousPageEnabled}>
+          <Button variant="outline" size="icon" className="size-8 p-0" onClick={() => previousPage()} disabled={!previousPageEnabled}>
             <span className="sr-only">Go to previous page</span>
-            <SvgChevronLeft className="size-4" />
+            <ChevronLeft />
           </Button>
-          <Button variant="outline" className="size-8 p-0" onClick={() => nextPage()} disabled={!nextPageEnabled}>
+          <Button variant="outline" size="icon" className="size-8 p-0" onClick={() => nextPage()} disabled={!nextPageEnabled}>
             <span className="sr-only">Go to next page</span>
-            <SvgChevronRight className="size-4" />
+            <ChevronRight />
           </Button>
         </div>
       </div>

@@ -12,7 +12,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { useNavigate } from 'react-router-dom'
 import { useSearch } from '../data'
-import { Loader } from 'lucide-react'
+import { Loader2 as Loader } from 'lucide-react'
 import { useLocationChange } from '@/features/common/hooks/use-location-change'
 import { isMacOs } from '@/utils/is-mac-platform'
 

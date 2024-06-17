@@ -7,6 +7,7 @@ import { GroupDetails } from '../components/group-details'
 import { invariant } from '@/utils/invariant'
 import { isInteger } from '@/utils/is-integer'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 export const groupPageTitle = 'Transaction Group'
 export const groupNotFoundMessage = 'Transaction group not found'
@@ -34,7 +35,7 @@ export function GroupPage() {
   return (
     <>
       <PageTitle title={groupPageTitle} />
-      <RenderLoadable loadable={loadableGroup} transformError={transformError}>
+      <RenderLoadable loadable={loadableGroup} transformError={transformError} fallback={<PageLoader />}>
         {(group) => <GroupDetails group={group} />}
       </RenderLoadable>
     </>

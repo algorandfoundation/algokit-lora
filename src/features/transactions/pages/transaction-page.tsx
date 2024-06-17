@@ -7,6 +7,7 @@ import { is404 } from '@/utils/error'
 import { useLoadableTransactionAtom } from '../data'
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -31,7 +32,7 @@ export function TransactionPage() {
   return (
     <>
       <PageTitle title={transactionPageTitle} />
-      <RenderLoadable loadable={loadableTransaction} transformError={transformError}>
+      <RenderLoadable loadable={loadableTransaction} transformError={transformError} fallback={<PageLoader />}>
         {(transaction) => <TransactionDetails transaction={transaction} />}
       </RenderLoadable>
     </>

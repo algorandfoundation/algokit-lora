@@ -6,13 +6,12 @@ import { TransactionLink } from '@/features/transactions/components/transaction-
 import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { GroupLink } from '@/features/groups/components/group-link'
-import SvgChevronDown from '@/features/common/components/icons/chevron-down'
-import SvgChevronRight from '@/features/common/components/icons/chevron-right'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionTo } from './transaction-to'
 import { BlockLink } from '@/features/blocks/components/block-link'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 
-const indentationWidth = 20
+const indentationWidth = 12
 
 export const transactionFromLabel = 'From'
 export const transactionToLabel = 'To'
@@ -20,6 +19,19 @@ export const transactionAmountLabel = 'Amount'
 export const transactionRoundLabel = 'Round'
 
 export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
+  {
+    id: 'expand',
+    header: () => undefined,
+    cell: ({ row }) => {
+      return (
+        <div className={cn('flex items-center size-0')}>
+          {row.getCanExpand() ? (
+            <div>{row.getIsExpanded() ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</div>
+          ) : undefined}
+        </div>
+      )
+    },
+  },
   {
     header: 'Transaction ID',
     accessorFn: (transaction) => transaction,
@@ -31,11 +43,6 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
             marginLeft: `${indentationWidth * row.depth}px`,
           }}
         >
-          <div className={cn('inline-block min-w-6')}>
-            {row.getCanExpand() ? (
-              <button onClick={row.getToggleExpandedHandler()}>{row.getIsExpanded() ? <SvgChevronDown /> : <SvgChevronRight />}</button>
-            ) : null}
-          </div>
           {'innerId' in transaction ? (
             <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
           ) : (
