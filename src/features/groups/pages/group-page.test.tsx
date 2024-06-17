@@ -121,7 +121,7 @@ describe('group-page', () => {
             // This table has 10+ row, we only test the first 2 rows
             rows: [
               {
-                cells: ['INDQXWQ...', '/oRSr2u...', 'AACC...EN4A', '1201559522', 'Application Call', ''],
+                cells: ['', 'INDQXWQ...', '/oRSr2u...', 'AACC...EN4A', '1201559522', 'Application Call', ''],
               },
             ],
           })

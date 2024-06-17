@@ -9,6 +9,7 @@ import { useLoadableAccount } from '../data'
 import { AccountDetails } from '../components/account-details'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 export const accountPageTitle = 'Account'
 export const accountInvalidAddressMessage = 'Address is invalid'
@@ -36,7 +37,7 @@ export function AccountPage() {
   return (
     <>
       <PageTitle title={accountPageTitle} canRefreshPage={isStale} onRefresh={refresh} />
-      <RenderLoadable loadable={loadableAccount} transformError={transformError}>
+      <RenderLoadable loadable={loadableAccount} transformError={transformError} fallback={<PageLoader />}>
         {(account: Account) => <AccountDetails account={account} />}
       </RenderLoadable>
     </>

@@ -132,6 +132,7 @@ describe('block-page', () => {
               rows: [
                 {
                   cells: [
+                    '',
                     ellipseId(transactionResult1.id),
                     ellipseId(transactionResult1.group),
                     ellipseAddress(transactionResult1.sender),
@@ -142,6 +143,7 @@ describe('block-page', () => {
                 },
                 {
                   cells: [
+                    '',
                     ellipseId(transactionResult2.id),
                     ellipseId(transactionResult2.group),
                     ellipseAddress(transactionResult2.sender),

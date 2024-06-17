@@ -15,6 +15,7 @@ import { SettingsPage } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
 import { IndexPage } from '@/index-page'
 import { NetworkPage } from '@/features/network/pages/network-page'
+import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/app-studio-page'
 
 export const routes = evalTemplates([
   {
@@ -96,7 +97,8 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.AppStudio,
-        element: <ErrorPage title="App Studio" />,
+        errorElement: <ErrorPage title={appStudioPageTitle} />,
+        element: <AppStudioPage />,
       },
       {
         template: Urls.Settings,

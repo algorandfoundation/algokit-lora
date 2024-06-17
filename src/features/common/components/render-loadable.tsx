@@ -11,7 +11,7 @@ export type RenderLoadableProps<T> = {
 
 export function RenderLoadable<T>({ loadable, children, fallback, transformError }: RenderLoadableProps<T>) {
   if (loadable.state === 'hasData') {
-    return <>{children(loadable.data)}</>
+    return <div className="animate-in fade-in-40">{children(loadable.data)}</div>
   } else if (loadable.state === 'loading') {
     return <>{fallback ?? <Loader className="size-10 animate-spin" />}</>
   }
