@@ -154,6 +154,6 @@
   }
 
   small {
-    @apply text-sm font-medium leading-none;
+    @apply text-sm text-muted-foreground leading-none;
   }
 }
