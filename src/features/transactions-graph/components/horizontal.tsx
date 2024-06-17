@@ -51,21 +51,35 @@ const RenderTransactionVector = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.defaultTransactionColor
+    // const type = transaction.type
+    const colorClassMap = {
+      [TransactionType.Payment]: { border: 'border-payment', text: 'text-payment' },
+      [TransactionType.AssetTransfer]: { border: 'border-asset-transfer', text: 'text-asset-transfer' },
+      [TransactionType.AppCall]: { border: 'border-application-call', text: 'text-application-call' },
+      [TransactionType.AssetConfig]: { border: 'border-asset-config', text: 'text-asset-config' },
+      [TransactionType.AssetFreeze]: { border: 'border-asset-freeze', text: 'text-asset-freeze' },
+      [TransactionType.KeyReg]: { border: 'border-key-registration', text: 'text-key-registration' },
+      [TransactionType.StateProof]: { border: 'border-state-proof', text: 'text-state-proof' },
+    }
+    const colorClass = colorClassMap[transaction.type]
 
     return (
       <div
-        className={cn('flex items-center justify-center z-10')}
+        className={cn('flex items-center justify-center z-10', colorClass.text)}
         style={{
           // 2 and 3 are the number to offset the name column
           gridColumnStart: vector.fromVerticalIndex + 2,
           gridColumnEnd: vector.toVerticalIndex + 3,
-          color: color,
         }}
         ref={ref}
         {...rest}
       >
-        <div className="ml-1 inline-flex size-5 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem]">
+        <div
+          className={cn(
+            'ml-1 inline-flex size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem]',
+            colorClass.border
+          )}
+        >
           {vector.direction === 'leftToRight' ? vector.fromAccountIndex : vector.toAccountIndex}
         </div>
         <div
@@ -76,10 +90,10 @@ const RenderTransactionVector = fixedForwardRef(
           className="relative"
         >
           {vector.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
-          <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
+          <div className={cn('h-1/2', colorClass.border)} style={{ borderBottomWidth: graphConfig.lineWidth }}></div>
           {vector.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
         </div>
-        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs text-center')}>
+        <div className={cn('absolute z-20 bg-card p-2 w-20 text-xs text-center')}>
           {transaction.type === TransactionType.Payment && (
             <>
               Payment
@@ -89,7 +103,7 @@ const RenderTransactionVector = fixedForwardRef(
           {transaction.type === TransactionType.AssetTransfer && (
             <>
               Transfer
-              <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
+              <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} className={colorClass.text} />
             </>
           )}
           {transaction.type === TransactionType.AppCall && <>App Call</>}
@@ -97,7 +111,12 @@ const RenderTransactionVector = fixedForwardRef(
           {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
         </div>
 
-        <div className="ml-1 inline-flex size-5 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem]">
+        <div
+          className={cn(
+            'ml-1 inline-flex size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem]',
+            colorClass.border
+          )}
+        >
           {vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex}
         </div>
       </div>
