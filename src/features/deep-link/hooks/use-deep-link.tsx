@@ -1,12 +1,12 @@
 import { useCallback, useEffect } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import { useNavigate } from 'react-router-dom'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSetSelectedNetwork } from '@/features/settings/data'
 import { parseDeepLink } from '@/features/deep-link/parse-deep-link'
 import { Urls } from '@/routes/urls'
 
 export function useDeepLink() {
-  const [_, setSelectedNetwork] = useSelectedNetwork()
+  const setSelectedNetwork = useSetSelectedNetwork()
   const navigate = useNavigate()
 
   const handleDeepLink = useCallback(

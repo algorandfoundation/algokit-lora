@@ -25,16 +25,18 @@ import SvgPointerRight from '@/features/common/components/svg/pointer-right'
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
-  return ancestors.map((ancestor, i) => (
-    <div
-      key={i}
-      className={cn('h-full border-primary absolute')}
-      style={{
-        marginLeft: (ancestor.depth - 1) * graphConfig.indentationWidth,
-        borderLeftWidth: `${graphConfig.lineWidth}px`,
-      }}
-    ></div>
-  ))
+  return ancestors
+    .filter((a) => a.hasNextSibling)
+    .map((ancestor, i) => (
+      <div
+        key={i}
+        className={cn('h-full border-primary absolute')}
+        style={{
+          marginLeft: (ancestor.depth - 1) * graphConfig.indentationWidth,
+          borderLeftWidth: `${graphConfig.lineWidth}px`,
+        }}
+      ></div>
+    ))
 }
 
 const RenderTransactionVector = fixedForwardRef(

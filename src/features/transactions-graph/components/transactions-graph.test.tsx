@@ -23,7 +23,7 @@ import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 // To update a snapshot:
 //   - Make the code changes in TransactionViewVisual
 //   - The snapshot tests will fail
-//   - Visually inspect (by viewing in the browser) each transactions in the describe.each list and make sure that they are rendered correctly with the new code changes
+//   - Visually inspect (by viewing in the browser) each transaction in the describe.each list and make sure that they are rendered correctly with the new code changes
 //   - Update the snapshot files by running `vitest -u`. Or if the test runner is running, press `u` to update the snapshots.
 
 const prettyDomMaxLength = 200000
@@ -83,6 +83,10 @@ describe('application-call-graph', () => {
     {
       transactionResult: transactionResultMother['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']().build(),
       assetResults: [],
+    },
+    {
+      transactionResult: transactionResultMother['mainnet-WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA']().build(),
+      assetResults: [assetResultMother['mainnet-1284444444']().build()],
     },
     {
       transactionResult: transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build(),

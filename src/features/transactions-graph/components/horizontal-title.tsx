@@ -66,8 +66,8 @@ function ConnectionToSibling() {
       style={{
         width: `${graphConfig.indentationWidth + 8}px`,
         borderLeftWidth: `${graphConfig.lineWidth}px`,
-        height: `calc(50% + ${graphConfig.lineWidth}px)`,
-        top: `calc(50% - ${graphConfig.lineWidth}px)`,
+        height: `calc(50% + ${graphConfig.lineWidth * 2}px)`,
+        top: `calc(50% - ${graphConfig.lineWidth * 2}px)`,
       }}
     ></div>
   )
