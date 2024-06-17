@@ -21,29 +21,35 @@ export type TransactionGraphVisualization =
 
 export type TransactionGraphVectorVisualization = {
   type: 'vector'
-  from: number
-  to: number
+  fromVerticalIndex: number
+  fromAccountIndex?: number
+  toAccountIndex?: number
+  toVerticalIndex: number
   direction: 'leftToRight' | 'rightToLeft'
 }
 
 export type TransactionGraphSelfLoopVisualization = {
   type: 'selfLoop'
-  from: number
+  fromVerticalIndex: number
+  fromAccountIndex?: number
 }
 
 export type TransactionGraphPointVisualization = {
   type: 'point'
-  from: number
+  fromVerticalIndex: number
+  fromAccountIndex?: number
 }
 
 export type TransactionGraphAccountVertical = {
+  id: number
   index: number
   type: 'Account'
   address: string
 }
 export type TransactionGraphApplicationVertical = {
-  type: 'Application'
   id: number
+  type: 'Application'
+  applicationId: number
   linkedAccount: { index: number; address: Address }
   rekeyedAccounts: {
     index: number
@@ -51,11 +57,12 @@ export type TransactionGraphApplicationVertical = {
   }[]
 }
 export type TransactionGraphAssetVertical = {
+  id: number
   type: 'Asset'
-  id: string
+  assetId: number
 }
 export type TransactionGraphVertical =
   | TransactionGraphAccountVertical
   | TransactionGraphApplicationVertical
   | TransactionGraphAssetVertical
-  | { type: 'Placeholder' }
+  | { id: -1; type: 'Placeholder' }

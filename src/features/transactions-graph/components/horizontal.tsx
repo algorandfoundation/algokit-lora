@@ -58,17 +58,19 @@ const RenderTransactionVector = fixedForwardRef(
         className={cn('flex items-center justify-center z-10')}
         style={{
           // 2 and 3 are the number to offset the name column
-          gridColumnStart: vector.from + 2,
-          gridColumnEnd: vector.to + 3,
+          gridColumnStart: vector.fromVerticalIndex + 2,
+          gridColumnEnd: vector.toVerticalIndex + 3,
           color: color,
         }}
         ref={ref}
         {...rest}
       >
-        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <div className="ml-1 inline-flex size-5 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem]">
+          {vector.direction === 'leftToRight' ? vector.fromAccountIndex : vector.toAccountIndex}
+        </div>
         <div
           style={{
-            width: `calc(${(100 - 100 / (vector.to - vector.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+            width: `calc(${(100 - 100 / (vector.toVerticalIndex - vector.fromVerticalIndex + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
             height: `${graphConfig.circleDimension}px`,
           }}
           className="relative"
@@ -95,7 +97,9 @@ const RenderTransactionVector = fixedForwardRef(
           {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
         </div>
 
-        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <div className="ml-1 inline-flex size-5 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem]">
+          {vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex}
+        </div>
       </div>
     )
   }
@@ -120,8 +124,8 @@ const RenderTransactionSelfLoop = fixedForwardRef(
         className={cn('flex items-center justify-center relative z-10')}
         {...rest}
         style={{
-          gridColumnStart: loop.from + 2, // 2 to offset the name column
-          gridColumnEnd: loop.from + 4, // 4 to offset the name column and make this cell span 2 columns
+          gridColumnStart: loop.fromVerticalIndex + 2, // 2 to offset the name column
+          gridColumnEnd: loop.fromVerticalIndex + 4, // 4 to offset the name column and make this cell span 2 columns
           color: color,
         }}
       >
@@ -177,8 +181,8 @@ const RenderTransactionPoint = fixedForwardRef(
         {...rest}
         style={{
           // 2 and 3 are the number to offset the name column
-          gridColumnStart: point.from + 2,
-          gridColumnEnd: point.from + 3,
+          gridColumnStart: point.fromVerticalIndex + 2,
+          gridColumnEnd: point.fromVerticalIndex + 3,
           color: color,
         }}
       >
@@ -202,16 +206,16 @@ export function Horizontal({ horizontal, verticals }: Props) {
         <HorizontalTitle horizontal={horizontal} />
       </div>
       {verticals.map((_, index) => {
-        if (visualization.type === 'vector' && (index < visualization.from || index > visualization.to)) {
+        if (visualization.type === 'vector' && (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)) {
           return <div key={index}></div>
         }
-        if (visualization.type === 'point' && index > visualization.from) return <div key={index}></div>
+        if (visualization.type === 'point' && index > visualization.fromVerticalIndex) return <div key={index}></div>
         // The `index > transactionRepresentation.from + 1` is here
         // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
         // Therefore, we skip this cell so that we won't cause overflowing
-        if (visualization.type === 'selfLoop' && index > visualization.from + 1) return <div key={index}></div>
+        if (visualization.type === 'selfLoop' && index > visualization.fromVerticalIndex + 1) return <div key={index}></div>
 
-        if (index === visualization.from)
+        if (index === visualization.fromVerticalIndex)
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>

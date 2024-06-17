@@ -5,6 +5,7 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { TransactionGraphVertical } from '@/features/transactions-graph'
 import { Address } from '@/features/accounts/data/types'
 import { ellipseAddress } from '@/utils/ellipse-address'
+import { KeyIcon, LinkIcon } from 'lucide-react'
 
 export function AccountLink({ address, index }: { address: Address; index: number }) {
   return (
@@ -27,18 +28,20 @@ export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical
       )}
       {vertical.type === 'Application' && (
         <div className={cn('grid')}>
-          <ApplicationLink applicationId={vertical.id} />
-          <div>
+          <ApplicationLink applicationId={vertical.applicationId} />
+          <div className="flex items-center gap-1">
+            <LinkIcon size={12} className={'text-primary'} />
             <AccountLink address={vertical.linkedAccount.address} index={vertical.linkedAccount.index} />
           </div>
           {vertical.rekeyedAccounts.map(({ address, index }) => (
-            <div key={index}>
+            <div key={index} className="flex items-center gap-1">
+              <KeyIcon size={12} className={'text-primary'} />
               <AccountLink address={address} index={index} />
             </div>
           ))}
         </div>
       )}
-      {vertical.type === 'Asset' && <AssetIdLink assetId={parseInt(vertical.id)} />}
+      {vertical.type === 'Asset' && <AssetIdLink assetId={vertical.assetId} />}
     </span>
   )
 }
