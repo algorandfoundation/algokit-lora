@@ -2,14 +2,14 @@ import type { SVGProps } from 'react'
 const SvgPointerRight = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlnsXlink="http://www.w3.org/1999/xlink"
-    width="11px"
-    height="19px"
+    width="20px"
+    height="20px"
     preserveAspectRatio="xMinYMid meet"
-    viewBox="340 139 1 13"
+    viewBox="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
-    <path d="M 340.3 151.3 L 347 145.3 L 340.3 139.3 L 342.6 145.3 L 340.3 151.3 Z" fillRule="nonzero" fill="currentColor" stroke="none" />
+    <path d="M 14 16 L 20 10 L 14 4 L 16 10 L 14 16 Z" fillRule="nonzero" fill="currentColor" stroke="none" />
   </svg>
 )
 export default SvgPointerRight

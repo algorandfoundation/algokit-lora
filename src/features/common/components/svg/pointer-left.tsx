@@ -2,18 +2,19 @@ import type { SVGProps } from 'react'
 const SvgPointerLeft = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlnsXlink="http://www.w3.org/1999/xlink"
-    width="11px"
-    height="19px"
+    width="20px"
+    height="20px"
     preserveAspectRatio="xMinYMid meet"
-    viewBox="159 229 7 10"
+    viewBox="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
     <path
-      d="M 165.8 228.1 L 159.1 234.1 L 165.8 240.1 L 163.5 234.1 L 165.8 228.1 Z"
+      d="M 14 16 L 20 10 L 14 4 L 16 10 L 14 16 Z"
       fillRule="nonzero"
       fill="currentColor"
       stroke="none"
+      transform="scale(-1, 1) translate(-20, 0)"
     />
   </svg>
 )
