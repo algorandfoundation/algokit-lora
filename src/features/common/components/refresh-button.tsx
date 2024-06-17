@@ -16,8 +16,8 @@ export function RefreshButton({ onClick }: Props) {
       aria-label={refreshButtonLabel}
       className="ml-auto animate-in fade-in-0 zoom-in-90"
     >
-      <RefreshCw className="size-[1.2rem]" />
       <span className="sr-only">{refreshButtonLabel}</span>
+      <RefreshCw className="size-[1.2rem]" />
     </Button>
   )
 }
