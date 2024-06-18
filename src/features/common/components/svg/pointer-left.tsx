@@ -10,7 +10,7 @@ const SvgPointerLeft = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      d="M 14 16 L 20 10 L 14 4 L 16 10 L 14 16 Z"
+      d="M 14 15 L 20 10 L 14 5 L 14 10 L 14 16 Z"
       fillRule="nonzero"
       fill="currentColor"
       stroke="none"
