@@ -24,9 +24,9 @@ export function ThemeToggle({ navTextClassName }: Props) {
         <Button
           variant="no-style"
           aria-label={themeTogglelabel}
-          className="flex h-12 items-center gap-2 whitespace-nowrap p-1 text-base font-normal"
+          className="my-1.5 flex items-center gap-2 whitespace-nowrap px-2 text-base font-normal"
         >
-          <div className="ml-[0.28rem] flex rounded-md border p-2">
+          <div className="ml-[0.4rem] flex rounded-md border p-2">
             <Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </div>

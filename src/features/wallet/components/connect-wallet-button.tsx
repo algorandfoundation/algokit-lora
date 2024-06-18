@@ -36,7 +36,7 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="w-36" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
+    <Button className="w-40" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
       {connectWalletLabel}
     </Button>
   )
@@ -87,7 +87,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="w-36" variant="outline">
+        <Button className="w-40" variant="outline">
           {activeProvider &&
             (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -173,7 +173,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="w-36" variant="outline" disabled>
+      <Button className="w-40" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>

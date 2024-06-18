@@ -40,11 +40,11 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
 
   return (
     <div>
-      <div className="grid border-y">
-        <Table>
+      <div className="grid">
+        <Table className="border-b">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-t bg-muted/50">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>

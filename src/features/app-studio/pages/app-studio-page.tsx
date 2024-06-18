@@ -8,7 +8,7 @@ export function AppStudioPage() {
       <PageTitle title={appStudioPageTitle} />
       <div>
         <p>
-          Comming soon!
+          Coming soon!
           <br />
           In the meantime, we recommend{' '}
           <a href="https://app.dappflow.org/beaker-studio/" className="text-primary underline" rel="nofollow" target="_blank">
