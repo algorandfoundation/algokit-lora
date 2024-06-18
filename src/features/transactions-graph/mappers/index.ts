@@ -1,7 +1,6 @@
 import {
   TransactionGraphAccountVertical,
   TransactionGraphApplicationVertical,
-  TransactionGraphAssetVertical,
   TransactionGraphHorizontal,
   TransactionGraphPointVisualization,
   TransactionGraphSelfLoopVisualization,
@@ -218,20 +217,29 @@ const getHorizontalsForTransaction = (
   return [thisRow]
 }
 
+type TransactionVisualisationFromTo = {
+  verticalId: number
+  accountNumber?: number
+}
+// Fallback value, it should never happen, just to make TypeScript happy
+const fallbackFromTo: TransactionVisualisationFromTo = {
+  verticalId: -1,
+  accountNumber: undefined,
+}
 const getTransactionVisualization = (
   transaction: Transaction | InnerTransaction,
   verticals: TransactionGraphVertical[],
   parent?: TransactionGraphHorizontal
 ): TransactionGraphVisualization => {
-  const calculateTo = () => {
+  const calculateTo = (): TransactionVisualisationFromTo => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
       const accountVertical = verticals.find(
         (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.receiver === c.accountAddress
       )
       if (accountVertical) {
         return {
-          verticalIndex: accountVertical.id,
-          accountIndex: accountVertical.accountNumber,
+          verticalId: accountVertical.id,
+          accountNumber: accountVertical.accountNumber,
         }
       }
 
@@ -240,38 +248,24 @@ const getTransactionVisualization = (
       )
       if (applicationVertical) {
         return {
-          verticalIndex: applicationVertical.id,
-          accountIndex: applicationVertical.linkedAccount.accountNumber,
+          verticalId: applicationVertical.id,
+          accountNumber: applicationVertical.linkedAccount.accountNumber,
         }
       }
 
-      return undefined
+      return fallbackFromTo
     }
 
     if (transaction.type === TransactionType.AppCall) {
-      const applicationVertical = verticals.find(
-        (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.applicationId === c.applicationId
-      )
-      if (applicationVertical) {
-        return {
-          verticalIndex: applicationVertical.id,
-        }
+      return {
+        verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
       }
-
-      return undefined
     }
 
     if (transaction.type === TransactionType.AssetConfig) {
-      const assetVertical = verticals.find(
-        (c): c is TransactionGraphAssetVertical => c.type === 'Asset' && transaction.assetId === c.assetId
-      )
-      if (assetVertical) {
-        return {
-          verticalIndex: assetVertical.id,
-        }
+      return {
+        verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
       }
-
-      return undefined
     }
 
     if (transaction.type === TransactionType.AssetFreeze) {
@@ -280,15 +274,16 @@ const getTransactionVisualization = (
       )
       if (accountVertical) {
         return {
-          verticalIndex: accountVertical.id,
-          accountIndex: accountVertical.accountNumber,
+          verticalId: accountVertical.id,
+          accountNumber: accountVertical.accountNumber,
         }
       }
     }
 
     throw new Error('Unsupported transaction type')
   }
-  const calculateFrom = () => {
+
+  const calculateFrom = (): TransactionVisualisationFromTo => {
     if (!parent) {
       // If the transaction is not a child, it is sent an individual account or an application account
       const accountVertical = verticals.find(
@@ -296,8 +291,8 @@ const getTransactionVisualization = (
       )
       if (accountVertical) {
         return {
-          verticalIndex: accountVertical.id,
-          accountIndex: accountVertical.accountNumber,
+          verticalId: accountVertical.id,
+          accountNumber: accountVertical.accountNumber,
         }
       }
 
@@ -306,12 +301,11 @@ const getTransactionVisualization = (
       )
       if (applicationVertical) {
         return {
-          verticalIndex: applicationVertical.id,
-          accountIndex: applicationVertical.linkedAccount.accountNumber,
+          verticalId: applicationVertical.id,
+          accountNumber: applicationVertical.linkedAccount.accountNumber,
         }
       }
-      // TODO: how to avoid undefined?
-      return undefined
+      return fallbackFromTo
     }
 
     // If the transaction is child, the parent transaction must be an application call
@@ -323,44 +317,42 @@ const getTransactionVisualization = (
     )
     if (applicationVertical) {
       return {
-        verticalIndex: applicationVertical.id,
-        accountIndex:
+        verticalId: applicationVertical.id,
+        accountNumber:
           applicationVertical.linkedAccount.accountAddress === transaction.sender
             ? applicationVertical.linkedAccount.accountNumber
             : applicationVertical.rekeyedAccounts.find((account) => account.accountAddress === transaction.sender)?.accountNumber,
       }
     }
-
-    // TODO: how to avoid undefined?
-    return undefined
+    return fallbackFromTo
   }
 
   const from = calculateFrom()
 
   if (transaction.type === TransactionType.KeyReg || transaction.type === TransactionType.StateProof) {
     return {
-      fromVerticalIndex: from?.verticalIndex ?? -1,
-      fromAccountIndex: from?.accountIndex,
+      fromVerticalIndex: from.verticalId,
+      fromAccountIndex: from.accountNumber,
       type: 'point',
     } satisfies TransactionGraphPointVisualization
   }
 
   const to = calculateTo()
-  if (from?.verticalIndex === to?.verticalIndex) {
+  if (from.verticalId === to.verticalId) {
     return {
-      fromVerticalIndex: from?.verticalIndex ?? -1,
-      fromAccountIndex: from?.accountIndex,
+      fromVerticalIndex: from.verticalId,
+      fromAccountIndex: from.accountNumber,
       type: 'selfLoop',
     } satisfies TransactionGraphSelfLoopVisualization
   }
 
-  const direction = (from?.verticalIndex ?? 0) < (to?.verticalIndex ?? 0) ? 'leftToRight' : 'rightToLeft'
+  const direction = from.verticalId < to.verticalId ? 'leftToRight' : 'rightToLeft'
 
   return {
-    fromVerticalIndex: Math.min(from?.verticalIndex ?? 0, to?.verticalIndex ?? 0),
-    fromAccountIndex: from?.accountIndex,
-    toVerticalIndex: Math.max(from?.verticalIndex ?? 0, to?.verticalIndex ?? 0),
-    toAccountIndex: to?.accountIndex,
+    fromVerticalIndex: Math.min(from.verticalId, to.verticalId),
+    fromAccountIndex: from.accountNumber,
+    toVerticalIndex: Math.max(from.verticalId, to.verticalId),
+    toAccountIndex: to.accountNumber,
     direction: direction,
     type: 'vector',
   } satisfies TransactionGraphVectorVisualization
