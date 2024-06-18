@@ -36,6 +36,7 @@ import { AssetTransactionHistory } from './asset-transaction-history'
 import { AssetLiveTransactions } from './asset-live-transactions'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
+import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 
 type Props = {
   asset: Asset
@@ -90,7 +91,7 @@ export function AssetDetails({ asset }: Props) {
         ? {
             dt: assetUrlLabel,
             dd: (
-              <a href={asset.url} className={cn('text-primary underline')} rel="nofollow" target="_blank">
+              <a href={replaceIpfsWithGatewayIfNeeded(asset.url)} className={cn('text-primary underline')} rel="nofollow" target="_blank">
                 {asset.url}
               </a>
             ),
