@@ -139,11 +139,6 @@ jobs:
           name: website
           path: artifacts
 
-      - name: Display structure of downloaded files
-        run: |
-          cd artifacts
-          ls -R
-
       - name: Unzip
         run: |
           cd artifacts
