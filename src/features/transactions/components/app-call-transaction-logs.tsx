@@ -1,5 +1,5 @@
 import { cn } from '@/features/common/utils'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/common/components/tabs'
 import { useMemo } from 'react'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 

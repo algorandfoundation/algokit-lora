@@ -12,7 +12,7 @@ type Props = {
 
 export function StateProofTransactionDetails({ transaction }: Props) {
   return (
-    <Card className={cn('p-4')}>
+    <Card className={cn('px-4 pb-4 pt-2')}>
       <CardContent className={cn('text-sm space-y-4')}>
         <div className={cn('flex items-center justify-between')}>
           <h2>State Proof</h2>

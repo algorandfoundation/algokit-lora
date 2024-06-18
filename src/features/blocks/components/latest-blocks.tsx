@@ -11,8 +11,8 @@ export function LatestBlocks() {
   const latestBlocks = useLatestBlockSummaries()
 
   return (
-    <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm')}>
+    <Card className={cn('px-4 pb-4 pt-2')}>
+      <CardContent className={cn('text-sm space-y-1')}>
         <h2>{latestBlocksTitle}</h2>
         <ul>
           {latestBlocks.map((block) => (
