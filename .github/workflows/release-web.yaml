@@ -46,7 +46,6 @@ jobs:
     needs:
       - build-website
     runs-on: [ubuntu-22.04]
-    environment: staging
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,7 +77,6 @@ jobs:
     needs:
       - build-website
     runs-on: [ubuntu-22.04]
-    environment: production
     steps:
       - uses: actions/checkout@v4
         with:
