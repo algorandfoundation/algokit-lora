@@ -102,24 +102,25 @@ const RenderTransactionVector = fixedForwardRef(
           ></div>
           {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
         </div>
-        <div className={cn('absolute z-20 bg-card p-2 w-20 text-xs text-center')}>
-          {transaction.type === TransactionType.Payment && (
-            <>
-              Payment
-              <DisplayAlgo amount={transaction.amount} />
-            </>
-          )}
-          {transaction.type === TransactionType.AssetTransfer && (
-            <>
-              Transfer
-              <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} className={colorClass.text} />
-            </>
-          )}
-          {transaction.type === TransactionType.AppCall && <>App Call</>}
-          {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
-          {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
+        <div className="absolute flex justify-center">
+          <div className={cn('z-20 bg-card p-2 text-xs text-center')}>
+            {transaction.type === TransactionType.Payment && (
+              <>
+                Payment
+                <DisplayAlgo className="flex" amount={transaction.amount} />
+              </>
+            )}
+            {transaction.type === TransactionType.AssetTransfer && (
+              <>
+                Transfer
+                <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} className={colorClass.text} />
+              </>
+            )}
+            {transaction.type === TransactionType.AppCall && <>App Call</>}
+            {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
+            {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
+          </div>
         </div>
-
         <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex} />
       </div>
     )

@@ -22,7 +22,7 @@ const Amount = ({ asset, amount, isFrozen }: { asset: AssetSummary; amount: numb
     <div className="flex items-center gap-1">
       <span>{amountToDisplay}</span>
       {asset.unitName ? (
-        <AssetIdLink assetId={asset.id} className={cn('underline')}>
+        <AssetIdLink assetId={asset.id} className={cn('text-primary underline')}>
           {asset.unitName}
         </AssetIdLink>
       ) : undefined}
