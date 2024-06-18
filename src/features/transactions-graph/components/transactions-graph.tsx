@@ -60,7 +60,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
                   .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty vertical
                   .map((_, index) => (
                     <div key={index} className={cn('flex justify-center')}>
-                      <div className={cn('border-muted h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
+                      <div className={cn('border h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
                     </div>
                   ))}
               </div>
