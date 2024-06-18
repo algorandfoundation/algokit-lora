@@ -1,14 +1,14 @@
 name: Release
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - '.vscode/**'
-      - '.idea/**'
+#  push:
+#    branches:
+#      - main
+#    paths-ignore:
+#      - 'docs/**'
+#      - '**.md'
+#      - '.vscode/**'
+#      - '.idea/**'
   workflow_dispatch:
     inputs:
       production-release:
@@ -138,11 +138,6 @@ jobs:
         with:
           name: website
           path: artifacts
-
-      - name: Display structure of downloaded files
-        run: |
-          cd artifacts
-          ls -R
 
       - name: Unzip
         run: |

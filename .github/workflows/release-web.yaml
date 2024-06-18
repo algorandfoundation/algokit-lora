@@ -1,0 +1,96 @@
+name: Release Web
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
+      - '.idea/**'
+
+concurrency: deploy-to-production
+
+permissions:
+  contents: write # to be able to publish a GitHub release
+  issues: write # to be able to comment on released issues
+  pull-requests: write # to be able to comment on released pull requests
+  packages: read
+
+jobs:
+  ci:
+    name: CI
+    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
+    with:
+      working-directory: .
+      node-version: 20.x
+      audit-script: npm run audit
+      compile-script: npm run check-types
+      test-script: npm run test
+
+  build-website:
+    name: Build Website
+    uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
+    with:
+      node-version: 20.x
+      build-path: dist
+      artifact-name: website
+      static-site: true
+      static-site-env-prefix: VITE
+    needs:
+      - ci
+
+  deploy-to-staging:
+    name: Publish Website to Staging
+    needs:
+      - build-website
+    runs-on: [ubuntu-22.04]
+    environment: Staging
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: website
+          path: artifacts
+
+      - name: Unzip
+        run: |
+          cd artifacts
+          mkdir -p website
+          unzip website.zip -d website
+
+      - name: Deploy website to Netlify
+        run: |
+          npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --prod
+
+  deploy-to-production:
+    name: Publish Website to Production
+    needs:
+      - deploy-to-staging
+    runs-on: [ubuntu-22.04]
+    environment: Production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: website
+          path: artifacts
+
+      - name: Unzip
+        run: |
+          cd artifacts
+          mkdir -p website
+          unzip website.zip -d website
+
+      - name: Deploy website to Netlify
+        run: |
+          npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --prod
