@@ -58,7 +58,11 @@ export function Search() {
   }, [setTerm])
 
   return (
-    <Command className={cn('bg-popover text-popover-foreground w-80 h-auto z-20 border border-input')} shouldFilter={false} loop>
+    <Command
+      className={cn('bg-popover text-popover-foreground w-80 h-auto z-20 border border-input', term && 'shadow-md')}
+      shouldFilter={false}
+      loop
+    >
       <CommandInput
         placeholder={searchPlaceholderLabel}
         value={term}
