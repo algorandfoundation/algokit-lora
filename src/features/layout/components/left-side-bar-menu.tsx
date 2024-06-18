@@ -12,7 +12,10 @@ type Props = {
   className?: string
 }
 
-const navIconClassName = cn('border rounded-md p-2 ml-1')
+const navIconClassName = cn('border rounded-md p-2 ml-2')
+const navLinkClassName = cn(
+  '[&.active]:border-border [&.active]:bg-accent [&.active]:text-primary border border-card rounded-r-md p-[0.34rem] mr-2 gap-2 flex items-center whitespace-nowrap'
+)
 
 export function LeftSideBarMenu({ className }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
@@ -28,12 +31,6 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
-  const navLinkClassName = cn(
-    layout.isLeftSideBarExpanded && 'mr-2',
-    !layout.isLeftSideBarExpanded && 'mr-1',
-    '[&.active]:border-border [&.active]:bg-accent [&.active]:text-primary border border-card rounded-r-md p-1 gap-2 flex items-center whitespace-nowrap'
-  )
-
   const navTextClassName = cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible w-0 delay-100')
 
   return (
@@ -41,10 +38,10 @@ export function LeftSideBarMenu({ className }: Props) {
       className={cn(
         'flex flex-col bg-card border-r transition-[width] duration-300',
         className,
-        layout.isLeftSideBarExpanded ? 'w-56' : 'w-[3.8rem]'
+        layout.isLeftSideBarExpanded ? 'w-56' : 'w-[4.5rem]'
       )}
     >
-      <Button className="ml-auto size-9 text-muted-foreground" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
+      <Button className="ml-auto text-muted-foreground" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
         {layout.isLeftSideBarExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
       </Button>
       <NavigationMenu>
