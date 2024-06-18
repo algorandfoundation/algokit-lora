@@ -9,7 +9,6 @@ import {
 } from '@/features/transactions-graph'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
-import SvgCircle from '@/features/common/components/svg/circle'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
@@ -21,8 +20,9 @@ import { AppCallTransactionTooltipContent } from '@/features/transactions-graph/
 import { AssetConfigTransactionTooltipContent } from '@/features/transactions-graph/components/asset-config-transaction-tooltip-content'
 import { AssetFreezeTransactionTooltipContent } from '@/features/transactions-graph/components/asset-freeze-transaction-tooltip-content'
 import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/components/key-reg-transaction-tooltip-content'
-import SvgPointerRight from '@/features/common/components/svg/pointer-right'
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
+import PointerRight from '@/features/common/components/svg/pointer-right'
+import PointerLeft from '@/features/common/components/svg/pointer-left'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
   return ancestors
@@ -38,6 +38,25 @@ function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancest
       ></div>
     ))
 }
+const colorClassMap = {
+  [TransactionType.Payment]: { border: 'border-payment', text: 'text-payment' },
+  [TransactionType.AssetTransfer]: { border: 'border-asset-transfer', text: 'text-asset-transfer' },
+  [TransactionType.AppCall]: { border: 'border-application-call', text: 'text-application-call' },
+  [TransactionType.AssetConfig]: { border: 'border-asset-config', text: 'text-asset-config' },
+  [TransactionType.AssetFreeze]: { border: 'border-asset-freeze', text: 'text-asset-freeze' },
+  [TransactionType.KeyReg]: { border: 'border-key-registration', text: 'text-key-registration' },
+  [TransactionType.StateProof]: { border: 'border-state-proof', text: 'text-state-proof' },
+}
+
+function Circle({ className, text }: { className?: string; text?: string | number }) {
+  return (
+    <div
+      className={cn('inline-flex size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem]', className)}
+    >
+      {text}
+    </div>
+  )
+}
 
 const RenderTransactionVector = fixedForwardRef(
   (
@@ -51,51 +70,63 @@ const RenderTransactionVector = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.defaultTransactionColor
+    const colorClass = colorClassMap[transaction.type]
 
     return (
       <div
-        className={cn('flex items-center justify-center z-10')}
+        className={cn('flex items-center justify-center z-10', colorClass.text)}
         style={{
           // 2 and 3 are the number to offset the name column
-          gridColumnStart: vector.from + 2,
-          gridColumnEnd: vector.to + 3,
-          color: color,
+          gridColumnStart: vector.fromVerticalIndex + 2,
+          gridColumnEnd: vector.toVerticalIndex + 3,
         }}
         ref={ref}
         {...rest}
       >
-        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.fromAccountIndex : vector.toAccountIndex} />
         <div
           style={{
-            width: `calc(${(100 - 100 / (vector.to - vector.from + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
+            width: `calc(${(100 - 100 / (vector.toVerticalIndex - vector.fromVerticalIndex + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
             height: `${graphConfig.circleDimension}px`,
           }}
           className="relative"
         >
-          {vector.direction === 'rightToLeft' && <SvgPointerLeft className={cn('absolute top-0 left-0')} />}
-          <div className={cn('h-1/2')} style={{ borderBottomWidth: graphConfig.lineWidth, borderColor: color }}></div>
-          {vector.direction === 'leftToRight' && <SvgPointerRight className={cn('absolute top-0 right-0')} />}
+          {vector.direction === 'rightToLeft' && <PointerLeft className="absolute left-0 top-0" />}
+          <div
+            className={cn(colorClass.border)}
+            style={{
+              height: `calc(50% + ${graphConfig.lineWidth / 2}px)`,
+              borderBottomWidth: graphConfig.lineWidth,
+              margin: vector.direction === 'leftToRight' ? '0 1px 0 0' : '0 0 0 1px',
+            }}
+          ></div>
+          {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
         </div>
-        <div className={cn('absolute z-20 bg-card p-2 text-foreground w-20 text-xs text-center')}>
-          {transaction.type === TransactionType.Payment && (
-            <>
-              Payment
-              <DisplayAlgo amount={transaction.amount} />
-            </>
-          )}
-          {transaction.type === TransactionType.AssetTransfer && (
-            <>
-              Transfer
-              <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />
-            </>
-          )}
-          {transaction.type === TransactionType.AppCall && <>App Call</>}
-          {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
-          {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
+        <div className="absolute flex justify-center">
+          <div className={cn('z-20 bg-card p-2 text-xs text-center')}>
+            {transaction.type === TransactionType.Payment && (
+              <>
+                Payment
+                <DisplayAlgo className="flex" amount={transaction.amount} />
+              </>
+            )}
+            {transaction.type === TransactionType.AssetTransfer && (
+              <>
+                Transfer
+                <DisplayAssetAmount
+                  asset={transaction.asset}
+                  amount={transaction.amount}
+                  className={colorClass.text}
+                  linkClassName={colorClass.text}
+                />
+              </>
+            )}
+            {transaction.type === TransactionType.AppCall && <>App Call</>}
+            {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
+            {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
+          </div>
         </div>
-
-        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex} />
       </div>
     )
   }
@@ -112,7 +143,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.defaultTransactionColor
+    const colorClass = colorClassMap[transaction.type]
 
     return (
       <div
@@ -120,31 +151,30 @@ const RenderTransactionSelfLoop = fixedForwardRef(
         className={cn('flex items-center justify-center relative z-10')}
         {...rest}
         style={{
-          gridColumnStart: loop.from + 2, // 2 to offset the name column
-          gridColumnEnd: loop.from + 4, // 4 to offset the name column and make this cell span 2 columns
-          color: color,
+          gridColumnStart: loop.fromVerticalIndex + 2, // 2 to offset the name column
+          gridColumnEnd: loop.fromVerticalIndex + 4, // 4 to offset the name column and make this cell span 2 columns
         }}
       >
-        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <Circle className={cn(colorClass.border, 'z-10')} />
         <div
           style={{
             width: `50%`,
             height: `${graphConfig.circleDimension}px`,
           }}
+          className={colorClass.text}
         >
           <SvgPointerLeft className={cn('relative')} style={{ left: `calc(50% + ${graphConfig.circleDimension})px` }} />
         </div>
         <div
-          className="absolute size-1/2"
+          className={cn('absolute size-1/2', colorClass.text, colorClass.border)}
           style={{
             borderWidth: graphConfig.lineWidth,
-            borderColor: color,
             borderRadius: '4px',
             bottom: graphConfig.lineWidth / 2,
             right: `25%`,
           }}
         ></div>
-        <div className={cn('absolute text-foreground right-1/4 w-[40%] flex justify-center')}>
+        <div className={cn('absolute right-1/4 w-[40%] flex justify-center', colorClass.text)}>
           {transaction.type === TransactionType.Payment && (
             <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
           )}
@@ -168,7 +198,7 @@ const RenderTransactionPoint = fixedForwardRef(
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
-    const color = graphConfig.defaultTransactionColor
+    const colorClass = colorClassMap[transaction.type]
 
     return (
       <div
@@ -177,12 +207,11 @@ const RenderTransactionPoint = fixedForwardRef(
         {...rest}
         style={{
           // 2 and 3 are the number to offset the name column
-          gridColumnStart: point.from + 2,
-          gridColumnEnd: point.from + 3,
-          color: color,
+          gridColumnStart: point.fromVerticalIndex + 2,
+          gridColumnEnd: point.fromVerticalIndex + 3,
         }}
       >
-        <SvgCircle width={graphConfig.circleDimension} height={graphConfig.circleDimension}></SvgCircle>
+        <Circle className={colorClass.border} />
       </div>
     )
   }
@@ -202,16 +231,16 @@ export function Horizontal({ horizontal, verticals }: Props) {
         <HorizontalTitle horizontal={horizontal} />
       </div>
       {verticals.map((_, index) => {
-        if (visualization.type === 'vector' && (index < visualization.from || index > visualization.to)) {
+        if (visualization.type === 'vector' && (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)) {
           return <div key={index}></div>
         }
-        if (visualization.type === 'point' && index > visualization.from) return <div key={index}></div>
+        if (visualization.type === 'point' && index > visualization.fromVerticalIndex) return <div key={index}></div>
         // The `index > transactionRepresentation.from + 1` is here
         // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
         // Therefore, we skip this cell so that we won't cause overflowing
-        if (visualization.type === 'selfLoop' && index > visualization.from + 1) return <div key={index}></div>
+        if (visualization.type === 'selfLoop' && index > visualization.fromVerticalIndex + 1) return <div key={index}></div>
 
-        if (index === visualization.from)
+        if (index === visualization.fromVerticalIndex)
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>

@@ -11,9 +11,16 @@ type Props = {
   asset: AssetSummary | AsyncMaybeAtom<AssetSummary>
   isFrozen?: boolean
   className?: string
+  linkClassName?: string
 }
 
-const Amount = ({ asset, amount, isFrozen }: { asset: AssetSummary; amount: number | bigint; isFrozen?: boolean }) => {
+type AmountProps = {
+  asset: AssetSummary
+  amount: number | bigint
+  isFrozen?: boolean
+  linkClassName?: string
+}
+const Amount = ({ asset, amount, isFrozen, linkClassName }: AmountProps) => {
   // asset decimals value must be from 0 to 19 so it is safe to use .toString() here
   // the amount is uint64, should be safe to be .toString()
   const amountToDisplay = new Decimal(amount.toString()).div(new Decimal(10).pow(asset.decimals)).toString()
@@ -22,7 +29,7 @@ const Amount = ({ asset, amount, isFrozen }: { asset: AssetSummary; amount: numb
     <div className="flex items-center gap-1">
       <span>{amountToDisplay}</span>
       {asset.unitName ? (
-        <AssetIdLink assetId={asset.id} className={cn('text-primary underline')}>
+        <AssetIdLink assetId={asset.id} className={cn('underline', linkClassName ?? 'text-primary')}>
           {asset.unitName}
         </AssetIdLink>
       ) : undefined}
@@ -31,15 +38,15 @@ const Amount = ({ asset, amount, isFrozen }: { asset: AssetSummary; amount: numb
   )
 }
 
-export const DisplayAssetAmount = ({ amount, asset, isFrozen, className }: Props) => {
+export const DisplayAssetAmount = ({ amount, asset, isFrozen, className, linkClassName }: Props) => {
   return (
     <div className={cn(className)}>
       {'read' in asset ? (
         <RenderInlineAsyncAtom atom={asset}>
-          {(asset) => <Amount asset={asset} amount={amount} isFrozen={isFrozen} />}
+          {(asset) => <Amount asset={asset} amount={amount} isFrozen={isFrozen} linkClassName={linkClassName} />}
         </RenderInlineAsyncAtom>
       ) : (
-        <Amount asset={asset} amount={amount} isFrozen={isFrozen} />
+        <Amount asset={asset} amount={amount} isFrozen={isFrozen} linkClassName={linkClassName} />
       )}
     </div>
   )

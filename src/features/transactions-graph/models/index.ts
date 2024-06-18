@@ -1,5 +1,7 @@
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { Address } from '@/features/accounts/data/types'
+import { ApplicationId } from '@/features/applications/data/types'
+import { AssetId } from '@/features/assets/data/types'
 
 export type TransactionsGraphData = {
   horizontals: TransactionGraphHorizontal[]
@@ -21,39 +23,48 @@ export type TransactionGraphVisualization =
 
 export type TransactionGraphVectorVisualization = {
   type: 'vector'
-  from: number
-  to: number
+  fromVerticalIndex: number
+  fromAccountIndex?: number
+  toAccountIndex?: number
+  toVerticalIndex: number
   direction: 'leftToRight' | 'rightToLeft'
 }
 
 export type TransactionGraphSelfLoopVisualization = {
   type: 'selfLoop'
-  from: number
+  fromVerticalIndex: number
+  fromAccountIndex?: number
 }
 
 export type TransactionGraphPointVisualization = {
   type: 'point'
-  from: number
+  fromVerticalIndex: number
+  fromAccountIndex?: number
 }
 
 export type TransactionGraphAccountVertical = {
+  id: number
+  accountNumber: number
   type: 'Account'
-  address: string
+  accountAddress: Address
 }
 export type TransactionGraphApplicationVertical = {
-  type: 'Application'
   id: number
-  address: Address
-  accounts: {
-    address: Address
+  type: 'Application'
+  applicationId: ApplicationId
+  linkedAccount: { accountNumber: number; accountAddress: Address }
+  rekeyedAccounts: {
+    accountNumber: number
+    accountAddress: Address
   }[]
 }
 export type TransactionGraphAssetVertical = {
+  id: number
   type: 'Asset'
-  id: string
+  assetId: AssetId
 }
 export type TransactionGraphVertical =
   | TransactionGraphAccountVertical
   | TransactionGraphApplicationVertical
   | TransactionGraphAssetVertical
-  | { type: 'Placeholder' }
+  | { id: -1; type: 'Placeholder' }
