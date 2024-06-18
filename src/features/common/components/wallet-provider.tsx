@@ -42,7 +42,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
             {
               id: PROVIDER_ID.LUTE,
               clientStatic: LuteConnect,
-              clientOptions: { siteName: 'Algorand Studio' },
+              clientOptions: { siteName: 'AlgoKit - lora' },
             },
           ],
     nodeConfig: {

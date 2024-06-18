@@ -15,7 +15,7 @@ runs:
     - name: Get artifact name
       id: set-env
       run: |
-        echo "artifact_name=algokit-explorer-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
+        echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Bump version in tauri.conf.json
@@ -37,4 +37,4 @@ runs:
       with:
         if-no-files-found: error
         name: ${{ steps.set-env.outputs.artifact_name }}
-        path: src-tauri/target/release/bundle/msi/algokit-explorer_*.msi
+        path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi

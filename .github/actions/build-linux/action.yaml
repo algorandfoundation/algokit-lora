@@ -10,7 +10,7 @@ runs:
     - name: Get artifact name
       id: set-env
       run: |
-        echo "artifact_name=algokit-explorer-linux-${{ runner.arch }}" >> $GITHUB_OUTPUT
+        echo "artifact_name=algokit-lora-linux-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Install dependencies
