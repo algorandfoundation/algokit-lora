@@ -113,7 +113,12 @@ const RenderTransactionVector = fixedForwardRef(
             {transaction.type === TransactionType.AssetTransfer && (
               <>
                 Transfer
-                <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} className={colorClass.text} />
+                <DisplayAssetAmount
+                  asset={transaction.asset}
+                  amount={transaction.amount}
+                  className={colorClass.text}
+                  linkClassName={colorClass.text}
+                />
               </>
             )}
             {transaction.type === TransactionType.AppCall && <>App Call</>}
