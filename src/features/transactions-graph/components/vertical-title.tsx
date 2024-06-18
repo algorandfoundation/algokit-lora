@@ -27,7 +27,7 @@ export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical
         </>
       )}
       {vertical.type === 'Application' && (
-        <div className={cn('grid')}>
+        <div className={cn('grid text-center')}>
           <ApplicationLink applicationId={vertical.applicationId} />
           <div className="flex items-center gap-1">
             <LinkIcon size={12} className={'text-primary'} />
