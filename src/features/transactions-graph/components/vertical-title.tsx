@@ -1,20 +1,15 @@
 import { cn } from '@/features/common/utils'
-import { AccountLink as AccountLinkComponent } from '@/features/accounts/components/account-link'
+import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { TransactionGraphVertical } from '@/features/transactions-graph'
-import { Address } from '@/features/accounts/data/types'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { KeyIcon, LinkIcon } from 'lucide-react'
 
-export function AccountLink({ address, index }: { address: Address; index: number }) {
+export function AccountNumber({ number }: { number: number }) {
   return (
-    <AccountLinkComponent address={address} className="flex items-center text-primary">
-      <abbr title={address}>{ellipseAddress(address)}</abbr>
-      <div className="ml-1 inline-flex size-4 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem]">
-        {index}
-      </div>
-    </AccountLinkComponent>
+    <div className="flex size-4 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem] text-primary">
+      {number}
+    </div>
   )
 }
 
@@ -22,26 +17,48 @@ export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical
   return (
     <span className={cn('text-l font-semibold')}>
       {vertical.type === 'Account' && (
-        <>
-          <AccountLink address={vertical.accountAddress} index={vertical.accountNumber} />
-        </>
+        <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
+          <AccountLink address={vertical.accountAddress} short={true} />
+        </TitleWrapper>
       )}
       {vertical.type === 'Application' && (
         <div className={cn('grid text-center')}>
-          <ApplicationLink applicationId={vertical.applicationId} />
-          <div className="flex items-center gap-1">
-            <LinkIcon size={12} className={'text-primary'} />
-            <AccountLink address={vertical.linkedAccount.accountAddress} index={vertical.linkedAccount.accountNumber} />
-          </div>
+          <TitleWrapper>
+            <ApplicationLink applicationId={vertical.applicationId} />
+          </TitleWrapper>
+          <TitleWrapper
+            leftComponent={<LinkIcon size={16} className={'text-primary'} />}
+            rightComponent={<AccountNumber number={vertical.linkedAccount.accountNumber} />}
+          >
+            <AccountLink address={vertical.linkedAccount.accountAddress} short={true} />
+          </TitleWrapper>
           {vertical.rekeyedAccounts.map(({ accountAddress, accountNumber }) => (
-            <div key={accountNumber} className="flex items-center gap-1">
-              <KeyIcon size={12} className={'text-primary'} />
-              <AccountLink address={accountAddress} index={accountNumber} />
-            </div>
+            <TitleWrapper
+              key={accountNumber}
+              leftComponent={<KeyIcon size={16} className={'text-primary'} />}
+              rightComponent={<AccountNumber number={accountNumber} />}
+            >
+              <AccountLink address={accountAddress} short={true} />
+            </TitleWrapper>
           ))}
         </div>
       )}
       {vertical.type === 'Asset' && <AssetIdLink assetId={vertical.assetId} />}
     </span>
+  )
+}
+
+type TitleWrapperProps = {
+  leftComponent?: React.ReactNode
+  children: React.ReactNode
+  rightComponent?: React.ReactNode
+}
+function TitleWrapper({ leftComponent, children, rightComponent }: TitleWrapperProps) {
+  return (
+    <div className={cn('flex gap-0.5 items-center justify-center')}>
+      <div className={'shrink-0 basis-4'}>{leftComponent}</div>
+      <div>{children}</div>
+      <div className={'shrink-0 basis-4'}>{rightComponent}</div>
+    </div>
   )
 }
