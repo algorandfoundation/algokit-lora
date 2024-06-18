@@ -155,17 +155,18 @@ const RenderTransactionSelfLoop = fixedForwardRef(
           gridColumnEnd: loop.fromVerticalIndex + 4, // 4 to offset the name column and make this cell span 2 columns
         }}
       >
-        <Circle className={colorClass.border} />
+        <Circle className={cn(colorClass.border, 'z-10')} />
         <div
           style={{
             width: `50%`,
             height: `${graphConfig.circleDimension}px`,
           }}
+          className={colorClass.text}
         >
           <SvgPointerLeft className={cn('relative')} style={{ left: `calc(50% + ${graphConfig.circleDimension})px` }} />
         </div>
         <div
-          className="absolute size-1/2"
+          className={cn('absolute size-1/2', colorClass.text, colorClass.border)}
           style={{
             borderWidth: graphConfig.lineWidth,
             borderRadius: '4px',
@@ -173,7 +174,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
             right: `25%`,
           }}
         ></div>
-        <div className={cn('absolute text-foreground right-1/4 w-[40%] flex justify-center')}>
+        <div className={cn('absolute right-1/4 w-[40%] flex justify-center', colorClass.text)}>
           {transaction.type === TransactionType.Payment && (
             <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
           )}

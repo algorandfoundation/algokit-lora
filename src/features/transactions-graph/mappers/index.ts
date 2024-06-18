@@ -338,7 +338,7 @@ const getTransactionVisualization = (
   }
 
   const to = calculateTo()
-  if (from === to) {
+  if (from?.verticalIndex === to?.verticalIndex) {
     return {
       fromVerticalIndex: from?.verticalIndex ?? -1,
       fromAccountIndex: from?.accountIndex,
