@@ -1,5 +1,7 @@
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { Address } from '@/features/accounts/data/types'
+import { ApplicationId } from '@/features/applications/data/types'
+import { AssetId } from '@/features/assets/data/types'
 
 export type TransactionsGraphData = {
   horizontals: TransactionGraphHorizontal[]
@@ -42,24 +44,24 @@ export type TransactionGraphPointVisualization = {
 
 export type TransactionGraphAccountVertical = {
   id: number
-  index: number
+  accountNumber: number
   type: 'Account'
-  address: string
+  accountAddress: Address
 }
 export type TransactionGraphApplicationVertical = {
   id: number
   type: 'Application'
-  applicationId: number
-  linkedAccount: { index: number; address: Address }
+  applicationId: ApplicationId
+  linkedAccount: { accountNumber: number; accountAddress: Address }
   rekeyedAccounts: {
-    index: number
-    address: Address
+    accountNumber: number
+    accountAddress: Address
   }[]
 }
 export type TransactionGraphAssetVertical = {
   id: number
   type: 'Asset'
-  assetId: number
+  assetId: AssetId
 }
 export type TransactionGraphVertical =
   | TransactionGraphAccountVertical

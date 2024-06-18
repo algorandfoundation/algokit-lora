@@ -14,7 +14,6 @@ import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } fr
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
-import { Address } from '@/features/accounts/data/types.ts'
 
 export const asTransactionsGraphData = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
@@ -33,43 +32,33 @@ export const asTransactionsGraphData = (transactions: Transaction[]): Transactio
   }
 }
 
-type TransactionGraphVerticalNoIndex =
-  | Omit<TransactionGraphAccountVertical, 'index' | 'id'>
-  | (Omit<TransactionGraphApplicationVertical, 'id' | 'linkedAccount' | 'rekeyedAccounts'> & {
-      linkedAccount: { address: Address }
-      rekeyedAccounts: {
-        address: Address
-      }[]
-    })
-  | Omit<TransactionGraphAssetVertical, 'id'>
-
 const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVertical[] => {
-  const transactionsVerticals = transactions.flatMap(getVerticalsForTransaction)
-  const mergedVerticals = mergeTransactionsVerticals(transactionsVerticals)
+  const transactionsVerticals = transactions.flatMap(asRawTransactionGraphVerticals)
+  const mergedVerticals = mergeRawTransactionGraphVerticals(transactionsVerticals)
   return indexTransactionsVerticals(mergedVerticals)
 }
 
-const indexTransactionsVerticals = (verticals: TransactionGraphVerticalNoIndex[]): TransactionGraphVertical[] => {
-  const uniqueAddresses = verticals
+const indexTransactionsVerticals = (rawVerticals: TransactionGraphVertical[]): TransactionGraphVertical[] => {
+  const uniqueAddresses = rawVerticals
     .flatMap((vertical) => {
       switch (vertical.type) {
         case 'Account':
-          return [vertical.address]
+          return [vertical.accountAddress]
         case 'Asset':
           return []
         case 'Application':
-          return [vertical.linkedAccount.address, ...vertical.rekeyedAccounts.map((account) => account.address)]
+          return [vertical.linkedAccount.accountAddress, ...vertical.rekeyedAccounts.map((account) => account.accountNumber)]
       }
     })
     .filter(distinct((x) => x))
 
-  return verticals.map((vertical, index) => {
+  return rawVerticals.map((vertical, index) => {
     switch (vertical.type) {
       case 'Account':
         return {
           ...vertical,
           id: index,
-          index: uniqueAddresses.indexOf(vertical.address) + 1,
+          accountNumber: uniqueAddresses.indexOf(vertical.accountAddress) + 1,
         }
       case 'Asset':
         return { ...vertical, id: index }
@@ -77,31 +66,39 @@ const indexTransactionsVerticals = (verticals: TransactionGraphVerticalNoIndex[]
         return {
           ...vertical,
           id: index,
-          linkedAccount: { index: uniqueAddresses.indexOf(vertical.linkedAccount.address) + 1, address: vertical.linkedAccount.address },
-          rekeyedAccounts: vertical.rekeyedAccounts.map((account) => ({ ...account, index: uniqueAddresses.indexOf(account.address) + 1 })),
+          linkedAccount: {
+            accountNumber: uniqueAddresses.indexOf(vertical.linkedAccount.accountAddress) + 1,
+            accountAddress: vertical.linkedAccount.accountAddress,
+          },
+          rekeyedAccounts: vertical.rekeyedAccounts.map((account) => ({
+            ...account,
+            accountNumber: uniqueAddresses.indexOf(account.accountAddress) + 1,
+          })),
         }
+      default:
+        throw new Error(`Unknown vertical type "${vertical.type}"`)
     }
   })
 }
 
-const mergeTransactionsVerticals = (transactionsVerticals: TransactionGraphVerticalNoIndex[]): TransactionGraphVerticalNoIndex[] => {
-  return transactionsVerticals.reduce<TransactionGraphVerticalNoIndex[]>((acc, current) => {
+const mergeRawTransactionGraphVerticals = (verticals: TransactionGraphVertical[]): TransactionGraphVertical[] => {
+  return verticals.reduce<TransactionGraphVertical[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
       if (
         acc.some(
           (c) =>
-            (c.type === 'Account' && c.address === current.address) ||
+            (c.type === 'Account' && c.accountAddress === current.accountAddress) ||
             // An application has its own account too
-            (c.type === 'Application' && c.linkedAccount.address === current.address)
+            (c.type === 'Application' && c.linkedAccount.accountAddress === current.accountAddress)
         )
       ) {
         return acc
       }
-      // TODO: check if this is still needed
-      // const app = array.find((a) => a.type === 'Application' && a.linkedAccount.address === current.address)
-      // if (app) {
-      //   return [...acc, app]
-      // }
+      // An application has its own account too
+      const app = array.find((a) => a.type === 'Application' && a.linkedAccount.accountAddress === current.accountAddress)
+      if (app) {
+        return [...acc, app]
+      }
 
       return [...acc, current]
     }
@@ -111,11 +108,12 @@ const mergeTransactionsVerticals = (transactionsVerticals: TransactionGraphVerti
       // We merge all the accounts, so we only show one application on the graph
       if (index > -1) {
         const applicationVertical = {
+          id: -1,
           type: 'Application' as const,
           applicationId: current.applicationId,
           linkedAccount: current.linkedAccount,
           rekeyedAccounts: [...(acc[index] as TransactionGraphApplicationVertical).rekeyedAccounts, ...current.rekeyedAccounts].filter(
-            distinct((x) => x.address)
+            distinct((x) => x.accountAddress)
           ),
         }
         acc.splice(index, 1, applicationVertical)
@@ -133,45 +131,55 @@ const mergeTransactionsVerticals = (transactionsVerticals: TransactionGraphVerti
   }, [])
 }
 
-const getVerticalsForTransaction = (transaction: Transaction | InnerTransaction): TransactionGraphVerticalNoIndex[] => {
-  const verticals: TransactionGraphVerticalNoIndex[] = [
+const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransaction): TransactionGraphVertical[] => {
+  const verticals: TransactionGraphVertical[] = [
     {
+      id: -1,
+      accountNumber: -1,
       type: 'Account',
-      address: transaction.sender,
+      accountAddress: transaction.sender,
     },
   ]
   if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
     verticals.push({
+      id: -1,
+      accountNumber: -1,
       type: 'Account',
-      address: transaction.receiver,
+      accountAddress: transaction.receiver,
     })
   }
   if (transaction.type === TransactionType.AppCall) {
     verticals.push({
+      id: -1,
       type: 'Application',
       applicationId: transaction.applicationId,
       linkedAccount: {
-        address: getApplicationAddress(transaction.applicationId),
+        accountNumber: -1,
+        accountAddress: getApplicationAddress(transaction.applicationId),
       },
       rekeyedAccounts: transaction.innerTransactions
         .flatMap((innerTransaction) => innerTransaction.sender)
         .filter((address) => address !== getApplicationAddress(transaction.applicationId))
         .filter(distinct((x) => x))
         .map((address) => ({
-          address,
+          accountNumber: -1,
+          accountAddress: address,
         })),
     })
   }
   if (transaction.type === TransactionType.AssetConfig) {
     verticals.push({
+      id: -1,
       type: 'Asset',
       assetId: transaction.assetId,
     })
   }
   if (transaction.type === TransactionType.AssetFreeze) {
     verticals.push({
+      id: -1,
+      accountNumber: -1,
       type: 'Account',
-      address: transaction.address,
+      accountAddress: transaction.address,
     })
   }
   return verticals
@@ -218,22 +226,22 @@ const getTransactionVisualization = (
   const calculateTo = () => {
     if (transaction.type === TransactionType.AssetTransfer || transaction.type === TransactionType.Payment) {
       const accountVertical = verticals.find(
-        (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.receiver === c.address
+        (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.receiver === c.accountAddress
       )
       if (accountVertical) {
         return {
           verticalIndex: accountVertical.id,
-          accountIndex: accountVertical.index,
+          accountIndex: accountVertical.accountNumber,
         }
       }
 
       const applicationVertical = verticals.find(
-        (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.receiver === c.linkedAccount.address
+        (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.receiver === c.linkedAccount.accountAddress
       )
       if (applicationVertical) {
         return {
           verticalIndex: applicationVertical.id,
-          accountIndex: applicationVertical.linkedAccount.index,
+          accountIndex: applicationVertical.linkedAccount.accountNumber,
         }
       }
 
@@ -268,12 +276,12 @@ const getTransactionVisualization = (
 
     if (transaction.type === TransactionType.AssetFreeze) {
       const accountVertical = verticals.find(
-        (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.address === c.address
+        (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.address === c.accountAddress
       )
       if (accountVertical) {
         return {
           verticalIndex: accountVertical.id,
-          accountIndex: accountVertical.index,
+          accountIndex: accountVertical.accountNumber,
         }
       }
     }
@@ -284,22 +292,22 @@ const getTransactionVisualization = (
     if (!parent) {
       // If the transaction is not a child, it is sent an individual account or an application account
       const accountVertical = verticals.find(
-        (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.sender === c.address
+        (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.sender === c.accountAddress
       )
       if (accountVertical) {
         return {
           verticalIndex: accountVertical.id,
-          accountIndex: accountVertical.index,
+          accountIndex: accountVertical.accountNumber,
         }
       }
 
       const applicationVertical = verticals.find(
-        (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.sender === c.linkedAccount.address
+        (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.sender === c.linkedAccount.accountAddress
       )
       if (applicationVertical) {
         return {
           verticalIndex: applicationVertical.id,
-          accountIndex: applicationVertical.linkedAccount.index,
+          accountIndex: applicationVertical.linkedAccount.accountNumber,
         }
       }
       // TODO: how to avoid undefined?
@@ -317,9 +325,9 @@ const getTransactionVisualization = (
       return {
         verticalIndex: applicationVertical.id,
         accountIndex:
-          applicationVertical.linkedAccount.address === transaction.sender
-            ? applicationVertical.linkedAccount.index
-            : applicationVertical.rekeyedAccounts.find((account) => account.address === transaction.sender)?.index,
+          applicationVertical.linkedAccount.accountAddress === transaction.sender
+            ? applicationVertical.linkedAccount.accountNumber
+            : applicationVertical.rekeyedAccounts.find((account) => account.accountAddress === transaction.sender)?.accountNumber,
       }
     }
 

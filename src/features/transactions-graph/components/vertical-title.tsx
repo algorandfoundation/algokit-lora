@@ -23,7 +23,7 @@ export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical
     <span className={cn('text-l font-semibold')}>
       {vertical.type === 'Account' && (
         <>
-          <AccountLink address={vertical.address} index={vertical.index} />
+          <AccountLink address={vertical.accountAddress} index={vertical.accountNumber} />
         </>
       )}
       {vertical.type === 'Application' && (
@@ -31,12 +31,12 @@ export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical
           <ApplicationLink applicationId={vertical.applicationId} />
           <div className="flex items-center gap-1">
             <LinkIcon size={12} className={'text-primary'} />
-            <AccountLink address={vertical.linkedAccount.address} index={vertical.linkedAccount.index} />
+            <AccountLink address={vertical.linkedAccount.accountAddress} index={vertical.linkedAccount.accountNumber} />
           </div>
-          {vertical.rekeyedAccounts.map(({ address, index }) => (
-            <div key={index} className="flex items-center gap-1">
+          {vertical.rekeyedAccounts.map(({ accountAddress, accountNumber }) => (
+            <div key={accountNumber} className="flex items-center gap-1">
               <KeyIcon size={12} className={'text-primary'} />
-              <AccountLink address={address} index={index} />
+              <AccountLink address={accountAddress} index={accountNumber} />
             </div>
           ))}
         </div>
