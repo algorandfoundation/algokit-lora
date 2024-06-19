@@ -12,7 +12,7 @@ type Arc16MetadataProperties = {
 // ARC-3 and ARC-19 share the same metadata structure, which is defined in the ARC-3 spec
 export type Arc3MetadataResult = {
   standard: AssetMetadataStandard.ARC3
-  metadata_url: string
+  metadata_url?: string
   metadata: {
     name?: string
     decimals?: number
