@@ -179,7 +179,12 @@ const RenderTransactionSelfLoop = fixedForwardRef(
             <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
           )}
           {transaction.type === TransactionType.AssetTransfer && (
-            <DisplayAssetAmount className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} asset={transaction.asset} />
+            <DisplayAssetAmount
+              className={cn('w-min pl-1 pr-1 bg-card')}
+              amount={transaction.amount}
+              asset={transaction.asset}
+              linkClassName={colorClass.text}
+            />
           )}
         </div>
       </div>
