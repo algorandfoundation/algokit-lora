@@ -23,6 +23,7 @@ import {
 } from '../components/transaction-view-tabs'
 import { multisigSubsignersLabel, multisigThresholdLabel, multisigVersionLabel } from '../components/multisig-details'
 import {
+  parentTransactionIdLabel,
   transactionBlockLabel,
   transactionFeeLabel,
   transactionGroupLabel,
@@ -729,6 +730,7 @@ describe('transaction-page', () => {
               container: component.container,
               items: [
                 { term: transactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2' },
+                { term: parentTransactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA' },
                 { term: transactionTypeLabel, description: 'Application Call' },
                 { term: transactionTimestampLabel, description: 'Fri, 01 March 2024 00:07:53' },
                 { term: transactionBlockLabel, description: '36591812' },
@@ -820,6 +822,46 @@ describe('transaction-page', () => {
               base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp'),
               base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2'),
             ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an nested inner transaction of an app call transaction', () => {
+    const transaction = transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build()
+    const assets = [
+      assetResultMother['mainnet-31566704']().build(),
+      assetResultMother['mainnet-386195940']().build(),
+      assetResultMother['mainnet-408898501']().build(),
+    ]
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2/1' }))
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(
+        assetResultsAtom,
+        new Map([
+          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createAtomAndTimestamp(a)] as const),
+        ])
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<InnerTransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => {
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: transactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2/1' },
+                { term: parentTransactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2' },
+              ],
+            })
           })
         }
       )

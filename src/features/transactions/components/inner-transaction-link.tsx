@@ -5,18 +5,22 @@ import { useSelectedNetwork } from '@/features/settings/data'
 import { NavLink } from 'react-router-dom'
 
 type Props = PropsWithChildren<{
-  transactionId: string
+  showFullTransactionId?: boolean
+  networkTransactionId: string
   innerTransactionId: string
   className?: string
 }>
 
-export function InnerTransactionLink({ transactionId, innerTransactionId, className, children }: Props) {
+export function InnerTransactionLink({ networkTransactionId, innerTransactionId, className, children, showFullTransactionId }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
-  const url = Urls.Explore.Transaction.ById.Inner.ById.build({ networkId: selectedNetwork, transactionId }).replace('*', innerTransactionId)
+  const url = Urls.Explore.Transaction.ById.Inner.ById.build({ networkId: selectedNetwork, transactionId: networkTransactionId }).replace(
+    '*',
+    innerTransactionId
+  )
 
   return (
     <NavLink className={cn(!children && 'text-primary underline tracking-tight', className)} to={url}>
-      {children ? children : `inner/${innerTransactionId}`}
+      {children ? children : showFullTransactionId ? `${networkTransactionId}/inner/${innerTransactionId}` : `inner/${innerTransactionId}`}
     </NavLink>
   )
 }

@@ -12,12 +12,15 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionLink } from './transaction-link'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
+import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
+import { isDefined } from '@/utils/is-defined'
 
 type Props = {
   transaction: Transaction | InnerTransaction
 }
 
 export const transactionIdLabel = 'Transaction ID'
+export const parentTransactionIdLabel = 'Parent Transaction ID'
 export const transactionTypeLabel = 'Type'
 export const transactionTimestampLabel = 'Timestamp'
 export const transactionBlockLabel = 'Block'
@@ -27,12 +30,49 @@ export const transactionRekeyToLabel = 'Rekey To'
 
 export function TransactionInfo({ transaction }: Props) {
   const subType = useAtomValue(transaction.subType)
+  const isInnerTransaction = 'innerId' in transaction
+
+  const parentTransactionLink = useMemo(() => {
+    if (!isInnerTransaction) {
+      return undefined
+    }
+
+    const segments = transaction.innerId.split('/')
+    if (segments.length === 1) {
+      return {
+        dt: parentTransactionIdLabel,
+        dd: <TransactionLink transactionId={transaction.networkTransactionId} />,
+      }
+    } else {
+      const parentInnerId = segments.slice(0, segments.length - 1).join('/')
+      return {
+        dt: parentTransactionIdLabel,
+        dd: (
+          <InnerTransactionLink
+            networkTransactionId={transaction.networkTransactionId}
+            innerTransactionId={parentInnerId}
+            showFullTransactionId={true}
+          />
+        ),
+      }
+    }
+  }, [transaction, isInnerTransaction])
+
   const transactionInfoItems = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} showCopyButton={true} />,
+        dd: !isInnerTransaction ? (
+          <TransactionLink transactionId={transaction.id} showCopyButton={true} />
+        ) : (
+          <InnerTransactionLink
+            networkTransactionId={transaction.networkTransactionId}
+            innerTransactionId={transaction.innerId}
+            showFullTransactionId={true}
+          />
+        ),
       },
+      parentTransactionLink,
       {
         dt: transactionTypeLabel,
         dd: (
@@ -74,18 +114,8 @@ export function TransactionInfo({ transaction }: Props) {
           ]
         : []),
     ],
-    [
-      subType,
-      transaction.confirmedRound,
-      transaction.fee,
-      transaction.group,
-      transaction.id,
-      transaction.rekeyTo,
-      transaction.roundTime,
-      transaction.signature?.type,
-      transaction.type,
-    ]
-  )
+    [isInnerTransaction, parentTransactionLink, subType, transaction]
+  ).filter(isDefined)
 
   return (
     <Card className={cn('p-4')}>
