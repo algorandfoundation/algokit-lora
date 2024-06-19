@@ -103,7 +103,7 @@ const RenderTransactionVector = fixedForwardRef(
           {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
         </div>
         <div className="absolute flex justify-center">
-          <div className={cn('z-20 bg-card p-2 text-xs text-center')}>
+          <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
             {transaction.type === TransactionType.Payment && (
               <>
                 Payment
@@ -231,7 +231,7 @@ export function Horizontal({ horizontal, verticals }: Props) {
 
   return (
     <>
-      <div className={cn('p-0 relative pr-8')}>
+      <div className={cn('p-0 relative')}>
         <ConnectionsFromAncestorsToAncestorsNextSiblings ancestors={ancestors} />
         <HorizontalTitle horizontal={horizontal} />
       </div>
