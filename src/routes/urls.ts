@@ -10,7 +10,6 @@ export const UrlParams = {
   AssetId: 'assetId:string',
   ApplicationId: 'applicationId:string',
   NetworkId: 'networkId:string',
-  Splat: '*:string',
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
