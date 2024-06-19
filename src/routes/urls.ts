@@ -4,13 +4,13 @@ export type UrlParameterValue = `${string}:${string}`
 
 export const UrlParams = {
   TransactionId: 'transactionId:string',
-  InnerTransactionId: 'innerTransactionId:string',
   GroupId: 'groupId:string',
   Round: 'round:string',
   Address: 'address:string',
   AssetId: 'assetId:string',
   ApplicationId: 'applicationId:string',
   NetworkId: 'networkId:string',
+  Splat: '*:string',
 } as const satisfies Record<string, UrlParameterValue>
 
 export const Urls = {
@@ -19,7 +19,7 @@ export const Urls = {
     Transaction: UrlTemplate`/transaction`.extend({
       ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
         Inner: UrlTemplate`/inner`.extend({
-          ById: UrlTemplate`/${UrlParams.InnerTransactionId}`,
+          ById: UrlTemplate`/*`,
         }),
       }),
     }),

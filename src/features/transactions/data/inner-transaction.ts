@@ -19,7 +19,7 @@ export const createInnerTransactionAtom = (
       throw new Error('Only application call transactions have inner transactions')
     }
 
-    const indexes = innerId.split('-').map((s) => parseInt(s))
+    const indexes = innerId.split('/').map((s) => parseInt(s))
     let current: Transaction | InnerTransaction = transaction
     for (const i of indexes) {
       if (current.type === TransactionType.AppCall) {
