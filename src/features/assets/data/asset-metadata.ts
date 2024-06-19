@@ -55,12 +55,19 @@ const createAssetMetadataResult = async (
         } satisfies Arc3MetadataResult
       } catch (error) {
         if (error instanceof SyntaxError) {
-          return {
-            standard: AssetMetadataStandard.ARC3,
-            metadata: {
-              image: metadataUrl,
-            },
-          } satisfies Arc3MetadataResult
+          const headResponse = await fetch(gatewayMetadataUrl, { method: 'HEAD' })
+          const contentType = headResponse.headers.get('Content-Type')
+          if (contentType && contentType.startsWith('image/')) {
+            return {
+              standard: AssetMetadataStandard.ARC3,
+              metadata: {
+                image: metadataUrl,
+              },
+            } satisfies Arc3MetadataResult
+          } else {
+            // eslint-disable-next-line no-console
+            console.log(error)
+          }
         }
       }
     }

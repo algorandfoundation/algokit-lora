@@ -694,7 +694,14 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() => Promise.resolve(new Response('Invalid JSON string')))
+
+      vi.mocked(fetch).mockImplementation((_, options) => {
+        if (options?.method === 'HEAD') {
+          return Promise.resolve(new Response(null, { headers: { 'Content-Type': 'image/png' } }))
+        }
+        return Promise.resolve(new Response('Invalid JSON string'))
+      })
+
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
       ).mockImplementation(() => Promise.resolve([transactionResult]))
