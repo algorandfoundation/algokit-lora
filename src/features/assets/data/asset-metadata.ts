@@ -64,10 +64,18 @@ const createAssetMetadataResult = async (
                 image: metadataUrl,
               },
             } satisfies Arc3MetadataResult
-          } else {
-            // eslint-disable-next-line no-console
-            console.log(error)
+          } else if (contentType && contentType.startsWith('video/')) {
+            return {
+              standard: AssetMetadataStandard.ARC3,
+              metadata: {
+                animation_url: metadataUrl,
+              },
+            } satisfies Arc3MetadataResult
           }
+          // eslint-disable-next-line no-console
+          console.error('Failed to build asset metadata', error)
+        } else {
+          throw error
         }
       }
     }
