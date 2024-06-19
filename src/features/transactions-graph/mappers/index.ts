@@ -46,7 +46,7 @@ const indexTransactionsVerticals = (rawVerticals: TransactionGraphVertical[]): T
         case 'Asset':
           return []
         case 'Application':
-          return [vertical.linkedAccount.accountAddress, ...vertical.rekeyedAccounts.map((account) => account.accountNumber)]
+          return [vertical.linkedAccount.accountAddress, ...vertical.rekeyedAccounts.map((account) => account.accountAddress)]
       }
     })
     .filter(distinct((x) => x))
