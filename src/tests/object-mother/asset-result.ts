@@ -441,4 +441,25 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-1024439078': () => {
+    return new AssetResultBuilder({
+      index: 1024439078,
+      params: {
+        clawback: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4',
+        creator: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4',
+        manager: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4',
+        name: 'Fracctal Token',
+        'name-b64': encoder.encode('RnJhY2N0YWwgVG9rZW4='),
+        reserve: 'YQTVEPKB4O5F26H76L5I7BA6VGCMRC6P2QSWRKG4KVJLJ62MVYTDJPM6KE',
+        total: 10000000000,
+        'unit-name': 'FRACC',
+        'unit-name-b64': encoder.encode('RlJBQ0M='),
+        url: 'template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}',
+        'url-b64': encoder.encode('dGVtcGxhdGUtaXBmczovL3tpcGZzY2lkOjA6ZGFnLXBiOnJlc2VydmU6c2hhMi0yNTZ9'),
+      },
+    })
+  },
 }

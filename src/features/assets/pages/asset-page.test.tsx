@@ -685,4 +685,61 @@ describe('asset-page', () => {
       )
     })
   })
+
+  describe('when rendering an Arc19 asset with invalid json metadata', () => {
+    const assetResult = assetResultMother['mainnet-1024439078']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(fetch).mockImplementation(() => Promise.resolve(new Response('Invalid JSON string')))
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
+      ).mockImplementation(() => Promise.resolve([transactionResult]))
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '1024439078ARC-19Fungible' },
+                { term: assetNameLabel, description: 'Fracctal Token' },
+                { term: assetUnitLabel, description: 'FRACC' },
+                { term: assetTotalSupplyLabel, description: '10000000000 FRACC' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}' },
+              ],
+            })
+            expect(
+              detailsCard.querySelector(`img[src="https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd"]`)
+            ).toBeTruthy()
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4' },
+                { term: assetManagerLabel, description: 'KPVZ66IFE7KHQ6623XHTPVS3IL7BXBE3HXQG35J65CVDA54VLRPP4SVOU4' },
+                { term: assetReserveLabel, description: 'YQTVEPKB4O5F26H76L5I7BA6VGCMRC6P2QSWRKG4KVJLJ62MVYTDJPM6KE' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [{ term: 'Image', description: 'ipfs://QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd' }],
+            })
+          })
+        }
+      )
+    })
+  })
 })
