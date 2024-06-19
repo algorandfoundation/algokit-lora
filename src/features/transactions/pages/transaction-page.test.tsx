@@ -689,8 +689,8 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               { cells: ['', 'KMNBSQ4...', 'Tjo3cLO...', 'W2IZ...NCEY', '971368268', 'Application Call', ''] },
-              { cells: ['', 'Inner 1', '', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
-              { cells: ['', 'Inner 2', '', '2ZPN...DJJ4', '971350278', 'Application Call', ''] },
+              { cells: ['', 'inner/1', '', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
+              { cells: ['', 'inner/2', '', '2ZPN...DJJ4', '971350278', 'Application Call', ''] },
             ],
           })
         }
@@ -707,7 +707,7 @@ describe('transaction-page', () => {
     ]
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, innerTransactionId: '2' }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2' }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -728,7 +728,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA-2' },
+                { term: transactionIdLabel, description: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2' },
                 { term: transactionTypeLabel, description: 'Application Call' },
                 { term: transactionTimestampLabel, description: 'Fri, 01 March 2024 00:07:53' },
                 { term: transactionBlockLabel, description: '36591812' },
@@ -783,8 +783,8 @@ describe('transaction-page', () => {
           tableAssertion({
             container: tableViewTab,
             rows: [
-              { cells: ['', 'Inner 2', 'aWpPwlo...', 'AACC...EN4A', '1002541853', 'Application Call', ''] },
-              { cells: ['', 'Inner 2-1', '', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582USDC'] },
+              { cells: ['', 'inner/2', 'aWpPwlo...', 'AACC...EN4A', '1002541853', 'Application Call', ''] },
+              { cells: ['', 'inner/2/1', '', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582USDC'] },
             ],
           })
 
