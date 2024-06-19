@@ -1,4 +1,7 @@
+import SvgLoraDark from '@/features/common/components/svg/lora-dark'
+import SvgLoraLight from '@/features/common/components/svg/lora-light'
 import { cn } from '@/features/common/utils'
+import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Search } from '@/features/search/components/search'
 import { useNetworkConfig } from '@/features/settings/data'
 import { ConnectWalletButton } from '@/features/wallet/components/connect-wallet-button'
@@ -13,10 +16,11 @@ export function Header({ className }: Props) {
 
   return (
     <header className={cn('bg-card text-card-foreground flex h-20 px-4 justify-start border-b', className)}>
-      <div className={cn('flex items-baseline gap-4 mt-5')}>
-        <a href={Urls.Explore.build({ networkId: networkConfig.id })} className="text-[26px]">
-          [algokit]
-        </a>
+      <div className={cn('flex items-baseline gap-4')}>
+        <TemplatedNavLink urlTemplate={Urls.Explore} urlParams={{ networkId: networkConfig.id }} className="self-center">
+          <SvgLoraLight className="block dark:hidden" />
+          <SvgLoraDark className="hidden dark:block" />
+        </TemplatedNavLink>
         <Search />
       </div>
       <div className={cn('flex items-center gap-4 ml-auto')}>

@@ -6,7 +6,7 @@ use tauri::Manager;
 fn main() {
     // The app identifier must match the identifier in info.plist
     let app_identifier = "dev.tauri-poc.pat";
-    let url_schema = "algokit-explorer";
+    let url_schema = "algokit-lora";
     let window_title = "main";
 
     tauri_plugin_deep_link::prepare(app_identifier);

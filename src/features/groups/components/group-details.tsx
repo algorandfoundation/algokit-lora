@@ -52,12 +52,12 @@ export function GroupDetails({ group }: Props) {
   return (
     <div className={cn('space-y-4')}>
       <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
+        <CardContent className={cn('text-sm')}>
           <DescriptionList items={groupItems} />
         </CardContent>
       </Card>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm space-y-2')}>
+      <Card className={cn('px-4 pb-4 pt-2')}>
+        <CardContent className={cn('text-sm space-y-1')}>
           <h2>{transactionsLabel}</h2>
           <GroupTransactionsViewTabs group={group} />
         </CardContent>

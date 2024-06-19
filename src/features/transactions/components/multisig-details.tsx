@@ -32,12 +32,10 @@ export function MultisigDetails({ signature }: MultisigProps) {
   )
 
   return (
-    <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm space-y-4')}>
-        <div className={cn('space-y-2')}>
-          <h2>Multisig</h2>
-          <DescriptionList items={multisigItems} />
-        </div>
+    <Card className={cn('px-4 pb-4 pt-2')}>
+      <CardContent className={cn('text-sm space-y-1')}>
+        <h2>Multisig</h2>
+        <DescriptionList items={multisigItems} />
       </CardContent>
     </Card>
   )

@@ -10,8 +10,8 @@
                 <string>dev.tauri-poc.pat</string>
                 <key>CFBundleURLSchemes</key>
                 <array>
-                    <!-- register the algokit-explorer:// scheme -->
-                    <string>algokit-explorer</string>
+                    <!-- register the algokit-lora:// scheme -->
+                    <string>algokit-lora</string>
                 </array>
             </dict>
         </array>

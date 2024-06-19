@@ -41,9 +41,7 @@ export function AccountApplicationTabs({ account }: Props) {
       </TabsList>
       {tabs.map((tab) => (
         <OverflowAutoTabsContent key={tab.id} value={tab.id}>
-          <div className="grid">
-            <div className="overflow-auto p-4">{tab.children}</div>
-          </div>
+          {tab.children}
         </OverflowAutoTabsContent>
       ))}
     </Tabs>

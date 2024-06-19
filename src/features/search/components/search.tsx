@@ -59,7 +59,7 @@ export function Search() {
 
   return (
     <Command
-      className={cn('bg-popover text-popover-foreground w-80 h-auto z-20 border border-input', term && 'shadow-md')}
+      className={cn('bg-popover text-popover-foreground w-[22rem] h-auto z-20 border border-input mt-[1.2rem]', term && 'shadow-md')}
       shouldFilter={false}
       loop
     >

@@ -12,15 +12,15 @@ fi
 # Assign arguments to variables
 RELEASE_DIR="$1"
 
-# Create the algokit-explorer.desktop file
-cat > "${RELEASE_DIR}/algokit-explorer.desktop" <<EOF
+# Create the algokit-lora.desktop file
+cat > "${RELEASE_DIR}/algokit-lora.desktop" <<EOF
 [Desktop Entry]
-Name=algokit-explorer
-Exec=algokit-explorer %U
+Name=algokit-lora
+Exec=algokit-lora %U
 Terminal=false
 Icon=\${SNAP}/icons/128x128.png
 Type=Application
-Comment=algokit-explorer
+Comment=algokit-lora
 EOF
 
-echo "algokit-explorer.desktop has been created at ${RELEASE_DIR}/algokit-explorer.desktop"
+echo "algokit-lora.desktop has been created at ${RELEASE_DIR}/algokit-lora.desktop"
