@@ -4,7 +4,7 @@ import { createLoadableAssetTransactionsPage } from '../data/asset-transaction-h
 import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { useCallback, useMemo } from 'react'
 import { getAssetTransactionsTableSubRows } from '../utils/get-asset-transactions-table-sub-rows'
-import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
+import { transactionsTableColumnsWithDateTime } from '@/features/transactions/components/transactions-table-columns'
 import { ListingOrderLabel } from '@/features/common/components/listing-order-label'
 
 type Props = {
@@ -17,7 +17,7 @@ export function AssetTransactionHistory({ assetId }: Props) {
 
   return (
     <div>
-      <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
+      <LazyLoadDataTable columns={transactionsTableColumnsWithDateTime} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
       <ListingOrderLabel />
     </div>
   )

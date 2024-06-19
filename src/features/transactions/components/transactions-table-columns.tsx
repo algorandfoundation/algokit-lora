@@ -10,6 +10,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionTo } from './transaction-to'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { ChevronDown, ChevronRight } from 'lucide-react'
+import { DateFormatted } from '@/features/common/components/date-formatted'
 
 const indentationWidth = 12
 
@@ -17,82 +18,116 @@ export const transactionFromLabel = 'From'
 export const transactionToLabel = 'To'
 export const transactionAmountLabel = 'Amount'
 export const transactionRoundLabel = 'Round'
+export const transactionDateTimeLabel = 'Date/Time'
+
+const expandColumn: ColumnDef<Transaction | InnerTransaction> = {
+  id: 'expand',
+  header: () => undefined,
+  cell: ({ row }) => {
+    return (
+      <div className={cn('flex items-center size-0')}>
+        {row.getCanExpand() ? (
+          <div>{row.getIsExpanded() ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</div>
+        ) : undefined}
+      </div>
+    )
+  },
+}
+const idColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: 'Transaction ID',
+  accessorFn: (transaction) => transaction,
+  cell: ({ row, getValue }) => {
+    const transaction = getValue<Transaction | InnerTransaction>()
+    return (
+      <div
+        style={{
+          marginLeft: `${indentationWidth * row.depth}px`,
+        }}
+      >
+        {'innerId' in transaction ? (
+          <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
+        ) : (
+          <TransactionLink transactionId={transaction.id} short={true} />
+        )}
+      </div>
+    )
+  },
+}
+const groupColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: 'Group ID',
+  accessorFn: (transaction) => transaction,
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    return transaction.group ? <GroupLink round={transaction.confirmedRound} groupId={transaction.group} short={true} /> : undefined
+  },
+}
+const blockColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionRoundLabel,
+  accessorFn: (transaction) => transaction,
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    return <BlockLink round={transaction.confirmedRound} />
+  },
+}
+const dateTimeColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionDateTimeLabel,
+  accessorFn: (transaction) => transaction.roundTime,
+  cell: (c) => <DateFormatted date={new Date(c.getValue<number>())} short={true} />,
+}
+const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionFromLabel,
+  accessorFn: (transaction) => transaction.sender,
+  cell: (c) => <AccountLink address={c.getValue<string>()} short={true} />,
+}
+const toColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionToLabel,
+  accessorFn: (transaction) => transaction,
+  cell: (c) => <TransactionTo transaction={c.getValue<Transaction>()} />,
+}
+const typeColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: 'Type',
+  accessorFn: (transaction) => transaction.type,
+}
+const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionAmountLabel,
+  accessorFn: (transaction) => transaction,
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    if (transaction.type === TransactionType.Payment) {
+      return <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />
+    } else if (transaction.type === TransactionType.AssetTransfer) {
+      return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
+    }
+  },
+}
 
 export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
-  {
-    id: 'expand',
-    header: () => undefined,
-    cell: ({ row }) => {
-      return (
-        <div className={cn('flex items-center size-0')}>
-          {row.getCanExpand() ? (
-            <div>{row.getIsExpanded() ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</div>
-          ) : undefined}
-        </div>
-      )
-    },
-  },
-  {
-    header: 'Transaction ID',
-    accessorFn: (transaction) => transaction,
-    cell: ({ row, getValue }) => {
-      const transaction = getValue<Transaction | InnerTransaction>()
-      return (
-        <div
-          style={{
-            marginLeft: `${indentationWidth * row.depth}px`,
-          }}
-        >
-          {'innerId' in transaction ? (
-            <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
-          ) : (
-            <TransactionLink transactionId={transaction.id} short={true} />
-          )}
-        </div>
-      )
-    },
-  },
-  {
-    header: 'Group ID',
-    accessorFn: (transaction) => transaction,
-    cell: (c) => {
-      const transaction = c.getValue<Transaction>()
-      return transaction.group ? <GroupLink round={transaction.confirmedRound} groupId={transaction.group} short={true} /> : undefined
-    },
-  },
-  {
-    header: transactionRoundLabel,
-    accessorFn: (transaction) => transaction,
-    cell: (c) => {
-      const transaction = c.getValue<Transaction>()
-      return <BlockLink round={transaction.confirmedRound} />
-    },
-  },
-  {
-    header: transactionFromLabel,
-    accessorFn: (transaction) => transaction.sender,
-    cell: (c) => <AccountLink address={c.getValue<string>()} short={true} />,
-  },
-  {
-    header: transactionToLabel,
-    accessorFn: (transaction) => transaction,
-    cell: (c) => <TransactionTo transaction={c.getValue<Transaction>()} />,
-  },
-  {
-    header: 'Type',
-    accessorFn: (transaction) => transaction.type,
-  },
-  {
-    header: transactionAmountLabel,
-    accessorFn: (transaction) => transaction,
-    cell: (c) => {
-      const transaction = c.getValue<Transaction>()
-      if (transaction.type === TransactionType.Payment) {
-        return <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />
-      } else if (transaction.type === TransactionType.AssetTransfer) {
-        return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
-      }
-    },
-  },
+  expandColumn,
+  idColumn,
+  groupColumn,
+  blockColumn,
+  fromColumn,
+  toColumn,
+  typeColumn,
+  amountColumn,
 ]
-export const transactionsTableColumnsWithoutRound = transactionsTableColumns.filter((x) => x.header !== transactionRoundLabel)
+export const transactionsTableColumnsWithoutRound: ColumnDef<Transaction | InnerTransaction>[] = [
+  expandColumn,
+  idColumn,
+  groupColumn,
+  fromColumn,
+  toColumn,
+  typeColumn,
+  amountColumn,
+]
+export const transactionsTableColumnsWithDateTime: ColumnDef<Transaction | InnerTransaction>[] = [
+  expandColumn,
+  idColumn,
+  groupColumn,
+  blockColumn,
+  dateTimeColumn,
+  fromColumn,
+  toColumn,
+  typeColumn,
+  amountColumn,
+]
