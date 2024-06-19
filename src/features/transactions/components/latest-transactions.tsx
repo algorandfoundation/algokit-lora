@@ -14,8 +14,8 @@ export function LatestTransactions() {
   const latestTransactions = useLatestTransactionSummaries()
 
   return (
-    <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm')}>
+    <Card className={cn('px-4 pb-4 pt-2')}>
+      <CardContent className={cn('text-sm space-y-1')}>
         <h2>{latestTransactionsTitle}</h2>
         <ul>
           {latestTransactions.map((transaction) => (

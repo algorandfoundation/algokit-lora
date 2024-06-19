@@ -23,29 +23,29 @@ VERSION="${RELEASE_TAG#v}"
 
 # Create the snapcraft.yaml file
 cat > "${DESTINATION_DIR}/snap/snapcraft.yaml" <<EOF
-name: algokit-explorer
+name: algokit-lora
 base: core22
 version: "$VERSION"
-summary: Short description of algokit-explorer.
+summary: Short description of algokit-lora.
 description: |
-  Detailed description of algokit-explorer.
+  Detailed description of algokit-lora.
 
 confinement: classic
 grade: $GRADE
 
 parts:
-  algokit-explorer:
+  algokit-lora:
     source: "$SOURCE_DIR"
     plugin: dump
     stage:
       - icons
-      - algokit-explorer
-      - algokit-explorer.desktop
+      - algokit-lora
+      - algokit-lora.desktop
       - usr/lib/
     prime:
       - icons
-      - algokit-explorer
-      - algokit-explorer.desktop
+      - algokit-lora
+      - algokit-lora.desktop
       - usr/lib/
       - -usr/lib/x86_64-linux-gnu/libEGL_mesa.so.0.0.0
       - -usr/lib/x86_64-linux-gnu/libGLESv2.so.2.1.0
@@ -80,9 +80,9 @@ parts:
       - libglu1-mesa
 
 apps:
-  algokit-explorer:
-    command: algokit-explorer
-    desktop: algokit-explorer.desktop
+  algokit-lora:
+    command: algokit-lora
+    desktop: algokit-lora.desktop
     plugs:
       - desktop
       - desktop-legacy

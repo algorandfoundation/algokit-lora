@@ -1,4 +1,4 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { AppCallTransaction, GlobalStateDelta, InnerAppCallTransaction, LocalStateDelta } from '../models'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
@@ -92,8 +92,10 @@ export function AppCallTransactionInfo({ transaction }: Props) {
 
   return (
     <div className={cn('space-y-2')}>
+      <div className={cn('flex items-center justify-between')}>
+        <h2>Application Call</h2>
+      </div>
       <DescriptionList items={items} />
-
       <Tabs defaultValue={applicationArgsTabId}>
         <TabsList aria-label={appCallTransactionDetailsLabel}>
           {tabs.map((tab) => (
@@ -103,11 +105,9 @@ export function AppCallTransactionInfo({ transaction }: Props) {
           ))}
         </TabsList>
         {tabs.map((tab) => (
-          <TabsContent key={tab.id} value={tab.id}>
-            <div className="grid">
-              <div className="overflow-auto p-4">{tab.children}</div>
-            </div>
-          </TabsContent>
+          <OverflowAutoTabsContent key={tab.id} value={tab.id}>
+            {tab.children}
+          </OverflowAutoTabsContent>
         ))}
       </Tabs>
     </div>

@@ -152,7 +152,7 @@ describe('when rendering the layout page', () => {
   describe('and the user opens a deep link to mainnet', () => {
     beforeAll(() => {
       window.__TAURI__ = {}
-      window.deepLink = 'algokit-explorer://mainnet'
+      window.deepLink = 'algokit-lora://mainnet'
     })
     afterAll(() => {
       window.__TAURI__ = undefined
@@ -199,7 +199,7 @@ describe('when rendering the layout page', () => {
             event: 'deep-link-received',
             windowLabel: 'main',
             id: 1,
-            payload: 'algokit-explorer://testnet',
+            payload: 'algokit-lora://testnet',
           })
 
           return Promise.resolve({
@@ -225,7 +225,7 @@ describe('when rendering the layout page', () => {
   describe('and the user opens a deep link to a transaction', () => {
     beforeAll(() => {
       window.__TAURI__ = {}
-      window.deepLink = 'algokit-explorer://mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1'
+      window.deepLink = 'algokit-lora://mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1'
 
       vi.mocked(listen).mockImplementation(() => {
         return Promise.resolve({
