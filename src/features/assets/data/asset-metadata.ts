@@ -54,8 +54,6 @@ const createAssetMetadataResult = async (
           metadata,
         } satisfies Arc3MetadataResult
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(error)
         if (error instanceof SyntaxError) {
           return {
             standard: AssetMetadataStandard.ARC3,
