@@ -70,26 +70,25 @@ export function TransactionNote({ note }: TransactionNoteProps) {
       </div>
 
       <Tabs defaultValue={defaultTabId} onValueChange={(value) => setActiveTabId(value as TabId)}>
-        <div className={cn('grid grid-cols-[1fr_max-content] ')}>
-          <TabsList aria-label={noteLabel}>
-            <TabsTrigger className="w-32" value={base64NoteTabId}>
-              {base64NoteTabLabel}
+        <TabsList aria-label={noteLabel}>
+          <TabsTrigger className="w-32" value={base64NoteTabId}>
+            {base64NoteTabLabel}
+          </TabsTrigger>
+          <TabsTrigger className="w-32" value={textNoteTabId}>
+            {textNoteTabLabel}
+          </TabsTrigger>
+          {json && (
+            <TabsTrigger className="w-32" value={jsonNoteTabId}>
+              {jsonNoteTabLabel}
             </TabsTrigger>
-            <TabsTrigger className="w-32" value={textNoteTabId}>
-              {textNoteTabLabel}
+          )}
+          {arc2 && (
+            <TabsTrigger className="w-32" value={arc2NoteTabId}>
+              {arc2NoteTabLabel}
             </TabsTrigger>
-            {json && (
-              <TabsTrigger className="w-32" value={jsonNoteTabId}>
-                {jsonNoteTabLabel}
-              </TabsTrigger>
-            )}
-            {arc2 && (
-              <TabsTrigger className="w-32" value={arc2NoteTabId}>
-                {arc2NoteTabLabel}
-              </TabsTrigger>
-            )}
-          </TabsList>
-        </div>
+          )}
+        </TabsList>
+
         <OverflowAutoTabsContent value={base64NoteTabId}>{note}</OverflowAutoTabsContent>
         <OverflowAutoTabsContent value={textNoteTabId}>{text}</OverflowAutoTabsContent>
         {json && (
