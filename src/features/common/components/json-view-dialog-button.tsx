@@ -9,6 +9,7 @@ import { toast } from 'react-toastify'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { useResolvedTheme } from '@/features/settings/data/theme'
 import { styleDark, styleLight } from './json-view-styles'
+import { CopyButton } from './copy-button'
 
 type Props = {
   json: object
@@ -38,17 +39,15 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="bg-card">
-          <DialogHeader>
-            <div className={cn('grid grid-cols-[1fr_max-content]')}>
-              <h2>JSON</h2>
-              <Button variant="default" size="sm" className="mt-2" onClick={copyJsonToClipboard}>
-                Copy
-              </Button>
-            </div>
+        <DialogContent className="gap-0 bg-card">
+          <DialogHeader className="flex-row gap-1">
+            <h2>JSON</h2>
+            <CopyButton className={cn('size-5')} onClick={copyJsonToClipboard} />
           </DialogHeader>
-          <div className={cn('border-solid border-2 border-border grid w-[900px] min-h-[200px] max-h-[500px] overflow-auto relative')}>
-            <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
+          <div className={cn('border grid w-auto min-w-[450px] max-w-[700px] h-[450px] relative')}>
+            <div className="overflow-auto">
+              <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
+            </div>
           </div>
         </DialogContent>
       </Dialog>

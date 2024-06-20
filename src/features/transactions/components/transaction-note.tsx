@@ -8,9 +8,9 @@ import { parseJson } from '@/utils/parse-json'
 import { useResolvedTheme } from '@/features/settings/data'
 import { styleDark, styleLight } from '@/features/common/components/json-view-styles'
 import { JsonView as ReactJsonView } from 'react-json-view-lite'
-import { Button } from '@/features/common/components/button'
 import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type TransactionNoteProps = {
   note: string
@@ -64,9 +64,13 @@ export function TransactionNote({ note }: TransactionNoteProps) {
   }, [activeTabId, note, text, json, arc2])
   return (
     <div className={cn('space-y-2')}>
-      <h3>Note</h3>
+      <div className="flex items-center gap-1">
+        <h3>Note</h3>
+        <CopyButton className={cn('size-5')} onClick={copyToClipboard} />
+      </div>
+
       <Tabs defaultValue={defaultTabId} onValueChange={(value) => setActiveTabId(value as TabId)}>
-        <div className={cn('grid grid-cols-[1fr_max-content]')}>
+        <div className={cn('grid grid-cols-[1fr_max-content] ')}>
           <TabsList aria-label={noteLabel}>
             <TabsTrigger className="w-32" value={base64NoteTabId}>
               {base64NoteTabLabel}
@@ -85,30 +89,33 @@ export function TransactionNote({ note }: TransactionNoteProps) {
               </TabsTrigger>
             )}
           </TabsList>
-          <Button className={cn('ml-auto')} variant="outline" onClick={copyToClipboard}>
-            copy
-          </Button>
         </div>
         <OverflowAutoTabsContent value={base64NoteTabId}>{note}</OverflowAutoTabsContent>
         <OverflowAutoTabsContent value={textNoteTabId}>{text}</OverflowAutoTabsContent>
         {json && (
           <OverflowAutoTabsContent value={jsonNoteTabId}>
-            <ReactJsonView data={json} style={currentStyle} />
+            <div className="mx-[-10px]">
+              <ReactJsonView data={json} style={currentStyle} />
+            </div>
           </OverflowAutoTabsContent>
         )}
         {arc2 && (
           <OverflowAutoTabsContent value={arc2NoteTabId}>
-            <DescriptionList
-              items={[
-                { dt: 'DApp Name', dd: arc2.dAppName },
-                { dt: 'Format', dd: arc2FormatLabels[arc2.format] },
-              ]}
-            />
-            {arc2.format === 'j' && parseJson(arc2.data) ? (
-              <pre>{JSON.stringify(parseJson(arc2.data), null, 2)}</pre>
-            ) : (
-              <pre>{arc2.data}</pre>
-            )}
+            <div className="overflow-auto">
+              <DescriptionList
+                items={[
+                  { dt: 'DApp Name', dd: arc2.dAppName },
+                  { dt: 'Format', dd: arc2FormatLabels[arc2.format] },
+                ]}
+              />
+              {arc2.format === 'j' && parseJson(arc2.data) ? (
+                <div className="mx-[-10px]">
+                  <ReactJsonView data={parseJson(arc2.data)} style={currentStyle} />
+                </div>
+              ) : (
+                <pre>{arc2.data}</pre>
+              )}
+            </div>
           </OverflowAutoTabsContent>
         )}
       </Tabs>

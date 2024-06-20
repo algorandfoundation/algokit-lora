@@ -369,7 +369,7 @@ describe('transaction-page', () => {
 
             const jsonTab = component.getByRole('tabpanel', { name: jsonNoteTabLabel })
             expect(jsonTab.getAttribute('data-state'), 'JSON tab should be active').toBe('active')
-            expect(jsonTab.textContent).toBe(JSON.stringify(jsonNote, null, 2))
+            expect(jsonTab.textContent).toBe('{hello:"world"}')
           }
         )
       })
@@ -437,10 +437,7 @@ describe('transaction-page', () => {
             const arc2Tab = component.getByRole('tabpanel', { name: arc2NoteTabLabel })
             expect(arc2Tab.getAttribute('data-state'), 'ARC-2 tab should be active').toBe('active')
             expect(arc2Tab.textContent).toMatchInlineSnapshot(`
-              "DApp NamealgoCityTempFormatJSON{
-                "city": "Singapore",
-                "temp": 35
-              }"
+              "DApp NamealgoCityTempFormatJSON{city:"Singapore",temp:35}"
             `)
           }
         )
