@@ -2,22 +2,24 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useMemo } from 'react'
-import { Transaction, SignatureType, InnerTransaction } from '../models'
+import { Transaction, InnerTransaction } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupLink } from '@/features/groups/components/group-link'
-import { useAtomValue } from 'jotai'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionLink } from './transaction-link'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
+import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
+import { isDefined } from '@/utils/is-defined'
+import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 
 type Props = {
   transaction: Transaction | InnerTransaction
 }
 
 export const transactionIdLabel = 'Transaction ID'
+export const parentTransactionIdLabel = 'Parent Transaction ID'
 export const transactionTypeLabel = 'Type'
 export const transactionTimestampLabel = 'Timestamp'
 export const transactionBlockLabel = 'Block'
@@ -26,24 +28,52 @@ export const transactionFeeLabel = 'Fee'
 export const transactionRekeyToLabel = 'Rekey To'
 
 export function TransactionInfo({ transaction }: Props) {
-  const subType = useAtomValue(transaction.subType)
+  const isInnerTransaction = 'innerId' in transaction
+
+  const parentTransactionLink = useMemo(() => {
+    if (!isInnerTransaction) {
+      return undefined
+    }
+
+    const segments = transaction.innerId.split('/')
+    if (segments.length === 1) {
+      return {
+        dt: parentTransactionIdLabel,
+        dd: <TransactionLink transactionId={transaction.networkTransactionId} />,
+      }
+    } else {
+      const parentInnerId = segments.slice(0, segments.length - 1).join('/')
+      return {
+        dt: parentTransactionIdLabel,
+        dd: (
+          <InnerTransactionLink
+            networkTransactionId={transaction.networkTransactionId}
+            innerTransactionId={parentInnerId}
+            showFullTransactionId={true}
+          />
+        ),
+      }
+    }
+  }, [transaction, isInnerTransaction])
+
   const transactionInfoItems = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} showCopyButton={true} />,
+        dd: !isInnerTransaction ? (
+          <TransactionLink transactionId={transaction.id} showCopyButton={true} />
+        ) : (
+          <InnerTransactionLink
+            networkTransactionId={transaction.networkTransactionId}
+            innerTransactionId={transaction.innerId}
+            showFullTransactionId={true}
+          />
+        ),
       },
+      parentTransactionLink,
       {
         dt: transactionTypeLabel,
-        dd: (
-          <div className="flex items-center gap-2">
-            <Badge variant={transaction.type}>{transaction.type}</Badge>
-            {subType && <Badge variant="outline">{subType}</Badge>}
-            {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
-            {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
-            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </div>
-        ),
+        dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
       },
       {
         dt: transactionTimestampLabel,
@@ -74,18 +104,8 @@ export function TransactionInfo({ transaction }: Props) {
           ]
         : []),
     ],
-    [
-      subType,
-      transaction.confirmedRound,
-      transaction.fee,
-      transaction.group,
-      transaction.id,
-      transaction.rekeyTo,
-      transaction.roundTime,
-      transaction.signature?.type,
-      transaction.type,
-    ]
-  )
+    [isInnerTransaction, parentTransactionLink, transaction]
+  ).filter(isDefined)
 
   return (
     <Card className={cn('p-4')}>

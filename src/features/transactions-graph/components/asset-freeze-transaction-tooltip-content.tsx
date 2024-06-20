@@ -1,4 +1,4 @@
-import { AssetFreezeTransaction, InnerAssetFreezeTransaction, TransactionType } from '@/features/transactions/models'
+import { AssetFreezeTransaction, InnerAssetFreezeTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -9,7 +9,7 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { assetFreezeAddressLabel, assetFreezeStatusLabel } from '@/features/transactions/components/asset-freeze-transaction-info'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { Badge } from '@/features/common/components/badge'
+import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 
 export function AssetFreezeTransactionTooltipContent({
   transaction,
@@ -24,12 +24,7 @@ export function AssetFreezeTransactionTooltipContent({
       },
       {
         dt: transactionTypeLabel,
-        dd: (
-          <div className="flex items-center gap-2">
-            <Badge variant={TransactionType.AssetFreeze}>{TransactionType.AssetFreeze}</Badge>
-            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </div>
-        ),
+        dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
       },
       {
         dt: transactionSenderLabel,
@@ -48,7 +43,7 @@ export function AssetFreezeTransactionTooltipContent({
         dd: transaction.freezeStatus,
       },
     ],
-    [transaction.address, transaction.assetId, transaction.freezeStatus, transaction.id, transaction.rekeyTo, transaction.sender]
+    [transaction]
   )
 
   return (

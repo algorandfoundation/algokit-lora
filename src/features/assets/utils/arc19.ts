@@ -2,7 +2,6 @@ import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
 import { sha256 } from 'multiformats/hashes/sha2'
 import algosdk from 'algosdk'
-import { replaceIpfsWithGatewayIfNeeded } from './replace-ipfs-with-gateway-if-needed'
 
 // If the URL starts with template-ipfs://, it also follows ARC-19
 export const isArc19Url = (assetUrl: string) => assetUrl.startsWith('template-ipfs://')
@@ -45,5 +44,5 @@ export function getArc19Url(templateUrl: string, reserveAddress: string | undefi
 
   const url = templateUrl.replace(match[0], `ipfs://${cid.toString()}`).replace(/#arc3$/, '')
 
-  return replaceIpfsWithGatewayIfNeeded(url)
+  return url
 }

@@ -45,7 +45,7 @@ const idColumn: ColumnDef<Transaction | InnerTransaction> = {
         }}
       >
         {'innerId' in transaction ? (
-          <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
+          <InnerTransactionLink networkTransactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
         ) : (
           <TransactionLink transactionId={transaction.id} short={true} />
         )}

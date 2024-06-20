@@ -1,4 +1,4 @@
-import { AssetTransferTransaction, InnerAssetTransferTransaction, TransactionType } from '@/features/transactions/models'
+import { AssetTransferTransaction, InnerAssetTransferTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -8,7 +8,7 @@ import { transactionAmountLabel } from '@/features/transactions/components/trans
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { Badge } from '@/features/common/components/badge'
+import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 
 export function AssetTransferTransactionTooltipContent({
   transaction,
@@ -23,12 +23,7 @@ export function AssetTransferTransactionTooltipContent({
       },
       {
         dt: transactionTypeLabel,
-        dd: (
-          <div className="flex items-center gap-2">
-            <Badge variant={TransactionType.AssetTransfer}>{TransactionType.AssetTransfer}</Badge>
-            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </div>
-        ),
+        dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
       },
       {
         dt: transactionSenderLabel,
@@ -43,7 +38,7 @@ export function AssetTransferTransactionTooltipContent({
         dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.asset, transaction.id, transaction.receiver, transaction.rekeyTo, transaction.sender]
+    [transaction]
   )
 
   return (

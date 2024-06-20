@@ -53,26 +53,26 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
 
     const url = isArc19Url(assetResult.params.url)
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
-      : replaceIpfsWithGatewayIfNeeded(assetResult.params.url)
+      : assetResult.params.url
 
     if (url) {
       return {
         type: metadataResult.metadata.mime_type?.startsWith('video/') ? AssetMediaType.Video : AssetMediaType.Image,
-        url,
+        url: replaceIpfsWithGatewayIfNeeded(url),
       }
     }
   } else if (metadataResult && metadataResult.standard === AssetMetadataStandard.ARC3) {
     const metadata = metadataResult.metadata
     // If the asset follows ARC-3 or ARC-19, but not ARC-69
     // we use the media from the metadata
-    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadataResult.metadata_url, metadata.image)
+    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadata.image, metadataResult.metadata_url)
     if (imageUrl) {
       return {
         url: imageUrl,
         type: AssetMediaType.Image,
       }
     }
-    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadataResult.metadata_url, metadata.animation_url)
+    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadata.animation_url, metadataResult.metadata_url)
     if (videoUrl) {
       return {
         url: videoUrl,
@@ -130,11 +130,11 @@ const asType = (assetResult: AssetResult): AssetType => {
   return AssetType.Fungible
 }
 
-const getArc3MediaUrl = (assetId: AssetId, assetMetadataUrl: string, mediaUrl: string) => {
+const getArc3MediaUrl = (assetId: AssetId, mediaUrl: string, assetMetadataUrl?: string) => {
   const isRelative = !mediaUrl.includes(':')
-  const absoluteMediaUrl = !isRelative ? mediaUrl : new URL(assetMetadataUrl, mediaUrl).toString()
+  const absoluteMediaUrl = !isRelative ? mediaUrl : assetMetadataUrl ? new URL(assetMetadataUrl, mediaUrl).toString() : ''
 
-  return getArc3Url(assetId, absoluteMediaUrl)
+  return replaceIpfsWithGatewayIfNeeded(getArc3Url(assetId, absoluteMediaUrl))
 }
 
 const normalizeObjectForDisplay = (object: Record<string, unknown>) => {

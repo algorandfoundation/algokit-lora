@@ -11,9 +11,9 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
   const { verticals, horizontals } = transactionsGraphData
   const transactionsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
-  const firstColumnWidth = graphConfig.colWidth + maxNestingLevel * graphConfig.indentationWidth
+  const horizontalTitleWidth = graphConfig.defaultHorizontalTitleWidth + maxNestingLevel * graphConfig.indentationWidth
   const verticalsCount = verticals.length
-  const gridTemplateColumns = `minmax(${firstColumnWidth}px, ${firstColumnWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
+  const gridTemplateColumns = `minmax(${horizontalTitleWidth}px, ${horizontalTitleWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
 
   return (
     <>
