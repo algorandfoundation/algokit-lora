@@ -6,7 +6,7 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { parseArc2 } from '../mappers/arc-2'
 import { parseJson } from '@/utils/parse-json'
 import { useResolvedTheme } from '@/features/settings/data'
-import { styleDark, styleLight } from '@/features/common/components/json-view-styles'
+import { JsonViewStylesDark, JsonViewStylesLight } from '@/features/common/components/json-view-styles'
 import { JsonView as ReactJsonView } from 'react-json-view-lite'
 import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
@@ -43,7 +43,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
   }, [note])
 
   const theme = useResolvedTheme()
-  const currentStyle = theme === 'dark' ? styleDark : styleLight
+  const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
   const [activeTabId, setActiveTabId] = useState<TabId>(defaultTabId)
 
   const copyToClipboard = useCallback(() => {

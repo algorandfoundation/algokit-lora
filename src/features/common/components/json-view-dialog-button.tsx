@@ -8,7 +8,7 @@ import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { useResolvedTheme } from '@/features/settings/data/theme'
-import { styleDark, styleLight } from './json-view-styles'
+import { JsonViewStylesDark, JsonViewStylesLight } from './json-view-styles'
 import { CopyButton } from './copy-button'
 
 type Props = {
@@ -24,7 +24,7 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
   }, [setDialogOpen])
 
   const theme = useResolvedTheme()
-  const currentStyle = theme === 'dark' ? styleDark : styleLight
+  const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
 
   const copyJsonToClipboard = useCallback(() => {
     const jsonString = asJson(json)

@@ -1,6 +1,6 @@
-import styles from './json-view-dialog.module.css'
+import styles from './json-view-styles.module.css'
 
-interface StyleProps {
+interface JsonViewStyles {
   container: string
   basicChildStyle: string
   label: string
@@ -17,7 +17,7 @@ interface StyleProps {
   collapsedContent: string
   noQuotesForStringValues: boolean
 }
-export const styleDark: StyleProps = {
+export const JsonViewStylesDark: JsonViewStyles = {
   container: styles['key-dark'],
   basicChildStyle: styles['basic-element-style'],
   collapseIcon: styles['collapse-icon'],
@@ -34,7 +34,7 @@ export const styleDark: StyleProps = {
   punctuation: styles['punctuation-dark'],
   noQuotesForStringValues: false,
 }
-export const styleLight: StyleProps = {
+export const JsonViewStylesLight: JsonViewStyles = {
   container: styles['key-light'],
   basicChildStyle: styles['basic-element-style'],
   collapseIcon: styles['collapse-icon'],
