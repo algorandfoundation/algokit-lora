@@ -1,6 +1,6 @@
 import styles from './json-view-dialog.module.css'
 
-export interface StyleProps {
+interface StyleProps {
   container: string
   basicChildStyle: string
   label: string
