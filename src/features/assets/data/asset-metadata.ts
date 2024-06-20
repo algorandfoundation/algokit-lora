@@ -9,6 +9,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { atomsInAtom } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
+import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -43,13 +44,40 @@ const createAssetMetadataResult = async (
       : getArc3Url(assetResult.index, assetResult.params.url)
 
     if (metadataUrl) {
-      const response = await fetch(metadataUrl)
-      const { localization: _localization, ...metadata } = await response.json()
-      return {
-        standard: AssetMetadataStandard.ARC3,
-        metadata_url: metadataUrl,
-        metadata,
-      } satisfies Arc3MetadataResult
+      const gatewayMetadataUrl = replaceIpfsWithGatewayIfNeeded(metadataUrl)
+      const response = await fetch(gatewayMetadataUrl)
+      try {
+        const { localization: _localization, ...metadata } = await response.json()
+        return {
+          standard: AssetMetadataStandard.ARC3,
+          metadata_url: gatewayMetadataUrl,
+          metadata,
+        } satisfies Arc3MetadataResult
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          const headResponse = await fetch(gatewayMetadataUrl, { method: 'HEAD' })
+          const contentType = headResponse.headers.get('Content-Type')
+          if (contentType && contentType.startsWith('image/')) {
+            return {
+              standard: AssetMetadataStandard.ARC3,
+              metadata: {
+                image: metadataUrl,
+              },
+            } satisfies Arc3MetadataResult
+          } else if (contentType && contentType.startsWith('video/')) {
+            return {
+              standard: AssetMetadataStandard.ARC3,
+              metadata: {
+                animation_url: metadataUrl,
+              },
+            } satisfies Arc3MetadataResult
+          }
+          // eslint-disable-next-line no-console
+          console.error('Failed to build asset metadata', error)
+        } else {
+          throw error
+        }
+      }
     }
   }
 
