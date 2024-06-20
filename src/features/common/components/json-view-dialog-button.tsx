@@ -1,6 +1,6 @@
 import { JsonView as ReactJsonView } from 'react-json-view-lite'
 import 'react-json-view-lite/dist/index.css'
-import styles from './json-view-dialog.module.css'
+
 import { cn } from '../utils'
 import { Button } from './button'
 import { useCallback, useState } from 'react'
@@ -8,6 +8,8 @@ import { asJson } from '@/utils/as-json'
 import { toast } from 'react-toastify'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { useResolvedTheme } from '@/features/settings/data/theme'
+import { JsonViewStylesDark, JsonViewStylesLight } from './json-view-styles'
+import { CopyButton } from './copy-button'
 
 type Props = {
   json: object
@@ -21,43 +23,8 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
     setDialogOpen(true)
   }, [setDialogOpen])
 
-  const styleDark: StyleProps = {
-    container: styles['key-dark'],
-    basicChildStyle: styles['basic-element-style'],
-    collapseIcon: styles['collapse-icon'],
-    expandIcon: styles['expand-icon'],
-    collapsedContent: styles['collapsed-content'],
-    label: styles['label'],
-    clickableLabel: styles['clickable-label'],
-    nullValue: '',
-    undefinedValue: '',
-    stringValue: styles['value-string-dark'],
-    booleanValue: styles['value-boolean-dark'],
-    numberValue: styles['value-number-dark'],
-    otherValue: '',
-    punctuation: styles['punctuation-dark'],
-    noQuotesForStringValues: false,
-  }
-  const styleLight: StyleProps = {
-    container: styles['key-light'],
-    basicChildStyle: styles['basic-element-style'],
-    collapseIcon: styles['collapse-icon'],
-    expandIcon: styles['expand-icon'],
-    collapsedContent: styles['collapsed-content'],
-    label: styles['label'],
-    clickableLabel: styles['clickable-label'],
-    nullValue: '',
-    undefinedValue: '',
-    stringValue: styles['value-string-light'],
-    booleanValue: styles['value-boolean-light'],
-    numberValue: styles['value-number-light'],
-    otherValue: '',
-    punctuation: styles['punctuation-light'],
-    noQuotesForStringValues: false,
-  }
-
   const theme = useResolvedTheme()
-  const currentStyle = theme === 'dark' ? styleDark : styleLight
+  const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
 
   const copyJsonToClipboard = useCallback(() => {
     const jsonString = asJson(json)
@@ -72,15 +39,15 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="bg-card">
-          <DialogHeader>
+        <DialogContent className="gap-0 bg-card">
+          <DialogHeader className="flex-row gap-1">
             <h2>JSON</h2>
+            <CopyButton className={cn('size-5')} onClick={copyJsonToClipboard} />
           </DialogHeader>
-          <div className={cn('border-solid border-2 border-border grid w-[900px] min-h-[200px] max-h-[500px] overflow-auto relative')}>
-            <Button variant="default" className={cn('absolute top-2 right-2')} onClick={copyJsonToClipboard}>
-              Copy
-            </Button>
-            <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
+          <div className={cn('border grid w-auto min-w-[450px] max-w-[700px] h-[450px] relative')}>
+            <div className="overflow-auto">
+              <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
+            </div>
           </div>
         </DialogContent>
       </Dialog>
@@ -90,22 +57,4 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
 // By default only render the top level because sometimes the object has too many children, which result in the UI thread being blocked on mount.
 const defaultExpandLevel = (level: number) => {
   return level < 1
-}
-
-export interface StyleProps {
-  container: string
-  basicChildStyle: string
-  label: string
-  clickableLabel: string
-  nullValue: string
-  undefinedValue: string
-  numberValue: string
-  stringValue: string
-  booleanValue: string
-  otherValue: string
-  punctuation: string
-  expandIcon: string
-  collapseIcon: string
-  collapsedContent: string
-  noQuotesForStringValues: boolean
 }
