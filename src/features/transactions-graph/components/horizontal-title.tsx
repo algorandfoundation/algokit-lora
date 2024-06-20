@@ -19,7 +19,7 @@ export function HorizontalTitle({ horizontal }: Props) {
 
   const component = useMemo(() => {
     if ('innerId' in transaction) {
-      return <InnerTransactionLink transactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
+      return <InnerTransactionLink networkTransactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
     }
     return <TransactionLink transactionId={transaction.id} short={true} />
   }, [transaction])

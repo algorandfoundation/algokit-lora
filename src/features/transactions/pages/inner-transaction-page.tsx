@@ -9,6 +9,7 @@ import { isTransactionId } from '@/utils/is-transaction-id'
 import { is404 } from '@/utils/error'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useSplatParam } from '@/features/common/hooks/use-splat-param'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -29,7 +30,7 @@ export function InnerTransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
   invariant(isTransactionId(transactionId), transactionInvalidIdMessage)
 
-  const { innerTransactionId } = useRequiredParam(UrlParams.InnerTransactionId)
+  const innerTransactionId = useSplatParam() ?? ''
   invariant(isValidInnerTransactionId(innerTransactionId), `Invalid inner transaction id: ${innerTransactionId}`)
 
   const loadableTransaction = useLoadableInnerTransactionAtom(transactionId, innerTransactionId)

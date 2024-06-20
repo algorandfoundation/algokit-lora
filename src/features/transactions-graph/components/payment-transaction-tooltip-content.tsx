@@ -1,4 +1,4 @@
-import { InnerPaymentTransaction, PaymentTransaction, TransactionType } from '@/features/transactions/models'
+import { InnerPaymentTransaction, PaymentTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -8,7 +8,7 @@ import { transactionAmountLabel } from '@/features/transactions/components/trans
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { Badge } from '@/features/common/components/badge'
+import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 
 export function PaymentTransactionTooltipContent({ transaction }: { transaction: PaymentTransaction | InnerPaymentTransaction }) {
   const items = useMemo(
@@ -19,12 +19,7 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
       },
       {
         dt: transactionTypeLabel,
-        dd: (
-          <div className="flex items-center gap-2">
-            <Badge variant={TransactionType.Payment}>{TransactionType.Payment}</Badge>
-            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </div>
-        ),
+        dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
       },
       {
         dt: transactionSenderLabel,
@@ -39,7 +34,7 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
     ],
-    [transaction.amount, transaction.id, transaction.receiver, transaction.rekeyTo, transaction.sender]
+    [transaction]
   )
 
   return (

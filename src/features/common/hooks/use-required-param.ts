@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { UrlParams } from '../../../routes/urls'
+import { UrlParams } from '@/routes/urls'
 
 type ExtractParameterName<T> = T extends `${infer ParameterName}:${string}` ? ParameterName : never
 

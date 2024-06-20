@@ -2,11 +2,11 @@ import { StateProofTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { Badge } from '@/features/common/components/badge'
 import { transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
+import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 
 export function StateProofTransactionTooltipContent({ transaction }: { transaction: StateProofTransaction }) {
   const items = useMemo(
@@ -17,19 +17,14 @@ export function StateProofTransactionTooltipContent({ transaction }: { transacti
       },
       {
         dt: transactionTypeLabel,
-        dd: (
-          <div className="flex items-center gap-2">
-            <Badge variant={transaction.type}>{transaction.type}</Badge>
-            {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
-          </div>
-        ),
+        dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
       },
       {
         dt: transactionSenderLabel,
         dd: <AccountLink address={transaction.sender} />,
       },
     ],
-    [transaction.id, transaction.rekeyTo, transaction.sender, transaction.type]
+    [transaction]
   )
 
   return (

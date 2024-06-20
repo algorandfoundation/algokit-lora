@@ -1,4 +1,4 @@
 export const isValidInnerTransactionId = (innerId: string) => {
-  const regex = /^\d+(-\d+)*$/
+  const regex = /^\d+(\/\d+)*$/
   return regex.test(innerId.toString())
 }
