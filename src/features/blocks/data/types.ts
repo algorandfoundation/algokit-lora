@@ -14,3 +14,8 @@ export type BlocksExtract = {
 }
 
 export type Round = number
+
+export enum SubscriberStatus {
+  Stopped = 'Stopped',
+  Started = 'Started',
+}
