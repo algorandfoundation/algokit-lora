@@ -3,6 +3,7 @@ import { AssetId } from '@/features/assets/data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { Atom } from 'jotai'
 
 export type CommonTransactionProperties = {
   type: TransactionType
@@ -57,7 +58,7 @@ export type PaymentTransaction = BasePaymentTransaction & {
 
 export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
-  subType: AssetTransferTransactionSubType | undefined
+  subType: Atom<AssetTransferTransactionSubType | undefined>
   receiver: Address
   amount: number | bigint
   closeRemainder?: CloseAssetRemainder

@@ -11,33 +11,37 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { atom } from 'jotai'
 import { unwrap } from 'jotai/utils'
-import { dataStore } from '@/features/common/data/data-store'
+
+const optInSubTypeAtom = atom(() => AssetTransferTransactionSubType.OptIn)
+const optOutSubTypeAtom = atom(() => AssetTransferTransactionSubType.OptOut)
 
 const mapSubType = (transactionResult: TransactionResult, assetAtom: AsyncMaybeAtom<AssetSummary>) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
   const assetTransfer = transactionResult['asset-transfer-transaction']
 
   if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
-    return AssetTransferTransactionSubType.OptIn
+    return optInSubTypeAtom
   }
 
   if (assetTransfer['close-to']) {
-    return AssetTransferTransactionSubType.OptOut
+    return optOutSubTypeAtom
   }
 
-  const asset = dataStore.get(unwrap(assetAtom))
-  console.log(asset)
-  if (
-    asset &&
-    transactionResult.sender === asset.clawback &&
-    assetTransfer.sender &&
-    assetTransfer.sender !== ZERO_ADDRESS &&
-    assetTransfer.receiver &&
-    assetTransfer.receiver !== ZERO_ADDRESS
-  ) {
-    return AssetTransferTransactionSubType.Clawback
-  }
+  return atom((get) => {
+    const asset = get(unwrap(assetAtom))
+    if (
+      asset &&
+      transactionResult.sender === asset.clawback &&
+      assetTransfer.sender &&
+      assetTransfer.sender !== ZERO_ADDRESS &&
+      assetTransfer.receiver &&
+      assetTransfer.receiver !== ZERO_ADDRESS
+    ) {
+      return AssetTransferTransactionSubType.Clawback
+    }
+  })
 }
 
 const mapCommonAssetTransferTransactionProperties = (
