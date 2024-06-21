@@ -28,6 +28,6 @@ function AtomSubTypeComponent<T extends string>({ subType: _subType }: { subType
   return subType ? <Badge variant="outline">{subType}</Badge> : null
 }
 
-function SubTypeComponent<T extends string>({ subType }: { subType: T | undefined }) {
+function SubTypeComponent({ subType }: { subType: string | undefined }) {
   return subType ? <Badge variant="outline">{subType}</Badge> : null
 }
