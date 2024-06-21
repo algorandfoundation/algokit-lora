@@ -34,6 +34,7 @@ import { ApplicationLiveTransactions } from './application-live-transactions'
 import { ApplicationTransactionHistory } from './application-transaction-history'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
+import { Badge } from '@/features/common/components/badge'
 
 type Props = {
   application: Application
@@ -47,7 +48,12 @@ export function ApplicationDetails({ application }: Props) {
     () => [
       {
         dt: applicationIdLabel,
-        dd: application.id,
+        dd: (
+          <>
+            {application.id}
+            {application.isDeleted && <Badge variant="outline">Deleted</Badge>}
+          </>
+        ),
       },
       application.name
         ? {
@@ -90,6 +96,7 @@ export function ApplicationDetails({ application }: Props) {
     ],
     [
       application.id,
+      application.isDeleted,
       application.name,
       application.creator,
       application.account,

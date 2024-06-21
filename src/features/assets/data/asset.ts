@@ -11,7 +11,7 @@ const createAssetAtoms = (assetId: AssetId) => {
   const isStaleAtom = atom(false)
   const detectIsStaleEffect = atomEffect((get, set) => {
     const assetResults = get(assetResultsAtom)
-    const isStale = assetResults.get(assetId) === undefined ? true : false
+    const isStale = assetResults.get(assetId) === undefined
     set(isStaleAtom, isStale)
   })
 

@@ -32,6 +32,7 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
     clearStateProgram: application.params['clear-state-program'],
     globalState: asGlobalStateValue(application.params['global-state']),
     json: application,
+    isDeleted: application.deleted ?? false,
   }
 }
 

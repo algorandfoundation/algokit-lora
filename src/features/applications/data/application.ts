@@ -11,7 +11,7 @@ const createApplicationAtoms = (applicationId: ApplicationId) => {
   const isStaleAtom = atom(false)
   const detectIsStaleEffect = atomEffect((get, set) => {
     const applicationResults = get(applicationResultsAtom)
-    const isStale = applicationResults.get(applicationId) === undefined ? true : false
+    const isStale = applicationResults.get(applicationId) === undefined
     set(isStaleAtom, isStale)
   })
 
