@@ -130,7 +130,7 @@ export enum AppCallTransactionSubType {
 
 export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.AppCall
-  subType: AppCallTransactionSubType | undefined
+  subType: undefined
   applicationId: number
   applicationArgs: string[]
   foreignApps: number[]
