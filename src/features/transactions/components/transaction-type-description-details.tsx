@@ -23,7 +23,7 @@ export function TransactionTypeDescriptionDetails({ transaction }: { transaction
   )
 }
 
-function AtomSubTypeComponent<T extends string>({ subType: _subType }: { subType: Atom<T | undefined> }) {
+function AtomSubTypeComponent({ subType: _subType }: { subType: Atom<string | undefined> }) {
   const subType = useAtomValue(_subType)
   return subType ? <Badge variant="outline">{subType}</Badge> : null
 }
