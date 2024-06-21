@@ -53,5 +53,3 @@ export const asInnerTransactionId = (networkTransactionId: string, index: string
     innerId: index,
   }
 }
-
-export class undefinedSubTypeAtom {}
