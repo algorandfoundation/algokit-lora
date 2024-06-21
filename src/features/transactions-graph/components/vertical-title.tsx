@@ -44,6 +44,7 @@ export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical
         </div>
       )}
       {vertical.type === 'Asset' && <AssetIdLink assetId={vertical.assetId} />}
+      {vertical.type === 'OpUp' && <label className={'text-primary'}>OpUp</label>}
     </span>
   )
 }

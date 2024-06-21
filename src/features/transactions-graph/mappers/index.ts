@@ -9,7 +9,13 @@ import {
   TransactionGraphVisualization,
   TransactionsGraphData,
 } from '@/features/transactions-graph'
-import { AppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import {
+  AppCallTransaction,
+  AppCallTransactionSubType,
+  InnerTransaction,
+  Transaction,
+  TransactionType,
+} from '@/features/transactions/models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
@@ -74,6 +80,8 @@ const indexTransactionsVerticals = (rawVerticals: TransactionGraphVertical[]): T
             accountNumber: uniqueAddresses.indexOf(account.accountAddress) + 1,
           })),
         }
+      case 'OpUp':
+        return { ...vertical, id: index }
       default:
         throw new Error(`Unknown vertical type "${vertical.type}"`)
     }
@@ -126,7 +134,14 @@ const mergeRawTransactionGraphVerticals = (verticals: TransactionGraphVertical[]
         return acc
       }
       return [...acc, current]
-    } else return acc
+    }
+    if (current.type === 'OpUp') {
+      if (acc.some((c) => c.type === 'OpUp')) {
+        return acc
+      }
+      return [...acc, current]
+    }
+    return acc
   }, [])
 }
 
@@ -148,23 +163,30 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
     })
   }
   if (transaction.type === TransactionType.AppCall) {
-    verticals.push({
-      id: -1,
-      type: 'Application',
-      applicationId: transaction.applicationId,
-      linkedAccount: {
-        accountNumber: -1,
-        accountAddress: getApplicationAddress(transaction.applicationId),
-      },
-      rekeyedAccounts: transaction.innerTransactions
-        .flatMap((innerTransaction) => innerTransaction.sender)
-        .filter((address) => address !== getApplicationAddress(transaction.applicationId))
-        .filter(distinct((x) => x))
-        .map((address) => ({
+    if (transaction.subType === AppCallTransactionSubType.OpUp) {
+      verticals.push({
+        id: -1,
+        type: 'OpUp',
+      })
+    } else {
+      verticals.push({
+        id: -1,
+        type: 'Application',
+        applicationId: transaction.applicationId,
+        linkedAccount: {
           accountNumber: -1,
-          accountAddress: address,
-        })),
-    })
+          accountAddress: getApplicationAddress(transaction.applicationId),
+        },
+        rekeyedAccounts: transaction.innerTransactions
+          .flatMap((innerTransaction) => innerTransaction.sender)
+          .filter((address) => address !== getApplicationAddress(transaction.applicationId))
+          .filter(distinct((x) => x))
+          .map((address) => ({
+            accountNumber: -1,
+            accountAddress: address,
+          })),
+      })
+    }
   }
   if (transaction.type === TransactionType.AssetConfig) {
     verticals.push({
@@ -257,6 +279,11 @@ const getTransactionVisualization = (
     }
 
     if (transaction.type === TransactionType.AppCall) {
+      if (transaction.subType === AppCallTransactionSubType.OpUp) {
+        return {
+          verticalId: verticals.find((c) => c.type === 'OpUp')?.id ?? -1,
+        }
+      }
       return {
         verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
       }

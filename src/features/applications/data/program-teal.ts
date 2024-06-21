@@ -8,6 +8,9 @@ export const useProgramTeal = (base64Program: string) => {
   const [tealAtom, getTealAtom] = useMemo(() => {
     const tealAtom = atom<Promise<string> | undefined>(undefined)
     const getTealAtom = atom(null, (get, set) => {
+      if (!base64Program) {
+        return
+      }
       if (get(tealAtom)) {
         return
       }

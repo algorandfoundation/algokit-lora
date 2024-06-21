@@ -15,6 +15,7 @@ export type Application = {
   clearStateProgram: string
   globalState?: Map<string, ApplicationGlobalStateValue>
   json: object
+  isDeleted: boolean
 }
 
 export type ApplicationStateSchema = {

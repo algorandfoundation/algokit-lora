@@ -63,8 +63,18 @@ export type TransactionGraphAssetVertical = {
   type: 'Asset'
   assetId: AssetId
 }
+export type TransactionGraphOpUpVertical = {
+  id: number
+  type: 'OpUp'
+}
+export type TransactionGraphPlaceholderVertical = {
+  id: number
+  type: 'Placeholder'
+}
+
 export type TransactionGraphVertical =
   | TransactionGraphAccountVertical
   | TransactionGraphApplicationVertical
   | TransactionGraphAssetVertical
-  | { id: -1; type: 'Placeholder' }
+  | TransactionGraphOpUpVertical
+  | TransactionGraphPlaceholderVertical
