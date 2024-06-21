@@ -7,7 +7,7 @@ import {
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
-import { asInnerTransactionId, mapCommonTransactionProperties, undefinedSubTypeAtom } from './transaction-common-properties-mappers'
+import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 
@@ -23,7 +23,7 @@ const mapCommonAssetFreezeTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetFreeze,
-    subType: undefinedSubTypeAtom,
+    subType: undefined,
     address: assetFreeze['address'],
     assetId,
     asset,

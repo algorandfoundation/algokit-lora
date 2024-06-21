@@ -3,7 +3,6 @@ import { AssetId } from '@/features/assets/data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { Atom } from 'jotai'
 
 export type CommonTransactionProperties = {
   type: TransactionType
@@ -46,7 +45,7 @@ export type CloseAssetRemainder = {
 
 export type BasePaymentTransaction = CommonTransactionProperties & {
   type: TransactionType.Payment
-  subType: Atom<undefined>
+  subType: undefined
   receiver: Address
   amount: AlgoAmount
   closeRemainder?: CloseAlgoRemainder
@@ -58,7 +57,7 @@ export type PaymentTransaction = BasePaymentTransaction & {
 
 export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
-  subType: Atom<AssetTransferTransactionSubType | undefined>
+  subType: AssetTransferTransactionSubType | undefined
   receiver: Address
   amount: number | bigint
   closeRemainder?: CloseAssetRemainder
@@ -126,7 +125,7 @@ export type LocalStateDelta = {
 
 export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.AppCall
-  subType: Atom<undefined>
+  subType: undefined
   applicationId: number
   applicationArgs: string[]
   foreignApps: number[]
@@ -173,7 +172,7 @@ export type InnerTransaction =
 
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
-  subType: Atom<AssetConfigTransactionSubType>
+  subType: AssetConfigTransactionSubType
   assetId: number
   url?: string
   name?: string
@@ -201,7 +200,7 @@ export enum AssetConfigTransactionSubType {
 
 export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetFreeze
-  subType: Atom<undefined>
+  subType: undefined
   address: Address
   assetId: number
   asset: AsyncMaybeAtom<AssetSummary>
@@ -221,7 +220,7 @@ export enum AssetFreezeStatus {
 
 export type StateProofTransaction = CommonTransactionProperties & {
   type: TransactionType.StateProof
-  subType: Atom<undefined>
+  subType: undefined
   id: string
 }
 
@@ -229,7 +228,7 @@ export type InnerStateProofTransaction = Omit<StateProofTransaction, 'id'> & Inn
 
 export type BaseKeyRegTransaction = CommonTransactionProperties & {
   type: TransactionType.KeyReg
-  subType: Atom<KeyRegTransactionSubType>
+  subType: KeyRegTransactionSubType
   nonParticipation?: boolean
   selectionParticipationKey?: string
   voteFirstValid?: number

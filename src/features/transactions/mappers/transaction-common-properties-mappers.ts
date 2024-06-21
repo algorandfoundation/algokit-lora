@@ -3,9 +3,6 @@ import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import * as algokit from '@algorandfoundation/algokit-utils'
-import { atom } from 'jotai'
-
-export const undefinedSubTypeAtom = atom(() => undefined)
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
   invariant(transactionResult['confirmed-round'], 'confirmed-round is not set')
@@ -56,3 +53,5 @@ export const asInnerTransactionId = (networkTransactionId: string, index: string
     innerId: index,
   }
 }
+
+export class undefinedSubTypeAtom {}

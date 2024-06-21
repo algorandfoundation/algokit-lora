@@ -6,7 +6,6 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
 import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
-import { useAtomValue } from 'jotai'
 import { transactionSenderLabel } from './labels'
 import { replaceIpfsWithGatewayIfNeeded } from '@/features/assets/utils/replace-ipfs-with-gateway-if-needed'
 
@@ -26,7 +25,7 @@ export const assetClawbackLabel = 'Clawback'
 export const assetDefaultFrozenLabel = 'Default Frozen'
 
 export function AssetConfigTransactionInfo({ transaction }: Props) {
-  const subType = useAtomValue(transaction.subType)
+  const subType = transaction.subType
   const items = useMemo(
     () =>
       [

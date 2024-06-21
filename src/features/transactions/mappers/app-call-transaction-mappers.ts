@@ -2,7 +2,7 @@ import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/al
 import { AppCallOnComplete, AppCallTransaction, BaseAppCallTransaction, InnerAppCallTransaction, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
-import { mapCommonTransactionProperties, asInnerTransactionId, undefinedSubTypeAtom } from './transaction-common-properties-mappers'
+import { mapCommonTransactionProperties, asInnerTransactionId } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
@@ -24,7 +24,7 @@ const mapCommonAppCallTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AppCall,
-    subType: undefinedSubTypeAtom,
+    subType: undefined,
     applicationId: transactionResult['application-transaction']['application-id']
       ? transactionResult['application-transaction']['application-id']
       : transactionResult['created-application-index']!,
