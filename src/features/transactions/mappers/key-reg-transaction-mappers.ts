@@ -2,15 +2,11 @@ import { KeyRegistrationTransactionResult, TransactionResult } from '@algorandfo
 import { KeyRegTransaction, BaseKeyRegTransaction, InnerKeyRegTransaction, TransactionType, KeyRegTransactionSubType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { atom } from 'jotai'
-
-const onlineSubTypeAtom = atom(() => KeyRegTransactionSubType.Online)
-const offlineSubTypeAtom = atom(() => KeyRegTransactionSubType.Offline)
 
 const mapSubType = (keyreg: KeyRegistrationTransactionResult) =>
   keyreg['vote-first-valid'] && keyreg['vote-last-valid'] && keyreg['vote-key-dilution'] && keyreg['vote-participation-key']
-    ? onlineSubTypeAtom
-    : offlineSubTypeAtom
+    ? KeyRegTransactionSubType.Online
+    : KeyRegTransactionSubType.Offline
 
 const mapCommonKeyRegTransactionProperties = (transactionResult: TransactionResult): BaseKeyRegTransaction => {
   invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')

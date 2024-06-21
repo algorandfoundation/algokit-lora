@@ -8,11 +8,6 @@ import {
 } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { atom } from 'jotai'
-
-const destroySubTypeAtom = atom(() => AssetConfigTransactionSubType.Destroy)
-const reconfigureSubTypeAtom = atom(() => AssetConfigTransactionSubType.Reconfigure)
-const createSubTypeAtom = atom(() => AssetConfigTransactionSubType.Create)
 
 const mapCommonAssetConfigTransactionProperties = (transactionResult: TransactionResult): BaseAssetConfigTransaction => {
   invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
@@ -22,7 +17,7 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
     return {
       ...mapCommonTransactionProperties(transactionResult),
       type: TransactionType.AssetConfig,
-      subType: destroySubTypeAtom,
+      subType: AssetConfigTransactionSubType.Destroy,
       assetId: assetConfig['asset-id'],
     }
   }
@@ -33,7 +28,7 @@ const mapCommonAssetConfigTransactionProperties = (transactionResult: Transactio
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetConfig,
-    subType: subType === AssetConfigTransactionSubType.Reconfigure ? reconfigureSubTypeAtom : createSubTypeAtom,
+    subType: subType,
     assetId: assetId!,
     name: assetConfig['params']['name'] ?? undefined,
     url: assetConfig['params']['url'] ?? undefined,

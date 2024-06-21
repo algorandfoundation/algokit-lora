@@ -5,9 +5,9 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { DisplayAssetAmount } from '@/features/common/components/display-asset-amount'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetLink } from '@/features/assets/components/asset-link'
-import { useAtomValue } from 'jotai'
 import { transactionAmountLabel } from './transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from './labels'
+import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
