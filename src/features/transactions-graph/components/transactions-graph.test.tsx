@@ -96,6 +96,10 @@ describe('application-call-graph', () => {
         assetResultMother['mainnet-408898501']().build(),
       ],
     },
+    {
+      transactionResult: transactionResultMother['mainnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']().build(),
+      assetResults: [],
+    },
   ])(
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResults }: { transactionResult: TransactionResult; assetResults: AssetResult[] }) => {
