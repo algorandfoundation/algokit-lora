@@ -13,7 +13,7 @@ type Props = {
 const graphTabId = 'graph'
 const tableTabId = 'table'
 export const groupVisual = 'View Group'
-export const groupVisualGraphLabel = 'Graph'
+export const groupVisualGraphLabel = 'Visual'
 export const groupVisualTableLabel = 'Table'
 
 export function GroupTransactionsViewTabs({ group }: Props) {
