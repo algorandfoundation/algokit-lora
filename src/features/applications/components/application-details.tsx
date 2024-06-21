@@ -49,8 +49,8 @@ export function ApplicationDetails({ application }: Props) {
       {
         dt: applicationIdLabel,
         dd: (
-          <div className={'flex gap-1'}>
-            {application.id}
+          <div className={'flex items-center gap-2'}>
+            <span>{application.id}</span>
             {application.isDeleted && <Badge variant="outline">Deleted</Badge>}
           </div>
         ),
