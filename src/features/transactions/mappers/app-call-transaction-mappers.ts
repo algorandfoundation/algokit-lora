@@ -1,8 +1,15 @@
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { AppCallOnComplete, AppCallTransaction, BaseAppCallTransaction, InnerAppCallTransaction, TransactionType } from '../models'
+import {
+  AppCallOnComplete,
+  AppCallTransaction,
+  AppCallTransactionSubType,
+  BaseAppCallTransaction,
+  InnerAppCallTransaction,
+  TransactionType,
+} from '../models'
 import { invariant } from '@/utils/invariant'
-import { IndexerGlobalStateDelta, IndexerLocalStateDelta, asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
-import { mapCommonTransactionProperties, asInnerTransactionId } from './transaction-common-properties-mappers'
+import { asGlobalStateDelta, asLocalStateDelta, IndexerGlobalStateDelta, IndexerLocalStateDelta } from './state-delta-mappers'
+import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
@@ -20,11 +27,14 @@ const mapCommonAppCallTransactionProperties = (
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
+  const action = transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create'
+  const onCompletion = asAppCallOnComplete(transactionResult['application-transaction']['on-completion'])
+  const isOpUp = action === 'Create' && onCompletion === AppCallOnComplete.Delete
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AppCall,
-    subType: undefined,
+    subType: isOpUp ? AppCallTransactionSubType.OpUp : undefined,
     applicationId: transactionResult['application-transaction']['application-id']
       ? transactionResult['application-transaction']['application-id']
       : transactionResult['created-application-index']!,
@@ -40,8 +50,8 @@ const mapCommonAppCallTransactionProperties = (
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
         return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver)
       }) ?? [],
-    onCompletion: asAppCallOnComplete(transactionResult['application-transaction']['on-completion']),
-    action: transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create',
+    onCompletion: onCompletion,
+    action: action,
     logs: transactionResult['logs'] ?? [],
   } satisfies BaseAppCallTransaction
 }
