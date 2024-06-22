@@ -10,7 +10,7 @@ type Props = {
   group: Group
 }
 
-const graphTabId = 'graph'
+const graphTabId = 'visual'
 const tableTabId = 'table'
 export const groupVisual = 'View Group'
 export const groupVisualGraphLabel = 'Visual'
