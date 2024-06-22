@@ -3,7 +3,7 @@ import { UrlParams } from '@/routes/urls'
 import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
-import { AlertOnNetworkDisconnect } from '../components/alert-on-network-disconnect'
+import { AlertOnSubscriberFailure } from '../components/alert-on-subscriber-failure'
 
 type Props = {
   children: React.ReactNode
@@ -29,7 +29,7 @@ export function NetworkPage({ children }: Props) {
 
   return (
     <>
-      <AlertOnNetworkDisconnect networkName={networkConfig?.name} />
+      <AlertOnSubscriberFailure networkName={networkConfig?.name} />
       {children}
     </>
   )

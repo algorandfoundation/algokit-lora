@@ -15,7 +15,16 @@ export type BlocksExtract = {
 
 export type Round = number
 
-export enum SubscriberStatus {
-  Stopped = 'Stopped',
-  Started = 'Started',
+export enum SubscriberState {
+  Failed = 'Failed',
+  Running = 'Running',
 }
+
+export type SubscriberStatus =
+  | {
+      state: SubscriberState.Running
+    }
+  | {
+      state: SubscriberState.Failed
+      error: Error
+    }

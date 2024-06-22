@@ -6,7 +6,7 @@ import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { BlockResult, Round, SubscriberStatus } from './types'
+import { BlockResult, Round, SubscriberState, SubscriberStatus } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
@@ -24,6 +24,8 @@ import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
 import { algod } from '@/features/common/data/algo-client'
 import { createTimestamp } from '@/features/common/data'
+import { genesisHashAtom } from './genesis-hash'
+import { asError } from '@/utils/error'
 
 const maxBlocksToDisplay = 10
 
@@ -66,9 +68,10 @@ export const useLatestBlockSummaries = () => {
   return useAtomValue(latestBlockSummariesAtom)
 }
 
-const subscriberStatusAtom = atom<SubscriberStatus>(SubscriberStatus.Started)
+const runningSubscriberStatus = { state: SubscriberState.Running } satisfies SubscriberStatus
+const subscriberStatusAtom = atom<SubscriberStatus>(runningSubscriberStatus)
 const restartSubscriberAtom = atom(null, (_get, set) => {
-  set(subscriberStatusAtom, SubscriberStatus.Started)
+  set(subscriberStatusAtom, runningSubscriberStatus)
   const subscriber = set(subscriberAtom)
   subscriber.start()
 })
@@ -110,6 +113,14 @@ const subscriberAtom = atom(null, (get, set) => {
   subscriber.onPoll(async (result) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
       return
+    }
+
+    const genesisHash = get(genesisHashAtom)
+    const resultGenesisHash = result.blockMetadata[0].genesisHash
+    if (!genesisHash) {
+      set(genesisHashAtom, resultGenesisHash)
+    } else if (genesisHash !== resultGenesisHash) {
+      throw new Error('Genesis hash mismatch.')
     }
 
     const timestamp = createTimestamp()
@@ -262,7 +273,7 @@ const subscriberAtom = atom(null, (get, set) => {
   })
 
   subscriber.onError((e) => {
-    set(subscriberStatusAtom, SubscriberStatus.Stopped)
+    set(subscriberStatusAtom, { state: SubscriberState.Failed, error: asError(e) } satisfies SubscriberStatus)
     // eslint-disable-next-line no-console
     console.error(e)
   })

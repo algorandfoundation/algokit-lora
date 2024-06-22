@@ -21,9 +21,12 @@ export function LatestTransactions() {
           <ul>
             {latestTransactions.map((transaction) => (
               <li key={transaction.id} className="border-b last:border-0">
-                <TransactionLink transactionId={transaction.id} className="flex p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent">
+                <TransactionLink
+                  transactionId={transaction.id}
+                  className="flex gap-2 p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent"
+                >
                   <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
-                  <div className={cn('mx-2')}>
+                  <div>
                     <h3 className={cn('leading-none mb-2')}>{ellipseId(transaction.id)}</h3>
                     <DescriptionList
                       items={[
@@ -46,7 +49,7 @@ export function LatestTransactions() {
         {latestTransactions.length === 0 && (
           <div className="mx-2 flex items-center gap-2 py-3 align-middle">
             <Info />
-            <span>No transactions available.</span>
+            <span>No recent data available.</span>
           </div>
         )}
       </CardContent>
