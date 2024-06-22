@@ -174,7 +174,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
             right: `25%`,
           }}
         ></div>
-        <div className={cn('absolute right-1/4 w-[40%] flex justify-center', colorClass.text)}>
+        <div className={cn('absolute flex w-1/2 justify-center text-xs', colorClass.text)}>
           {transaction.type === TransactionType.Payment && (
             <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
           )}
