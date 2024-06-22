@@ -5,7 +5,6 @@ import { cn } from '../utils'
 import { Button } from './button'
 import { useCallback, useState } from 'react'
 import { asJson } from '@/utils/as-json'
-import { toast } from 'react-toastify'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { useResolvedTheme } from '@/features/settings/data/theme'
 import { JsonViewStylesDark, JsonViewStylesLight } from './json-view-styles'
@@ -26,26 +25,19 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
   const theme = useResolvedTheme()
   const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
 
-  const copyJsonToClipboard = useCallback(() => {
-    const jsonString = asJson(json)
-    navigator.clipboard.writeText(jsonString)
-
-    toast.success('JSON copied to clipboard')
-  }, [json])
-
   return (
     <>
       <Button variant="outline" onClick={openJsonViewDialog}>
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="gap-0 bg-card">
-          <DialogHeader className="flex-row gap-1">
+        <DialogContent className="bg-card">
+          <DialogHeader className="flex-row items-center">
             <h2>JSON</h2>
-            <CopyButton className={cn('size-5')} onClick={copyJsonToClipboard} />
+            <CopyButton value={asJson(json)} className="pb-3" />
           </DialogHeader>
-          <div className={cn('border grid w-auto min-w-[450px] max-w-[700px] h-[450px] relative')}>
-            <div className="overflow-auto">
+          <div className={cn('border grid w-auto min-w-[300px] h-[450px]')}>
+            <div className="overflow-auto px-1 py-3">
               <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
             </div>
           </div>

@@ -4,8 +4,7 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
-import { PropsWithChildren, useCallback } from 'react'
-import { toast } from 'react-toastify'
+import { PropsWithChildren } from 'react'
 import { useSelectedNetwork } from '@/features/settings/data'
 
 type Props = PropsWithChildren<{
@@ -18,10 +17,7 @@ type Props = PropsWithChildren<{
 export const AccountLink = fixedForwardRef(
   ({ address, short, className, children, showCopyButton, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
     const [selectedNetwork] = useSelectedNetwork()
-    const copyClipboard = useCallback(async () => {
-      await navigator.clipboard.writeText(address)
-      toast.success('Address copied to clipboard')
-    }, [address])
+
     return (
       <>
         <TemplatedNavLink
@@ -33,7 +29,7 @@ export const AccountLink = fixedForwardRef(
         >
           {children ? children : short ? <abbr title={address}>{ellipseAddress(address)}</abbr> : address}
         </TemplatedNavLink>
-        {showCopyButton && <CopyButton onClick={copyClipboard} className={cn('align-middle ml-2')} />}
+        {showCopyButton && <CopyButton value={address} />}
       </>
     )
   }

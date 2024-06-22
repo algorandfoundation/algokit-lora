@@ -9,7 +9,6 @@ import { useResolvedTheme } from '@/features/settings/data'
 import { JsonViewStylesDark, JsonViewStylesLight } from '@/features/common/components/json-view-styles'
 import { JsonView as ReactJsonView } from 'react-json-view-lite'
 import { asJson } from '@/utils/as-json'
-import { toast } from 'react-toastify'
 import { CopyButton } from '@/features/common/components/copy-button'
 
 type TransactionNoteProps = {
@@ -46,27 +45,22 @@ export function TransactionNote({ note }: TransactionNoteProps) {
   const currentStyle = theme === 'dark' ? JsonViewStylesDark : JsonViewStylesLight
   const [activeTabId, setActiveTabId] = useState<TabId>(defaultTabId)
 
-  const copyToClipboard = useCallback(() => {
-    let contentToCopy = ''
-
-    if (activeTabId === base64NoteTabId) {
-      contentToCopy = note
-    } else if (activeTabId === textNoteTabId) {
-      contentToCopy = text
+  const valueToCopy = useCallback(() => {
+    if (activeTabId === textNoteTabId) {
+      return text
     } else if (activeTabId === jsonNoteTabId && json) {
-      contentToCopy = asJson(json)
+      return asJson(json)
     } else if (activeTabId === arc2NoteTabId && arc2) {
-      contentToCopy = arc2.format === 'j' && parseJson(arc2.data) ? JSON.stringify(parseJson(arc2.data), null, 4) : arc2.data
+      return text
     }
-
-    navigator.clipboard.writeText(contentToCopy)
-    toast.success('Content copied to clipboard')
+    return note
   }, [activeTabId, note, text, json, arc2])
+
   return (
     <div className={cn('space-y-2')}>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center">
         <h3>Note</h3>
-        <CopyButton className={cn('size-5')} onClick={copyToClipboard} />
+        <CopyButton value={valueToCopy} />
       </div>
 
       <Tabs defaultValue={defaultTabId} onValueChange={(value) => setActiveTabId(value as TabId)}>
@@ -93,7 +87,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
         <OverflowAutoTabsContent value={textNoteTabId}>{text}</OverflowAutoTabsContent>
         {json && (
           <OverflowAutoTabsContent value={jsonNoteTabId}>
-            <div className="mx-[-10px]">
+            <div className="ml-[-10px]">
               <ReactJsonView data={json} style={currentStyle} />
             </div>
           </OverflowAutoTabsContent>
@@ -108,7 +102,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
                 ]}
               />
               {arc2.format === 'j' && parseJson(arc2.data) ? (
-                <div className="mx-[-10px]">
+                <div className="ml-[-10px]">
                   <ReactJsonView data={parseJson(arc2.data)} style={currentStyle} />
                 </div>
               ) : (

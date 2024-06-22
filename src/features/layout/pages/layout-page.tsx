@@ -5,6 +5,7 @@ import { cn } from '@/features/common/utils'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
+import { useResolvedTheme } from '@/features/settings/data'
 
 export interface LayoutPageProps {
   children?: ReactNode
@@ -12,6 +13,7 @@ export interface LayoutPageProps {
 
 export function LayoutPage({ children }: LayoutPageProps) {
   useDeepLink()
+  const theme = useResolvedTheme()
 
   return (
     <div className="flex h-screen flex-col">
@@ -22,7 +24,7 @@ export function LayoutPage({ children }: LayoutPageProps) {
           <div className={cn('grid w-full mb-4')}>{children}</div>
         </main>
       </div>
-      <ToastContainer />
+      <ToastContainer theme={theme} toastClassName="border" />
     </div>
   )
 }

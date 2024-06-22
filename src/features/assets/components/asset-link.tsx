@@ -1,12 +1,11 @@
 import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
-import { PropsWithChildren, useCallback } from 'react'
+import { PropsWithChildren } from 'react'
 import { AssetSummary } from '../models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { toast } from 'react-toastify'
 import { useSelectedNetwork } from '@/features/settings/data'
 
 type CommonProps = {
@@ -35,10 +34,6 @@ type AssetLinkProps = PropsWithChildren<
 
 function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   const [selectedNetwork] = useSelectedNetwork()
-  const copyClipboard = useCallback(async () => {
-    await navigator.clipboard.writeText(props.assetId.toString())
-    toast.success('Asset ID copied to clipboard')
-  }, [props.assetId])
 
   return (
     <>
@@ -50,7 +45,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
         {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
       {'assetName' in props && props.assetName && ` (${props.assetName})`}
-      {props.showCopyButton && <CopyButton onClick={copyClipboard} className={cn('align-middle ml-2')} />}
+      {props.showCopyButton && <CopyButton value={props.assetId.toString()} />}
     </>
   )
 }

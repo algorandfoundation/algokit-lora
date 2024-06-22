@@ -37,11 +37,11 @@ export function AppCallTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender}></AccountLink>,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
       },
       {
         dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId}></ApplicationLink>,
+        dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
       },
       {
         dt: actionLabel,
