@@ -1,4 +1,3 @@
-import './App.css'
 import { routes } from './App.routes'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import { TooltipProvider } from './features/common/components/tooltip'

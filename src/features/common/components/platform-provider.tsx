@@ -4,7 +4,7 @@ import { WalletProvider } from './wallet-provider'
 import { DataProvider } from './data-provider'
 import { useTheme } from '../hooks/use-theme'
 import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
-import { useStateCleanupEffect } from '../data'
+import { useDataProviderToken, useStateCleanupEffect } from '../data'
 
 function RegisterGlobalEffects() {
   useSubscribeToBlocksEffect()
@@ -14,11 +14,14 @@ function RegisterGlobalEffects() {
 
 export function PlatformProvider({ children }: PropsWithChildren) {
   const networkConfig = useNetworkConfig()
+  const dataProviderToken = useDataProviderToken()
   useTheme()
+
+  const key = `${networkConfig.id}-${dataProviderToken}`
 
   return (
     // The key prop is super important it governs if the provider is reinitialized
-    <DataProvider key={networkConfig.id} networkConfig={networkConfig}>
+    <DataProvider key={key} networkConfig={networkConfig}>
       <RegisterGlobalEffects />
       <WalletProvider networkConfig={networkConfig}>{children}</WalletProvider>
     </DataProvider>

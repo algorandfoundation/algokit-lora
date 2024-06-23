@@ -1,4 +1,4 @@
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { asBlockSummary } from '../mappers'
 import { latestTransactionIdsAtom, getTransactionResultAtom } from '@/features/transactions/data'
@@ -6,7 +6,7 @@ import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { BlockResult, Round } from './types'
+import { BlockResult, Round, SubscriberState, SubscriberStatus } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
@@ -24,6 +24,8 @@ import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
 import { algod } from '@/features/common/data/algo-client'
 import { createTimestamp } from '@/features/common/data'
+import { genesisHashAtom } from './genesis-hash'
+import { asError } from '@/utils/error'
 
 const maxBlocksToDisplay = 10
 
@@ -66,7 +68,25 @@ export const useLatestBlockSummaries = () => {
   return useAtomValue(latestBlockSummariesAtom)
 }
 
-const subscribeToBlocksEffect = atomEffect((get, set) => {
+const runningSubscriberStatus = { state: SubscriberState.Running } satisfies SubscriberStatus
+const subscriberStatusAtom = atom<SubscriberStatus>(runningSubscriberStatus)
+const restartSubscriberAtom = atom(null, (_get, set) => {
+  set(subscriberStatusAtom, runningSubscriberStatus)
+  const subscriber = set(subscriberAtom)
+  subscriber.start()
+})
+
+export const useSubscriberStatus = () => {
+  return [useAtomValue(subscriberStatusAtom), useSetAtom(restartSubscriberAtom)] as const
+}
+
+const _subscriberAtom = atom<AlgorandSubscriber | null>(null)
+const subscriberAtom = atom(null, (get, set) => {
+  const initialisedSubscriber = get(_subscriberAtom)
+  if (initialisedSubscriber) {
+    return initialisedSubscriber
+  }
+
   const subscriber = new AlgorandSubscriber(
     {
       filters: [
@@ -93,6 +113,14 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
   subscriber.onPoll(async (result) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
       return
+    }
+
+    const genesisHash = get(genesisHashAtom)
+    const resultGenesisHash = result.blockMetadata[0].genesisHash
+    if (!genesisHash) {
+      set(genesisHashAtom, resultGenesisHash)
+    } else if (genesisHash !== resultGenesisHash) {
+      throw new Error('Genesis hash mismatch.')
     }
 
     const timestamp = createTimestamp()
@@ -181,7 +209,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     })
 
     if (staleAssetIds.length > 0) {
-      const currentAssetResults = get.peek(assetResultsAtom)
+      const currentAssetResults = get(assetResultsAtom)
       const assetIdsToRemove = staleAssetIds.filter((staleAssetId) => currentAssetResults.has(staleAssetId))
 
       if (assetIdsToRemove.length > 0) {
@@ -204,7 +232,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     }
 
     if (staleAddresses.length > 0) {
-      const currentAccountResults = get.peek(accountResultsAtom)
+      const currentAccountResults = get(accountResultsAtom)
       const addressesToRemove = staleAddresses.filter((staleAddress) => currentAccountResults.has(staleAddress))
 
       if (addressesToRemove.length > 0) {
@@ -219,7 +247,7 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
     }
 
     if (staleApplicationIds.length > 0) {
-      const currentApplicationResults = get.peek(applicationResultsAtom)
+      const currentApplicationResults = get(applicationResultsAtom)
       const applicationIdsToRemove = staleApplicationIds.filter((staleApplicationId) => currentApplicationResults.has(staleApplicationId))
 
       if (applicationIdsToRemove.length > 0) {
@@ -243,6 +271,19 @@ const subscribeToBlocksEffect = atomEffect((get, set) => {
         .slice(0, 50_000)
     })
   })
+
+  subscriber.onError((e) => {
+    set(subscriberStatusAtom, { state: SubscriberState.Failed, error: asError(e) } satisfies SubscriberStatus)
+    // eslint-disable-next-line no-console
+    console.error(e)
+  })
+
+  set(_subscriberAtom, subscriber)
+  return subscriber
+})
+
+const subscribeToBlocksEffect = atomEffect((_get, set) => {
+  const subscriber = set(subscriberAtom)
 
   subscriber.start()
 
