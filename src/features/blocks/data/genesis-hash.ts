@@ -15,11 +15,7 @@ const networkMatchesCachedDataAtom = atom(null, async (get) => {
   const nextGenesisHash = await getGenesisHash()
   const genesisHash = get(genesisHashAtom)
 
-  if (!genesisHash || genesisHash === nextGenesisHash) {
-    return true
-  }
-
-  return false
+  return !genesisHash || genesisHash === nextGenesisHash
 })
 
 export const useNetworkMatchesCachedData = () => {
