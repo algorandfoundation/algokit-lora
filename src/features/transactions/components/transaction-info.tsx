@@ -62,10 +62,10 @@ export function TransactionInfo({ transaction }: Props) {
       {
         dt: transactionIdLabel,
         dd: !isInnerTransaction ? (
-          <>
-            {transaction.id}
+          <div className="flex items-center">
+            <span>{transaction.id}</span>
             <CopyButton value={transaction.id} />
-          </>
+          </div>
         ) : (
           asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId, true)
         ),
@@ -99,7 +99,7 @@ export function TransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionRekeyToLabel,
-              dd: <AccountLink address={transaction.rekeyTo} />,
+              dd: <AccountLink address={transaction.rekeyTo} showCopyButton={true} />,
             },
           ]
         : []),

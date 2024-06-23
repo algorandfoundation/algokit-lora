@@ -23,7 +23,7 @@ export function LatestTransactions() {
               <li key={transaction.id} className="border-b last:border-0">
                 <TransactionLink
                   transactionId={transaction.id}
-                  className="flex gap-2 p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent"
+                  className="flex w-full gap-2 p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent"
                 >
                   <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
                   <div>

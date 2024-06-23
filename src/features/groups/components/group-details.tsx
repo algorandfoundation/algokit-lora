@@ -7,6 +7,7 @@ import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupTransactionsViewTabs } from './group-transactions-view-tabs'
 import { DateFormatted } from '@/features/common/components/date-formatted'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   group: Group
@@ -22,7 +23,12 @@ export function GroupDetails({ group }: Props) {
     () => [
       {
         dt: groupIdLabel,
-        dd: group.id,
+        dd: (
+          <div className="flex items-center">
+            <span>{group.id}</span>
+            <CopyButton value={group.id} />
+          </div>
+        ),
       },
       {
         dt: blockLabel,

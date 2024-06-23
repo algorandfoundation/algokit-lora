@@ -22,7 +22,7 @@ export function KeyRegTransactionInfo({ transaction }: Props) {
       [
         {
           dt: transactionSenderLabel,
-          dd: <AccountLink address={transaction.sender}></AccountLink>,
+          dd: <AccountLink address={transaction.sender} showCopyButton={true}></AccountLink>,
         },
         transaction.voteParticipationKey
           ? {

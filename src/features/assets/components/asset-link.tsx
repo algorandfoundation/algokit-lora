@@ -36,7 +36,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   const [selectedNetwork] = useSelectedNetwork()
 
   return (
-    <>
+    <div className="flex items-center">
       <TemplatedNavLink
         className={cn(!props.children && 'text-primary underline', props.className)}
         urlTemplate={Urls.Explore.Asset.ById}
@@ -44,9 +44,9 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
       >
         {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
-      {'assetName' in props && props.assetName && ` (${props.assetName})`}
+      {'assetName' in props && props.assetName && <span className="ml-1">({props.assetName})</span>}
       {props.showCopyButton && <CopyButton value={props.assetId.toString()} />}
-    </>
+    </div>
   )
 }
 

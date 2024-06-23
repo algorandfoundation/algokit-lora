@@ -17,7 +17,7 @@ export function TransactionLink({ transactionId, short = false, className, child
   const [selectedNetwork] = useSelectedNetwork()
 
   return (
-    <>
+    <div className="flex items-center">
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline inline', className)}
         urlTemplate={Urls.Explore.Transaction.ById}
@@ -26,6 +26,6 @@ export function TransactionLink({ transactionId, short = false, className, child
         {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
       </TemplatedNavLink>
       {showCopyButton && <CopyButton value={transactionId} />}
-    </>
+    </div>
   )
 }

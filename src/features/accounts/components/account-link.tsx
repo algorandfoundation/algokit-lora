@@ -19,7 +19,7 @@ export const AccountLink = fixedForwardRef(
     const [selectedNetwork] = useSelectedNetwork()
 
     return (
-      <>
+      <div className="flex items-center">
         <TemplatedNavLink
           className={cn(!children && 'text-primary underline', className)}
           urlTemplate={Urls.Explore.Account.ByAddress}
@@ -30,7 +30,7 @@ export const AccountLink = fixedForwardRef(
           {children ? children : short ? <abbr title={address}>{ellipseAddress(address)}</abbr> : address}
         </TemplatedNavLink>
         {showCopyButton && <CopyButton value={address} />}
-      </>
+      </div>
     )
   }
 )
