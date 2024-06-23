@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useLiveTransactions } from '../data/live-transaction'
+import { cn } from '@/features/common/utils'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
@@ -28,6 +29,7 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
       expanded: expanded,
     },
     onExpandedChange: setExpanded,
+    getRowId: (transaction) => transaction.id,
   })
 
   useEffect(() => {
@@ -57,7 +59,8 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
+                  className={cn('animate-in fade-in-20', row.getCanExpand() && 'cursor-pointer')}
+                  {...(row.getCanExpand() ? { onClick: row.getToggleExpandedHandler() } : {})}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
