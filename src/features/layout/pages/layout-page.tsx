@@ -20,8 +20,8 @@ export function LayoutPage({ children }: LayoutPageProps) {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <LeftSideBarMenu />
-        <main className="flex flex-1 items-start overflow-y-auto px-4">
-          <div className={cn('grid w-full mb-4')}>{children}</div>
+        <main className="flex flex-1 items-start overflow-y-auto">
+          <div className={cn('grid w-full mb-4 mx-4')}>{children}</div>
         </main>
       </div>
       <ToastContainer theme={theme} toastClassName="border" />
