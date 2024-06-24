@@ -9,7 +9,7 @@ type Props = {
 }
 export function TransactionsGraph({ transactionsGraphData }: Props) {
   const { verticals, horizontals } = transactionsGraphData
-  const horizontalsCount = horizontals.reduce((acc, current) => acc + current.visualizations.length, 0)
+  const horizontalsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
   const horizontalTitleWidth = graphConfig.defaultHorizontalTitleWidth + maxNestingLevel * graphConfig.indentationWidth
   const verticalsCount = verticals.length

@@ -5,7 +5,7 @@ import {
   TransactionGraphHorizontal,
   TransactionGraphVertical,
   TransactionGraphVisualization,
-  TransactionGraphVisualizationType,
+  TransactionGraphVisualizationDescriptionType,
 } from '@/features/transactions-graph'
 import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 
@@ -26,5 +26,5 @@ export const getAppCallTransactionVisualizations = (
           verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
         }
 
-  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationType.ApplicationCall })]
+  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationDescriptionType.ApplicationCall })]
 }

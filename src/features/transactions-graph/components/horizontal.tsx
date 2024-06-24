@@ -2,12 +2,12 @@ import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import {
   TransactionGraphHorizontal,
-  TransactionGraphPointVisualization,
-  TransactionGraphSelfLoopVisualization,
-  TransactionGraphVectorVisualization,
+  TransactionGraphPoint,
+  TransactionGraphSelfLoop,
+  TransactionGraphVector,
   TransactionGraphVertical,
-  TransactionGraphVisualizationShape,
   TransactionGraphVisualizationType,
+  TransactionGraphVisualizationDescriptionType,
 } from '@/features/transactions-graph'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
@@ -25,7 +25,7 @@ import { AssetFreezeTransactionTooltipContent } from '@/features/transactions-gr
 import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/components/key-reg-transaction-tooltip-content'
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 import PointerRight from '@/features/common/components/svg/pointer-right'
-import { Fragment } from 'react'
+import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
   return ancestors
@@ -66,10 +66,10 @@ function VectorVisualizationDescription({
   vector,
 }: {
   transaction: Transaction | InnerTransaction
-  vector: TransactionGraphVectorVisualization
+  vector: TransactionGraphVector
 }) {
   const colorClass = colorClassMap[transaction.type]
-  if (vector.description.type === TransactionGraphVisualizationType.Payment) {
+  if (vector.description.type === TransactionGraphVisualizationDescriptionType.Payment) {
     return (
       <>
         <span>Payment</span>
@@ -77,7 +77,7 @@ function VectorVisualizationDescription({
       </>
     )
   }
-  if (vector.description.type === TransactionGraphVisualizationType.PaymentCloseOut) {
+  if (vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut) {
     return (
       <>
         <span>Close Out</span>
@@ -85,7 +85,7 @@ function VectorVisualizationDescription({
       </>
     )
   }
-  if (vector.description.type === TransactionGraphVisualizationType.AssetTransfer) {
+  if (vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer) {
     return (
       <>
         <span>Transfer</span>
@@ -98,7 +98,7 @@ function VectorVisualizationDescription({
       </>
     )
   }
-  if (vector.description.type === TransactionGraphVisualizationType.AssetCloseOut) {
+  if (vector.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut) {
     return (
       <>
         <span>Close Out</span>
@@ -119,13 +119,13 @@ function SelfLoopVisualizationDescription({
   loop,
 }: {
   transaction: Transaction | InnerTransaction
-  loop: TransactionGraphSelfLoopVisualization
+  loop: TransactionGraphSelfLoop
 }) {
   const colorClass = colorClassMap[transaction.type]
-  if (loop.description.type === TransactionGraphVisualizationType.Payment) {
+  if (loop.description.type === TransactionGraphVisualizationDescriptionType.Payment) {
     return <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card flex justify-center')} amount={loop.description.amount} />
   }
-  if (loop.description.type === TransactionGraphVisualizationType.AssetTransfer) {
+  if (loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer) {
     return (
       <DisplayAssetAmount
         className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
@@ -135,7 +135,7 @@ function SelfLoopVisualizationDescription({
       />
     )
   }
-  if (loop.description.type === TransactionGraphVisualizationType.PaymentCloseOut) {
+  if (loop.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut) {
     return (
       <>
         <span>Close Out</span>
@@ -143,7 +143,7 @@ function SelfLoopVisualizationDescription({
       </>
     )
   }
-  if (loop.description.type === TransactionGraphVisualizationType.AssetCloseOut) {
+  if (loop.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut) {
     return (
       <>
         <span>Close Out</span>
@@ -167,7 +167,7 @@ const RenderTransactionVector = fixedForwardRef(
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
-      vector: TransactionGraphVectorVisualization
+      vector: TransactionGraphVector
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -221,7 +221,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
-      loop: TransactionGraphSelfLoopVisualization
+      loop: TransactionGraphSelfLoop
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -271,7 +271,7 @@ const RenderTransactionPoint = fixedForwardRef(
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
-      point: TransactionGraphPointVisualization
+      point: TransactionGraphPoint
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -299,65 +299,54 @@ type Props = {
   verticals: TransactionGraphVertical[]
 }
 export function Horizontal({ horizontal, verticals }: Props) {
-  const { transaction, visualizations, ancestors } = horizontal
+  const { transaction, visualization, ancestors, isSubHorizontal } = horizontal
 
   return (
     <>
       <div className={cn('p-0 relative')}>
         <ConnectionsFromAncestorsToAncestorsNextSiblings ancestors={ancestors} />
-        <HorizontalTitle horizontal={horizontal} />
+        {!isSubHorizontal && <HorizontalTitle horizontal={horizontal} />}
+        {isSubHorizontal && <SubHorizontalTitle horizontal={horizontal} />}
       </div>
-      {visualizations.map((visualization, index) => {
-        return (
-          <Fragment key={index}>
-            {verticals.map((_, index) => {
-              if (
-                visualization.shape === TransactionGraphVisualizationShape.Vector &&
-                (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)
-              ) {
-                return <div key={index}></div>
-              }
-              if (visualization.shape === TransactionGraphVisualizationShape.Point && index > visualization.fromVerticalIndex)
-                return <div key={index}></div>
-              // The `index > transactionRepresentation.from + 1` is here
-              // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
-              // Therefore, we skip this cell so that we won't cause overflowing
-              if (visualization.shape === TransactionGraphVisualizationShape.SelfLoop && index > visualization.fromVerticalIndex + 1)
-                return <div key={index}></div>
+      {verticals.map((_, index) => {
+        if (
+          visualization.shape === TransactionGraphVisualizationType.Vector &&
+          (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)
+        ) {
+          return <div key={index}></div>
+        }
+        if (visualization.shape === TransactionGraphVisualizationType.Point && index > visualization.fromVerticalIndex)
+          return <div key={index}></div>
+        // The `index > transactionRepresentation.from + 1` is here
+        // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
+        // Therefore, we skip this cell so that we won't cause overflowing
+        if (visualization.shape === TransactionGraphVisualizationType.SelfLoop && index > visualization.fromVerticalIndex + 1)
+          return <div key={index}></div>
 
-              if (index === visualization.fromVerticalIndex)
-                return (
-                  <Tooltip key={index}>
-                    <TooltipTrigger asChild>
-                      {visualization.shape === TransactionGraphVisualizationShape.Vector ? (
-                        <RenderTransactionVector key={index} vector={visualization} transaction={transaction} />
-                      ) : visualization.shape === TransactionGraphVisualizationShape.SelfLoop ? (
-                        <RenderTransactionSelfLoop key={index} loop={visualization} transaction={transaction} />
-                      ) : visualization.shape === TransactionGraphVisualizationShape.Point ? (
-                        <RenderTransactionPoint key={index} point={visualization} transaction={transaction} />
-                      ) : null}
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
-                      {transaction.type === TransactionType.AssetTransfer && (
-                        <AssetTransferTransactionTooltipContent transaction={transaction} />
-                      )}
-                      {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
-                      {transaction.type === TransactionType.AssetConfig && (
-                        <AssetConfigTransactionTooltipContent transaction={transaction} />
-                      )}
-                      {transaction.type === TransactionType.AssetFreeze && (
-                        <AssetFreezeTransactionTooltipContent transaction={transaction} />
-                      )}
-                      {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
-                      {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
-                    </TooltipContent>
-                  </Tooltip>
-                )
-              return null
-            })}
-          </Fragment>
-        )
+        if (index === visualization.fromVerticalIndex)
+          return (
+            <Tooltip key={index}>
+              <TooltipTrigger asChild>
+                {visualization.shape === TransactionGraphVisualizationType.Vector ? (
+                  <RenderTransactionVector key={index} vector={visualization} transaction={transaction} />
+                ) : visualization.shape === TransactionGraphVisualizationType.SelfLoop ? (
+                  <RenderTransactionSelfLoop key={index} loop={visualization} transaction={transaction} />
+                ) : visualization.shape === TransactionGraphVisualizationType.Point ? (
+                  <RenderTransactionPoint key={index} point={visualization} transaction={transaction} />
+                ) : null}
+              </TooltipTrigger>
+              <TooltipContent>
+                {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
+              </TooltipContent>
+            </Tooltip>
+          )
+        return null
       })}
     </>
   )

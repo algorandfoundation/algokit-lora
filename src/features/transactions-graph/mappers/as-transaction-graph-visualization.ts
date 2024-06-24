@@ -1,7 +1,7 @@
 import {
   TransactionGraphVisualization,
   TransactionGraphVisualizationDescription,
-  TransactionGraphVisualizationShape,
+  TransactionGraphVisualizationType,
   TransactionVisualisationFromTo,
 } from '@/features/transactions-graph'
 
@@ -14,7 +14,7 @@ export const asTransactionGraphVisualization = (
     return {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      shape: TransactionGraphVisualizationShape.SelfLoop,
+      shape: TransactionGraphVisualizationType.SelfLoop,
       description,
     }
   }
@@ -27,7 +27,7 @@ export const asTransactionGraphVisualization = (
     toVerticalIndex: Math.max(from.verticalId, to.verticalId),
     toAccountIndex: to.accountNumber,
     direction: direction,
-    shape: TransactionGraphVisualizationShape.Vector,
+    shape: TransactionGraphVisualizationType.Vector,
     description,
   }
 }

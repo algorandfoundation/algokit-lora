@@ -3,8 +3,8 @@ import {
   calculateFromNoParent,
   TransactionGraphVertical,
   TransactionGraphVisualization,
-  TransactionGraphVisualizationShape,
   TransactionGraphVisualizationType,
+  TransactionGraphVisualizationDescriptionType,
 } from '@/features/transactions-graph'
 
 export const getStateProofTransactionVisualizations = (
@@ -17,9 +17,9 @@ export const getStateProofTransactionVisualizations = (
     {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      shape: TransactionGraphVisualizationShape.Point,
+      shape: TransactionGraphVisualizationType.Point,
       description: {
-        type: TransactionGraphVisualizationType.StateProof,
+        type: TransactionGraphVisualizationDescriptionType.StateProof,
       },
     },
   ]

@@ -14,23 +14,21 @@ export type TransactionsGraphData = {
 export type TransactionGraphHorizontal = {
   ancestors: TransactionGraphHorizontal[]
   transaction: Transaction | InnerTransaction
-  visualizations: TransactionGraphVisualization[]
+  visualization: TransactionGraphVisualization
   hasNextSibling: boolean
   depth: number
+  isSubHorizontal: boolean
 }
 
-export type TransactionGraphVisualization =
-  | TransactionGraphVectorVisualization
-  | TransactionGraphSelfLoopVisualization
-  | TransactionGraphPointVisualization
+export type TransactionGraphVisualization = TransactionGraphVector | TransactionGraphSelfLoop | TransactionGraphPoint
 
-export enum TransactionGraphVisualizationShape {
+export enum TransactionGraphVisualizationType {
   Vector = 'Vector',
   SelfLoop = 'SelfLoop',
   Point = 'Point',
 }
 
-export enum TransactionGraphVisualizationType {
+export enum TransactionGraphVisualizationDescriptionType {
   Payment = 'Payment',
   PaymentCloseOut = 'Payment Close Out',
   AssetTransfer = 'Asset Transfer',
@@ -45,32 +43,32 @@ export enum TransactionGraphVisualizationType {
 
 export type TransactionGraphVisualizationDescription =
   | {
-      type: TransactionGraphVisualizationType.Payment
+      type: TransactionGraphVisualizationDescriptionType.Payment
       amount: AlgoAmount
     }
   | {
-      type: TransactionGraphVisualizationType.PaymentCloseOut
+      type: TransactionGraphVisualizationDescriptionType.PaymentCloseOut
       amount: AlgoAmount
     }
   | {
-      type: TransactionGraphVisualizationType.AssetTransfer
+      type: TransactionGraphVisualizationDescriptionType.AssetTransfer
       asset: AsyncMaybeAtom<AssetSummary>
       amount: number | bigint
     }
   | {
-      type: TransactionGraphVisualizationType.AssetCloseOut
+      type: TransactionGraphVisualizationDescriptionType.AssetCloseOut
       asset: AsyncMaybeAtom<AssetSummary>
       amount: number | bigint
     }
-  | { type: TransactionGraphVisualizationType.Clawback }
-  | { type: TransactionGraphVisualizationType.ApplicationCall }
-  | { type: TransactionGraphVisualizationType.AssetConfig }
-  | { type: TransactionGraphVisualizationType.AssetFreeze }
-  | { type: TransactionGraphVisualizationType.KeyReg }
-  | { type: TransactionGraphVisualizationType.StateProof }
+  | { type: TransactionGraphVisualizationDescriptionType.Clawback }
+  | { type: TransactionGraphVisualizationDescriptionType.ApplicationCall }
+  | { type: TransactionGraphVisualizationDescriptionType.AssetConfig }
+  | { type: TransactionGraphVisualizationDescriptionType.AssetFreeze }
+  | { type: TransactionGraphVisualizationDescriptionType.KeyReg }
+  | { type: TransactionGraphVisualizationDescriptionType.StateProof }
 
-export type TransactionGraphVectorVisualization = {
-  shape: TransactionGraphVisualizationShape.Vector
+export type TransactionGraphVector = {
+  shape: TransactionGraphVisualizationType.Vector
   description: TransactionGraphVisualizationDescription
   fromVerticalIndex: number
   fromAccountIndex?: number
@@ -79,15 +77,15 @@ export type TransactionGraphVectorVisualization = {
   direction: 'leftToRight' | 'rightToLeft'
 }
 
-export type TransactionGraphSelfLoopVisualization = {
-  shape: TransactionGraphVisualizationShape.SelfLoop
+export type TransactionGraphSelfLoop = {
+  shape: TransactionGraphVisualizationType.SelfLoop
   description: TransactionGraphVisualizationDescription
   fromVerticalIndex: number
   fromAccountIndex?: number
 }
 
-export type TransactionGraphPointVisualization = {
-  shape: TransactionGraphVisualizationShape.Point
+export type TransactionGraphPoint = {
+  shape: TransactionGraphVisualizationType.Point
   description: TransactionGraphVisualizationDescription
   fromVerticalIndex: number
   fromAccountIndex?: number

@@ -9,7 +9,7 @@ import {
   TransactionGraphVertical,
   TransactionGraphVisualization,
   TransactionGraphVisualizationDescription,
-  TransactionGraphVisualizationType,
+  TransactionGraphVisualizationDescriptionType,
 } from '@/features/transactions-graph'
 import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 import { Address } from '@/features/accounts/data/types'
@@ -28,7 +28,7 @@ export const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationType.AssetCloseOut,
+        type: TransactionGraphVisualizationDescriptionType.AssetCloseOut,
         amount: transaction.closeRemainder.amount,
         asset: transaction.asset,
       },
@@ -43,7 +43,7 @@ export const getAssetTransferTransactionVisualizations = (
         verticals,
         parent,
         description: {
-          type: TransactionGraphVisualizationType.Clawback,
+          type: TransactionGraphVisualizationDescriptionType.Clawback,
         },
       }),
       foo({
@@ -52,7 +52,7 @@ export const getAssetTransferTransactionVisualizations = (
         verticals,
         parent,
         description: {
-          type: TransactionGraphVisualizationType.AssetTransfer,
+          type: TransactionGraphVisualizationDescriptionType.AssetTransfer,
           amount: transaction.amount,
           asset: transaction.asset,
         },
@@ -68,7 +68,7 @@ export const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationType.AssetTransfer,
+        type: TransactionGraphVisualizationDescriptionType.AssetTransfer,
         amount: transaction.amount,
         asset: transaction.asset,
       },

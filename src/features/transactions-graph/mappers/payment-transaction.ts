@@ -9,7 +9,7 @@ import {
   TransactionGraphVertical,
   TransactionGraphVisualization,
   TransactionGraphVisualizationDescription,
-  TransactionGraphVisualizationType,
+  TransactionGraphVisualizationDescriptionType,
 } from '@/features/transactions-graph'
 import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 import { Address } from '@/features/accounts/data/types'
@@ -24,7 +24,7 @@ export const getPaymentTransactionVisualizations = (
     receiver: transaction.receiver,
     verticals,
     description: {
-      type: TransactionGraphVisualizationType.Payment,
+      type: TransactionGraphVisualizationDescriptionType.Payment,
       amount: transaction.amount,
     },
     parent,
@@ -35,7 +35,7 @@ export const getPaymentTransactionVisualizations = (
       receiver: transaction.closeRemainder.to,
       verticals,
       description: {
-        type: TransactionGraphVisualizationType.PaymentCloseOut,
+        type: TransactionGraphVisualizationDescriptionType.PaymentCloseOut,
         amount: transaction.closeRemainder.amount,
       },
       parent,

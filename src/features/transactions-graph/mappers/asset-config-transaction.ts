@@ -5,7 +5,7 @@ import {
   TransactionGraphHorizontal,
   TransactionGraphVertical,
   TransactionGraphVisualization,
-  TransactionGraphVisualizationType,
+  TransactionGraphVisualizationDescriptionType,
 } from '@/features/transactions-graph'
 import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 
@@ -21,5 +21,5 @@ export const getAssetConfigTransactionVisualizations = (
     verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
   }
 
-  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationType.AssetConfig })]
+  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationDescriptionType.AssetConfig })]
 }

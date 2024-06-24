@@ -41,28 +41,31 @@ const getHorizontalsForTransaction = (
 ): TransactionGraphHorizontal[] => {
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
   const visualizations = getTransactionVisualizations(transaction, verticals, parent)
-  const thisRow: TransactionGraphHorizontal = {
+  const rows = visualizations.map<TransactionGraphHorizontal>((visualization, index) => ({
     transaction,
-    visualizations,
+    visualization: visualization,
     ancestors,
     hasNextSibling,
     depth,
-  }
+    isSubHorizontal: index > 0,
+  }))
+
   if (transaction.type === TransactionType.AppCall && transaction.innerTransactions.length > 0) {
+    const topRow = rows[0]
     return [
-      thisRow,
+      ...rows,
       ...transaction.innerTransactions.flatMap((innerTxn, index) =>
         getHorizontalsForTransaction(
           innerTxn,
           verticals,
-          [...ancestors, thisRow],
+          [...ancestors, topRow],
           index < transaction.innerTransactions.length - 1,
           depth + 1
         )
       ),
     ]
   }
-  return [thisRow]
+  return rows
 }
 
 const getTransactionVisualizations = (
