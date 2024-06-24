@@ -11,7 +11,7 @@ export type TransactionsGraphData = {
 export type TransactionGraphHorizontal = {
   ancestors: TransactionGraphHorizontal[]
   transaction: Transaction | InnerTransaction
-  visualization: TransactionGraphVisualization
+  visualizations: TransactionGraphVisualization[]
   hasNextSibling: boolean
   depth: number
 }
@@ -78,3 +78,13 @@ export type TransactionGraphVertical =
   | TransactionGraphAssetVertical
   | TransactionGraphOpUpVertical
   | TransactionGraphPlaceholderVertical
+
+export type TransactionVisualisationFromTo = {
+  verticalId: number
+  accountNumber?: number
+}
+// Fallback value, it should never happen, just to make TypeScript happy
+export const fallbackFromTo: TransactionVisualisationFromTo = {
+  verticalId: -1,
+  accountNumber: undefined,
+}

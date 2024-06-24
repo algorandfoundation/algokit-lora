@@ -23,6 +23,7 @@ import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/c
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import PointerLeft from '@/features/common/components/svg/pointer-left'
+import { Fragment } from 'react'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
   return ancestors
@@ -227,7 +228,7 @@ type Props = {
   verticals: TransactionGraphVertical[]
 }
 export function Horizontal({ horizontal, verticals }: Props) {
-  const { transaction, visualization, ancestors } = horizontal
+  const { transaction, visualizations, ancestors } = horizontal
 
   return (
     <>
@@ -235,40 +236,52 @@ export function Horizontal({ horizontal, verticals }: Props) {
         <ConnectionsFromAncestorsToAncestorsNextSiblings ancestors={ancestors} />
         <HorizontalTitle horizontal={horizontal} />
       </div>
-      {verticals.map((_, index) => {
-        if (visualization.type === 'vector' && (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)) {
-          return <div key={index}></div>
-        }
-        if (visualization.type === 'point' && index > visualization.fromVerticalIndex) return <div key={index}></div>
-        // The `index > transactionRepresentation.from + 1` is here
-        // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
-        // Therefore, we skip this cell so that we won't cause overflowing
-        if (visualization.type === 'selfLoop' && index > visualization.fromVerticalIndex + 1) return <div key={index}></div>
+      {visualizations.map((visualization, index) => {
+        return (
+          <Fragment key={index}>
+            {verticals.map((_, index) => {
+              if (visualization.type === 'vector' && (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)) {
+                return <div key={index}></div>
+              }
+              if (visualization.type === 'point' && index > visualization.fromVerticalIndex) return <div key={index}></div>
+              // The `index > transactionRepresentation.from + 1` is here
+              // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
+              // Therefore, we skip this cell so that we won't cause overflowing
+              if (visualization.type === 'selfLoop' && index > visualization.fromVerticalIndex + 1) return <div key={index}></div>
 
-        if (index === visualization.fromVerticalIndex)
-          return (
-            <Tooltip key={index}>
-              <TooltipTrigger asChild>
-                {visualization.type === 'vector' ? (
-                  <RenderTransactionVector key={index} vector={visualization} transaction={transaction} />
-                ) : visualization.type === 'selfLoop' ? (
-                  <RenderTransactionSelfLoop key={index} loop={visualization} transaction={transaction} />
-                ) : visualization.type === 'point' ? (
-                  <RenderTransactionPoint key={index} point={visualization} transaction={transaction} />
-                ) : null}
-              </TooltipTrigger>
-              <TooltipContent>
-                {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
-              </TooltipContent>
-            </Tooltip>
-          )
-        return null
+              if (index === visualization.fromVerticalIndex)
+                return (
+                  <Tooltip key={index}>
+                    <TooltipTrigger asChild>
+                      {visualization.type === 'vector' ? (
+                        <RenderTransactionVector key={index} vector={visualization} transaction={transaction} />
+                      ) : visualization.type === 'selfLoop' ? (
+                        <RenderTransactionSelfLoop key={index} loop={visualization} transaction={transaction} />
+                      ) : visualization.type === 'point' ? (
+                        <RenderTransactionPoint key={index} point={visualization} transaction={transaction} />
+                      ) : null}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
+                      {transaction.type === TransactionType.AssetTransfer && (
+                        <AssetTransferTransactionTooltipContent transaction={transaction} />
+                      )}
+                      {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
+                      {transaction.type === TransactionType.AssetConfig && (
+                        <AssetConfigTransactionTooltipContent transaction={transaction} />
+                      )}
+                      {transaction.type === TransactionType.AssetFreeze && (
+                        <AssetFreezeTransactionTooltipContent transaction={transaction} />
+                      )}
+                      {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
+                      {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
+                    </TooltipContent>
+                  </Tooltip>
+                )
+              return null
+            })}
+          </Fragment>
+        )
       })}
     </>
   )
