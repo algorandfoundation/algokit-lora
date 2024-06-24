@@ -103,7 +103,7 @@ function VectorVisualizationDescription({
       <>
         <span>Close Out</span>
         <DisplayAssetAmount
-          className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
+          className={cn('pl-1 pr-1 bg-card flex justify-center')}
           amount={vector.description.amount}
           asset={vector.description.asset}
           linkClassName={colorClass.text}
