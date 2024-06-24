@@ -59,6 +59,74 @@ function Circle({ className, text }: { className?: string; text?: string | numbe
   )
 }
 
+function VectorVisualizationDescription({
+  transaction,
+  overrideDescription,
+}: {
+  transaction: Transaction | InnerTransaction
+  overrideDescription?: string
+}) {
+  const colorClass = colorClassMap[transaction.type]
+
+  if (overrideDescription) {
+    return <span>{overrideDescription}</span>
+  }
+
+  if (transaction.type === TransactionType.Payment) {
+    return (
+      <>
+        <span>Payment</span>
+        <DisplayAlgo className="flex" amount={transaction.amount} />
+      </>
+    )
+  }
+
+  if (transaction.type === TransactionType.AssetTransfer) {
+    return (
+      <>
+        <span>Transfer</span>
+        <DisplayAssetAmount
+          asset={transaction.asset}
+          amount={transaction.amount}
+          className={cn('flex justify-center', colorClass.text)}
+          linkClassName={colorClass.text}
+        />
+      </>
+    )
+  }
+  if (transaction.type === TransactionType.AppCall) return <span>App Call</span>
+
+  return <span>{transaction.type}</span>
+}
+
+function SelfLoopVisualizationDescription({
+  transaction,
+  overrideDescription,
+}: {
+  transaction: Transaction | InnerTransaction
+  overrideDescription?: string
+}) {
+  const colorClass = colorClassMap[transaction.type]
+
+  if (overrideDescription) {
+    return <span>{overrideDescription}</span>
+  }
+
+  if (transaction.type === TransactionType.Payment) {
+    return <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
+  }
+  if (transaction.type === TransactionType.AssetTransfer) {
+    return (
+      <DisplayAssetAmount
+        className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
+        amount={transaction.amount}
+        asset={transaction.asset}
+        linkClassName={colorClass.text}
+      />
+    )
+  }
+}
+
 const RenderTransactionVector = fixedForwardRef(
   (
     {
@@ -105,26 +173,7 @@ const RenderTransactionVector = fixedForwardRef(
         </div>
         <div className="absolute flex justify-center">
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
-            {transaction.type === TransactionType.Payment && (
-              <>
-                Payment
-                <DisplayAlgo className="flex" amount={transaction.amount} />
-              </>
-            )}
-            {transaction.type === TransactionType.AssetTransfer && (
-              <>
-                Transfer
-                <DisplayAssetAmount
-                  asset={transaction.asset}
-                  amount={transaction.amount}
-                  className={colorClass.text}
-                  linkClassName={colorClass.text}
-                />
-              </>
-            )}
-            {transaction.type === TransactionType.AppCall && <>App Call</>}
-            {transaction.type === TransactionType.AssetConfig && <>Asset Config</>}
-            {transaction.type === TransactionType.AssetFreeze && <>Asset Freeze</>}
+            <VectorVisualizationDescription transaction={transaction} overrideDescription={vector.overrideDescription} />
           </div>
         </div>
         <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex} />
@@ -176,17 +225,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
           }}
         ></div>
         <div className={cn('absolute flex w-1/2 justify-center text-xs', colorClass.text)}>
-          {transaction.type === TransactionType.Payment && (
-            <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
-          )}
-          {transaction.type === TransactionType.AssetTransfer && (
-            <DisplayAssetAmount
-              className={cn('w-min pl-1 pr-1 bg-card')}
-              amount={transaction.amount}
-              asset={transaction.asset}
-              linkClassName={colorClass.text}
-            />
-          )}
+          <SelfLoopVisualizationDescription transaction={transaction} overrideDescription={loop.overrideDescription} />
         </div>
       </div>
     )

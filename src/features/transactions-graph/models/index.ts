@@ -23,6 +23,7 @@ export type TransactionGraphVisualization =
 
 export type TransactionGraphVectorVisualization = {
   type: 'vector'
+  overrideDescription?: string
   fromVerticalIndex: number
   fromAccountIndex?: number
   toAccountIndex?: number
@@ -32,12 +33,14 @@ export type TransactionGraphVectorVisualization = {
 
 export type TransactionGraphSelfLoopVisualization = {
   type: 'selfLoop'
+  overrideDescription?: string
   fromVerticalIndex: number
   fromAccountIndex?: number
 }
 
 export type TransactionGraphPointVisualization = {
   type: 'point'
+  overrideDescription?: string
   fromVerticalIndex: number
   fromAccountIndex?: number
 }

@@ -1,4 +1,4 @@
-import { AssetTransferTransaction, InnerAssetTransferTransaction } from '@/features/transactions/models'
+import { AssetTransferTransaction, AssetTransferTransactionSubType, InnerAssetTransferTransaction } from '@/features/transactions/models'
 import {
   calculateFromNoParent,
   calculateFromWithParent,
@@ -10,21 +10,37 @@ import {
   TransactionGraphVisualization,
 } from '@/features/transactions-graph'
 import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/asTransactionGraphVisualization'
+import { Address } from '@/features/accounts/data/types'
 
 export const getAssetTransferTransactionVisualizations = (
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction,
   verticals: TransactionGraphVertical[],
   parent?: TransactionGraphHorizontal
 ): TransactionGraphVisualization[] => {
-  const from = parent
-    ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromNoParent(transaction.sender, verticals)
+  if (transaction.subType === AssetTransferTransactionSubType.Clawback) {
+    return [
+      foo(transaction.sender, transaction.clawbackFrom!, verticals, parent, 'Clawback'),
+      foo(transaction.clawbackFrom!, transaction.receiver, verticals, parent),
+    ]
+  }
+
+  return [foo(transaction.sender, transaction.receiver, verticals, parent)]
+}
+
+const foo = (
+  sender: Address,
+  receiver: Address,
+  verticals: TransactionGraphVertical[],
+  parent?: TransactionGraphHorizontal,
+  overrideDescription?: string
+): TransactionGraphVisualization => {
+  const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromNoParent(sender, verticals)
 
   const toAccountVertical = verticals.find(
-    (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.receiver === c.accountAddress
+    (c): c is TransactionGraphAccountVertical => c.type === 'Account' && c.accountAddress === receiver
   )
   const toApplicationVertical = verticals.find(
-    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.receiver === c.linkedAccount.accountAddress
+    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === receiver
   )
   let to = fallbackFromTo
   if (toAccountVertical) {
@@ -40,5 +56,5 @@ export const getAssetTransferTransactionVisualizations = (
     }
   }
 
-  return [asTransactionGraphVisualization(from, to)]
+  return asTransactionGraphVisualization(from, to, overrideDescription)
 }

@@ -9,7 +9,7 @@ type Props = {
 }
 export function TransactionsGraph({ transactionsGraphData }: Props) {
   const { verticals, horizontals } = transactionsGraphData
-  const transactionsCount = horizontals.length
+  const horizontalsCount = horizontals.reduce((acc, current) => acc + current.visualizations.length, 0)
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
   const horizontalTitleWidth = graphConfig.defaultHorizontalTitleWidth + maxNestingLevel * graphConfig.indentationWidth
   const verticalsCount = verticals.length
@@ -34,7 +34,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
         className={cn('relative grid')}
         style={{
           gridTemplateColumns: `${gridTemplateColumns}`,
-          gridTemplateRows: `repeat(${transactionsCount}, ${graphConfig.rowHeight}px)`,
+          gridTemplateRows: `repeat(${horizontalsCount}, ${graphConfig.rowHeight}px)`,
         }}
       >
         {/* The below div is for drawing the background dash lines */}
@@ -44,7 +44,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
             <div
               className={cn('p-0')}
               style={{
-                height: `${transactionsCount * graphConfig.rowHeight}px`,
+                height: `${horizontalsCount * graphConfig.rowHeight}px`,
                 width: `${graphConfig.colWidth * verticalsCount}px`,
               }}
             >
@@ -52,7 +52,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
                 className={cn('grid h-full')}
                 style={{
                   gridTemplateColumns: `${gridTemplateColumns}`,
-                  height: `${transactionsCount * graphConfig.rowHeight}px`,
+                  height: `${horizontalsCount * graphConfig.rowHeight}px`,
                 }}
               >
                 <div></div>

@@ -2,13 +2,15 @@ import { TransactionGraphVisualization, TransactionVisualisationFromTo } from '@
 
 export const asTransactionGraphVisualization = (
   from: TransactionVisualisationFromTo,
-  to: TransactionVisualisationFromTo
+  to: TransactionVisualisationFromTo,
+  overrideDescription?: string
 ): TransactionGraphVisualization => {
   if (from.verticalId === to.verticalId) {
     return {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
       type: 'selfLoop' as const,
+      overrideDescription: overrideDescription,
     }
   }
 
@@ -21,5 +23,6 @@ export const asTransactionGraphVisualization = (
     toAccountIndex: to.accountNumber,
     direction: direction,
     type: 'vector' as const,
+    overrideDescription: overrideDescription,
   }
 }
