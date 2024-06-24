@@ -157,6 +157,14 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       type: 'Account',
       accountAddress: transaction.receiver,
     })
+    if (transaction.closeRemainder) {
+      verticals.push({
+        id: -1,
+        accountNumber: -1,
+        type: 'Account',
+        accountAddress: transaction.closeRemainder.to,
+      })
+    }
   }
   if (transaction.type === TransactionType.AppCall) {
     if (transaction.subType === AppCallTransactionSubType.OpUp) {

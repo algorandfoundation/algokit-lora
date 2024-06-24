@@ -40,7 +40,7 @@ export enum TransactionGraphVisualizationType {
   KeyReg = 'Key Reg',
   StateProof = 'State Proof',
   Clawback = 'Clawback',
-  // TODO: app create
+  AssetCloseOut = 'AssetCloseOut',
 }
 
 export type TransactionGraphVisualizationDescription =
@@ -54,6 +54,11 @@ export type TransactionGraphVisualizationDescription =
     }
   | {
       type: TransactionGraphVisualizationType.AssetTransfer
+      asset: AsyncMaybeAtom<AssetSummary>
+      amount: number | bigint
+    }
+  | {
+      type: TransactionGraphVisualizationType.AssetCloseOut
       asset: AsyncMaybeAtom<AssetSummary>
       amount: number | bigint
     }

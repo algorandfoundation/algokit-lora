@@ -13,12 +13,28 @@ import {
 } from '@/features/transactions-graph'
 import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 import { Address } from '@/features/accounts/data/types'
+import { isDefined } from '@/utils/is-defined'
 
 export const getAssetTransferTransactionVisualizations = (
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction,
   verticals: TransactionGraphVertical[],
   parent?: TransactionGraphHorizontal
 ): TransactionGraphVisualization[] => {
+  let closeOut: TransactionGraphVisualization | undefined = undefined
+  if (transaction.closeRemainder) {
+    closeOut = foo({
+      sender: transaction.sender,
+      receiver: transaction.closeRemainder.to,
+      verticals,
+      parent,
+      description: {
+        type: TransactionGraphVisualizationType.AssetCloseOut,
+        amount: transaction.closeRemainder.amount,
+        asset: transaction.asset,
+      },
+    })
+  }
+
   if (transaction.subType === AssetTransferTransactionSubType.Clawback) {
     return [
       foo({
@@ -41,7 +57,8 @@ export const getAssetTransferTransactionVisualizations = (
           asset: transaction.asset,
         },
       }),
-    ]
+      closeOut,
+    ].filter(isDefined)
   }
 
   return [
@@ -56,7 +73,8 @@ export const getAssetTransferTransactionVisualizations = (
         asset: transaction.asset,
       },
     }),
-  ]
+    closeOut,
+  ].filter(isDefined)
 }
 
 const foo = ({

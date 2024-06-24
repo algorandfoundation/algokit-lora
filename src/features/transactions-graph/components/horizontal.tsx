@@ -98,6 +98,19 @@ function VectorVisualizationDescription({
       </>
     )
   }
+  if (vector.description.type === TransactionGraphVisualizationType.AssetCloseOut) {
+    return (
+      <>
+        <span>Close Out</span>
+        <DisplayAssetAmount
+          className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
+          amount={vector.description.amount}
+          asset={vector.description.asset}
+          linkClassName={colorClass.text}
+        />
+      </>
+    )
+  }
   return <span>{vector.description.type}</span>
 }
 
@@ -127,6 +140,19 @@ function SelfLoopVisualizationDescription({
       <>
         <span>Close Out</span>
         <DisplayAlgo className="flex justify-center" amount={loop.description.amount} />
+      </>
+    )
+  }
+  if (loop.description.type === TransactionGraphVisualizationType.AssetCloseOut) {
+    return (
+      <>
+        <span>Close Out</span>
+        <DisplayAssetAmount
+          className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
+          amount={loop.description.amount}
+          asset={loop.description.asset}
+          linkClassName={colorClass.text}
+        />
       </>
     )
   }
