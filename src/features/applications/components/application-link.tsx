@@ -4,21 +4,26 @@ import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { ApplicationId } from '../data/types'
 import { useSelectedNetwork } from '@/features/settings/data'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = PropsWithChildren<{
   applicationId: ApplicationId
   className?: string
+  showCopyButton?: boolean
 }>
 
-export function ApplicationLink({ applicationId, className, children }: Props) {
+export function ApplicationLink({ applicationId, className, showCopyButton, children }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
   return (
-    <TemplatedNavLink
-      className={cn(!children && 'text-primary underline', className)}
-      urlTemplate={Urls.Explore.Application.ById}
-      urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
-    >
-      {children ? children : applicationId}
-    </TemplatedNavLink>
+    <div className="flex items-center">
+      <TemplatedNavLink
+        className={cn(!children && 'text-primary underline', className)}
+        urlTemplate={Urls.Explore.Application.ById}
+        urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
+      >
+        {children ? children : applicationId}
+      </TemplatedNavLink>
+      {showCopyButton && <CopyButton value={applicationId.toString()} />}
+    </div>
   )
 }

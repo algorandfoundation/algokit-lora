@@ -9,6 +9,7 @@ import { RenderInlineAsyncAtom } from '@/features/common/components/render-inlin
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 import { DateFormatted } from '@/features/common/components/date-formatted'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   block: Block
@@ -25,7 +26,12 @@ export function BlockDetails({ block }: Props) {
     () => [
       {
         dt: roundLabel,
-        dd: block.round,
+        dd: (
+          <div className="flex items-center">
+            <span>{block.round}</span>
+            <CopyButton value={block.round.toString()} />
+          </div>
+        ),
       },
       {
         dt: timestampLabel,

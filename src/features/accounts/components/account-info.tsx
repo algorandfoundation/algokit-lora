@@ -18,6 +18,7 @@ import {
   accountRekeyedToLabel,
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   account: Account
@@ -34,7 +35,12 @@ export function AccountInfo({ account }: Props) {
     const items = [
       {
         dt: accountAddressLabel,
-        dd: account.address,
+        dd: (
+          <div className="flex items-center">
+            <span>{account.address}</span>
+            <CopyButton value={account.address} />
+          </div>
+        ),
       },
       {
         dt: accountBalanceLabel,
@@ -68,7 +74,7 @@ export function AccountInfo({ account }: Props) {
         ? [
             {
               dt: accountRekeyedToLabel,
-              dd: <AccountLink address={account.rekeyedTo}></AccountLink>,
+              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true}></AccountLink>,
             },
           ]
         : []),

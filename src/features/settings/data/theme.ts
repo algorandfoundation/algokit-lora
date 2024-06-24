@@ -1,10 +1,7 @@
 import { atom, useAtom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
-
-export type Theme = 'dark' | 'light' | 'system'
-
-export type ResolvedTheme = 'dark' | 'light'
+import { ResolvedTheme, Theme } from './types'
 
 export const selectedThemeAtom = atomWithStorage<Theme>('theme', 'system', undefined, { getOnInit: true })
 

@@ -37,6 +37,7 @@ import { AssetLiveTransactions } from './asset-live-transactions'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   asset: Asset
@@ -53,7 +54,10 @@ export function AssetDetails({ asset }: Props) {
         dt: assetIdLabel,
         dd: (
           <div className="flex items-center gap-2">
-            <span>{asset.id}</span>
+            <div className="flex items-center">
+              <span>{asset.id}</span>
+              <CopyButton value={asset.id.toString()} />
+            </div>
             {asset.standardsUsed.map((s, i) => (
               <Badge key={i} variant="outline">
                 {s}
@@ -105,30 +109,30 @@ export function AssetDetails({ asset }: Props) {
     () => [
       {
         dt: assetCreatorLabel,
-        dd: <AccountLink address={asset.creator} />,
+        dd: <AccountLink address={asset.creator} showCopyButton={true} />,
       },
       asset.manager && asset.manager !== ZERO_ADDRESS
         ? {
             dt: assetManagerLabel,
-            dd: <AccountLink address={asset.manager} />,
+            dd: <AccountLink address={asset.manager} showCopyButton={true} />,
           }
         : undefined,
       asset.reserve && asset.reserve !== ZERO_ADDRESS
         ? {
             dt: assetReserveLabel,
-            dd: <AccountLink address={asset.reserve} />,
+            dd: <AccountLink address={asset.reserve} showCopyButton={true} />,
           }
         : undefined,
       asset.freeze && asset.freeze !== ZERO_ADDRESS
         ? {
             dt: assetFreezeLabel,
-            dd: <AccountLink address={asset.freeze} />,
+            dd: <AccountLink address={asset.freeze} showCopyButton={true} />,
           }
         : undefined,
       asset.clawback && asset.clawback !== ZERO_ADDRESS
         ? {
             dt: assetClawbackLabel,
-            dd: <AccountLink address={asset.clawback} />,
+            dd: <AccountLink address={asset.clawback} showCopyButton={true} />,
           }
         : undefined,
     ],
@@ -165,10 +169,10 @@ export function AssetDetails({ asset }: Props) {
               <h2>{assetActivityLabel}</h2>
               <Tabs defaultValue={assetLiveTransactionsTabId}>
                 <TabsList aria-label={assetActivityLabel}>
-                  <TabsTrigger className="w-48" value={assetLiveTransactionsTabId}>
+                  <TabsTrigger className="w-56" value={assetLiveTransactionsTabId}>
                     {assetLiveTransactionsTabLabel}
                   </TabsTrigger>
-                  <TabsTrigger className="w-48" value={assetHistoricalTransactionsTabId}>
+                  <TabsTrigger className="w-56" value={assetHistoricalTransactionsTabId}>
                     {assetHistoricalTransactionsTabLabel}
                   </TabsTrigger>
                 </TabsList>

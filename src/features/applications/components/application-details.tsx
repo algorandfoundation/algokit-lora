@@ -35,6 +35,7 @@ import { ApplicationTransactionHistory } from './application-transaction-history
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { Badge } from '@/features/common/components/badge'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   application: Application
@@ -50,7 +51,10 @@ export function ApplicationDetails({ application }: Props) {
         dt: applicationIdLabel,
         dd: (
           <div className={'flex items-center gap-2'}>
-            <span>{application.id}</span>
+            <div className="flex items-center">
+              <span>{application.id}</span>
+              <CopyButton value={application.id.toString()} />
+            </div>
             {application.isDeleted && <Badge variant="outline">Deleted</Badge>}
           </div>
         ),
@@ -63,11 +67,11 @@ export function ApplicationDetails({ application }: Props) {
         : undefined,
       {
         dt: applicationCreatorAccountLabel,
-        dd: <AccountLink address={application.creator}></AccountLink>,
+        dd: <AccountLink address={application.creator} showCopyButton={true}></AccountLink>,
       },
       {
         dt: applicationAccountLabel,
-        dd: <AccountLink address={application.account}></AccountLink>,
+        dd: <AccountLink address={application.account} showCopyButton={true}></AccountLink>,
       },
       application.globalStateSchema
         ? {
