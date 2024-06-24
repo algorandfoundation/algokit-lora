@@ -37,7 +37,7 @@ export function GroupDetails({ group }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span>{group.transactionsSummary.count}</span>
             {group.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>

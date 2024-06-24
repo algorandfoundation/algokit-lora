@@ -50,7 +50,7 @@ export function ApplicationDetails({ application }: Props) {
       {
         dt: applicationIdLabel,
         dd: (
-          <div className={'flex items-center gap-2'}>
+          <div className={'flex flex-wrap items-center gap-2'}>
             <div className="flex items-center">
               <span>{application.id}</span>
               <CopyButton value={application.id.toString()} />

@@ -40,7 +40,7 @@ export function BlockDetails({ block }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span>{block.transactionsSummary.count}</span>
             {block.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>

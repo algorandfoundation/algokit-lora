@@ -53,7 +53,7 @@ export function AssetDetails({ asset }: Props) {
       {
         dt: assetIdLabel,
         dd: (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center">
               <span>{asset.id}</span>
               <CopyButton value={asset.id.toString()} />
