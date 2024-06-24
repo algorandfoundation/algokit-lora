@@ -44,7 +44,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
                 <a
                   href={replaceIpfsWithGatewayIfNeeded(transaction.url)}
                   className={cn('text-primary underline')}
-                  rel="nofollow"
+                  rel="nofollow noopener noreferrer"
                   target="_blank"
                 >
                   {transaction.url}

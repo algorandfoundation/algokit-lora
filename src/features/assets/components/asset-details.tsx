@@ -95,7 +95,12 @@ export function AssetDetails({ asset }: Props) {
         ? {
             dt: assetUrlLabel,
             dd: (
-              <a href={replaceIpfsWithGatewayIfNeeded(asset.url)} className={cn('text-primary underline')} rel="nofollow" target="_blank">
+              <a
+                href={replaceIpfsWithGatewayIfNeeded(asset.url)}
+                className={cn('text-primary underline')}
+                rel="nofollow noopener noreferrer"
+                target="_blank"
+              >
                 {asset.url}
               </a>
             ),
