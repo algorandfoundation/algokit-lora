@@ -59,7 +59,10 @@ export function Search() {
 
   return (
     <Command
-      className={cn('bg-popover text-popover-foreground w-[22rem] h-auto z-20 border border-input mt-[1.2rem]', term && 'shadow-md')}
+      className={cn(
+        'hidden md:flex bg-popover text-popover-foreground w-[22rem] h-auto z-20 border border-input mt-[1.2rem]',
+        term && 'shadow-md'
+      )}
       shouldFilter={false}
       loop
     >
