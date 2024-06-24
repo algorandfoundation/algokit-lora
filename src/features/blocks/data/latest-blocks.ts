@@ -47,7 +47,7 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
           if (blockResult) {
             const block = await get(blockResult[0])
             const transactionSummaries = await Promise.all(
-              block.transactionIds.map(async (transactionId) => {
+              block['transaction-ids'].map(async (transactionId) => {
                 const transactionResult = await get(getTransactionResultAtom(transactionId, { skipTimestampUpdate: true }))
                 return asTransactionSummary(transactionResult)
               })
@@ -204,8 +204,14 @@ const subscriberAtom = atom(null, (get, set) => {
       return {
         round: b.round,
         timestamp: b.timestamp,
-        transactionIds: blockTransactionIds.get(b.round) ?? [],
-      } as BlockResult
+        ['transaction-ids']: blockTransactionIds.get(b.round) ?? [],
+        transactions: transactionResults.filter((t) => blockTransactionIds.get(b.round)?.includes(t.id)),
+        seed: b.seed ?? '',
+        ['genesis-hash']: b.genesisHash,
+        ['genesis-id']: b.genesisId,
+        ['previous-block-hash']: b.previousBlockHash ?? '',
+        ['txn-counter']: b.parentTransactionCount,
+      } satisfies BlockResult
     })
 
     if (staleAssetIds.length > 0) {

@@ -9,6 +9,7 @@ const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type
     round: block.round,
     timestamp: block.timestamp,
     transactionsSummary: asTransactionsSummary(transactions),
+    json: { ...block, transactions },
   }
 }
 

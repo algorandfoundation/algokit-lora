@@ -10,6 +10,7 @@ import { TransactionsTable } from '@/features/transactions/components/transactio
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 
 type Props = {
   block: Block
@@ -73,7 +74,10 @@ export function BlockDetails({ block }: Props) {
     <div className={cn('space-y-4')}>
       <Card className={cn('p-4')}>
         <CardContent className={cn('text-sm')}>
-          <DescriptionList items={blockItems} />
+          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+            <DescriptionList items={blockItems} />
+            <OpenJsonViewDialogButton json={block.json} />
+          </div>
         </CardContent>
       </Card>
       <Card className={cn('px-4 pb-4 pt-2')}>

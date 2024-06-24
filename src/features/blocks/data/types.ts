@@ -4,7 +4,13 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 export type BlockResult = {
   round: number
   timestamp: string
-  transactionIds: string[]
+  transactions: TransactionResult[]
+  seed: string
+  ['transaction-ids']: string[]
+  ['genesis-hash']: string
+  ['genesis-id']: string
+  ['previous-block-hash']: string
+  ['txn-counter']: number
 }
 
 export type BlocksExtract = {

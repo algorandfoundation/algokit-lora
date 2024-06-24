@@ -6,6 +6,7 @@ export type CommonBlockProperties = {
   round: number
   timestamp: string
   transactionsSummary: TransactionsSummary
+  json: object
 }
 
 export type Block = CommonBlockProperties & {

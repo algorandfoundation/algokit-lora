@@ -32,7 +32,12 @@ export const getBlockAndExtractData = async (round: Round) => {
         {
           round: result.round as number,
           timestamp: new Date(result.timestamp * 1000).toISOString(),
-          transactionIds,
+          seed: result.seed,
+          'transaction-ids': transactionIds,
+          'genesis-hash': result['genesis-hash'],
+          'genesis-id': result['genesis-id'],
+          'previous-block-hash': result['previous-block-hash'],
+          'txn-counter': result['txn-counter'] as number,
         } as BlockResult,
         (result.transactions ?? []) as TransactionResult[],
         Array.from(groupResults.values()),

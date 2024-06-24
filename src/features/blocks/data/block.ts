@@ -32,7 +32,7 @@ const createBlockAtom = (round: Round) => {
 
   return atom(async (get) => {
     const blockResult = await get(getBlockResultAtom(round))
-    const transactionResults = await Promise.all(getTransactionResultAtoms(blockResult.transactionIds).map((txn) => get(txn)))
+    const transactionResults = await Promise.all(getTransactionResultAtoms(blockResult['transaction-ids']).map((txn) => get(txn)))
     const transactions = get(createTransactionsAtom(transactionResults))
     get(setNextRoundWhenAvailableEffect)
 
