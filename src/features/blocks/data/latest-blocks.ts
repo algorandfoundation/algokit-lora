@@ -210,7 +210,6 @@ const subscriberAtom = atom(null, (get, set) => {
         ['genesis-hash']: b.genesisHash,
         ['genesis-id']: b.genesisId,
         ['previous-block-hash']: b.previousBlockHash ?? '',
-        ['txn-counter']: b.parentTransactionCount,
       } satisfies BlockResult
     })
 

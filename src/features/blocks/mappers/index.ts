@@ -5,11 +5,12 @@ import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type'>[]): CommonBlockProperties => {
+  const { ['transaction-ids']: _, ...rest } = block
   return {
     round: block.round,
     timestamp: block.timestamp,
     transactionsSummary: asTransactionsSummary(transactions),
-    json: { ...block, transactions },
+    json: { ...rest, transactions },
   }
 }
 

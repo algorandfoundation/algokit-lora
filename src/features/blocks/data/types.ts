@@ -10,7 +10,6 @@ export type BlockResult = {
   ['genesis-hash']: string
   ['genesis-id']: string
   ['previous-block-hash']: string
-  ['txn-counter']: number
 }
 
 export type BlocksExtract = {
