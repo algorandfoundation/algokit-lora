@@ -83,7 +83,9 @@ export function TransactionNote({ note }: TransactionNoteProps) {
           )}
         </TabsList>
 
-        <OverflowAutoTabsContent value={base64NoteTabId}>{note}</OverflowAutoTabsContent>
+        <OverflowAutoTabsContent value={base64NoteTabId}>
+          <span className="text-wrap break-all">{note}</span>
+        </OverflowAutoTabsContent>
         <OverflowAutoTabsContent value={textNoteTabId}>{text}</OverflowAutoTabsContent>
         {json && (
           <OverflowAutoTabsContent value={jsonNoteTabId}>
