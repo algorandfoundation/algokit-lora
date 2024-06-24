@@ -12,7 +12,7 @@ export function LatestBlocks() {
   const latestBlocks = useLatestBlockSummaries()
 
   return (
-    <Card className={cn('px-4 pb-4 pt-2')}>
+    <Card className={cn('px-4 pb-4 pt-2.5')}>
       <CardContent className={cn('text-sm space-y-1')}>
         <h2>{latestBlocksTitle}</h2>
         {latestBlocks.length > 0 && (

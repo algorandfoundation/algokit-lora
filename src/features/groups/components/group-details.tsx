@@ -62,7 +62,7 @@ export function GroupDetails({ group }: Props) {
           <DescriptionList items={groupItems} />
         </CardContent>
       </Card>
-      <Card className={cn('px-4 pb-4 pt-2')}>
+      <Card className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{transactionsLabel}</h2>
           <GroupTransactionsViewTabs group={group} />

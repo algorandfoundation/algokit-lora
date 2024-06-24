@@ -159,7 +159,7 @@ export function AssetDetails({ asset }: Props) {
       </Card>
       {asset.id !== 0 && (
         <>
-          <Card className={cn('px-4 pb-4 pt-2')}>
+          <Card className={cn('px-4 pb-4 pt-2.5')}>
             <CardContent className={cn('text-sm space-y-1')}>
               <h2>{assetAddressesLabel}</h2>
               <DescriptionList items={assetAddresses} />
@@ -169,7 +169,7 @@ export function AssetDetails({ asset }: Props) {
           <AssetMetadata metadata={asset.metadata} />
           <AssetTraits traits={asset.traits} />
 
-          <Card className={cn('px-4 pb-4 pt-2')}>
+          <Card className={cn('px-4 pb-4 pt-2.5')}>
             <CardContent className={cn('text-sm space-y-1')}>
               <h2>{assetActivityLabel}</h2>
               <Tabs defaultValue={assetLiveTransactionsTabId}>

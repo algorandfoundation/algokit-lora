@@ -76,7 +76,7 @@ export function BlockDetails({ block }: Props) {
           <DescriptionList items={blockItems} />
         </CardContent>
       </Card>
-      <Card className={cn('px-4 pb-4 pt-2')}>
+      <Card className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{transactionsLabel}</h2>
           <TransactionsTable transactions={block.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />

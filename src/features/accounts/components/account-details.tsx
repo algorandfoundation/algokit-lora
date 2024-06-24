@@ -15,20 +15,20 @@ export function AccountDetails({ account }: Props) {
   return (
     <div className={cn('space-y-4')}>
       <AccountInfo account={account} />
-      <Card className={cn('px-4 pb-4 pt-2')}>
+      <Card className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{accountActivityLabel}</h2>
           <AccountActivityTabs account={account} />
         </CardContent>
       </Card>
 
-      <Card className={cn('px-4 pb-4 pt-2')}>
+      <Card className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{accountAssetLabel}</h2>
           <AccountAssetTabs account={account} />
         </CardContent>
       </Card>
-      <Card className={cn('px-4 pb-4 pt-2')}>
+      <Card className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{accountApplicationLabel}</h2>
           <AccountApplicationTabs account={account} />

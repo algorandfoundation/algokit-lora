@@ -13,7 +13,7 @@ type Props = {
 
 export function KeyRegTransactionDetails({ transaction }: Props) {
   return (
-    <Card className={cn('px-4 pb-4 pt-2')}>
+    <Card className={cn('px-4 pb-4 pt-2.5')}>
       <CardContent className={cn('text-sm space-y-4')}>
         <KeyRegTransactionInfo transaction={transaction} />
         <TransactionViewTabs transaction={transaction} />

@@ -119,13 +119,13 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
-      <Card aria-label={applicationApprovalProgramLabel} className={cn('px-4 pb-4 pt-2')}>
+      <Card aria-label={applicationApprovalProgramLabel} className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{applicationApprovalProgramLabel}</h2>
           <ApplicationProgram tabsListAriaLabel={applicationApprovalProgramTabsListAriaLabel} base64Program={application.approvalProgram} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationClearStateProgramLabel} className={cn('px-4 pb-4 pt-2')}>
+      <Card aria-label={applicationClearStateProgramLabel} className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{applicationClearStateProgramLabel}</h2>
           <ApplicationProgram
@@ -134,19 +134,19 @@ export function ApplicationDetails({ application }: Props) {
           />
         </CardContent>
       </Card>
-      <Card aria-label={applicationGlobalStateLabel} className={cn('px-4 pb-4 pt-2')}>
+      <Card aria-label={applicationGlobalStateLabel} className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{applicationGlobalStateLabel}</h2>
           <ApplicationGlobalStateTable application={application} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationBoxesLabel} className={cn('px-4 pb-4 pt-2')}>
+      <Card aria-label={applicationBoxesLabel} className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{applicationBoxesLabel}</h2>
           <ApplicationBoxes applicationId={application.id} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationTransactionsLabel} className={cn('px-4 pb-4 pt-2')}>
+      <Card aria-label={applicationTransactionsLabel} className={cn('px-4 pb-4 pt-2.5')}>
         <CardContent className={cn('text-sm space-y-1')}>
           <h2>{applicationTransactionsLabel}</h2>
           <Tabs defaultValue={applicationLiveTransactionsTabId}>

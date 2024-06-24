@@ -24,7 +24,7 @@ export function AssetMetadata({ metadata }: Props) {
   }
 
   return (
-    <Card className={cn('px-4 pb-4 pt-2')}>
+    <Card className={cn('px-4 pb-4 pt-2.5')}>
       <CardContent className={cn('text-sm space-y-1')}>
         <h2>{assetMetadataLabel}</h2>
         <DescriptionList items={items} />
