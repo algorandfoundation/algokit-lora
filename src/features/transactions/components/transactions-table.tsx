@@ -1,11 +1,10 @@
 import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { DataTable } from '@/features/common/components/data-table'
-import { transactionsTableColumns } from './transactions-table-columns'
 import { ColumnDef } from '@tanstack/react-table'
 
 type Props = {
   transactions: Transaction[] | InnerTransaction[]
-  columns?: ColumnDef<Transaction | InnerTransaction>[]
+  columns: ColumnDef<Transaction | InnerTransaction>[]
   subRowsExpanded?: boolean
 }
 
@@ -16,7 +15,6 @@ const getSubRows = (transaction: Transaction | InnerTransaction) => {
   return transaction.innerTransactions
 }
 
-export function TransactionsTable({ transactions, columns: _columns, subRowsExpanded }: Props) {
-  const columns = _columns || transactionsTableColumns
+export function TransactionsTable({ transactions, columns, subRowsExpanded }: Props) {
   return <DataTable columns={columns} data={transactions} getSubRows={getSubRows} subRowsExpanded={subRowsExpanded} />
 }
