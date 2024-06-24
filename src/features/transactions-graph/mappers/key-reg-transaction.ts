@@ -5,6 +5,8 @@ import {
   TransactionGraphHorizontal,
   TransactionGraphVertical,
   TransactionGraphVisualization,
+  TransactionGraphVisualizationShape,
+  TransactionGraphVisualizationType,
 } from '@/features/transactions-graph'
 
 export const getKeyRegTransactionVisualizations = (
@@ -20,7 +22,10 @@ export const getKeyRegTransactionVisualizations = (
     {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      type: 'point' as const,
+      shape: TransactionGraphVisualizationShape.Point,
+      description: {
+        type: TransactionGraphVisualizationType.KeyReg,
+      },
     },
   ]
 }

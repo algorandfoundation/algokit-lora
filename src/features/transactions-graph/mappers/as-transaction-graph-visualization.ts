@@ -1,16 +1,21 @@
-import { TransactionGraphVisualization, TransactionVisualisationFromTo } from '@/features/transactions-graph'
+import {
+  TransactionGraphVisualization,
+  TransactionGraphVisualizationDescription,
+  TransactionGraphVisualizationShape,
+  TransactionVisualisationFromTo,
+} from '@/features/transactions-graph'
 
 export const asTransactionGraphVisualization = (
   from: TransactionVisualisationFromTo,
   to: TransactionVisualisationFromTo,
-  overrideDescription?: string
+  description: TransactionGraphVisualizationDescription
 ): TransactionGraphVisualization => {
   if (from.verticalId === to.verticalId) {
     return {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      type: 'selfLoop' as const,
-      overrideDescription: overrideDescription,
+      shape: TransactionGraphVisualizationShape.SelfLoop,
+      description,
     }
   }
 
@@ -22,7 +27,7 @@ export const asTransactionGraphVisualization = (
     toVerticalIndex: Math.max(from.verticalId, to.verticalId),
     toAccountIndex: to.accountNumber,
     direction: direction,
-    type: 'vector' as const,
-    overrideDescription: overrideDescription,
+    shape: TransactionGraphVisualizationShape.Vector,
+    description,
   }
 }

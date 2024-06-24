@@ -126,7 +126,23 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       accountAddress: transaction.sender,
     },
   ]
-  if (transaction.type === TransactionType.Payment || transaction.type === TransactionType.AssetTransfer) {
+  if (transaction.type === TransactionType.Payment) {
+    verticals.push({
+      id: -1,
+      accountNumber: -1,
+      type: 'Account',
+      accountAddress: transaction.receiver,
+    })
+    if (transaction.closeRemainder) {
+      verticals.push({
+        id: -1,
+        accountNumber: -1,
+        type: 'Account',
+        accountAddress: transaction.closeRemainder.to,
+      })
+    }
+  }
+  if (transaction.type === TransactionType.AssetTransfer) {
     if (transaction.subType === AssetTransferTransactionSubType.Clawback) {
       verticals.push({
         id: -1,

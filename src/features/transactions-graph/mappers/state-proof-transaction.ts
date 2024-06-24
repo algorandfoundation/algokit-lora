@@ -1,5 +1,11 @@
 import { StateProofTransaction } from '@/features/transactions/models'
-import { calculateFromNoParent, TransactionGraphVertical, TransactionGraphVisualization } from '@/features/transactions-graph'
+import {
+  calculateFromNoParent,
+  TransactionGraphVertical,
+  TransactionGraphVisualization,
+  TransactionGraphVisualizationShape,
+  TransactionGraphVisualizationType,
+} from '@/features/transactions-graph'
 
 export const getStateProofTransactionVisualizations = (
   transaction: StateProofTransaction,
@@ -11,7 +17,10 @@ export const getStateProofTransactionVisualizations = (
     {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      type: 'point' as const,
+      shape: TransactionGraphVisualizationShape.Point,
+      description: {
+        type: TransactionGraphVisualizationType.StateProof,
+      },
     },
   ]
 }

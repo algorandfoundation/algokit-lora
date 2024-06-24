@@ -8,8 +8,10 @@ import {
   TransactionGraphHorizontal,
   TransactionGraphVertical,
   TransactionGraphVisualization,
+  TransactionGraphVisualizationDescription,
+  TransactionGraphVisualizationType,
 } from '@/features/transactions-graph'
-import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/asTransactionGraphVisualization'
+import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 import { Address } from '@/features/accounts/data/types'
 
 export const getAssetTransferTransactionVisualizations = (
@@ -19,21 +21,57 @@ export const getAssetTransferTransactionVisualizations = (
 ): TransactionGraphVisualization[] => {
   if (transaction.subType === AssetTransferTransactionSubType.Clawback) {
     return [
-      foo(transaction.sender, transaction.clawbackFrom!, verticals, parent, 'Clawback'),
-      foo(transaction.clawbackFrom!, transaction.receiver, verticals, parent),
+      foo({
+        sender: transaction.sender,
+        receiver: transaction.clawbackFrom!,
+        verticals,
+        parent,
+        description: {
+          type: TransactionGraphVisualizationType.Clawback,
+        },
+      }),
+      foo({
+        sender: transaction.clawbackFrom!,
+        receiver: transaction.receiver,
+        verticals,
+        parent,
+        description: {
+          type: TransactionGraphVisualizationType.AssetTransfer,
+          amount: transaction.amount,
+          asset: transaction.asset,
+        },
+      }),
     ]
   }
 
-  return [foo(transaction.sender, transaction.receiver, verticals, parent)]
+  return [
+    foo({
+      sender: transaction.sender,
+      receiver: transaction.receiver,
+      verticals,
+      parent,
+      description: {
+        type: TransactionGraphVisualizationType.AssetTransfer,
+        amount: transaction.amount,
+        asset: transaction.asset,
+      },
+    }),
+  ]
 }
 
-const foo = (
-  sender: Address,
-  receiver: Address,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal,
-  overrideDescription?: string
-): TransactionGraphVisualization => {
+const foo = ({
+  sender,
+  receiver,
+  verticals,
+  description,
+  parent,
+}: {
+  sender: Address
+  receiver: Address
+  verticals: TransactionGraphVertical[]
+  description: TransactionGraphVisualizationDescription
+  parent?: TransactionGraphHorizontal
+}): TransactionGraphVisualization => {
   const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromNoParent(sender, verticals)
 
   const toAccountVertical = verticals.find(
@@ -56,5 +94,5 @@ const foo = (
     }
   }
 
-  return asTransactionGraphVisualization(from, to, overrideDescription)
+  return asTransactionGraphVisualization(from, to, description)
 }

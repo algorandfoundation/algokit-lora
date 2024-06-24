@@ -8,23 +8,64 @@ import {
   TransactionGraphHorizontal,
   TransactionGraphVertical,
   TransactionGraphVisualization,
+  TransactionGraphVisualizationDescription,
+  TransactionGraphVisualizationType,
 } from '@/features/transactions-graph'
-import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/asTransactionGraphVisualization'
+import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
+import { Address } from '@/features/accounts/data/types'
 
 export const getPaymentTransactionVisualizations = (
   transaction: PaymentTransaction | InnerPaymentTransaction,
   verticals: TransactionGraphVertical[],
   parent?: TransactionGraphHorizontal
 ): TransactionGraphVisualization[] => {
-  const from = parent
-    ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromNoParent(transaction.sender, verticals)
+  const one = foo({
+    sender: transaction.sender,
+    receiver: transaction.receiver,
+    verticals,
+    description: {
+      type: TransactionGraphVisualizationType.Payment,
+      amount: transaction.amount,
+    },
+    parent,
+  })
+  if (transaction.closeRemainder) {
+    const two = foo({
+      sender: transaction.sender,
+      receiver: transaction.closeRemainder.to,
+      verticals,
+      description: {
+        type: TransactionGraphVisualizationType.PaymentCloseOut,
+        amount: transaction.closeRemainder.amount,
+      },
+      parent,
+    })
+    return [one, two]
+  } else {
+    return [one]
+  }
+}
+
+const foo = ({
+  sender,
+  receiver,
+  verticals,
+  description,
+  parent,
+}: {
+  sender: Address
+  receiver: Address
+  verticals: TransactionGraphVertical[]
+  description: TransactionGraphVisualizationDescription
+  parent?: TransactionGraphHorizontal
+}): TransactionGraphVisualization => {
+  const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromNoParent(sender, verticals)
 
   const toAccountVertical = verticals.find(
-    (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.receiver === c.accountAddress
+    (c): c is TransactionGraphAccountVertical => c.type === 'Account' && c.accountAddress === receiver
   )
   const toApplicationVertical = verticals.find(
-    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && transaction.receiver === c.linkedAccount.accountAddress
+    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === receiver
   )
   let to = fallbackFromTo
   if (toAccountVertical) {
@@ -40,5 +81,5 @@ export const getPaymentTransactionVisualizations = (
     }
   }
 
-  return [asTransactionGraphVisualization(from, to)]
+  return asTransactionGraphVisualization(from, to, description)
 }

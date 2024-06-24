@@ -7,8 +7,9 @@ import {
   TransactionGraphHorizontal,
   TransactionGraphVertical,
   TransactionGraphVisualization,
+  TransactionGraphVisualizationType,
 } from '@/features/transactions-graph'
-import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/asTransactionGraphVisualization'
+import { asTransactionGraphVisualization } from '@/features/transactions-graph/mappers/as-transaction-graph-visualization'
 
 export const getAssetFreezeTransactionVisualizations = (
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction,
@@ -28,5 +29,5 @@ export const getAssetFreezeTransactionVisualizations = (
       }
     : fallbackFromTo
 
-  return [asTransactionGraphVisualization(from, to)]
+  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationType.AssetFreeze })]
 }
