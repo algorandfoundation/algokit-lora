@@ -107,7 +107,7 @@ const RenderTransactionVector = fixedForwardRef(
             {transaction.type === TransactionType.Payment && (
               <>
                 Payment
-                <DisplayAlgo className="flex" amount={transaction.amount} />
+                <DisplayAlgo className="flex justify-center" amount={transaction.amount} short={true} />
               </>
             )}
             {transaction.type === TransactionType.AssetTransfer && (
@@ -118,6 +118,7 @@ const RenderTransactionVector = fixedForwardRef(
                   amount={transaction.amount}
                   className={colorClass.text}
                   linkClassName={colorClass.text}
+                  short={true}
                 />
               </>
             )}
@@ -176,7 +177,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
         ></div>
         <div className={cn('absolute flex w-1/2 justify-center text-xs', colorClass.text)}>
           {transaction.type === TransactionType.Payment && (
-            <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} />
+            <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card')} amount={transaction.amount} short={true} />
           )}
           {transaction.type === TransactionType.AssetTransfer && (
             <DisplayAssetAmount
@@ -184,6 +185,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
               amount={transaction.amount}
               asset={transaction.asset}
               linkClassName={colorClass.text}
+              short={true}
             />
           )}
         </div>
