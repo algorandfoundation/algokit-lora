@@ -13,8 +13,8 @@ type Props = {
 
 export function PaymentTransactionDetails({ transaction }: Props) {
   return (
-    <Card className={cn('px-4 pb-4 pt-2.5')}>
-      <CardContent className={cn('text-sm space-y-4')}>
+    <Card>
+      <CardContent className={cn('space-y-4')}>
         <PaymentTransactionInfo transaction={transaction} />
         <TransactionViewTabs transaction={transaction} />
         {transaction.note && <TransactionNote note={transaction.note} />}

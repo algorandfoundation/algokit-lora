@@ -146,8 +146,8 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card aria-label={assetDetailsLabel} className={cn('p-4')}>
-        <CardContent className={cn('text-sm')}>
+      <Card aria-label={assetDetailsLabel}>
+        <CardContent>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={assetItems} />
             <div className="ml-2 grid gap-2">
@@ -159,8 +159,8 @@ export function AssetDetails({ asset }: Props) {
       </Card>
       {asset.id !== 0 && (
         <>
-          <Card className={cn('px-4 pb-4 pt-2.5')}>
-            <CardContent className={cn('text-sm space-y-1')}>
+          <Card>
+            <CardContent className={cn('space-y-1')}>
               <h2>{assetAddressesLabel}</h2>
               <DescriptionList items={assetAddresses} />
             </CardContent>
@@ -169,8 +169,8 @@ export function AssetDetails({ asset }: Props) {
           <AssetMetadata metadata={asset.metadata} />
           <AssetTraits traits={asset.traits} />
 
-          <Card className={cn('px-4 pb-4 pt-2.5')}>
-            <CardContent className={cn('text-sm space-y-1')}>
+          <Card>
+            <CardContent className={cn('space-y-1')}>
               <h2>{assetActivityLabel}</h2>
               <Tabs defaultValue={assetLiveTransactionsTabId}>
                 <TabsList aria-label={assetActivityLabel}>
