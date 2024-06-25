@@ -40,23 +40,26 @@ const TabsContent = React.forwardRef<
 ))
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
-const OverflowAutoTabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={cn(
-      'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border rounded-b-lg',
-      className
-    )}
-    {...props}
-  >
-    <div className="grid">
-      <div className={cn('overflow-auto p-4')}>{children}</div>
-    </div>
-  </TabsPrimitive.Content>
-))
+interface OverflowAutoTabsContentProps extends TabsPrimitive.TabsContentProps {
+  overflowContainerClassName?: string
+}
+
+const OverflowAutoTabsContent = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Content>, OverflowAutoTabsContentProps>(
+  ({ className, children, overflowContainerClassName, ...props }, ref) => (
+    <TabsPrimitive.Content
+      ref={ref}
+      className={cn(
+        'ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border rounded-b-lg',
+        className
+      )}
+      {...props}
+    >
+      <div className="grid p-4">
+        <div className={cn('overflow-y-auto', overflowContainerClassName)}>{children}</div>
+      </div>
+    </TabsPrimitive.Content>
+  )
+)
 OverflowAutoTabsContent.displayName = TabsPrimitive.Content.displayName
 
 export { Tabs, TabsList, TabsTrigger, TabsContent, OverflowAutoTabsContent }
