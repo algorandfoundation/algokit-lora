@@ -18,7 +18,7 @@ export const transactionFromLabel = 'From'
 export const transactionToLabel = 'To'
 export const transactionAmountLabel = 'Amount'
 export const transactionRoundLabel = 'Round'
-export const transactionDateTimeLabel = 'Date/Time'
+export const transactionTimestampLabel = 'Timestamp'
 
 const expandColumn: ColumnDef<Transaction | InnerTransaction> = {
   id: 'expand',
@@ -69,8 +69,8 @@ const blockColumn: ColumnDef<Transaction | InnerTransaction> = {
     return <BlockLink round={transaction.confirmedRound} />
   },
 }
-const dateTimeColumn: ColumnDef<Transaction | InnerTransaction> = {
-  header: transactionDateTimeLabel,
+const timestampColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionTimestampLabel,
   accessorFn: (transaction) => transaction.roundTime,
   cell: (c) => <DateFormatted date={new Date(c.getValue<number>())} short={true} />,
 }
@@ -106,6 +106,7 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
   idColumn,
   groupColumn,
   blockColumn,
+  timestampColumn,
   fromColumn,
   toColumn,
   typeColumn,
@@ -115,17 +116,6 @@ export const transactionsTableColumnsWithoutRound: ColumnDef<Transaction | Inner
   expandColumn,
   idColumn,
   groupColumn,
-  fromColumn,
-  toColumn,
-  typeColumn,
-  amountColumn,
-]
-export const transactionsTableColumnsWithDateTime: ColumnDef<Transaction | InnerTransaction>[] = [
-  expandColumn,
-  idColumn,
-  groupColumn,
-  blockColumn,
-  dateTimeColumn,
   fromColumn,
   toColumn,
   typeColumn,

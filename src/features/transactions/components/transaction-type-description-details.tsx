@@ -13,7 +13,7 @@ export function TransactionTypeDescriptionDetails({ transaction }: { transaction
   }, [transaction.subType])
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Badge variant={transaction.type}>{transaction.type}</Badge>
       {subTypeComponent}
       {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}

@@ -108,8 +108,8 @@ export function TransactionInfo({ transaction }: Props) {
   ).filter(isDefined)
 
   return (
-    <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm')}>
+    <Card>
+      <CardContent>
         <div className={cn('grid grid-cols-[1fr_max-content]')}>
           <DescriptionList items={transactionInfoItems} />
           <OpenJsonViewDialogButton json={transaction.json} />
