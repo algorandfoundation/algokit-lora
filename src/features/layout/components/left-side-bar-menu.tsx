@@ -5,8 +5,9 @@ import { cn } from '@/features/common/utils'
 import { Button } from '@/features/common/components/button'
 import { useCallback } from 'react'
 import { useLayout, useSelectedNetwork } from '@/features/settings/data'
-import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
+import { useNavigate } from 'react-router-dom'
 
 type Props = {
   className?: string
@@ -14,11 +15,12 @@ type Props = {
 
 const navIconClassName = cn('border rounded-md p-2 ml-2')
 const navLinkClassName = cn(
-  '[&.active]:border-border [&.active]:bg-accent [&.active]:text-primary border border-card rounded-r-md p-[0.34rem] mr-2 gap-2 flex items-center whitespace-nowrap'
+  '[&.active]:border-border [&.active]:bg-accent [&.active]:text-primary border border-card rounded-r-md p-[0.34rem] mr-2 gap-2 flex items-center whitespace-nowrap hover:text-primary'
 )
 
 export function LeftSideBarMenu({ className }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
+  const navigate = useNavigate()
 
   const menuItems = [
     { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
@@ -31,7 +33,11 @@ export function LeftSideBarMenu({ className }: Props) {
     [setLayout]
   )
 
-  const navTextClassName = cn(layout.isLeftSideBarExpanded ? 'visible delay-100' : 'invisible w-0 delay-100')
+  const navTextClassName = cn(
+    layout.isLeftSideBarExpanded
+      ? 'visible transition-[visibility] duration-0 delay-100'
+      : 'invisible w-0 transition-[visibility] duration-0 delay-100'
+  )
 
   return (
     <aside
@@ -46,6 +52,16 @@ export function LeftSideBarMenu({ className }: Props) {
       </Button>
       <NavigationMenu>
         <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink asChild>
+              <button className={navLinkClassName} onClick={() => navigate(-1)}>
+                <div className={navIconClassName}>
+                  <ArrowLeft />
+                </div>
+                <span className={navTextClassName}>Back</span>
+              </button>
+            </NavigationMenuLink>
+          </NavigationMenuItem>
           {menuItems.map((menuItem, index) => (
             <NavigationMenuItem key={index}>
               <NavigationMenuLink asChild>
