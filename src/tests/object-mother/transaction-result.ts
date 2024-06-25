@@ -1712,7 +1712,7 @@ export const transactionResultMother = {
       'tx-type': 'appl',
     } as unknown as TransactionResult)
   },
-  ['mainnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']: () => {
+  ['testnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']: () => {
     return new TransactionResultBuilder({
       'application-transaction': {
         accounts: [],
