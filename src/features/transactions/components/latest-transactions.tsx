@@ -27,7 +27,7 @@ export function LatestTransactions() {
                 >
                   <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
                   <div>
-                    <h3 className={cn('leading-none mb-2')}>{ellipseId(transaction.id)}</h3>
+                    <h3 className={cn('leading-none mb-2 tracking-wide')}>{ellipseId(transaction.id)}</h3>
                     <DescriptionList
                       items={[
                         { dt: 'From:', dd: ellipseAddress(transaction.from) },

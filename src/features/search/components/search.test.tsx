@@ -50,12 +50,12 @@ describe('search', () => {
       {
         type: SearchResultType.Transaction,
         id: 'FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ',
-        label: 'FBORGSD...',
+        label: 'FBORGSD…',
       },
       {
         type: SearchResultType.Account,
         id: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
-        label: 'KIZL...U5BQ',
+        label: 'KIZL…U5BQ',
       },
       {
         type: SearchResultType.Asset,

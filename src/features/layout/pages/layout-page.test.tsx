@@ -59,7 +59,7 @@ describe('when rendering the layout page', () => {
             const walletAddressAbbr = component.getByTitle('CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q')
             expect(walletAddressAbbr).toBeTruthy()
 
-            const walletAddressText = component.getByText('CGRS...LQ5Q')
+            const walletAddressText = component.getByText('CGRS…LQ5Q')
             expect(walletAddressText).toBeTruthy()
           })
         }

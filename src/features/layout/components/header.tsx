@@ -23,8 +23,8 @@ export function Header({ className }: Props) {
         </TemplatedNavLink>
         <Search />
       </div>
-      <div className={cn('flex items-center gap-4 ml-auto')}>
-        <span className="flex">{networkConfig.name}</span>
+      <div className={cn('flex items-center gap-4 ml-auto overflow-hidden')}>
+        <span className="ml-2 truncate">{networkConfig.name}</span>
         <ConnectWalletButton />
       </div>
     </header>

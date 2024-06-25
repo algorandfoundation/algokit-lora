@@ -63,11 +63,11 @@ export function TransactionInfo({ transaction }: Props) {
         dt: transactionIdLabel,
         dd: !isInnerTransaction ? (
           <div className="flex items-center">
-            <span>{transaction.id}</span>
+            <span className="truncate">{transaction.id}</span>
             <CopyButton value={transaction.id} />
           </div>
         ) : (
-          asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId, true)
+          <span className="truncate">{asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId, true)}</span>
         ),
       },
       parentTransactionLink,
@@ -110,7 +110,7 @@ export function TransactionInfo({ transaction }: Props) {
   return (
     <Card>
       <CardContent>
-        <div className={cn('grid grid-cols-[1fr_max-content]')}>
+        <div className={cn('flex gap-2')}>
           <DescriptionList items={transactionInfoItems} />
           <OpenJsonViewDialogButton json={transaction.json} />
         </div>
