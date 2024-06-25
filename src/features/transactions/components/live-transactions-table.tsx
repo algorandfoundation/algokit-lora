@@ -79,8 +79,8 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
       </div>
       <div className="mt-2 flex items-center justify-between">
         <div className="flex w-full">
-          <div className="flex shrink grow basis-0 items-center justify-start space-x-2">
-            <p className="text-sm font-medium">Max rows</p>
+          <div className="flex shrink grow basis-0 items-center justify-start gap-2">
+            <p className="hidden text-sm font-medium md:flex">Max rows</p>
             <Select value={`${maxRows}`} onValueChange={(value) => setMaxRows(Number(value))}>
               <SelectTrigger className="h-8 w-[70px]">
                 <SelectValue placeholder={`${maxRows}`} />

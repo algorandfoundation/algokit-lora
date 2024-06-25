@@ -117,9 +117,8 @@ export function AppCallTransactionInfo({ transaction }: Props) {
 function ApplicationArgs({ transaction }: Props) {
   return (
     <>
-      {transaction.applicationArgs.map((data, index) => (
-        <div key={index}>{data}</div>
-      ))}
+      {transaction.applicationArgs.length === 0 && <div>No application args.</div>}
+      {transaction.applicationArgs.length > 0 && transaction.applicationArgs.map((data, index) => <div key={index}>{data}</div>)}
     </>
   )
 }
@@ -127,9 +126,8 @@ function ApplicationArgs({ transaction }: Props) {
 function ForeignAccounts({ transaction }: Props) {
   return (
     <>
-      {transaction.applicationAccounts.map((data, index) => (
-        <div key={index}>{data}</div>
-      ))}
+      {transaction.applicationAccounts.length === 0 && <div>No foreign accounts.</div>}
+      {transaction.applicationAccounts.length > 0 && transaction.applicationAccounts.map((data, index) => <div key={index}>{data}</div>)}
     </>
   )
 }
@@ -137,9 +135,8 @@ function ForeignAccounts({ transaction }: Props) {
 function ForeignApplications({ transaction }: Props) {
   return (
     <>
-      {transaction.foreignApps.map((data, index) => (
-        <div key={index}>{data}</div>
-      ))}
+      {transaction.foreignApps.length === 0 && <div>No foreign applications.</div>}
+      {transaction.foreignApps.length > 0 && transaction.foreignApps.map((data, index) => <div key={index}>{data}</div>)}
     </>
   )
 }
@@ -147,9 +144,8 @@ function ForeignApplications({ transaction }: Props) {
 function ForeignAssets({ transaction }: Props) {
   return (
     <>
-      {transaction.foreignAssets.map((data, index) => (
-        <div key={index}>{data}</div>
-      ))}
+      {transaction.foreignAssets.length === 0 && <div>No foreign assets.</div>}
+      {transaction.foreignAssets.length > 0 && transaction.foreignAssets.map((data, index) => <div key={index}>{data}</div>)}
     </>
   )
 }
