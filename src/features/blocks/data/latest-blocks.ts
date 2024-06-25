@@ -203,9 +203,8 @@ const subscriberAtom = atom(null, (get, set) => {
     const blockResults = result.blockMetadata.map((b) => {
       return {
         round: b.round,
-        timestamp: b.timestamp,
+        timestamp: Math.floor(new Date(b.timestamp).getTime() / 1000),
         ['transaction-ids']: blockTransactionIds.get(b.round) ?? [],
-        transactions: transactionResults.filter((t) => blockTransactionIds.get(b.round)?.includes(t.id)),
         seed: b.seed ?? '',
         ['genesis-hash']: b.genesisHash,
         ['genesis-id']: b.genesisId,

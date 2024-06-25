@@ -6,11 +6,13 @@ import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type'>[]): CommonBlockProperties => {
   const { ['transaction-ids']: _, ...rest } = block
+  const transactionsWithJson = transactions as Transaction[]
+  const transactionsWithoutJson = transactionsWithJson.map(({ json, ...restTransaction }) => ({ ...restTransaction }))
   return {
     round: block.round,
-    timestamp: block.timestamp,
+    timestamp: new Date(block.timestamp * 1000).toISOString(),
     transactionsSummary: asTransactionsSummary(transactions),
-    json: { ...rest, transactions },
+    json: { ...rest, transactions: transactionsWithoutJson },
   }
 }
 
