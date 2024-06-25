@@ -8,13 +8,12 @@ const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type
   const { ['transaction-ids']: _, ...rest } = block
   const transactionsWithJson = transactions as Transaction[]
   const transactionsWithoutJson = transactionsWithJson.map(({ json, ...restTransaction }) => ({ ...restTransaction }))
-  const formattedTimestamp = new Date(block.timestamp * 1000).toISOString()
 
   return {
     round: block.round,
-    timestamp: formattedTimestamp,
+    timestamp: new Date(block.timestamp * 1000).toISOString(),
     transactionsSummary: asTransactionsSummary(transactions),
-    json: { ...rest, timestamp: formattedTimestamp, transactions: transactionsWithoutJson },
+    json: { ...rest, transactions: transactionsWithoutJson },
   }
 }
 

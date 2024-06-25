@@ -26,6 +26,13 @@ import { algod } from '@/features/common/data/algo-client'
 import { createTimestamp } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
+import { base32Decode } from '@ctrl/ts-base32'
+
+function base32ToBase64(base32String: string): string {
+  const byteArray = base32Decode(base32String)
+  const base64String = Buffer.from(byteArray).toString('base64')
+  return base64String
+}
 
 const maxBlocksToDisplay = 10
 
@@ -208,7 +215,7 @@ const subscriberAtom = atom(null, (get, set) => {
         seed: b.seed ?? '',
         ['genesis-hash']: b.genesisHash,
         ['genesis-id']: b.genesisId,
-        ['previous-block-hash']: b.previousBlockHash ?? '',
+        ['previous-block-hash']: b.previousBlockHash ? base32ToBase64(b.previousBlockHash) : '',
       } satisfies BlockResult
     })
 
