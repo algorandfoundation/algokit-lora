@@ -44,7 +44,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
       >
         {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
-      {'assetName' in props && props.assetName && <span className="ml-1">({props.assetName})</span>}
+      {'assetName' in props && props.assetName && <span className="ml-1 truncate">({props.assetName})</span>}
       {props.showCopyButton && <CopyButton value={props.assetId.toString()} />}
     </div>
   )
