@@ -7,7 +7,7 @@
 
 ---
 
-## The Algorand AlgoKit lora application is a live on-chain resource analyzer, that enabled developers to explore and interact with a configured Algorand network in a visual way
+The Algorand AlgoKit lora application is a live on-chain resource analyzer, that enabled developers to explore and interact with a configured Algorand network in a visual way.
 
 ## What is lora?
 
