@@ -8,9 +8,8 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
         ? initialState
         : {
             round: incrementedNumber('round'),
-            timestamp: randomDate().toISOString(),
+            timestamp: randomDate().getTime(),
             ['transaction-ids']: Array.from({ length: randomNumberBetween(1, 1000) }, () => randomString(52, 52)),
-            transactions: [],
             seed: randomString(64, 64),
             ['genesis-hash']: randomString(64, 64),
             ['genesis-id']: randomString(64, 64),

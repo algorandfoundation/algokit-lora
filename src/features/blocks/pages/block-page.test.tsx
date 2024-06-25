@@ -63,7 +63,7 @@ describe('block-page', () => {
 
   describe('when rendering a block that exists', () => {
     describe('and has no transactions', () => {
-      const block = blockResultMother.blockWithoutTransactions().withRound(12345).withTimestamp('2024-02-29T06:52:01Z').build()
+      const block = blockResultMother.blockWithoutTransactions().withRound(12345).withTimestamp(1719284618).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
@@ -79,7 +79,7 @@ describe('block-page', () => {
                 container: component.container,
                 items: [
                   { term: roundLabel, description: block.round.toString() },
-                  { term: timestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                  { term: timestampLabel, description: 'Tue, 25 June 2024 03:03:38' },
                   { term: transactionsLabel, description: '0' },
                   { term: previousRoundLabel, description: (block.round - 1).toString() },
                   { term: nextRoundLabel, description: (block.round + 1).toString() },
@@ -98,7 +98,7 @@ describe('block-page', () => {
       const transactionResult1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
       const transactionResult2 = transactionResultMother.transfer(asset).build()
       const transactionResults = [transactionResult1, transactionResult2]
-      const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
+      const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
@@ -116,7 +116,7 @@ describe('block-page', () => {
                 container: component.container,
                 items: [
                   { term: roundLabel, description: block.round.toString() },
-                  { term: timestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
+                  { term: timestampLabel, description: 'Tue, 25 June 2024 03:03:38' },
                   { term: transactionsLabel, description: '2Payment=1Asset Transfer=1' },
                   { term: previousRoundLabel, description: (block.round - 1).toString() },
                   { term: nextRoundLabel, description: (block.round + 1).toString() },
