@@ -38,7 +38,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   return (
     <div className="flex items-center">
       <TemplatedNavLink
-        className={cn(!props.children && 'text-primary underline', props.className)}
+        className={cn(!props.children && 'text-primary underline truncate', props.className)}
         urlTemplate={Urls.Explore.Asset.ById}
         urlParams={{ assetId: props.assetId.toString(), networkId: selectedNetwork }}
       >

@@ -10,7 +10,7 @@ export function DescriptionList({ items }: Props) {
       {items.map((item, index) => (
         <dl key={index} className={cn('grid grid-cols-subgrid col-span-2')}>
           <dt>{item.dt}</dt>
-          <dd>{item.dd}</dd>
+          <dd className={cn('overflow-ellipsis whitespace-normal overflow-hidden')}>{item.dd}</dd>
         </dl>
       ))}
     </div>

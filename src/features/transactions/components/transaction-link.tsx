@@ -19,7 +19,7 @@ export function TransactionLink({ transactionId, short = false, className, child
   return (
     <div className="flex items-center">
       <TemplatedNavLink
-        className={cn(!children && 'text-primary underline inline', className)}
+        className={cn(!children && 'text-primary underline inline truncate', className)}
         urlTemplate={Urls.Explore.Transaction.ById}
         urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
       >

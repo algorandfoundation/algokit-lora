@@ -28,7 +28,7 @@ export function BlockDetails({ block }: Props) {
         dt: roundLabel,
         dd: (
           <div className="flex items-center">
-            <span>{block.round}</span>
+            <span className="truncate">{block.round}</span>
             <CopyButton value={block.round.toString()} />
           </div>
         ),

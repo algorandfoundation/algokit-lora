@@ -21,7 +21,7 @@ export const AccountLink = fixedForwardRef(
     return (
       <div className="flex items-center">
         <TemplatedNavLink
-          className={cn(!children && 'text-primary underline', className)}
+          className={cn(!children && 'text-primary underline truncate', className)}
           urlTemplate={Urls.Explore.Account.ByAddress}
           urlParams={{ address, networkId: selectedNetwork }}
           ref={ref}

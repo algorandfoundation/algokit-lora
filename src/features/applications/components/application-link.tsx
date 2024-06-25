@@ -17,7 +17,7 @@ export function ApplicationLink({ applicationId, className, showCopyButton, chil
   return (
     <div className="flex items-center">
       <TemplatedNavLink
-        className={cn(!children && 'text-primary underline', className)}
+        className={cn(!children && 'text-primary underline truncate', className)}
         urlTemplate={Urls.Explore.Application.ById}
         urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
       >
