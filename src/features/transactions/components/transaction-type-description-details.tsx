@@ -3,7 +3,7 @@ import { Badge } from '@/features/common/components/badge'
 
 export function TransactionTypeDescriptionDetails({ transaction }: { transaction: Transaction | InnerTransaction }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Badge variant={transaction.type}>{transaction.type}</Badge>
       <SubTypeComponent subType={transaction.subType} />
       {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}

@@ -12,14 +12,14 @@ export function LatestBlocks() {
   const latestBlocks = useLatestBlockSummaries()
 
   return (
-    <Card className={cn('px-4 pb-4 pt-2')}>
-      <CardContent className={cn('text-sm space-y-1')}>
+    <Card>
+      <CardContent className={cn('space-y-1')}>
         <h2>{latestBlocksTitle}</h2>
         {latestBlocks.length > 0 && (
           <ul>
             {latestBlocks.map((block) => (
               <li key={block.round} className="border-b last:border-0">
-                <BlockLink round={block.round} className="flex gap-2 p-3.5 text-sm animate-in fade-in-20 hover:bg-accent">
+                <BlockLink round={block.round} className="flex w-full gap-2 p-3.5 text-sm animate-in fade-in-20 hover:bg-accent">
                   <Box className="hidden text-primary sm:max-lg:block xl:block" />
                   <div>
                     <h3 className={cn('leading-none mb-2')}>{block.round}</h3>

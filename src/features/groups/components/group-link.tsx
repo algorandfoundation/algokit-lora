@@ -19,11 +19,19 @@ export function GroupLink({ round, groupId, short = false, className, children }
 
   return (
     <TemplatedNavLink
-      className={cn(!children && 'text-primary underline', className)}
+      className={cn(!children && 'text-primary underline', !children && !short && 'truncate', className)}
       urlTemplate={Urls.Explore.Block.ByRound.Group.ById}
       urlParams={{ round: round.toString(), groupId: encodeURIComponent(groupId), networkId: selectedNetwork }}
     >
-      {children ? children : short ? <abbr title={groupId}>{ellipseId(groupId)}</abbr> : groupId}
+      {children ? (
+        children
+      ) : short ? (
+        <abbr className="tracking-wide" title={groupId}>
+          {ellipseId(groupId)}
+        </abbr>
+      ) : (
+        groupId
+      )}
     </TemplatedNavLink>
   )
 }

@@ -4,7 +4,7 @@ import { createLoadableApplicationTransactionsPage } from '../data/application-t
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { useCallback, useMemo } from 'react'
 import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
-import { transactionsTableColumnsWithDateTime } from '@/features/transactions/components/transactions-table-columns'
+import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
 import { ListingOrderLabel } from '@/features/common/components/listing-order-label'
 
 type Props = {
@@ -26,7 +26,7 @@ export function ApplicationTransactionHistory({ applicationId }: Props) {
 
   return (
     <div>
-      <LazyLoadDataTable columns={transactionsTableColumnsWithDateTime} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
+      <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
       <ListingOrderLabel />
     </div>
   )

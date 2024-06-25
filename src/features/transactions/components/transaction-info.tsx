@@ -10,9 +10,10 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { TransactionLink } from './transaction-link'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
-import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
+import { InnerTransactionLink, asInnerTransactionLinkText } from '@/features/transactions/components/inner-transaction-link'
 import { isDefined } from '@/utils/is-defined'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -39,7 +40,7 @@ export function TransactionInfo({ transaction }: Props) {
     if (segments.length === 1) {
       return {
         dt: parentTransactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.networkTransactionId} />,
+        dd: <TransactionLink transactionId={transaction.networkTransactionId} showCopyButton={true} />,
       }
     } else {
       const parentInnerId = segments.slice(0, segments.length - 1).join('/')
@@ -61,13 +62,12 @@ export function TransactionInfo({ transaction }: Props) {
       {
         dt: transactionIdLabel,
         dd: !isInnerTransaction ? (
-          <TransactionLink transactionId={transaction.id} showCopyButton={true} />
+          <div className="flex items-center">
+            <span className="truncate">{transaction.id}</span>
+            <CopyButton value={transaction.id} />
+          </div>
         ) : (
-          <InnerTransactionLink
-            networkTransactionId={transaction.networkTransactionId}
-            innerTransactionId={transaction.innerId}
-            showFullTransactionId={true}
-          />
+          <span className="truncate">{asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId, true)}</span>
         ),
       },
       parentTransactionLink,
@@ -99,7 +99,7 @@ export function TransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionRekeyToLabel,
-              dd: <AccountLink address={transaction.rekeyTo} />,
+              dd: <AccountLink address={transaction.rekeyTo} showCopyButton={true} />,
             },
           ]
         : []),
@@ -108,9 +108,9 @@ export function TransactionInfo({ transaction }: Props) {
   ).filter(isDefined)
 
   return (
-    <Card className={cn('p-4')}>
-      <CardContent className={cn('text-sm')}>
-        <div className={cn('grid grid-cols-[1fr_max-content]')}>
+    <Card>
+      <CardContent>
+        <div className={cn('flex gap-2')}>
           <DescriptionList items={transactionInfoItems} />
           <OpenJsonViewDialogButton json={transaction.json} />
         </div>

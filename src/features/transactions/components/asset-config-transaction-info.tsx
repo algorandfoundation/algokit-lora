@@ -31,11 +31,11 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       [
         {
           dt: transactionSenderLabel,
-          dd: <AccountLink address={transaction.sender} />,
+          dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
         },
         {
           dt: assetLabel,
-          dd: <AssetIdAndNameLink assetId={transaction.assetId} assetName={transaction.name} />,
+          dd: <AssetIdAndNameLink assetId={transaction.assetId} assetName={transaction.name} showCopyButton={true} />,
         },
         transaction.url
           ? {
@@ -44,7 +44,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
                 <a
                   href={replaceIpfsWithGatewayIfNeeded(transaction.url)}
                   className={cn('text-primary underline')}
-                  rel="nofollow"
+                  rel="nofollow noopener noreferrer"
                   target="_blank"
                 >
                   {transaction.url}
@@ -77,25 +77,25 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
         transaction.manager
           ? {
               dt: assetManagerLabel,
-              dd: <AccountLink address={transaction.manager} />,
+              dd: <AccountLink address={transaction.manager} showCopyButton={true} />,
             }
           : undefined,
         transaction.reserve
           ? {
               dt: assetReserveLabel,
-              dd: <AccountLink address={transaction.reserve} />,
+              dd: <AccountLink address={transaction.reserve} showCopyButton={true} />,
             }
           : undefined,
         transaction.freeze
           ? {
               dt: assetFreezeLabel,
-              dd: <AccountLink address={transaction.freeze} />,
+              dd: <AccountLink address={transaction.freeze} showCopyButton={true} />,
             }
           : undefined,
         transaction.clawback
           ? {
               dt: assetClawbackLabel,
-              dd: <AccountLink address={transaction.clawback} />,
+              dd: <AccountLink address={transaction.clawback} showCopyButton={true} />,
             }
           : undefined,
         transaction.defaultFrozen != null

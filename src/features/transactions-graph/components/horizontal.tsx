@@ -73,7 +73,7 @@ function VectorVisualizationDescription({
     return (
       <>
         <span>Payment</span>
-        <DisplayAlgo className="flex justify-center" amount={vector.description.amount} />
+        <DisplayAlgo className="flex justify-center" amount={vector.description.amount} short={true} />
       </>
     )
   }
@@ -81,7 +81,7 @@ function VectorVisualizationDescription({
     return (
       <>
         <span>Close Out</span>
-        <DisplayAlgo className="flex justify-center" amount={vector.description.amount} />
+        <DisplayAlgo className="flex justify-center" amount={vector.description.amount} short={true} />
       </>
     )
   }
@@ -94,6 +94,7 @@ function VectorVisualizationDescription({
           amount={vector.description.amount}
           className={cn('flex justify-center', colorClass.text)}
           linkClassName={colorClass.text}
+          short={true}
         />
       </>
     )
@@ -123,7 +124,7 @@ function SelfLoopVisualizationDescription({
 }) {
   const colorClass = colorClassMap[transaction.type]
   if (loop.description.type === TransactionGraphVisualizationDescriptionType.Payment) {
-    return <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card flex justify-center')} amount={loop.description.amount} />
+    return <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card flex justify-center')} amount={loop.description.amount} short={true} />
   }
   if (loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer) {
     return (
@@ -132,6 +133,7 @@ function SelfLoopVisualizationDescription({
         amount={loop.description.amount}
         asset={loop.description.asset}
         linkClassName={colorClass.text}
+        short={true}
       />
     )
   }
@@ -139,7 +141,7 @@ function SelfLoopVisualizationDescription({
     return (
       <>
         <span>Close Out</span>
-        <DisplayAlgo className="flex justify-center" amount={loop.description.amount} />
+        <DisplayAlgo className="flex justify-center" amount={loop.description.amount} short={true} />
       </>
     )
   }

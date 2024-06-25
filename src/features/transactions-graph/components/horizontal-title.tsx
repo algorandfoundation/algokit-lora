@@ -33,7 +33,7 @@ export function HorizontalTitle({ horizontal }: Props) {
       <div
         className={cn('inline')}
         style={{
-          marginLeft: hasParent ? `${graphConfig.indentationWidth + 8}px` : `16px`,
+          marginLeft: hasParent ? `${graphConfig.indentationWidth + 10}px` : hasChildren ? `10px` : '0px',
         }}
       >
         {component}

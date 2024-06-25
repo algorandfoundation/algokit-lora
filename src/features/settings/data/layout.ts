@@ -6,7 +6,7 @@ export type LayoutConfig = {
   isLeftSideBarExpanded: boolean
 }
 
-export const layoutConfigAtom = atomWithStorage<LayoutConfig>(
+const layoutConfigAtom = atomWithStorage<LayoutConfig>(
   'layout-config',
   {
     isLeftSideBarExpanded: true,

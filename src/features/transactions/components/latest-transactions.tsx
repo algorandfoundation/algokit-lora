@@ -14,8 +14,8 @@ export function LatestTransactions() {
   const latestTransactions = useLatestTransactionSummaries()
 
   return (
-    <Card className={cn('px-4 pb-4 pt-2')}>
-      <CardContent className={cn('text-sm space-y-1')}>
+    <Card>
+      <CardContent className={cn('space-y-1')}>
         <h2>{latestTransactionsTitle}</h2>
         {latestTransactions.length > 0 && (
           <ul>
@@ -23,11 +23,11 @@ export function LatestTransactions() {
               <li key={transaction.id} className="border-b last:border-0">
                 <TransactionLink
                   transactionId={transaction.id}
-                  className="flex gap-2 p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent"
+                  className="flex w-full gap-2 p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent"
                 >
                   <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
                   <div>
-                    <h3 className={cn('leading-none mb-2')}>{ellipseId(transaction.id)}</h3>
+                    <h3 className={cn('leading-none mb-2 tracking-wide')}>{ellipseId(transaction.id)}</h3>
                     <DescriptionList
                       items={[
                         { dt: 'From:', dd: ellipseAddress(transaction.from) },

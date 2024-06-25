@@ -7,6 +7,7 @@ import { Badge } from '@/features/common/components/badge'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupTransactionsViewTabs } from './group-transactions-view-tabs'
 import { DateFormatted } from '@/features/common/components/date-formatted'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   group: Group
@@ -22,7 +23,12 @@ export function GroupDetails({ group }: Props) {
     () => [
       {
         dt: groupIdLabel,
-        dd: group.id,
+        dd: (
+          <div className="flex items-center">
+            <span className="truncate">{group.id}</span>
+            <CopyButton value={group.id} />
+          </div>
+        ),
       },
       {
         dt: blockLabel,
@@ -31,8 +37,8 @@ export function GroupDetails({ group }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <div className="flex items-center gap-2">
-            <span>{group.transactionsSummary.count}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="truncate">{group.transactionsSummary.count}</span>
             {group.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>
                 {type}={count}
@@ -51,13 +57,13 @@ export function GroupDetails({ group }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm')}>
+      <Card>
+        <CardContent>
           <DescriptionList items={groupItems} />
         </CardContent>
       </Card>
-      <Card className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card>
+        <CardContent className={cn('space-y-1')}>
           <h2>{transactionsLabel}</h2>
           <GroupTransactionsViewTabs group={group} />
         </CardContent>

@@ -11,6 +11,14 @@ type Props = PropsWithChildren<{
   className?: string
 }>
 
+export function asInnerTransactionLinkText(
+  networkTransactionId: string,
+  innerTransactionId: string,
+  showFullTransactionId: boolean = false
+) {
+  return showFullTransactionId ? `${networkTransactionId}/inner/${innerTransactionId}` : `inner/${innerTransactionId}`
+}
+
 export function InnerTransactionLink({ networkTransactionId, innerTransactionId, className, children, showFullTransactionId }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
   const url = Urls.Explore.Transaction.ById.Inner.ById.build({ networkId: selectedNetwork, transactionId: networkTransactionId }).replace(
@@ -20,7 +28,7 @@ export function InnerTransactionLink({ networkTransactionId, innerTransactionId,
 
   return (
     <NavLink className={cn(!children && 'text-primary underline tracking-tight', className)} to={url}>
-      {children ? children : showFullTransactionId ? `${networkTransactionId}/inner/${innerTransactionId}` : `inner/${innerTransactionId}`}
+      {children ? children : asInnerTransactionLinkText(networkTransactionId, innerTransactionId, showFullTransactionId)}
     </NavLink>
   )
 }

@@ -19,15 +19,15 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
       },
       {
         dt: assetLabel,
-        dd: <AssetLink asset={transaction.asset} />,
+        dd: <AssetLink asset={transaction.asset} showCopyButton={true} />,
       },
       {
         dt: assetFreezeAddressLabel,
-        dd: <AccountLink address={transaction.address} />,
+        dd: <AccountLink address={transaction.address} showCopyButton={true} />,
       },
       {
         dt: assetFreezeStatusLabel,

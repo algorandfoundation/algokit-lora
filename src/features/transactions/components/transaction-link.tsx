@@ -3,8 +3,7 @@ import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
 import { ellipseId } from '@/utils/ellipse-id'
-import { PropsWithChildren, useCallback } from 'react'
-import { toast } from 'react-toastify'
+import { PropsWithChildren } from 'react'
 import { useSelectedNetwork } from '@/features/settings/data'
 
 type Props = PropsWithChildren<{
@@ -16,21 +15,25 @@ type Props = PropsWithChildren<{
 
 export function TransactionLink({ transactionId, short = false, className, children, showCopyButton }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
-  const copyClipboard = useCallback(async () => {
-    await navigator.clipboard.writeText(transactionId)
-    toast.success('Transaction ID copied to clipboard')
-  }, [transactionId])
 
   return (
-    <>
+    <div className="flex items-center">
       <TemplatedNavLink
-        className={cn(!children && 'text-primary underline inline', className)}
+        className={cn(!children && 'text-primary underline inline', !children && !short && 'truncate', className)}
         urlTemplate={Urls.Explore.Transaction.ById}
         urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
       >
-        {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
+        {children ? (
+          children
+        ) : short ? (
+          <abbr className="tracking-wide" title={transactionId}>
+            {ellipseId(transactionId)}
+          </abbr>
+        ) : (
+          transactionId
+        )}
       </TemplatedNavLink>
-      {showCopyButton && <CopyButton onClick={copyClipboard} className={cn('align-middle ml-2')} />}
-    </>
+      {showCopyButton && <CopyButton value={transactionId} />}
+    </div>
   )
 }

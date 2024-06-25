@@ -58,6 +58,15 @@
 
     --key-registration: 107 94 9;
     --key-registration-foreground: 255 255 255;
+
+    --toastify-color-light: rgb(var(--card));
+    --toastify-color-dark: rgb(var(--card));
+    --toastify-color-info: rgb(var(--application-call));
+    --toastify-color-success: rgb(var(--state-proof));
+    --toastify-color-warning: rgb(var(--key-registration));
+    --toastify-color-error: rgb(var(--payment));
+    --toastify-text-color-light: rgb(var(--foreground));
+    --toastify-text-color-dark: rgb(var(--foreground));
   }
 
   .dark {
@@ -155,5 +164,10 @@
 
   small {
     @apply text-sm text-muted-foreground leading-none;
+  }
+
+  abbr {
+    text-decoration: none;
+    white-space: nowrap;
   }
 }

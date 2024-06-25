@@ -188,7 +188,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['', 'FBORGSD...', '', 'M3IA...OXXM', 'KIZL...U5BQ', 'Payment', '236.07'],
+                cells: ['', 'FBORGSD…', '', 'M3IA…OXXM', 'KIZL…U5BQ', 'Payment', '236.07'],
               },
             ],
           })
@@ -510,7 +510,7 @@ describe('transaction-page', () => {
               { term: transactionFeeLabel, description: '0.001' },
               { term: transactionSenderLabel, description: 'J2WKA2P622UGRYLEQJPTM3K62RLWOKWSIY32A7HUNJ7HKQCRJANHNBFLBQ' },
               { term: transactionReceiverLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
-              { term: assetLabel, description: '140479105 (Clyders)' },
+              { term: assetLabel, description: '140479105(Clyders)' },
               { term: transactionAmountLabel, description: '0CLY' },
               { term: assetTransactionCloseRemainderToLabel, description: 'LINTQTVHWUFZR677Z6GD3MTVWEXDX26Z2V7Q7QSD6NOQ6WOZTMSIMYCQE4' },
               { term: assetTransactionCloseRemainderAmountLabel, description: '0CLY' },
@@ -534,7 +534,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['', 'V7GQPE5...', '', 'J2WK...FLBQ', 'LINT...CQE4', 'Asset Transfer', '0CLY'],
+                cells: ['', 'V7GQPE5…', '', 'J2WK…FLBQ', 'LINT…CQE4', 'Asset Transfer', '0CLY'],
               },
             ],
           })
@@ -686,9 +686,9 @@ describe('transaction-page', () => {
           tableAssertion({
             container: tableViewTab,
             rows: [
-              { cells: ['', 'KMNBSQ4...', 'Tjo3cLO...', 'W2IZ...NCEY', '971368268', 'Application Call', ''] },
-              { cells: ['', 'inner/1', '', '2ZPN...DJJ4', 'W2IZ...NCEY', 'Payment', '236.706032'] },
-              { cells: ['', 'inner/2', '', '2ZPN...DJJ4', '971350278', 'Application Call', ''] },
+              { cells: ['', 'KMNBSQ4…', 'Tjo3cLO…', 'W2IZ…NCEY', '971368268', 'Application Call', ''] },
+              { cells: ['', 'inner/1', '', '2ZPN…DJJ4', 'W2IZ…NCEY', 'Payment', '236.706032'] },
+              { cells: ['', 'inner/2', '', '2ZPN…DJJ4', '971350278', 'Application Call', ''] },
             ],
           })
         }
@@ -765,13 +765,13 @@ describe('transaction-page', () => {
             container: localStateDeltaTab,
             rows: [
               {
-                cells: ['2PIF...RNMM', 'asset_1_reserves', 'Uint', 'Set', '1624171900529'],
+                cells: ['2PIF…RNMM', 'asset_1_reserves', 'Uint', 'Set', '1624171900529'],
               },
               {
-                cells: ['2PIF...RNMM', 'asset_2_protocol_fees', 'Uint', 'Set', '177107130743'],
+                cells: ['2PIF…RNMM', 'asset_2_protocol_fees', 'Uint', 'Set', '177107130743'],
               },
               {
-                cells: ['2PIF...RNMM', 'asset_2_reserves', 'Uint', 'Set', '7646891725226'],
+                cells: ['2PIF…RNMM', 'asset_2_reserves', 'Uint', 'Set', '7646891725226'],
               },
             ],
           })
@@ -782,8 +782,8 @@ describe('transaction-page', () => {
           tableAssertion({
             container: tableViewTab,
             rows: [
-              { cells: ['', 'inner/2', 'aWpPwlo...', 'AACC...EN4A', '1002541853', 'Application Call', ''] },
-              { cells: ['', 'inner/2/1', '', '2PIF...RNMM', 'AACC...EN4A', 'Asset Transfer', '0.586582USDC'] },
+              { cells: ['', 'inner/2', 'aWpPwlo…', 'AACC…EN4A', '1002541853', 'Application Call', ''] },
+              { cells: ['', 'inner/2/1', '', '2PIF…RNMM', 'AACC…EN4A', 'Asset Transfer', '0.586582USDC'] },
             ],
           })
 
@@ -955,7 +955,7 @@ describe('transaction-page', () => {
                 { term: transactionBlockLabel, description: '38185488' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
-                { term: assetLabel, description: '1781083085 (DHM: M5+ Quake us6000mt40)' },
+                { term: assetLabel, description: '1781083085(DHM: M5+ Quake us6000mt40)' },
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/quake/us6000mt40.png#i' },
                 { term: assetUnitLabel, description: 'QUAKE' },
                 { term: assetTotalSupplyLabel, description: '1 QUAKE' },
@@ -983,7 +983,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['', 'ZXQMOO6...', '', 'EHYQ...KBPU', '1781083085', 'Asset Config', ''],
+                cells: ['', 'ZXQMOO6…', '', 'EHYQ…KBPU', '1781083085', 'Asset Config', ''],
               },
             ],
           })
@@ -1049,7 +1049,7 @@ describe('transaction-page', () => {
               { term: transactionGroupLabel, description: 'xERjxVTlNb8jeHa16qmpxDMh4+dcDCokO69QnNESbFk=' },
               { term: transactionFeeLabel, description: '0.001' },
               { term: transactionSenderLabel, description: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY' },
-              { term: assetLabel, description: '1707148495 (Verification Lofty #29297)' },
+              { term: assetLabel, description: '1707148495(Verification Lofty #29297)' },
               { term: assetFreezeAddressLabel, description: 'ZJU3X2B2QN3BUBIJ64JZ565V363ANGBUDOLXAJHDXGIIMYK6WV3NSNCBQQ' },
               { term: assetFreezeStatusLabel, description: 'Frozen' },
             ],
@@ -1071,7 +1071,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['', '2XFGVOH...', 'xERjxVT...', 'E4A6...VZHY', 'ZJU3...CBQQ', 'Asset Freeze', ''],
+                cells: ['', '2XFGVOH…', 'xERjxVT…', 'E4A6…VZHY', 'ZJU3…CBQQ', 'Asset Freeze', ''],
               },
             ],
           })

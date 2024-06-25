@@ -59,7 +59,10 @@ export function Search() {
 
   return (
     <Command
-      className={cn('bg-popover text-popover-foreground w-[22rem] h-auto z-20 border border-input mt-[1.2rem]', term && 'shadow-md')}
+      className={cn(
+        'hidden md:flex bg-popover text-popover-foreground w-[22rem] h-auto z-20 border border-input mt-[1.2rem]',
+        term && 'shadow-md'
+      )}
       shouldFilter={false}
       loop
     >
@@ -71,35 +74,34 @@ export function Search() {
         onSearchClear={clearTerm}
       />
       <CommandList>
-        <RenderLoadable
-          loadable={loadableResults}
-          fallback={
-            <CommandLoading>
-              <Loader className="mx-auto size-5 animate-spin" />
-            </CommandLoading>
-          }
-        >
-          {(results) => {
-            if (!term) {
-              return <></>
+        {term && (
+          <RenderLoadable
+            loadable={loadableResults}
+            fallback={
+              <CommandLoading>
+                <Loader className="mx-auto size-5 animate-spin" />
+              </CommandLoading>
             }
-            if (!results || results.length === 0) {
-              return <CommandEmpty>{noSearchResultsMessage}</CommandEmpty>
-            }
-            return (
-              <CommandGroup heading="Results" className={cn('border-t border-input')}>
-                {results.map((result) => {
-                  return (
-                    <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
-                      <span>{result.label}</span>
-                      <span className={cn('ml-auto text-xs')}>{result.type}</span>
-                    </CommandItem>
-                  )
-                })}
-              </CommandGroup>
-            )
-          }}
-        </RenderLoadable>
+          >
+            {(results) => {
+              if (!results || results.length === 0) {
+                return <CommandEmpty>{noSearchResultsMessage}</CommandEmpty>
+              }
+              return (
+                <CommandGroup heading="Results" className={cn('border-t border-input')}>
+                  {results.map((result) => {
+                    return (
+                      <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
+                        <span>{result.label}</span>
+                        <span className={cn('ml-auto text-xs')}>{result.type}</span>
+                      </CommandItem>
+                    )
+                  })}
+                </CommandGroup>
+              )
+            }}
+          </RenderLoadable>
+        )}
       </CommandList>
     </Command>
   )

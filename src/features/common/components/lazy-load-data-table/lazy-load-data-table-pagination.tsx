@@ -26,8 +26,8 @@ export function LazyLoadDataTablePagination({
   return (
     <div className="mt-2 flex items-center justify-between">
       <div className="flex w-full">
-        <div className="flex shrink grow basis-0 items-center justify-start space-x-2">
-          <p className="text-sm font-medium">Rows per page</p>
+        <div className="flex shrink grow basis-0 items-center justify-start gap-2">
+          <p className="hidden text-sm font-medium md:flex">Rows per page</p>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => {

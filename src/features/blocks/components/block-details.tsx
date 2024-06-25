@@ -9,6 +9,7 @@ import { RenderInlineAsyncAtom } from '@/features/common/components/render-inlin
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
 import { DateFormatted } from '@/features/common/components/date-formatted'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = {
   block: Block
@@ -25,7 +26,12 @@ export function BlockDetails({ block }: Props) {
     () => [
       {
         dt: roundLabel,
-        dd: block.round,
+        dd: (
+          <div className="flex items-center">
+            <span className="truncate">{block.round}</span>
+            <CopyButton value={block.round.toString()} />
+          </div>
+        ),
       },
       {
         dt: timestampLabel,
@@ -34,7 +40,7 @@ export function BlockDetails({ block }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span>{block.transactionsSummary.count}</span>
             {block.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>
@@ -65,13 +71,13 @@ export function BlockDetails({ block }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm')}>
+      <Card>
+        <CardContent>
           <DescriptionList items={blockItems} />
         </CardContent>
       </Card>
-      <Card className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card>
+        <CardContent className={cn('space-y-1')}>
           <h2>{transactionsLabel}</h2>
           <TransactionsTable transactions={block.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />
         </CardContent>
