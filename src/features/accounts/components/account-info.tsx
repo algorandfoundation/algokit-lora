@@ -92,8 +92,8 @@ export function AccountInfo({ account }: Props) {
     totalApplicationsOptedIn,
   ])
   return (
-    <Card aria-label={accountInformationLabel} className={cn('p-4')}>
-      <CardContent className={cn('text-sm')}>
+    <Card aria-label={accountInformationLabel}>
+      <CardContent>
         <div className={cn('grid grid-cols-[1fr_max-content]')}>
           <DescriptionList items={accountInfoItems} />
           <OpenJsonViewDialogButton json={account.json} />

@@ -41,7 +41,7 @@ export function BlockDetails({ block }: Props) {
       {
         dt: transactionsLabel,
         dd: (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span>{block.transactionsSummary.count}</span>
             {block.transactionsSummary.countByType.map(([type, count]) => (
               <Badge key={type} variant={type}>
@@ -72,16 +72,16 @@ export function BlockDetails({ block }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card className={cn('p-4')}>
-        <CardContent className={cn('text-sm')}>
+      <Card>
+        <CardContent>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={blockItems} />
             <OpenJsonViewDialogButton json={block.json} />
           </div>
         </CardContent>
       </Card>
-      <Card className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card>
+        <CardContent className={cn('space-y-1')}>
           <h2>{transactionsLabel}</h2>
           <TransactionsTable transactions={block.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />
         </CardContent>

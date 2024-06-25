@@ -32,7 +32,7 @@ export function ApplicationProgram({ tabsListAriaLabel, base64Program }: Props) 
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={base64ProgramTabId}>
-        <pre>{base64Program ?? 'No program available.'}</pre>
+        <pre className="text-wrap break-all">{base64Program ?? 'No program available.'}</pre>
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={tealProgramTabId}>
         <div className="h-96">

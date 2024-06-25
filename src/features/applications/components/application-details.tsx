@@ -50,7 +50,7 @@ export function ApplicationDetails({ application }: Props) {
       {
         dt: applicationIdLabel,
         dd: (
-          <div className={'flex items-center gap-2'}>
+          <div className={'flex flex-wrap items-center gap-2'}>
             <div className="flex items-center">
               <span>{application.id}</span>
               <CopyButton value={application.id.toString()} />
@@ -111,22 +111,22 @@ export function ApplicationDetails({ application }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card aria-label={applicationDetailsLabel} className={cn('p-4')}>
-        <CardContent className={cn('text-sm')}>
+      <Card aria-label={applicationDetailsLabel}>
+        <CardContent>
           <div className={cn('grid grid-cols-[1fr_max-content]')}>
             <DescriptionList items={applicationItems} />
             <OpenJsonViewDialogButton json={application.json} expandJsonLevel={expandApplicationJsonLevel} />
           </div>
         </CardContent>
       </Card>
-      <Card aria-label={applicationApprovalProgramLabel} className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card aria-label={applicationApprovalProgramLabel}>
+        <CardContent className={cn('space-y-1')}>
           <h2>{applicationApprovalProgramLabel}</h2>
           <ApplicationProgram tabsListAriaLabel={applicationApprovalProgramTabsListAriaLabel} base64Program={application.approvalProgram} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationClearStateProgramLabel} className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card aria-label={applicationClearStateProgramLabel}>
+        <CardContent className={cn('space-y-1')}>
           <h2>{applicationClearStateProgramLabel}</h2>
           <ApplicationProgram
             tabsListAriaLabel={applicationClearStateProgramTabsListAriaLabel}
@@ -134,20 +134,20 @@ export function ApplicationDetails({ application }: Props) {
           />
         </CardContent>
       </Card>
-      <Card aria-label={applicationGlobalStateLabel} className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card aria-label={applicationGlobalStateLabel}>
+        <CardContent className={cn('space-y-1')}>
           <h2>{applicationGlobalStateLabel}</h2>
           <ApplicationGlobalStateTable application={application} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationBoxesLabel} className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card aria-label={applicationBoxesLabel}>
+        <CardContent className={cn('space-y-1')}>
           <h2>{applicationBoxesLabel}</h2>
           <ApplicationBoxes applicationId={application.id} />
         </CardContent>
       </Card>
-      <Card aria-label={applicationTransactionsLabel} className={cn('px-4 pb-4 pt-2')}>
-        <CardContent className={cn('text-sm space-y-1')}>
+      <Card aria-label={applicationTransactionsLabel}>
+        <CardContent className={cn('space-y-1')}>
           <h2>{applicationTransactionsLabel}</h2>
           <Tabs defaultValue={applicationLiveTransactionsTabId}>
             <TabsList aria-label={applicationTransactionsLabel}>

@@ -4,7 +4,7 @@ import { createLoadableAccountTransactionsPage } from '../data/account-transacti
 import { useCallback, useMemo } from 'react'
 import { getAccountTransactionsTableSubRows } from '../utils/get-account-transactions-table-sub-rows'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
-import { transactionsTableColumnsWithDateTime } from '@/features/transactions/components/transactions-table-columns'
+import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
 import { ListingOrderLabel } from '@/features/common/components/listing-order-label'
 
 type Props = {
@@ -17,7 +17,7 @@ export function AccountTransactionHistory({ address }: Props) {
 
   return (
     <div>
-      <LazyLoadDataTable columns={transactionsTableColumnsWithDateTime} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
+      <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
       <ListingOrderLabel oldestToNewest={false} />
     </div>
   )
