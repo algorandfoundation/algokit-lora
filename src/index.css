@@ -165,4 +165,9 @@
   small {
     @apply text-sm text-muted-foreground leading-none;
   }
+
+  abbr {
+    text-decoration: none;
+    white-space: nowrap;
+  }
 }

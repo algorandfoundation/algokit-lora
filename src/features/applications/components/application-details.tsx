@@ -51,8 +51,8 @@ export function ApplicationDetails({ application }: Props) {
         dt: applicationIdLabel,
         dd: (
           <div className={'flex flex-wrap items-center gap-2'}>
-            <div className="flex items-center">
-              <span>{application.id}</span>
+            <div className="flex items-center overflow-hidden">
+              <span className="truncate">{application.id}</span>
               <CopyButton value={application.id.toString()} />
             </div>
             {application.isDeleted && <Badge variant="outline">Deleted</Badge>}
@@ -113,7 +113,7 @@ export function ApplicationDetails({ application }: Props) {
     <div className={cn('space-y-4')}>
       <Card aria-label={applicationDetailsLabel}>
         <CardContent>
-          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+          <div className={cn('flex gap-2')}>
             <DescriptionList items={applicationItems} />
             <OpenJsonViewDialogButton json={application.json} expandJsonLevel={expandApplicationJsonLevel} />
           </div>

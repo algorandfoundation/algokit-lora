@@ -83,19 +83,21 @@ export function TransactionNote({ note }: TransactionNoteProps) {
           )}
         </TabsList>
 
-        <OverflowAutoTabsContent value={base64NoteTabId}>
+        <OverflowAutoTabsContent value={base64NoteTabId} overflowContainerClassName="max-h-96">
           <span className="text-wrap break-all">{note}</span>
         </OverflowAutoTabsContent>
-        <OverflowAutoTabsContent value={textNoteTabId}>{text}</OverflowAutoTabsContent>
+        <OverflowAutoTabsContent value={textNoteTabId} overflowContainerClassName="max-h-96">
+          {text}
+        </OverflowAutoTabsContent>
         {json && (
-          <OverflowAutoTabsContent value={jsonNoteTabId}>
+          <OverflowAutoTabsContent value={jsonNoteTabId} overflowContainerClassName="max-h-96">
             <div className="ml-[-10px]">
               <ReactJsonView data={json} style={currentStyle} />
             </div>
           </OverflowAutoTabsContent>
         )}
         {arc2 && (
-          <OverflowAutoTabsContent value={arc2NoteTabId}>
+          <OverflowAutoTabsContent value={arc2NoteTabId} overflowContainerClassName="max-h-96">
             <div className="overflow-auto">
               <DescriptionList
                 items={[

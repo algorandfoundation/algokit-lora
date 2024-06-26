@@ -37,7 +37,7 @@ export function AccountInfo({ account }: Props) {
         dt: accountAddressLabel,
         dd: (
           <div className="flex items-center">
-            <span>{account.address}</span>
+            <span className="truncate">{account.address}</span>
             <CopyButton value={account.address} />
           </div>
         ),
@@ -94,7 +94,7 @@ export function AccountInfo({ account }: Props) {
   return (
     <Card aria-label={accountInformationLabel}>
       <CardContent>
-        <div className={cn('grid grid-cols-[1fr_max-content]')}>
+        <div className={cn('flex gap-2')}>
           <DescriptionList items={accountInfoItems} />
           <OpenJsonViewDialogButton json={account.json} />
         </div>

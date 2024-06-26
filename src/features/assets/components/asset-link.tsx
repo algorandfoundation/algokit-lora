@@ -38,13 +38,13 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   return (
     <div className="flex items-center">
       <TemplatedNavLink
-        className={cn(!props.children && 'text-primary underline', props.className)}
+        className={cn(!props.children && 'text-primary underline truncate', props.className)}
         urlTemplate={Urls.Explore.Asset.ById}
         urlParams={{ assetId: props.assetId.toString(), networkId: selectedNetwork }}
       >
         {props.children ? props.children : props.assetId}
       </TemplatedNavLink>
-      {'assetName' in props && props.assetName && <span className="ml-1">({props.assetName})</span>}
+      {'assetName' in props && props.assetName && <span className="ml-1 truncate">({props.assetName})</span>}
       {props.showCopyButton && <CopyButton value={props.assetId.toString()} />}
     </div>
   )

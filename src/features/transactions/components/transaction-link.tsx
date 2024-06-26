@@ -19,11 +19,19 @@ export function TransactionLink({ transactionId, short = false, className, child
   return (
     <div className="flex items-center">
       <TemplatedNavLink
-        className={cn(!children && 'text-primary underline inline', className)}
+        className={cn(!children && 'text-primary underline inline', !children && !short && 'truncate', className)}
         urlTemplate={Urls.Explore.Transaction.ById}
         urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
       >
-        {children ? children : short ? <abbr title={transactionId}>{ellipseId(transactionId)}</abbr> : transactionId}
+        {children ? (
+          children
+        ) : short ? (
+          <abbr className="tracking-wide" title={transactionId}>
+            {ellipseId(transactionId)}
+          </abbr>
+        ) : (
+          transactionId
+        )}
       </TemplatedNavLink>
       {showCopyButton && <CopyButton value={transactionId} />}
     </div>

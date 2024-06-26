@@ -31,13 +31,11 @@ export function ApplicationProgram({ tabsListAriaLabel, base64Program }: Props) 
           {tealProgramTabLabel}
         </TabsTrigger>
       </TabsList>
-      <OverflowAutoTabsContent value={base64ProgramTabId}>
+      <OverflowAutoTabsContent value={base64ProgramTabId} overflowContainerClassName="max-h-96">
         <pre className="text-wrap break-all">{base64Program ?? 'No program available.'}</pre>
       </OverflowAutoTabsContent>
-      <OverflowAutoTabsContent value={tealProgramTabId}>
-        <div className="h-96">
-          <RenderLoadable loadable={tealLoadable}>{(teal) => <pre>{teal ?? 'No program available.'}</pre>}</RenderLoadable>
-        </div>
+      <OverflowAutoTabsContent value={tealProgramTabId} overflowContainerClassName="max-h-96">
+        <RenderLoadable loadable={tealLoadable}>{(teal) => <pre>{teal ?? 'No program available.'}</pre>}</RenderLoadable>
       </OverflowAutoTabsContent>
     </Tabs>
   )

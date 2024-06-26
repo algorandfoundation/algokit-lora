@@ -54,8 +54,8 @@ export function AssetDetails({ asset }: Props) {
         dt: assetIdLabel,
         dd: (
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center">
-              <span>{asset.id}</span>
+            <div className="flex items-center overflow-hidden">
+              <span className="truncate">{asset.id}</span>
               <CopyButton value={asset.id.toString()} />
             </div>
             {asset.standardsUsed.map((s, i) => (
@@ -148,9 +148,9 @@ export function AssetDetails({ asset }: Props) {
     <div className={cn('space-y-4')}>
       <Card aria-label={assetDetailsLabel}>
         <CardContent>
-          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+          <div className={cn('flex gap-2')}>
             <DescriptionList items={assetItems} />
-            <div className="ml-2 grid gap-2">
+            <div className="ml-auto flex flex-col gap-2">
               <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
               <AssetMedia asset={asset} />
             </div>

@@ -32,11 +32,13 @@ export function MultisigDetails({ signature }: MultisigProps) {
   )
 
   return (
-    <Card>
-      <CardContent className={cn('space-y-1')}>
-        <h2>Multisig</h2>
-        <DescriptionList items={multisigItems} />
-      </CardContent>
-    </Card>
+    <div className={cn('space-y-2')}>
+      <h3>Multisig</h3>
+      <Card>
+        <CardContent className={cn('space-y-1')}>
+          <DescriptionList items={multisigItems} />
+        </CardContent>
+      </Card>
+    </div>
   )
 }
