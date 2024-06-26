@@ -30,7 +30,7 @@ export enum TransactionGraphVisualizationType {
 
 export enum TransactionGraphVisualizationDescriptionType {
   Payment = 'Payment',
-  PaymentCloseOut = 'Payment Close Out',
+  PaymentTransferRemainder = 'Payment Transfer Remainder',
   AssetTransfer = 'Asset Transfer',
   ApplicationCall = 'App Call',
   AssetConfig = 'Asset Config',
@@ -38,7 +38,7 @@ export enum TransactionGraphVisualizationDescriptionType {
   KeyReg = 'Key Reg',
   StateProof = 'State Proof',
   Clawback = 'Clawback',
-  AssetCloseOut = 'Asset Close Out',
+  AssetTransferRemainder = 'Asset Transfer Remainder',
 }
 
 export type TransactionGraphVisualizationDescription =
@@ -47,7 +47,7 @@ export type TransactionGraphVisualizationDescription =
       amount: AlgoAmount
     }
   | {
-      type: TransactionGraphVisualizationDescriptionType.PaymentCloseOut
+      type: TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder
       amount: AlgoAmount
     }
   | {
@@ -56,11 +56,11 @@ export type TransactionGraphVisualizationDescription =
       amount: number | bigint
     }
   | {
-      type: TransactionGraphVisualizationDescriptionType.AssetCloseOut
+      type: TransactionGraphVisualizationDescriptionType.AssetTransferRemainder
       asset: AsyncMaybeAtom<AssetSummary>
       amount: number | bigint
     }
-  | { type: TransactionGraphVisualizationDescriptionType.Clawback }
+  | { type: TransactionGraphVisualizationDescriptionType.Clawback; asset: AsyncMaybeAtom<AssetSummary>; amount: number | bigint }
   | { type: TransactionGraphVisualizationDescriptionType.ApplicationCall }
   | { type: TransactionGraphVisualizationDescriptionType.AssetConfig }
   | { type: TransactionGraphVisualizationDescriptionType.AssetFreeze }

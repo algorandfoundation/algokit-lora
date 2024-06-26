@@ -19,8 +19,6 @@ import {
   TransactionType,
 } from '@/features/transactions/models'
 import {
-  calculateFromNoParent,
-  calculateFromWithParent,
   fallbackFromTo,
   TransactionGraphAccountVertical,
   TransactionGraphApplicationVertical,
@@ -54,14 +52,14 @@ export const getHorizontalsForTransaction = (
   }))
 
   if (transaction.type === TransactionType.AppCall && transaction.innerTransactions.length > 0) {
-    const topRow = rows[0]
+    const firstRow = rows[0]
     return [
       ...rows,
       ...transaction.innerTransactions.flatMap((innerTxn, index) =>
         getHorizontalsForTransaction(
           innerTxn,
           verticals,
-          [...ancestors, topRow],
+          [...ancestors, firstRow],
           index < transaction.innerTransactions.length - 1,
           depth + 1
         )
@@ -101,7 +99,7 @@ const getAppCallTransactionVisualizations = (
 ): TransactionGraphVisualization[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromNoParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals)
   const to =
     transaction.subType === AppCallTransactionSubType.OpUp
       ? {
@@ -121,7 +119,7 @@ const getAssetConfigTransactionVisualizations = (
 ): TransactionGraphVisualization[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromNoParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals)
   const to = {
     verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
   }
@@ -136,7 +134,7 @@ const getAssetFreezeTransactionVisualizations = (
 ): TransactionGraphVisualization[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromNoParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals)
   const accountVertical = verticals.find(
     (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.address === c.accountAddress
   )
@@ -163,7 +161,7 @@ const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.AssetCloseOut,
+        type: TransactionGraphVisualizationDescriptionType.AssetTransferRemainder,
         amount: transaction.closeRemainder.amount,
         asset: transaction.asset,
       },
@@ -178,6 +176,8 @@ const getAssetTransferTransactionVisualizations = (
       parent,
       description: {
         type: TransactionGraphVisualizationDescriptionType.Clawback,
+        amount: transaction.amount,
+        asset: transaction.asset,
       },
     })
     const transferVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
@@ -215,7 +215,7 @@ const getKeyRegTransactionVisualizations = (
 ): TransactionGraphVisualization[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromNoParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals)
 
   return [
     {
@@ -244,13 +244,14 @@ const getPaymentTransactionVisualizations = (
     },
     parent,
   })
+
   if (transaction.closeRemainder) {
     const closeOutVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
       sender: transaction.sender,
       receiver: transaction.closeRemainder.to,
       verticals,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.PaymentCloseOut,
+        type: TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder,
         amount: transaction.closeRemainder.amount,
       },
       parent,
@@ -274,7 +275,7 @@ const getVisualisationForAssetTransferOrPaymentTransaction = ({
   description: TransactionGraphVisualizationDescription
   parent?: TransactionGraphHorizontal
 }): TransactionGraphVisualization => {
-  const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromNoParent(sender, verticals)
+  const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromWithoutParent(sender, verticals)
 
   const toAccountVertical = verticals.find(
     (c): c is TransactionGraphAccountVertical => c.type === 'Account' && c.accountAddress === receiver
@@ -303,7 +304,7 @@ const getStateProofTransactionVisualizations = (
   transaction: StateProofTransaction,
   verticals: TransactionGraphVertical[]
 ): TransactionGraphVisualization[] => {
-  const from = calculateFromNoParent(transaction.sender, verticals)
+  const from = calculateFromWithoutParent(transaction.sender, verticals)
 
   return [
     {
@@ -342,4 +343,49 @@ const asTransactionGraphVisualization = (
     shape: TransactionGraphVisualizationType.Vector,
     description,
   }
+}
+
+const calculateFromWithoutParent = (sender: Address, verticals: TransactionGraphVertical[]): TransactionVisualisationFromTo => {
+  // If the transaction is not a child, it is sent an individual account or an application account
+  const accountVertical = verticals.find((c): c is TransactionGraphAccountVertical => c.type === 'Account' && sender === c.accountAddress)
+  if (accountVertical) {
+    return {
+      verticalId: accountVertical.id,
+      accountNumber: accountVertical.accountNumber,
+    }
+  }
+
+  const applicationVertical = verticals.find(
+    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && sender === c.linkedAccount.accountAddress
+  )
+  if (applicationVertical) {
+    return {
+      verticalId: applicationVertical.id,
+      accountNumber: applicationVertical.linkedAccount.accountNumber,
+    }
+  }
+  return fallbackFromTo
+}
+
+const calculateFromWithParent = (
+  sender: Address,
+  verticals: TransactionGraphVertical[],
+  parent: TransactionGraphHorizontal
+): TransactionVisualisationFromTo => {
+  // If the transaction is child, the parent transaction must be an application call
+  // The "from" must be the parent application call transaction
+  const parentAppCallTransaction = parent.transaction as AppCallTransaction
+  const applicationVertical = verticals.find(
+    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && c.applicationId === parentAppCallTransaction.applicationId
+  )
+  if (applicationVertical) {
+    return {
+      verticalId: applicationVertical.id,
+      accountNumber:
+        applicationVertical.linkedAccount.accountAddress === sender
+          ? applicationVertical.linkedAccount.accountNumber
+          : applicationVertical.rekeyedAccounts.find((account) => account.accountAddress === sender)?.accountNumber,
+    }
+  }
+  return fallbackFromTo
 }

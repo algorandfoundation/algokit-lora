@@ -71,7 +71,7 @@ function VectorVisualizationDescription({
   const colorClass = colorClassMap[transaction.type]
   if (
     vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
-    vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut
+    vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder
   ) {
     const type = vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ? 'Payment' : 'Remainder'
     return (
@@ -83,12 +83,17 @@ function VectorVisualizationDescription({
   }
   if (
     vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
-    vector.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut
+    vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransferRemainder ||
+    vector.description.type === TransactionGraphVisualizationDescriptionType.Clawback
   ) {
-    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ? 'Transfer' : 'Remainder'
+    const typeMap = new Map([
+      [TransactionGraphVisualizationDescriptionType.AssetTransfer, 'Transfer'],
+      [TransactionGraphVisualizationDescriptionType.AssetTransferRemainder, 'Remainder'],
+      [TransactionGraphVisualizationDescriptionType.Clawback, 'Clawback'],
+    ])
     return (
       <>
-        <span>{type}</span>
+        <span>{typeMap.get(vector.description.type)}</span>
         <DisplayAssetAmount
           asset={vector.description.asset}
           amount={vector.description.amount}
@@ -112,13 +117,13 @@ function SelfLoopVisualizationDescription({
   const colorClass = colorClassMap[transaction.type]
   if (
     loop.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
-    loop.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut
+    loop.description.type === TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder
   ) {
     return <DisplayAlgo className={cn('flex justify-center')} amount={loop.description.amount} short={true} />
   }
   if (
     loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
-    loop.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut
+    loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransferRemainder
   ) {
     return (
       <DisplayAssetAmount
