@@ -9,6 +9,10 @@ import { DisplayAssetAmount } from '@/features/common/components/display-asset-a
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
+import {
+  transactionCloseRemainderAmountLabel,
+  transactionCloseRemainderToLabel,
+} from '@/features/transactions/components/asset-transfer-transaction-info'
 
 export function AssetTransferTransactionTooltipContent({
   transaction,
@@ -37,6 +41,18 @@ export function AssetTransferTransactionTooltipContent({
         dt: transactionAmountLabel,
         dd: <DisplayAssetAmount asset={transaction.asset} amount={transaction.amount} />,
       },
+      ...(transaction.closeRemainder
+        ? [
+            {
+              dt: transactionCloseRemainderToLabel,
+              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} />,
+            },
+            {
+              dt: transactionCloseRemainderAmountLabel,
+              dd: <DisplayAssetAmount amount={transaction.closeRemainder.amount} asset={transaction.asset} />,
+            },
+          ]
+        : []),
     ],
     [transaction]
   )

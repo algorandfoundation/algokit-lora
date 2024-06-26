@@ -73,7 +73,7 @@ function VectorVisualizationDescription({
     vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
     vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut
   ) {
-    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ? 'Payment' : 'Close Out'
+    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ? 'Payment' : 'Remainder'
     return (
       <>
         <span>{type}</span>
@@ -85,7 +85,7 @@ function VectorVisualizationDescription({
     vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
     vector.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut
   ) {
-    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ? 'Transfer' : 'Close Out'
+    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ? 'Transfer' : 'Remainder'
     return (
       <>
         <span>{type}</span>
