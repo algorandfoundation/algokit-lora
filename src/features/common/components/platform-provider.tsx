@@ -3,11 +3,10 @@ import { PropsWithChildren } from 'react'
 import { WalletProvider } from './wallet-provider'
 import { DataProvider } from './data-provider'
 import { useTheme } from '../hooks/use-theme'
-import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
 import { useDataProviderToken, useStateCleanupEffect } from '../data'
 
 function RegisterGlobalEffects() {
-  useSubscribeToBlocksEffect()
+  // useSubscribeToBlocksEffect()
   useStateCleanupEffect()
   return <></>
 }

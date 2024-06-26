@@ -38,7 +38,7 @@ export enum TransactionGraphVisualizationDescriptionType {
   KeyReg = 'Key Reg',
   StateProof = 'State Proof',
   Clawback = 'Clawback',
-  AssetCloseOut = 'AssetCloseOut',
+  AssetCloseOut = 'Asset Close Out',
 }
 
 export type TransactionGraphVisualizationDescription =

@@ -69,45 +69,32 @@ function VectorVisualizationDescription({
   vector: TransactionGraphVector
 }) {
   const colorClass = colorClassMap[transaction.type]
-  if (vector.description.type === TransactionGraphVisualizationDescriptionType.Payment) {
+  if (
+    vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
+    vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut
+  ) {
+    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ? 'Payment' : 'Close Out'
     return (
       <>
-        <span>Payment</span>
+        <span>{type}</span>
         <DisplayAlgo className="flex justify-center" amount={vector.description.amount} short={true} />
       </>
     )
   }
-  if (vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut) {
+  if (
+    vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
+    vector.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut
+  ) {
+    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ? 'Transfer' : 'Close Out'
     return (
       <>
-        <span>Close Out</span>
-        <DisplayAlgo className="flex justify-center" amount={vector.description.amount} short={true} />
-      </>
-    )
-  }
-  if (vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer) {
-    return (
-      <>
-        <span>Transfer</span>
+        <span>{type}</span>
         <DisplayAssetAmount
           asset={vector.description.asset}
           amount={vector.description.amount}
           className={cn('flex justify-center', colorClass.text)}
           linkClassName={colorClass.text}
           short={true}
-        />
-      </>
-    )
-  }
-  if (vector.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut) {
-    return (
-      <>
-        <span>Close Out</span>
-        <DisplayAssetAmount
-          className={cn('pl-1 pr-1 bg-card flex justify-center')}
-          amount={vector.description.amount}
-          asset={vector.description.asset}
-          linkClassName={colorClass.text}
         />
       </>
     )
@@ -123,39 +110,24 @@ function SelfLoopVisualizationDescription({
   loop: TransactionGraphSelfLoop
 }) {
   const colorClass = colorClassMap[transaction.type]
-  if (loop.description.type === TransactionGraphVisualizationDescriptionType.Payment) {
-    return <DisplayAlgo className={cn('w-min pl-1 pr-1 bg-card flex justify-center')} amount={loop.description.amount} short={true} />
+  if (
+    loop.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
+    loop.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut
+  ) {
+    return <DisplayAlgo className={cn('flex justify-center')} amount={loop.description.amount} short={true} />
   }
-  if (loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer) {
+  if (
+    loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
+    loop.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut
+  ) {
     return (
       <DisplayAssetAmount
-        className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
+        className={cn('flex justify-center')}
         amount={loop.description.amount}
         asset={loop.description.asset}
         linkClassName={colorClass.text}
         short={true}
       />
-    )
-  }
-  if (loop.description.type === TransactionGraphVisualizationDescriptionType.PaymentCloseOut) {
-    return (
-      <>
-        <span>Close Out</span>
-        <DisplayAlgo className="flex justify-center" amount={loop.description.amount} short={true} />
-      </>
-    )
-  }
-  if (loop.description.type === TransactionGraphVisualizationDescriptionType.AssetCloseOut) {
-    return (
-      <>
-        <span>Close Out</span>
-        <DisplayAssetAmount
-          className={cn('w-min pl-1 pr-1 bg-card flex justify-center')}
-          amount={loop.description.amount}
-          asset={loop.description.asset}
-          linkClassName={colorClass.text}
-        />
-      </>
     )
   }
   return <span>{loop.description.type}</span>
