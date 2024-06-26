@@ -41,10 +41,10 @@ export const getHorizontalsForTransaction = (
   depth: number
 ): Horizontal[] => {
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
-  const visualizations = getTransactionRepresentations(transaction, verticals, parent)
-  const rows = visualizations.map<Horizontal>((visualization, index) => ({
+  const representations = getTransactionRepresentations(transaction, verticals, parent)
+  const rows = representations.map<Horizontal>((representation, index) => ({
     transaction,
-    representation: visualization,
+    representation,
     ancestors,
     hasNextSibling,
     depth,
@@ -109,7 +109,7 @@ const getAppCallTransactionRepresentations = (
           verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
         }
 
-  return [asTransactionGraphVisualization(from, to, { type: LabelType.ApplicationCall })]
+  return [asTransactionGraphRepresentation(from, to, { type: LabelType.ApplicationCall })]
 }
 
 const getAssetConfigTransactionRepresentations = (
@@ -124,7 +124,7 @@ const getAssetConfigTransactionRepresentations = (
     verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
   }
 
-  return [asTransactionGraphVisualization(from, to, { type: LabelType.AssetConfig })]
+  return [asTransactionGraphRepresentation(from, to, { type: LabelType.AssetConfig })]
 }
 
 const getAssetFreezeTransactionRepresentations = (
@@ -143,7 +143,7 @@ const getAssetFreezeTransactionRepresentations = (
       }
     : fallbackFromTo
 
-  return [asTransactionGraphVisualization(from, to, { type: LabelType.AssetFreeze })]
+  return [asTransactionGraphRepresentation(from, to, { type: LabelType.AssetFreeze })]
 }
 
 const getAssetTransferTransactionRepresentations = (
@@ -293,7 +293,7 @@ const getRepresentationForAssetTransferOrPaymentTransaction = ({
     }
   }
 
-  return asTransactionGraphVisualization(from, to, description)
+  return asTransactionGraphRepresentation(from, to, description)
 }
 
 const getStateProofTransactionRepresentations = (transaction: StateProofTransaction, verticals: Vertical[]): Representation[] => {
@@ -311,7 +311,7 @@ const getStateProofTransactionRepresentations = (transaction: StateProofTransact
   ]
 }
 
-const asTransactionGraphVisualization = (from: RepresentationFromTo, to: RepresentationFromTo, description: Label): Representation => {
+const asTransactionGraphRepresentation = (from: RepresentationFromTo, to: RepresentationFromTo, description: Label): Representation => {
   if (from.verticalId === to.verticalId) {
     return {
       fromVerticalIndex: from.verticalId,
