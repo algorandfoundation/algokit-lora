@@ -41,7 +41,7 @@ export const getHorizontalsForTransaction = (
   depth: number
 ): Horizontal[] => {
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
-  const visualizations = getTransactionVisualizations(transaction, verticals, parent)
+  const visualizations = getTransactionRepresentations(transaction, verticals, parent)
   const rows = visualizations.map<Horizontal>((visualization, index) => ({
     transaction,
     representation: visualization,
@@ -69,30 +69,30 @@ export const getHorizontalsForTransaction = (
   return rows
 }
 
-const getTransactionVisualizations = (
+const getTransactionRepresentations = (
   transaction: Transaction | InnerTransaction,
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
   switch (transaction.type) {
     case TransactionType.AppCall:
-      return getAppCallTransactionVisualizations(transaction, verticals, parent)
+      return getAppCallTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.AssetConfig:
-      return getAssetConfigTransactionVisualizations(transaction, verticals, parent)
+      return getAssetConfigTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.AssetFreeze:
-      return getAssetFreezeTransactionVisualizations(transaction, verticals, parent)
+      return getAssetFreezeTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.AssetTransfer:
-      return getAssetTransferTransactionVisualizations(transaction, verticals, parent)
+      return getAssetTransferTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.KeyReg:
-      return getKeyRegTransactionVisualizations(transaction, verticals, parent)
+      return getKeyRegTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.Payment:
-      return getPaymentTransactionVisualizations(transaction, verticals, parent)
+      return getPaymentTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.StateProof:
-      return getStateProofTransactionVisualizations(transaction, verticals)
+      return getStateProofTransactionRepresentations(transaction, verticals)
   }
 }
 
-const getAppCallTransactionVisualizations = (
+const getAppCallTransactionRepresentations = (
   transaction: AppCallTransaction | InnerAppCallTransaction,
   verticals: Vertical[],
   parent?: Horizontal
@@ -112,7 +112,7 @@ const getAppCallTransactionVisualizations = (
   return [asTransactionGraphVisualization(from, to, { type: LabelType.ApplicationCall })]
 }
 
-const getAssetConfigTransactionVisualizations = (
+const getAssetConfigTransactionRepresentations = (
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction,
   verticals: Vertical[],
   parent?: Horizontal
@@ -127,7 +127,7 @@ const getAssetConfigTransactionVisualizations = (
   return [asTransactionGraphVisualization(from, to, { type: LabelType.AssetConfig })]
 }
 
-const getAssetFreezeTransactionVisualizations = (
+const getAssetFreezeTransactionRepresentations = (
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction,
   verticals: Vertical[],
   parent?: Horizontal
@@ -146,14 +146,14 @@ const getAssetFreezeTransactionVisualizations = (
   return [asTransactionGraphVisualization(from, to, { type: LabelType.AssetFreeze })]
 }
 
-const getAssetTransferTransactionVisualizations = (
+const getAssetTransferTransactionRepresentations = (
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction,
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
-  let closeOutVisualisation: Representation | undefined = undefined
+  let closeOutRepresentation: Representation | undefined = undefined
   if (transaction.closeRemainder) {
-    closeOutVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
+    closeOutRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
       sender: transaction.sender,
       receiver: transaction.closeRemainder.to,
       verticals,
@@ -167,7 +167,7 @@ const getAssetTransferTransactionVisualizations = (
   }
 
   if (transaction.subType === AssetTransferTransactionSubType.Clawback) {
-    const clawbackVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
+    const clawbackRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
       sender: transaction.sender,
       receiver: transaction.clawbackFrom!,
       verticals,
@@ -178,7 +178,7 @@ const getAssetTransferTransactionVisualizations = (
         asset: transaction.asset,
       },
     })
-    const transferVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
+    const transferRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
       sender: transaction.clawbackFrom!,
       receiver: transaction.receiver,
       verticals,
@@ -189,9 +189,9 @@ const getAssetTransferTransactionVisualizations = (
         asset: transaction.asset,
       },
     })
-    return [clawbackVisualisation, transferVisualisation, closeOutVisualisation].filter(isDefined)
+    return [clawbackRepresentation, transferRepresentation, closeOutRepresentation].filter(isDefined)
   } else {
-    const transferVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
+    const transferRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
       sender: transaction.sender,
       receiver: transaction.receiver,
       verticals,
@@ -202,11 +202,11 @@ const getAssetTransferTransactionVisualizations = (
         asset: transaction.asset,
       },
     })
-    return [transferVisualisation, closeOutVisualisation].filter(isDefined)
+    return [transferRepresentation, closeOutRepresentation].filter(isDefined)
   }
 }
 
-const getKeyRegTransactionVisualizations = (
+const getKeyRegTransactionRepresentations = (
   transaction: KeyRegTransaction | InnerKeyRegTransaction,
   verticals: Vertical[],
   parent?: Horizontal
@@ -227,12 +227,12 @@ const getKeyRegTransactionVisualizations = (
   ]
 }
 
-const getPaymentTransactionVisualizations = (
+const getPaymentTransactionRepresentations = (
   transaction: PaymentTransaction | InnerPaymentTransaction,
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
-  const paymentVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
+  const paymentRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
     sender: transaction.sender,
     receiver: transaction.receiver,
     verticals,
@@ -244,7 +244,7 @@ const getPaymentTransactionVisualizations = (
   })
 
   if (transaction.closeRemainder) {
-    const closeOutVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
+    const closeOutRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
       sender: transaction.sender,
       receiver: transaction.closeRemainder.to,
       verticals,
@@ -254,13 +254,13 @@ const getPaymentTransactionVisualizations = (
       },
       parent,
     })
-    return [paymentVisualisation, closeOutVisualisation]
+    return [paymentRepresentation, closeOutRepresentation]
   } else {
-    return [paymentVisualisation]
+    return [paymentRepresentation]
   }
 }
 
-const getVisualisationForAssetTransferOrPaymentTransaction = ({
+const getRepresentationForAssetTransferOrPaymentTransaction = ({
   sender,
   receiver,
   verticals,
@@ -296,7 +296,7 @@ const getVisualisationForAssetTransferOrPaymentTransaction = ({
   return asTransactionGraphVisualization(from, to, description)
 }
 
-const getStateProofTransactionVisualizations = (transaction: StateProofTransaction, verticals: Vertical[]): Representation[] => {
+const getStateProofTransactionRepresentations = (transaction: StateProofTransaction, verticals: Vertical[]): Representation[] => {
   const from = calculateFromWithoutParent(transaction.sender, verticals)
 
   return [
