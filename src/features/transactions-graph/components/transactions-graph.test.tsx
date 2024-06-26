@@ -100,6 +100,14 @@ describe('application-call-graph', () => {
       transactionResult: transactionResultMother['testnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']().build(),
       assetResults: [],
     },
+    {
+      transactionResult: transactionResultMother['mainnet-XVVC7UDLCPI622KCJZLWK3SEAWWVUEPEXUM5CO3DFLWOBH7NOPDQ']().build(),
+      assetResults: [assetResultMother['mainnet-850924184']().build()],
+    },
+    {
+      transactionResult: transactionResultMother['mainnet-GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A']().build(),
+      assetResults: [assetResultMother['mainnet-847594689']().build()],
+    },
   ])(
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResults }: { transactionResult: TransactionResult; assetResults: AssetResult[] }) => {
