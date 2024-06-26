@@ -23,7 +23,7 @@ export function AssetTransferTransactionTooltipContent({
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} showCopyButton={true} />,
+        dd: <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -45,7 +45,7 @@ export function AssetTransferTransactionTooltipContent({
         ? [
             {
               dt: transactionCloseRemainderToLabel,
-              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.closeRemainder.to} />,
             },
             {
               dt: transactionCloseRemainderAmountLabel,

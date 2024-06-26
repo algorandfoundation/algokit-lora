@@ -53,13 +53,20 @@ function Circle({ className, text }: { className?: string; text?: string | numbe
   )
 }
 
+const labelTypeToTextMap = new Map([
+  [LabelType.AssetTransfer, 'Transfer'],
+  [LabelType.AssetTransferRemainder, 'Remainder'],
+  [LabelType.Clawback, 'Clawback'],
+  [LabelType.Payment, 'Payment'],
+  [LabelType.PaymentTransferRemainder, 'Remainder'],
+])
+
 function VectorLabel({ transaction, vector }: { transaction: Transaction | InnerTransaction; vector: Vector }) {
   const colorClass = colorClassMap[transaction.type]
   if (vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) {
-    const type = vector.label.type === LabelType.Payment ? 'Payment' : 'Remainder'
     return (
       <>
-        <span>{type}</span>
+        <span>{labelTypeToTextMap.get(vector.label.type)}</span>
         <DisplayAlgo className="flex justify-center" amount={vector.label.amount} short={true} />
       </>
     )
@@ -69,14 +76,9 @@ function VectorLabel({ transaction, vector }: { transaction: Transaction | Inner
     vector.label.type === LabelType.AssetTransferRemainder ||
     vector.label.type === LabelType.Clawback
   ) {
-    const typeMap = new Map([
-      [LabelType.AssetTransfer, 'Transfer'],
-      [LabelType.AssetTransferRemainder, 'Remainder'],
-      [LabelType.Clawback, 'Clawback'],
-    ])
     return (
       <>
-        <span>{typeMap.get(vector.label.type)}</span>
+        <span>{labelTypeToTextMap.get(vector.label.type)}</span>
         <DisplayAssetAmount
           asset={vector.label.asset}
           amount={vector.label.amount}
@@ -268,7 +270,7 @@ export function Horizontal({ horizontal, verticals }: Props) {
           return <div key={index}></div>
         }
         if (representation.type === RepresentationType.Point && index > representation.fromVerticalIndex) return <div key={index}></div>
-        // The `index > transactionRepresentation.from + 1` is here
+        // The `index > representation.fromVerticalIndex + 1` is here
         // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
         // Therefore, we skip this cell so that we won't cause overflowing
         if (representation.type === RepresentationType.SelfLoop && index > representation.fromVerticalIndex + 1)
