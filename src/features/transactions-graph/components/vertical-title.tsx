@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { TransactionGraphVertical } from '@/features/transactions-graph'
+import { TransactionGraphVertical } from '../models'
 import { KeyIcon, LinkIcon } from 'lucide-react'
 
 export function AccountNumber({ number }: { number: number }) {

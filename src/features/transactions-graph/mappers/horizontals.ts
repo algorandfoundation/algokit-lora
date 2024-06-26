@@ -29,7 +29,7 @@ import {
   TransactionGraphVisualizationDescriptionType,
   TransactionGraphVisualizationType,
   TransactionVisualisationFromTo,
-} from '@/features/transactions-graph'
+} from '../models'
 import { isDefined } from '@/utils/is-defined'
 import { Address } from '@/features/accounts/data/types'
 

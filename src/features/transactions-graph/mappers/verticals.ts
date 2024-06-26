@@ -5,7 +5,7 @@ import {
   Transaction,
   TransactionType,
 } from '@/features/transactions/models'
-import { TransactionGraphApplicationVertical, TransactionGraphVertical } from '@/features/transactions-graph'
+import { TransactionGraphApplicationVertical, TransactionGraphVertical } from '../models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 

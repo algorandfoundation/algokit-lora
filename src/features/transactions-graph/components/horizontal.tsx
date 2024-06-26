@@ -8,7 +8,7 @@ import {
   TransactionGraphVertical,
   TransactionGraphVisualizationType,
   TransactionGraphVisualizationDescriptionType,
-} from '@/features/transactions-graph'
+} from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'

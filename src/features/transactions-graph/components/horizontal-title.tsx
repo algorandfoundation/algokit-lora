@@ -4,7 +4,7 @@ import { InnerTransactionLink } from '@/features/transactions/components/inner-t
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { cn } from '@/features/common/utils'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
-import { TransactionGraphHorizontal } from '@/features/transactions-graph'
+import { TransactionGraphHorizontal } from '../models'
 
 type Props = {
   horizontal: TransactionGraphHorizontal
