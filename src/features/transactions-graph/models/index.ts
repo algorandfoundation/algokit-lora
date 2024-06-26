@@ -7,28 +7,28 @@ import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AssetSummary } from '@/features/assets/models'
 
 export type TransactionsGraphData = {
-  horizontals: TransactionGraphHorizontal[]
-  verticals: TransactionGraphVertical[]
+  horizontals: Horizontal[]
+  verticals: Vertical[]
 }
 
-export type TransactionGraphHorizontal = {
-  ancestors: TransactionGraphHorizontal[]
+export type Horizontal = {
+  ancestors: Horizontal[]
   transaction: Transaction | InnerTransaction
-  visualization: TransactionGraphVisualization
+  representation: Representation
   hasNextSibling: boolean
   depth: number
   isSubHorizontal: boolean
 }
 
-export type TransactionGraphVisualization = TransactionGraphVector | TransactionGraphSelfLoop | TransactionGraphPoint
+export type Representation = Vector | SelfLoop | Point
 
-export enum TransactionGraphVisualizationType {
+export enum RepresentationType {
   Vector = 'Vector',
   SelfLoop = 'SelfLoop',
   Point = 'Point',
 }
 
-export enum TransactionGraphVisualizationDescriptionType {
+export enum LabelType {
   Payment = 'Payment',
   PaymentTransferRemainder = 'Payment Transfer Remainder',
   AssetTransfer = 'Asset Transfer',
@@ -41,35 +41,35 @@ export enum TransactionGraphVisualizationDescriptionType {
   AssetTransferRemainder = 'Asset Transfer Remainder',
 }
 
-export type TransactionGraphVisualizationDescription =
+export type Label =
   | {
-      type: TransactionGraphVisualizationDescriptionType.Payment
+      type: LabelType.Payment
       amount: AlgoAmount
     }
   | {
-      type: TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder
+      type: LabelType.PaymentTransferRemainder
       amount: AlgoAmount
     }
   | {
-      type: TransactionGraphVisualizationDescriptionType.AssetTransfer
+      type: LabelType.AssetTransfer
       asset: AsyncMaybeAtom<AssetSummary>
       amount: number | bigint
     }
   | {
-      type: TransactionGraphVisualizationDescriptionType.AssetTransferRemainder
+      type: LabelType.AssetTransferRemainder
       asset: AsyncMaybeAtom<AssetSummary>
       amount: number | bigint
     }
-  | { type: TransactionGraphVisualizationDescriptionType.Clawback; asset: AsyncMaybeAtom<AssetSummary>; amount: number | bigint }
-  | { type: TransactionGraphVisualizationDescriptionType.ApplicationCall }
-  | { type: TransactionGraphVisualizationDescriptionType.AssetConfig }
-  | { type: TransactionGraphVisualizationDescriptionType.AssetFreeze }
-  | { type: TransactionGraphVisualizationDescriptionType.KeyReg }
-  | { type: TransactionGraphVisualizationDescriptionType.StateProof }
+  | { type: LabelType.Clawback; asset: AsyncMaybeAtom<AssetSummary>; amount: number | bigint }
+  | { type: LabelType.ApplicationCall }
+  | { type: LabelType.AssetConfig }
+  | { type: LabelType.AssetFreeze }
+  | { type: LabelType.KeyReg }
+  | { type: LabelType.StateProof }
 
-export type TransactionGraphVector = {
-  shape: TransactionGraphVisualizationType.Vector
-  description: TransactionGraphVisualizationDescription
+export type Vector = {
+  type: RepresentationType.Vector
+  label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
   toAccountIndex?: number
@@ -77,27 +77,27 @@ export type TransactionGraphVector = {
   direction: 'leftToRight' | 'rightToLeft'
 }
 
-export type TransactionGraphSelfLoop = {
-  shape: TransactionGraphVisualizationType.SelfLoop
-  description: TransactionGraphVisualizationDescription
+export type SelfLoop = {
+  type: RepresentationType.SelfLoop
+  label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
 }
 
-export type TransactionGraphPoint = {
-  shape: TransactionGraphVisualizationType.Point
-  description: TransactionGraphVisualizationDescription
+export type Point = {
+  type: RepresentationType.Point
+  label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
 }
 
-export type TransactionGraphAccountVertical = {
+export type AccountVertical = {
   id: number
   accountNumber: number
   type: 'Account'
   accountAddress: Address
 }
-export type TransactionGraphApplicationVertical = {
+export type ApplicationVertical = {
   id: number
   type: 'Application'
   applicationId: ApplicationId
@@ -107,33 +107,28 @@ export type TransactionGraphApplicationVertical = {
     accountAddress: Address
   }[]
 }
-export type TransactionGraphAssetVertical = {
+export type AssetVertical = {
   id: number
   type: 'Asset'
   assetId: AssetId
 }
-export type TransactionGraphOpUpVertical = {
+export type OpUpVertical = {
   id: number
   type: 'OpUp'
 }
-export type TransactionGraphPlaceholderVertical = {
+export type PlaceholderVertical = {
   id: number
   type: 'Placeholder'
 }
 
-export type TransactionGraphVertical =
-  | TransactionGraphAccountVertical
-  | TransactionGraphApplicationVertical
-  | TransactionGraphAssetVertical
-  | TransactionGraphOpUpVertical
-  | TransactionGraphPlaceholderVertical
+export type Vertical = AccountVertical | ApplicationVertical | AssetVertical | OpUpVertical | PlaceholderVertical
 
-export type TransactionVisualisationFromTo = {
+export type RepresentationFromTo = {
   verticalId: number
   accountNumber?: number
 }
 // Fallback value, it should never happen, just to make TypeScript happy
-export const fallbackFromTo: TransactionVisualisationFromTo = {
+export const fallbackFromTo: RepresentationFromTo = {
   verticalId: -1,
   accountNumber: undefined,
 }

@@ -20,31 +20,31 @@ import {
 } from '@/features/transactions/models'
 import {
   fallbackFromTo,
-  TransactionGraphAccountVertical,
-  TransactionGraphApplicationVertical,
-  TransactionGraphHorizontal,
-  TransactionGraphVertical,
-  TransactionGraphVisualization,
-  TransactionGraphVisualizationDescription,
-  TransactionGraphVisualizationDescriptionType,
-  TransactionGraphVisualizationType,
-  TransactionVisualisationFromTo,
+  AccountVertical,
+  ApplicationVertical,
+  Horizontal,
+  Vertical,
+  Representation,
+  Label,
+  LabelType,
+  RepresentationType,
+  RepresentationFromTo,
 } from '../models'
 import { isDefined } from '@/utils/is-defined'
 import { Address } from '@/features/accounts/data/types'
 
 export const getHorizontalsForTransaction = (
   transaction: Transaction | InnerTransaction,
-  verticals: TransactionGraphVertical[],
-  ancestors: TransactionGraphHorizontal[],
+  verticals: Vertical[],
+  ancestors: Horizontal[],
   hasNextSibling: boolean,
   depth: number
-): TransactionGraphHorizontal[] => {
+): Horizontal[] => {
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
   const visualizations = getTransactionVisualizations(transaction, verticals, parent)
-  const rows = visualizations.map<TransactionGraphHorizontal>((visualization, index) => ({
+  const rows = visualizations.map<Horizontal>((visualization, index) => ({
     transaction,
-    visualization: visualization,
+    representation: visualization,
     ancestors,
     hasNextSibling,
     depth,
@@ -71,9 +71,9 @@ export const getHorizontalsForTransaction = (
 
 const getTransactionVisualizations = (
   transaction: Transaction | InnerTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
   switch (transaction.type) {
     case TransactionType.AppCall:
       return getAppCallTransactionVisualizations(transaction, verticals, parent)
@@ -94,9 +94,9 @@ const getTransactionVisualizations = (
 
 const getAppCallTransactionVisualizations = (
   transaction: AppCallTransaction | InnerAppCallTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
     : calculateFromWithoutParent(transaction.sender, verticals)
@@ -109,14 +109,14 @@ const getAppCallTransactionVisualizations = (
           verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
         }
 
-  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationDescriptionType.ApplicationCall })]
+  return [asTransactionGraphVisualization(from, to, { type: LabelType.ApplicationCall })]
 }
 
 const getAssetConfigTransactionVisualizations = (
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
     : calculateFromWithoutParent(transaction.sender, verticals)
@@ -124,20 +124,18 @@ const getAssetConfigTransactionVisualizations = (
     verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
   }
 
-  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationDescriptionType.AssetConfig })]
+  return [asTransactionGraphVisualization(from, to, { type: LabelType.AssetConfig })]
 }
 
 const getAssetFreezeTransactionVisualizations = (
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
     : calculateFromWithoutParent(transaction.sender, verticals)
-  const accountVertical = verticals.find(
-    (c): c is TransactionGraphAccountVertical => c.type === 'Account' && transaction.address === c.accountAddress
-  )
+  const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && transaction.address === c.accountAddress)
   const to = accountVertical
     ? {
         verticalId: accountVertical.id,
@@ -145,15 +143,15 @@ const getAssetFreezeTransactionVisualizations = (
       }
     : fallbackFromTo
 
-  return [asTransactionGraphVisualization(from, to, { type: TransactionGraphVisualizationDescriptionType.AssetFreeze })]
+  return [asTransactionGraphVisualization(from, to, { type: LabelType.AssetFreeze })]
 }
 
 const getAssetTransferTransactionVisualizations = (
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
-  let closeOutVisualisation: TransactionGraphVisualization | undefined = undefined
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
+  let closeOutVisualisation: Representation | undefined = undefined
   if (transaction.closeRemainder) {
     closeOutVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
       sender: transaction.sender,
@@ -161,7 +159,7 @@ const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.AssetTransferRemainder,
+        type: LabelType.AssetTransferRemainder,
         amount: transaction.closeRemainder.amount,
         asset: transaction.asset,
       },
@@ -175,7 +173,7 @@ const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.Clawback,
+        type: LabelType.Clawback,
         amount: transaction.amount,
         asset: transaction.asset,
       },
@@ -186,7 +184,7 @@ const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.AssetTransfer,
+        type: LabelType.AssetTransfer,
         amount: transaction.amount,
         asset: transaction.asset,
       },
@@ -199,7 +197,7 @@ const getAssetTransferTransactionVisualizations = (
       verticals,
       parent,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.AssetTransfer,
+        type: LabelType.AssetTransfer,
         amount: transaction.amount,
         asset: transaction.asset,
       },
@@ -210,9 +208,9 @@ const getAssetTransferTransactionVisualizations = (
 
 const getKeyRegTransactionVisualizations = (
   transaction: KeyRegTransaction | InnerKeyRegTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
     : calculateFromWithoutParent(transaction.sender, verticals)
@@ -221,9 +219,9 @@ const getKeyRegTransactionVisualizations = (
     {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      shape: TransactionGraphVisualizationType.Point,
-      description: {
-        type: TransactionGraphVisualizationDescriptionType.KeyReg,
+      type: RepresentationType.Point,
+      label: {
+        type: LabelType.KeyReg,
       },
     },
   ]
@@ -231,15 +229,15 @@ const getKeyRegTransactionVisualizations = (
 
 const getPaymentTransactionVisualizations = (
   transaction: PaymentTransaction | InnerPaymentTransaction,
-  verticals: TransactionGraphVertical[],
-  parent?: TransactionGraphHorizontal
-): TransactionGraphVisualization[] => {
+  verticals: Vertical[],
+  parent?: Horizontal
+): Representation[] => {
   const paymentVisualisation = getVisualisationForAssetTransferOrPaymentTransaction({
     sender: transaction.sender,
     receiver: transaction.receiver,
     verticals,
     description: {
-      type: TransactionGraphVisualizationDescriptionType.Payment,
+      type: LabelType.Payment,
       amount: transaction.amount,
     },
     parent,
@@ -251,7 +249,7 @@ const getPaymentTransactionVisualizations = (
       receiver: transaction.closeRemainder.to,
       verticals,
       description: {
-        type: TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder,
+        type: LabelType.PaymentTransferRemainder,
         amount: transaction.closeRemainder.amount,
       },
       parent,
@@ -271,17 +269,15 @@ const getVisualisationForAssetTransferOrPaymentTransaction = ({
 }: {
   sender: Address
   receiver: Address
-  verticals: TransactionGraphVertical[]
-  description: TransactionGraphVisualizationDescription
-  parent?: TransactionGraphHorizontal
-}): TransactionGraphVisualization => {
+  verticals: Vertical[]
+  description: Label
+  parent?: Horizontal
+}): Representation => {
   const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromWithoutParent(sender, verticals)
 
-  const toAccountVertical = verticals.find(
-    (c): c is TransactionGraphAccountVertical => c.type === 'Account' && c.accountAddress === receiver
-  )
+  const toAccountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === receiver)
   const toApplicationVertical = verticals.find(
-    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === receiver
+    (c): c is ApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === receiver
   )
   let to = fallbackFromTo
   if (toAccountVertical) {
@@ -300,35 +296,28 @@ const getVisualisationForAssetTransferOrPaymentTransaction = ({
   return asTransactionGraphVisualization(from, to, description)
 }
 
-const getStateProofTransactionVisualizations = (
-  transaction: StateProofTransaction,
-  verticals: TransactionGraphVertical[]
-): TransactionGraphVisualization[] => {
+const getStateProofTransactionVisualizations = (transaction: StateProofTransaction, verticals: Vertical[]): Representation[] => {
   const from = calculateFromWithoutParent(transaction.sender, verticals)
 
   return [
     {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      shape: TransactionGraphVisualizationType.Point,
-      description: {
-        type: TransactionGraphVisualizationDescriptionType.StateProof,
+      type: RepresentationType.Point,
+      label: {
+        type: LabelType.StateProof,
       },
     },
   ]
 }
 
-const asTransactionGraphVisualization = (
-  from: TransactionVisualisationFromTo,
-  to: TransactionVisualisationFromTo,
-  description: TransactionGraphVisualizationDescription
-): TransactionGraphVisualization => {
+const asTransactionGraphVisualization = (from: RepresentationFromTo, to: RepresentationFromTo, description: Label): Representation => {
   if (from.verticalId === to.verticalId) {
     return {
       fromVerticalIndex: from.verticalId,
       fromAccountIndex: from.accountNumber,
-      shape: TransactionGraphVisualizationType.SelfLoop,
-      description,
+      type: RepresentationType.SelfLoop,
+      label: description,
     }
   }
 
@@ -340,14 +329,14 @@ const asTransactionGraphVisualization = (
     toVerticalIndex: Math.max(from.verticalId, to.verticalId),
     toAccountIndex: to.accountNumber,
     direction: direction,
-    shape: TransactionGraphVisualizationType.Vector,
-    description,
+    type: RepresentationType.Vector,
+    label: description,
   }
 }
 
-const calculateFromWithoutParent = (sender: Address, verticals: TransactionGraphVertical[]): TransactionVisualisationFromTo => {
+const calculateFromWithoutParent = (sender: Address, verticals: Vertical[]): RepresentationFromTo => {
   // If the transaction is not a child, it is sent an individual account or an application account
-  const accountVertical = verticals.find((c): c is TransactionGraphAccountVertical => c.type === 'Account' && sender === c.accountAddress)
+  const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && sender === c.accountAddress)
   if (accountVertical) {
     return {
       verticalId: accountVertical.id,
@@ -356,7 +345,7 @@ const calculateFromWithoutParent = (sender: Address, verticals: TransactionGraph
   }
 
   const applicationVertical = verticals.find(
-    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && sender === c.linkedAccount.accountAddress
+    (c): c is ApplicationVertical => c.type === 'Application' && sender === c.linkedAccount.accountAddress
   )
   if (applicationVertical) {
     return {
@@ -367,16 +356,12 @@ const calculateFromWithoutParent = (sender: Address, verticals: TransactionGraph
   return fallbackFromTo
 }
 
-const calculateFromWithParent = (
-  sender: Address,
-  verticals: TransactionGraphVertical[],
-  parent: TransactionGraphHorizontal
-): TransactionVisualisationFromTo => {
+const calculateFromWithParent = (sender: Address, verticals: Vertical[], parent: Horizontal): RepresentationFromTo => {
   // If the transaction is child, the parent transaction must be an application call
   // The "from" must be the parent application call transaction
   const parentAppCallTransaction = parent.transaction as AppCallTransaction
   const applicationVertical = verticals.find(
-    (c): c is TransactionGraphApplicationVertical => c.type === 'Application' && c.applicationId === parentAppCallTransaction.applicationId
+    (c): c is ApplicationVertical => c.type === 'Application' && c.applicationId === parentAppCallTransaction.applicationId
   )
   if (applicationVertical) {
     return {

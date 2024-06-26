@@ -1,14 +1,6 @@
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import {
-  TransactionGraphHorizontal,
-  TransactionGraphPoint,
-  TransactionGraphSelfLoop,
-  TransactionGraphVector,
-  TransactionGraphVertical,
-  TransactionGraphVisualizationType,
-  TransactionGraphVisualizationDescriptionType,
-} from '../models'
+import { Horizontal as HorizontalModel, Point, SelfLoop, Vector, Vertical, RepresentationType, LabelType } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
@@ -27,7 +19,7 @@ import { StateProofTransactionTooltipContent } from './state-proof-transaction-t
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
 
-function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: TransactionGraphHorizontal[] }) {
+function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
     .filter((a) => a.hasNextSibling)
     .map((ancestor, i) => (
@@ -61,42 +53,33 @@ function Circle({ className, text }: { className?: string; text?: string | numbe
   )
 }
 
-function VectorVisualizationDescription({
-  transaction,
-  vector,
-}: {
-  transaction: Transaction | InnerTransaction
-  vector: TransactionGraphVector
-}) {
+function VectorLabel({ transaction, vector }: { transaction: Transaction | InnerTransaction; vector: Vector }) {
   const colorClass = colorClassMap[transaction.type]
-  if (
-    vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
-    vector.description.type === TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder
-  ) {
-    const type = vector.description.type === TransactionGraphVisualizationDescriptionType.Payment ? 'Payment' : 'Remainder'
+  if (vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) {
+    const type = vector.label.type === LabelType.Payment ? 'Payment' : 'Remainder'
     return (
       <>
         <span>{type}</span>
-        <DisplayAlgo className="flex justify-center" amount={vector.description.amount} short={true} />
+        <DisplayAlgo className="flex justify-center" amount={vector.label.amount} short={true} />
       </>
     )
   }
   if (
-    vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
-    vector.description.type === TransactionGraphVisualizationDescriptionType.AssetTransferRemainder ||
-    vector.description.type === TransactionGraphVisualizationDescriptionType.Clawback
+    vector.label.type === LabelType.AssetTransfer ||
+    vector.label.type === LabelType.AssetTransferRemainder ||
+    vector.label.type === LabelType.Clawback
   ) {
     const typeMap = new Map([
-      [TransactionGraphVisualizationDescriptionType.AssetTransfer, 'Transfer'],
-      [TransactionGraphVisualizationDescriptionType.AssetTransferRemainder, 'Remainder'],
-      [TransactionGraphVisualizationDescriptionType.Clawback, 'Clawback'],
+      [LabelType.AssetTransfer, 'Transfer'],
+      [LabelType.AssetTransferRemainder, 'Remainder'],
+      [LabelType.Clawback, 'Clawback'],
     ])
     return (
       <>
-        <span>{typeMap.get(vector.description.type)}</span>
+        <span>{typeMap.get(vector.label.type)}</span>
         <DisplayAssetAmount
-          asset={vector.description.asset}
-          amount={vector.description.amount}
+          asset={vector.label.asset}
+          amount={vector.label.amount}
           className={cn('flex justify-center', colorClass.text)}
           linkClassName={colorClass.text}
           short={true}
@@ -104,38 +87,26 @@ function VectorVisualizationDescription({
       </>
     )
   }
-  return <span>{vector.description.type}</span>
+  return <span>{vector.label.type}</span>
 }
 
-function SelfLoopVisualizationDescription({
-  transaction,
-  loop,
-}: {
-  transaction: Transaction | InnerTransaction
-  loop: TransactionGraphSelfLoop
-}) {
+function SelfLoopLabel({ transaction, loop }: { transaction: Transaction | InnerTransaction; loop: SelfLoop }) {
   const colorClass = colorClassMap[transaction.type]
-  if (
-    loop.description.type === TransactionGraphVisualizationDescriptionType.Payment ||
-    loop.description.type === TransactionGraphVisualizationDescriptionType.PaymentTransferRemainder
-  ) {
-    return <DisplayAlgo className={cn('flex justify-center')} amount={loop.description.amount} short={true} />
+  if (loop.label.type === LabelType.Payment || loop.label.type === LabelType.PaymentTransferRemainder) {
+    return <DisplayAlgo className={cn('flex justify-center')} amount={loop.label.amount} short={true} />
   }
-  if (
-    loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransfer ||
-    loop.description.type === TransactionGraphVisualizationDescriptionType.AssetTransferRemainder
-  ) {
+  if (loop.label.type === LabelType.AssetTransfer || loop.label.type === LabelType.AssetTransferRemainder) {
     return (
       <DisplayAssetAmount
         className={cn('flex justify-center')}
-        amount={loop.description.amount}
-        asset={loop.description.asset}
+        amount={loop.label.amount}
+        asset={loop.label.asset}
         linkClassName={colorClass.text}
         short={true}
       />
     )
   }
-  return <span>{loop.description.type}</span>
+  return <span>{loop.label.type}</span>
 }
 
 const RenderTransactionVector = fixedForwardRef(
@@ -146,7 +117,7 @@ const RenderTransactionVector = fixedForwardRef(
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
-      vector: TransactionGraphVector
+      vector: Vector
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -184,7 +155,7 @@ const RenderTransactionVector = fixedForwardRef(
         </div>
         <div className="absolute flex justify-center">
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
-            <VectorVisualizationDescription transaction={transaction} vector={vector} />
+            <VectorLabel transaction={transaction} vector={vector} />
           </div>
         </div>
         <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex} />
@@ -200,7 +171,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
-      loop: TransactionGraphSelfLoop
+      loop: SelfLoop
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -237,7 +208,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
         ></div>
         <div className={cn('absolute flex w-1/2 justify-center text-xs', colorClass.text)}>
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
-            <SelfLoopVisualizationDescription transaction={transaction} loop={loop} />
+            <SelfLoopLabel transaction={transaction} loop={loop} />
           </div>
         </div>
       </div>
@@ -252,7 +223,7 @@ const RenderTransactionPoint = fixedForwardRef(
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
-      point: TransactionGraphPoint
+      point: Point
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -276,11 +247,11 @@ const RenderTransactionPoint = fixedForwardRef(
 )
 
 type Props = {
-  horizontal: TransactionGraphHorizontal
-  verticals: TransactionGraphVertical[]
+  horizontal: HorizontalModel
+  verticals: Vertical[]
 }
 export function Horizontal({ horizontal, verticals }: Props) {
-  const { transaction, visualization, ancestors, isSubHorizontal } = horizontal
+  const { transaction, representation, ancestors, isSubHorizontal } = horizontal
 
   return (
     <>
@@ -291,29 +262,28 @@ export function Horizontal({ horizontal, verticals }: Props) {
       </div>
       {verticals.map((_, index) => {
         if (
-          visualization.shape === TransactionGraphVisualizationType.Vector &&
-          (index < visualization.fromVerticalIndex || index > visualization.toVerticalIndex)
+          representation.type === RepresentationType.Vector &&
+          (index < representation.fromVerticalIndex || index > representation.toVerticalIndex)
         ) {
           return <div key={index}></div>
         }
-        if (visualization.shape === TransactionGraphVisualizationType.Point && index > visualization.fromVerticalIndex)
-          return <div key={index}></div>
+        if (representation.type === RepresentationType.Point && index > representation.fromVerticalIndex) return <div key={index}></div>
         // The `index > transactionRepresentation.from + 1` is here
         // because a self-loop vector is rendered across 2 grid cells (see RenderTransactionSelfLoop).
         // Therefore, we skip this cell so that we won't cause overflowing
-        if (visualization.shape === TransactionGraphVisualizationType.SelfLoop && index > visualization.fromVerticalIndex + 1)
+        if (representation.type === RepresentationType.SelfLoop && index > representation.fromVerticalIndex + 1)
           return <div key={index}></div>
 
-        if (index === visualization.fromVerticalIndex)
+        if (index === representation.fromVerticalIndex)
           return (
             <Tooltip key={index}>
               <TooltipTrigger asChild>
-                {visualization.shape === TransactionGraphVisualizationType.Vector ? (
-                  <RenderTransactionVector key={index} vector={visualization} transaction={transaction} />
-                ) : visualization.shape === TransactionGraphVisualizationType.SelfLoop ? (
-                  <RenderTransactionSelfLoop key={index} loop={visualization} transaction={transaction} />
-                ) : visualization.shape === TransactionGraphVisualizationType.Point ? (
-                  <RenderTransactionPoint key={index} point={visualization} transaction={transaction} />
+                {representation.type === RepresentationType.Vector ? (
+                  <RenderTransactionVector key={index} vector={representation} transaction={transaction} />
+                ) : representation.type === RepresentationType.SelfLoop ? (
+                  <RenderTransactionSelfLoop key={index} loop={representation} transaction={transaction} />
+                ) : representation.type === RepresentationType.Point ? (
+                  <RenderTransactionPoint key={index} point={representation} transaction={transaction} />
                 ) : null}
               </TooltipTrigger>
               <TooltipContent>

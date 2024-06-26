@@ -5,17 +5,17 @@ import {
   Transaction,
   TransactionType,
 } from '@/features/transactions/models'
-import { TransactionGraphApplicationVertical, TransactionGraphVertical } from '../models'
+import { ApplicationVertical, Vertical } from '../models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 
-export const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): TransactionGraphVertical[] => {
+export const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): Vertical[] => {
   const transactionsVerticals = transactions.flatMap(asRawTransactionGraphVerticals)
   const mergedVerticals = mergeRawTransactionGraphVerticals(transactionsVerticals)
   return indexTransactionsVerticals(mergedVerticals)
 }
 
-const indexTransactionsVerticals = (rawVerticals: TransactionGraphVertical[]): TransactionGraphVertical[] => {
+const indexTransactionsVerticals = (rawVerticals: Vertical[]): Vertical[] => {
   const uniqueAddresses = rawVerticals
     .flatMap((vertical) => {
       switch (vertical.type) {
@@ -60,8 +60,8 @@ const indexTransactionsVerticals = (rawVerticals: TransactionGraphVertical[]): T
   })
 }
 
-const mergeRawTransactionGraphVerticals = (verticals: TransactionGraphVertical[]): TransactionGraphVertical[] => {
-  return verticals.reduce<TransactionGraphVertical[]>((acc, current, _, array) => {
+const mergeRawTransactionGraphVerticals = (verticals: Vertical[]): Vertical[] => {
+  return verticals.reduce<Vertical[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
       if (
         acc.some(
@@ -91,7 +91,7 @@ const mergeRawTransactionGraphVerticals = (verticals: TransactionGraphVertical[]
           type: 'Application' as const,
           applicationId: current.applicationId,
           linkedAccount: current.linkedAccount,
-          rekeyedAccounts: [...(acc[index] as TransactionGraphApplicationVertical).rekeyedAccounts, ...current.rekeyedAccounts].filter(
+          rekeyedAccounts: [...(acc[index] as ApplicationVertical).rekeyedAccounts, ...current.rekeyedAccounts].filter(
             distinct((x) => x.accountAddress)
           ),
         }
@@ -117,8 +117,8 @@ const mergeRawTransactionGraphVerticals = (verticals: TransactionGraphVertical[]
   }, [])
 }
 
-const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransaction): TransactionGraphVertical[] => {
-  const verticals: TransactionGraphVertical[] = [
+const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransaction): Vertical[] => {
+  const verticals: Vertical[] = [
     {
       id: -1,
       accountNumber: -1,

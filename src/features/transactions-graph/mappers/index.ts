@@ -1,4 +1,4 @@
-import { TransactionGraphVertical, TransactionsGraphData } from '../models'
+import { Vertical, TransactionsGraphData } from '../models'
 import { Transaction } from '@/features/transactions/models'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { getVerticalsForTransactions } from './verticals'
@@ -6,7 +6,7 @@ import { getHorizontalsForTransaction } from './horizontals'
 
 export const asTransactionsGraphData = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
-  const verticals: TransactionGraphVertical[] = [
+  const verticals: Vertical[] = [
     ...getVerticalsForTransactions(flattenedTransactions.map((t) => t.transaction)),
     {
       id: -1,

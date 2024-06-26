@@ -1,9 +1,9 @@
 import { cn } from '@/features/common/utils'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
-import { TransactionGraphHorizontal } from '../models'
+import { Horizontal } from '../models'
 
 type Props = {
-  horizontal: TransactionGraphHorizontal
+  horizontal: Horizontal
 }
 export function SubHorizontalTitle({ horizontal }: Props) {
   const { hasNextSibling, ancestors, depth } = horizontal
