@@ -74,7 +74,7 @@ export function BlockDetails({ block }: Props) {
     <div className={cn('space-y-4')}>
       <Card>
         <CardContent>
-          <div className={cn('grid grid-cols-[1fr_max-content]')}>
+          <div className={cn('flex gap-2')}>
             <DescriptionList items={blockItems} />
             <OpenJsonViewDialogButton json={block.json} />
           </div>
