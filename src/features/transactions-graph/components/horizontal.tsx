@@ -231,7 +231,9 @@ const RenderTransactionSelfLoop = fixedForwardRef(
           }}
         ></div>
         <div className={cn('absolute flex w-1/2 justify-center text-xs', colorClass.text)}>
-          <SelfLoopVisualizationDescription transaction={transaction} loop={loop} />
+          <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
+            <SelfLoopVisualizationDescription transaction={transaction} loop={loop} />
+          </div>
         </div>
       </div>
     )
