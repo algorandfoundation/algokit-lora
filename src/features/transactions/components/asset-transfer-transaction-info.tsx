@@ -7,7 +7,6 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetLink } from '@/features/assets/components/asset-link'
 import { transactionAmountLabel } from './transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from './labels'
-import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
@@ -19,7 +18,7 @@ export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 export const transactionClawbackAddressLabel = 'Clawback From'
 
 export function AssetTransferTransactionInfo({ transaction }: Props) {
-  const subType = useAtomValue(transaction.subType)
+  const subType = transaction.subType
   const items = useMemo(
     () => [
       {

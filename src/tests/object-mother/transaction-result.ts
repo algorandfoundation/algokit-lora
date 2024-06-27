@@ -1712,7 +1712,7 @@ export const transactionResultMother = {
       'tx-type': 'appl',
     } as unknown as TransactionResult)
   },
-  ['mainnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']: () => {
+  ['testnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']: () => {
     return new TransactionResultBuilder({
       'application-transaction': {
         accounts: [],
@@ -2379,6 +2379,199 @@ export const transactionResultMother = {
       'sender-rewards': 0,
       signature: {
         sig: '1vIkO9cOBlLzNN4f7TokcFNz2m4KYPx4fDukGeutxzNJa/7y0LkTGoLEQNtUCcNmZKl3HCc/jNaCFIaRvvcjCQ==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
+  ['mainnet-GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A']: () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [
+          'PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY',
+          'Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ',
+        ],
+        'application-args': ['Y2xhaW0='],
+        'application-id': 1800533232,
+        'foreign-apps': [],
+        'foreign-assets': [847594689],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'noop',
+      },
+      'auth-addr': 'U2K3RL6UYTHHKNP2GUR7PZPVQ723IV3RMPEVVV42J2KEUIS5SC4OCWF65A',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 39373576,
+      fee: 1000,
+      'first-valid': 39373567,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      'global-state-delta': [
+        {
+          key: 'Y2xhaW1lZF9jb3VudA==',
+          value: {
+            action: 2,
+            uint: 53,
+          },
+        },
+      ],
+      group: 'e8hHS1DTHzmS5ERI5G5szL2P9+EbDsfT399wjcjc7zU=',
+      id: 'GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A',
+      'inner-txns': [
+        {
+          'asset-transfer-transaction': {
+            amount: 0,
+            'asset-id': 847594689,
+            'close-amount': 1,
+            'close-to': 'Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ',
+            receiver: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+          },
+          'close-rewards': 0,
+          'closing-amount': 0,
+          'confirmed-round': 39373576,
+          fee: 1000,
+          'first-valid': 39373567,
+          'intra-round-offset': 4,
+          'last-valid': 39374567,
+          'receiver-rewards': 0,
+          'round-time': 1717259254,
+          sender: 'EG4G4PRHTEGUQJSLOBAQFIGOBJGTSEIFESANL7V6HJ3JYUXBXZ76QPKT5A',
+          'sender-rewards': 0,
+          'tx-type': 'axfer',
+        },
+        {
+          'close-rewards': 0,
+          'closing-amount': 0,
+          'confirmed-round': 39373576,
+          fee: 1000,
+          'first-valid': 39373567,
+          'intra-round-offset': 4,
+          'last-valid': 39374567,
+          'payment-transaction': {
+            amount: 100000,
+            'close-amount': 0,
+            receiver: 'PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY',
+          },
+          'receiver-rewards': 0,
+          'round-time': 1717259254,
+          sender: 'EG4G4PRHTEGUQJSLOBAQFIGOBJGTSEIFESANL7V6HJ3JYUXBXZ76QPKT5A',
+          'sender-rewards': 0,
+          'tx-type': 'pay',
+        },
+      ],
+      'intra-round-offset': 4,
+      'last-valid': 39374567,
+      'local-state-delta': [
+        {
+          address: 'Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ',
+          delta: [
+            {
+              key: 'c3RhdHVz',
+              value: {
+                action: 2,
+                uint: 3,
+              },
+            },
+          ],
+        },
+      ],
+      'receiver-rewards': 0,
+      'round-time': 1717259254,
+      sender: 'Y44JLSKZSRJ5AK4HDIEBHMHGFIJIANA26AQLWBTFQDCBS2FB5UXPKUSVPQ',
+      'sender-rewards': 0,
+      signature: {
+        sig: '1ZZeWqz/63u9+Ls9z8wvSbVtd6fnZgtptw1FZkCwTl0UiLo9kzxeBpDF8Q0ZDLFcHssjdgYSHtHshp0zf98WBQ==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
+  ['mainnet-XVVC7UDLCPI622KCJZLWK3SEAWWVUEPEXUM5CO3DFLWOBH7NOPDQ']: () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [
+          'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+          'H3OQEQIIC35RZTJNU5A75LT4PCTUCF3VKVEQTSXAJMUGNTRUKEKI4QSRW4',
+          'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+        ],
+        'application-args': [],
+        'application-id': 1898586902,
+        'foreign-apps': [],
+        'foreign-assets': [850924184],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'delete',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 39723800,
+      fee: 1000,
+      'first-valid': 39723798,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: 'XVVC7UDLCPI622KCJZLWK3SEAWWVUEPEXUM5CO3DFLWOBH7NOPDQ',
+      'inner-txns': [
+        {
+          'asset-transfer-transaction': {
+            amount: 0,
+            'asset-id': 850924184,
+            'close-amount': 1,
+            'close-to': 'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+            receiver: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+          },
+          'close-rewards': 0,
+          'closing-amount': 0,
+          'confirmed-round': 39723800,
+          fee: 1000,
+          'first-valid': 39723798,
+          'intra-round-offset': 369,
+          'last-valid': 39724798,
+          'receiver-rewards': 0,
+          'round-time': 1718268693,
+          sender: 'RHI54JUHEHQFVQECDUUJMXBZG7QF2ZSSNYNXOECRBNJ6RZJLP2YGJCDVXI',
+          'sender-rewards': 0,
+          'tx-type': 'axfer',
+        },
+        {
+          'close-rewards': 0,
+          'closing-amount': 597000,
+          'confirmed-round': 39723800,
+          fee: 1000,
+          'first-valid': 39723798,
+          'intra-round-offset': 369,
+          'last-valid': 39724798,
+          'payment-transaction': {
+            amount: 0,
+            'close-amount': 597000,
+            'close-remainder-to': 'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+            receiver: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+          },
+          'receiver-rewards': 0,
+          'round-time': 1718268693,
+          sender: 'RHI54JUHEHQFVQECDUUJMXBZG7QF2ZSSNYNXOECRBNJ6RZJLP2YGJCDVXI',
+          'sender-rewards': 0,
+          'tx-type': 'pay',
+        },
+      ],
+      'intra-round-offset': 369,
+      'last-valid': 39724798,
+      'receiver-rewards': 0,
+      'round-time': 1718268693,
+      sender: 'H3OQEQIIC35RZTJNU5A75LT4PCTUCF3VKVEQTSXAJMUGNTRUKEKI4QSRW4',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'ACgqTTdpnhp+0bZVMvh63e1QNVdpGTmki+7ffmQeaFOXUhfG7WUJ66vJV+fJiWqVn8WjwIdadjThmd4xs0/rAw==',
       },
       'tx-type': 'appl',
     } as unknown as TransactionResult)

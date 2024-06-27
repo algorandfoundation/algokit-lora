@@ -2,27 +2,74 @@ import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { AssetId } from '@/features/assets/data/types'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { AssetSummary } from '@/features/assets/models'
 
 export type TransactionsGraphData = {
-  horizontals: TransactionGraphHorizontal[]
-  verticals: TransactionGraphVertical[]
+  horizontals: Horizontal[]
+  verticals: Vertical[]
 }
 
-export type TransactionGraphHorizontal = {
-  ancestors: TransactionGraphHorizontal[]
+export type Horizontal = {
+  ancestors: Horizontal[]
   transaction: Transaction | InnerTransaction
-  visualization: TransactionGraphVisualization
+  representation: Representation
   hasNextSibling: boolean
   depth: number
+  isSubHorizontal: boolean
 }
 
-export type TransactionGraphVisualization =
-  | TransactionGraphVectorVisualization
-  | TransactionGraphSelfLoopVisualization
-  | TransactionGraphPointVisualization
+export type Representation = Vector | SelfLoop | Point
 
-export type TransactionGraphVectorVisualization = {
-  type: 'vector'
+export enum RepresentationType {
+  Vector = 'Vector',
+  SelfLoop = 'SelfLoop',
+  Point = 'Point',
+}
+
+export enum LabelType {
+  Payment = 'Payment',
+  PaymentTransferRemainder = 'Payment Transfer Remainder',
+  AssetTransfer = 'Asset Transfer',
+  ApplicationCall = 'App Call',
+  AssetConfig = 'Asset Config',
+  AssetFreeze = 'Asset Freeze',
+  KeyReg = 'Key Reg',
+  StateProof = 'State Proof',
+  Clawback = 'Clawback',
+  AssetTransferRemainder = 'Asset Transfer Remainder',
+}
+
+export type Label =
+  | {
+      type: LabelType.Payment
+      amount: AlgoAmount
+    }
+  | {
+      type: LabelType.PaymentTransferRemainder
+      amount: AlgoAmount
+    }
+  | {
+      type: LabelType.AssetTransfer
+      asset: AsyncMaybeAtom<AssetSummary>
+      amount: number | bigint
+    }
+  | {
+      type: LabelType.AssetTransferRemainder
+      asset: AsyncMaybeAtom<AssetSummary>
+      amount: number | bigint
+    }
+  | { type: LabelType.Clawback; asset: AsyncMaybeAtom<AssetSummary>; amount: number | bigint }
+  | { type: LabelType.ApplicationCall }
+  | { type: LabelType.AssetConfig }
+  | { type: LabelType.AssetFreeze }
+  | { type: LabelType.KeyReg }
+  | { type: LabelType.StateProof }
+
+export type Vector = {
+  type: RepresentationType.Vector
+  label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
   toAccountIndex?: number
@@ -30,25 +77,27 @@ export type TransactionGraphVectorVisualization = {
   direction: 'leftToRight' | 'rightToLeft'
 }
 
-export type TransactionGraphSelfLoopVisualization = {
-  type: 'selfLoop'
+export type SelfLoop = {
+  type: RepresentationType.SelfLoop
+  label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
 }
 
-export type TransactionGraphPointVisualization = {
-  type: 'point'
+export type Point = {
+  type: RepresentationType.Point
+  label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
 }
 
-export type TransactionGraphAccountVertical = {
+export type AccountVertical = {
   id: number
   accountNumber: number
   type: 'Account'
   accountAddress: Address
 }
-export type TransactionGraphApplicationVertical = {
+export type ApplicationVertical = {
   id: number
   type: 'Application'
   applicationId: ApplicationId
@@ -58,23 +107,28 @@ export type TransactionGraphApplicationVertical = {
     accountAddress: Address
   }[]
 }
-export type TransactionGraphAssetVertical = {
+export type AssetVertical = {
   id: number
   type: 'Asset'
   assetId: AssetId
 }
-export type TransactionGraphOpUpVertical = {
+export type OpUpVertical = {
   id: number
   type: 'OpUp'
 }
-export type TransactionGraphPlaceholderVertical = {
+export type PlaceholderVertical = {
   id: number
   type: 'Placeholder'
 }
 
-export type TransactionGraphVertical =
-  | TransactionGraphAccountVertical
-  | TransactionGraphApplicationVertical
-  | TransactionGraphAssetVertical
-  | TransactionGraphOpUpVertical
-  | TransactionGraphPlaceholderVertical
+export type Vertical = AccountVertical | ApplicationVertical | AssetVertical | OpUpVertical | PlaceholderVertical
+
+export type RepresentationFromTo = {
+  verticalId: number
+  accountNumber?: number
+}
+// Fallback value, it should never happen, just to make TypeScript happy
+export const fallbackFromTo: RepresentationFromTo = {
+  verticalId: -1,
+  accountNumber: undefined,
+}

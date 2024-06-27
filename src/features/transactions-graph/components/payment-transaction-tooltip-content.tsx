@@ -9,6 +9,10 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
+import {
+  transactionCloseRemainderAmountLabel,
+  transactionCloseRemainderToLabel,
+} from '@/features/transactions/components/payment-transaction-info'
 
 export function PaymentTransactionTooltipContent({ transaction }: { transaction: PaymentTransaction | InnerPaymentTransaction }) {
   const items = useMemo(
@@ -33,6 +37,18 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
         dt: transactionAmountLabel,
         dd: <DisplayAlgo amount={transaction.amount} />,
       },
+      ...(transaction.closeRemainder
+        ? [
+            {
+              dt: transactionCloseRemainderToLabel,
+              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} />,
+            },
+            {
+              dt: transactionCloseRemainderAmountLabel,
+              dd: <DisplayAlgo amount={transaction.closeRemainder.amount} />,
+            },
+          ]
+        : []),
     ],
     [transaction]
   )
