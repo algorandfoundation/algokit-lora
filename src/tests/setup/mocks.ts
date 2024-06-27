@@ -77,23 +77,6 @@ vi.mock('@/features/common/data/algo-client', async () => {
       }),
       searchForTransactions: vi.fn().mockReturnValue({
         assetID: vi.fn().mockReturnValue(mockSearchAssetTransactions),
-        // assetID: vi.fn().mockReturnValue({
-        //   txType: vi.fn().mockReturnValue({
-        //     do: vi.fn().mockReturnValue({ then: vi.fn() }),
-        //     address: vi.fn().mockReturnValue({
-        //       addressRole: vi.fn().mockReturnValue({
-        //         limit: vi.fn().mockReturnValue({
-        //           do: vi.fn().mockReturnValue({ then: vi.fn() }),
-        //         }),
-        //       }),
-        //     }),
-        //   }),
-        //   nextToken: vi.fn().mockReturnValue({
-        //     limit: vi.fn().mockReturnValue({
-        //       do: vi.fn().mockReturnValue({ then: vi.fn() }),
-        //     }),
-        //   }),
-        // }),
         applicationID: vi.fn().mockReturnValue({
           limit: vi.fn().mockReturnValue({
             do: vi.fn().mockReturnValue({ then: vi.fn() }),
@@ -165,3 +148,6 @@ vi.mock('@tauri-apps/api/event', async () => {
     listen: vi.fn(),
   }
 })
+
+export const ANY_NUMBER = -1
+export const ANY_STRING = 'ANY_STRING'
