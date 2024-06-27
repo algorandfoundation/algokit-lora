@@ -3,6 +3,8 @@ import algosdk from 'algosdk'
 import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 
 export class MockSearchAssetTransactions {
+  assetID: Mock
+  applicationID: Mock
   do: Mock
   limit: Mock
   nextToken: Mock
@@ -14,7 +16,8 @@ export class MockSearchAssetTransactions {
   constructor() {
     this.args = {}
 
-    this.do = vi.fn()
+    this.assetID = vi.fn().mockReturnThis()
+    this.applicationID = vi.fn().mockReturnThis()
     this.limit = vi.fn().mockImplementation((args) => {
       this.args['limit'] = args
       return this
@@ -26,6 +29,7 @@ export class MockSearchAssetTransactions {
     this.txType = vi.fn().mockReturnThis()
     this.address = vi.fn().mockReturnThis()
     this.addressRole = vi.fn().mockReturnThis()
+    this.do = vi.fn()
   }
 }
 export const mockSearchAssetTransactions = new MockSearchAssetTransactions()
@@ -75,15 +79,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
         }),
       }),
-      searchForTransactions: vi.fn().mockReturnValue({
-        assetID: vi.fn().mockReturnValue(mockSearchAssetTransactions),
-        applicationID: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue({
-            do: vi.fn().mockReturnValue({ then: vi.fn() }),
-          }),
-        }),
-      }),
-      // searchForTransactions: vi.fn().mockReturnValue(foo),
+      searchForTransactions: vi.fn().mockImplementation(() => mockSearchAssetTransactions),
       lookupApplications: vi.fn().mockReturnValue({
         includeAll: vi.fn().mockReturnValue({
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
