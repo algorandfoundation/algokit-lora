@@ -2,7 +2,11 @@ import { Mock, vi } from 'vitest'
 import algosdk from 'algosdk'
 import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 
-export class MockSearchAssetTransactions {
+type SearchTransactionsMockArgs = {
+  nextToken?: string
+  limit?: number
+}
+export class SearchTransactionsMock {
   assetID: Mock
   applicationID: Mock
   do: Mock
@@ -11,7 +15,7 @@ export class MockSearchAssetTransactions {
   txType: Mock
   address: Mock
   addressRole: Mock
-  args: Record<string, unknown>
+  args: SearchTransactionsMockArgs
 
   constructor() {
     this.args = {}
@@ -19,11 +23,11 @@ export class MockSearchAssetTransactions {
     this.assetID = vi.fn().mockReturnThis()
     this.applicationID = vi.fn().mockReturnThis()
     this.limit = vi.fn().mockImplementation((args) => {
-      this.args['limit'] = args
+      this.args.limit = args
       return this
     })
     this.nextToken = vi.fn().mockImplementation((args) => {
-      this.args['nextToken'] = args
+      this.args.nextToken = args
       return this
     })
     this.txType = vi.fn().mockReturnThis()
@@ -32,7 +36,7 @@ export class MockSearchAssetTransactions {
     this.do = vi.fn()
   }
 }
-export const mockSearchAssetTransactions = new MockSearchAssetTransactions()
+export const searchTransactionsMock = new SearchTransactionsMock()
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
@@ -79,7 +83,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
         }),
       }),
-      searchForTransactions: vi.fn().mockImplementation(() => mockSearchAssetTransactions),
+      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
       lookupApplications: vi.fn().mockReturnValue({
         includeAll: vi.fn().mockReturnValue({
           do: vi.fn().mockReturnValue({ then: vi.fn() }),

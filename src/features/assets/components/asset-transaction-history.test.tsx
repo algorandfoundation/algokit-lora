@@ -9,7 +9,7 @@ import { AssetTransactionHistory } from '@/features/assets/components/asset-tran
 import { indexer } from '@/features/common/data/algo-client'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { getAllByRole } from '@testing-library/dom'
-import { ANY_NUMBER, ANY_STRING, mockSearchAssetTransactions } from '@/tests/setup/mocks'
+import { ANY_NUMBER, ANY_STRING, searchTransactionsMock } from '@/tests/setup/mocks'
 
 describe('asset-transaction-history', () => {
   const asset = assetResultMother['testnet-642327435']().build()
@@ -19,8 +19,8 @@ describe('asset-transaction-history', () => {
     myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
     vi.mocked(indexer.searchForTransactions().assetID(ANY_NUMBER).nextToken(ANY_STRING).limit(ANY_NUMBER).do).mockImplementation(() => {
-      const args = mockSearchAssetTransactions.args
-      if (args['nextToken'] === '') {
+      const args = searchTransactionsMock.args
+      if (args.nextToken === '') {
         return Promise.resolve({
           transactions: Array.from({ length: 18 }).map(() => transactionResultMother.transfer(asset).build()),
           ['next-token']: '4652AgAAAAAFAAAA',
