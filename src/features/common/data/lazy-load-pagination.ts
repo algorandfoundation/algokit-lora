@@ -114,7 +114,8 @@ function fetchUntilTheNextPageIsFull<TData>(fetchRawData: FetchRawData<TData>, p
         items.push(...response.items)
         newNextPageToken = response.nextPageToken ?? null
       } catch (error) {
-        console.log('Failed to fetch data', error)
+        // eslint-disable-next-line no-console
+        console.error('Failed to fetch data', error)
         throw error
       }
     }
