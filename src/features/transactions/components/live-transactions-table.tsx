@@ -6,6 +6,8 @@ import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useLiveTransactions } from '../data/live-transaction'
 import { cn } from '@/features/common/utils'
+import { Switch } from '@/features/common/components/switch'
+import { Label } from '@/features/common/components/label'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
@@ -16,7 +18,7 @@ interface Props {
 export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const [maxRows, setMaxRows] = useState(10)
-  const transactions = useLiveTransactions(filter, maxRows)
+  const { transactions, showLiveUpdates, setShowLiveUpdates } = useLiveTransactions(filter, maxRows)
 
   const table = useReactTable({
     data: transactions,
@@ -38,6 +40,10 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
 
   return (
     <div>
+      <div className="flex items-center justify-end space-x-2 pb-4">
+        <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
+        <Label htmlFor="live-view-enabled">Show live updates</Label>
+      </div>
       <div className="grid">
         <Table className="border-b">
           <TableHeader>
