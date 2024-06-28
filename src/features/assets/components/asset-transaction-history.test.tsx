@@ -61,17 +61,17 @@ describe('asset-transaction-history', () => {
           assertFirstPage(component)
         })
 
-        await user.click(component.getByText('Go to next page'))
+        await user.click(component.getByRole('button', { name: 'Go to next page' }))
         await waitFor(() => {
           assertSecondPage(component)
         })
 
-        await user.click(component.getByText('Go to previous page'))
+        await user.click(component.getByRole('button', { name: 'Go to previous page' }))
         await waitFor(() => {
           assertFirstPage(component)
         })
 
-        await user.click(component.getByText('Go to next page'))
+        await user.click(component.getByRole('button', { name: 'Go to next page' }))
         await waitFor(() => {
           assertSecondPage(component)
         })
