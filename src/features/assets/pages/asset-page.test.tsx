@@ -100,8 +100,8 @@ describe('asset-page', () => {
       )
 
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
@@ -192,8 +192,8 @@ describe('asset-page', () => {
         } as Response)
       )
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
@@ -270,8 +270,8 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
@@ -354,8 +354,8 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
@@ -460,8 +460,8 @@ describe('asset-page', () => {
         } as Response)
       )
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
@@ -649,8 +649,8 @@ describe('asset-page', () => {
       )
 
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
@@ -703,8 +703,8 @@ describe('asset-page', () => {
       })
 
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do().then
-      ).mockImplementation(() => Promise.resolve([transactionResult]))
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
 
       return executeComponentTest(
         () => {
