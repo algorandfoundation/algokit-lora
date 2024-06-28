@@ -6,7 +6,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
 import { useResolvedTheme } from '@/features/settings/data'
-import { SubscriberStatus } from '@/features/network/components/subscriber-status'
+import { SubscriberStatus } from '../components/subscriber-status'
 
 export interface LayoutPageProps {
   children?: ReactNode
