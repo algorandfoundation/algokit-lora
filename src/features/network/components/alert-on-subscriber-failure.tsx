@@ -2,7 +2,7 @@ import { useNetworkMatchesCachedData, useSubscriberStatus } from '@/features/blo
 import { SubscriberState } from '@/features/blocks/data/types'
 import { Alert, AlertDescription } from '@/features/common/components/alert'
 import { Button } from '@/features/common/components/button'
-import { useRefreshDataProviderToken } from '@/features/common/data'
+import { cachedDataExpirationMillis, useRefreshDataProviderToken } from '@/features/common/data'
 import { CircleAlert } from 'lucide-react'
 import { useCallback } from 'react'
 
@@ -17,11 +17,17 @@ export function AlertOnSubscriberFailure({ networkName }: Props) {
 
   const reconnect = useCallback(async () => {
     try {
+      if (subscriberStatus.state !== SubscriberState.Failed) {
+        return
+      }
+
+      const expiredTimestamp = Date.now() - cachedDataExpirationMillis
+
       // Check if the network were about to connect to matches the cached data
       // If it doesn't then it's a new network state, which is likely because LocalNet has been reset.
-      const match = await networkMatchesCachedData()
-      if (match) {
-        // Same network, just restart the subscriber
+      const networkMatch = await networkMatchesCachedData()
+      if (networkMatch && subscriberStatus.timestamp > expiredTimestamp) {
+        // Same network and the tip isn't too far ahead, just restart the subscriber
         restartSubscriber()
       } else {
         // Clear cached data, which will restart the subscriber automatically
@@ -31,11 +37,11 @@ export function AlertOnSubscriberFailure({ networkName }: Props) {
       // eslint-disable-next-line no-console
       console.error(e)
     }
-  }, [networkMatchesCachedData, restartSubscriber, refreshDataProviderToken])
+  }, [subscriberStatus, networkMatchesCachedData, restartSubscriber, refreshDataProviderToken])
 
   if (subscriberStatus.state === SubscriberState.Failed) {
     const message = subscriberStatus.error.message.toLowerCase().includes('failed to fetch')
-      ? `Connection to ${networkName ?? 'the network'} failed`
+      ? `Subscription to ${networkName ?? 'the network'} failed`
       : `${subscriberStatus.error.message}`
 
     return (

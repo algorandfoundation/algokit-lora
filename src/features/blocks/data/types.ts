@@ -27,4 +27,5 @@ export type SubscriberStatus =
   | {
       state: SubscriberState.Failed
       error: Error
+      timestamp: number
     }
