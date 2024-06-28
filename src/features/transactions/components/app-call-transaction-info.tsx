@@ -9,6 +9,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { transactionSenderLabel } from './labels'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -105,7 +106,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
           ))}
         </TabsList>
         {tabs.map((tab) => (
-          <OverflowAutoTabsContent key={tab.id} value={tab.id}>
+          <OverflowAutoTabsContent key={tab.id} value={tab.id} className="h-auto">
             {tab.children}
           </OverflowAutoTabsContent>
         ))}
@@ -116,37 +117,45 @@ export function AppCallTransactionInfo({ transaction }: Props) {
 
 function ApplicationArgs({ transaction }: Props) {
   return (
-    <>
+    <div className="flex flex-col overflow-hidden">
       {transaction.applicationArgs.length === 0 && <div>No application args.</div>}
-      {transaction.applicationArgs.length > 0 && transaction.applicationArgs.map((data, index) => <div key={index}>{data}</div>)}
-    </>
+      {transaction.applicationArgs.length > 0 &&
+        transaction.applicationArgs.map((data, index) => (
+          <span className="text-ellipsis" key={index}>
+            {data}
+          </span>
+        ))}
+    </div>
   )
 }
 
 function ForeignAccounts({ transaction }: Props) {
   return (
-    <>
+    <div className="flex flex-col overflow-hidden">
       {transaction.applicationAccounts.length === 0 && <div>No foreign accounts.</div>}
-      {transaction.applicationAccounts.length > 0 && transaction.applicationAccounts.map((data, index) => <div key={index}>{data}</div>)}
-    </>
+      {transaction.applicationAccounts.length > 0 &&
+        transaction.applicationAccounts.map((address, index) => <AccountLink key={index} address={address} showCopyButton={true} />)}
+    </div>
   )
 }
 
 function ForeignApplications({ transaction }: Props) {
   return (
-    <>
+    <div className="flex flex-col overflow-hidden">
       {transaction.foreignApps.length === 0 && <div>No foreign applications.</div>}
-      {transaction.foreignApps.length > 0 && transaction.foreignApps.map((data, index) => <div key={index}>{data}</div>)}
-    </>
+      {transaction.foreignApps.length > 0 &&
+        transaction.foreignApps.map((appId, index) => <ApplicationLink key={index} applicationId={appId} showCopyButton={true} />)}
+    </div>
   )
 }
 
 function ForeignAssets({ transaction }: Props) {
   return (
-    <>
+    <div className="flex flex-col overflow-hidden">
       {transaction.foreignAssets.length === 0 && <div>No foreign assets.</div>}
-      {transaction.foreignAssets.length > 0 && transaction.foreignAssets.map((data, index) => <div key={index}>{data}</div>)}
-    </>
+      {transaction.foreignAssets.length > 0 &&
+        transaction.foreignAssets.map((data, index) => <AssetIdLink key={index} assetId={data} showCopyButton={true} />)}
+    </div>
   )
 }
 

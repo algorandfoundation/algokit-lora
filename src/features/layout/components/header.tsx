@@ -24,7 +24,9 @@ export function Header({ className }: Props) {
         <Search />
       </div>
       <div className={cn('flex items-center gap-4 ml-auto overflow-hidden')}>
-        <span className="ml-2 truncate">{networkConfig.name}</span>
+        <TemplatedNavLink urlTemplate={Urls.Settings} className="ml-2 truncate">
+          {networkConfig.name}
+        </TemplatedNavLink>
         <ConnectWalletButton />
       </div>
     </header>
