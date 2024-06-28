@@ -40,10 +40,6 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
 
   return (
     <div>
-      <div className="flex items-center justify-end space-x-2 pb-4">
-        <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
-        <Label htmlFor="live-view-enabled">Show live updates</Label>
-      </div>
       <div className="grid">
         <Table className="border-b">
           <TableHeader>
@@ -83,8 +79,8 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
           </TableBody>
         </Table>
       </div>
-      <div className="mt-2 flex items-center justify-between">
-        <div className="flex w-full">
+      <div className="mt-2 flex items-center gap-2">
+        <div className="flex">
           <div className="flex shrink grow basis-0 items-center justify-start gap-2">
             <p className="hidden text-sm font-medium md:flex">Max rows</p>
             <Select value={`${maxRows}`} onValueChange={(value) => setMaxRows(Number(value))}>
@@ -100,6 +96,12 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div className="ml-auto flex items-center space-x-2">
+          <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
+          <Label htmlFor="live-view-enabled" className="cursor-pointer">
+            Show updates
+          </Label>
         </div>
       </div>
     </div>

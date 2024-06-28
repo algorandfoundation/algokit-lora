@@ -13,6 +13,7 @@ const liveTransactionsEffect = atomEffect((get, set) => {
   if (!showLiveUpdates) {
     return
   }
+
   const latestTransactionSummaries: TransactionSummary[] = []
   exit_loops: for (const block of get(latestBlockSummariesAtom)) {
     const transactions = block.transactions.reverse()

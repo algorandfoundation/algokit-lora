@@ -18,7 +18,9 @@ export function ExplorePage() {
         <PageTitle title={explorePageTitle} />
         <div className="flex items-center space-x-2">
           <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
-          <Label htmlFor="live-view-enabled">Show live updates</Label>
+          <Label htmlFor="live-view-enabled" className="cursor-pointer">
+            Show live updates
+          </Label>
         </div>
       </div>
       <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-4')}>
