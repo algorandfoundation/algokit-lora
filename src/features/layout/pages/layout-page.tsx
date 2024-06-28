@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
 import { useResolvedTheme } from '@/features/settings/data'
+import { SubscriberStatus } from '@/features/network/components/subscriber-status'
 
 export interface LayoutPageProps {
   children?: ReactNode
@@ -21,7 +22,10 @@ export function LayoutPage({ children }: LayoutPageProps) {
       <div className="flex flex-1 overflow-hidden">
         <LeftSideBarMenu />
         <main className="flex flex-1 items-start overflow-y-auto overflow-x-hidden">
-          <div className={cn('grid w-full mb-4 mx-4')}>{children}</div>
+          <div className={cn('grid w-full mb-4 mx-4')}>
+            <SubscriberStatus />
+            {children}
+          </div>
         </main>
       </div>
       <ToastContainer theme={theme} toastClassName="border" />
