@@ -21,12 +21,12 @@ export function LayoutPage({ children }: LayoutPageProps) {
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <LeftSideBarMenu />
-        <main className="flex flex-1 items-start overflow-y-auto overflow-x-hidden">
-          <div className={cn('grid w-full mb-4 mx-4')}>
-            <SubscriberStatus />
-            {children}
-          </div>
-        </main>
+        <div className="flex w-full flex-col">
+          <SubscriberStatus />
+          <main className="flex flex-1 items-start overflow-y-auto overflow-x-hidden">
+            <div className={cn('grid w-full mb-4 mx-4')}>{children}</div>
+          </main>
+        </div>
       </div>
       <ToastContainer theme={theme} toastClassName="border" />
     </div>

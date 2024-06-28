@@ -63,7 +63,7 @@ export function SubscriberStatus() {
       }
 
       return (
-        <Alert variant="destructive" className="mt-4">
+        <Alert variant="destructive">
           <CircleAlert className="size-4" />
           <AlertDescription>{message}</AlertDescription>
           <Button onClick={reconnect} variant="outline" size="xs" className="ml-auto">
@@ -75,7 +75,7 @@ export function SubscriberStatus() {
 
     if (subscriberStatus.details.reason === SubscriberStoppedReason.Inactivity) {
       return (
-        <Alert className="mt-4">
+        <Alert>
           <Info className="size-4" />
           <AlertDescription>Subscription paused due to inactivity</AlertDescription>
         </Alert>
