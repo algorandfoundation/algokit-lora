@@ -273,7 +273,11 @@ const subscriberAtom = atom(null, (get, set) => {
   })
 
   subscriber.onError((e) => {
-    set(subscriberStatusAtom, { state: SubscriberState.Failed, error: asError(e) } satisfies SubscriberStatus)
+    set(subscriberStatusAtom, {
+      state: SubscriberState.Failed,
+      error: asError(e),
+      timestamp: createTimestamp(),
+    } satisfies SubscriberStatus)
     // eslint-disable-next-line no-console
     console.error(e)
   })
