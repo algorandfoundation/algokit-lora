@@ -23,7 +23,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
 import { algod } from '@/features/common/data/algo-client'
-import { createTimestamp } from '@/features/common/data'
+import { createTimestamp, showLiveUpdatesAtom } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
 
@@ -32,7 +32,9 @@ const maxBlocksToDisplay = 10
 export const latestBlockSummariesAtom = atom<BlockSummary[]>([])
 const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
   const syncedRound = get(syncedRoundAtom)
-  if (!syncedRound) {
+  const showLiveUpdates = get(showLiveUpdatesAtom)
+
+  if (!syncedRound || !showLiveUpdates) {
     return
   }
 
