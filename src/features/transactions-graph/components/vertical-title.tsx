@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { TransactionGraphVertical } from '@/features/transactions-graph'
+import { Vertical } from '../models'
 import { KeyIcon, LinkIcon } from 'lucide-react'
 
 export function AccountNumber({ number }: { number: number }) {
@@ -13,7 +13,7 @@ export function AccountNumber({ number }: { number: number }) {
   )
 }
 
-export function VerticalTitle({ vertical }: { vertical: TransactionGraphVertical }) {
+export function VerticalTitle({ vertical }: { vertical: Vertical }) {
   return (
     <span className={cn('text-l font-semibold')}>
       {vertical.type === 'Account' && (

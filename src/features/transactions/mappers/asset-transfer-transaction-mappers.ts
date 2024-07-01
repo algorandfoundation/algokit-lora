@@ -11,37 +11,26 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
-import { atom } from 'jotai'
-import { unwrap } from 'jotai/utils'
 
-const optInSubTypeAtom = atom(() => AssetTransferTransactionSubType.OptIn)
-const optOutSubTypeAtom = atom(() => AssetTransferTransactionSubType.OptOut)
-
-const mapSubType = (transactionResult: TransactionResult, assetAtom: AsyncMaybeAtom<AssetSummary>) => {
+const mapSubType = (transactionResult: TransactionResult) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
   const assetTransfer = transactionResult['asset-transfer-transaction']
 
   if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
-    return optInSubTypeAtom
+    return AssetTransferTransactionSubType.OptIn
   }
 
   if (assetTransfer['close-to']) {
-    return optOutSubTypeAtom
+    return AssetTransferTransactionSubType.OptOut
   }
 
-  return atom((get) => {
-    const asset = get(unwrap(assetAtom))
-    if (
-      asset &&
-      transactionResult.sender === asset.clawback &&
-      assetTransfer.sender &&
-      assetTransfer.sender !== ZERO_ADDRESS &&
-      assetTransfer.receiver &&
-      assetTransfer.receiver !== ZERO_ADDRESS
-    ) {
-      return AssetTransferTransactionSubType.Clawback
-    }
-  })
+  // if the assetTransfer.sender is not a ZERO address, it's a clawback
+  // https://developer.algorand.org/docs/rest-apis/indexer/#transactionassettransfer
+  if (assetTransfer.sender && assetTransfer.sender !== ZERO_ADDRESS && assetTransfer.receiver && assetTransfer.receiver !== ZERO_ADDRESS) {
+    return AssetTransferTransactionSubType.Clawback
+  }
+
+  return undefined
 }
 
 const mapCommonAssetTransferTransactionProperties = (
@@ -56,7 +45,7 @@ const mapCommonAssetTransferTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AssetTransfer,
-    subType: mapSubType(transactionResult, asset),
+    subType: mapSubType(transactionResult),
     assetId,
     asset,
     receiver: transactionResult['asset-transfer-transaction'].receiver,

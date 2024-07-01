@@ -1,6 +1,10 @@
 import { vi } from 'vitest'
 import algosdk from 'algosdk'
 import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
+import { SearchTransactionsMock } from '@/tests/setup/mocks/search-transactions'
+
+export const searchTransactionsMock = new SearchTransactionsMock()
+
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useParams: vi.fn(),
@@ -46,25 +50,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
         }),
       }),
-      searchForTransactions: vi.fn().mockReturnValue({
-        assetID: vi.fn().mockReturnValue({
-          txType: vi.fn().mockReturnValue({
-            do: vi.fn().mockReturnValue({ then: vi.fn() }),
-            address: vi.fn().mockReturnValue({
-              addressRole: vi.fn().mockReturnValue({
-                limit: vi.fn().mockReturnValue({
-                  do: vi.fn().mockReturnValue({ then: vi.fn() }),
-                }),
-              }),
-            }),
-          }),
-        }),
-        applicationID: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue({
-            do: vi.fn().mockReturnValue({ then: vi.fn() }),
-          }),
-        }),
-      }),
+      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
       lookupApplications: vi.fn().mockReturnValue({
         includeAll: vi.fn().mockReturnValue({
           do: vi.fn().mockReturnValue({ then: vi.fn() }),
@@ -129,3 +115,6 @@ vi.mock('@tauri-apps/api/event', async () => {
     listen: vi.fn(),
   }
 })
+
+export const ANY_NUMBER = -1
+export const ANY_STRING = 'ANY_STRING'

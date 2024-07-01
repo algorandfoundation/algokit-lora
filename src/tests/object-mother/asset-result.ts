@@ -462,4 +462,44 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-850924184': () => {
+    return new AssetResultBuilder({
+      index: 850924184,
+      params: {
+        creator: 'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+        name: 'Forest',
+        'name-b64': encoder.encode('Rm9yZXN0'),
+        reserve: 'MDIVKI64M2HEKCWKH7SOTUXEEW6KNOYSAOBTDTS32KUQOGUT75D43MSP5M',
+        total: 1,
+        'unit-name': 'GEMS NFT',
+        'unit-name-b64': encoder.encode('R0VNUyBORlQ='),
+        url: 'ipfs://QmWJo2KjMnsjpnNusxLPSzyVMMiYPPVTSTGSHJQhJGUavr',
+        'url-b64': encoder.encode('aXBmczovL1FtV0pvMktqTW5zanBuTnVzeExQU3p5Vk1NaVlQUFZUU1RHU0hKUWhKR1VhdnI='),
+      },
+    })
+  },
+  'mainnet-847594689': () => {
+    return new AssetResultBuilder({
+      index: 847594689,
+      params: {
+        creator: 'PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY',
+        name: 'Headline(Rare)',
+        'name-b64': encoder.encode('SGVhZGxpbmUoUmFyZSk='),
+        reserve: 'PZNGYF4Y25GGO674BW4CRDHFKOKHMHZXSFXIKMYPEJCQAUTDH52WV24XTY',
+        total: 250,
+        'unit-name': 'HEAD-1',
+        'unit-name-b64': encoder.encode('SEVBRC0x'),
+        url: 'https://algoleagues.mypinata.cloud/ipfs/QmZMLEVGvBqHWMGb3MbkfCKR7G5bnLMRUZnquJE1FsEucZ',
+        'url-b64': encoder.encode(
+          'aHR0cHM6Ly9hbGdvbGVhZ3Vlcy5teXBpbmF0YS5jbG91ZC9pcGZzL1FtWk1MRVZHdkJxSFdNR2IzTWJrZkNLUjdHNWJuTE1SVVpucXVKRTFGc0V1Y1o='
+        ),
+      },
+    })
+  },
 }

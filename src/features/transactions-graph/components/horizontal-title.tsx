@@ -4,10 +4,10 @@ import { InnerTransactionLink } from '@/features/transactions/components/inner-t
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { cn } from '@/features/common/utils'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
-import { TransactionGraphHorizontal } from '@/features/transactions-graph'
+import { Horizontal } from '../models'
 
 type Props = {
-  horizontal: TransactionGraphHorizontal
+  horizontal: Horizontal
 }
 export function HorizontalTitle({ horizontal }: Props) {
   const { transaction, hasNextSibling, ancestors, depth } = horizontal

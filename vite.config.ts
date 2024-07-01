@@ -16,7 +16,7 @@ export default defineConfig({
   ],
   test: {
     environment: 'happy-dom',
-    setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks.ts'],
+    setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks/index.ts'],
     globals: true,
     globalSetup: 'src/tests/setup/setup-timezone.ts',
   },

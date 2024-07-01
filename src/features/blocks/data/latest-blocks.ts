@@ -6,7 +6,7 @@ import { asTransactionSummary } from '@/features/transactions/mappers'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { BlockResult, Round, SubscriberState, SubscriberStatus } from './types'
+import { BlockResult, Round, SubscriberState, SubscriberStatus, SubscriberStoppedDetails, SubscriberStoppedReason } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
@@ -75,16 +75,25 @@ export const useLatestBlockSummaries = () => {
   return useAtomValue(latestBlockSummariesAtom)
 }
 
-const runningSubscriberStatus = { state: SubscriberState.Running } satisfies SubscriberStatus
+const runningSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
 const subscriberStatusAtom = atom<SubscriberStatus>(runningSubscriberStatus)
-const restartSubscriberAtom = atom(null, (_get, set) => {
+const startSubscriberAtom = atom(null, (_get, set) => {
   set(subscriberStatusAtom, runningSubscriberStatus)
   const subscriber = set(subscriberAtom)
   subscriber.start()
 })
+const stopSubscriberAtom = atom(null, async (_get, set, reason: SubscriberStoppedDetails) => {
+  const subscriber = set(subscriberAtom)
+  await subscriber.stop(reason.reason)
+  set(subscriberStatusAtom, {
+    state: SubscriberState.Stopped,
+    details: reason,
+    timestamp: createTimestamp(),
+  } satisfies SubscriberStatus)
+})
 
-export const useSubscriberStatus = () => {
-  return [useAtomValue(subscriberStatusAtom), useSetAtom(restartSubscriberAtom)] as const
+export const useSubscriber = () => {
+  return [useAtomValue(subscriberStatusAtom), useSetAtom(startSubscriberAtom), useSetAtom(stopSubscriberAtom)] as const
 }
 
 const _subscriberAtom = atom<AlgorandSubscriber | null>(null)
@@ -292,7 +301,11 @@ const subscriberAtom = atom(null, (get, set) => {
   })
 
   subscriber.onError((e) => {
-    set(subscriberStatusAtom, { state: SubscriberState.Failed, error: asError(e) } satisfies SubscriberStatus)
+    set(subscriberStatusAtom, {
+      state: SubscriberState.Stopped,
+      details: { reason: SubscriberStoppedReason.Error, error: asError(e) },
+      timestamp: createTimestamp(),
+    } satisfies SubscriberStatus)
     // eslint-disable-next-line no-console
     console.error(e)
   })

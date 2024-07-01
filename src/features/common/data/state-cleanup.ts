@@ -9,12 +9,12 @@ import { applicationResultsAtom } from '@/features/applications/data'
 import { assetMetadataResultsAtom, assetResultsAtom } from '@/features/assets/data'
 
 const cleanUpIntervalMillis = 600_000 // 10 minutes
-const expirationMillis = 1_800_000 // 30 minutes
+export const cachedDataExpirationMillis = 1_800_000 // 30 minutes
 // Run every 10 minutes and cleanup data that hasn't been accessed in the last 30 minutes
 
 const stateCleanupEffect = atomEffect((get, set) => {
   const cleanup = setInterval(() => {
-    const expiredTimestamp = Date.now() - expirationMillis
+    const expiredTimestamp = Date.now() - cachedDataExpirationMillis
 
     const removeExpired = createExpiredDataRemover(get, set, expiredTimestamp)
     set(latestTransactionIdsAtom, (prev) => {

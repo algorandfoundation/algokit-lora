@@ -1,2 +1,2 @@
-export * from './models'
-export * from './components/transactions-graph'
+export type { TransactionsGraphData } from './models'
+export { TransactionsGraph } from './components/transactions-graph'
