@@ -6,7 +6,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
 import { useResolvedTheme } from '@/features/settings/data'
-import { useScrollRestoration } from '@/features/common/hooks/use-scroll-restoration'
+import { ScrollRestoration } from 'react-router-dom'
 
 type Props = {
   children?: ReactNode
@@ -15,10 +15,7 @@ type Props = {
 export function LayoutPage({ children }: Props) {
   useDeepLink()
   const theme = useResolvedTheme()
-
-  // This hook is required as React router scroll restoration doesn't work on non body scrollable containers.
   const mainContent = useRef<HTMLDivElement>(null)
-  useScrollRestoration(mainContent)
 
   return (
     <div className="flex h-screen flex-col">
@@ -30,6 +27,8 @@ export function LayoutPage({ children }: Props) {
         </main>
       </div>
       <ToastContainer theme={theme} toastClassName="border" />
+      {/* This uses a patched version of this component to support scrolling non body containers. */}
+      <ScrollRestoration elementRef={mainContent} />
     </div>
   )
 }
