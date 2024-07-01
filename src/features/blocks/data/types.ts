@@ -16,16 +16,30 @@ export type BlocksExtract = {
 export type Round = number
 
 export enum SubscriberState {
-  Failed = 'Failed',
-  Running = 'Running',
+  Stopped = 'Stopped',
+  Started = 'Started',
 }
+
+export enum SubscriberStoppedReason {
+  Error = 'Error',
+  Inactivity = 'Inactivity',
+}
+
+export type SubscriberStoppedDetails =
+  | {
+      reason: SubscriberStoppedReason.Error
+      error: Error
+    }
+  | {
+      reason: SubscriberStoppedReason.Inactivity
+    }
 
 export type SubscriberStatus =
   | {
-      state: SubscriberState.Running
+      state: SubscriberState.Started
     }
   | {
-      state: SubscriberState.Failed
-      error: Error
+      state: SubscriberState.Stopped
+      details: SubscriberStoppedDetails
       timestamp: number
     }

@@ -3,7 +3,6 @@ import { UrlParams } from '@/routes/urls'
 import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
-import { AlertOnSubscriberFailure } from '../components/alert-on-subscriber-failure'
 
 type Props = {
   children: React.ReactNode
@@ -27,10 +26,5 @@ export function NetworkPage({ children }: Props) {
     }
   }, [hash, pathname, search, navigate, selectedNetwork, isWildcardNetworkRoute])
 
-  return (
-    <>
-      <AlertOnSubscriberFailure networkName={networkConfig?.name} />
-      {children}
-    </>
-  )
+  return children
 }
