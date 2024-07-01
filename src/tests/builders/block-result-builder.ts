@@ -9,11 +9,19 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
         : {
             round: incrementedNumber('round'),
             timestamp: randomDate().getTime(),
-            ['transaction-ids']: Array.from({ length: randomNumberBetween(1, 1000) }, () => randomString(52, 52)),
+            transactionIds: Array.from({ length: randomNumberBetween(1, 1000) }, () => randomString(52, 52)),
             seed: randomString(64, 64),
-            ['genesis-hash']: randomString(64, 64),
-            ['genesis-id']: randomString(64, 64),
-            ['previous-block-hash']: randomString(64, 64),
+            genesisHash: randomString(64, 64),
+            genesisId: randomString(64, 64),
+            previousBlockHash: randomString(64, 64),
+            rewardsLevel: randomNumberBetween(1, 1000),
+            feeSink: randomString(64, 64),
+            rewardsResidue: randomNumberBetween(1, 1000),
+            currentProtocol: randomString(64, 64),
+            rewardsCalculationRound: randomNumberBetween(1, 1000),
+            rewardsPool: randomString(64, 64),
+            transactionCounter: randomNumberBetween(1, 1000),
+            transactionsRootSha256: randomString(64, 64),
           }
     )
   }

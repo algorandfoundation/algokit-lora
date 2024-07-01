@@ -5,10 +5,18 @@ export type BlockResult = {
   round: number
   timestamp: number
   seed: string
-  ['transaction-ids']: string[]
-  ['genesis-hash']: string
-  ['genesis-id']: string
-  ['previous-block-hash']: string
+  transactionIds: string[]
+  genesisHash: string
+  genesisId: string
+  previousBlockHash: string
+  rewardsLevel: number
+  feeSink: string
+  rewardsResidue: number
+  currentProtocol: string
+  rewardsCalculationRound: number
+  rewardsPool: string
+  transactionCounter: number
+  transactionsRootSha256: string
 }
 
 export type BlocksExtract = {

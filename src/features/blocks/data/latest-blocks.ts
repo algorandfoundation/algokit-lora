@@ -54,7 +54,7 @@ const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
           if (blockResult) {
             const block = await get(blockResult[0])
             const transactionSummaries = await Promise.all(
-              block['transaction-ids'].map(async (transactionId) => {
+              block.transactionIds.map(async (transactionId) => {
                 const transactionResult = await get(getTransactionResultAtom(transactionId, { skipTimestampUpdate: true }))
                 return asTransactionSummary(transactionResult)
               })
@@ -210,12 +210,20 @@ const subscriberAtom = atom(null, (get, set) => {
     const blockResults = result.blockMetadata.map((b) => {
       return {
         round: b.round,
-        timestamp: Math.floor(new Date(b.timestamp).getTime() / 1000),
-        ['transaction-ids']: blockTransactionIds.get(b.round) ?? [],
+        timestamp: b.timestamp,
+        transactionIds: blockTransactionIds.get(b.round) ?? [],
         seed: b.seed ?? '',
-        ['genesis-hash']: b.genesisHash,
-        ['genesis-id']: b.genesisId,
-        ['previous-block-hash']: b.previousBlockHash ? base32ToBase64(b.previousBlockHash) : '',
+        genesisHash: b.genesisHash,
+        genesisId: b.genesisId,
+        previousBlockHash: b.previousBlockHash ? base32ToBase64(b.previousBlockHash) : '',
+        rewardsLevel: b.rewardsLevel,
+        feeSink: b.feeSink,
+        rewardsResidue: b.rewardsResidue,
+        currentProtocol: b.currentProtocol,
+        rewardsCalculationRound: b.rewardsCalculationRound,
+        rewardsPool: b.rewardsPool,
+        transactionCounter: b.transactionCounter,
+        transactionsRootSha256: b.transactionsRootSha256,
       } satisfies BlockResult
     })
 
