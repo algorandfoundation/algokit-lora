@@ -3,11 +3,11 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/features/common/utils'
 
-const alertVariants = cva('flex w-full items-center gap-2 rounded-lg border px-4 py-3 text-sm [&>svg]:text-foreground', {
+const alertVariants = cva('flex w-full items-center gap-2 border-b px-4 py-3 text-sm animate-in fade-in-0 [&>svg]:text-foreground', {
   variants: {
     variant: {
       default: 'bg-accent text-foreground',
-      destructive: 'border-destructive/20 bg-destructive/20 dark:border-destructive/40 dark:bg-destructive/40',
+      destructive: 'bg-destructive/20 dark:bg-destructive/40',
     },
   },
   defaultVariants: {
