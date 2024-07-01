@@ -5,14 +5,31 @@ import { atomsInAtom } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
+import { asError, is400 } from '@/utils/error'
 
-const getAccountResult = (address: Address) =>
-  algod
-    .accountInformation(address)
-    .do()
-    .then((result) => {
-      return result as AccountResult
-    })
+const getAccountResult = async (address: Address) => {
+  try {
+    return await algod
+      .accountInformation(address)
+      .do()
+      .then((result) => {
+        return result as AccountResult
+      })
+  } catch (e: unknown) {
+    const error = asError(e)
+    if (is400(error) && error.message.toLowerCase().includes('result limit exceeded')) {
+      // Exclude asset and application data, as the account exceeds the limit which prevents it from loading
+      return await algod
+        .accountInformation(address)
+        .exclude('all')
+        .do()
+        .then((result) => {
+          return result as AccountResult
+        })
+    }
+    throw e
+  }
+}
 
 const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set, address: Address) => {
   const accountResult = await getAccountResult(address)
