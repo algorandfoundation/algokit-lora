@@ -1,18 +1,20 @@
 import { cn } from '@/features/common/utils'
 import { TransactionLink } from './transaction-link'
 import { Card, CardContent } from '@/features/common/components/card'
-import { useLatestTransactionSummaries } from '../data/latest-transactions'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ArrowRightLeft, Info } from 'lucide-react'
 import { Badge } from '@/features/common/components/badge'
+import { TransactionSummary } from '@/features/transactions/models'
 
 export const latestTransactionsTitle = 'Latest Transactions'
 
-export function LatestTransactions() {
-  const latestTransactions = useLatestTransactionSummaries()
+type Props = {
+  latestTransactions: TransactionSummary[]
+}
 
+export function LatestTransactions({ latestTransactions }: Props) {
   return (
     <Card>
       <CardContent className={cn('space-y-1')}>
