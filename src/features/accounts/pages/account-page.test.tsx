@@ -252,4 +252,47 @@ describe('account-page', () => {
       )
     })
   })
+
+  describe('when rendering an account with a huge number of assets and falls back to excluding assets and applications', () => {
+    const accountResult = accountResultMother['mainnet-X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE']().build()
+    it('should render the account without the assets', () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE' },
+                { term: accountBalanceLabel, description: '273116.395038' },
+                { term: accountMinBalanceLabel, description: '98439.4' },
+                { term: accountAssetsHeldLabel, description: '?' },
+                { term: accountAssetsCreatedLabel, description: '984393' },
+                { term: accountAssetsOptedInLabel, description: '984393' },
+                { term: accountApplicationsCreatedLabel, description: '0' },
+                { term: accountApplicationsOptedInLabel, description: '0' },
+              ],
+            })
+            const activityTabList = component.getByRole('tablist', { name: accountActivityLabel })
+            expect(activityTabList).toBeTruthy()
+            expect(activityTabList.children.length).toBe(2)
+
+            const assetTabList = component.getByRole('tablist', { name: accountAssetLabel })
+            expect(assetTabList).toBeTruthy()
+            expect(assetTabList.children.length).toBe(3)
+
+            const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
+            expect(applicationTabList).toBeTruthy()
+            expect(applicationTabList.children.length).toBe(2)
+          })
+        }
+      )
+    })
+  })
 })

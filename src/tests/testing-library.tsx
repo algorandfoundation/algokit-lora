@@ -2,10 +2,12 @@ import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { queries, render, renderHook, screen, within } from '@testing-library/react'
 import type { createStore } from 'jotai'
 import type { PropsWithChildren } from 'react'
-import { MemoryRouter } from 'react-router'
 import { ErrorBoundary } from './error-boundary'
 import * as getDescriptionQueries from './custom-queries/get-description'
 import { TestPlatformProvider } from './test-platform-provider'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom'
+import { evalTemplates } from '@/routes/templated-route'
+import { Urls } from '@/routes/urls'
 
 const allQueries = {
   ...queries,
@@ -22,11 +24,19 @@ type JotaiStore = ReturnType<typeof createStore>
 const Providers =
   (store?: JotaiStore) =>
   ({ children }: PropsWithChildren) => {
+    const routes = evalTemplates([
+      {
+        template: Urls.Index,
+        element: children,
+      },
+    ])
+    const router = createMemoryRouter(routes)
+
     return (
       <TestPlatformProvider store={store}>
         <TooltipProvider>
           <ErrorBoundary>
-            <MemoryRouter>{children}</MemoryRouter>
+            <RouterProvider router={router} />
           </ErrorBoundary>
         </TooltipProvider>
       </TestPlatformProvider>
