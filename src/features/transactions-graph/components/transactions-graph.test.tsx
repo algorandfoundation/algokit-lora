@@ -77,7 +77,7 @@ describe('asset-transfer-transaction-graph', () => {
     }
   )
 })
-// TODO: test for clawback
+
 describe('application-call-graph', () => {
   describe.each([
     {
@@ -107,6 +107,10 @@ describe('application-call-graph', () => {
     {
       transactionResult: transactionResultMother['mainnet-GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A']().build(),
       assetResults: [assetResultMother['mainnet-847594689']().build()],
+    },
+    {
+      transactionResult: transactionResultMother['mainnet-CF6HEO6Z5UZIPCUXTIAGUHHDV7W4FCZG5WPKUGU3BIJYF6X6SPYA']().build(),
+      assetResults: [assetResultMother['mainnet-880903652']().build()],
     },
   ])(
     'when rendering transaction $transactionResult.id',
