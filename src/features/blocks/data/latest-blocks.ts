@@ -227,7 +227,7 @@ const subscriberAtom = atom(null, (get, set) => {
         previousBlockHash: b.previousBlockHash ? base32ToBase64(b.previousBlockHash) : '',
         rewardsLevel: b.rewardsLevel,
         feeSink: b.feeSink,
-        rewardsResidue: b.rewardsResidue,
+        rewardsResidue: Number(b.rewardsResidue),
         currentProtocol: b.currentProtocol,
         rewardsCalculationRound: b.rewardsCalculationRound,
         rewardsPool: b.rewardsPool,

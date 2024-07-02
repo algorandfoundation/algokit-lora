@@ -37,7 +37,7 @@ export const getBlockAndExtractData = async (round: Round) => {
           genesisHash: result['genesis-hash'],
           genesisId: result['genesis-id'],
           previousBlockHash: result['previous-block-hash'],
-          rewardsLevel: result['rewards-level'],
+          rewardsLevel: result['rewards']['rewards-level'],
           feeSink: result['rewards']['fee-sink'],
           rewardsResidue: result['rewards']['rewards-residue'],
           currentProtocol: result['upgrade-state']['current-protocol'],
