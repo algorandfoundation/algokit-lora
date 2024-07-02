@@ -71,7 +71,14 @@ export const addStateExtractedFromBlocksAtom = atom(
   (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
     if (transactionResults.length > 0) {
       const currentTransactionResults = get(transactionResultsAtom)
-      const transactionResultsToAdd = transactionResults.filter((t) => !currentTransactionResults.has(t.id))
+
+      const transactionResultsToAdd: TransactionResult[] = transactionResults
+        .map((t) => {
+          const filteredTransaction = removeUndefinedValues(t) as TransactionResult
+          return filteredTransaction
+        })
+        .filter((t) => !currentTransactionResults.has(t.id))
+
       set(transactionResultsAtom, (prev) => {
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
@@ -112,6 +119,19 @@ export const addStateExtractedFromBlocksAtom = atom(
     }
   }
 )
+
+function removeUndefinedValues(obj: unknown): unknown {
+  if (Array.isArray(obj)) {
+    return obj.map(removeUndefinedValues).filter((item) => item !== undefined)
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .map(([k, v]) => [k, removeUndefinedValues(v)])
+        .filter(([_, v]) => v !== undefined)
+    )
+  }
+  return obj
+}
 
 const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, round: Round) => {
   const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
