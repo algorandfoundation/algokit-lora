@@ -173,7 +173,6 @@ export const accountResultMother = {
       'total-created-assets': 1,
     } satisfies AccountResult)
   },
-
   ['mainnet-DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4']: () => {
     return new AccountResultBuilder({
       address: 'DGOANM6JL4VNSBJW737T24V4WVQINFWELRE3OKHQQFZ2JFMVKUF52D4AY4',
@@ -256,6 +255,28 @@ export const accountResultMother = {
       'total-assets-opted-in': 0,
       'total-created-apps': 0,
       'total-created-assets': 0,
+    })
+  },
+  ['mainnet-X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE']: () => {
+    return new AccountResultBuilder({
+      address: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE',
+      amount: 273116395038,
+      'amount-without-pending-rewards': 273116395038,
+      'apps-total-schema': {
+        'num-byte-slice': 0,
+        'num-uint': 0,
+      },
+      'auth-addr': 'NMR5PS2KYAEN73U4AK476QXEA3IPG2AUE6BSF73UA7EKHXZ76YX24HVRNQ',
+      'min-balance': 98439400000,
+      'pending-rewards': 0,
+      'reward-base': 218288,
+      rewards: 0,
+      round: 40262299,
+      status: AccountStatus.Offline,
+      'total-apps-opted-in': 0,
+      'total-assets-opted-in': 984393,
+      'total-created-apps': 0,
+      'total-created-assets': 984393,
     })
   },
 }

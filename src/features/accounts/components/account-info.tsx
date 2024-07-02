@@ -25,12 +25,6 @@ type Props = {
 }
 
 export function AccountInfo({ account }: Props) {
-  const totalAssetsHeld = account.assetsHeld.length
-  const totalAssetsCreated = account.assetsCreated.length
-  const totalAssetsOptedIn = account.assetsHeld.length + account.assetsOpted.length
-  const totalApplicationsCreated = account.applicationsCreated.length
-  const totalApplicationsOptedIn = account.applicationsOpted.length
-
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -52,23 +46,23 @@ export function AccountInfo({ account }: Props) {
       },
       {
         dt: accountAssetsHeldLabel,
-        dd: totalAssetsHeld,
+        dd: account.totalAssetsHeld ?? '?',
       },
       {
         dt: accountAssetsCreatedLabel,
-        dd: totalAssetsCreated,
+        dd: account.totalAssetsCreated,
       },
       {
         dt: accountAssetsOptedInLabel,
-        dd: totalAssetsOptedIn,
+        dd: account.totalAssetsOptedIn,
       },
       {
         dt: accountApplicationsCreatedLabel,
-        dd: totalApplicationsCreated,
+        dd: account.totalApplicationsCreated,
       },
       {
         dt: accountApplicationsOptedInLabel,
-        dd: totalApplicationsOptedIn,
+        dd: account.totalApplicationsOptedIn,
       },
       ...(account.rekeyedTo
         ? [
@@ -84,12 +78,12 @@ export function AccountInfo({ account }: Props) {
     account.address,
     account.balance,
     account.minBalance,
+    account.totalAssetsHeld,
+    account.totalAssetsCreated,
+    account.totalAssetsOptedIn,
+    account.totalApplicationsCreated,
+    account.totalApplicationsOptedIn,
     account.rekeyedTo,
-    totalAssetsHeld,
-    totalAssetsCreated,
-    totalAssetsOptedIn,
-    totalApplicationsCreated,
-    totalApplicationsOptedIn,
   ])
   return (
     <Card aria-label={accountInformationLabel}>

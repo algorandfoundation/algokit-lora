@@ -22,10 +22,15 @@ export type Account = {
   address: Address
   balance: AlgoAmount
   minBalance: AlgoAmount
+  totalApplicationsCreated: number
   applicationsCreated: AccountApplicationSummary[]
+  totalApplicationsOptedIn: number
   applicationsOpted: AccountApplicationSummary[]
+  totalAssetsHeld?: number // undefined when we can't calculate the total
   assetsHeld: AssetHolding[]
+  totalAssetsCreated: number
   assetsCreated: AccountAssetSummary[]
+  totalAssetsOptedIn: number // Includes both held and opted assets
   assetsOpted: AssetHolding[]
   rekeyedTo?: Address
   json: object
