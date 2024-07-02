@@ -113,12 +113,15 @@ const getBaseTemplate = (template: UrlTemplateObj<any>): UrlTemplateObj<any> | u
   return proto === Object.getPrototypeOf({}) ? undefined : proto
 }
 
+export const splatParamName = 'splat'
+
 function buildString<TArgs extends UrlParam<any, any, any>[]>(str: TemplateStringsArray, ...params: TArgs) {
   return str.reduce((acc, str, i) => {
     if (i >= params.length) {
       return `${acc}${str}`
     } else {
-      return `${acc}${str}:${params[i].split(':')[0]}`
+      const paramName = params[i].split(':')[0]
+      return paramName !== splatParamName ? `${acc}${str}:${params[i].split(':')[0]}` : `${acc}${str}/*`
     }
   }, '')
 }
