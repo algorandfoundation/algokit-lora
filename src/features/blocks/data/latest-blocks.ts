@@ -1,8 +1,6 @@
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
-import { asBlockSummary } from '../mappers'
-import { latestTransactionIdsAtom, getTransactionResultAtom } from '@/features/transactions/data'
-import { asTransactionSummary } from '@/features/transactions/mappers'
+import { latestTransactionIdsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
 import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -12,8 +10,7 @@ import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
-import { BlockSummary } from '../models'
-import { blockResultsAtom, addStateExtractedFromBlocksAtom, accumulateGroupsFromTransaction } from './block-result'
+import { addStateExtractedFromBlocksAtom, accumulateGroupsFromTransaction } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
@@ -23,50 +20,9 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { syncedRoundAtom } from './synced-round'
 import { algod } from '@/features/common/data/algo-client'
-import { createTimestamp } from '@/features/common/data'
+import { createTimestamp, maxBlocksToDisplay } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
-
-const maxBlocksToDisplay = 10
-
-export const latestBlockSummariesAtom = atom<BlockSummary[]>([])
-const refreshLatestBlockSummariesEffect = atomEffect((get, set) => {
-  const syncedRound = get(syncedRoundAtom)
-  if (!syncedRound) {
-    return
-  }
-
-  const blockResults = get.peek(blockResultsAtom)
-
-  ;(async () => {
-    const latestBlockSummaries = (
-      await Promise.all(
-        Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
-          const round = syncedRound - i
-          const blockResult = blockResults.get(round)
-          if (blockResult) {
-            const block = await get(blockResult[0])
-            const transactionSummaries = await Promise.all(
-              block.transactionIds.map(async (transactionId) => {
-                const transactionResult = await get(getTransactionResultAtom(transactionId, { skipTimestampUpdate: true }))
-                return asTransactionSummary(transactionResult)
-              })
-            )
-
-            return asBlockSummary(block, transactionSummaries)
-          }
-        })
-      )
-    ).filter(isDefined)
-
-    set(latestBlockSummariesAtom, latestBlockSummaries)
-  })()
-})
-
-export const useLatestBlockSummaries = () => {
-  useAtom(refreshLatestBlockSummariesEffect)
-  return useAtomValue(latestBlockSummariesAtom)
-}
 
 const runningSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
 const subscriberStatusAtom = atom<SubscriberStatus>(runningSubscriberStatus)

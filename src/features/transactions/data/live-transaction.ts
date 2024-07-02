@@ -2,17 +2,22 @@ import { useMemo } from 'react'
 import { createTransactionAtom, getTransactionResultAtom, latestTransactionIdsAtom } from '@/features/transactions/data'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { atomEffect } from 'jotai-effect'
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { TransactionId } from '@/features/transactions/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export const useLiveTransactions = (filter: (transactionResult: TransactionResult) => boolean, maxRows: number) => {
-  const { liveTransactionsAtomEffect, liveTransactionsAtom } = useMemo(() => {
+  const { liveTransactionsAtomEffect, liveTransactionsAtom, showLiveUpdatesAtom } = useMemo(() => {
     let syncedTransactionId: TransactionId | undefined = undefined
     const liveTransactionsAtom = atom<(Transaction | InnerTransaction)[]>([])
+    const showLiveUpdatesAtom = atom<boolean>(true)
 
     const liveTransactionsAtomEffect = atomEffect((get, set) => {
       const latestTransactionIds = get(latestTransactionIdsAtom)
+      if (!get(showLiveUpdatesAtom)) {
+        return
+      }
+
       ;(async () => {
         const newTransactions: Transaction[] = []
         for (const [transactionId] of latestTransactionIds) {
@@ -45,11 +50,15 @@ export const useLiveTransactions = (filter: (transactionResult: TransactionResul
     return {
       liveTransactionsAtomEffect,
       liveTransactionsAtom,
+      showLiveUpdatesAtom,
     }
   }, [filter, maxRows])
 
   useAtom(liveTransactionsAtomEffect)
 
-  const transactions = useAtomValue(liveTransactionsAtom)
-  return transactions
+  return {
+    transactions: useAtomValue(liveTransactionsAtom),
+    showLiveUpdates: useAtomValue(showLiveUpdatesAtom),
+    setShowLiveUpdates: useSetAtom(showLiveUpdatesAtom),
+  }
 }

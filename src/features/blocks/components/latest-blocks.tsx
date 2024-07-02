@@ -1,16 +1,18 @@
 import { cn } from '@/features/common/utils'
 import { BlockLink } from './block-link'
 import { Card, CardContent } from '@/features/common/components/card'
-import { useLatestBlockSummaries } from '../data'
 import { Box } from 'lucide-react'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { Info } from 'lucide-react'
+import { BlockSummary } from '@/features/blocks/models'
 
 export const latestBlocksTitle = 'Latest Blocks'
 
-export function LatestBlocks() {
-  const latestBlocks = useLatestBlockSummaries()
+type Props = {
+  latestBlocks: BlockSummary[]
+}
 
+export function LatestBlocks({ latestBlocks }: Props) {
   return (
     <Card>
       <CardContent className={cn('space-y-1')}>
