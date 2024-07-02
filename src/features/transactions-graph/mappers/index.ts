@@ -6,14 +6,16 @@ import { getHorizontalsForTransaction } from './horizontals'
 
 export const asTransactionsGraphData = (transactions: Transaction[]): TransactionsGraphData => {
   const flattenedTransactions = transactions.flatMap((transaction) => flattenInnerTransactions(transaction))
-  const verticals: Vertical[] = [
-    ...getVerticalsForTransactions(flattenedTransactions.map((t) => t.transaction)),
-    {
+  const verticals: Vertical[] = [...getVerticalsForTransactions(flattenedTransactions.map((t) => t.transaction))]
+  const horizontals = transactions.flatMap((txn) => getHorizontalsForTransaction(txn, verticals, [], false, 0))
+
+  if (horizontals.some((h) => h.representation.type === 'SelfLoop' && h.representation.fromVerticalIndex === verticals.length - 1)) {
+    // If there is a self-loop at the end of the graph, we need to add a placeholder vertical
+    verticals.push({
       id: -1,
       type: 'Placeholder',
-    }, // an empty account to make room to show transactions with the same sender and receiver
-  ]
-  const horizontals = transactions.flatMap((txn) => getHorizontalsForTransaction(txn, verticals, [], false, 0))
+    })
+  }
 
   return {
     horizontals: horizontals,
