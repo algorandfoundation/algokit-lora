@@ -69,6 +69,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         ...common,
         type: TransactionType.AppCall,
         to: transactionResult['application-transaction']['application-id'],
+        innerTransactions: transactionResult['inner-txns']?.map((t) => asTransactionSummary(t)),
       }
     }
     case algosdk.TransactionType.acfg: {

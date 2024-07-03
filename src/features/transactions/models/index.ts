@@ -83,6 +83,7 @@ export type TransactionSummary = Pick<CommonTransactionProperties, 'type' | 'fee
   id: string
   from: Address
   to?: Address | number
+  innerTransactions?: TransactionSummary[]
 }
 
 export enum SignatureType {
