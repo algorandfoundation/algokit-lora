@@ -55,7 +55,7 @@ export function GroupDetails({ group }: Props) {
       },
       {
         dt: transactionFeeTotalLabel,
-        dd: group.transactionsSummary.feeTotal ? <DisplayAlgo amount={group.transactionsSummary.feeTotal} /> : 'N/A',
+        dd: <DisplayAlgo amount={group.transactionsSummary.feeTotal} />,
       },
     ],
     [

@@ -85,7 +85,7 @@ export function TransactionInfo({ transaction }: Props) {
       },
       {
         dt: transactionFeeLabel,
-        dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
+        dd: <DisplayAlgo amount={transaction.fee} />,
       },
       ...(transaction.group
         ? [
