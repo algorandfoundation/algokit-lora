@@ -79,7 +79,7 @@ export type Transaction =
   | StateProofTransaction
   | KeyRegTransaction
 
-export type TransactionSummary = Pick<CommonTransactionProperties, 'type'> & {
+export type TransactionSummary = Pick<CommonTransactionProperties, 'type' | 'fee'> & {
   id: string
   from: Address
   to?: Address | number

@@ -24,8 +24,8 @@ export const parentTransactionIdLabel = 'Parent Transaction ID'
 export const transactionTypeLabel = 'Type'
 export const transactionTimestampLabel = 'Timestamp'
 export const transactionBlockLabel = 'Block'
-export const transactionGroupLabel = 'Group'
 export const transactionFeeLabel = 'Fee'
+export const transactionGroupLabel = 'Group'
 export const transactionRekeyToLabel = 'Rekey To'
 
 export function TransactionInfo({ transaction }: Props) {
@@ -83,6 +83,10 @@ export function TransactionInfo({ transaction }: Props) {
         dt: transactionBlockLabel,
         dd: <BlockLink round={transaction.confirmedRound} />,
       },
+      {
+        dt: transactionFeeLabel,
+        dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
+      },
       ...(transaction.group
         ? [
             {
@@ -91,10 +95,6 @@ export function TransactionInfo({ transaction }: Props) {
             },
           ]
         : []),
-      {
-        dt: transactionFeeLabel,
-        dd: transaction.fee ? <DisplayAlgo amount={transaction.fee} /> : 'N/A',
-      },
       ...(transaction.rekeyTo
         ? [
             {

@@ -1,6 +1,6 @@
 import { InnerPaymentTransaction, PaymentTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
-import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
+import { transactionFeeLabel, transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionReceiverLabel, transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -36,6 +36,10 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
       {
         dt: transactionAmountLabel,
         dd: <DisplayAlgo amount={transaction.amount} />,
+      },
+      {
+        dt: transactionFeeLabel,
+        dd: <DisplayAlgo amount={transaction.fee} />,
       },
       ...(transaction.closeRemainder
         ? [
