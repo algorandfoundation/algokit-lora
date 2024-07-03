@@ -16,7 +16,8 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
   const gridTemplateColumns = `minmax(${horizontalTitleWidth}px, ${horizontalTitleWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
 
   return (
-    <>
+    // Don't change this id value, it's used by a bot Alessandro is building.
+    <div id="visual-transactions">
       <div
         className={cn('relative grid')}
         style={{
@@ -71,6 +72,6 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
           <Horizontal key={index} verticals={verticals} horizontal={row} />
         ))}
       </div>
-    </>
+    </div>
   )
 }
