@@ -2,6 +2,8 @@ import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/features/common/utils'
+import { useCallback, useState } from 'react'
+import { Loader2 as Loader } from 'lucide-react'
 
 const buttonVariants = cva(
   'relative inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -41,4 +43,37 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, va
 })
 Button.displayName = 'Button'
 
-export { Button, buttonVariants }
+export interface LoadbleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+  onClick?: () => Promise<void>
+}
+
+const LoadbleButton = React.forwardRef<HTMLButtonElement, LoadbleButtonProps>(
+  ({ className, variant, size, asChild = false, children, onClick: onClickProp, disabled: disabledProp, ...props }, ref) => {
+    const [isLoading, setIsLoading] = useState(false)
+
+    const onClick = useCallback(async () => {
+      if (onClickProp) {
+        setIsLoading(true)
+        try {
+          await onClickProp()
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      // TODO: handle error
+    }, [onClickProp])
+
+    const disabled = disabledProp || isLoading
+
+    const Comp = asChild ? Slot : 'button'
+    return (
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} disabled={disabled} onClick={onClick} {...props}>
+        {isLoading ? <Loader className="size-6 animate-spin" /> : children}
+      </Comp>
+    )
+  }
+)
+LoadbleButton.displayName = 'LoadbleButton'
+
+export { Button, buttonVariants, LoadbleButton }

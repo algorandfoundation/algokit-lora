@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { cn } from '@/features/common/utils'
 import { Asset } from '../models'
 import { isDefined } from '@/utils/is-defined'
@@ -38,6 +38,14 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useWallet } from '@txnlab/use-wallet'
+import { AlgorandClient, getTransactionParams } from '@algorandfoundation/algokit-utils'
+import { algod, indexer } from '@/features/common/data/algo-client.ts'
+import algosdk from 'algosdk'
+import { LoadbleButton } from '@/features/common/components/button'
+import { sendTransaction } from '@algorandfoundation/algokit-utils'
+import { toast } from 'react-toastify'
+import { useActiveAccount } from '@/features/accounts/data/active-account'
 
 type Props = {
   asset: Asset
@@ -144,8 +152,18 @@ export function AssetDetails({ asset }: Props) {
     [asset.clawback, asset.creator, asset.freeze, asset.manager, asset.reserve]
   ).filter(isDefined)
 
+  const { canOptOut, canOptIn, optIn, optOut } = useAssetOptOut(asset)
+
   return (
     <div className={cn('space-y-4')}>
+      <div>
+        <LoadbleButton onClick={optIn} disabled={!canOptIn} className={'w-28'}>
+          Opt-in
+        </LoadbleButton>
+        <LoadbleButton disabled={!canOptOut} onClick={optOut} className={'w-28'}>
+          Opt-out
+        </LoadbleButton>
+      </div>
       <Card aria-label={assetDetailsLabel}>
         <CardContent>
           <div className={cn('flex gap-2')}>
@@ -194,4 +212,101 @@ export function AssetDetails({ asset }: Props) {
       )}
     </div>
   )
+}
+
+const useAssetOptOut = (asset: Asset) => {
+  const { activeAccount } = useActiveAccount()
+  const { signTransactions } = useWallet()
+
+  const canOptOut = useMemo(() => {
+    if (asset.id === 0) {
+      return false
+    }
+    return activeAccount && activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0
+  }, [activeAccount, asset])
+
+  const canOptIn = useMemo(() => {
+    if (asset.id === 0) {
+      return false
+    }
+    return activeAccount && !activeAccount.assetHolding.has(asset.id)
+  }, [activeAccount, asset])
+
+  const optOut = useCallback(async () => {
+    if (!activeAccount) {
+      return
+    }
+    const transaction = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
+      from: activeAccount.address,
+      to: activeAccount.address,
+      assetIndex: asset.id,
+      amount: 0,
+      rekeyTo: undefined,
+      revocationTarget: undefined,
+      closeRemainderTo: activeAccount.address,
+      suggestedParams: await getTransactionParams(undefined, algod),
+    })
+
+    const signer = (txnGroup: algosdk.Transaction[], indexesToSign: number[]) => {
+      const encodedTransactions = txnGroup.map((txn) => algosdk.encodeUnsignedTransaction(txn))
+      return signTransactions(encodedTransactions, indexesToSign)
+    }
+    const signerAccount = {
+      addr: activeAccount.address,
+      signer,
+    }
+    const { confirmation } = await sendTransaction(
+      {
+        transaction,
+        from: signerAccount,
+      },
+      algod
+    )
+    // TODO: loader while waiting
+    if (confirmation!.confirmedRound) {
+      toast.success('Asset opt-out successfully')
+    } else {
+      // TODO: this doesn't throw on 400
+      toast.error(confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset')
+    }
+  }, [activeAccount, asset.id, signTransactions])
+
+  const optIn = useCallback(async () => {
+    if (!activeAccount) {
+      return
+    }
+    const algorandClient = AlgorandClient.fromClients({
+      algod,
+      indexer,
+    })
+    const signer = (txnGroup: algosdk.Transaction[], indexesToSign: number[]) => {
+      const encodedTransactions = txnGroup.map((txn) => algosdk.encodeUnsignedTransaction(txn))
+      return signTransactions(encodedTransactions, indexesToSign)
+    }
+    algorandClient.setDefaultSigner(signer)
+
+    const sendResult = await algorandClient.send.assetOptIn(
+      {
+        assetId: BigInt(asset.id),
+        sender: activeAccount.address,
+      },
+      {}
+    )
+    if (sendResult.confirmation.confirmedRound) {
+      toast.success('Asset opt-in successfully')
+    } else {
+      toast.error(
+        sendResult.confirmation.poolError
+          ? `Failed to opt-in to asset due to ${sendResult.confirmation.poolError}`
+          : 'Failed to opt-in to asset'
+      )
+    }
+  }, [activeAccount, asset.id, signTransactions])
+
+  return {
+    canOptIn,
+    canOptOut,
+    optIn,
+    optOut,
+  }
 }
