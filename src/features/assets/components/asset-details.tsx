@@ -156,7 +156,7 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <div>
+      <div className="flex gap-2">
         <LoadbleButton onClick={optIn} disabled={!canOptIn} className={'w-28'}>
           Opt-in
         </LoadbleButton>
@@ -255,19 +255,23 @@ const useAssetOptOut = (asset: Asset) => {
       addr: activeAccount.address,
       signer,
     }
-    const { confirmation } = await sendTransaction(
-      {
-        transaction,
-        from: signerAccount,
-      },
-      algod
-    )
-    // TODO: loader while waiting
-    if (confirmation!.confirmedRound) {
-      toast.success('Asset opt-out successfully')
-    } else {
-      // TODO: this doesn't throw on 400
-      toast.error(confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset')
+    try {
+      const { confirmation } = await sendTransaction(
+        {
+          transaction,
+          from: signerAccount,
+        },
+        algod
+      )
+
+      if (confirmation!.confirmedRound) {
+        toast.success('Asset opt-out successfully')
+      } else {
+        // TODO: this doesn't throw on 400
+        toast.error(confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset')
+      }
+    } catch (error) {
+      toast.error('Failed to opt-out, unknown error')
     }
   }, [activeAccount, asset.id, signTransactions])
 
@@ -284,22 +288,25 @@ const useAssetOptOut = (asset: Asset) => {
       return signTransactions(encodedTransactions, indexesToSign)
     }
     algorandClient.setDefaultSigner(signer)
-
-    const sendResult = await algorandClient.send.assetOptIn(
-      {
-        assetId: BigInt(asset.id),
-        sender: activeAccount.address,
-      },
-      {}
-    )
-    if (sendResult.confirmation.confirmedRound) {
-      toast.success('Asset opt-in successfully')
-    } else {
-      toast.error(
-        sendResult.confirmation.poolError
-          ? `Failed to opt-in to asset due to ${sendResult.confirmation.poolError}`
-          : 'Failed to opt-in to asset'
+    try {
+      const sendResult = await algorandClient.send.assetOptIn(
+        {
+          assetId: BigInt(asset.id),
+          sender: activeAccount.address,
+        },
+        {}
       )
+      if (sendResult.confirmation.confirmedRound) {
+        toast.success('Asset opt-in successfully')
+      } else {
+        toast.error(
+          sendResult.confirmation.poolError
+            ? `Failed to opt-in to asset due to ${sendResult.confirmation.poolError}`
+            : 'Failed to opt-in to asset'
+        )
+      }
+    } catch (error) {
+      toast.error('Failed to opt-in, unknown error')
     }
   }, [activeAccount, asset.id, signTransactions])
 
