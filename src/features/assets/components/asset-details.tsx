@@ -45,7 +45,7 @@ import algosdk from 'algosdk'
 import { LoadbleButton } from '@/features/common/components/button'
 import { sendTransaction } from '@algorandfoundation/algokit-utils'
 import { toast } from 'react-toastify'
-import { activeAccountAtom } from '@/features/accounts/data/active-account'
+import { activeAccountAtom, isActiveAccountStaleAtom } from '@/features/accounts/data/active-account'
 import { atom, useAtomValue } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 
@@ -244,7 +244,7 @@ const useAssetOptOut = (asset: Asset) => {
 
   const optOut = useAtomCallback(
     useCallback(
-      async (get) => {
+      async (get, set) => {
         const activeAccount = get(activeAccountAtom)
 
         if (!activeAccount) {
@@ -280,6 +280,7 @@ const useAssetOptOut = (asset: Asset) => {
 
           if (confirmation!.confirmedRound) {
             toast.success('Asset opt-out successfully')
+            set(isActiveAccountStaleAtom, true)
           } else {
             // TODO: this doesn't throw on 400
             toast.error(
@@ -296,7 +297,7 @@ const useAssetOptOut = (asset: Asset) => {
 
   const optIn = useAtomCallback(
     useCallback(
-      async (get) => {
+      async (get, set) => {
         const activeAccount = get(activeAccountAtom)
 
         if (!activeAccount) {
@@ -321,6 +322,7 @@ const useAssetOptOut = (asset: Asset) => {
           )
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successfully')
+            set(isActiveAccountStaleAtom, true)
           } else {
             toast.error(
               sendResult.confirmation.poolError
