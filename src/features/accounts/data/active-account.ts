@@ -14,7 +14,7 @@ type AccountAssetHolding = {
   amount: number | bigint
 }
 
-export const activeAccountAtom = atom<Promise<ActiveAccount> | ActiveAccount | undefined>(undefined)
+export const activeAccountAtom = atom<ActiveAccount | undefined>(undefined)
 
 export const getActiveAccount = async (account: Account | null | undefined) => {
   if (!account) return undefined

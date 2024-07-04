@@ -1,7 +1,7 @@
 import { useInitializeProviders, useWallet } from '@txnlab/use-wallet'
 import { PropsWithChildren, useEffect } from 'react'
 import { WalletProvider as UseWalletProvider } from '@txnlab/use-wallet'
-import { ActiveAccount, activeAccountAtom, getActiveAccount } from '@/features/accounts/data/active-account'
+import { activeAccountAtom, getActiveAccount } from '@/features/accounts/data/active-account'
 import { useSetAtom } from 'jotai'
 
 type Props = PropsWithChildren<{
@@ -17,7 +17,6 @@ export function WalletProviderInner({ initOptions, children }: Props) {
   useEffect(() => {
     ;(async () => {
       if (account) {
-        setActiveAccount(new Promise<ActiveAccount>(() => {}))
         const newActiveAccount = await getActiveAccount(account)
         setActiveAccount(newActiveAccount)
       } else {
