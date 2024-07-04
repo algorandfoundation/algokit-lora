@@ -43,6 +43,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, va
 })
 Button.displayName = 'Button'
 
+// TODO: rename to AsyncActionButton
 export interface LoadbleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
   onClick?: () => Promise<void>

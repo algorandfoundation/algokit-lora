@@ -6,7 +6,7 @@ import { getAccountInformation } from '@algorandfoundation/algokit-utils'
 import { algod } from '@/features/common/data/algo-client'
 import { useEffect } from 'react'
 
-type ActiveAccount = {
+export type ActiveAccount = {
   address: Address
   assetHolding: Map<AssetId, AccountAssetHolding>
 }
@@ -15,9 +15,9 @@ type AccountAssetHolding = {
   amount: number | bigint
 }
 
-const activeAccountAtom = atom<ActiveAccount | undefined>(undefined)
+export const activeAccountAtom = atom<Promise<ActiveAccount> | ActiveAccount | undefined>(new Promise<ActiveAccount>(() => {}))
 
-const getActiveAccount = async (account: Account | null | undefined) => {
+export const getActiveAccount = async (account: Account | null | undefined) => {
   if (!account) return undefined
 
   const accountInformation = await getAccountInformation(account.address, algod)
@@ -34,15 +34,22 @@ export const useActiveAccount = () => {
   const { activeAccount: account } = useWallet()
   const [activeAccount, setActiveAccount] = useAtom(activeAccountAtom)
 
+  // TODO: make it async/loadable
   useEffect(() => {
     ;(async () => {
-      const newActiveAccount = await getActiveAccount(account)
-      setActiveAccount(newActiveAccount)
+      console.log('account', account)
+      if (account) {
+        setActiveAccount(new Promise<ActiveAccount>(() => {}))
+        // const newActiveAccount = await getActiveAccount(account)
+        // setActiveAccount(newActiveAccount)
+      } else {
+        setActiveAccount(undefined)
+      }
     })()
   }, [account, setActiveAccount])
 
   return {
-    activeAccount,
+    activeAccount: activeAccount,
     setActiveAccount,
   }
 }

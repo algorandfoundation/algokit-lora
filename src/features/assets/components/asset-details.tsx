@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { cn } from '@/features/common/utils'
 import { Asset } from '../models'
 import { isDefined } from '@/utils/is-defined'
@@ -42,10 +42,14 @@ import { useWallet } from '@txnlab/use-wallet'
 import { AlgorandClient, getTransactionParams } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '@/features/common/data/algo-client.ts'
 import algosdk from 'algosdk'
-import { LoadbleButton } from '@/features/common/components/button'
+import { Button, LoadbleButton } from '@/features/common/components/button'
 import { sendTransaction } from '@algorandfoundation/algokit-utils'
 import { toast } from 'react-toastify'
-import { useActiveAccount } from '@/features/accounts/data/active-account'
+import { ActiveAccount, activeAccountAtom, useActiveAccount } from '@/features/accounts/data/active-account'
+import { atom, useAtom, useAtomValue } from 'jotai'
+import { Loader2 as Loader } from 'lucide-react'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { loadable } from 'jotai/utils'
 
 type Props = {
   asset: Asset
@@ -160,9 +164,13 @@ export function AssetDetails({ asset }: Props) {
         <LoadbleButton onClick={optIn} disabled={!canOptIn} className={'w-28'}>
           Opt-in
         </LoadbleButton>
-        <LoadbleButton disabled={!canOptOut} onClick={optOut} className={'w-28'}>
-          Opt-out
-        </LoadbleButton>
+        <RenderLoadable loadable={canOptOut} fallback={<Loader className="size-10 animate-spin" />}>
+          {(canOptOut) => (
+            <LoadbleButton disabled={!canOptOut} onClick={optOut} className={'w-28'}>
+              Opt-out
+            </LoadbleButton>
+          )}
+        </RenderLoadable>
       </div>
       <Card aria-label={assetDetailsLabel}>
         <CardContent>
@@ -219,11 +227,28 @@ const useAssetOptOut = (asset: Asset) => {
   const { signTransactions } = useWallet()
 
   const canOptOut = useMemo(() => {
-    if (asset.id === 0) {
-      return false
-    }
-    return activeAccount && activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0
-  }, [activeAccount, asset])
+    return atom(async (get) => {
+      const activeAccountAtomValue = get(activeAccountAtom)
+      console.log('activeAccountAtomValue', activeAccountAtomValue)
+      if (asset.id === 0 || !activeAccountAtomValue) {
+        return false
+      }
+
+      if (activeAccountAtomValue instanceof Promise) {
+        return activeAccountAtomValue.then(
+          (activeAccount) =>
+            activeAccount && activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0
+        )
+      } else {
+        console.log('here')
+        return (
+          activeAccountAtomValue &&
+          activeAccountAtomValue.assetHolding.has(asset.id) &&
+          activeAccountAtomValue.assetHolding.get(asset.id)!.amount === 0
+        )
+      }
+    })
+  }, [asset])
 
   const canOptIn = useMemo(() => {
     if (asset.id === 0) {
@@ -312,8 +337,14 @@ const useAssetOptOut = (asset: Asset) => {
 
   return {
     canOptIn,
-    canOptOut,
+    canOptOut: useAtomValue(loadable(canOptOut)),
     optIn,
     optOut,
   }
 }
+
+// function TestButton() {
+//   const [_, setActiveAccount] = useAtom(activeAccountAtom)
+//
+//   return <Button onClick={() => setActiveAccount(new Promise<ActiveAccount>(() => {}))}>Test</Button>
+// }
