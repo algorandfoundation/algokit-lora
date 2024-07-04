@@ -11,6 +11,7 @@ import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 export const asTransaction = (transactionResult: TransactionResult, assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>) => {
   switch (transactionResult['tx-type']) {
@@ -43,6 +44,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
   const common = {
     id: transactionResult.id,
     from: transactionResult.sender,
+    fee: microAlgos(transactionResult.fee),
   }
 
   switch (transactionResult['tx-type']) {
@@ -67,6 +69,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         ...common,
         type: TransactionType.AppCall,
         to: transactionResult['application-transaction']['application-id'],
+        innerTransactions: transactionResult['inner-txns']?.map((t) => asTransactionSummary(t)),
       }
     }
     case algosdk.TransactionType.acfg: {

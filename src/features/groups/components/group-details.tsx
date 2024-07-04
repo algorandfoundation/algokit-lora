@@ -8,6 +8,7 @@ import { BlockLink } from '@/features/blocks/components/block-link'
 import { GroupTransactionsViewTabs } from './group-transactions-view-tabs'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
 
 type Props = {
   group: Group
@@ -17,6 +18,7 @@ export const groupIdLabel = 'Group ID'
 export const blockLabel = 'Block'
 export const transactionsLabel = 'Transactions'
 export const timestampLabel = 'Timestamp'
+export const transactionFeeTotalLabel = 'Fee'
 
 export function GroupDetails({ group }: Props) {
   const groupItems = useMemo(
@@ -51,8 +53,19 @@ export function GroupDetails({ group }: Props) {
         dt: timestampLabel,
         dd: <DateFormatted date={new Date(group.timestamp)} />,
       },
+      {
+        dt: transactionFeeTotalLabel,
+        dd: <DisplayAlgo amount={group.transactionsSummary.feeTotal} />,
+      },
     ],
-    [group.id, group.round, group.timestamp, group.transactionsSummary.count, group.transactionsSummary.countByType]
+    [
+      group.id,
+      group.round,
+      group.timestamp,
+      group.transactionsSummary.count,
+      group.transactionsSummary.countByType,
+      group.transactionsSummary.feeTotal,
+    ]
   )
 
   return (

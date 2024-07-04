@@ -19,6 +19,7 @@ export const transactionToLabel = 'To'
 export const transactionAmountLabel = 'Amount'
 export const transactionRoundLabel = 'Round'
 export const transactionTimestampLabel = 'Timestamp'
+export const transactionFeeLabel = 'Fee'
 
 const expandColumn: ColumnDef<Transaction | InnerTransaction> = {
   id: 'expand',
@@ -100,6 +101,14 @@ const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
     }
   },
 }
+const feeColumn: ColumnDef<Transaction | InnerTransaction> = {
+  header: transactionFeeLabel,
+  accessorFn: (transaction) => transaction,
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    return <DisplayAlgo amount={transaction.fee} />
+  },
+}
 
 export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
   expandColumn,
@@ -111,6 +120,7 @@ export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>
   toColumn,
   typeColumn,
   amountColumn,
+  feeColumn,
 ]
 export const transactionsTableColumnsWithoutRound: ColumnDef<Transaction | InnerTransaction>[] = [
   expandColumn,
@@ -120,4 +130,5 @@ export const transactionsTableColumnsWithoutRound: ColumnDef<Transaction | Inner
   toColumn,
   typeColumn,
   amountColumn,
+  feeColumn,
 ]

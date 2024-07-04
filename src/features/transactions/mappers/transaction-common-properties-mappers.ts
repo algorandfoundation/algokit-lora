@@ -2,7 +2,7 @@ import { TransactionResult, TransactionSignature } from '@algorandfoundation/alg
 import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from '../models'
 import { invariant } from '@/utils/invariant'
 import { publicKeyToAddress } from '@/utils/publickey-to-addess'
-import * as algokit from '@algorandfoundation/algokit-utils'
+import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
   invariant(transactionResult['confirmed-round'], 'confirmed-round is not set')
@@ -12,7 +12,7 @@ export const mapCommonTransactionProperties = (transactionResult: TransactionRes
     confirmedRound: transactionResult['confirmed-round'],
     roundTime: transactionResult['round-time'] * 1000,
     group: transactionResult['group'],
-    fee: algokit.microAlgos(transactionResult.fee),
+    fee: microAlgos(transactionResult.fee),
     sender: transactionResult.sender,
     signature: transformSignature(transactionResult.signature),
     note: transactionResult.note,
