@@ -1,6 +1,6 @@
 import { AppCallTransaction, InnerAppCallTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
-import { transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
+import { transactionFeeLabel, transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -9,6 +9,7 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
 
 export function AppCallTransactionTooltipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
   const items = useMemo(
@@ -28,6 +29,10 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
       {
         dt: applicationIdLabel,
         dd: <ApplicationLink applicationId={transaction.applicationId} />,
+      },
+      {
+        dt: transactionFeeLabel,
+        dd: <DisplayAlgo amount={transaction.fee} />,
       },
     ],
     [transaction]

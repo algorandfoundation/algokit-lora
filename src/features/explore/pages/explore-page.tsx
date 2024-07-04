@@ -13,9 +13,9 @@ export function ExplorePage() {
 
   return (
     <>
-      <div className="flex justify-between">
+      <div className="flex gap-2">
         <PageTitle title={explorePageTitle} />
-        <div className="flex items-center space-x-2">
+        <div className="ml-auto flex items-center gap-2">
           <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
           <Label htmlFor="live-view-enabled" className="cursor-pointer">
             Show live updates
