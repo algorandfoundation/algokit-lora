@@ -331,6 +331,7 @@ const useAssetOptOut = (asset: Asset) => {
             )
           }
         } catch (error) {
+          console.error(error)
           toast.error('Failed to opt-in, unknown error')
         }
       },
