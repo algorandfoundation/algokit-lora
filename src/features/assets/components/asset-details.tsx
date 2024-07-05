@@ -147,7 +147,7 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <div className={'flex flex-col gap-2  md:flex-row'}>
+      <div className={'flex flex-col gap-2 md:flex-row'}>
         <Card aria-label={assetDetailsLabel} className={'flex-1'}>
           <CardContent>
             <div className={cn('flex gap-2')}>
