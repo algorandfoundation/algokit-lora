@@ -147,20 +147,20 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card aria-label={assetDetailsLabel}>
-        <CardContent>
-          <div className={cn('flex gap-2')}>
-            <DescriptionList items={assetItems} />
-            <div className="ml-auto flex flex-col gap-2">
-              <div className="flex gap-2">
+      <div className={'flex flex-col gap-2  md:flex-row'}>
+        <Card aria-label={assetDetailsLabel} className={'flex-1'}>
+          <CardContent>
+            <div className={cn('flex gap-2')}>
+              <DescriptionList items={assetItems} />
+              <div className="ml-auto hidden flex-col-reverse justify-end gap-2 md:flex lg:flex-row">
                 <AssetOptInOutButton asset={asset} />
                 <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
               </div>
-              <AssetMedia asset={asset} />
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        <AssetMedia asset={asset} />
+      </div>
       {asset.id !== 0 && (
         <>
           <Card>

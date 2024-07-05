@@ -7,6 +7,8 @@ import { Account as WalletAccount } from '@txnlab/use-wallet'
 import { atomWithRefresh } from 'jotai/utils'
 import { atomEffect } from 'jotai-effect'
 
+// TODO: move to wallet feature
+// TODO: move to types.ts
 export type ActiveAccount = {
   address: Address
   assetHolding: Map<AssetId, AccountAssetHolding>
@@ -23,6 +25,7 @@ export const activeAccountAtom = atomWithRefresh<Promise<ActiveAccount | undefin
   get(activeAccountStaleEffect)
 
   const walletAccount = get(walletAccountAtom)
+
   if (walletAccount) {
     return await getActiveAccount(walletAccount.address)
   } else {

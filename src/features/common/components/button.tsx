@@ -36,12 +36,25 @@ const buttonVariants = cva(
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  icon?: React.ReactNode
 }
 
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? Slot : 'button'
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
-})
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, children, icon, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button'
+    return (
+      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
+        {icon && (
+          <div className="flex items-center gap-2">
+            {icon}
+            {children}
+          </div>
+        )}
+        {!icon && <>{children}</>}
+      </Comp>
+    )
+  }
+)
 Button.displayName = 'Button'
 
 export interface AsyncActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
@@ -70,10 +83,14 @@ const AsyncActionButton = React.forwardRef<HTMLButtonElement, AsyncActionButtonP
     const Comp = asChild ? Slot : 'button'
     return (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} disabled={disabled} onClick={onClick} {...props}>
-        <div className="flex items-center gap-2">
-          {!isLoading && icon}
-          {isLoading ? <Loader className="size-6 animate-spin" /> : children}
-        </div>
+        {isLoading && <Loader className="size-6 animate-spin" />}
+        {!isLoading && icon && (
+          <div className="flex items-center gap-2">
+            {icon}
+            {children}
+          </div>
+        )}
+        {!isLoading && !icon && <>{children}</>}
       </Comp>
     )
   }
