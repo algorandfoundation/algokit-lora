@@ -96,7 +96,17 @@ const subscriberAtom = atom(null, (get, set) => {
           if (!t.parentTransactionId && t['confirmed-round'] != null) {
             const round = t['confirmed-round']
             // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
-            const { filtersMatched: _filtersMatched, balanceChanges, arc28Events: _arc28Events, ...transaction } = t
+            const { filtersMatched: _filtersMatched, balanceChanges: _balanceChanges, arc28Events: _arc28Events, ...transaction } = t
+            const balanceChanges = _balanceChanges ?? []
+
+            for (const innerTransaction of transaction['inner-txns'] ?? []) {
+              if (innerTransaction.balanceChanges) {
+                balanceChanges.push(...innerTransaction.balanceChanges)
+              }
+              delete innerTransaction.balanceChanges
+              delete innerTransaction.filtersMatched
+              delete innerTransaction.arc28Events
+            }
 
             // Accumulate transaction ids by round
             acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
