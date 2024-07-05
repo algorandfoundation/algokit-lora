@@ -222,7 +222,8 @@ const useAssetOptOut = (asset: Asset) => {
   const canOptOut = useMemo(() => {
     return atom((get) => {
       const activeAccount = get(activeAccountAtom)
-      if (asset.id === 0 || !activeAccount) {
+      const isStale = get(isActiveAccountStaleAtom)
+      if (asset.id === 0 || !activeAccount || isStale) {
         return false
       }
 
@@ -233,8 +234,9 @@ const useAssetOptOut = (asset: Asset) => {
   const canOptIn = useMemo(() => {
     return atom((get) => {
       const activeAccount = get(activeAccountAtom)
+      const isStale = get(isActiveAccountStaleAtom)
 
-      if (asset.id === 0 || !activeAccount) {
+      if (asset.id === 0 || !activeAccount || isStale) {
         return false
       }
 
