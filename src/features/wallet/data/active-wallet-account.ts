@@ -1,39 +1,27 @@
-import { Address } from '@/features/accounts/data/types'
-import { AssetId } from '@/features/assets/data/types'
 import { atom } from 'jotai'
 import { getAccountInformation } from '@algorandfoundation/algokit-utils'
 import { algod } from '@/features/common/data/algo-client'
 import { Account as WalletAccount } from '@txnlab/use-wallet'
 import { atomWithRefresh } from 'jotai/utils'
 import { atomEffect } from 'jotai-effect'
-
-// TODO: move to wallet feature
-// TODO: move to types.ts
-export type ActiveAccount = {
-  address: Address
-  assetHolding: Map<AssetId, AccountAssetHolding>
-}
-
-type AccountAssetHolding = {
-  amount: number | bigint
-}
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet-account'
 
 export const walletAccountAtom = atom<WalletAccount | undefined>(undefined)
-// TODO: rename to activeWalletAccount?
-export const isActiveAccountStaleAtom = atom(false)
-export const activeAccountAtom = atomWithRefresh<Promise<ActiveAccount | undefined>>(async (get) => {
-  get(activeAccountStaleEffect)
+
+export const isActiveWalletAccountStaleAtom = atom(false)
+export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccount | undefined>>(async (get) => {
+  get(activeWalletAccountStaleEffect)
 
   const walletAccount = get(walletAccountAtom)
 
   if (walletAccount) {
-    return await getActiveAccount(walletAccount.address)
+    return await getActiveWalletAccount(walletAccount.address)
   } else {
     return undefined
   }
 })
 
-export const getActiveAccount = async (address: string) => {
+export const getActiveWalletAccount = async (address: string) => {
   const accountInformation = await getAccountInformation(address, algod)
   const assetHolding = accountInformation?.assets ?? []
 
@@ -44,10 +32,10 @@ export const getActiveAccount = async (address: string) => {
   }
 }
 
-export const activeAccountStaleEffect = atomEffect((get, set) => {
-  const isStale = get(isActiveAccountStaleAtom)
+export const activeWalletAccountStaleEffect = atomEffect((get, set) => {
+  const isStale = get(isActiveWalletAccountStaleAtom)
   if (isStale) {
-    set(isActiveAccountStaleAtom, false)
-    set(activeAccountAtom)
+    set(isActiveWalletAccountStaleAtom, false)
+    set(activeWalletAccountAtom)
   }
 })

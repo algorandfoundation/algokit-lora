@@ -2,7 +2,7 @@ import { Asset } from '@/features/assets/models'
 import { useWallet } from '@txnlab/use-wallet'
 import { useCallback, useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai/index'
-import { activeAccountAtom, isActiveAccountStaleAtom } from '@/features/accounts/data/active-account'
+import { activeWalletAccountAtom, isActiveWalletAccountStaleAtom } from '@/features/wallet/data/active-wallet-account'
 import { loadable, useAtomCallback } from 'jotai/utils'
 import algosdk from 'algosdk'
 import { AlgorandClient, getTransactionParams, sendTransaction } from '@algorandfoundation/algokit-utils'
@@ -14,7 +14,7 @@ export const useAssetOptInOut = (asset: Asset) => {
 
   const status = useMemo(() => {
     return atom(async (get) => {
-      const activeAccount = await get(activeAccountAtom)
+      const activeAccount = await get(activeWalletAccountAtom)
 
       if (asset.id === 0 || !activeAccount) {
         return {
@@ -33,7 +33,7 @@ export const useAssetOptInOut = (asset: Asset) => {
   const optOut = useAtomCallback(
     useCallback(
       async (get, set) => {
-        const activeAccount = await get(activeAccountAtom)
+        const activeAccount = await get(activeWalletAccountAtom)
 
         if (!activeAccount) {
           return
@@ -68,7 +68,7 @@ export const useAssetOptInOut = (asset: Asset) => {
 
           if (confirmation!.confirmedRound) {
             toast.success('Asset opt-out successfully')
-            set(isActiveAccountStaleAtom, true)
+            set(isActiveWalletAccountStaleAtom, true)
           } else {
             // TODO: this doesn't throw on 400
             toast.error(
@@ -88,7 +88,7 @@ export const useAssetOptInOut = (asset: Asset) => {
   const optIn = useAtomCallback(
     useCallback(
       async (get, set) => {
-        const activeAccount = await get(activeAccountAtom)
+        const activeAccount = await get(activeWalletAccountAtom)
 
         if (!activeAccount) {
           return
@@ -112,7 +112,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           )
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successfully')
-            set(isActiveAccountStaleAtom, true)
+            set(isActiveWalletAccountStaleAtom, true)
           } else {
             toast.error(
               sendResult.confirmation.poolError

@@ -22,8 +22,11 @@ export function AssetOptInOutButton({ asset }: { asset: Asset }) {
       Opt-in
     </Button>
   )
+  const loadingButton = (
+    <Button variant={'outline-secondary'} disabled={true} className={'w-28'} icon={<Loader className="size-6 animate-spin" />} />
+  )
   return (
-    <RenderLoadable loadable={assetOptInOutStatus} fallback={<Loader className="size-10 animate-spin" />}>
+    <RenderLoadable loadable={assetOptInOutStatus} fallback={loadingButton}>
       {(status) => {
         if (!status.canOptIn && !status.canOptOut) return disabledButton
         if (status.canOptIn) return optInButton

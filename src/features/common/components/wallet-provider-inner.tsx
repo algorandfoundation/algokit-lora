@@ -1,7 +1,7 @@
 import { useInitializeProviders, useWallet } from '@txnlab/use-wallet'
 import { PropsWithChildren, useEffect } from 'react'
 import { WalletProvider as UseWalletProvider } from '@txnlab/use-wallet'
-import { walletAccountAtom } from '@/features/accounts/data/active-account'
+import { walletAccountAtom } from '@/features/wallet/data/active-wallet-account'
 import { useSetAtom } from 'jotai'
 
 type Props = PropsWithChildren<{
