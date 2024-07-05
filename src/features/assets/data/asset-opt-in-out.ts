@@ -8,6 +8,7 @@ import algosdk from 'algosdk'
 import { AlgorandClient, getTransactionParams, sendTransaction } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { toast } from 'react-toastify'
+import { asError } from '@/utils/error'
 
 export const useAssetOptInOut = (asset: Asset) => {
   const { signTransactions } = useWallet()
@@ -70,15 +71,12 @@ export const useAssetOptInOut = (asset: Asset) => {
             toast.success('Asset opt-out successfully')
             set(isActiveWalletAccountStaleAtom, true)
           } else {
-            // TODO: this doesn't throw on 400
             toast.error(
               confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset'
             )
           }
         } catch (error) {
-          // eslint-disable-next-line
-          console.error(error)
-          toast.error('Failed to opt-out, unknown error')
+          errorHandler(error)
         }
       },
       [asset.id, signTransactions]
@@ -121,9 +119,7 @@ export const useAssetOptInOut = (asset: Asset) => {
             )
           }
         } catch (error) {
-          // eslint-disable-next-line
-          console.error(error)
-          toast.error('Failed to opt-in, unknown error')
+          errorHandler(error)
         }
       },
       [asset.id, signTransactions]
@@ -135,4 +131,12 @@ export const useAssetOptInOut = (asset: Asset) => {
     optIn,
     optOut,
   }
+}
+
+const errorHandler = (e: unknown) => {
+  // eslint-disable-next-line no-console
+  console.error(e)
+
+  const error = asError(e)
+  toast.error(error.message)
 }
