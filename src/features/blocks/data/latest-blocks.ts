@@ -211,7 +211,7 @@ const subscriberAtom = atom(null, (get, set) => {
         })
       }
 
-      const activeAccount = get(activeWalletAccountAtom)
+      const activeAccount = await get(activeWalletAccountAtom)
       if (activeAccount && staleAddresses.includes(activeAccount.address)) {
         set(isActiveWalletAccountStaleAtom, true)
       }

@@ -1,6 +1,6 @@
 import { Asset, AssetMediaType } from '../models'
 import { Card, CardContent } from '@/features/common/components/card'
-import { assetDetailsLabel } from '@/features/assets/components/labels'
+import { assetMediaLabel } from '@/features/assets/components/labels'
 
 type Props = {
   asset: Asset
@@ -8,7 +8,7 @@ type Props = {
 
 export function AssetMedia({ asset }: Props) {
   return asset.media ? (
-    <Card aria-label={assetDetailsLabel}>
+    <Card aria-label={assetMediaLabel}>
       <CardContent className={'flex aspect-square w-44 justify-center'}>
         {asset.media.type === AssetMediaType.Image && <img className={'size-full object-cover'} src={asset.media.url} alt={asset.name} />}
         {asset.media.type === AssetMediaType.Video && (

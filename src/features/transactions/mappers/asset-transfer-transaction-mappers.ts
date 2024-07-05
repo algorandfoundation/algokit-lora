@@ -16,11 +16,11 @@ const mapSubType = (transactionResult: TransactionResult) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
   const assetTransfer = transactionResult['asset-transfer-transaction']
 
-  if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
-    if (assetTransfer['close-to']) {
-      return AssetTransferTransactionSubType.OptOut
-    }
+  if (assetTransfer['close-to']) {
+    return AssetTransferTransactionSubType.OptOut
+  }
 
+  if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
     return AssetTransferTransactionSubType.OptIn
   }
 

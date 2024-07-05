@@ -19,6 +19,7 @@ import {
   assetTraitsLabel,
   assetActivityLabel,
   assetUrlLabel,
+  assetMediaLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
@@ -122,7 +123,9 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'ipfs://QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu#arc3' },
               ],
             })
-            expect(detailsCard.querySelector(`img[src="${ipfsGatewayUrl}QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]`)).toBeTruthy()
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
+            expect(mediaCard.querySelector(`img[src="${ipfsGatewayUrl}QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv"]`)).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -214,8 +217,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3' },
               ],
             })
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
-              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]`)
+              mediaCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]`)
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -292,7 +297,9 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/solar/SCQCSO.mp4#v' },
               ],
             })
-            expect(detailsCard.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
+            expect(mediaCard.querySelector('video>source[src="https://assets.datahistory.org/solar/SCQCSO.mp4#v"]')).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
             descriptionListAssertion({
@@ -376,8 +383,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
               ],
             })
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
-              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]`)
+              mediaCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi"]`)
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -482,8 +491,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}' },
               ],
             })
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
-              detailsCard.querySelector(`img[src="${ipfsGatewayUrl}bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png"]`)
+              mediaCard.querySelector(`img[src="${ipfsGatewayUrl}bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png"]`)
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
@@ -725,8 +736,10 @@ describe('asset-page', () => {
                 { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:0:dag-pb:reserve:sha2-256}' },
               ],
             })
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
             expect(
-              detailsCard.querySelector(`img[src="https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd"]`)
+              mediaCard.querySelector(`img[src="https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd"]`)
             ).toBeTruthy()
 
             const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
