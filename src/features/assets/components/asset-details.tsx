@@ -47,7 +47,9 @@ import { sendTransaction } from '@algorandfoundation/algokit-utils'
 import { toast } from 'react-toastify'
 import { activeAccountAtom, isActiveAccountStaleAtom } from '@/features/accounts/data/active-account'
 import { atom, useAtomValue } from 'jotai'
-import { useAtomCallback } from 'jotai/utils'
+import { loadable, useAtomCallback } from 'jotai/utils'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { Loader2 as Loader } from 'lucide-react'
 
 type Props = {
   asset: Asset
@@ -159,12 +161,20 @@ export function AssetDetails({ asset }: Props) {
   return (
     <div className={cn('space-y-4')}>
       <div className="flex gap-2">
-        <LoadbleButton onClick={optIn} disabled={!canOptIn} className={'w-28'}>
-          Opt-in
-        </LoadbleButton>
-        <LoadbleButton disabled={!canOptOut} className={'w-28'} onClick={optOut}>
-          Opt-out
-        </LoadbleButton>
+        <RenderLoadable loadable={canOptIn} fallback={<Loader className="size-10 animate-spin" />}>
+          {(canOptIn) => (
+            <LoadbleButton onClick={optIn} disabled={!canOptIn} className={'w-28'}>
+              Opt-in
+            </LoadbleButton>
+          )}
+        </RenderLoadable>
+        <RenderLoadable loadable={canOptOut} fallback={<Loader className="size-10 animate-spin" />}>
+          {(canOptOut) => (
+            <LoadbleButton disabled={!canOptOut} className={'w-28'} onClick={optOut}>
+              Opt-out
+            </LoadbleButton>
+          )}
+        </RenderLoadable>
       </div>
       <Card aria-label={assetDetailsLabel}>
         <CardContent>
@@ -220,8 +230,8 @@ const useAssetOptOut = (asset: Asset) => {
   const { signTransactions } = useWallet()
 
   const canOptOut = useMemo(() => {
-    return atom((get) => {
-      const activeAccount = get(activeAccountAtom)
+    return atom(async (get) => {
+      const activeAccount = await get(activeAccountAtom)
       const isStale = get(isActiveAccountStaleAtom)
       if (asset.id === 0 || !activeAccount || isStale) {
         return false
@@ -232,8 +242,8 @@ const useAssetOptOut = (asset: Asset) => {
   }, [asset])
 
   const canOptIn = useMemo(() => {
-    return atom((get) => {
-      const activeAccount = get(activeAccountAtom)
+    return atom(async (get) => {
+      const activeAccount = await get(activeAccountAtom)
       const isStale = get(isActiveAccountStaleAtom)
 
       if (asset.id === 0 || !activeAccount || isStale) {
@@ -247,7 +257,7 @@ const useAssetOptOut = (asset: Asset) => {
   const optOut = useAtomCallback(
     useCallback(
       async (get, set) => {
-        const activeAccount = get(activeAccountAtom)
+        const activeAccount = await get(activeAccountAtom)
 
         if (!activeAccount) {
           return
@@ -300,7 +310,7 @@ const useAssetOptOut = (asset: Asset) => {
   const optIn = useAtomCallback(
     useCallback(
       async (get, set) => {
-        const activeAccount = get(activeAccountAtom)
+        const activeAccount = await get(activeAccountAtom)
 
         if (!activeAccount) {
           return
@@ -342,8 +352,8 @@ const useAssetOptOut = (asset: Asset) => {
   )
 
   return {
-    canOptIn: useAtomValue(canOptIn),
-    canOptOut: useAtomValue(canOptOut),
+    canOptIn: useAtomValue(loadable(canOptIn)),
+    canOptOut: useAtomValue(loadable(canOptOut)),
     optIn,
     optOut,
   }

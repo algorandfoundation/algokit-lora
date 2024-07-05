@@ -11,7 +11,7 @@ const createAccountAtoms = (address: Address) => {
   const isStaleAtom = atom(false)
   const detectIsStaleEffect = atomEffect((get, set) => {
     const accountResults = get(accountResultsAtom)
-    const isStale = accountResults.get(address) === undefined ? true : false
+    const isStale = accountResults.get(address) === undefined
     set(isStaleAtom, isStale)
   })
 
