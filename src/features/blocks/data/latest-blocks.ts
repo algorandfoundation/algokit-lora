@@ -26,13 +26,6 @@ import { algod } from '@/features/common/data/algo-client'
 import { createTimestamp } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
-import { base32Decode } from '@ctrl/ts-base32'
-
-function base32ToBase64(base32String: string): string {
-  const byteArray = base32Decode(base32String)
-  const base64String = Buffer.from(byteArray).toString('base64')
-  return base64String
-}
 
 const maxBlocksToDisplay = 10
 
@@ -215,24 +208,43 @@ const subscriberAtom = atom(null, (get, set) => {
           ApplicationId[],
         ]
       )
-
     const blockResults = result.blockMetadata.map((b) => {
       return {
         round: b.round,
         timestamp: b.timestamp,
-        transactionIds: blockTransactionIds.get(b.round) ?? [],
-        seed: b.seed ?? '',
-        genesisHash: b.genesisHash,
         genesisId: b.genesisId,
-        previousBlockHash: b.previousBlockHash ? base32ToBase64(b.previousBlockHash) : '',
-        rewardsLevel: b.rewardsLevel,
-        feeSink: b.feeSink,
-        rewardsResidue: Number(b.rewardsResidue),
-        currentProtocol: b.currentProtocol,
-        rewardsCalculationRound: b.rewardsCalculationRound,
-        rewardsPool: b.rewardsPool,
-        transactionCounter: b.transactionCounter,
+        genesisHash: b.genesisHash,
+        previousBlockHash: b.previousBlockHash ? b.previousBlockHash : '',
+        seed: b.seed ?? '',
+        ...(b.rewards
+          ? {
+              rewards: {
+                feeSink: b.rewards.feeSink,
+                rewardsLevel: b.rewards.rewardsLevel,
+                rewardsCalculationRound: b.rewards.rewardsCalculationRound,
+                rewardsPool: b.rewards.rewardsPool,
+                rewardsResidue: Number(b.rewards.rewardsResidue),
+                rewardsRate: b.rewards.rewardsRate,
+              },
+            }
+          : undefined),
+        ...(b.upgradeState
+          ? {
+              upgradeState: {
+                currentProtocol: b.upgradeState.currentProtocol,
+                ...(b.upgradeState.nextProtocol ? { nextProtocol: b.upgradeState.nextProtocol } : undefined),
+                ...(b.upgradeState.nextProtocolApprovals ? { nextProtocolApprovals: b.upgradeState.nextProtocolApprovals } : undefined),
+                ...(b.upgradeState.nextProtocolVoteBefore ? { nextProtocolVoteBefore: b.upgradeState.nextProtocolVoteBefore } : undefined),
+                ...(b.upgradeState.nextProtocolSwitchOn ? { nextProtocolSwitchOn: b.upgradeState.nextProtocolSwitchOn } : undefined),
+              },
+            }
+          : undefined),
+        parentTransactionCount: b.parentTransactionCount,
+        fullTransactionCount: b.fullTransactionCount,
+        transactionCounter: b.txnCounter,
+        transactionsRoot: b.transactionsRoot,
         transactionsRootSha256: b.transactionsRootSha256,
+        transactionIds: blockTransactionIds.get(b.round) ?? [],
       } satisfies BlockResult
     })
 

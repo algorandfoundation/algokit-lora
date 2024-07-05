@@ -32,19 +32,45 @@ export const getBlockAndExtractData = async (round: Round) => {
         {
           round: result.round as number,
           timestamp: result.timestamp,
-          seed: result.seed,
-          transactionIds: transactionIds,
-          genesisHash: result['genesis-hash'],
           genesisId: result['genesis-id'],
-          previousBlockHash: result['previous-block-hash'],
-          rewardsLevel: result['rewards']['rewards-level'],
-          feeSink: result['rewards']['fee-sink'],
-          rewardsResidue: result['rewards']['rewards-residue'],
-          currentProtocol: result['upgrade-state']['current-protocol'],
-          rewardsCalculationRound: result['rewards']['rewards-calculation-round'],
-          rewardsPool: result['rewards']['rewards-pool'],
+          genesisHash: result['genesis-hash'],
+          ...(result['previous-block-hash'] ? { previousBlockHash: result['previous-block-hash'] } : undefined),
+          seed: result.seed,
+          ...(result['rewards']
+            ? {
+                rewards: {
+                  feeSink: result['rewards']?.['fee-sink'],
+                  rewardsLevel: result['rewards']?.['rewards-level'],
+                  rewardsCalculationRound: result['rewards']?.['rewards-calculation-round'],
+                  rewardsPool: result['rewards']?.['rewards-pool'],
+                  rewardsResidue: result['rewards']?.['rewards-residue'],
+                  rewardsRate: result['rewards']?.['rewards-rate'],
+                },
+              }
+            : undefined),
+          ...(result['upgrade-state']
+            ? {
+                upgradeState: {
+                  currentProtocol: result['upgrade-state']['current-protocol'],
+                  ...(result['upgrade-state']['next-protocol'] ? { nextProtocol: result['upgrade-state']['next-protocol'] } : undefined),
+                  ...(result['upgrade-state']['next-protocol-approvals']
+                    ? { nextProtocolApprovals: result['upgrade-state']['next-protocol-approvals'] }
+                    : undefined),
+                  ...(result['upgrade-state']['next-protocol-vote-before']
+                    ? { nextProtocolVoteBefore: result['upgrade-state']['next-protocol-vote-before'] }
+                    : undefined),
+                  ...(result['upgrade-state']['next-protocol-switch-on']
+                    ? { nextProtocolSwitchOn: result['upgrade-state']['next-protocol-switch-on'] }
+                    : undefined),
+                },
+              }
+            : undefined),
+          parentTransactionCount: transactionIds.length ?? 0,
+          fullTransactionCount: countAllTransactions(result.transactions ?? []),
           transactionCounter: result['txn-counter'],
+          transactionsRoot: result['transactions-root'],
           transactionsRootSha256: result['transactions-root-sha256'],
+          transactionIds: transactionIds,
         } satisfies BlockResult,
         (result.transactions ?? []) as TransactionResult[],
         Array.from(groupResults.values()),
@@ -132,5 +158,19 @@ const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, 
   set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
   return blockResult
 })
+
+function countAllTransactions(transactions: TransactionResult[]): number {
+  let count = 0
+  function countRecursive(transactions: TransactionResult[]): void {
+    transactions.forEach((txn) => {
+      count++
+      if (txn['inner-txns']) {
+        countRecursive(txn['inner-txns'])
+      }
+    })
+  }
+  countRecursive(transactions)
+  return count
+}
 
 export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)

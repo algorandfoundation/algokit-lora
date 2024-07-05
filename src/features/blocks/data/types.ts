@@ -4,19 +4,35 @@ import { TransactionResult } from '@algorandfoundation/algokit-utils/types/index
 export type BlockResult = {
   round: number
   timestamp: number
-  seed: string
-  transactionIds: string[]
-  genesisHash: string
   genesisId: string
-  previousBlockHash: string
-  rewardsLevel: number
+  genesisHash: string
+  previousBlockHash?: string
+  seed: string
+  rewards?: BlockRewards
+  parentTransactionCount: number
+  fullTransactionCount: number
+  transactionCounter: number
+  transactionsRoot: string
+  transactionsRootSha256: string
+  upgradeState?: BlockUpgradeState
+  transactionIds: string[]
+}
+
+export type BlockRewards = {
   feeSink: string
-  rewardsResidue: number
-  currentProtocol: string
+  rewardsLevel: number
   rewardsCalculationRound: number
   rewardsPool: string
-  transactionCounter: number
-  transactionsRootSha256: string
+  rewardsResidue: number
+  rewardsRate: number
+}
+
+export type BlockUpgradeState = {
+  currentProtocol: string
+  nextProtocol?: string
+  nextProtocolApprovals?: number
+  nextProtocolVoteBefore?: number
+  nextProtocolSwitchOn?: number
 }
 
 export type BlocksExtract = {

@@ -14,14 +14,26 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
             genesisHash: randomString(64, 64),
             genesisId: randomString(64, 64),
             previousBlockHash: randomString(64, 64),
-            rewardsLevel: randomNumberBetween(1, 1000),
-            feeSink: randomString(64, 64),
-            rewardsResidue: randomNumberBetween(1, 1000),
-            currentProtocol: randomString(64, 64),
-            rewardsCalculationRound: randomNumberBetween(1, 1000),
-            rewardsPool: randomString(64, 64),
+            parentTransactionCount: randomNumberBetween(1, 1000),
+            fullTransactionCount: randomNumberBetween(1, 1000),
             transactionCounter: randomNumberBetween(1, 1000),
+            transactionsRoot: randomString(64, 64),
             transactionsRootSha256: randomString(64, 64),
+            rewards: {
+              feeSink: randomString(64, 64),
+              rewardsLevel: randomNumberBetween(1, 1000),
+              rewardsCalculationRound: randomNumberBetween(1, 1000),
+              rewardsPool: randomString(64, 64),
+              rewardsResidue: randomNumberBetween(1, 1000),
+              rewardsRate: randomNumberBetween(1, 1000),
+            },
+            upgradeState: {
+              currentProtocol: randomString(64, 64),
+              nextProtocol: randomString(64, 64),
+              nextProtocolApprovals: randomNumberBetween(1, 1000),
+              nextProtocolVoteBefore: randomNumberBetween(1, 1000),
+              nextProtocolSwitchOn: randomNumberBetween(1, 1000),
+            },
           }
     )
   }
