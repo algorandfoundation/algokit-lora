@@ -11,14 +11,12 @@ type Props = PropsWithChildren<{
 export function WalletProviderInner({ initOptions, children }: Props) {
   const walletProviders = useInitializeProviders(initOptions)
 
-  const { activeAccount: useWalletAccount } = useWallet()
+  const { activeAccount: walletAccount } = useWallet()
   const setUseWalletAccount = useSetAtom(walletAccountAtom)
 
   useEffect(() => {
-    setUseWalletAccount(useWalletAccount ?? undefined)
-  }, [setUseWalletAccount, useWalletAccount])
-
-  // useAtom(activeAccountStaleEffect)
+    setUseWalletAccount(walletAccount ?? undefined)
+  }, [setUseWalletAccount, walletAccount])
 
   return <UseWalletProvider value={walletProviders}>{children}</UseWalletProvider>
 }

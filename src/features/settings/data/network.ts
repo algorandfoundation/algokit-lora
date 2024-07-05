@@ -86,6 +86,7 @@ export const networkConfigAtom = atom((get) => {
     mainnetConfig.walletProviders.forEach((provider) => {
       clearAccounts(provider)
     })
+    clearAccounts(PROVIDER_ID.MNEMONIC)
   } else {
     localnetConfig.walletProviders.forEach((provider) => {
       clearAccounts(provider)
