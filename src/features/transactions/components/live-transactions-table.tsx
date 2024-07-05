@@ -6,6 +6,8 @@ import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { useLiveTransactions } from '../data/live-transaction'
 import { cn } from '@/features/common/utils'
+import { Switch } from '@/features/common/components/switch'
+import { Label } from '@/features/common/components/label'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
@@ -16,7 +18,7 @@ interface Props {
 export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const [maxRows, setMaxRows] = useState(10)
-  const transactions = useLiveTransactions(filter, maxRows)
+  const { transactions, showLiveUpdates, setShowLiveUpdates } = useLiveTransactions(filter, maxRows)
 
   const table = useReactTable({
     data: transactions,
@@ -77,8 +79,8 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
           </TableBody>
         </Table>
       </div>
-      <div className="mt-2 flex items-center justify-between">
-        <div className="flex w-full">
+      <div className="mt-2 flex items-center gap-2">
+        <div className="flex">
           <div className="flex shrink grow basis-0 items-center justify-start gap-2">
             <p className="hidden text-sm font-medium md:flex">Max rows</p>
             <Select value={`${maxRows}`} onValueChange={(value) => setMaxRows(Number(value))}>
@@ -94,6 +96,12 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        <div className="ml-auto flex items-center space-x-2">
+          <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
+          <Label htmlFor="live-view-enabled" className="cursor-pointer">
+            Show updates
+          </Label>
         </div>
       </div>
     </div>

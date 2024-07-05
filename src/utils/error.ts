@@ -7,3 +7,5 @@ export const asError = (error: unknown) => {
 }
 
 export const is404 = (error: Error) => 'status' in error && error.status === 404
+
+export const is400 = (error: Error) => 'status' in error && error.status === 400

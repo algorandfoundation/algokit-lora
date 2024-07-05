@@ -151,59 +151,44 @@ const getAssetTransferTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
-  let closeOutRepresentation: Representation | undefined = undefined
-  if (transaction.closeRemainder) {
-    closeOutRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
-      sender: transaction.sender,
-      receiver: transaction.closeRemainder.to,
-      verticals,
-      parent,
-      description: {
-        type: LabelType.AssetTransferRemainder,
-        amount: transaction.closeRemainder.amount,
-        asset: transaction.asset,
-      },
-    })
-  }
+  const closeOutRepresentation = transaction.closeRemainder
+    ? getRepresentationGivenSenderAndReceiver({
+        sender: transaction.sender,
+        receiver: transaction.closeRemainder.to,
+        verticals,
+        description: {
+          type: LabelType.AssetTransferRemainder,
+          amount: transaction.closeRemainder.amount,
+          asset: transaction.asset,
+        },
+      })
+    : undefined
 
-  if (transaction.subType === AssetTransferTransactionSubType.Clawback) {
-    const clawbackRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
-      sender: transaction.sender,
-      receiver: transaction.clawbackFrom!,
-      verticals,
-      parent,
-      description: {
-        type: LabelType.Clawback,
-        amount: transaction.amount,
-        asset: transaction.asset,
-      },
-    })
-    const transferRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
-      sender: transaction.clawbackFrom!,
-      receiver: transaction.receiver,
-      verticals,
-      parent,
-      description: {
-        type: LabelType.AssetTransfer,
-        amount: transaction.amount,
-        asset: transaction.asset,
-      },
-    })
-    return [clawbackRepresentation, transferRepresentation, closeOutRepresentation].filter(isDefined)
-  } else {
-    const transferRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
-      sender: transaction.sender,
-      receiver: transaction.receiver,
-      verticals,
-      parent,
-      description: {
-        type: LabelType.AssetTransfer,
-        amount: transaction.amount,
-        asset: transaction.asset,
-      },
-    })
-    return [transferRepresentation, closeOutRepresentation].filter(isDefined)
-  }
+  const clawbackRepresentation =
+    transaction.subType === AssetTransferTransactionSubType.Clawback
+      ? getRepresentationGivenSenderAndReceiver({
+          sender: transaction.clawbackFrom!,
+          receiver: transaction.sender,
+          verticals,
+          description: {
+            type: LabelType.Clawback,
+            amount: transaction.amount,
+            asset: transaction.asset,
+          },
+        })
+      : undefined
+
+  const from = parent
+    ? calculateFromWithParent(transaction.sender, verticals, parent)
+    : calculateFromWithoutParent(transaction.sender, verticals)
+  const to = getAccountOrApplicationByAddress(verticals, transaction.receiver)
+  const transferRepresentation = asTransactionGraphRepresentation(from, to, {
+    type: LabelType.AssetTransfer,
+    amount: transaction.amount,
+    asset: transaction.asset,
+  })
+
+  return [clawbackRepresentation, transferRepresentation, closeOutRepresentation].filter(isDefined)
 }
 
 const getKeyRegTransactionRepresentations = (
@@ -232,19 +217,18 @@ const getPaymentTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
-  const paymentRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
-    sender: transaction.sender,
-    receiver: transaction.receiver,
-    verticals,
-    description: {
-      type: LabelType.Payment,
-      amount: transaction.amount,
-    },
-    parent,
+  const from = parent
+    ? calculateFromWithParent(transaction.sender, verticals, parent)
+    : calculateFromWithoutParent(transaction.sender, verticals)
+  const to = getAccountOrApplicationByAddress(verticals, transaction.receiver)
+
+  const paymentRepresentation = asTransactionGraphRepresentation(from, to, {
+    type: LabelType.Payment,
+    amount: transaction.amount,
   })
 
   if (transaction.closeRemainder) {
-    const closeOutRepresentation = getRepresentationForAssetTransferOrPaymentTransaction({
+    const closeOutRepresentation = getRepresentationGivenSenderAndReceiver({
       sender: transaction.sender,
       receiver: transaction.closeRemainder.to,
       verticals,
@@ -252,7 +236,6 @@ const getPaymentTransactionRepresentations = (
         type: LabelType.PaymentTransferRemainder,
         amount: transaction.closeRemainder.amount,
       },
-      parent,
     })
     return [paymentRepresentation, closeOutRepresentation]
   } else {
@@ -260,38 +243,40 @@ const getPaymentTransactionRepresentations = (
   }
 }
 
-const getRepresentationForAssetTransferOrPaymentTransaction = ({
+function getAccountOrApplicationByAddress(verticals: Vertical[], address: string) {
+  const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === address)
+  const applicationVertical = verticals.find(
+    (c): c is ApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === address
+  )
+  let fromTo = fallbackFromTo
+  if (accountVertical) {
+    fromTo = {
+      verticalId: accountVertical.id,
+      accountNumber: accountVertical.accountNumber,
+    }
+  }
+  if (applicationVertical) {
+    fromTo = {
+      verticalId: applicationVertical.id,
+      accountNumber: applicationVertical.linkedAccount.accountNumber,
+    }
+  }
+  return fromTo
+}
+
+const getRepresentationGivenSenderAndReceiver = ({
   sender,
   receiver,
   verticals,
   description,
-  parent,
 }: {
   sender: Address
   receiver: Address
   verticals: Vertical[]
   description: Label
-  parent?: Horizontal
 }): Representation => {
-  const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromWithoutParent(sender, verticals)
-
-  const toAccountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === receiver)
-  const toApplicationVertical = verticals.find(
-    (c): c is ApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === receiver
-  )
-  let to = fallbackFromTo
-  if (toAccountVertical) {
-    to = {
-      verticalId: toAccountVertical.id,
-      accountNumber: toAccountVertical.accountNumber,
-    }
-  }
-  if (toApplicationVertical) {
-    to = {
-      verticalId: toApplicationVertical.id,
-      accountNumber: toApplicationVertical.linkedAccount.accountNumber,
-    }
-  }
+  const from = calculateFromWithoutParent(sender, verticals)
+  const to = getAccountOrApplicationByAddress(verticals, receiver)
 
   return asTransactionGraphRepresentation(from, to, description)
 }

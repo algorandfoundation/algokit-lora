@@ -502,4 +502,26 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-880903652': () => {
+    return new AssetResultBuilder({
+      index: 880903652,
+      params: {
+        clawback: 'EP3I5HF6N3B7NSLVJ5YOZNTW3B4L46RUTELW6GIWZZ6ZCV5XOVT5PTOHAI',
+        creator: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE',
+        decimals: 0,
+        'default-frozen': true,
+        freeze: 'EMWPXNULSR3US737FFOSEJJB4B3R5BJQRYCVYPJSP7IUBRXUN3LF4MG2NA',
+        manager: 'EMWPXNULSR3US737FFOSEJJB4B3R5BJQRYCVYPJSP7IUBRXUN3LF4MG2NA',
+        'metadata-hash': encoder.encode('GXcG0xwqXopAsImnHMHXwZCWETndsst2oWvmEOa2Vg4='),
+        name: 'D01-04 #6588',
+        'name-b64': encoder.encode('RDAxLTA0ICM2NTg4'),
+        reserve: 'EMWPXNULSR3US737FFOSEJJB4B3R5BJQRYCVYPJSP7IUBRXUN3LF4MG2NA',
+        total: 1,
+        'unit-name': 'D01-04',
+        'unit-name-b64': encoder.encode('RDAxLTA0'),
+        url: 'ipfs://QmPsu35dDEbyQeNiTRPvTLgxbsjMSQB3GAQopi9Li15Qo2#arc3',
+        'url-b64': encoder.encode('aXBmczovL1FtUHN1MzVkREVieVFlTmlUUlB2VExneGJzak1TUUIzR0FRb3BpOUxpMTVRbzIjYXJjMw==)'),
+      },
+    })
+  },
 }

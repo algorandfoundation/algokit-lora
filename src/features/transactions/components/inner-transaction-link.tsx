@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { useSelectedNetwork } from '@/features/settings/data'
-import { NavLink } from 'react-router-dom'
+import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link.tsx'
 
 type Props = PropsWithChildren<{
   showFullTransactionId?: boolean
@@ -21,14 +21,14 @@ export function asInnerTransactionLinkText(
 
 export function InnerTransactionLink({ networkTransactionId, innerTransactionId, className, children, showFullTransactionId }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
-  const url = Urls.Explore.Transaction.ById.Inner.ById.build({ networkId: selectedNetwork, transactionId: networkTransactionId }).replace(
-    '*',
-    innerTransactionId
-  )
 
   return (
-    <NavLink className={cn(!children && 'text-primary underline tracking-tight', className)} to={url}>
+    <TemplatedNavLink
+      className={cn(!children && 'text-primary underline tracking-tight', className)}
+      urlTemplate={Urls.Explore.Transaction.ById.Inner.ById}
+      urlParams={{ networkId: selectedNetwork, transactionId: networkTransactionId, splat: innerTransactionId }}
+    >
       {children ? children : asInnerTransactionLinkText(networkTransactionId, innerTransactionId, showFullTransactionId)}
-    </NavLink>
+    </TemplatedNavLink>
   )
 }
