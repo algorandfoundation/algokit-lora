@@ -8,17 +8,17 @@ export function AssetOptInOutButton({ asset }: { asset: Asset }) {
   const { status: assetOptInOutStatus, optIn, optOut } = useAssetOptInOut(asset)
 
   const optInButton = (
-    <AsyncActionButton onClick={optIn} className={'w-28'} variant={'outlineSecondary'}>
+    <AsyncActionButton onClick={optIn} className={'w-28'} variant={'outline-secondary'}>
       <CircleArrowOutDownRight /> Opt-in
     </AsyncActionButton>
   )
   const optOutButton = (
-    <AsyncActionButton onClick={optOut} className={'w-28'} variant={'outlineSecondary'}>
+    <AsyncActionButton onClick={optOut} className={'w-28'} variant={'outline-secondary'}>
       <CircleX /> Opt-out
     </AsyncActionButton>
   )
   const disabledButton = (
-    <Button variant={'outlineSecondary'} disabled={true} className={'w-28'}>
+    <Button variant={'outline-secondary'} disabled={true} className={'w-28'}>
       Opt-in
     </Button>
   )
