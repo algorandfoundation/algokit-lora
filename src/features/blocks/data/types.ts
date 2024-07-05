@@ -9,8 +9,6 @@ export type BlockResult = {
   previousBlockHash?: string
   seed: string
   rewards?: BlockRewards
-  parentTransactionCount: number
-  fullTransactionCount: number
   transactionCounter: number
   transactionsRoot: string
   transactionsRootSha256: string

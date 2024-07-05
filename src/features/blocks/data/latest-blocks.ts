@@ -239,8 +239,6 @@ const subscriberAtom = atom(null, (get, set) => {
               },
             }
           : undefined),
-        parentTransactionCount: b.parentTransactionCount,
-        fullTransactionCount: b.fullTransactionCount,
         transactionCounter: b.txnCounter,
         transactionsRoot: b.transactionsRoot,
         transactionsRootSha256: b.transactionsRootSha256,

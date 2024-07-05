@@ -65,8 +65,6 @@ export const getBlockAndExtractData = async (round: Round) => {
                 },
               }
             : undefined),
-          parentTransactionCount: transactionIds.length ?? 0,
-          fullTransactionCount: countAllTransactions(result.transactions ?? []),
           transactionCounter: result['txn-counter'],
           transactionsRoot: result['transactions-root'],
           transactionsRootSha256: result['transactions-root-sha256'],
@@ -158,19 +156,5 @@ const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, 
   set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
   return blockResult
 })
-
-function countAllTransactions(transactions: TransactionResult[]): number {
-  let count = 0
-  function countRecursive(transactions: TransactionResult[]): void {
-    transactions.forEach((txn) => {
-      count++
-      if (txn['inner-txns']) {
-        countRecursive(txn['inner-txns'])
-      }
-    })
-  }
-  countRecursive(transactions)
-  return count
-}
 
 export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)

@@ -14,8 +14,6 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
             genesisHash: randomString(64, 64),
             genesisId: randomString(64, 64),
             previousBlockHash: randomString(64, 64),
-            parentTransactionCount: randomNumberBetween(1, 1000),
-            fullTransactionCount: randomNumberBetween(1, 1000),
             transactionCounter: randomNumberBetween(1, 1000),
             transactionsRoot: randomString(64, 64),
             transactionsRootSha256: randomString(64, 64),

@@ -3,23 +3,20 @@ import { Block, BlockSummary, CommonBlockProperties } from '../models'
 import { BlockResult } from '../data/types'
 import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
-import { camelToKebabCase } from '@/features/common/data/camel-to-kebab-case'
+import { convertKeysToKebabCase } from '@/features/common/data/camel-to-kebab-case'
 
-const asCommonBlock = (block: BlockResult, transactions: Pick<Transaction, 'type'>[]): CommonBlockProperties => {
-  const { transactionIds: _, ...rest } = block
+const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
+  const { transactionIds: _, ...restWithKebabCaseKeys } = convertKeysToKebabCase(block)
   const transactionsWithJson = transactions as Transaction[]
-  const transactionsWithoutJson = transactionsWithJson.map(({ json, ...restTransaction }) => ({ ...restTransaction }))
+  const transactionsWithoutJsonKebabCaseKeys = transactionsWithJson
+    .map(({ json, ...restTransaction }) => ({ ...restTransaction }))
+    .map((transaction) => convertKeysToKebabCase(transaction))
 
-  const restWithKebabCaseKeys: Record<string, unknown> = {}
-  for (const key in rest) {
-    const kebabKey = camelToKebabCase(key)
-    restWithKebabCaseKeys[kebabKey] = (rest as Record<string, unknown>)[key]
-  }
   return {
     round: block.round,
     timestamp: new Date(block.timestamp * 1000).toISOString(),
     transactionsSummary: asTransactionsSummary(transactions),
-    json: { ...restWithKebabCaseKeys, transactions: transactionsWithoutJson },
+    json: { ...restWithKebabCaseKeys, transactions: transactionsWithoutJsonKebabCaseKeys },
   }
 }
 
