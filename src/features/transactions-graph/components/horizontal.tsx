@@ -95,17 +95,25 @@ function VectorLabel({ transaction, vector }: { transaction: Transaction | Inner
 function SelfLoopLabel({ transaction, loop }: { transaction: Transaction | InnerTransaction; loop: SelfLoop }) {
   const colorClass = colorClassMap[transaction.type]
   if (loop.label.type === LabelType.Payment || loop.label.type === LabelType.PaymentTransferRemainder) {
-    return <DisplayAlgo className={cn('flex justify-center')} amount={loop.label.amount} short={true} />
+    return (
+      <>
+        <span>{labelTypeToTextMap.get(loop.label.type)}</span>
+        <DisplayAlgo className={cn('flex justify-center')} amount={loop.label.amount} short={true} />
+      </>
+    )
   }
   if (loop.label.type === LabelType.AssetTransfer || loop.label.type === LabelType.AssetTransferRemainder) {
     return (
-      <DisplayAssetAmount
-        className={cn('flex justify-center')}
-        amount={loop.label.amount}
-        asset={loop.label.asset}
-        linkClassName={colorClass.text}
-        short={true}
-      />
+      <>
+        <span>{labelTypeToTextMap.get(loop.label.type)}</span>
+        <DisplayAssetAmount
+          className={cn('flex justify-center')}
+          amount={loop.label.amount}
+          asset={loop.label.asset}
+          linkClassName={colorClass.text}
+          short={true}
+        />
+      </>
     )
   }
   return <span>{loop.label.type}</span>

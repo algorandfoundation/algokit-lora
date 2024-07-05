@@ -17,11 +17,11 @@ const mapSubType = (transactionResult: TransactionResult) => {
   const assetTransfer = transactionResult['asset-transfer-transaction']
 
   if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
-    return AssetTransferTransactionSubType.OptIn
-  }
+    if (assetTransfer['close-to']) {
+      return AssetTransferTransactionSubType.OptOut
+    }
 
-  if (assetTransfer['close-to']) {
-    return AssetTransferTransactionSubType.OptOut
+    return AssetTransferTransactionSubType.OptIn
   }
 
   // if the assetTransfer.sender is not a ZERO address, it's a clawback
