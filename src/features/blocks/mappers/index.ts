@@ -4,6 +4,7 @@ import { BlockResult } from '../data/types'
 import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { asJson } from '@/utils/as-json'
 
 const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
   return {
@@ -30,6 +31,6 @@ export const asBlock = (
     previousRound: block.round > 0 ? block.round - 1 : undefined,
     nextRound,
     transactions,
-    json: { ...rest, transactions: transactionResults },
+    json: asJson({ ...rest, transactions: transactionResults }),
   }
 }

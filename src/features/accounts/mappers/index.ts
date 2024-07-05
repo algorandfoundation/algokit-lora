@@ -3,6 +3,7 @@ import { AccountResult, AssetHoldingResult, AssetResult } from '../data/types'
 import { Account, AccountAssetSummary, AssetHolding } from '../models'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { asJson } from '@/utils/as-json'
 
 export const asAccount = (accountResult: AccountResult, assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>): Account => {
   const [assetsHeld, assetsOpted] = asAssetHoldings(accountResult.assets ?? [], assetResolver)
@@ -22,7 +23,7 @@ export const asAccount = (accountResult: AccountResult, assetResolver: (assetId:
     totalAssetsOptedIn: accountResult['total-assets-opted-in'],
     assetsOpted,
     rekeyedTo: accountResult['auth-addr'],
-    json: accountResult,
+    json: asJson(accountResult),
   }
 }
 

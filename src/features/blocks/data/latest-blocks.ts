@@ -188,14 +188,10 @@ const subscriberAtom = atom(null, (get, set) => {
           ? {
               ['upgrade-state']: {
                 ['current-protocol']: b.upgradeState.currentProtocol,
-                ...(b.upgradeState.nextProtocol ? { ['next-protocol']: b.upgradeState.nextProtocol } : undefined),
-                ...(b.upgradeState.nextProtocolApprovals
-                  ? { ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals }
-                  : undefined),
-                ...(b.upgradeState.nextProtocolVoteBefore
-                  ? { ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore }
-                  : undefined),
-                ...(b.upgradeState.nextProtocolSwitchOn ? { ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn } : undefined),
+                ['next-protocol']: b.upgradeState.nextProtocol,
+                ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals,
+                ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore,
+                ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn,
               },
             }
           : undefined),
