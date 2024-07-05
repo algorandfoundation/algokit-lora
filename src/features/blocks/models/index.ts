@@ -6,13 +6,13 @@ export type CommonBlockProperties = {
   round: number
   timestamp: string
   transactionsSummary: TransactionsSummary
-  json: object
 }
 
 export type Block = CommonBlockProperties & {
   previousRound?: number
   nextRound: AsyncMaybeAtom<number>
   transactions: Transaction[]
+  json: object
 }
 
 export type BlockSummary = CommonBlockProperties & {

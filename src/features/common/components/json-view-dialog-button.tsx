@@ -15,7 +15,7 @@ type Props = {
   expandJsonLevel?: (level: number) => boolean
 }
 
-export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLevel = defaultExpandLevel }: Props) {
+export function OpenJsonViewDialogButton({ json, expandJsonLevel = defaultExpandLevel }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openJsonViewDialog = useCallback(() => {
@@ -38,7 +38,7 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel: exapandJsonLev
           </DialogHeader>
           <div className={cn('border grid w-auto min-w-[300px] h-[450px]')}>
             <div className="overflow-auto px-1 py-3">
-              <ReactJsonView data={json} shouldExpandNode={exapandJsonLevel} style={currentStyle} />
+              <ReactJsonView data={json} shouldExpandNode={expandJsonLevel} style={currentStyle} />
             </div>
           </div>
         </DialogContent>

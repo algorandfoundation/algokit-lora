@@ -11,17 +11,18 @@ import { indexer } from '@/features/common/data/algo-client'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
-  const result = await indexer
+  return await indexer
     .lookupBlock(round)
     .do()
     .then((result) => {
-      const [transactionIds, groupResults] = ((result.transactions ?? []) as TransactionResult[]).reduce(
+      const { transactions, ...block } = result
+      const [transactionIds, groupResults] = ((transactions ?? []) as TransactionResult[]).reduce(
         (acc, t) => {
           // Accumulate transactions
           acc[0].push(t.id)
 
           // Accumulate group results
-          accumulateGroupsFromTransaction(acc[1], t, result.round, result.timestamp)
+          accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
 
           return acc
         },
@@ -30,52 +31,13 @@ export const getBlockAndExtractData = async (round: Round) => {
 
       return [
         {
-          round: result.round as number,
-          timestamp: result.timestamp,
-          genesisId: result['genesis-id'],
-          genesisHash: result['genesis-hash'],
-          ...(result['previous-block-hash'] ? { previousBlockHash: result['previous-block-hash'] } : undefined),
-          seed: result.seed,
-          ...(result['rewards']
-            ? {
-                rewards: {
-                  feeSink: result['rewards']?.['fee-sink'],
-                  rewardsLevel: result['rewards']?.['rewards-level'],
-                  rewardsCalculationRound: result['rewards']?.['rewards-calculation-round'],
-                  rewardsPool: result['rewards']?.['rewards-pool'],
-                  rewardsResidue: result['rewards']?.['rewards-residue'],
-                  rewardsRate: result['rewards']?.['rewards-rate'],
-                },
-              }
-            : undefined),
-          ...(result['upgrade-state']
-            ? {
-                upgradeState: {
-                  currentProtocol: result['upgrade-state']['current-protocol'],
-                  ...(result['upgrade-state']['next-protocol'] ? { nextProtocol: result['upgrade-state']['next-protocol'] } : undefined),
-                  ...(result['upgrade-state']['next-protocol-approvals']
-                    ? { nextProtocolApprovals: result['upgrade-state']['next-protocol-approvals'] }
-                    : undefined),
-                  ...(result['upgrade-state']['next-protocol-vote-before']
-                    ? { nextProtocolVoteBefore: result['upgrade-state']['next-protocol-vote-before'] }
-                    : undefined),
-                  ...(result['upgrade-state']['next-protocol-switch-on']
-                    ? { nextProtocolSwitchOn: result['upgrade-state']['next-protocol-switch-on'] }
-                    : undefined),
-                },
-              }
-            : undefined),
-          transactionCounter: result['txn-counter'],
-          transactionsRoot: result['transactions-root'],
-          transactionsRootSha256: result['transactions-root-sha256'],
-          transactionIds: transactionIds,
-        } satisfies BlockResult,
-        (result.transactions ?? []) as TransactionResult[],
+          ...block,
+          transactionIds,
+        } as BlockResult,
+        (transactions ?? []) as TransactionResult[],
         Array.from(groupResults.values()),
       ] as const
     })
-
-  return result
 }
 
 export const accumulateGroupsFromTransaction = (

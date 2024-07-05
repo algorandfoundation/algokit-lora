@@ -1,36 +1,37 @@
 import { GroupResult } from '@/features/groups/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
+// Matches the data returned from indexer
 export type BlockResult = {
   round: number
   timestamp: number
-  genesisId: string
-  genesisHash: string
-  previousBlockHash?: string
+  ['genesis-id']: string
+  ['genesis-hash']: string
+  ['previous-block-hash']?: string
   seed: string
   rewards?: BlockRewards
-  transactionCounter: number
-  transactionsRoot: string
-  transactionsRootSha256: string
-  upgradeState?: BlockUpgradeState
+  ['txn-counter']: number
+  ['transactions-root']: string
+  ['transactions-root-sha256']: string
+  ['upgrade-state']?: BlockUpgradeState
   transactionIds: string[]
 }
 
 export type BlockRewards = {
-  feeSink: string
-  rewardsLevel: number
-  rewardsCalculationRound: number
-  rewardsPool: string
-  rewardsResidue: number
-  rewardsRate: number
+  ['fee-sink']: string
+  ['rewards-level']: number
+  ['rewards-calculation-round']: number
+  ['rewards-pool']: string
+  ['rewards-residue']: number
+  ['rewards-rate']: number
 }
 
 export type BlockUpgradeState = {
-  currentProtocol: string
-  nextProtocol?: string
-  nextProtocolApprovals?: number
-  nextProtocolVoteBefore?: number
-  nextProtocolSwitchOn?: number
+  ['current-protocol']: string
+  ['next-protocol']?: string
+  ['next-protocol-approvals']?: number
+  ['next-protocol-vote-before']?: number
+  ['next-protocol-switch-on']?: number
 }
 
 export type BlocksExtract = {

@@ -168,36 +168,40 @@ const subscriberAtom = atom(null, (get, set) => {
       return {
         round: b.round,
         timestamp: b.timestamp,
-        genesisId: b.genesisId,
-        genesisHash: b.genesisHash,
-        previousBlockHash: b.previousBlockHash ? b.previousBlockHash : '',
+        ['genesis-id']: b.genesisId,
+        ['genesis-hash']: b.genesisHash,
+        ['previous-block-hash']: b.previousBlockHash ? b.previousBlockHash : '',
         seed: b.seed ?? '',
         ...(b.rewards
           ? {
               rewards: {
-                feeSink: b.rewards.feeSink,
-                rewardsLevel: b.rewards.rewardsLevel,
-                rewardsCalculationRound: b.rewards.rewardsCalculationRound,
-                rewardsPool: b.rewards.rewardsPool,
-                rewardsResidue: Number(b.rewards.rewardsResidue),
-                rewardsRate: b.rewards.rewardsRate,
+                ['fee-sink']: b.rewards.feeSink,
+                ['rewards-level']: b.rewards.rewardsLevel,
+                ['rewards-calculation-round']: b.rewards.rewardsCalculationRound,
+                ['rewards-pool']: b.rewards.rewardsPool,
+                ['rewards-residue']: Number(b.rewards.rewardsResidue),
+                ['rewards-rate']: b.rewards.rewardsRate,
               },
             }
           : undefined),
         ...(b.upgradeState
           ? {
-              upgradeState: {
-                currentProtocol: b.upgradeState.currentProtocol,
-                ...(b.upgradeState.nextProtocol ? { nextProtocol: b.upgradeState.nextProtocol } : undefined),
-                ...(b.upgradeState.nextProtocolApprovals ? { nextProtocolApprovals: b.upgradeState.nextProtocolApprovals } : undefined),
-                ...(b.upgradeState.nextProtocolVoteBefore ? { nextProtocolVoteBefore: b.upgradeState.nextProtocolVoteBefore } : undefined),
-                ...(b.upgradeState.nextProtocolSwitchOn ? { nextProtocolSwitchOn: b.upgradeState.nextProtocolSwitchOn } : undefined),
+              ['upgrade-state']: {
+                ['current-protocol']: b.upgradeState.currentProtocol,
+                ...(b.upgradeState.nextProtocol ? { ['next-protocol']: b.upgradeState.nextProtocol } : undefined),
+                ...(b.upgradeState.nextProtocolApprovals
+                  ? { ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals }
+                  : undefined),
+                ...(b.upgradeState.nextProtocolVoteBefore
+                  ? { ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore }
+                  : undefined),
+                ...(b.upgradeState.nextProtocolSwitchOn ? { ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn } : undefined),
               },
             }
           : undefined),
-        transactionCounter: b.txnCounter,
-        transactionsRoot: b.transactionsRoot,
-        transactionsRootSha256: b.transactionsRootSha256,
+        ['txn-counter']: b.txnCounter,
+        ['transactions-root']: b.transactionsRoot,
+        ['transactions-root-sha256']: b.transactionsRootSha256,
         transactionIds: blockTransactionIds.get(b.round) ?? [],
       } satisfies BlockResult
     })
