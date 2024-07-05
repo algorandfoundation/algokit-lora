@@ -13,7 +13,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { addStateExtractedFromBlocksAtom, accumulateGroupsFromTransaction } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
-import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
+import { BalanceChange, BalanceChangeRole, SubscribedTransaction } from '@algorandfoundation/algokit-subscriber/types/subscription'
 import { accountResultsAtom } from '@/features/accounts/data'
 import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
@@ -75,6 +75,18 @@ const subscriberAtom = atom(null, (get, set) => {
     algod
   )
 
+  const reduceAllTransactions = (acc: BalanceChange[], transaction: SubscribedTransaction): BalanceChange[] => {
+    if (transaction.balanceChanges && transaction.balanceChanges.length > 0) {
+      acc.push(...transaction.balanceChanges)
+    }
+    transaction.id = ''
+    transaction.balanceChanges = undefined
+    transaction.filtersMatched = undefined
+    transaction.arc28Events = undefined
+
+    return (transaction.innerTransactions ?? []).reduce(reduceAllTransactions, acc)
+  }
+
   subscriber.onPoll(async (result) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
       return
@@ -97,16 +109,7 @@ const subscriberAtom = atom(null, (get, set) => {
             const round = t['confirmed-round']
             // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
             const { filtersMatched: _filtersMatched, balanceChanges: _balanceChanges, arc28Events: _arc28Events, ...transaction } = t
-            const balanceChanges = _balanceChanges ?? []
-
-            for (const innerTransaction of transaction['inner-txns'] ?? []) {
-              if (innerTransaction.balanceChanges) {
-                balanceChanges.push(...innerTransaction.balanceChanges)
-              }
-              delete innerTransaction.balanceChanges
-              delete innerTransaction.filtersMatched
-              delete innerTransaction.arc28Events
-            }
+            const balanceChanges = (transaction['inner-txns'] ?? []).reduce(reduceAllTransactions, _balanceChanges ?? [])
 
             // Accumulate transaction ids by round
             acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
