@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { cn } from '@/features/common/utils'
 import { Asset } from '../models'
 import { isDefined } from '@/utils/is-defined'
@@ -38,18 +38,7 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useWallet } from '@txnlab/use-wallet'
-import { AlgorandClient, getTransactionParams } from '@algorandfoundation/algokit-utils'
-import { algod, indexer } from '@/features/common/data/algo-client.ts'
-import algosdk from 'algosdk'
-import { LoadbleButton } from '@/features/common/components/button'
-import { sendTransaction } from '@algorandfoundation/algokit-utils'
-import { toast } from 'react-toastify'
-import { activeAccountAtom, isActiveAccountStaleAtom } from '@/features/accounts/data/active-account'
-import { atom, useAtomValue } from 'jotai'
-import { loadable, useAtomCallback } from 'jotai/utils'
-import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { Loader2 as Loader } from 'lucide-react'
+import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
 
 type Props = {
   asset: Asset
@@ -156,32 +145,17 @@ export function AssetDetails({ asset }: Props) {
     [asset.clawback, asset.creator, asset.freeze, asset.manager, asset.reserve]
   ).filter(isDefined)
 
-  const { canOptOut, canOptIn, optIn, optOut } = useAssetOptOut(asset)
-
   return (
     <div className={cn('space-y-4')}>
-      <div className="flex gap-2">
-        <RenderLoadable loadable={canOptIn} fallback={<Loader className="size-10 animate-spin" />}>
-          {(canOptIn) => (
-            <LoadbleButton onClick={optIn} disabled={!canOptIn} className={'w-28'}>
-              Opt-in
-            </LoadbleButton>
-          )}
-        </RenderLoadable>
-        <RenderLoadable loadable={canOptOut} fallback={<Loader className="size-10 animate-spin" />}>
-          {(canOptOut) => (
-            <LoadbleButton disabled={!canOptOut} className={'w-28'} onClick={optOut}>
-              Opt-out
-            </LoadbleButton>
-          )}
-        </RenderLoadable>
-      </div>
       <Card aria-label={assetDetailsLabel}>
         <CardContent>
           <div className={cn('flex gap-2')}>
             <DescriptionList items={assetItems} />
             <div className="ml-auto flex flex-col gap-2">
-              <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
+              <div className="flex gap-2">
+                <AssetOptInOutButton asset={asset} />
+                <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
+              </div>
               <AssetMedia asset={asset} />
             </div>
           </div>
@@ -224,137 +198,4 @@ export function AssetDetails({ asset }: Props) {
       )}
     </div>
   )
-}
-
-const useAssetOptOut = (asset: Asset) => {
-  const { signTransactions } = useWallet()
-
-  const canOptOut = useMemo(() => {
-    return atom(async (get) => {
-      const activeAccount = await get(activeAccountAtom)
-      const isStale = get(isActiveAccountStaleAtom)
-      if (asset.id === 0 || !activeAccount || isStale) {
-        return false
-      }
-
-      return activeAccount && activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0
-    })
-  }, [asset])
-
-  const canOptIn = useMemo(() => {
-    return atom(async (get) => {
-      const activeAccount = await get(activeAccountAtom)
-      const isStale = get(isActiveAccountStaleAtom)
-
-      if (asset.id === 0 || !activeAccount || isStale) {
-        return false
-      }
-
-      return activeAccount && !activeAccount.assetHolding.has(asset.id)
-    })
-  }, [asset])
-
-  const optOut = useAtomCallback(
-    useCallback(
-      async (get, set) => {
-        const activeAccount = await get(activeAccountAtom)
-
-        if (!activeAccount) {
-          return
-        }
-        const transaction = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-          from: activeAccount.address,
-          to: activeAccount.address,
-          assetIndex: asset.id,
-          amount: 0,
-          rekeyTo: undefined,
-          revocationTarget: undefined,
-          closeRemainderTo: activeAccount.address,
-          suggestedParams: await getTransactionParams(undefined, algod),
-        })
-
-        const signer = (txnGroup: algosdk.Transaction[], indexesToSign: number[]) => {
-          const encodedTransactions = txnGroup.map((txn) => algosdk.encodeUnsignedTransaction(txn))
-          return signTransactions(encodedTransactions, indexesToSign)
-        }
-        const signerAccount = {
-          addr: activeAccount.address,
-          signer,
-        }
-        try {
-          const { confirmation } = await sendTransaction(
-            {
-              transaction,
-              from: signerAccount,
-            },
-            algod
-          )
-
-          if (confirmation!.confirmedRound) {
-            toast.success('Asset opt-out successfully')
-            set(isActiveAccountStaleAtom, true)
-          } else {
-            // TODO: this doesn't throw on 400
-            toast.error(
-              confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset'
-            )
-          }
-        } catch (error) {
-          toast.error('Failed to opt-out, unknown error')
-        }
-      },
-      [asset.id, signTransactions]
-    )
-  )
-
-  const optIn = useAtomCallback(
-    useCallback(
-      async (get, set) => {
-        const activeAccount = await get(activeAccountAtom)
-
-        if (!activeAccount) {
-          return
-        }
-        const algorandClient = AlgorandClient.fromClients({
-          algod,
-          indexer,
-        })
-        const signer = (txnGroup: algosdk.Transaction[], indexesToSign: number[]) => {
-          const encodedTransactions = txnGroup.map((txn) => algosdk.encodeUnsignedTransaction(txn))
-          return signTransactions(encodedTransactions, indexesToSign)
-        }
-        algorandClient.setDefaultSigner(signer)
-        try {
-          const sendResult = await algorandClient.send.assetOptIn(
-            {
-              assetId: BigInt(asset.id),
-              sender: activeAccount.address,
-            },
-            {}
-          )
-          if (sendResult.confirmation.confirmedRound) {
-            toast.success('Asset opt-in successfully')
-            set(isActiveAccountStaleAtom, true)
-          } else {
-            toast.error(
-              sendResult.confirmation.poolError
-                ? `Failed to opt-in to asset due to ${sendResult.confirmation.poolError}`
-                : 'Failed to opt-in to asset'
-            )
-          }
-        } catch (error) {
-          console.error(error)
-          toast.error('Failed to opt-in, unknown error')
-        }
-      },
-      [asset.id, signTransactions]
-    )
-  )
-
-  return {
-    canOptIn: useAtomValue(loadable(canOptIn)),
-    canOptOut: useAtomValue(loadable(canOptOut)),
-    optIn,
-    optOut,
-  }
 }

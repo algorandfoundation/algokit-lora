@@ -13,6 +13,7 @@ const buttonVariants = cva(
         default: 'bg-primary text-primary-foreground hover:bg-primary/90',
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         outline: 'border border-input bg-card hover:bg-accent hover:text-accent-foreground',
+        outlineSecondary: 'border border-secondary bg-card text-secondary hover:bg-accent hover:text-secondary/90',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
@@ -43,14 +44,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, va
 })
 Button.displayName = 'Button'
 
-// TODO: rename to AsyncActionButton
-export interface LoadbleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+export interface AsyncActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
   onClick?: () => Promise<void>
+  icon?: React.ReactNode
 }
 
-const LoadbleButton = React.forwardRef<HTMLButtonElement, LoadbleButtonProps>(
-  ({ className, variant, size, asChild = false, children, onClick: onClickProp, disabled: disabledProp, ...props }, ref) => {
+const AsyncActionButton = React.forwardRef<HTMLButtonElement, AsyncActionButtonProps>(
+  ({ className, variant, size, asChild = false, children, onClick: onClickProp, disabled: disabledProp, icon, ...props }, ref) => {
     const [isLoading, setIsLoading] = useState(false)
 
     const onClick = useCallback(async () => {
@@ -62,7 +63,6 @@ const LoadbleButton = React.forwardRef<HTMLButtonElement, LoadbleButtonProps>(
           setIsLoading(false)
         }
       }
-      // TODO: handle error
     }, [onClickProp])
 
     const disabled = disabledProp || isLoading
@@ -70,11 +70,14 @@ const LoadbleButton = React.forwardRef<HTMLButtonElement, LoadbleButtonProps>(
     const Comp = asChild ? Slot : 'button'
     return (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} disabled={disabled} onClick={onClick} {...props}>
-        {isLoading ? <Loader className="size-6 animate-spin" /> : children}
+        <div className="flex items-center gap-2">
+          {!isLoading && icon}
+          {isLoading ? <Loader className="size-6 animate-spin" /> : children}
+        </div>
       </Comp>
     )
   }
 )
-LoadbleButton.displayName = 'LoadbleButton'
+AsyncActionButton.displayName = 'AsyncActionButton'
 
-export { Button, buttonVariants, LoadbleButton }
+export { Button, buttonVariants, AsyncActionButton }
