@@ -27,7 +27,8 @@ export const getActiveWalletAccount = async (address: string) => {
 
   return {
     address: address,
-    // TODO: check if the assetId is a number or bigint
+    // In algosdk, the asset ID has type bigint | number
+    // but in lora, we use number only
     assetHolding: new Map(assetHolding.map((asset) => [Number(asset.assetId), { amount: asset.amount }])),
   }
 }
