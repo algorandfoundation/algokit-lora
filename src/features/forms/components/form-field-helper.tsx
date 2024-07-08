@@ -2,6 +2,7 @@
 import { TextFormItem, TextFormItemProps } from '@/features/forms/components/text-form-item'
 import { NumberFormItem, NumberFormItemProps } from '@/features/forms/components/number-form-item'
 import { SelectFormItem, SelectFormItemProps } from '@/features/forms/components/select-form-item'
+import { CheckboxFormItem, CheckboxFormItemProps } from '@/features/forms/components/checkbox-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, any>> {
   private readonly fieldPrefix: string
@@ -27,5 +28,9 @@ export class FormFieldHelper<TSchema extends Record<string, any>> {
 
   selectField(props: SelectFormItemProps<TSchema>) {
     return <SelectFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  checkboxField(props: CheckboxFormItemProps<TSchema>) {
+    return <CheckboxFormItem {...this.prefixFieldProp(props)} />
   }
 }
