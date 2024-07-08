@@ -9,7 +9,7 @@ type Props = {
 export function AssetMedia({ asset }: Props) {
   return asset.media ? (
     <Card aria-label={assetMediaLabel}>
-      <CardContent className={'flex aspect-square w-44 justify-center'}>
+      <CardContent className={'flex w-full justify-center md:aspect-square md:w-44'}>
         {asset.media.type === AssetMediaType.Image && <img className={'size-full object-cover'} src={asset.media.url} alt={asset.name} />}
         {asset.media.type === AssetMediaType.Video && (
           <video title={asset.name} autoPlay playsInline loop controls muted>
