@@ -11,17 +11,18 @@ import { indexer } from '@/features/common/data/algo-client'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
-  const result = await indexer
+  return await indexer
     .lookupBlock(round)
     .do()
     .then((result) => {
-      const [transactionIds, groupResults] = ((result.transactions ?? []) as TransactionResult[]).reduce(
+      const { transactions, ...block } = result
+      const [transactionIds, groupResults] = ((transactions ?? []) as TransactionResult[]).reduce(
         (acc, t) => {
           // Accumulate transactions
           acc[0].push(t.id)
 
           // Accumulate group results
-          accumulateGroupsFromTransaction(acc[1], t, result.round, result.timestamp)
+          accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
 
           return acc
         },
@@ -30,16 +31,13 @@ export const getBlockAndExtractData = async (round: Round) => {
 
       return [
         {
-          round: result.round as number,
-          timestamp: new Date(result.timestamp * 1000).toISOString(),
+          ...block,
           transactionIds,
         } as BlockResult,
-        (result.transactions ?? []) as TransactionResult[],
+        (transactions ?? []) as TransactionResult[],
         Array.from(groupResults.values()),
       ] as const
     })
-
-  return result
 }
 
 export const accumulateGroupsFromTransaction = (

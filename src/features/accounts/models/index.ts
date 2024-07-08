@@ -33,5 +33,5 @@ export type Account = {
   totalAssetsOptedIn: number // Includes both held and opted assets
   assetsOpted: AssetHolding[]
   rekeyedTo?: Address
-  json: object
+  json: string
 }

@@ -11,11 +11,10 @@ const reduceAllTransactions = (
   acc: [Map<TransactionType, number>, number, number],
   transaction: TransactionsSummaryInput
 ): [Map<TransactionType, number>, number, number] => {
-  const nextAcc = (transaction.innerTransactions ?? []).reduce(reduceAllTransactions, acc)
-  nextAcc[0].set(transaction.type, (nextAcc[0].get(transaction.type) ?? 0) + 1) // countByType accumulation
-  nextAcc[1] = nextAcc[1] + transaction.fee.microAlgos // feeTotal accumulation
-  nextAcc[2] = nextAcc[2] + 1 // transactionCount accumulation
-  return nextAcc
+  acc[0].set(transaction.type, (acc[0].get(transaction.type) ?? 0) + 1) // countByType accumulation
+  acc[1] = acc[1] + transaction.fee.microAlgos // feeTotal accumulation
+  acc[2] = acc[2] + 1 // transactionCount accumulation
+  return (transaction.innerTransactions ?? []).reduce(reduceAllTransactions, acc)
 }
 
 export const asTransactionsSummary = (transactions: TransactionsSummaryInput[]): TransactionsSummary => {
