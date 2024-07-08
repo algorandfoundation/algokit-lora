@@ -23,7 +23,7 @@ import { algod } from '@/features/common/data/algo-client'
 import { createTimestamp, maxBlocksToDisplay } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
-import { activeWalletAccountAtom, isActiveWalletAccountStaleAtom } from '@/features/wallet/data/active-wallet-account'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
 
 const runningSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
 const subscriberStatusAtom = atom<SubscriberStatus>(runningSubscriberStatus)
@@ -255,8 +255,8 @@ const subscriberAtom = atom(null, (get, set) => {
 
       const activeAccount = await get(activeWalletAccountAtom)
       const latestRound = result.blockMetadata[result.blockMetadata.length - 1].round
-      if (activeAccount && staleAddresses.includes(activeAccount.address) && latestRound > activeAccount.latestRound) {
-        set(isActiveWalletAccountStaleAtom, true)
+      if (activeAccount && staleAddresses.includes(activeAccount.address) && latestRound > activeAccount.validAtRound) {
+        set(activeWalletAccountAtom)
       }
     }
 

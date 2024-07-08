@@ -2,7 +2,7 @@ import { Asset } from '@/features/assets/models'
 import { useWallet } from '@txnlab/use-wallet'
 import { useCallback, useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai/index'
-import { activeWalletAccountAtom, isActiveWalletAccountStaleAtom } from '@/features/wallet/data/active-wallet-account'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
 import { loadable, useAtomCallback } from 'jotai/utils'
 import algosdk from 'algosdk'
 import { AlgorandClient, getTransactionParams, sendTransaction } from '@algorandfoundation/algokit-utils'
@@ -69,7 +69,7 @@ export const useAssetOptInOut = (asset: Asset) => {
 
           if (confirmation!.confirmedRound) {
             toast.success('Asset opt-out successful')
-            set(isActiveWalletAccountStaleAtom, true)
+            set(activeWalletAccountAtom)
           } else {
             toast.error(
               confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset'
@@ -110,7 +110,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           )
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successful')
-            set(isActiveWalletAccountStaleAtom, true)
+            set(activeWalletAccountAtom)
           } else {
             toast.error(
               sendResult.confirmation.poolError
