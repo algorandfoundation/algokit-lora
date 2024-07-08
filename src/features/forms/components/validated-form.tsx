@@ -4,7 +4,8 @@ import { useCallback, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
 import { cn } from '@/features/common/utils'
-import { FormFieldHelper } from '@/features/forms/components/form'
+
+import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 
 export interface ValidatedFormProps<TData, TSchema extends Record<string, any>> {
   className?: string

@@ -2,7 +2,7 @@ import { Controller, FieldPath } from 'react-hook-form'
 import { forwardRef } from 'react'
 import { NumericFormat } from 'react-number-format'
 import { cn } from '@/features/common/utils'
-import { FormItem, FormItemProps } from '@/features/forms/components/form'
+import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
 
 type InputProps = {
   decimalScale?: number

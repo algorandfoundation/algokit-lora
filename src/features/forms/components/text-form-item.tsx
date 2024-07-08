@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form'
-import { FormItem, FormItemProps } from '@/features/forms/components/form'
+import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
 
 export interface TextFormItemProps<TSchema extends Record<string, any> = Record<string, any>>
   extends Omit<FormItemProps<TSchema>, 'children'> {
