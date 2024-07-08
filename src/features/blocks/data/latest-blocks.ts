@@ -212,7 +212,8 @@ const subscriberAtom = atom(null, (get, set) => {
       }
 
       const activeAccount = await get(activeWalletAccountAtom)
-      if (activeAccount && staleAddresses.includes(activeAccount.address)) {
+      const latestRound = result.blockMetadata[result.blockMetadata.length - 1].round
+      if (activeAccount && staleAddresses.includes(activeAccount.address) && latestRound > activeAccount.latestRound) {
         set(isActiveWalletAccountStaleAtom, true)
       }
     }

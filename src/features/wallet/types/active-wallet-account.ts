@@ -4,6 +4,7 @@ import { AssetId } from '@/features/assets/data/types'
 export type ActiveWalletAccount = {
   address: Address
   assetHolding: Map<AssetId, AccountAssetHolding>
+  latestRound: number
 }
 type AccountAssetHolding = {
   amount: number | bigint
