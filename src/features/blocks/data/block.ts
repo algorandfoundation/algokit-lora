@@ -36,7 +36,7 @@ const createBlockAtom = (round: Round) => {
     const transactions = get(createTransactionsAtom(transactionResults))
     get(setNextRoundWhenAvailableEffect)
 
-    return asBlock(blockResult, transactions, nextRoundWhenAvailableAtom)
+    return asBlock(blockResult, transactions, transactionResults, nextRoundWhenAvailableAtom)
   })
 }
 

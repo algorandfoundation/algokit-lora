@@ -53,7 +53,7 @@ describe('explore-page', () => {
   describe('when a small number of blocks have been processed', () => {
     const transactionResult1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
     const transactionResults = [transactionResult1]
-    const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp('2024-02-29T06:52:01Z').build()
+    const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
     myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
@@ -72,7 +72,7 @@ describe('explore-page', () => {
             const blockCard1 = blockCards[0]
             expect(getByRole(blockCard1, 'heading').textContent).toBe(block.round.toString())
             expect(blockCard1.textContent).toContain('1 transaction')
-            expect(blockCard1.textContent).toContain('Thu, 29 February 2024 06:52:011')
+            expect(blockCard1.textContent).toContain('Tue, 25 June 2024 03:03:381')
           })
         }
       )

@@ -12,6 +12,7 @@ export type Block = CommonBlockProperties & {
   previousRound?: number
   nextRound: AsyncMaybeAtom<number>
   transactions: Transaction[]
+  json: string
 }
 
 export type BlockSummary = CommonBlockProperties & {

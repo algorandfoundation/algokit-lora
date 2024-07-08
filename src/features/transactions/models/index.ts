@@ -13,7 +13,7 @@ export type CommonTransactionProperties = {
   sender: Address
   note?: string
   signature?: Singlesig | Multisig | Logicsig
-  json: object
+  json: string
   rekeyTo?: Address
 }
 

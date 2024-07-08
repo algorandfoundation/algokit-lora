@@ -17,6 +17,7 @@
 
 .label {
   margin-right: 5px;
+  text-wrap: nowrap;
 }
 
 .clickable-label {

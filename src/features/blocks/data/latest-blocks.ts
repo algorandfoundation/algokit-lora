@@ -13,7 +13,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { addStateExtractedFromBlocksAtom, accumulateGroupsFromTransaction } from './block-result'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { AssetId } from '@/features/assets/data/types'
-import { BalanceChangeRole } from '@algorandfoundation/algokit-subscriber/types/subscription'
+import { BalanceChange, BalanceChangeRole, SubscribedTransaction } from '@algorandfoundation/algokit-subscriber/types/subscription'
 import { accountResultsAtom } from '@/features/accounts/data'
 import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
@@ -76,6 +76,18 @@ const subscriberAtom = atom(null, (get, set) => {
     algod
   )
 
+  const reduceAllTransactions = (acc: BalanceChange[], transaction: SubscribedTransaction): BalanceChange[] => {
+    if (transaction.balanceChanges && transaction.balanceChanges.length > 0) {
+      acc.push(...transaction.balanceChanges)
+    }
+    transaction.id = ''
+    transaction.balanceChanges = undefined
+    transaction.filtersMatched = undefined
+    transaction.arc28Events = undefined
+
+    return (transaction.innerTransactions ?? []).reduce(reduceAllTransactions, acc)
+  }
+
   subscriber.onPoll(async (result) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
       return
@@ -97,7 +109,8 @@ const subscriberAtom = atom(null, (get, set) => {
           if (!t.parentTransactionId && t['confirmed-round'] != null) {
             const round = t['confirmed-round']
             // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
-            const { filtersMatched: _filtersMatched, balanceChanges, arc28Events: _arc28Events, ...transaction } = t
+            const { filtersMatched: _filtersMatched, balanceChanges: _balanceChanges, arc28Events: _arc28Events, ...transaction } = t
+            const balanceChanges = (transaction['inner-txns'] ?? []).reduce(reduceAllTransactions, _balanceChanges ?? [])
 
             // Accumulate transaction ids by round
             acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
@@ -165,13 +178,42 @@ const subscriberAtom = atom(null, (get, set) => {
           ApplicationId[],
         ]
       )
-
     const blockResults = result.blockMetadata.map((b) => {
       return {
         round: b.round,
         timestamp: b.timestamp,
+        ['genesis-id']: b.genesisId,
+        ['genesis-hash']: b.genesisHash,
+        ['previous-block-hash']: b.previousBlockHash ? b.previousBlockHash : '',
+        seed: b.seed ?? '',
+        ...(b.rewards
+          ? {
+              rewards: {
+                ['fee-sink']: b.rewards.feeSink,
+                ['rewards-level']: b.rewards.rewardsLevel,
+                ['rewards-calculation-round']: b.rewards.rewardsCalculationRound,
+                ['rewards-pool']: b.rewards.rewardsPool,
+                ['rewards-residue']: Number(b.rewards.rewardsResidue),
+                ['rewards-rate']: b.rewards.rewardsRate,
+              },
+            }
+          : undefined),
+        ...(b.upgradeState
+          ? {
+              ['upgrade-state']: {
+                ['current-protocol']: b.upgradeState.currentProtocol,
+                ['next-protocol']: b.upgradeState.nextProtocol,
+                ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals,
+                ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore,
+                ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn,
+              },
+            }
+          : undefined),
+        ['txn-counter']: b.txnCounter,
+        ['transactions-root']: b.transactionsRoot,
+        ['transactions-root-sha256']: b.transactionsRootSha256,
         transactionIds: blockTransactionIds.get(b.round) ?? [],
-      } as BlockResult
+      } satisfies BlockResult
     })
 
     if (staleAssetIds.length > 0) {

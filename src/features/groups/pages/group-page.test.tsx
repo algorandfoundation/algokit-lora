@@ -100,7 +100,7 @@ describe('group-page', () => {
                 { term: groupIdLabel, description: '/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=' },
                 { term: blockLabel, description: '36591812' },
                 { term: timestampLabel, description: 'Fri, 01 March 2024 01:07:53' },
-                { term: transactionsLabel, description: '15Payment=3Asset Transfer=6Application Call=6' },
+                { term: transactionsLabel, description: '15Application Call=6Payment=3Asset Transfer=6' },
               ],
             })
           )
