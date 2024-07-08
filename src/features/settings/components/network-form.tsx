@@ -1,6 +1,7 @@
-import { Form, FormActions, SubmitButton } from '@/features/forms/components/form'
+import { Form, FormActions } from '@/features/forms/components/form'
 import { zfd } from 'zod-form-data'
 import { useCallback } from 'react'
+import { SubmitButton } from '@/features/forms/components/submit-button'
 
 const networkSchema = zfd.formData({
   name: zfd.text(),

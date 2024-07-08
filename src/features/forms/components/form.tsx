@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
-import { Controller, DefaultValues, FieldPath, FormProvider, useForm, useFormContext } from 'react-hook-form'
-import { cloneElement, forwardRef, ReactElement, ReactNode, useCallback, useState } from 'react'
-import { NumericFormat } from 'react-number-format'
+import { DefaultValues, FieldPath } from 'react-hook-form'
+import { cloneElement, ReactElement, ReactNode, useCallback } from 'react'
 import { cn } from '@/features/common/utils'
-import { FormStateContextProvider, useFieldMetaData, useFormState } from '@/features/forms/hooks/form-state-context'
+import { useFieldMetaData } from '@/features/forms/hooks/form-state-context'
 import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@/features/common/components/button'
+import { ValidationErrorMessage } from '@/features/forms/components/validation-error-message'
+import { TextFormItem, TextFormItemProps } from '@/features/forms/components/text-form-item'
+import { NumberFormItem, NumberFormItemProps } from '@/features/forms/components/number-form-item'
+import { ValidatedForm } from '@/features/forms/components/validated-form'
 
 export interface FormProps<TData, TSchema extends Record<string, any>> {
   className?: string
@@ -103,168 +104,5 @@ export function FormItem<TSchema extends Record<string, any> = Record<string, an
       </label>
       <ValidationErrorMessage message={error?.message} />
     </div>
-  )
-}
-
-export interface ValidationErrorMessageProps {
-  message?: string
-}
-
-export function ValidationErrorMessage({ message }: ValidationErrorMessageProps) {
-  return message ? <p>{message}</p> : <></>
-}
-
-export interface TextFormItemProps<TSchema extends Record<string, any> = Record<string, any>>
-  extends Omit<FormItemProps<TSchema>, 'children'> {
-  placeholder?: string
-}
-
-export function TextFormItem<TSchema extends Record<string, any> = Record<string, any>>({
-  field,
-  placeholder,
-  ...props
-}: TextFormItemProps<TSchema>) {
-  const { register } = useFormContext<TSchema>()
-
-  return (
-    <FormItem {...props} field={field}>
-      <input autoComplete={'off'} type="text" {...register(field)} placeholder={placeholder} disabled={props.disabled} />
-    </FormItem>
-  )
-}
-
-type InputProps = {
-  decimalScale?: number
-  className?: string
-  placeholder?: string
-  disabled?: boolean
-}
-
-export type InputNumberProps<TSchema extends Record<string, any> = Record<string, any>> = InputProps & {
-  field: FieldPath<TSchema>
-}
-
-export function InputNumber<TSchema extends Record<string, any> = Record<string, any>>({ field, ...rest }: InputNumberProps<TSchema>) {
-  return <Controller render={({ field }) => <NumberFormat {...field} {...rest} />} name={field} />
-}
-
-type NumberFormatProps = InputProps & {
-  value: number | undefined
-  onChange: (value: number | undefined) => void
-}
-const NumberFormat = forwardRef<HTMLInputElement, NumberFormatProps>(({ onChange, value, className, decimalScale, ...rest }, ref) => {
-  return (
-    <NumericFormat
-      className={cn(className)}
-      getInputRef={ref}
-      value={value}
-      thousandSeparator={true}
-      decimalScale={decimalScale ?? 0}
-      onValueChange={(target) => {
-        onChange(target.floatValue ?? (null as unknown as number))
-      }}
-      {...rest}
-    />
-  )
-})
-
-export interface NumberFormItemProps<TSchema extends Record<string, any> = Record<string, any>>
-  extends Omit<FormItemProps<TSchema>, 'children'> {
-  decimalScale?: number
-  placeholder?: string
-}
-
-export function NumberFormItem<TSchema extends Record<string, any> = Record<string, any>>({
-  field,
-  placeholder,
-  decimalScale,
-  disabled,
-  ...props
-}: NumberFormItemProps<TSchema>) {
-  return (
-    <FormItem {...props} field={field} disabled={disabled}>
-      <InputNumber field={field} placeholder={placeholder} decimalScale={decimalScale} disabled={disabled} />
-    </FormItem>
-  )
-}
-
-export interface ValidatedFormProps<TData, TSchema extends Record<string, any>> {
-  className?: string
-  children: React.ReactNode | ((helper: FormFieldHelper<TSchema>) => React.ReactNode)
-  validator: z.ZodEffects<any, TSchema, any>
-  defaultValues?: DefaultValues<TSchema>
-  onSubmit?(values: TSchema): Promise<TData>
-}
-
-export function ValidatedForm<TData, TSchema extends Record<string, any>>({
-  className,
-  children,
-  validator,
-  defaultValues,
-  onSubmit: onSubmitProp,
-}: ValidatedFormProps<TData, TSchema>) {
-  const [submitting, setSubmitting] = useState(false)
-  const formCtx = useForm<TSchema>({
-    resolver: zodResolver(validator),
-    defaultValues,
-    mode: 'onBlur',
-  })
-
-  const onSubmit = useCallback(
-    async (values: TSchema) => {
-      setSubmitting(true)
-      try {
-        await onSubmitProp?.(values)
-      } finally {
-        setSubmitting(false)
-      }
-    },
-    [onSubmitProp]
-  )
-
-  const handleSubmit = onSubmit && formCtx.handleSubmit(onSubmit)
-
-  return (
-    <FormStateContextProvider
-      value={{
-        submitting,
-        validator,
-      }}
-    >
-      <FormProvider {...formCtx}>
-        <form className={cn(className)} onSubmit={handleSubmit}>
-          {typeof children === 'function' ? children(new FormFieldHelper<TSchema>()) : children}
-        </form>
-      </FormProvider>
-    </FormStateContextProvider>
-  )
-}
-
-export interface FormActionsProps {
-  className?: string
-  children?: ReactNode
-}
-
-export function FormActions({ className, children }: FormActionsProps) {
-  return (
-    <div className={cn(className)}>
-      <div className={cn()}>{children}</div>
-    </div>
-  )
-}
-
-export interface SubmitButtonProps {
-  className?: string
-  icon?: ReactElement
-  children?: React.ReactNode
-}
-
-export function SubmitButton({ className, children, icon }: SubmitButtonProps) {
-  // const { submitting } = useFormState()
-  // TODO: loading state
-  return (
-    <Button variant={'default'} type={'submit'} className={cn(className)} icon={icon}>
-      {children}
-    </Button>
   )
 }
