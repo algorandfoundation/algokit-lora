@@ -68,7 +68,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           )
 
           if (confirmation!.confirmedRound) {
-            toast.success('Asset opt-out successfully')
+            toast.success('Asset opt-out successful')
             set(isActiveWalletAccountStaleAtom, true)
           } else {
             toast.error(
@@ -109,7 +109,7 @@ export const useAssetOptInOut = (asset: Asset) => {
             {}
           )
           if (sendResult.confirmation.confirmedRound) {
-            toast.success('Asset opt-in successfully')
+            toast.success('Asset opt-in successful')
             set(isActiveWalletAccountStaleAtom, true)
           } else {
             toast.error(

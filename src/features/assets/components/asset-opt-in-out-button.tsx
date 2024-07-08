@@ -4,22 +4,25 @@ import { CircleArrowOutDownRight, CircleX, Loader2 as Loader } from 'lucide-reac
 import { Button, AsyncActionButton } from '@/features/common/components/button'
 import { Asset } from '@/features/assets/models'
 
+const optInLabel = 'Opt-in'
+const optOutLabel = 'Opt-out'
+
 export function AssetOptInOutButton({ asset }: { asset: Asset }) {
   const { status: assetOptInOutStatus, optIn, optOut } = useAssetOptInOut(asset)
 
   const optInButton = (
     <AsyncActionButton onClick={optIn} className={'w-28'} variant={'outline-secondary'} icon={<CircleArrowOutDownRight />}>
-      Opt-in
+      {optInLabel}
     </AsyncActionButton>
   )
   const optOutButton = (
     <AsyncActionButton onClick={optOut} className={'w-28'} variant={'outline-secondary'} icon={<CircleX />}>
-      Opt-out
+      {optOutLabel}
     </AsyncActionButton>
   )
   const disabledButton = (
     <Button variant={'outline-secondary'} disabled={true} className={'w-28'} icon={<CircleArrowOutDownRight />}>
-      Opt-in
+      {optInLabel}
     </Button>
   )
   const loadingButton = (

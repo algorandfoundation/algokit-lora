@@ -504,7 +504,7 @@ describe('transaction-page', () => {
             container: component.container,
             items: [
               { term: transactionIdLabel, description: transaction.id },
-              { term: transactionTypeLabel, description: 'Asset TransferOpt-Out' },
+              { term: transactionTypeLabel, description: 'Asset TransferOpt-out' },
               { term: transactionTimestampLabel, description: 'Thu, 20 July 2023 19:08:03' },
               { term: transactionBlockLabel, description: '30666726' },
               { term: transactionFeeLabel, description: '0.001' },
@@ -562,7 +562,7 @@ describe('transaction-page', () => {
           await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
           const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
           expect(transactionTypeDescription).toContain('Asset Transfer')
-          expect(transactionTypeDescription).toContain('Opt-In')
+          expect(transactionTypeDescription).toContain('Opt-in')
         }
       )
     })
@@ -587,7 +587,7 @@ describe('transaction-page', () => {
           await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
           const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
           expect(transactionTypeDescription).toContain('Asset Transfer')
-          expect(transactionTypeDescription).toContain('Opt-Out')
+          expect(transactionTypeDescription).toContain('Opt-out')
         }
       )
     })
