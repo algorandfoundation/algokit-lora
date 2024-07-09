@@ -504,7 +504,7 @@ describe('transaction-page', () => {
             container: component.container,
             items: [
               { term: transactionIdLabel, description: transaction.id },
-              { term: transactionTypeLabel, description: 'Asset TransferOpt-Out' },
+              { term: transactionTypeLabel, description: 'Asset TransferOpt-out' },
               { term: transactionTimestampLabel, description: 'Thu, 20 July 2023 19:08:03' },
               { term: transactionBlockLabel, description: '30666726' },
               { term: transactionFeeLabel, description: '0.001' },
@@ -562,7 +562,32 @@ describe('transaction-page', () => {
           await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
           const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
           expect(transactionTypeDescription).toContain('Asset Transfer')
-          expect(transactionTypeDescription).toContain('Opt-In')
+          expect(transactionTypeDescription).toContain('Opt-in')
+        }
+      )
+    })
+  })
+
+  describe('when rendering an asset opt-out transaction', () => {
+    const transaction = transactionResultMother['testnet-DWVIXKZ2URUOKVZRBRJHMERSPIWTMLFFLLVKH5RATFGNPT7VVNIA']().build()
+    const asset = assetResultMother['testnet-210971834']().build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      const myStore = createStore()
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component) => {
+          // waitFor the loading state to be finished
+          await waitFor(() => expect(getByDescriptionTerm(component.container, transactionIdLabel).textContent).toBe(transaction.id))
+          const transactionTypeDescription = getByDescriptionTerm(component.container, transactionTypeLabel).textContent
+          expect(transactionTypeDescription).toContain('Asset Transfer')
+          expect(transactionTypeDescription).toContain('Opt-out')
         }
       )
     })

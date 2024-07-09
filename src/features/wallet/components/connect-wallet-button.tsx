@@ -3,7 +3,6 @@ import { cn } from '@/features/common/utils'
 import { Account, PROVIDER_ID, Provider, clearAccounts, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { buttonVariants } from '@/features/common/components/button'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
 import { localnetConfig, mainnetConfig, useNetworkConfig } from '@/features/settings/data'
@@ -36,7 +35,7 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="hidden w-40 md:flex" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
+    <Button className="hidden w-36 md:flex" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
       {connectWalletLabel}
     </Button>
   )
@@ -87,7 +86,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="hidden w-40 md:flex" variant="outline">
+        <Button className="hidden w-36 md:flex" variant="outline">
           {activeProvider &&
             (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -103,7 +102,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
           </abbr>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-60 border p-2" onOpenAutoFocus={preventDefault}>
+      <PopoverContent align="end" className="w-56 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
             <abbr className="ml-1 w-full">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
@@ -126,7 +125,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
               </Select>
             </>
           )}
-          <AccountLink address={activeAddress} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'ml-2')}>
+          <AccountLink address={activeAddress} className={cn('ml-2 text-primary underline text-sm')}>
             View
           </AccountLink>
         </div>
@@ -173,7 +172,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="hidden w-40 md:flex" variant="outline" disabled>
+      <Button className="hidden w-36 md:flex" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>

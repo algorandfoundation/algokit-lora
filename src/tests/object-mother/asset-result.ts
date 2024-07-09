@@ -524,4 +524,25 @@ export const assetResultMother = {
       },
     })
   },
+  'testnet-210971834': () => {
+    return new AssetResultBuilder({
+      index: 210971834,
+      params: {
+        clawback: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
+        creator: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
+        decimals: 6,
+        'default-frozen': false,
+        freeze: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
+        manager: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
+        name: 'CT-TEF - Laza-Touza',
+        'name-b64': encoder.encode('Q1QtVEVGIC0gTGF6YS1Ub3V6YQ=='),
+        reserve: 'LTBSRXEMYSIPDDKNSJUHMKJQSK3JJHZVGSSPXHDYBC5GTOU6V7HQTM7RHI',
+        total: 9223372036854776000,
+        'unit-name': 'CO2P',
+        'unit-name-b64': encoder.encode('Q08yUA=='),
+        url: 'https://www.climatetrade.com',
+        'url-b64': encoder.encode('aHR0cHM6Ly93d3cuY2xpbWF0ZXRyYWRlLmNvbQ=='),
+      },
+    })
+  },
 }

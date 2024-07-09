@@ -2662,4 +2662,33 @@ export const transactionResultMother = {
       'tx-type': 'appl',
     } as unknown as TransactionResult)
   },
+  ['testnet-DWVIXKZ2URUOKVZRBRJHMERSPIWTMLFFLLVKH5RATFGNPT7VVNIA']: () => {
+    return new TransactionResultBuilder({
+      'asset-transfer-transaction': {
+        amount: 0,
+        'asset-id': 210971834,
+        'close-amount': 0,
+        'close-to': '5UYDKHNRMDWJFG2VD3LFAR2FSJSKRNK3V45IEOBLNTVVF365DIVFGUMTNA',
+        receiver: '5UYDKHNRMDWJFG2VD3LFAR2FSJSKRNK3V45IEOBLNTVVF365DIVFGUMTNA',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 41587590,
+      fee: 1000,
+      'first-valid': 41587586,
+      'genesis-hash': 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+      'genesis-id': 'testnet-v1.0',
+      id: 'DWVIXKZ2URUOKVZRBRJHMERSPIWTMLFFLLVKH5RATFGNPT7VVNIA',
+      'intra-round-offset': 1,
+      'last-valid': 41588586,
+      'receiver-rewards': 0,
+      'round-time': 1720144832,
+      sender: '5UYDKHNRMDWJFG2VD3LFAR2FSJSKRNK3V45IEOBLNTVVF365DIVFGUMTNA',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'hHxb/1D5G3EdCwTZ6vWjXTeMFLIa7zAdc0ZxYkcAggWBwepWLO0pgyR9jCG7e4kVTanfoadImmys/M56DYUdBg==',
+      },
+      'tx-type': TransactionType.axfer,
+    }) as unknown as TransactionResult
+  },
 }

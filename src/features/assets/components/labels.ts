@@ -8,6 +8,7 @@ export const assetTotalSupplyLabel = 'Total Supply'
 export const assetMetadataHashLabel = 'Metadata Hash'
 export const assetDefaultFrozenLabel = 'Default Frozen'
 export const assetUrlLabel = 'URL'
+export const assetMediaLabel = 'Asset Media'
 
 export const assetAddressesLabel = 'Asset Addresses'
 export const assetCreatorLabel = 'Creator'
