@@ -10,7 +10,7 @@ const serverSchema = z.object({
   server: zfd.text(z.string().url()),
   port: zfd.numeric(z.number().min(0).max(65535)),
   token: zfd.text(z.string().optional()),
-  promptForToken: z.boolean(),
+  promptForToken: z.boolean().optional(),
 })
 
 const networkSchema = zfd.formData({
@@ -99,10 +99,10 @@ export function NetworkForm() {
               label: 'Port',
               field: 'algod.port',
             })}
-            {/*{helper.checkboxField({*/}
-            {/*  label: 'Prompt for Token',*/}
-            {/*  field: 'algod.promptForToken',*/}
-            {/*})}*/}
+            {helper.checkboxField({
+              label: 'Prompt for Token',
+              field: 'algod.promptForToken',
+            })}
             {helper.textField({
               label: 'Token',
               field: 'algod.token',

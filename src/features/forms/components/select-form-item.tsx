@@ -23,6 +23,7 @@ export function SelectFormItem<TSchema extends Record<string, any>>({
   className,
   ...props
 }: SelectFormItemProps<TSchema>) {
+  // TODO: handle disabled and error class
   return (
     <FormItem field={field} {...props}>
       <Controller
