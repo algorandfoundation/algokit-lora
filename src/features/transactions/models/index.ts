@@ -28,9 +28,9 @@ export enum TransactionType {
 }
 
 export enum AssetTransferTransactionSubType {
-  OptIn = 'Opt-In',
+  OptIn = 'Opt-in',
   Clawback = 'Clawback',
-  OptOut = 'Opt-Out',
+  OptOut = 'Opt-out',
 }
 
 export type CloseAlgoRemainder = {
@@ -150,7 +150,7 @@ export type AppCallTransaction = BaseAppCallTransaction & {
 
 export enum AppCallOnComplete {
   NoOp = 'NoOp',
-  OptIn = 'Opt-In',
+  OptIn = 'Opt-in',
   CloseOut = 'Close Out',
   ClearState = 'Clear State',
   Update = 'Update',

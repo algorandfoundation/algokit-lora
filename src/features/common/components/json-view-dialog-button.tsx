@@ -26,7 +26,7 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel = defaultExpand
 
   return (
     <>
-      <Button className="ml-auto hidden md:flex" variant="outline" onClick={openJsonViewDialog}>
+      <Button className="ml-auto hidden w-28 md:flex" variant="outline" onClick={openJsonViewDialog}>
         View JSON
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>

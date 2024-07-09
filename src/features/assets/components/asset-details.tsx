@@ -38,6 +38,7 @@ import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
 
 type Props = {
   asset: Asset
@@ -146,17 +147,20 @@ export function AssetDetails({ asset }: Props) {
 
   return (
     <div className={cn('space-y-4')}>
-      <Card aria-label={assetDetailsLabel}>
-        <CardContent>
-          <div className={cn('flex gap-2')}>
-            <DescriptionList items={assetItems} />
-            <div className="ml-auto flex flex-col gap-2">
-              <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
-              <AssetMedia asset={asset} />
+      <div className={'flex flex-col gap-2 md:flex-row'}>
+        <Card aria-label={assetDetailsLabel} className={'flex-1'}>
+          <CardContent>
+            <div className={cn('flex gap-2')}>
+              <DescriptionList items={assetItems} />
+              <div className="ml-auto hidden flex-col-reverse justify-end gap-2 md:flex lg:flex-row">
+                <AssetOptInOutButton asset={asset} />
+                <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+        <AssetMedia asset={asset} />
+      </div>
       {asset.id !== 0 && (
         <>
           <Card>
