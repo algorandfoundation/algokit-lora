@@ -18,13 +18,21 @@ const networkSchema = zfd.formData({
   name: zfd.text(),
   indexer: serverSchema,
   algod: serverSchema,
-  // TODO: make fields non optional if 1 is specified
-  // kmd: z.object({
-  //   server: zfd.text(z.string().url().optional()),
-  //   port: zfd.numeric(z.number().min(0).max(65535).optional()),
-  //   token: zfd.text(z.string().optional()),
-  //   promptForToken: z.boolean().optional(),
-  // }),
+  kmd: z
+    .object({
+      server: zfd.text(z.string().url().optional()),
+      port: zfd.numeric(z.number().min(0).max(65535).optional()),
+      token: zfd.text(z.string().optional()),
+      promptForToken: z.boolean().optional(),
+    })
+    .refine((data) => (data.server ? data.port !== undefined : true), {
+      message: 'The port is required if the server is specified',
+      path: ['port'],
+    })
+    .refine((data) => (data.port ? data.server : true), {
+      message: 'The server is required if the port is specified',
+      path: ['server'],
+    }),
 })
 
 export function NetworkForm() {
@@ -81,7 +89,7 @@ export function NetworkForm() {
               field: 'indexer.port',
             })}
             {helper.checkboxField({
-              label: 'Prompt for Token',
+              label: 'Prompt for token',
               field: 'indexer.promptForToken',
             })}
             {helper.textField({
@@ -100,7 +108,7 @@ export function NetworkForm() {
               field: 'algod.port',
             })}
             {helper.checkboxField({
-              label: 'Prompt for Token',
+              label: 'Prompt for token',
               field: 'algod.promptForToken',
             })}
             {helper.textField({
@@ -108,21 +116,25 @@ export function NetworkForm() {
               field: 'algod.token',
             })}
           </fieldset>
-          {/*<fieldset>*/}
-          {/*  <legend>KMD</legend>*/}
-          {/*  {helper.textField({*/}
-          {/*    label: 'Server',*/}
-          {/*    field: 'kmd.server',*/}
-          {/*  })}*/}
-          {/*  {helper.numberField({*/}
-          {/*    label: 'Port',*/}
-          {/*    field: 'kmd.port',*/}
-          {/*  })}*/}
-          {/*  {helper.textField({*/}
-          {/*    label: 'Token',*/}
-          {/*    field: 'kmd.token',*/}
-          {/*  })}*/}
-          {/*</fieldset>*/}
+          <fieldset>
+            <legend>KMD</legend>
+            {helper.textField({
+              label: 'Server',
+              field: 'kmd.server',
+            })}
+            {helper.numberField({
+              label: 'Port',
+              field: 'kmd.port',
+            })}
+            {helper.checkboxField({
+              label: 'Prompt for token',
+              field: 'kmd.promptForToken',
+            })}
+            {helper.textField({
+              label: 'Token',
+              field: 'kmd.token',
+            })}
+          </fieldset>
           <FormActions>
             <SubmitButton>Save</SubmitButton>
           </FormActions>
