@@ -8,10 +8,7 @@ export const asError = (error: unknown) => {
     return error.error
   }
   if (error instanceof Object && 'message' in error && isString(error.message)) {
-    return {
-      ...error,
-      message: String(error.message), // To make TypeScript happy
-    }
+    return new Error(error.message)
   }
   return new Error(String(error))
 }
