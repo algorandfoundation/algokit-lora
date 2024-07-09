@@ -32,12 +32,12 @@ export function OpenJsonViewDialogButton({ json, expandJsonLevel = defaultExpand
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         {dialogOpen && (
           <DialogContent className="bg-card">
-            <DialogHeader className="flex-row items-center">
-              <h2>JSON</h2>
-              <CopyButton value={json} className="pb-3" />
+            <DialogHeader className="flex-row items-center space-y-0">
+              <h2 className="pb-0">JSON</h2>
+              <CopyButton value={json} />
             </DialogHeader>
-            <div className={cn('border grid w-auto min-w-[300px] h-[450px]')}>
-              <div className="overflow-auto px-1 py-3">
+            <div className={cn('border grid w-auto min-w-[450px] h-[450px] overflow-auto p-4')}>
+              <div className="ml-[-25px]">
                 <ReactJsonView data={JSON.parse(json)} shouldExpandNode={expandJsonLevel} style={currentStyle} />
               </div>
             </div>

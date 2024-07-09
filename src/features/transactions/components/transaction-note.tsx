@@ -91,7 +91,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
         </OverflowAutoTabsContent>
         {json && (
           <OverflowAutoTabsContent value={jsonNoteTabId} overflowContainerClassName="max-h-96">
-            <div className="ml-[-10px]">
+            <div className="ml-[-25px]">
               <ReactJsonView data={json} style={currentStyle} />
             </div>
           </OverflowAutoTabsContent>
@@ -106,7 +106,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
                 ]}
               />
               {arc2.format === 'j' && parseJson(arc2.data) ? (
-                <div className="ml-[-10px]">
+                <div className="ml-[-25px]">
                   <ReactJsonView data={parseJson(arc2.data)} style={currentStyle} />
                 </div>
               ) : (
