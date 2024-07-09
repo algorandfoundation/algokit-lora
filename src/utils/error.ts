@@ -1,9 +1,19 @@
+import { isString } from '@/utils/is-string'
+
 export const asError = (error: unknown) => {
-  return error instanceof Error
-    ? error
-    : error instanceof Object && 'error' in error && error.error instanceof Error
-      ? error.error
-      : new Error(String(error))
+  if (error instanceof Error) {
+    return error
+  }
+  if (error instanceof Object && 'error' in error && error.error instanceof Error) {
+    return error.error
+  }
+  if (error instanceof Object && 'message' in error && isString(error.message)) {
+    return {
+      ...error,
+      message: String(error.message), // To make TypeScript happy
+    }
+  }
+  return new Error(String(error))
 }
 
 export const is404 = (error: Error) => 'status' in error && error.status === 404

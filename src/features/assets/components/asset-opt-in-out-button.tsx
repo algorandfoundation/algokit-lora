@@ -10,7 +10,7 @@ const optOutLabel = 'Opt-out'
 
 function OptInButton({ onClick }: Pick<AsyncActionButtonProps, 'onClick'>) {
   return (
-    <AsyncActionButton onClick={onClick} className="w-28" variant="outline-secondary" icon={<CircleArrowOutDownRight />}>
+    <AsyncActionButton onClick={onClick} className="w-28" variant="outline-secondary" icon={<CircleArrowOutDownRight size={16} />}>
       {optInLabel}
     </AsyncActionButton>
   )
@@ -18,7 +18,7 @@ function OptInButton({ onClick }: Pick<AsyncActionButtonProps, 'onClick'>) {
 
 function OptOutButton({ onClick }: Pick<AsyncActionButtonProps, 'onClick'>) {
   return (
-    <AsyncActionButton onClick={onClick} className="w-28" variant="outline-secondary" icon={<CircleX />}>
+    <AsyncActionButton onClick={onClick} className="w-28" variant="outline-secondary" icon={<CircleX size={16} />}>
       {optOutLabel}
     </AsyncActionButton>
   )
@@ -33,7 +33,7 @@ function DisabledButton() {
     <Tooltip>
       <TooltipTrigger asChild>
         <span tabIndex={0}>
-          <Button disabled={true} className="w-28" variant="outline-secondary" icon={<CircleArrowOutDownRight />}>
+          <Button disabled={true} className="w-28" variant="outline-secondary" icon={<CircleArrowOutDownRight size={16} />}>
             {optInLabel}
           </Button>
         </span>
