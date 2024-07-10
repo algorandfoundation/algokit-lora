@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { NetworkConfig, networksConfigs } from '@/features/settings/data'
+import { NetworkConfig, useNetworksConfigs } from '@/features/settings/data'
 import { trimCharacterFromEnd } from '@/utils/trim-character-from-end'
 import { DataTable } from '@/features/common/components/data-table'
 import { Button } from '@/features/common/components/button'
@@ -8,6 +8,7 @@ import { useCallback, useState } from 'react'
 import { NetworkForm } from '@/features/settings/components/network-form'
 
 export function NetworksTable() {
+  const networksConfigs = useNetworksConfigs()
   return (
     <>
       <h2>Networks</h2>

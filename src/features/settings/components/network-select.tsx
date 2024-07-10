@@ -1,4 +1,4 @@
-import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
+import { useNetworksConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
@@ -6,7 +6,7 @@ import { useCallback } from 'react'
 
 export function NetworkSelect() {
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
-
+  const networksConfigs = useNetworksConfigs()
   const handleNetworkChange = useCallback(
     async (value: string) => {
       await setSelectedNetwork(value)

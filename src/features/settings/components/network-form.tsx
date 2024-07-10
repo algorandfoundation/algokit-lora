@@ -3,7 +3,7 @@ import { zfd } from 'zod-form-data'
 import { useCallback, useEffect, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { NetworkConfig } from '@/features/settings/data'
+import { NetworkConfig, useSetNetworkConfig } from '@/features/settings/data'
 import { z } from 'zod'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -50,8 +50,35 @@ type Props = {
   network: NetworkConfig
 }
 export function NetworkForm({ network }: Props) {
+  const setNetworkConfig = useSetNetworkConfig()
   const onSubmit = useCallback(async (values: z.infer<typeof networkSchema>) => {
-    console.log(values)
+    setNetworkConfig({
+      id: network.id,
+      name: network.isBuiltIn ? network.name : values.name,
+      walletProviders: network.walletProviders,
+      isBuiltIn: network.isBuiltIn,
+      indexer: {
+        server: values.indexer.server,
+        port: values.indexer.port,
+        token: values.indexer.promptForToken ? undefined : values.indexer.token,
+        promptForToken: values.indexer.promptForToken ?? false,
+      },
+      algod: {
+        server: values.algod.server,
+        port: values.algod.port,
+        token: values.algod.promptForToken ? undefined : values.algod.token,
+        promptForToken: values.algod.promptForToken ?? false,
+      },
+      kmd:
+        values.kmd.server && values.kmd.port
+          ? {
+              server: values.kmd.server,
+              port: values.kmd.port,
+              token: values.kmd.promptForToken ? undefined : values.kmd.token,
+              promptForToken: values.kmd.promptForToken ?? false,
+            }
+          : undefined,
+    })
     return Promise.resolve()
   }, [])
   const onSuccess = useCallback(() => {}, [])
@@ -69,12 +96,16 @@ export function NetworkForm({ network }: Props) {
 
   return (
     <Form schema={networkSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
-      {(helper) => <FormInner helper={helper} />}
+      {(helper) => <FormInner helper={helper} nameFieldDisabled={network.isBuiltIn} />}
     </Form>
   )
 }
 
-function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof networkSchema>> }) {
+type FormInnerProps = {
+  helper: FormFieldHelper<z.infer<typeof networkSchema>>
+  nameFieldDisabled: boolean
+}
+function FormInner({ helper, nameFieldDisabled }: FormInnerProps) {
   const { setValue, watch } = useFormContext<z.infer<typeof networkSchema>>()
 
   // TODO: this repeats a lot
@@ -102,6 +133,7 @@ function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof networkS
       {helper.textField({
         label: 'Name',
         field: 'name',
+        disabled: nameFieldDisabled,
       })}
       <Fieldset legend="Indexer">
         {helper.textField({
