@@ -12,7 +12,7 @@ export function SubmitButton({ className, children, icon }: SubmitButtonProps) {
   // const { submitting } = useFormState()
   // TODO: loading state & icon
   return (
-    <Button variant={'default'} type={'submit'} className={cn(className)} icon={icon}>
+    <Button variant={'default'} type={'submit'} className={cn('w-28', className)} icon={icon}>
       {children}
     </Button>
   )

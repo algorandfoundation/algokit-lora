@@ -76,7 +76,7 @@ function EditNetworkButton({ network }: { network: NetworkConfig }) {
               <h2 className="pb-0">Edit {network.name}</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <NetworkForm network={network} />
+              <NetworkForm network={network} onSuccess={() => setDialogOpen(false)} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}

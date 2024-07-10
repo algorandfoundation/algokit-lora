@@ -3,11 +3,14 @@ import { zfd } from 'zod-form-data'
 import { useCallback, useEffect, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { NetworkConfig, useSetNetworkConfig } from '@/features/settings/data'
+import { builtInNetworksConfigs, NetworkConfig, useSetNetworkConfig } from '@/features/settings/data'
 import { z } from 'zod'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import { Button } from '@/features/common/components/button'
+import { CancelButton } from '@/features/forms/components/cancel-button'
 
 const serverSchema = z.object({
   server: zfd.text(z.string().url()),
@@ -48,40 +51,52 @@ const networkSchema = zfd.formData({
 
 type Props = {
   network: NetworkConfig
+  onSuccess: () => void
 }
-export function NetworkForm({ network }: Props) {
+export function NetworkForm({ network, onSuccess }: Props) {
   const setNetworkConfig = useSetNetworkConfig()
-  const onSubmit = useCallback(async (values: z.infer<typeof networkSchema>) => {
-    setNetworkConfig({
-      id: network.id,
-      name: network.isBuiltIn ? network.name : values.name,
-      walletProviders: network.walletProviders,
-      isBuiltIn: network.isBuiltIn,
-      indexer: {
-        server: values.indexer.server,
-        port: values.indexer.port,
-        token: values.indexer.promptForToken ? undefined : values.indexer.token,
-        promptForToken: values.indexer.promptForToken ?? false,
-      },
-      algod: {
-        server: values.algod.server,
-        port: values.algod.port,
-        token: values.algod.promptForToken ? undefined : values.algod.token,
-        promptForToken: values.algod.promptForToken ?? false,
-      },
-      kmd:
-        values.kmd.server && values.kmd.port
-          ? {
-              server: values.kmd.server,
-              port: values.kmd.port,
-              token: values.kmd.promptForToken ? undefined : values.kmd.token,
-              promptForToken: values.kmd.promptForToken ?? false,
-            }
-          : undefined,
-    })
-    return Promise.resolve()
-  }, [])
-  const onSuccess = useCallback(() => {}, [])
+  const onSubmit = useCallback(
+    async (values: z.infer<typeof networkSchema>) => {
+      setNetworkConfig({
+        id: network.id,
+        name: network.isBuiltIn ? network.name : values.name,
+        walletProviders: network.walletProviders,
+        isBuiltIn: network.isBuiltIn,
+        indexer: {
+          server: values.indexer.server,
+          port: values.indexer.port,
+          token: values.indexer.promptForToken ? undefined : values.indexer.token,
+          promptForToken: values.indexer.promptForToken ?? false,
+        },
+        algod: {
+          server: values.algod.server,
+          port: values.algod.port,
+          token: values.algod.promptForToken ? undefined : values.algod.token,
+          promptForToken: values.algod.promptForToken ?? false,
+        },
+        kmd:
+          values.kmd.server && values.kmd.port
+            ? {
+                server: values.kmd.server,
+                port: values.kmd.port,
+                token: values.kmd.promptForToken ? undefined : values.kmd.token,
+                promptForToken: values.kmd.promptForToken ?? false,
+              }
+            : undefined,
+      })
+      toast.success('Network config saved')
+      return Promise.resolve()
+    },
+    [network.id, network.isBuiltIn, network.name, network.walletProviders, setNetworkConfig]
+  )
+  const onReset = useCallback(() => {
+    const networkConfig = builtInNetworksConfigs.find((n) => n.id === network.id)
+    if (networkConfig) {
+      setNetworkConfig(networkConfig)
+      toast.success('Network config reset')
+      onSuccess()
+    }
+  }, [network.id, onSuccess, setNetworkConfig])
 
   const defaultValues = useMemo(
     () => ({
@@ -96,16 +111,29 @@ export function NetworkForm({ network }: Props) {
 
   return (
     <Form schema={networkSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
-      {(helper) => <FormInner helper={helper} nameFieldDisabled={network.isBuiltIn} />}
+      {(helper) => (
+        <>
+          <FormInner helper={helper} isBuiltInNetwork={network.isBuiltIn} />
+          <FormActions>
+            {network.isBuiltIn && (
+              <Button type="button" variant={'outline-secondary'} className={'w-28'} onClick={onReset}>
+                Reset
+              </Button>
+            )}
+            <SubmitButton>Save</SubmitButton>
+            <CancelButton onClick={onSuccess} />
+          </FormActions>
+        </>
+      )}
     </Form>
   )
 }
 
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof networkSchema>>
-  nameFieldDisabled: boolean
+  isBuiltInNetwork: boolean
 }
-function FormInner({ helper, nameFieldDisabled }: FormInnerProps) {
+function FormInner({ helper, isBuiltInNetwork }: FormInnerProps) {
   const { setValue, watch } = useFormContext<z.infer<typeof networkSchema>>()
 
   // TODO: this repeats a lot
@@ -133,7 +161,7 @@ function FormInner({ helper, nameFieldDisabled }: FormInnerProps) {
       {helper.textField({
         label: 'Name',
         field: 'name',
-        disabled: nameFieldDisabled,
+        disabled: isBuiltInNetwork,
       })}
       <Fieldset legend="Indexer">
         {helper.textField({
@@ -190,9 +218,6 @@ function FormInner({ helper, nameFieldDisabled }: FormInnerProps) {
           field: 'kmd.token',
         })}
       </Fieldset>
-      <FormActions>
-        <SubmitButton>Save</SubmitButton>
-      </FormActions>
     </>
   )
 }

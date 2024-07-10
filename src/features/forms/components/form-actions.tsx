@@ -7,9 +7,5 @@ export interface FormActionsProps {
 }
 
 export function FormActions({ className, children }: FormActionsProps) {
-  return (
-    <div className={cn(className)}>
-      <div className={cn()}>{children}</div>
-    </div>
-  )
+  return <div className={cn('mt-4 flex gap-2 justify-end', className)}>{children}</div>
 }

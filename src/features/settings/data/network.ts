@@ -78,6 +78,7 @@ export const localnetConfig: NetworkConfig = {
   isBuiltIn: true,
 }
 
+export const builtInNetworksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
 export const networksConfigsAtom = atomWithStorage('networksConfigs', [mainnetConfig, testnetConfig, localnetConfig], undefined, {
   getOnInit: true,
 })
