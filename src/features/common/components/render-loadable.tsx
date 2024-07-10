@@ -11,9 +11,9 @@ export type RenderLoadableProps<T> = {
 
 export function RenderLoadable<T>({ loadable, children, fallback, transformError }: RenderLoadableProps<T>) {
   if (loadable.state === 'hasData') {
-    return <div>{children(loadable.data)}</div>
+    return children(loadable.data)
   } else if (loadable.state === 'loading') {
-    return <>{fallback ?? <Loader className="size-10 animate-spin" />}</>
+    return fallback ?? <Loader className="size-10 animate-spin" />
   }
 
   const error = transformError ? transformError(asError(loadable.error)) : asError(loadable.error)
@@ -25,5 +25,5 @@ export function RenderLoadable<T>({ loadable, children, fallback, transformError
     return error
   }
 
-  return <></>
+  return undefined
 }

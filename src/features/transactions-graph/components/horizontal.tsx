@@ -286,7 +286,7 @@ export function Horizontal({ horizontal, verticals }: Props) {
 
         if (index === representation.fromVerticalIndex)
           return (
-            <Tooltip key={index}>
+            <Tooltip key={index} delayDuration={400}>
               <TooltipTrigger asChild>
                 {representation.type === RepresentationType.Vector ? (
                   <RenderTransactionVector key={index} vector={representation} transaction={transaction} />
