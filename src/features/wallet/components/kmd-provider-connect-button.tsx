@@ -53,25 +53,23 @@ export function KmdProviderConnectButton({ provider, onConnect }: Props) {
       transformError={transformError}
     >
       {(availableKmdWallets) => (
-        <div className="flex">
-          <div className={cn('flex flex-col w-full mr-2')}>
-            <Label hidden={true} htmlFor="kmd-wallet" className={cn('text-xs ml-0.5')}>
-              KMD Wallet
-            </Label>
-            <Select onValueChange={setSelectedKmdWallet} value={selectedKmdWallet ?? defaultKmdWallet}>
-              <SelectTrigger id="kmd-wallet">
-                <SelectValue placeholder="Select KMD wallet" />
-              </SelectTrigger>
-              <SelectContent className={cn('bg-card text-card-foreground')}>
-                {availableKmdWallets.map((item) => (
-                  <SelectItem key={item.name} value={item.name}>
-                    {item.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <ProviderConnectButton provider={provider} onConnect={onConnect} className="ml-auto" />
+        <div className="grid grid-cols-[auto_min-content] gap-2">
+          <Label hidden={true} htmlFor="kmd-wallet" className="hidden">
+            KMD Wallet
+          </Label>
+          <Select onValueChange={setSelectedKmdWallet} value={selectedKmdWallet ?? defaultKmdWallet}>
+            <SelectTrigger id="kmd-wallet" className="min-w-0">
+              <SelectValue placeholder="Select KMD wallet" />
+            </SelectTrigger>
+            <SelectContent className={cn('bg-card text-card-foreground')}>
+              {availableKmdWallets.map((item) => (
+                <SelectItem key={item.name} value={item.name}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <ProviderConnectButton provider={provider} onConnect={onConnect} />
         </div>
       )}
     </RenderLoadable>
