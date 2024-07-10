@@ -153,7 +153,7 @@ export function AssetDetails({ asset }: Props) {
             <div className={cn('flex gap-2')}>
               <DescriptionList items={assetItems} />
               <div className="ml-auto hidden flex-col-reverse justify-end gap-2 md:flex lg:flex-row">
-                <AssetOptInOutButton asset={asset} />
+                {asset.id > 0 && <AssetOptInOutButton asset={asset} />}
                 <OpenJsonViewDialogButton json={asset.json} expandJsonLevel={expandAssetJsonLevel} />
               </div>
             </div>
