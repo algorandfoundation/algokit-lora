@@ -17,7 +17,7 @@ export function NetworkSelect() {
   return (
     <div className={cn('flex w-48 flex-col')}>
       <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
-        Network
+        Active network
       </Label>
       <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
         <SelectTrigger id="network">
