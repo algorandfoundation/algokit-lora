@@ -3,6 +3,7 @@ import { TextFormItem, TextFormItemProps } from '@/features/forms/components/tex
 import { NumberFormItem, NumberFormItemProps } from '@/features/forms/components/number-form-item'
 import { SelectFormItem, SelectFormItemProps } from '@/features/forms/components/select-form-item'
 import { CheckboxFormItem, CheckboxFormItemProps } from '@/features/forms/components/checkbox-form-item'
+import { PasswordFormItem, PasswordFormItemProps } from '@/features/forms/components/password-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, any>> {
   private readonly fieldPrefix: string
@@ -32,5 +33,9 @@ export class FormFieldHelper<TSchema extends Record<string, any>> {
 
   checkboxField(props: CheckboxFormItemProps<TSchema>) {
     return <CheckboxFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  passwordField(props: PasswordFormItemProps<TSchema>) {
+    return <PasswordFormItem {...this.prefixFieldProp(props)} />
   }
 }
