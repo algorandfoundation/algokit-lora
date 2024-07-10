@@ -1,4 +1,4 @@
-import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { NetworkForm } from '@/features/settings/components/network-form'
 
 export const networkTabId = 'network'
@@ -12,9 +12,9 @@ export function Settings() {
           {networkTabLabel}
         </TabsTrigger>
       </TabsList>
-      <OverflowAutoTabsContent key={networkTabId} value={networkTabId} className="h-auto">
+      <TabsContent key={networkTabId} value={networkTabId} className="h-auto p-4">
         <NetworkForm />
-      </OverflowAutoTabsContent>
+      </TabsContent>
     </Tabs>
   )
 }

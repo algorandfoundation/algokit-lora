@@ -5,6 +5,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { localnetConfig, networksConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { z } from 'zod'
+import { Fieldset } from '@/features/forms/components/fieldset'
 
 const serverSchema = z.object({
   server: zfd.text(z.string().url()),
@@ -68,7 +69,7 @@ export function NetworkForm() {
   return (
     <Form header="Network" schema={networkSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
       {(helper) => (
-        <div>
+        <>
           {helper.selectField({
             label: 'Network',
             field: 'networkId',
@@ -78,8 +79,7 @@ export function NetworkForm() {
             label: 'Name',
             field: 'name',
           })}
-          <fieldset>
-            <legend>Indexer</legend>
+          <Fieldset legend="Indexer">
             {helper.textField({
               label: 'Server',
               field: 'indexer.server',
@@ -96,9 +96,8 @@ export function NetworkForm() {
               label: 'Token',
               field: 'indexer.token',
             })}
-          </fieldset>
-          <fieldset>
-            <legend>Algod</legend>
+          </Fieldset>
+          <Fieldset legend="Algod">
             {helper.textField({
               label: 'Server',
               field: 'algod.server',
@@ -115,9 +114,8 @@ export function NetworkForm() {
               label: 'Token',
               field: 'algod.token',
             })}
-          </fieldset>
-          <fieldset>
-            <legend>KMD</legend>
+          </Fieldset>
+          <Fieldset legend="KMD">
             {helper.textField({
               label: 'Server',
               field: 'kmd.server',
@@ -134,11 +132,11 @@ export function NetworkForm() {
               label: 'Token',
               field: 'kmd.token',
             })}
-          </fieldset>
+          </Fieldset>
           <FormActions>
             <SubmitButton>Save</SubmitButton>
           </FormActions>
-        </div>
+        </>
       )}
     </Form>
   )

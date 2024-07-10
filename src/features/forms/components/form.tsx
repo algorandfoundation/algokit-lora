@@ -32,9 +32,9 @@ export function Form<TData, TSchema extends Record<string, any>>({
   )
 
   return (
-    <div>
+    <div className={'grid'}>
       <h1>{header}</h1>
-      <ValidatedForm validator={schema} onSubmit={onSubmit} defaultValues={defaultValues}>
+      <ValidatedForm className={'mt-4 grid gap-2'} validator={schema} onSubmit={onSubmit} defaultValues={defaultValues}>
         {children}
       </ValidatedForm>
     </div>

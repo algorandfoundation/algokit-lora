@@ -23,7 +23,7 @@ export function CheckboxFormItem<TSchema extends Record<string, any>>({
   // TODO: handle disabled and error class
   return (
     <div>
-      <label className={cn(className)} aria-invalid={error ? 'true' : 'false'}>
+      <label className={cn('flex gap-2 items-center relative', className)} aria-invalid={error ? 'true' : 'false'}>
         <Controller
           name={field}
           render={({ field: { value, onChange } }) => (
