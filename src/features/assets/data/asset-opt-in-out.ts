@@ -19,12 +19,14 @@ export const useAssetOptInOut = (asset: Asset) => {
 
       if (asset.id === 0 || !activeAccount) {
         return {
+          hasActiveAccount: !!activeAccount,
           canOptIn: false,
           canOptOut: false,
         }
       }
 
       return {
+        hasActiveAccount: !!activeAccount,
         canOptIn: !activeAccount.assetHolding.has(asset.id),
         canOptOut: activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0,
       }
