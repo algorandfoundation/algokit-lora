@@ -1,3 +1,7 @@
+<div align="center">
+<a href="https://github.com/algorandfoundation/algokit-lora"><img src="https://bafybeigi4s7alfr7fdir5mdi6xzmichoubnwndol4ts6ktz52y3qvd5soe.ipfs.nftstorage.link/" width=60%></a>
+</div>
+
 <p align="center">
     <a target="_blank" href="https://github.com/algorandfoundation/algokit-lora/blob/main/README.md"><img src="https://img.shields.io/badge/docs-repository-00dc94?logo=github&style=flat.svg" /></a>
     <a target="_blank" href="https://developer.algorand.org/algokit/"><img src="https://img.shields.io/badge/learn-AlgoKit-00dc94?logo=algorand&mac=flat.svg" /></a>
