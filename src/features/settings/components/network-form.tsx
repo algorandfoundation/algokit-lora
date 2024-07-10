@@ -3,7 +3,7 @@ import { zfd } from 'zod-form-data'
 import { useCallback, useEffect, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { localnetConfig, networksConfigs, useSelectedNetwork } from '@/features/settings/data'
+import { NetworkConfig } from '@/features/settings/data'
 import { z } from 'zod'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -46,29 +46,29 @@ const networkSchema = zfd.formData({
     }),
 })
 
-export function NetworkForm() {
+type Props = {
+  network: NetworkConfig
+}
+export function NetworkForm({ network }: Props) {
   const onSubmit = useCallback(async (values: z.infer<typeof networkSchema>) => {
     console.log(values)
     return Promise.resolve()
   }, [])
   const onSuccess = useCallback(() => {}, [])
 
-  const [selectedNetwork] = useSelectedNetwork()
-  const selectedNetworkConfig = useMemo(() => networksConfigs.find((n) => n.id === selectedNetwork) ?? localnetConfig, [selectedNetwork])
-
   const defaultValues = useMemo(
     () => ({
-      networkId: selectedNetworkConfig.id,
-      name: selectedNetworkConfig.name,
-      indexer: selectedNetworkConfig.indexer,
-      algod: selectedNetworkConfig.algod,
-      kmd: selectedNetworkConfig.kmd,
+      networkId: network.id,
+      name: network.name,
+      indexer: network.indexer,
+      algod: network.algod,
+      kmd: network.kmd,
     }),
-    [selectedNetworkConfig]
+    [network]
   )
 
   return (
-    <Form header="Network" schema={networkSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
+    <Form schema={networkSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
       {(helper) => <FormInner helper={helper} />}
     </Form>
   )
@@ -76,15 +76,6 @@ export function NetworkForm() {
 
 function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof networkSchema>> }) {
   const { setValue, watch } = useFormContext<z.infer<typeof networkSchema>>()
-
-  const networksOptions = useMemo(
-    () =>
-      networksConfigs.map((n) => ({
-        value: n.id,
-        label: n.name,
-      })),
-    []
-  )
 
   // TODO: this repeats a lot
   const indexerPromptForToken = watch('indexer.promptForToken')
@@ -108,11 +99,6 @@ function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof networkS
 
   return (
     <>
-      {helper.selectField({
-        label: 'Network',
-        field: 'networkId',
-        items: networksOptions,
-      })}
       {helper.textField({
         label: 'Name',
         field: 'name',
