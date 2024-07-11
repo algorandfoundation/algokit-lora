@@ -101,6 +101,16 @@ export const useSetNetworkConfig = () => {
     [setNetworksConfigs]
   )
 }
+export const useDeleteNetworkConfig = () => {
+  const setNetworksConfigs = useSetAtom(networksConfigsAtom, { store: settingsStore })
+
+  return useCallback(
+    (networkConfig: NetworkConfig) => {
+      setNetworksConfigs((prev) => prev.filter((p) => p.id !== networkConfig.id))
+    },
+    [setNetworksConfigs]
+  )
+}
 
 const storedSelectedNetworkAtom = atomWithStorage('network', localnetConfig.id, undefined, { getOnInit: true })
 const selectedNetworkAtom = atomWithRefresh((get) => {

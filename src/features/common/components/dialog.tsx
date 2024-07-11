@@ -104,5 +104,10 @@ export {
 
 export function MediumSizeDialogBody({ children, className }: { children: React.ReactNode; className?: string }) {
   // TODO: fix the scroll bar position
-  return <div className={cn('w-[800px] h-[600px] overflow-auto', className)}>{children}</div>
+  return <div className={cn('w-[800px] max-h-[600px] overflow-auto', className)}>{children}</div>
+}
+
+export function SmallSizeDialogBody({ children, className }: { children: React.ReactNode; className?: string }) {
+  // TODO: fix the scroll bar position
+  return <div className={cn('w-[500px] max-h-[300px] overflow-auto', className)}>{children}</div>
 }

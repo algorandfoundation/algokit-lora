@@ -1,5 +1,5 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { NetworkConfig, useNetworksConfigs } from '@/features/settings/data'
+import { NetworkConfig, useDeleteNetworkConfig, useNetworksConfigs } from '@/features/settings/data'
 import { trimCharacterFromEnd } from '@/utils/trim-character-from-end'
 import { DataTable } from '@/features/common/components/data-table'
 import { Button } from '@/features/common/components/button'
@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/fea
 import { useCallback, useState } from 'react'
 import { EditNetworkConfigForm } from '@/features/settings/components/edit-network-config-form'
 import { CreateNetworkConfigForm } from '@/features/settings/components/create-network-config-form'
+import { ConfirmButton } from '@/features/common/components/confirm-button'
+import { toast } from 'react-toastify'
 
 // TODO: delete, on small screens
 export function NetworksConfigsTable() {
@@ -62,12 +64,10 @@ const tableColumns: ColumnDef<NetworkConfig>[] = [
     id: 'delete',
     header: '',
     accessorFn: (item) => item,
-    cell: () => {
-      return (
-        <Button variant="destructive" onClick={() => console.log('delete')}>
-          Delete
-        </Button>
-      )
+    cell: (cell) => {
+      const item = cell.getValue<NetworkConfig>()
+
+      return <DeleteNetworkButton network={item} />
     },
   },
 ]
@@ -97,5 +97,24 @@ function EditNetworkButton({ network }: { network: NetworkConfig }) {
         )}
       </Dialog>
     </>
+  )
+}
+
+function DeleteNetworkButton({ network }: { network: NetworkConfig }) {
+  const deleteNetworkConfig = useDeleteNetworkConfig()
+  const onConfirm = useCallback(() => {
+    deleteNetworkConfig(network)
+    toast.success('Network deleted')
+  }, [deleteNetworkConfig, network])
+
+  return (
+    <ConfirmButton
+      variant="destructive"
+      onConfirm={onConfirm}
+      dialogContent={<div>Are you sure you want to delete "{network.name}"?</div>}
+      disabled={network.isBuiltIn}
+    >
+      Delete
+    </ConfirmButton>
   )
 }
