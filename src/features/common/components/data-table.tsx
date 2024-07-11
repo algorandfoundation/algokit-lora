@@ -10,15 +10,23 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { DataTablePagination } from './data-table-pagination'
 import { useEffect, useState } from 'react'
+import { Button } from '@/features/common/components/button'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
+  onCreateButtonClick?: () => void
 }
 
-export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExpanded }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  getSubRows,
+  subRowsExpanded,
+  onCreateButtonClick,
+}: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const table = useReactTable({
     data,
@@ -40,6 +48,13 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
 
   return (
     <div>
+      {onCreateButtonClick && (
+        <div className="flex justify-end pb-4">
+          <Button variant="secondary" onClick={onCreateButtonClick}>
+            Create
+          </Button>
+        </div>
+      )}
       <div className="grid">
         <Table className="border-b">
           <TableHeader>

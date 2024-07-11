@@ -4,7 +4,7 @@ import { settingsStore } from './settings'
 import { PROVIDER_ID, clearAccounts, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 
-type ServiceConfig = {
+export type ServiceConfig = {
   server: string
   port: number
   promptForToken: boolean
@@ -90,7 +90,13 @@ export const useSetNetworkConfig = () => {
 
   return useCallback(
     (networkConfig: NetworkConfig) => {
-      setNetworksConfigs((prev) => [...prev.map((p) => (p.id === networkConfig.id ? networkConfig : p))])
+      setNetworksConfigs((prev) => {
+        const index = prev.findIndex((p) => p.id === networkConfig.id)
+        if (index === -1) {
+          return [...prev, networkConfig]
+        }
+        return [...prev.map((p) => (p.id === networkConfig.id ? networkConfig : p))]
+      })
     },
     [setNetworksConfigs]
   )

@@ -1,11 +1,11 @@
 import { NetworkSelect } from '@/features/settings/components/network-select'
-import { NetworksTable } from '@/features/settings/components/networks-table'
+import { NetworksConfigsTable } from '@/features/settings/components/networks-configs-table'
 
 export function Settings() {
   return (
     <div className={'grid gap-4'}>
       <NetworkSelect />
-      <NetworksTable />
+      <NetworksConfigsTable />
     </div>
   )
 }
