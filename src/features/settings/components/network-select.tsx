@@ -1,4 +1,4 @@
-import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
+import { useNetworkConfigs, useSelectedNetwork } from '@/features/settings/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 
 export function NetworkSelect() {
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+  const networkConfigs = useNetworkConfigs()
 
   const handleNetworkChange = useCallback(
     async (value: string) => {
@@ -24,9 +25,9 @@ export function NetworkSelect() {
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
         <SelectContent className={cn('bg-card text-card-foreground')}>
-          {networksConfigs.map((item) => (
-            <SelectItem key={item.id} value={item.id}>
-              {item.name}
+          {Object.entries(networkConfigs).map(([id, config]) => (
+            <SelectItem key={id} value={id}>
+              {config.name}
             </SelectItem>
           ))}
         </SelectContent>

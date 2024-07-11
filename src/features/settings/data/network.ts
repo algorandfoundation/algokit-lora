@@ -3,105 +3,122 @@ import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
 import { PROVIDER_ID, clearAccounts, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
+import { NetworkConfig, NetworkConfigWithId } from './types'
 
-type ServiceConfig = {
-  server: string
-  port: number
-  token?: string
+const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
+const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
+
+const localnetId = 'localnet'
+
+export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
+  [localnetId]: {
+    name: 'LocalNet',
+    indexer: {
+      server: 'http://localhost/',
+      port: 8980,
+      token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    },
+    algod: {
+      server: 'http://localhost/',
+      port: 4001,
+      token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    },
+    kmd: {
+      server: 'http://localhost/',
+      port: 4002,
+      token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    },
+    walletProviders: localnetWalletProviders,
+  },
+  testnet: {
+    name: 'TestNet',
+    indexer: {
+      server: 'https://testnet-idx.algonode.cloud/',
+      port: 443,
+    },
+    algod: {
+      server: 'https://testnet-api.algonode.cloud/',
+      port: 443,
+    },
+    walletProviders: nonLocalnetWalletProviders,
+  },
+  mainnet: {
+    name: 'MainNet',
+    indexer: {
+      server: 'https://mainnet-idx.algonode.cloud/',
+      port: 443,
+    },
+    algod: {
+      server: 'https://mainnet-api.algonode.cloud/',
+      port: 443,
+    },
+    walletProviders: nonLocalnetWalletProviders,
+  },
 }
 
-export type NetworkConfig = {
-  id: string
-  name: string
-  indexer: ServiceConfig
-  algod: ServiceConfig
-  kmd?: ServiceConfig
-  walletProviders: PROVIDER_ID[]
+// TODO: Detect when a network has been reconfigured and reset the app state
+// TODO: Prompt for token - Up to 3 (at least 2)
+// TODO: KMD settings are only required when the KMD wallet is configured
+// TODO: Allow users to select the wallet providers as part of configuring a network. Don't allow selection of kmd or mnemonic for mainnet or testnet.
+// TODO: Check uniquess of the network name. Derive the network id from the network name (e.g. Frog Pond --> frog-pond)
+// TODO: Prevent changing the network name
+
+const customNetworkConfigsAtom = atomWithStorage<Record<string, NetworkConfig>>('network-configs', {}, undefined, {
+  getOnInit: true,
+})
+
+const networkConfigsAtom = atom<Record<string, NetworkConfig>>((get) => {
+  const customNetworkConfigs = get(customNetworkConfigsAtom)
+
+  return {
+    ...defaultNetworkConfigs,
+    ...customNetworkConfigs,
+  }
+})
+
+export const useNetworkConfigs = () => {
+  return useAtomValue(networkConfigsAtom, { store: settingsStore })
 }
 
-export const mainnetConfig: NetworkConfig = {
-  id: 'mainnet',
-  name: 'MainNet',
-  indexer: {
-    server: 'https://mainnet-idx.algonode.cloud/',
-    port: 443,
-  },
-  algod: {
-    server: 'https://mainnet-api.algonode.cloud/',
-    port: 443,
-  },
-  walletProviders: [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE],
-}
-const testnetConfig: NetworkConfig = {
-  id: 'testnet',
-  name: 'TestNet',
-  indexer: {
-    server: 'https://testnet-idx.algonode.cloud/',
-    port: 443,
-  },
-  algod: {
-    server: 'https://testnet-api.algonode.cloud/',
-    port: 443,
-  },
-  walletProviders: mainnetConfig.walletProviders,
-}
-export const localnetConfig: NetworkConfig = {
-  id: 'localnet',
-  name: 'LocalNet',
-  indexer: {
-    server: 'http://localhost/',
-    port: 8980,
-    token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  },
-  algod: {
-    server: 'http://localhost/',
-    port: 4001,
-    token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  },
-  kmd: {
-    server: 'http://localhost/',
-    port: 4002,
-    token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-  },
-  walletProviders: [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC],
-}
-
-export const networksConfigs = [mainnetConfig, testnetConfig, localnetConfig]
-
-const networkLocalStorageKey = 'network'
-
-const storedSelectedNetworkAtom = atomWithStorage(networkLocalStorageKey, localnetConfig.id, undefined, { getOnInit: true })
+const storedSelectedNetworkAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
 const selectedNetworkAtom = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
-  if (networksConfigs.find((c) => c.id === networkId)) {
+  const networkConfigs = get(networkConfigsAtom)
+
+  if (networkId in networkConfigs) {
     return networkId
   }
   return get(storedSelectedNetworkAtom)
 })
 
-export const networkConfigAtom = atom((get) => {
+export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
   const id = get(selectedNetworkAtom)
+  const networkConfigs = get(networkConfigsAtom)
 
-  if (id === localnetConfig.id) {
-    mainnetConfig.walletProviders.forEach((provider) => {
-      clearAccounts(provider)
+  if (id === localnetId) {
+    nonLocalnetWalletProviders.forEach((providerId) => {
+      clearAccounts(providerId)
     })
-    clearAccounts(PROVIDER_ID.MNEMONIC)
+    clearAccounts(PROVIDER_ID.MNEMONIC) // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
   } else {
-    localnetConfig.walletProviders.forEach((provider) => {
-      clearAccounts(provider)
+    localnetWalletProviders.forEach((providerId) => {
+      clearAccounts(providerId)
     })
   }
 
-  const config = networksConfigs.find((n) => n.id === id)
-
-  if (!config) {
-    // eslint-disable-next-line no-console
-    console.warn(`Unknown network: ${id}, fallback to ${localnetConfig.name}`)
-    return localnetConfig
+  if (id in networkConfigs) {
+    return {
+      id,
+      ...networkConfigs[id],
+    }
   }
 
-  return config
+  // eslint-disable-next-line no-console
+  console.warn(`Unknown network: ${id}, fallback to ${defaultNetworkConfigs.localnet.name}`)
+  return {
+    id: localnetId,
+    ...defaultNetworkConfigs.localnet,
+  }
 })
 
 export const useNetworkConfig = () => {

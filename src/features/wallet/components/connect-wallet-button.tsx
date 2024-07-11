@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader } from '@/features/common/component
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { localnetConfig, mainnetConfig, useNetworkConfig } from '@/features/settings/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
@@ -53,11 +52,8 @@ const preventDefault = (e: Event) => {
 
 const forceRemoveConnectedWallet = () => {
   // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-  mainnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
-  })
-  localnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
+  Object.values(PROVIDER_ID).forEach((providerId) => {
+    clearAccounts(providerId)
   })
 }
 
@@ -88,7 +84,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       <PopoverTrigger asChild>
         <Button className="hidden w-36 md:flex" variant="outline">
           {activeProvider &&
-            (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
+            ([PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC].includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
             ) : (
               <img
@@ -143,15 +139,13 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
 export function ConnectWalletButton() {
   const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
-  const networkConfig = useNetworkConfig()
   const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
 
   let button = <></>
 
-  const availableProviders = useMemo(
-    () => providers?.filter((p) => networkConfig.walletProviders.includes(p.metadata.id)) ?? [],
-    [networkConfig.walletProviders, providers]
-  )
+  const [availableProviderIds, availableProviders] = useMemo(() => {
+    return [providers?.map((p) => p.metadata.id) ?? [], providers ?? []] as const
+  }, [providers])
 
   const selectProvider = useCallback(
     (provider: Provider) => async () => {
@@ -180,7 +174,7 @@ export function ConnectWalletButton() {
   } else if (activeAddress) {
     button = <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
   } else {
-    if (networkConfig.id === localnetConfig.id) {
+    if (availableProviderIds.includes(PROVIDER_ID.KMD)) {
       button = <ConnectWallet onConnect={refreshAvailableKmdWallets} />
     } else {
       button = <ConnectWallet />
@@ -197,7 +191,7 @@ export function ConnectWalletButton() {
           </DialogHeader>
           <div className="flex flex-col space-y-2">
             {!isReady
-              ? networkConfig.walletProviders.map((providerId) => (
+              ? availableProviders.map((providerId) => (
                   // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
                   <div className="h-10" key={`placeholder-${providerId}`}>
                     &nbsp;

@@ -32,7 +32,7 @@ describe('when rendering the layout page', () => {
             const dialog = component.getByRole('dialog')
             const buttons = component.getAllByRole('button')
             expect(dialog).toBeTruthy()
-            expect(buttons.length).toBe(1)
+            expect(buttons.length).toBe(2)
           })
         }
       )
