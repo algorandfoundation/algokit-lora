@@ -39,6 +39,7 @@ import { OpenJsonViewDialogButton } from '@/features/common/components/json-view
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
+import { addHttpsSchemeIfNeeded } from '../utils/add-https-scheme-if-needed'
 
 type Props = {
   asset: Asset
@@ -97,7 +98,7 @@ export function AssetDetails({ asset }: Props) {
             dt: assetUrlLabel,
             dd: (
               <a
-                href={replaceIpfsWithGatewayIfNeeded(asset.url)}
+                href={addHttpsSchemeIfNeeded(replaceIpfsWithGatewayIfNeeded(asset.url))}
                 className={cn('text-primary underline')}
                 rel="nofollow noopener noreferrer"
                 target="_blank"
