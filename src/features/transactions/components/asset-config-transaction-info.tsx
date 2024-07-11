@@ -8,6 +8,7 @@ import { AssetIdAndNameLink } from '@/features/assets/components/asset-link'
 import Decimal from 'decimal.js'
 import { transactionSenderLabel } from './labels'
 import { replaceIpfsWithGatewayIfNeeded } from '@/features/assets/utils/replace-ipfs-with-gateway-if-needed'
+import { addHttpsSchemeIfNeeded } from '@/features/assets/utils/add-https-scheme-if-needed'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction
@@ -42,7 +43,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
               dt: assetUrlLabel,
               dd: (
                 <a
-                  href={replaceIpfsWithGatewayIfNeeded(transaction.url)}
+                  href={addHttpsSchemeIfNeeded(replaceIpfsWithGatewayIfNeeded(transaction.url))}
                   className={cn('text-primary underline')}
                   rel="nofollow noopener noreferrer"
                   target="_blank"
