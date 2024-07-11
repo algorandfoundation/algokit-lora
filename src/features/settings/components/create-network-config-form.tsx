@@ -2,7 +2,7 @@ import { Form } from '@/features/forms/components/form'
 import { useCallback } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { useSetNetworkConfig } from '@/features/settings/data'
+import { useSetCustomNetworkConfig } from '@/features/settings/data'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -14,14 +14,12 @@ type Props = {
   onSuccess: () => void
 }
 export function CreateNetworkConfigForm({ onSuccess }: Props) {
-  const setNetworkConfig = useSetNetworkConfig()
+  const setCustomNetworkConfig = useSetCustomNetworkConfig()
   const onSubmit = useCallback(
     async (values: z.infer<typeof createNetworkConfigFormSchema>) => {
-      setNetworkConfig({
-        id: crypto.randomUUID(),
+      setCustomNetworkConfig('TODO:', {
         name: values.name,
         walletProviders: [],
-        isBuiltIn: false,
         indexer: asAlgoServiceConfig(values.indexer),
         algod: asAlgoServiceConfig(values.algod),
         kmd: asKmdServiceConfig(values.kmd),
@@ -29,7 +27,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       toast.success('Network config created')
       return Promise.resolve()
     },
-    [setNetworkConfig]
+    [setCustomNetworkConfig]
   )
 
   return (

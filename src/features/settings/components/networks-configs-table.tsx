@@ -1,23 +1,34 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { NetworkConfig, useDeleteNetworkConfig, useNetworksConfigs } from '@/features/settings/data'
+import { defaultNetworkConfigs, useDeleteCustomNetworkConfig, useNetworkConfigs } from '@/features/settings/data'
 import { trimCharacterFromEnd } from '@/utils/trim-character-from-end'
 import { DataTable } from '@/features/common/components/data-table'
 import { Button } from '@/features/common/components/button'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { EditNetworkConfigForm } from '@/features/settings/components/edit-network-config-form'
 import { CreateNetworkConfigForm } from '@/features/settings/components/create-network-config-form'
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
+import { NetworkConfig, NetworkConfigWithId } from '@/features/settings/data/types'
+
+type TableEntry = {
+  id: string
+  networkConfig: NetworkConfig
+}
 
 // TODO: delete, on small screens
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
-  const networksConfigs = useNetworksConfigs()
+  const networkConfigs = useNetworkConfigs()
+  const data = useMemo<TableEntry[]>(
+    () => Object.entries(networkConfigs).map(([id, networkConfig]) => ({ id, networkConfig })),
+    [networkConfigs]
+  )
+
   return (
     <>
       <h2>Networks</h2>
-      <DataTable columns={tableColumns} data={networksConfigs} onCreateButtonClick={() => setCreateNetworkConfigDialogOpen(true)} />
+      <DataTable columns={tableColumns} data={data} onCreateButtonClick={() => setCreateNetworkConfigDialogOpen(true)} />
       <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
         {createNetworkConfigDialogOpen && (
           <DialogContent className="bg-card">
@@ -34,29 +45,25 @@ export function NetworksConfigsTable() {
   )
 }
 
-const tableColumns: ColumnDef<NetworkConfig>[] = [
+const tableColumns: ColumnDef<TableEntry>[] = [
   {
     header: 'Name',
-    accessorFn: (item) => item.name,
+    accessorFn: (item) => item.networkConfig.name,
   },
   {
     header: 'Indexer',
-    accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
+    accessorFn: (item) => `${trimCharacterFromEnd(item.networkConfig.indexer.server, '/')}:${item.networkConfig.indexer.port}`,
   },
   {
     header: 'Algod',
-    accessorFn: (item) => `${trimCharacterFromEnd(item.algod.server, '/')}:${item.algod.port}`,
-  },
-  {
-    header: 'KMD',
-    accessorFn: (item) => (item.kmd ? `${trimCharacterFromEnd(item.kmd.server, '/')}:${item.kmd.port}` : ''),
+    accessorFn: (item) => `${trimCharacterFromEnd(item.networkConfig.algod.server, '/')}:${item.networkConfig.algod.port}`,
   },
   {
     id: 'edit',
     header: '',
     accessorFn: (item) => item,
     cell: (cell) => {
-      const item = cell.getValue<NetworkConfig>()
+      const item = cell.getValue<NetworkConfigWithId>()
       return <EditNetworkButton network={item} />
     },
   },
@@ -65,14 +72,14 @@ const tableColumns: ColumnDef<NetworkConfig>[] = [
     header: '',
     accessorFn: (item) => item,
     cell: (cell) => {
-      const item = cell.getValue<NetworkConfig>()
+      const item = cell.getValue<NetworkConfigWithId>()
 
       return <DeleteNetworkButton network={item} />
     },
   },
 ]
 
-function EditNetworkButton({ network }: { network: NetworkConfig }) {
+function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openDialog = useCallback(() => {
@@ -91,7 +98,7 @@ function EditNetworkButton({ network }: { network: NetworkConfig }) {
               <h2 className="pb-0">Edit {network.name}</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <EditNetworkConfigForm network={network} onSuccess={() => setDialogOpen(false)} />
+              <EditNetworkConfigForm networkConfig={network} onSuccess={() => setDialogOpen(false)} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}
@@ -100,10 +107,11 @@ function EditNetworkButton({ network }: { network: NetworkConfig }) {
   )
 }
 
-function DeleteNetworkButton({ network }: { network: NetworkConfig }) {
-  const deleteNetworkConfig = useDeleteNetworkConfig()
+function DeleteNetworkButton({ network }: { network: NetworkConfigWithId }) {
+  const isBuiltInNetwork = network.id in defaultNetworkConfigs
+  const deleteNetworkConfig = useDeleteCustomNetworkConfig()
   const onConfirm = useCallback(() => {
-    deleteNetworkConfig(network)
+    deleteNetworkConfig(network.id)
     toast.success('Network deleted')
   }, [deleteNetworkConfig, network])
 
@@ -112,7 +120,7 @@ function DeleteNetworkButton({ network }: { network: NetworkConfig }) {
       variant="destructive"
       onConfirm={onConfirm}
       dialogContent={<div>Are you sure you want to delete "{network.name}"?</div>}
-      disabled={network.isBuiltIn}
+      disabled={isBuiltInNetwork}
     >
       Delete
     </ConfirmButton>
