@@ -8,7 +8,7 @@ import {
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
-import { asGlobalStateDelta, asLocalStateDelta, IndexerGlobalStateDelta, IndexerLocalStateDelta } from './state-delta-mappers'
+import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
@@ -42,8 +42,8 @@ const mapCommonAppCallTransactionProperties = (
     applicationAccounts: transactionResult['application-transaction'].accounts ?? [],
     foreignApps: transactionResult['application-transaction']['foreign-apps'] ?? [],
     foreignAssets: transactionResult['application-transaction']['foreign-assets'] ?? [],
-    globalStateDeltas: asGlobalStateDelta(transactionResult['global-state-delta'] as unknown as IndexerGlobalStateDelta[]),
-    localStateDeltas: asLocalStateDelta(transactionResult['local-state-delta'] as unknown as IndexerLocalStateDelta[]),
+    globalStateDeltas: asGlobalStateDelta(transactionResult['global-state-delta']),
+    localStateDeltas: asLocalStateDelta(transactionResult['local-state-delta']),
     innerTransactions:
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction

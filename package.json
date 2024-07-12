@@ -24,8 +24,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-subscriber": "^2.0.0-beta.5",
-    "@algorandfoundation/algokit-utils": "^6.0.5",
+    "@algorandfoundation/algokit-subscriber": "^2.0.0",
+    "@algorandfoundation/algokit-utils": "^6.1.0",
     "@blockshake/defly-connect": "^1.1.6",
     "@daffiwallet/connect": "^1.0.3",
     "@perawallet/connect": "^1.3.4",

@@ -15,6 +15,9 @@ export type BlockResult = {
   ['transactions-root-sha256']: string
   ['upgrade-state']?: BlockUpgradeState
   transactionIds: string[]
+  ['state-proof-tracking']?: BlockStateProofTracking[]
+  ['upgrade-vote']?: BlockUpgradeVote
+  ['participation-updates']?: ParticipationUpdates
 }
 
 export type BlockRewards = {
@@ -32,6 +35,24 @@ export type BlockUpgradeState = {
   ['next-protocol-approvals']?: number
   ['next-protocol-vote-before']?: number
   ['next-protocol-switch-on']?: number
+}
+
+export type BlockStateProofTracking = {
+  ['next-round']?: number
+  ['online-total-weight']?: number
+  type?: number
+  ['voters-commitment']?: string
+}
+
+export interface BlockUpgradeVote {
+  ['upgrade-approve']?: boolean
+  ['upgrade-delay']?: number | bigint
+  ['upgrade-propose']?: string
+}
+
+export interface ParticipationUpdates {
+  ['absent-participation-accounts']?: string[]
+  ['expired-participation-accounts']?: string[]
 }
 
 export type BlocksExtract = {
