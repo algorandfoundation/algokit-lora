@@ -20,6 +20,22 @@ import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 
+const opUpPrograms = [
+  'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
+  'BIEB', // #pragma version 4\npushint 1\n
+  'BYEB', // #pragma version 5\npushint 1\n
+  'BoEB', // #pragma version 6\npushint 1\n
+  'B4EB', // #pragma version 7\npushint 1\n
+  'CIEB', // #pragma version 8\npushint 1\n
+  'CYEB', // #pragma version 9\npushint 1\n
+  'CoEB', // #pragma version 10\npushint 1\n // Latest version at the time this was added, however pre-calculated a few more versions
+  'C4EB', // #pragma version 11\npushint 1\n
+  'DIEB', // #pragma version 12\npushint 1\n
+  'DYEB', // #pragma version 13\npushint 1\n
+  'DoEB', // #pragma version 14\npushint 1\n
+  'D4EB', // #pragma version 15\npushint 1\n
+]
+
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
@@ -29,7 +45,11 @@ const mapCommonAppCallTransactionProperties = (
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
   const action = transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create'
   const onCompletion = asAppCallOnComplete(transactionResult['application-transaction']['on-completion'])
-  const isOpUp = action === 'Create' && onCompletion === AppCallOnComplete.Delete
+  const isOpUp =
+    action === 'Create' &&
+    onCompletion === AppCallOnComplete.Delete &&
+    opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
+    opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
