@@ -1,7 +1,8 @@
 import { cn } from '@/features/common/utils'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/features/common/components/tabs'
+import { Tabs, TabsList, TabsTrigger, OverflowAutoTabsContent } from '@/features/common/components/tabs'
 import { useMemo } from 'react'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { DescriptionList } from '@/features/common/components/description-list'
 
 type Props = {
   logs: string[]
@@ -30,16 +31,22 @@ export function AppCallTransactionLogs({ logs }: Props) {
             {textLogsTabLabel}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value={base64LogTabId} className="p-4">
-          {logs.map((log, index) => (
-            <div key={index}>{log}</div>
-          ))}
-        </TabsContent>
-        <TabsContent value={textLogTabId} className="p-4">
-          {texts.map((text, index) => (
-            <div key={index}>{text}</div>
-          ))}
-        </TabsContent>
+        <OverflowAutoTabsContent value={base64LogTabId} overflowContainerClassName="max-h-96">
+          <DescriptionList
+            items={logs.map((log, index) => ({
+              dt: `${index + 1}.`,
+              dd: <span className="text-wrap break-all">{log}</span>,
+            }))}
+          />
+        </OverflowAutoTabsContent>
+        <OverflowAutoTabsContent value={textLogTabId} overflowContainerClassName="max-h-96">
+          <DescriptionList
+            items={texts.map((text, index) => ({
+              dt: `${index + 1}.`,
+              dd: <span className="text-wrap break-all">{text}</span>,
+            }))}
+          />
+        </OverflowAutoTabsContent>
       </Tabs>
     </div>
   )
