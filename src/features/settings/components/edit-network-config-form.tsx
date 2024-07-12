@@ -54,20 +54,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       indexer: networkConfig.indexer,
       algod: networkConfig.algod,
       kmd: networkConfig.kmd,
-      walletProviders: [
-        {
-          value: PROVIDER_ID.PERA,
-          label: 'Pera',
-        },
-        {
-          value: PROVIDER_ID.DEFLY,
-          label: 'Defly',
-        },
-        {
-          value: PROVIDER_ID.DAFFI,
-          label: 'Daffi',
-        },
-      ],
+      walletProviders: networkConfig.walletProviders,
     }),
     [networkConfig]
   )

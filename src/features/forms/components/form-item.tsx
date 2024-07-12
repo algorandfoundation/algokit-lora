@@ -32,11 +32,11 @@ export function FormItem<TSchema extends Record<string, any> = Record<string, an
         aria-invalid={Boolean(error)}
       >
         <span>{label}</span>
-        {children &&
-          (typeof children === 'function'
-            ? children({ className: className ?? '' })
-            : cloneElement(children, { className: cn(children.props.className) }))}
       </label>
+      {children &&
+        (typeof children === 'function'
+          ? children({ className: className ?? '' })
+          : cloneElement(children, { className: cn(children.props.className) }))}
       <ValidationErrorMessage message={error?.message} />
     </div>
   )
