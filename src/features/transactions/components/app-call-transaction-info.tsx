@@ -117,14 +117,16 @@ export function AppCallTransactionInfo({ transaction }: Props) {
 
 function ApplicationArgs({ transaction }: Props) {
   return (
-    <div className="flex flex-col overflow-hidden">
-      {transaction.applicationArgs.length === 0 && <div>No application args.</div>}
-      {transaction.applicationArgs.length > 0 &&
-        transaction.applicationArgs.map((data, index) => (
-          <span className="text-ellipsis" key={index}>
-            {data}
-          </span>
-        ))}
+    <div>
+      {transaction.applicationArgs.length === 0 && <span>No application args.</span>}
+      {transaction.applicationArgs.length > 0 && (
+        <DescriptionList
+          items={transaction.applicationArgs.map((data, index) => ({
+            dt: `${index + 1}.`,
+            dd: <span className="text-wrap break-all">{data}</span>,
+          }))}
+        />
+      )}
     </div>
   )
 }
@@ -132,7 +134,7 @@ function ApplicationArgs({ transaction }: Props) {
 function ForeignAccounts({ transaction }: Props) {
   return (
     <div className="flex flex-col overflow-hidden">
-      {transaction.applicationAccounts.length === 0 && <div>No foreign accounts.</div>}
+      {transaction.applicationAccounts.length === 0 && <span>No foreign accounts.</span>}
       {transaction.applicationAccounts.length > 0 &&
         transaction.applicationAccounts.map((address, index) => <AccountLink key={index} address={address} showCopyButton={true} />)}
     </div>
@@ -142,7 +144,7 @@ function ForeignAccounts({ transaction }: Props) {
 function ForeignApplications({ transaction }: Props) {
   return (
     <div className="flex flex-col overflow-hidden">
-      {transaction.foreignApps.length === 0 && <div>No foreign applications.</div>}
+      {transaction.foreignApps.length === 0 && <span>No foreign applications.</span>}
       {transaction.foreignApps.length > 0 &&
         transaction.foreignApps.map((appId, index) => <ApplicationLink key={index} applicationId={appId} showCopyButton={true} />)}
     </div>
@@ -152,7 +154,7 @@ function ForeignApplications({ transaction }: Props) {
 function ForeignAssets({ transaction }: Props) {
   return (
     <div className="flex flex-col overflow-hidden">
-      {transaction.foreignAssets.length === 0 && <div>No foreign assets.</div>}
+      {transaction.foreignAssets.length === 0 && <span>No foreign assets.</span>}
       {transaction.foreignAssets.length > 0 &&
         transaction.foreignAssets.map((data, index) => <AssetIdLink key={index} assetId={data} showCopyButton={true} />)}
     </div>
