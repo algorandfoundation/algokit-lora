@@ -180,38 +180,65 @@ const subscriberAtom = atom(null, (get, set) => {
       )
     const blockResults = result.blockMetadata.map((b) => {
       return {
-        round: b.round,
-        timestamp: b.timestamp,
-        ['genesis-id']: b.genesisId,
         ['genesis-hash']: b.genesisHash,
+        ['genesis-id']: b.genesisId,
         ['previous-block-hash']: b.previousBlockHash ? b.previousBlockHash : '',
-        seed: b.seed ?? '',
         ...(b.rewards
           ? {
               rewards: {
                 ['fee-sink']: b.rewards.feeSink,
-                ['rewards-level']: b.rewards.rewardsLevel,
                 ['rewards-calculation-round']: b.rewards.rewardsCalculationRound,
+                ['rewards-level']: b.rewards.rewardsLevel,
                 ['rewards-pool']: b.rewards.rewardsPool,
-                ['rewards-residue']: Number(b.rewards.rewardsResidue),
                 ['rewards-rate']: b.rewards.rewardsRate,
+                ['rewards-residue']: Number(b.rewards.rewardsResidue),
               },
             }
           : undefined),
+        round: b.round,
+        seed: b.seed ?? '',
+        ...(b.stateProofTracking && b.stateProofTracking.length > 0
+          ? {
+              'state-proof-tracking': b.stateProofTracking.map((tracking) => ({
+                'next-round': tracking.nextRound,
+                'online-total-weight': tracking.onlineTotalWeight,
+                type: tracking.type,
+                'voters-commitment': tracking.votersCommitment,
+              })),
+            }
+          : undefined),
+        timestamp: b.timestamp,
+        ['transactions-root']: b.transactionsRoot,
+        ['transactions-root-sha256']: b.transactionsRootSha256,
+        ['txn-counter']: b.txnCounter,
         ...(b.upgradeState
           ? {
               ['upgrade-state']: {
                 ['current-protocol']: b.upgradeState.currentProtocol,
                 ['next-protocol']: b.upgradeState.nextProtocol,
-                ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals,
-                ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore,
-                ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn,
+                ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals ?? 0,
+                ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn ?? 0,
+                ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore ?? 0,
               },
             }
           : undefined),
-        ['txn-counter']: b.txnCounter,
-        ['transactions-root']: b.transactionsRoot,
-        ['transactions-root-sha256']: b.transactionsRootSha256,
+        ...(b.upgradeVote
+          ? {
+              'upgrade-vote': {
+                'upgrade-approve': b.upgradeVote.upgradeApprove ?? false,
+                'upgrade-delay': b.upgradeVote.upgradeDelay ?? 0,
+                'upgrade-propose': b.upgradeVote.upgradePropose,
+              },
+            }
+          : undefined),
+        ...(b.participationUpdates
+          ? {
+              'participation-updates': {
+                'absent-participation-accounts': b.participationUpdates.absentParticipationAccounts,
+                'expired-participation-accounts': b.participationUpdates.expiredParticipationAccounts,
+              },
+            }
+          : undefined),
         transactionIds: blockTransactionIds.get(b.round) ?? [],
       } satisfies BlockResult
     })
