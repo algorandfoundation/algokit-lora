@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { TextFormItem, TextFormItemProps } from '@/features/forms/components/text-form-item'
+import { MyTestFormItem, TextFormItem, TextFormItemProps } from '@/features/forms/components/text-form-item'
 import { NumberFormItem, NumberFormItemProps } from '@/features/forms/components/number-form-item'
 import { SelectFormItem, SelectFormItemProps } from '@/features/forms/components/select-form-item'
 import { CheckboxFormItem, CheckboxFormItemProps } from '@/features/forms/components/checkbox-form-item'
 import { PasswordFormItem, PasswordFormItemProps } from '@/features/forms/components/password-form-item'
+import { MultiSelectFormItem, MultiSelectFormItemProps } from '@/features/forms/components/multi-select-form-item.tsx'
 
 export class FormFieldHelper<TSchema extends Record<string, any>> {
   private readonly fieldPrefix: string
@@ -31,11 +32,19 @@ export class FormFieldHelper<TSchema extends Record<string, any>> {
     return <SelectFormItem {...this.prefixFieldProp(props)} />
   }
 
+  multiSelectField(props: MultiSelectFormItemProps<TSchema>) {
+    return <MultiSelectFormItem {...this.prefixFieldProp(props)} />
+  }
+
   checkboxField(props: CheckboxFormItemProps<TSchema>) {
     return <CheckboxFormItem {...this.prefixFieldProp(props)} />
   }
 
   passwordField(props: PasswordFormItemProps<TSchema>) {
     return <PasswordFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  myTestField(props: TextFormItemProps<TSchema>) {
+    return <MyTestFormItem {...this.prefixFieldProp(props)} />
   }
 }

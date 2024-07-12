@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId } from './types'
 
 const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
+// TODO: check exodus
 const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
 
 const localnetId = 'localnet'

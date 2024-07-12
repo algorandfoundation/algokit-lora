@@ -9,19 +9,15 @@ import { EditNetworkConfigForm } from '@/features/settings/components/edit-netwo
 import { CreateNetworkConfigForm } from '@/features/settings/components/create-network-config-form'
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
-import { NetworkConfig, NetworkConfigWithId } from '@/features/settings/data/types'
+import { NetworkConfigWithId } from '@/features/settings/data/types'
 
-type TableEntry = {
-  id: string
-  networkConfig: NetworkConfig
-}
-
+// move the header into the table
 // TODO: delete, on small screens
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
   const networkConfigs = useNetworkConfigs()
-  const data = useMemo<TableEntry[]>(
-    () => Object.entries(networkConfigs).map(([id, networkConfig]) => ({ id, networkConfig })),
+  const data = useMemo<NetworkConfigWithId[]>(
+    () => Object.entries(networkConfigs).map(([id, networkConfig]) => ({ id, ...networkConfig })),
     [networkConfigs]
   )
 
@@ -45,18 +41,18 @@ export function NetworksConfigsTable() {
   )
 }
 
-const tableColumns: ColumnDef<TableEntry>[] = [
+const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   {
     header: 'Name',
-    accessorFn: (item) => item.networkConfig.name,
+    accessorFn: (item) => item.name,
   },
   {
     header: 'Indexer',
-    accessorFn: (item) => `${trimCharacterFromEnd(item.networkConfig.indexer.server, '/')}:${item.networkConfig.indexer.port}`,
+    accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
   },
   {
     header: 'Algod',
-    accessorFn: (item) => `${trimCharacterFromEnd(item.networkConfig.algod.server, '/')}:${item.networkConfig.algod.port}`,
+    accessorFn: (item) => `${trimCharacterFromEnd(item.algod.server, '/')}:${item.algod.port}`,
   },
   {
     id: 'edit',

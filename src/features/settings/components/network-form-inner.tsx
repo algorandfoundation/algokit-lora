@@ -5,7 +5,9 @@ import { useEffect } from 'react'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
+import { PROVIDER_ID } from '@txnlab/use-wallet'
 
+// TODO: when edit a custom network, let the user choose between the 4 built-in wallet providers + KMD wallet
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof editNetworkConfigFormSchema>> | FormFieldHelper<z.infer<typeof createNetworkConfigFormSchema>>
   isBuiltInNetwork: boolean
@@ -37,10 +39,39 @@ export function NetworkFormInner({ helper, isBuiltInNetwork }: FormInnerProps) {
   // TODO: fix tab index
   return (
     <>
-      {helper.textField({
+      {helper.myTestField({
         label: 'Name',
         field: 'name',
-        disabled: isBuiltInNetwork,
+      })}
+      {helper.multiSelectField({
+        label: 'Wallet providers',
+        field: 'walletProviders',
+        options: [
+          {
+            value: PROVIDER_ID.DEFLY,
+            label: 'Defly',
+          },
+          {
+            value: PROVIDER_ID.DAFFI,
+            label: 'Daffi',
+          },
+          {
+            value: PROVIDER_ID.PERA,
+            label: 'Pera',
+          },
+          {
+            value: PROVIDER_ID.EXODUS,
+            label: 'Exodus',
+          },
+          {
+            value: PROVIDER_ID.LUTE,
+            label: 'Lute',
+          },
+          {
+            value: PROVIDER_ID.KMD,
+            label: 'KDM',
+          },
+        ],
       })}
       <Fieldset legend="Indexer">
         {helper.textField({

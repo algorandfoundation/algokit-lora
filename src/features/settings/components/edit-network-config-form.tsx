@@ -11,6 +11,7 @@ import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/ed
 import { NetworkFormInner } from '@/features/settings/components/network-form-inner'
 import { asAlgoServiceConfig, asKmdServiceConfig } from '@/features/settings/mappers'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
+import { PROVIDER_ID } from '@txnlab/use-wallet'
 
 // TODO: KMD settings are only required for network that has KMD wallet
 // TODO: multi select for wallet providers
@@ -25,13 +26,14 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
   const onSubmit = useCallback(
     async (values: z.infer<typeof editNetworkConfigFormSchema>) => {
-      setCustomNetworkConfig(networkConfig.id, {
-        name: networkConfig.name,
-        walletProviders: networkConfig.walletProviders,
-        indexer: asAlgoServiceConfig(values.indexer),
-        algod: asAlgoServiceConfig(values.algod),
-        kmd: asKmdServiceConfig(values.kmd),
-      })
+      // setCustomNetworkConfig(networkConfig.id, {
+      //   name: networkConfig.name,
+      //   walletProviders: networkConfig.walletProviders,
+      //   indexer: asAlgoServiceConfig(values.indexer),
+      //   algod: asAlgoServiceConfig(values.algod),
+      //   kmd: asKmdServiceConfig(values.kmd),
+      // })
+      console.log(values)
       toast.success('Network config saved')
       return Promise.resolve()
     },
@@ -52,9 +54,24 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       indexer: networkConfig.indexer,
       algod: networkConfig.algod,
       kmd: networkConfig.kmd,
+      walletProviders: [
+        {
+          value: PROVIDER_ID.PERA,
+          label: 'Pera',
+        },
+        {
+          value: PROVIDER_ID.DEFLY,
+          label: 'Defly',
+        },
+        {
+          value: PROVIDER_ID.DAFFI,
+          label: 'Daffi',
+        },
+      ],
     }),
     [networkConfig]
   )
+  console.log(defaultValues)
 
   return (
     <Form schema={editNetworkConfigFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
