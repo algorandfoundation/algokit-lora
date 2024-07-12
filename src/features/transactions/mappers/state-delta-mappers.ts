@@ -1,23 +1,10 @@
 import { encodeAddress } from 'algosdk'
-import { EvalDelta } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AccountStateDelta, EvalDelta, StateDelta } from '@algorandfoundation/algokit-utils/types/indexer'
 import isUtf8 from 'isutf8'
 import { GlobalStateDelta, LocalStateDelta } from '../models'
 import { Buffer } from 'buffer'
-// I am very certain that the Record<string, EvalDelta> type in indexer is wrong
-// This is to fix it
-export type IndexerGlobalStateDelta = {
-  key: string
-  value: EvalDelta
-}
-export type IndexerLocalStateDelta = {
-  address: string
-  delta: {
-    key: string
-    value: EvalDelta
-  }[]
-}
 
-export const asGlobalStateDelta = (stateDelta: IndexerGlobalStateDelta[] | undefined): GlobalStateDelta[] => {
+export const asGlobalStateDelta = (stateDelta: StateDelta | undefined): GlobalStateDelta[] => {
   if (!stateDelta) {
     return []
   }
@@ -35,7 +22,7 @@ export const asGlobalStateDelta = (stateDelta: IndexerGlobalStateDelta[] | undef
   })
 }
 
-export const asLocalStateDelta = (stateDelta: IndexerLocalStateDelta[] | undefined): LocalStateDelta[] => {
+export const asLocalStateDelta = (stateDelta: AccountStateDelta[] | undefined): LocalStateDelta[] => {
   if (!stateDelta) {
     return []
   }
