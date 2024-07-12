@@ -29,16 +29,12 @@ export const asLocalStateDelta = (stateDelta: AccountStateDelta[] | undefined): 
 
   return stateDelta.flatMap((record) => {
     const address = record.address
-    const deltas = record.delta.map(({ key, value: state }) => ({
+    return record.delta.map(({ key, value: state }) => ({
+      address,
       key: getKey(key),
       type: getType(state),
       action: getAction(state),
       value: getValue(state),
-    }))
-
-    return deltas.map((d) => ({
-      address,
-      ...d,
     }))
   })
 }
