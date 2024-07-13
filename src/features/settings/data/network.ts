@@ -60,7 +60,6 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
 
 // TODO: Detect when a network has been reconfigured and reset the app state
 // TODO: Prompt for token - Up to 3 (at least 2)
-// TODO: Allow users to select the wallet providers as part of configuring a network. Don't allow selection of kmd or mnemonic for mainnet or testnet.
 // TODO: Check uniquess of the network name. Derive the network id from the network name (e.g. Frog Pond --> frog-pond)
 
 const customNetworkConfigsAtom = atomWithStorage<Record<string, NetworkConfig>>('network-configs', {}, undefined, {

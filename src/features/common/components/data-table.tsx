@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { Button } from '@/features/common/components/button'
 
 interface DataTableProps<TData, TValue> {
+  tableName?: string
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   getSubRows?: (row: TData) => TData[]
@@ -21,6 +22,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 export function DataTable<TData, TValue>({
+  tableName,
   columns,
   data,
   getSubRows,
@@ -48,13 +50,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      {onCreateButtonClick && (
-        <div className="flex justify-end pb-4">
-          <Button variant="secondary" onClick={onCreateButtonClick}>
+      <div className="flex gap-2 pb-4 ">
+        {tableName && <h2>{tableName}</h2>}
+        {onCreateButtonClick && (
+          <Button variant="secondary" onClick={onCreateButtonClick} className={'ml-auto w-28'}>
             Create
           </Button>
-        </div>
-      )}
+        )}
+      </div>
       <div className="grid">
         <Table className="border-b">
           <TableHeader>

@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 
 // move the header into the table
-// TODO: delete, on small screens
+// TODO:  on small screens
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
   const networkConfigs = useNetworkConfigs()
@@ -23,8 +23,12 @@ export function NetworksConfigsTable() {
 
   return (
     <>
-      <h2>Networks</h2>
-      <DataTable columns={tableColumns} data={data} onCreateButtonClick={() => setCreateNetworkConfigDialogOpen(true)} />
+      <DataTable
+        tableName={'Networks'}
+        columns={tableColumns}
+        data={data}
+        onCreateButtonClick={() => setCreateNetworkConfigDialogOpen(true)}
+      />
       <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
         {createNetworkConfigDialogOpen && (
           <DialogContent className="bg-card">

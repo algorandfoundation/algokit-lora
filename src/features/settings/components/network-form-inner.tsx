@@ -8,7 +8,6 @@ import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 import { localnetId, mainnetId, testnetId } from '@/features/settings/data'
 
-// TODO: when edit a custom network, let the user choose between the 4 built-in wallet providers + KMD wallet
 type FormInnerProps = {
   networkId?: string
   helper: FormFieldHelper<z.infer<typeof editNetworkConfigFormSchema>> | FormFieldHelper<z.infer<typeof createNetworkConfigFormSchema>>

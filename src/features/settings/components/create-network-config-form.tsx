@@ -10,6 +10,7 @@ import { NetworkFormInner } from '@/features/settings/components/network-form-in
 import { asAlgoServiceConfig } from '@/features/settings/mappers'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
+import { replaceAll } from '@/utils/replace-all.ts'
 
 type Props = {
   onSuccess: () => void
@@ -18,7 +19,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const setCustomNetworkConfig = useSetCustomNetworkConfig()
   const onSubmit = useCallback(
     async (values: z.infer<typeof createNetworkConfigFormSchema>) => {
-      setCustomNetworkConfig('TODO:', {
+      setCustomNetworkConfig(generateNetworkId(values.name), {
         name: values.name,
         walletProviders: values.walletProviders,
         indexer: asAlgoServiceConfig(values.indexer),
@@ -55,4 +56,9 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       )}
     </Form>
   )
+}
+
+const generateNetworkId = (name: string) => {
+  const randomStr = Number(new Date()).toString(36).toLowerCase()
+  return `${replaceAll(name.toLowerCase(), ' ', '-')}-${randomStr}`
 }
