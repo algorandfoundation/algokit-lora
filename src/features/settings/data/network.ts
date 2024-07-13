@@ -80,28 +80,28 @@ export const useNetworkConfigs = () => {
   return useAtomValue(networkConfigsAtom, { store: settingsStore })
 }
 export const useSetCustomNetworkConfig = () => {
-  const setNetworksConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
+  const setCustomNetworksConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
 
   return useCallback(
     (networkId: string, networkConfig: NetworkConfig) => {
-      setNetworksConfigs((prev) => ({
+      setCustomNetworksConfigs((prev) => ({
         ...prev,
         [networkId]: networkConfig,
       }))
     },
-    [setNetworksConfigs]
+    [setCustomNetworksConfigs]
   )
 }
 export const useDeleteCustomNetworkConfig = () => {
-  const setNetworksConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
+  const setCustomNetworksConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
   return useCallback(
     (networkId: string) => {
-      setNetworksConfigs((prev) => {
+      setCustomNetworksConfigs((prev) => {
         delete prev[networkId]
-        return prev
+        return { ...prev }
       })
     },
-    [setNetworksConfigs]
+    [setCustomNetworksConfigs]
   )
 }
 

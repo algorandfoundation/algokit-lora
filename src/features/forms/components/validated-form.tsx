@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 import { DefaultValues, FormProvider, useForm } from 'react-hook-form'
 import { useCallback, useState } from 'react'

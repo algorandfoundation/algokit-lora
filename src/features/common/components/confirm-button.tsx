@@ -8,12 +8,17 @@ interface Props extends Omit<ButtonProps, 'onClick'> {
   onConfirm: () => void
 }
 
-export function ConfirmButton({ children, dialogContent, onConfirm, ...props }: Props) {
+export function ConfirmButton({ children, dialogContent, onConfirm: onConfirmProp, ...props }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openDialog = useCallback(() => {
     setDialogOpen(true)
   }, [setDialogOpen])
+
+  const onConfirm = useCallback(() => {
+    onConfirmProp?.()
+    setDialogOpen(false)
+  }, [onConfirmProp, setDialogOpen])
 
   return (
     <>

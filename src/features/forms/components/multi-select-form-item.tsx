@@ -28,6 +28,7 @@ export function MultiSelectFormItem<TSchema extends Record<string, any>>({
             defaultOptions={options}
             value={options.filter((i) => value?.includes(i.value) ?? false)}
             onChange={(selected) => onChange(selected.map((i) => i.value))}
+            emptyIndicator={'No results.'}
             {...rest}
           ></MultipleSelector>
         )}

@@ -34,7 +34,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       toast.success('Network config saved')
       return Promise.resolve()
     },
-    [networkConfig.id, networkConfig.name, networkConfig.walletProviders, setCustomNetworkConfig]
+    [networkConfig.id, networkConfig.name, setCustomNetworkConfig]
   )
   const onReset = useCallback(() => {
     // TODO: check if we can save it straight away or only reset the form
@@ -60,7 +60,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     <Form schema={editNetworkConfigFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
       {(helper) => (
         <>
-          <NetworkFormInner helper={helper} />
+          <NetworkFormInner networkId={networkConfig.id} helper={helper} />
           <FormActions>
             {isBuiltInNetwork && (
               <Button type="button" variant={'outline-secondary'} className={'w-28'} onClick={onReset}>

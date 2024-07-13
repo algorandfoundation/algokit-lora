@@ -4,8 +4,6 @@ import { z } from 'zod'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 
 export const editNetworkConfigFormSchema = zfd.formData({
-  networkId: zfd.text(),
-  name: zfd.text(),
   indexer: algoServiceSchema,
   algod: algoServiceSchema,
   kmd: algoServiceSchema.optional(),
