@@ -31,7 +31,6 @@ export const localStateDeltaTabLabel = 'Local State Delta'
 
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
-export const actionLabel = 'Action'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
   const items = useMemo(
@@ -45,15 +44,11 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
       },
       {
-        dt: actionLabel,
-        dd: transaction.action,
-      },
-      {
         dt: onCompletionLabel,
         dd: transaction.onCompletion,
       },
     ],
-    [transaction.action, transaction.applicationId, transaction.onCompletion, transaction.sender]
+    [transaction.applicationId, transaction.onCompletion, transaction.sender]
   )
   const tabs = useMemo(
     () => [

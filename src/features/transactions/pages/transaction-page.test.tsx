@@ -45,7 +45,6 @@ import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel 
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import {
-  actionLabel,
   appCallTransactionDetailsLabel,
   foreignAccountsTabLabel,
   applicationArgsTabLabel,
@@ -659,7 +658,6 @@ describe('transaction-page', () => {
                 { term: transactionFeeLabel, description: '0.005' },
                 { term: transactionSenderLabel, description: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY' },
                 { term: applicationIdLabel, description: '971368268' },
-                { term: actionLabel, description: 'Call' },
                 { term: onCompletionLabel, description: 'NoOp' },
               ],
             })
@@ -759,7 +757,6 @@ describe('transaction-page', () => {
                 { term: transactionFeeLabel, description: '0.002' },
                 { term: transactionSenderLabel, description: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A' },
                 { term: applicationIdLabel, description: '1002541853' },
-                { term: actionLabel, description: 'Call' },
                 { term: onCompletionLabel, description: 'NoOp' },
               ],
             })

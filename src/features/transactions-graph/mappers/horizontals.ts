@@ -101,16 +101,15 @@ const getAppCallTransactionRepresentations = (
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
     : calculateFromWithoutParent(transaction.sender, verticals)
-  const to =
-    transaction.subType === AppCallTransactionSubType.OpUp
-      ? {
-          verticalId: verticals.find((c) => c.type === 'OpUp')?.id ?? -1,
-        }
-      : {
-          verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
-        }
+  const to = transaction.isOpUp
+    ? {
+        verticalId: verticals.find((c) => c.type === 'OpUp')?.id ?? -1,
+      }
+    : {
+        verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
+      }
 
-  const type = transaction.action === 'Create' ? LabelType.AppCreate : LabelType.AppCall
+  const type = transaction.subType === AppCallTransactionSubType.Create ? LabelType.AppCreate : LabelType.AppCall
   return [asTransactionGraphRepresentation(from, to, { type })]
 }
 
