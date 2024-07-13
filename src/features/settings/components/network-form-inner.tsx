@@ -10,9 +10,8 @@ import { PROVIDER_ID } from '@txnlab/use-wallet'
 // TODO: when edit a custom network, let the user choose between the 4 built-in wallet providers + KMD wallet
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof editNetworkConfigFormSchema>> | FormFieldHelper<z.infer<typeof createNetworkConfigFormSchema>>
-  isBuiltInNetwork: boolean
 }
-export function NetworkFormInner({ helper, isBuiltInNetwork }: FormInnerProps) {
+export function NetworkFormInner({ helper }: FormInnerProps) {
   const { setValue, watch } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
 
   // TODO: this repeats a lot
@@ -39,10 +38,6 @@ export function NetworkFormInner({ helper, isBuiltInNetwork }: FormInnerProps) {
   // TODO: fix tab index
   return (
     <>
-      {helper.myTestField({
-        label: 'Name',
-        field: 'name',
-      })}
       {helper.multiSelectField({
         label: 'Wallet providers',
         field: 'walletProviders',

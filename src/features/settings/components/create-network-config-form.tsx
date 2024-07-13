@@ -34,6 +34,10 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
     <Form schema={createNetworkConfigFormSchema} onSubmit={onSubmit} onSuccess={onSuccess}>
       {(helper) => (
         <>
+          {helper.textField({
+            label: 'Name',
+            field: 'name',
+          })}
           <NetworkFormInner helper={helper} isBuiltInNetwork={false} />
           <FormActions>
             <SubmitButton>Save</SubmitButton>

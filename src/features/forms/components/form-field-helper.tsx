@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { MyTestFormItem, TextFormItem, TextFormItemProps } from '@/features/forms/components/text-form-item'
+import { TextFormItem, TextFormItemProps } from '@/features/forms/components/text-form-item'
 import { NumberFormItem, NumberFormItemProps } from '@/features/forms/components/number-form-item'
 import { SelectFormItem, SelectFormItemProps } from '@/features/forms/components/select-form-item'
 import { CheckboxFormItem, CheckboxFormItemProps } from '@/features/forms/components/checkbox-form-item'
@@ -42,9 +42,5 @@ export class FormFieldHelper<TSchema extends Record<string, any>> {
 
   passwordField(props: PasswordFormItemProps<TSchema>) {
     return <PasswordFormItem {...this.prefixFieldProp(props)} />
-  }
-
-  myTestField(props: TextFormItemProps<TSchema>) {
-    return <MyTestFormItem {...this.prefixFieldProp(props)} />
   }
 }

@@ -24,9 +24,8 @@ export function FormItem<TSchema extends Record<string, any> = Record<string, an
 }: FormItemProps<TSchema>) {
   const error = useFormFieldError(field)
   return (
-    <div>
+    <div className={cn('grid gap-1', className)}>
       <label
-        className={cn('grid gap-1', className)}
         htmlFor={htmlFor}
         // TODO: disabled and error class
         aria-invalid={Boolean(error)}

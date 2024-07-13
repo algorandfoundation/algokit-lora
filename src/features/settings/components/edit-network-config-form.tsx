@@ -58,13 +58,12 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     }),
     [networkConfig]
   )
-  console.log(defaultValues)
 
   return (
     <Form schema={editNetworkConfigFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
       {(helper) => (
         <>
-          <NetworkFormInner helper={helper} isBuiltInNetwork={isBuiltInNetwork} />
+          <NetworkFormInner helper={helper} />
           <FormActions>
             {isBuiltInNetwork && (
               <Button type="button" variant={'outline-secondary'} className={'w-28'} onClick={onReset}>
