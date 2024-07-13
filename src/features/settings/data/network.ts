@@ -1,15 +1,16 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
-import { PROVIDER_ID, clearAccounts, useWallet } from '@txnlab/use-wallet'
+import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId } from './types'
 
 const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
-// TODO: check exodus
 const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
 
-const localnetId = 'localnet'
+export const localnetId = 'localnet'
+export const testnetId = 'testnet'
+export const mainnetId = 'mainnet'
 
 export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
   [localnetId]: {
@@ -31,7 +32,7 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
     },
     walletProviders: localnetWalletProviders,
   },
-  testnet: {
+  [testnetId]: {
     name: 'TestNet',
     indexer: {
       server: 'https://testnet-idx.algonode.cloud/',
@@ -43,7 +44,7 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
     },
     walletProviders: nonLocalnetWalletProviders,
   },
-  mainnet: {
+  [mainnetId]: {
     name: 'MainNet',
     indexer: {
       server: 'https://mainnet-idx.algonode.cloud/',
@@ -59,10 +60,8 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
 
 // TODO: Detect when a network has been reconfigured and reset the app state
 // TODO: Prompt for token - Up to 3 (at least 2)
-// TODO: KMD settings are only required when the KMD wallet is configured
 // TODO: Allow users to select the wallet providers as part of configuring a network. Don't allow selection of kmd or mnemonic for mainnet or testnet.
 // TODO: Check uniquess of the network name. Derive the network id from the network name (e.g. Frog Pond --> frog-pond)
-// TODO: Prevent changing the network name
 
 const customNetworkConfigsAtom = atomWithStorage<Record<string, NetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,

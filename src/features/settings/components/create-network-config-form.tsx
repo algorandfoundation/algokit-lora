@@ -7,8 +7,9 @@ import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { NetworkFormInner } from '@/features/settings/components/network-form-inner'
-import { asAlgoServiceConfig, asKmdServiceConfig } from '@/features/settings/mappers'
+import { asAlgoServiceConfig } from '@/features/settings/mappers'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
+import { PROVIDER_ID } from '@txnlab/use-wallet'
 
 type Props = {
   onSuccess: () => void
@@ -19,10 +20,10 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
     async (values: z.infer<typeof createNetworkConfigFormSchema>) => {
       setCustomNetworkConfig('TODO:', {
         name: values.name,
-        walletProviders: [],
+        walletProviders: values.walletProviders,
         indexer: asAlgoServiceConfig(values.indexer),
         algod: asAlgoServiceConfig(values.algod),
-        kmd: asKmdServiceConfig(values.kmd),
+        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
       })
       toast.success('Network config created')
       return Promise.resolve()
@@ -31,14 +32,21 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
   )
 
   return (
-    <Form schema={createNetworkConfigFormSchema} onSubmit={onSubmit} onSuccess={onSuccess}>
+    <Form
+      schema={createNetworkConfigFormSchema}
+      onSubmit={onSubmit}
+      onSuccess={onSuccess}
+      defaultValues={{
+        walletProviders: [],
+      }}
+    >
       {(helper) => (
         <>
           {helper.textField({
             label: 'Name',
             field: 'name',
           })}
-          <NetworkFormInner helper={helper} isBuiltInNetwork={false} />
+          <NetworkFormInner helper={helper} />
           <FormActions>
             <SubmitButton>Save</SubmitButton>
             <CancelButton onClick={onSuccess} />

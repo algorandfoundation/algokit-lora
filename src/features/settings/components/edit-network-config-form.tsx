@@ -9,12 +9,10 @@ import { Button } from '@/features/common/components/button'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { NetworkFormInner } from '@/features/settings/components/network-form-inner'
-import { asAlgoServiceConfig, asKmdServiceConfig } from '@/features/settings/mappers'
+import { asAlgoServiceConfig } from '@/features/settings/mappers'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 
-// TODO: KMD settings are only required for network that has KMD wallet
-// TODO: multi select for wallet providers
 type Props = {
   networkConfig: NetworkConfigWithId
   onSuccess: () => void
@@ -26,14 +24,13 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
   const onSubmit = useCallback(
     async (values: z.infer<typeof editNetworkConfigFormSchema>) => {
-      // setCustomNetworkConfig(networkConfig.id, {
-      //   name: networkConfig.name,
-      //   walletProviders: networkConfig.walletProviders,
-      //   indexer: asAlgoServiceConfig(values.indexer),
-      //   algod: asAlgoServiceConfig(values.algod),
-      //   kmd: asKmdServiceConfig(values.kmd),
-      // })
-      console.log(values)
+      setCustomNetworkConfig(networkConfig.id, {
+        name: networkConfig.name,
+        walletProviders: values.walletProviders,
+        indexer: asAlgoServiceConfig(values.indexer),
+        algod: asAlgoServiceConfig(values.algod),
+        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
+      })
       toast.success('Network config saved')
       return Promise.resolve()
     },

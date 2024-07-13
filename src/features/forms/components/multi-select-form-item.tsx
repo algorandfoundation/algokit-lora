@@ -26,7 +26,7 @@ export function MultiSelectFormItem<TSchema extends Record<string, any>>({
         render={({ field: { value, onChange, ...rest } }) => (
           <MultipleSelector
             defaultOptions={options}
-            value={options.filter((i) => value.includes(i.value))}
+            value={options.filter((i) => value?.includes(i.value) ?? false)}
             onChange={(selected) => onChange(selected.map((i) => i.value))}
             {...rest}
           ></MultipleSelector>
