@@ -30,15 +30,18 @@ export enum RepresentationType {
 
 export enum LabelType {
   Payment = 'Payment',
-  PaymentTransferRemainder = 'Payment Transfer Remainder',
-  AssetTransfer = 'Asset Transfer',
-  ApplicationCall = 'App Call',
-  AssetConfig = 'Asset Config',
-  AssetFreeze = 'Asset Freeze',
-  KeyReg = 'Key Reg',
-  StateProof = 'State Proof',
+  PaymentTransferRemainder = 'PaymentTransferRemainder',
+  AssetTransfer = 'AssetTransfer',
+  AssetTransferRemainder = 'AssetTransferRemainder',
+  AppCall = 'AppCall',
+  AppCreate = 'AppCreate',
+  AssetCreate = 'AssetCreate',
+  AssetReconfigure = 'AssetReconfigure',
+  AssetDestroy = 'AssetDestroy',
+  AssetFreeze = 'AssetFreeze',
+  KeyReg = 'KeyReg',
+  StateProof = 'StateProof',
   Clawback = 'Clawback',
-  AssetTransferRemainder = 'Asset Transfer Remainder',
 }
 
 export type Label =
@@ -61,8 +64,11 @@ export type Label =
       amount: number | bigint
     }
   | { type: LabelType.Clawback; asset: AsyncMaybeAtom<AssetSummary>; amount: number | bigint }
-  | { type: LabelType.ApplicationCall }
-  | { type: LabelType.AssetConfig }
+  | { type: LabelType.AppCall }
+  | { type: LabelType.AppCreate }
+  | { type: LabelType.AssetCreate }
+  | { type: LabelType.AssetReconfigure }
+  | { type: LabelType.AssetDestroy }
   | { type: LabelType.AssetFreeze }
   | { type: LabelType.KeyReg }
   | { type: LabelType.StateProof }
