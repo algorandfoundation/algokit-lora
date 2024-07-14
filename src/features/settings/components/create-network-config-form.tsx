@@ -1,8 +1,8 @@
 import { Form } from '@/features/forms/components/form'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { useSetCustomNetworkConfig } from '@/features/settings/data'
+import { useNetworkConfigs, useSetCustomNetworkConfig } from '@/features/settings/data'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -17,8 +17,15 @@ type Props = {
 }
 export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const setCustomNetworkConfig = useSetCustomNetworkConfig()
+  const networkConfigs = useNetworkConfigs()
+  const existingNetworkNames = useMemo(() => Object.values(networkConfigs).map((networkConfig) => networkConfig.name), [networkConfigs])
+
   const onSubmit = useCallback(
     async (values: z.infer<typeof createNetworkConfigFormSchema>) => {
+      if (existingNetworkNames.includes(values.name)) {
+        throw new Error(`Network name "${values.name}" already exists`)
+      }
+
       setCustomNetworkConfig(generateNetworkId(values.name), {
         name: values.name,
         walletProviders: values.walletProviders,
@@ -26,10 +33,10 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
         algod: asAlgoServiceConfig(values.algod),
         kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
       })
-      toast.success('Network config created')
+      toast.success(`Network "${values.name}" created`)
       return Promise.resolve()
     },
-    [setCustomNetworkConfig]
+    [existingNetworkNames, setCustomNetworkConfig]
   )
 
   return (
@@ -40,6 +47,12 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       defaultValues={{
         walletProviders: [],
       }}
+      formAction={
+        <FormActions>
+          <SubmitButton>Save</SubmitButton>
+          <CancelButton onClick={onSuccess} />
+        </FormActions>
+      }
     >
       {(helper) => (
         <>
@@ -48,10 +61,6 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
             field: 'name',
           })}
           <NetworkFormInner helper={helper} />
-          <FormActions>
-            <SubmitButton>Save</SubmitButton>
-            <CancelButton onClick={onSuccess} />
-          </FormActions>
         </>
       )}
     </Form>

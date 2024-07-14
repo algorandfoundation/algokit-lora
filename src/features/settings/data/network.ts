@@ -60,7 +60,6 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
 
 // TODO: Detect when a network has been reconfigured and reset the app state
 // TODO: Prompt for token - Up to 3 (at least 2)
-// TODO: Check uniquess of the network name. Derive the network id from the network name (e.g. Frog Pond --> frog-pond)
 
 const customNetworkConfigsAtom = atomWithStorage<Record<string, NetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,

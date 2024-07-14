@@ -31,7 +31,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
         algod: asAlgoServiceConfig(values.algod),
         kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
       })
-      toast.success('Network config saved')
+      toast.success(`Network "${networkConfig.name}" saved`)
       return Promise.resolve()
     },
     [networkConfig.id, networkConfig.name, setCustomNetworkConfig]
@@ -40,7 +40,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     // TODO: check if we can save it straight away or only reset the form
     if (defaultNetworkConfigs[networkConfig.id]) {
       deleteNetworkConfig(networkConfig.id)
-      toast.success('Network config reset')
+      toast.success(`Network "${networkConfig.name}" reset`)
       onSuccess()
     }
   }, [deleteNetworkConfig, networkConfig.id, onSuccess])
@@ -57,19 +57,26 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   )
 
   return (
-    <Form schema={editNetworkConfigFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} defaultValues={defaultValues}>
+    <Form
+      schema={editNetworkConfigFormSchema}
+      onSubmit={onSubmit}
+      onSuccess={onSuccess}
+      defaultValues={defaultValues}
+      formAction={
+        <FormActions>
+          {isBuiltInNetwork && (
+            <Button type="button" variant={'outline-secondary'} className={'w-28'} onClick={onReset}>
+              Reset
+            </Button>
+          )}
+          <SubmitButton>Save</SubmitButton>
+          <CancelButton onClick={onSuccess} />
+        </FormActions>
+      }
+    >
       {(helper) => (
         <>
           <NetworkFormInner networkId={networkConfig.id} helper={helper} />
-          <FormActions>
-            {isBuiltInNetwork && (
-              <Button type="button" variant={'outline-secondary'} className={'w-28'} onClick={onReset}>
-                Reset
-              </Button>
-            )}
-            <SubmitButton>Save</SubmitButton>
-            <CancelButton onClick={onSuccess} />
-          </FormActions>
         </>
       )}
     </Form>
