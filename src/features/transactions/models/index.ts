@@ -125,12 +125,13 @@ export type LocalStateDelta = {
 }
 
 export enum AppCallTransactionSubType {
-  OpUp = 'OpUp',
+  Create = 'Create',
 }
 
 export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.AppCall
   subType: AppCallTransactionSubType | undefined
+  isOpUp: boolean
   applicationId: number
   applicationArgs: string[]
   foreignApps: number[]
@@ -140,7 +141,6 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   localStateDeltas: LocalStateDelta[]
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
-  action: 'Create' | 'Call'
   logs: string[]
 }
 

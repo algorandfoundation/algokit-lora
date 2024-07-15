@@ -1,10 +1,4 @@
-import {
-  AppCallTransactionSubType,
-  AssetTransferTransactionSubType,
-  InnerTransaction,
-  Transaction,
-  TransactionType,
-} from '@/features/transactions/models'
+import { AssetTransferTransactionSubType, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { ApplicationVertical, Vertical } from '../models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
@@ -167,7 +161,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
     }
   }
   if (transaction.type === TransactionType.AppCall) {
-    if (transaction.subType === AppCallTransactionSubType.OpUp) {
+    if (transaction.isOpUp) {
       verticals.push({
         id: -1,
         type: 'OpUp',

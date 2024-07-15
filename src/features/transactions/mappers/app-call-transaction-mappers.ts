@@ -43,10 +43,10 @@ const mapCommonAppCallTransactionProperties = (
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
-  const action = transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create'
+  const isCreate = !transactionResult['application-transaction']['application-id']
   const onCompletion = asAppCallOnComplete(transactionResult['application-transaction']['on-completion'])
   const isOpUp =
-    action === 'Create' &&
+    isCreate &&
     onCompletion === AppCallOnComplete.Delete &&
     opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
     opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
@@ -54,7 +54,8 @@ const mapCommonAppCallTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AppCall,
-    subType: isOpUp ? AppCallTransactionSubType.OpUp : undefined,
+    subType: isCreate ? AppCallTransactionSubType.Create : undefined,
+    isOpUp,
     applicationId: transactionResult['application-transaction']['application-id']
       ? transactionResult['application-transaction']['application-id']
       : transactionResult['created-application-index']!,
@@ -70,8 +71,7 @@ const mapCommonAppCallTransactionProperties = (
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
         return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver)
       }) ?? [],
-    onCompletion: onCompletion,
-    action: action,
+    onCompletion,
     logs: transactionResult['logs'] ?? [],
   } satisfies BaseAppCallTransaction
 }
