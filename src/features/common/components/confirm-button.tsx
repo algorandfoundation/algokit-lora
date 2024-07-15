@@ -22,7 +22,7 @@ export function ConfirmButton({ children, dialogContent, onConfirm: onConfirmPro
 
   return (
     <>
-      <Button className="ml-auto hidden w-28 md:flex" variant="outline" onClick={openDialog} {...props}>
+      <Button className="w-28" variant="outline" onClick={openDialog} {...props}>
         {children}
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>

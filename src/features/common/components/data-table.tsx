@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DataTablePagination } from './data-table-pagination'
 import { useEffect, useState } from 'react'
 import { Button } from '@/features/common/components/button'
+import { cn } from '@/features/common/utils'
 
 interface DataTableProps<TData, TValue> {
   tableName?: string
@@ -65,7 +66,7 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id} className="border-t bg-muted/50">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className={cn(header.column.columnDef.meta?.className)}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )
@@ -82,7 +83,9 @@ export function DataTable<TData, TValue>({
                   {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))

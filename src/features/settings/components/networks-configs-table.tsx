@@ -11,8 +11,6 @@ import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 
-// move the header into the table
-// TODO:  on small screens
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
   const networkConfigs = useNetworkConfigs()
@@ -52,15 +50,18 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   },
   {
     header: 'Indexer',
+    meta: { className: 'hidden md:table-cell' },
     accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
   },
   {
     header: 'Algod',
+    meta: { className: 'hidden md:table-cell' },
     accessorFn: (item) => `${trimCharacterFromEnd(item.algod.server, '/')}:${item.algod.port}`,
   },
   {
     id: 'edit',
     header: '',
+    meta: { className: 'w-28' },
     accessorFn: (item) => item,
     cell: (cell) => {
       const item = cell.getValue<NetworkConfigWithId>()
@@ -70,6 +71,7 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   {
     id: 'delete',
     header: '',
+    meta: { className: 'w-28' },
     accessorFn: (item) => item,
     cell: (cell) => {
       const item = cell.getValue<NetworkConfigWithId>()
@@ -88,7 +90,7 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
 
   return (
     <>
-      <Button className="ml-auto hidden w-28 md:flex" variant="outline" onClick={openDialog}>
+      <Button className="w-28" variant="outline" onClick={openDialog}>
         Edit
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
