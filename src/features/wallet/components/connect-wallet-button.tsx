@@ -16,6 +16,7 @@ import { useAtom, useSetAtom } from 'jotai'
 import { ProviderConnectButton } from './provider-connect-button'
 import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
+import { useNetworkConfig } from '@/features/settings/data'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -139,6 +140,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
 export function ConnectWalletButton() {
   const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
+  const networkConfig = useNetworkConfig()
   const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
 
   let button = <></>
@@ -191,7 +193,7 @@ export function ConnectWalletButton() {
           </DialogHeader>
           <SmallSizeDialogBody className="flex flex-col space-y-2 p-4">
             {!isReady
-              ? availableProviders.map((providerId) => (
+              ? networkConfig.walletProviders.map((providerId) => (
                   // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
                   <div className="h-10" key={`placeholder-${providerId}`}>
                     &nbsp;
