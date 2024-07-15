@@ -45,7 +45,7 @@ const DialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          'fixed top-0 w-full h-full md:w-auto md:h-auto md:left-[50%] md:top-[50%] z-50 grid md:translate-x-[-50%] md:translate-y-[-50%] gap-4 border bg-background shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95  data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] md:rounded-lg',
+          'fixed top-0 w-full h-full md:w-auto md:h-auto md:left-[50%] md:top-[50%] z-50 grid md:translate-x-[-50%] md:translate-y-[-50%] gap-4 border bg-background shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95  data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] md:rounded-lg pt-4',
           mounted.current &&
             'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
           className
@@ -64,7 +64,7 @@ const DialogContent = React.forwardRef<
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('flex flex-col space-y-1.5 sm:text-left p-4', className)} {...props} />
+  <div className={cn('flex flex-col space-y-1.5 sm:text-left pr-4 pl-4', className)} {...props} />
 )
 DialogHeader.displayName = 'DialogHeader'
 
@@ -103,9 +103,9 @@ export {
 }
 
 export function MediumSizeDialogBody({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('w-full md:w-[768px] max-h-[600px] overflow-auto p-4', className)}>{children}</div>
+  return <div className={cn('w-full md:w-[768px] max-h-[600px] overflow-auto pr-4 pl-4 pb-4', className)}>{children}</div>
 }
 
 export function SmallSizeDialogBody({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('w-full md:w-[500px] max-h-[300px] overflow-auto p-4', className)}>{children}</div>
+  return <div className={cn('w-full md:w-[500px] max-h-[300px] overflow-auto pr-4 pl-4 pb-4', className)}>{children}</div>
 }
