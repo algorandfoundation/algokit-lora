@@ -51,7 +51,7 @@ const preventDefault = (e: Event) => {
   e.preventDefault()
 }
 
-const forceRemoveConnectedWallet = () => {
+export const forceRemoveConnectedWallet = () => {
   // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
   mainnetConfig.walletProviders.forEach((provider) => {
     clearAccounts(provider)
