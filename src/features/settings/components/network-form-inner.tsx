@@ -23,7 +23,6 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
     }
   }, [walletProviders])
 
-  // TODO: this repeats a lot
   const indexerPromptForToken = watch('indexer.promptForToken')
   useEffect(() => {
     if (indexerPromptForToken) {
@@ -53,7 +52,6 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
         label: 'Wallet providers',
         field: 'walletProviders',
         options: supportedWalletProviders,
-        disabled: true,
       })}
       <Fieldset legend="Indexer">
         {helper.textField({
