@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useFormContext } from 'react-hook-form'
 import type { FieldError } from 'react-hook-form'
 
