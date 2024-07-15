@@ -21,7 +21,9 @@ export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
         <DialogHeader>
           <h2>{dialogTitle}</h2>
         </DialogHeader>
-        <InternalDialogContent applicationId={applicationId} boxName={boxName} />
+        <div className="p-4">
+          <InternalDialogContent applicationId={applicationId} boxName={boxName} />
+        </div>
       </DialogContent>
     </Dialog>
   )
