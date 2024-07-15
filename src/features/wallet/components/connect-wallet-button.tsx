@@ -189,7 +189,7 @@ export function ConnectWalletButton() {
           <DialogHeader>
             <h2>Wallet Providers</h2>
           </DialogHeader>
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-2 p-4">
             {!isReady
               ? availableProviders.map((providerId) => (
                   // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
