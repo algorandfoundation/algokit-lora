@@ -8,8 +8,7 @@ export const selectedThemeAtom = atomWithStorage<Theme>('theme', 'system', undef
 const resolvedThemeAtom = atom<ResolvedTheme>((get) => {
   const theme = get(selectedThemeAtom)
   if (theme === 'system') {
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    return systemTheme
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   }
   return theme
 })

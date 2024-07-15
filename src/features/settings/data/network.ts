@@ -58,7 +58,6 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
   },
 }
 
-// TODO: Detect when a network has been reconfigured and reset the app state
 // TODO: Prompt for token - Up to 3 (at least 2)
 
 const customNetworkConfigsAtom = atomWithStorage<Record<string, NetworkConfig>>('network-configs', {}, undefined, {

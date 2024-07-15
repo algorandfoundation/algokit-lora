@@ -2,7 +2,12 @@ import { Form } from '@/features/forms/components/form'
 import { useCallback, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { defaultNetworkConfigs, useDeleteCustomNetworkConfig, useSetCustomNetworkConfig } from '@/features/settings/data'
+import {
+  defaultNetworkConfigs,
+  useDeleteCustomNetworkConfig,
+  useSelectedNetwork,
+  useSetCustomNetworkConfig,
+} from '@/features/settings/data'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { Button } from '@/features/common/components/button'
@@ -12,16 +17,19 @@ import { NetworkFormInner } from '@/features/settings/components/network-form-in
 import { asAlgoServiceConfig } from '@/features/settings/mappers'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
+import { useRefreshDataProviderToken } from '@/features/common/data'
 
 type Props = {
   networkConfig: NetworkConfigWithId
   onSuccess: () => void
 }
 export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
+  const [selectedNetwork] = useSelectedNetwork()
   const setCustomNetworkConfig = useSetCustomNetworkConfig()
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
-
+  const refreshDataProviderToken = useRefreshDataProviderToken()
   const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
+
   const onSubmit = useCallback(
     async (values: z.infer<typeof editNetworkConfigFormSchema>) => {
       setCustomNetworkConfig(networkConfig.id, {
@@ -31,10 +39,14 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
         algod: asAlgoServiceConfig(values.algod),
         kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
       })
+
       toast.success(`Network "${networkConfig.name}" saved`)
+      if (networkConfig.id === selectedNetwork) {
+        refreshDataProviderToken()
+      }
       return Promise.resolve()
     },
-    [networkConfig.id, networkConfig.name, setCustomNetworkConfig]
+    [networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork, setCustomNetworkConfig]
   )
   const onReset = useCallback(() => {
     // TODO: check if we can save it straight away or only reset the form
@@ -43,7 +55,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       toast.success(`Network "${networkConfig.name}" reset`)
       onSuccess()
     }
-  }, [deleteNetworkConfig, networkConfig.id, onSuccess])
+  }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, onSuccess])
 
   const defaultValues = useMemo(
     () => ({
