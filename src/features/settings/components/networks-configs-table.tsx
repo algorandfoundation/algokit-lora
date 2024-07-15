@@ -10,6 +10,7 @@ import { CreateNetworkConfigForm } from '@/features/settings/components/create-n
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
+import { Pencil, Trash } from 'lucide-react'
 
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
@@ -90,7 +91,7 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
 
   return (
     <>
-      <Button className="w-28" variant="outline" onClick={openDialog}>
+      <Button className="w-28" variant="outline" onClick={openDialog} icon={<Pencil size={16} />}>
         Edit
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
@@ -123,6 +124,7 @@ function DeleteNetworkButton({ network }: { network: NetworkConfigWithId }) {
       onConfirm={onConfirm}
       dialogContent={<div>Are you sure you want to delete "{network.name}"?</div>}
       disabled={isBuiltInNetwork}
+      icon={<Trash size={16} />}
     >
       Delete
     </ConfirmButton>

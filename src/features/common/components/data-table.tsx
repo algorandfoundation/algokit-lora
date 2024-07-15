@@ -12,6 +12,7 @@ import { DataTablePagination } from './data-table-pagination'
 import { useEffect, useState } from 'react'
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
+import { Plus } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
   tableName?: string
@@ -54,7 +55,7 @@ export function DataTable<TData, TValue>({
       <div className="flex gap-2 pb-4 ">
         {tableName && <h2>{tableName}</h2>}
         {onCreateButtonClick && (
-          <Button variant="secondary" onClick={onCreateButtonClick} className={'ml-auto w-28'}>
+          <Button variant="secondary" onClick={onCreateButtonClick} className={'ml-auto w-28'} icon={<Plus size={16} />}>
             Create
           </Button>
         )}
