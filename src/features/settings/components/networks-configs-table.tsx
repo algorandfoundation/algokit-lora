@@ -62,7 +62,7 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   {
     id: 'edit',
     header: '',
-    meta: { className: 'w-28' },
+    meta: { className: 'w-24' },
     accessorFn: (item) => item,
     cell: (cell) => {
       const item = cell.getValue<NetworkConfigWithId>()
@@ -91,7 +91,7 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
 
   return (
     <>
-      <Button className="w-28" variant="outline" onClick={openDialog} icon={<Pencil size={16} />}>
+      <Button variant="outline" onClick={openDialog} icon={<Pencil size={16} />}>
         Edit
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
