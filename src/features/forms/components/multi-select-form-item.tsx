@@ -18,18 +18,17 @@ export function MultiSelectFormItem<TSchema extends Record<string, any>>({
   className,
   ...props
 }: MultiSelectFormItemProps<TSchema>) {
-  // TODO: handle disabled and error class
   return (
     <FormItem field={field} {...props}>
       <Controller
         name={field}
-        render={({ field: { value, onChange, ...rest } }) => (
+        render={({ field: { value, onChange } }) => (
           <MultipleSelector
             defaultOptions={options}
             value={options.filter((i) => value?.includes(i.value) ?? false)}
             onChange={(selected) => onChange(selected.map((i) => i.value))}
             emptyIndicator={'No results.'}
-            {...rest}
+            disabled={props.disabled}
           ></MultipleSelector>
         )}
       />

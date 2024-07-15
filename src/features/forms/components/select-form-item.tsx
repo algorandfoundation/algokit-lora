@@ -9,34 +9,31 @@ type SelectOption = {
   label: string
 }
 export interface SelectFormItemProps<TSchema extends Record<string, any>> extends Omit<FormItemProps<TSchema>, 'children'> {
-  items: SelectOption[]
+  options: SelectOption[]
   placeholder?: string
   className?: string
-  newItemText?: string
-  onNewItemSelected?: () => void
 }
 
 export function SelectFormItem<TSchema extends Record<string, any>>({
   field,
-  items,
+  options,
   placeholder,
   className,
   ...props
 }: SelectFormItemProps<TSchema>) {
-  // TODO: handle disabled and error class
   return (
     <FormItem field={field} {...props}>
       <Controller
         name={field}
         render={({ field: { value, onChange } }) => (
-          <Select onValueChange={onChange} value={value}>
+          <Select onValueChange={onChange} value={value} disabled={props.disabled}>
             <SelectTrigger>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className={cn(className)}>
-              {items.map((item) => (
-                <SelectItem key={item.value} value={item.value}>
-                  {item.label}
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>

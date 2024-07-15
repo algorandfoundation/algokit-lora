@@ -20,7 +20,6 @@ export function CheckboxFormItem<TSchema extends Record<string, any>>({
 }: CheckboxFormItemProps<TSchema>) {
   const error = useFormFieldError(field)
 
-  // TODO: handle disabled and error class
   return (
     <div>
       <label className={cn('flex gap-2 items-center relative', className)} aria-invalid={error ? 'true' : 'false'}>

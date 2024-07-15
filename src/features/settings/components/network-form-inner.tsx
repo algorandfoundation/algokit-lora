@@ -53,6 +53,7 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
         label: 'Wallet providers',
         field: 'walletProviders',
         options: supportedWalletProviders,
+        disabled: true,
       })}
       <Fieldset legend="Indexer">
         {helper.textField({
