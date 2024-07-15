@@ -31,6 +31,10 @@ export const asBlock = (
     previousRound: block.round > 0 ? block.round - 1 : undefined,
     nextRound,
     transactions,
-    json: asJson({ ...rest, transactions: transactionResults }),
+    json: asJson({
+      ...rest,
+      ...(!rest['upgrade-vote'] ? { ['upgrade-vote']: { ['upgrade-approve']: false, ['upgrade-delay']: 0 } } : undefined), // Match how indexer handles an undefined upgrade-vote
+      transactions: transactionResults,
+    }),
   }
 }

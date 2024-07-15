@@ -8,7 +8,7 @@ import {
   TransactionType,
 } from '../models'
 import { invariant } from '@/utils/invariant'
-import { asGlobalStateDelta, asLocalStateDelta, IndexerGlobalStateDelta, IndexerLocalStateDelta } from './state-delta-mappers'
+import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
@@ -20,6 +20,22 @@ import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 
+const opUpPrograms = [
+  'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
+  'BIEB', // #pragma version 4\npushint 1\n
+  'BYEB', // #pragma version 5\npushint 1\n
+  'BoEB', // #pragma version 6\npushint 1\n
+  'B4EB', // #pragma version 7\npushint 1\n
+  'CIEB', // #pragma version 8\npushint 1\n
+  'CYEB', // #pragma version 9\npushint 1\n
+  'CoEB', // #pragma version 10\npushint 1\n // Latest version at the time this was added, however pre-calculated a few more versions
+  'C4EB', // #pragma version 11\npushint 1\n
+  'DIEB', // #pragma version 12\npushint 1\n
+  'DYEB', // #pragma version 13\npushint 1\n
+  'DoEB', // #pragma version 14\npushint 1\n
+  'D4EB', // #pragma version 15\npushint 1\n
+]
+
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
@@ -27,14 +43,19 @@ const mapCommonAppCallTransactionProperties = (
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
-  const action = transactionResult['application-transaction']['application-id'] ? 'Call' : 'Create'
+  const isCreate = !transactionResult['application-transaction']['application-id']
   const onCompletion = asAppCallOnComplete(transactionResult['application-transaction']['on-completion'])
-  const isOpUp = action === 'Create' && onCompletion === AppCallOnComplete.Delete
+  const isOpUp =
+    isCreate &&
+    onCompletion === AppCallOnComplete.Delete &&
+    opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
+    opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AppCall,
-    subType: isOpUp ? AppCallTransactionSubType.OpUp : undefined,
+    subType: isCreate ? AppCallTransactionSubType.Create : undefined,
+    isOpUp,
     applicationId: transactionResult['application-transaction']['application-id']
       ? transactionResult['application-transaction']['application-id']
       : transactionResult['created-application-index']!,
@@ -42,16 +63,15 @@ const mapCommonAppCallTransactionProperties = (
     applicationAccounts: transactionResult['application-transaction'].accounts ?? [],
     foreignApps: transactionResult['application-transaction']['foreign-apps'] ?? [],
     foreignAssets: transactionResult['application-transaction']['foreign-assets'] ?? [],
-    globalStateDeltas: asGlobalStateDelta(transactionResult['global-state-delta'] as unknown as IndexerGlobalStateDelta[]),
-    localStateDeltas: asLocalStateDelta(transactionResult['local-state-delta'] as unknown as IndexerLocalStateDelta[]),
+    globalStateDeltas: asGlobalStateDelta(transactionResult['global-state-delta']),
+    localStateDeltas: asLocalStateDelta(transactionResult['local-state-delta']),
     innerTransactions:
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
         return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver)
       }) ?? [],
-    onCompletion: onCompletion,
-    action: action,
+    onCompletion,
     logs: transactionResult['logs'] ?? [],
   } satisfies BaseAppCallTransaction
 }

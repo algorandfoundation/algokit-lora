@@ -2,6 +2,7 @@ import {
   AppCallTransaction,
   AppCallTransactionSubType,
   AssetConfigTransaction,
+  AssetConfigTransactionSubType,
   AssetFreezeTransaction,
   AssetTransferTransaction,
   AssetTransferTransactionSubType,
@@ -100,16 +101,16 @@ const getAppCallTransactionRepresentations = (
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
     : calculateFromWithoutParent(transaction.sender, verticals)
-  const to =
-    transaction.subType === AppCallTransactionSubType.OpUp
-      ? {
-          verticalId: verticals.find((c) => c.type === 'OpUp')?.id ?? -1,
-        }
-      : {
-          verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
-        }
+  const to = transaction.isOpUp
+    ? {
+        verticalId: verticals.find((c) => c.type === 'OpUp')?.id ?? -1,
+      }
+    : {
+        verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
+      }
 
-  return [asTransactionGraphRepresentation(from, to, { type: LabelType.ApplicationCall })]
+  const type = transaction.subType === AppCallTransactionSubType.Create ? LabelType.AppCreate : LabelType.AppCall
+  return [asTransactionGraphRepresentation(from, to, { type })]
 }
 
 const getAssetConfigTransactionRepresentations = (
@@ -124,7 +125,18 @@ const getAssetConfigTransactionRepresentations = (
     verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
   }
 
-  return [asTransactionGraphRepresentation(from, to, { type: LabelType.AssetConfig })]
+  const type =
+    transaction.subType === AssetConfigTransactionSubType.Reconfigure
+      ? LabelType.AssetReconfigure
+      : transaction.subType === AssetConfigTransactionSubType.Destroy
+        ? LabelType.AssetDestroy
+        : LabelType.AssetCreate
+
+  return [
+    asTransactionGraphRepresentation(from, to, {
+      type,
+    }),
+  ]
 }
 
 const getAssetFreezeTransactionRepresentations = (

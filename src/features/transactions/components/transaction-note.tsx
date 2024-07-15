@@ -87,7 +87,7 @@ export function TransactionNote({ note }: TransactionNoteProps) {
           <span className="text-wrap break-all">{note}</span>
         </OverflowAutoTabsContent>
         <OverflowAutoTabsContent value={textNoteTabId} overflowContainerClassName="max-h-96">
-          {text}
+          <span className="text-wrap break-all">{text}</span>
         </OverflowAutoTabsContent>
         {json && (
           <OverflowAutoTabsContent value={jsonNoteTabId} overflowContainerClassName="max-h-96">

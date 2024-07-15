@@ -45,7 +45,6 @@ import { transactionCloseRemainderAmountLabel, transactionCloseRemainderToLabel 
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import {
-  actionLabel,
   appCallTransactionDetailsLabel,
   foreignAccountsTabLabel,
   applicationArgsTabLabel,
@@ -58,7 +57,6 @@ import {
 import { base64LogsTabLabel, logsLabel, textLogsTabLabel } from '../components/app-call-transaction-logs'
 import { InnerTransactionPage } from './inner-transaction-page'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
-import { textListAssertion } from '@/tests/assertions/text-list-assertion'
 import {
   assetDecimalsLabel,
   assetDefaultFrozenLabel,
@@ -660,7 +658,6 @@ describe('transaction-page', () => {
                 { term: transactionFeeLabel, description: '0.005' },
                 { term: transactionSenderLabel, description: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY' },
                 { term: applicationIdLabel, description: '971368268' },
-                { term: actionLabel, description: 'Call' },
                 { term: onCompletionLabel, description: 'NoOp' },
               ],
             })
@@ -670,7 +667,7 @@ describe('transaction-page', () => {
           expect(detailsTabList).toBeTruthy()
 
           expect(component.getByRole('tabpanel', { name: applicationArgsTabLabel }).textContent).toMatch(
-            '6r6CnQ==AAAAAAAAAAA=AA==AA==AQ==AQ=='
+            '1.6r6CnQ==2.AAAAAAAAAAA=3.AA==4.AA==5.AQ==6.AQ=='
           )
 
           await user.click(getByRole(detailsTabList, 'tab', { name: foreignAccountsTabLabel }))
@@ -760,7 +757,6 @@ describe('transaction-page', () => {
                 { term: transactionFeeLabel, description: '0.002' },
                 { term: transactionSenderLabel, description: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A' },
                 { term: applicationIdLabel, description: '1002541853' },
-                { term: actionLabel, description: 'Call' },
                 { term: onCompletionLabel, description: 'NoOp' },
               ],
             })
@@ -770,7 +766,7 @@ describe('transaction-page', () => {
           expect(detailsTabList).toBeTruthy()
 
           expect(component.getByRole('tabpanel', { name: applicationArgsTabLabel }).textContent).toMatch(
-            'c3dhcA==Zml4ZWQtaW5wdXQ=AAAAAAAAAAA='
+            '1.c3dhcA==2.Zml4ZWQtaW5wdXQ=3.AAAAAAAAAAA='
           )
 
           await user.click(getByRole(detailsTabList, 'tab', { name: foreignAccountsTabLabel }))
@@ -814,35 +810,36 @@ describe('transaction-page', () => {
 
           const logTabList = component.getByRole('tablist', { name: logsLabel })
           const base64LogViewTab = component.getByRole('tabpanel', { name: base64LogsTabLabel })
-          textListAssertion({
+
+          descriptionListAssertion({
             container: base64LogViewTab,
-            expectedTexts: [
-              'aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA==',
-              'aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0=',
-              'c3dhcF9hbW91bnQgJWkAAAAAACokBw==',
-              'Y2hhbmdlICVpAAAAAAAAAAA=',
-              'b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A=',
-              'b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW',
-              'cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0=',
-              'cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp',
-              'dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2',
+            items: [
+              { term: '1.', description: 'aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA==' },
+              { term: '2.', description: 'aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0=' },
+              { term: '3.', description: 'c3dhcF9hbW91bnQgJWkAAAAAACokBw==' },
+              { term: '4.', description: 'Y2hhbmdlICVpAAAAAAAAAAA=' },
+              { term: '5.', description: 'b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A=' },
+              { term: '6.', description: 'b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW' },
+              { term: '7.', description: 'cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0=' },
+              { term: '8.', description: 'cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp' },
+              { term: '9.', description: 'dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2' },
             ],
           })
 
           await user.click(getByRole(logTabList, 'tab', { name: textLogsTabLabel }))
           const textLogViewTab = component.getByRole('tabpanel', { name: textLogsTabLabel })
-          textListAssertion({
+          descriptionListAssertion({
             container: textLogViewTab,
-            expectedTexts: [
-              base64ToUtf8('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA=='),
-              base64ToUtf8('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0='),
-              base64ToUtf8('c3dhcF9hbW91bnQgJWkAAAAAACokBw=='),
-              base64ToUtf8('Y2hhbmdlICVpAAAAAAAAAAA='),
-              base64ToUtf8('b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A='),
-              base64ToUtf8('b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW'),
-              base64ToUtf8('cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0='),
-              base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp'),
-              base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2'),
+            items: [
+              { term: '1.', description: base64ToUtf8('aW5wdXRfYXNzZXRfaWQgJWkAAAAAAAAAAA==') },
+              { term: '2.', description: base64ToUtf8('aW5wdXRfYW1vdW50ICVpAAAAAAAqRH0=') },
+              { term: '3.', description: base64ToUtf8('c3dhcF9hbW91bnQgJWkAAAAAACokBw==') },
+              { term: '4.', description: base64ToUtf8('Y2hhbmdlICVpAAAAAAAAAAA=') },
+              { term: '5.', description: base64ToUtf8('b3V0cHV0X2Fzc2V0X2lkICVpAAAAAAHhq3A=') },
+              { term: '6.', description: base64ToUtf8('b3V0cHV0X2Ftb3VudCAlaQAAAAAACPNW') },
+              { term: '7.', description: base64ToUtf8('cG9vbGVyc19mZWVfYW1vdW50ICVpAAAAAAAAGw0=') },
+              { term: '8.', description: base64ToUtf8('cHJvdG9jb2xfZmVlX2Ftb3VudCAlaQAAAAAAAAVp') },
+              { term: '9.', description: base64ToUtf8('dG90YWxfZmVlX2Ftb3VudCAlaQAAAAAAACB2') },
             ],
           })
         }
