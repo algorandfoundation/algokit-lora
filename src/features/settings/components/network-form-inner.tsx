@@ -115,40 +115,41 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   )
 }
 
+const nonLocalWalletProviders = [
+  {
+    value: PROVIDER_ID.DEFLY,
+    label: 'Defly',
+  },
+  {
+    value: PROVIDER_ID.DAFFI,
+    label: 'Daffi',
+  },
+  {
+    value: PROVIDER_ID.PERA,
+    label: 'Pera',
+  },
+  {
+    value: PROVIDER_ID.EXODUS,
+    label: 'Exodus',
+  },
+  {
+    value: PROVIDER_ID.LUTE,
+    label: 'Lute',
+  },
+]
+const localWalletProviders = [
+  {
+    value: PROVIDER_ID.KMD,
+    label: 'KMD',
+  },
+  {
+    value: PROVIDER_ID.MNEMONIC,
+    label: 'Mnemonic',
+  },
+]
 const getSupportedWalletProviderOptions = (networkId?: string) => {
-  const nonLocalWalletProviders = [
-    {
-      value: PROVIDER_ID.DEFLY,
-      label: 'Defly',
-    },
-    {
-      value: PROVIDER_ID.DAFFI,
-      label: 'Daffi',
-    },
-    {
-      value: PROVIDER_ID.PERA,
-      label: 'Pera',
-    },
-    {
-      value: PROVIDER_ID.EXODUS,
-      label: 'Exodus',
-    },
-    {
-      value: PROVIDER_ID.LUTE,
-      label: 'Lute',
-    },
-  ]
   if (networkId === localnetId) {
-    return [
-      {
-        value: PROVIDER_ID.KMD,
-        label: 'KMD',
-      },
-      {
-        value: PROVIDER_ID.MNEMONIC,
-        label: 'Mnemonic',
-      },
-    ]
+    return localWalletProviders
   }
   if (networkId === mainnetId || networkId === testnetId) {
     return nonLocalWalletProviders
