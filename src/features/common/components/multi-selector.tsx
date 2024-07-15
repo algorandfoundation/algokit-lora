@@ -392,7 +392,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                     }}
                     onClick={() => handleUnselect(option)}
                   >
-                    <X className="size-4 text-primary-foreground hover:text-foreground" />
+                    <X className="size-3 text-primary-foreground hover:text-foreground" />
                   </button>
                 </Badge>
               )

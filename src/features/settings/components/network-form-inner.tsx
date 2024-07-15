@@ -45,7 +45,6 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   const supportedWalletProviders = useMemo(() => getSupportedWalletProviderOptions(networkId), [networkId])
 
   // TODO: explain that the token is stored in plain text
-  // TODO: fix tab index
   return (
     <>
       {helper.multiSelectField({

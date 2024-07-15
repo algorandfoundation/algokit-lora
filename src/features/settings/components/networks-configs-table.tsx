@@ -95,16 +95,14 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
         Edit
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        {dialogOpen && (
-          <DialogContent className="bg-card">
-            <DialogHeader className="flex-row items-center space-y-0">
-              <h2 className="pb-0">Edit {network.name}</h2>
-            </DialogHeader>
-            <MediumSizeDialogBody>
-              <EditNetworkConfigForm networkConfig={network} onSuccess={() => setDialogOpen(false)} />
-            </MediumSizeDialogBody>
-          </DialogContent>
-        )}
+        <DialogContent className="bg-card">
+          <DialogHeader className="flex-row items-center space-y-0">
+            <h2 className="pb-0">Edit {network.name}</h2>
+          </DialogHeader>
+          <MediumSizeDialogBody>
+            <EditNetworkConfigForm networkConfig={network} onSuccess={() => setDialogOpen(false)} />
+          </MediumSizeDialogBody>
+        </DialogContent>
       </Dialog>
     </>
   )

@@ -26,19 +26,17 @@ export function ConfirmButton({ children, dialogContent, onConfirm: onConfirmPro
         {children}
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        {dialogOpen && (
-          <DialogContent className="bg-card">
-            <SmallSizeDialogBody>
-              {dialogContent}
-              <div className="mt-4 flex justify-end gap-2">
-                <Button variant="default" onClick={onConfirm}>
-                  Confirm
-                </Button>
-                <CancelButton onClick={() => setDialogOpen(false)} />
-              </div>
-            </SmallSizeDialogBody>
-          </DialogContent>
-        )}
+        <DialogContent className="bg-card">
+          <SmallSizeDialogBody>
+            {dialogContent}
+            <div className="mt-4 flex justify-end gap-2">
+              <Button variant="default" onClick={onConfirm}>
+                Confirm
+              </Button>
+              <CancelButton onClick={() => setDialogOpen(false)} />
+            </div>
+          </SmallSizeDialogBody>
+        </DialogContent>
       </Dialog>
     </>
   )
