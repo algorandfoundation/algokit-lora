@@ -6,7 +6,7 @@ import { ApplicationBox } from '../models'
 import { ApplicationId } from '../data/types'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { useLoadableApplicationBox } from '../data/application-boxes'
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTrigger, MediumSizeDialogBody } from '@/features/common/components/dialog'
 
 type Props = { applicationId: ApplicationId; boxName: string }
 
@@ -17,13 +17,13 @@ export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
       <DialogTrigger>
         <label className={cn('text-primary underline cursor-pointer')}>{boxName}</label>
       </DialogTrigger>
-      <DialogContent className="w-[800px]">
+      <DialogContent>
         <DialogHeader>
           <h2>{dialogTitle}</h2>
         </DialogHeader>
-        <div className="p-4">
+        <MediumSizeDialogBody>
           <InternalDialogContent applicationId={applicationId} boxName={boxName} />
-        </div>
+        </MediumSizeDialogBody>
       </DialogContent>
     </Dialog>
   )

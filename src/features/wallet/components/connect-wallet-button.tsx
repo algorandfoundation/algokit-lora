@@ -1,7 +1,7 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { Account, PROVIDER_ID, Provider, clearAccounts, useWallet } from '@txnlab/use-wallet'
-import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
@@ -185,11 +185,11 @@ export function ConnectWalletButton() {
     <>
       {button}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="w-[500px] bg-card" onOpenAutoFocus={preventDefault}>
+        <DialogContent className="bg-card" onOpenAutoFocus={preventDefault}>
           <DialogHeader>
             <h2>Wallet Providers</h2>
           </DialogHeader>
-          <div className="flex flex-col space-y-2 p-4">
+          <SmallSizeDialogBody className="flex flex-col space-y-2 p-4">
             {!isReady
               ? availableProviders.map((providerId) => (
                   // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
@@ -213,7 +213,7 @@ export function ConnectWalletButton() {
                     />
                   )
                 )}
-          </div>
+          </SmallSizeDialogBody>
         </DialogContent>
       </Dialog>
     </>
