@@ -16,14 +16,14 @@ export const tableAssertion = ({ container, rows, matchRowCount }: TableAssertio
   expect(tableBody, 'tbody not found').toBeTruthy()
   const tableRows = getAllByRole(tableBody!, 'row')
 
+  if (matchRowCount) {
+    expect(tableRows.length).toBe(rows.length)
+  }
+
   rows.forEach((row, index) => {
     const dataRow = tableRows[index]
     row.cells.forEach((cell, index) => {
       expect(getAllByRole(dataRow, 'cell')[index].textContent).toBe(cell)
     })
   })
-
-  if (matchRowCount) {
-    expect(rows.length).toBe(tableRows.length)
-  }
 }

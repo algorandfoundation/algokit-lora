@@ -5,26 +5,25 @@ import { NumericFormat } from 'react-number-format'
 import { cn } from '@/features/common/utils'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
 
-type InputProps = {
+export type InputNumberProps<TSchema extends Record<string, any> = Record<string, any>> = {
   decimalScale?: number
   thousandSeparator?: boolean
-  className?: string
   placeholder?: string
-  disabled?: boolean
-}
-export type InputNumberProps<TSchema extends Record<string, any> = Record<string, any>> = InputProps & {
   field: FieldPath<TSchema>
+  className?: string
+  disabled?: boolean
+  ['aria-label']?: string
 }
 
 export function InputNumber<TSchema extends Record<string, any> = Record<string, any>>({ field, ...rest }: InputNumberProps<TSchema>) {
-  return <Controller render={({ field }) => <NumberFormat {...field} {...rest} />} name={field} />
+  return <Controller name={field} render={({ field }) => <NumericFormatWithRef {...field} {...rest} />} />
 }
 
-type NumberFormatProps = InputProps & {
+type NumericFormatWithRefProps<TSchema extends Record<string, any> = Record<string, any>> = Omit<InputNumberProps<TSchema>, 'field'> & {
   value: number | undefined
   onChange: (value: number | undefined) => void
 }
-const NumberFormat = forwardRef<HTMLInputElement, NumberFormatProps>(
+const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefProps>(
   ({ onChange, value, className, decimalScale, thousandSeparator, ...rest }, ref) => {
     return (
       <NumericFormat
@@ -61,7 +60,7 @@ export function NumberFormItem<TSchema extends Record<string, any> = Record<stri
 }: NumberFormItemProps<TSchema>) {
   return (
     <FormItem {...props} field={field} disabled={disabled}>
-      <InputNumber field={field} placeholder={placeholder} decimalScale={decimalScale} disabled={disabled} />
+      <InputNumber field={field} placeholder={placeholder} decimalScale={decimalScale} disabled={disabled} aria-label={field} />
     </FormItem>
   )
 }

@@ -13,6 +13,7 @@ import { NetworkConfigWithId } from '@/features/settings/data/types'
 import { Pencil, Trash } from 'lucide-react'
 
 export const networkConfigsTableLabel = 'network-configs-table'
+export const createNetworkConfigDialogLabel = 'Create Network'
 
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
@@ -33,9 +34,9 @@ export function NetworksConfigsTable() {
       />
       <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
         {createNetworkConfigDialogOpen && (
-          <DialogContent className="bg-card">
+          <DialogContent className="bg-card" aria-label={createNetworkConfigDialogLabel}>
             <DialogHeader className="flex-row items-center space-y-0">
-              <h2 className="pb-0">Create Network</h2>
+              <h2 className="pb-0">{createNetworkConfigDialogLabel}</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
               <CreateNetworkConfigForm onSuccess={() => setCreateNetworkConfigDialogOpen(false)} />
