@@ -21,6 +21,7 @@ interface DataTableProps<TData, TValue> {
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
   onCreateButtonClick?: () => void
+  ariaLabel?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -30,6 +31,7 @@ export function DataTable<TData, TValue>({
   getSubRows,
   subRowsExpanded,
   onCreateButtonClick,
+  ariaLabel,
 }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const table = useReactTable({
@@ -61,7 +63,7 @@ export function DataTable<TData, TValue>({
         )}
       </div>
       <div className="grid">
-        <Table className="border-b">
+        <Table className="border-b" aria-label={ariaLabel}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="border-t bg-muted/50">

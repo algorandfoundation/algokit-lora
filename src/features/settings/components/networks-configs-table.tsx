@@ -12,6 +12,8 @@ import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 import { Pencil, Trash } from 'lucide-react'
 
+export const networkConfigsTableLabel = 'network-configs-table'
+
 export function NetworksConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
   const networkConfigs = useNetworkConfigs()
@@ -23,6 +25,7 @@ export function NetworksConfigsTable() {
   return (
     <>
       <DataTable
+        ariaLabel={networkConfigsTableLabel}
         tableName={'Networks'}
         columns={tableColumns}
         data={data}
