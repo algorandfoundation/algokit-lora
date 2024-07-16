@@ -3,16 +3,12 @@ import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { settingsStore } from './settings'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
-import { NetworkConfig, NetworkConfigWithId } from './types'
+import { localnetId, mainnetId, NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, testnetId } from './types'
 
 const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
 const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
 
-export const localnetId = 'localnet'
-export const testnetId = 'testnet'
-export const mainnetId = 'mainnet'
-
-export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
+export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {
     name: 'LocalNet',
     indexer: {
@@ -59,12 +55,14 @@ export const defaultNetworkConfigs: Record<string, NetworkConfig> = {
 }
 
 // TODO: Prompt for token - Up to 3 (at least 2)
+// TODO: Allow customising the localnet settings as part of viewing localnet
+// TODO: Check clearing logic works for all wallet providers
 
-const customNetworkConfigsAtom = atomWithStorage<Record<string, NetworkConfig>>('network-configs', {}, undefined, {
+const customNetworkConfigsAtom = atomWithStorage<Record<NetworkId, NetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,
 })
 
-const networkConfigsAtom = atom<Record<string, NetworkConfig>>((get) => {
+const networkConfigsAtom = atom<Record<NetworkId, NetworkConfig>>((get) => {
   const customNetworkConfigs = get(customNetworkConfigsAtom)
 
   return {
@@ -76,25 +74,27 @@ const networkConfigsAtom = atom<Record<string, NetworkConfig>>((get) => {
 export const useNetworkConfigs = () => {
   return useAtomValue(networkConfigsAtom, { store: settingsStore })
 }
+
 export const useSetCustomNetworkConfig = () => {
   const setCustomNetworksConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
 
   return useCallback(
-    (networkId: string, networkConfig: NetworkConfig) => {
+    (id: NetworkId, networkConfig: NetworkConfig) => {
       setCustomNetworksConfigs((prev) => ({
         ...prev,
-        [networkId]: networkConfig,
+        [id]: networkConfig,
       }))
     },
     [setCustomNetworksConfigs]
   )
 }
+
 export const useDeleteCustomNetworkConfig = () => {
   const setCustomNetworksConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
   return useCallback(
-    (networkId: string) => {
+    (id: NetworkId) => {
       setCustomNetworksConfigs((prev) => {
-        delete prev[networkId]
+        delete prev[id]
         return { ...prev }
       })
     },
@@ -102,22 +102,58 @@ export const useDeleteCustomNetworkConfig = () => {
   )
 }
 
-const storedSelectedNetworkAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
-const selectedNetworkAtom = atomWithRefresh((get) => {
+const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
+const selectedNetworkAtomId = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)
 
   if (networkId in networkConfigs) {
     return networkId
   }
-  return get(storedSelectedNetworkAtom)
+  return get(storedSelectedNetworkIdAtom)
 })
 
-export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
-  const id = get(selectedNetworkAtom)
-  const networkConfigs = get(networkConfigsAtom)
+const networksPromptedTokensAtom = atom<Record<NetworkId, NetworkTokens>>({})
 
-  if (id === localnetId) {
+export const useNetworkPromptedTokens = (id: NetworkId) => {
+  const networksPromptedTokens = useAtomValue(networksPromptedTokensAtom, { store: settingsStore })
+  return id in networksPromptedTokens ? networksPromptedTokens[id] : undefined
+}
+
+export const useSetNetworkPromptedTokens = () => {
+  const setPromptedNetworkTokens = useSetAtom(networksPromptedTokensAtom, { store: settingsStore })
+
+  return useCallback(
+    (id: NetworkId, tokens: NetworkTokens) => {
+      setPromptedNetworkTokens((prev) => ({
+        ...prev,
+        [id]: tokens,
+      }))
+    },
+    [setPromptedNetworkTokens]
+  )
+}
+
+const shouldPromptForTokens = atom((get) => {
+  const networkConfig = get(networkConfigAtom)
+  return (
+    (networkConfig.algod.promptForToken && !networkConfig.algod.token) ||
+    (networkConfig.indexer.promptForToken && !networkConfig.indexer.token) ||
+    (networkConfig.kmd?.promptForToken && !networkConfig?.kmd.token)
+  )
+})
+
+export const useShouldPromptForTokens = () => {
+  return useAtomValue(shouldPromptForTokens, { store: settingsStore })
+}
+
+export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
+  const selectedNetworkId = get(selectedNetworkAtomId)
+  const networkConfigs = get(networkConfigsAtom)
+  const networksPromptedTokens = get(networksPromptedTokensAtom)
+
+  // TODO: NC - This should be done more generically, so it handles all custom network configurations
+  if (selectedNetworkId === localnetId) {
     nonLocalnetWalletProviders.forEach((providerId) => {
       clearAccounts(providerId)
     })
@@ -128,19 +164,33 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
     })
   }
 
-  if (id in networkConfigs) {
-    return {
-      id,
-      ...networkConfigs[id],
+  let id = selectedNetworkId
+  if (!(selectedNetworkId in networkConfigs)) {
+    id = localnetId
+    // eslint-disable-next-line no-console
+    console.warn(`Unknown network: ${selectedNetworkId}, fallback to ${defaultNetworkConfigs.localnet.name}`)
+  }
+
+  const config = {
+    id,
+    ...networkConfigs[id],
+  }
+
+  // Use prompted tokens if they have been supplied
+  const networkTokens = id in networksPromptedTokens ? networksPromptedTokens[id] : undefined
+  if (networkTokens) {
+    if (config.algod.promptForToken === true) {
+      config.algod.token = networkTokens.algod
+    }
+    if (config.indexer.promptForToken === true) {
+      config.indexer.token = networkTokens.indexer
+    }
+    if (config.kmd && config.kmd.promptForToken === true) {
+      config.kmd.token = networkTokens.kmd
     }
   }
 
-  // eslint-disable-next-line no-console
-  console.warn(`Unknown network: ${id}, fallback to ${defaultNetworkConfigs.localnet.name}`)
-  return {
-    id: localnetId,
-    ...defaultNetworkConfigs.localnet,
-  }
+  return config
 })
 
 export const useNetworkConfig = () => {
@@ -149,12 +199,12 @@ export const useNetworkConfig = () => {
 
 export const useSelectedNetwork = () => {
   const setSelectedNetwork = useSetSelectedNetwork()
-  return [useAtomValue(selectedNetworkAtom, { store: settingsStore }), setSelectedNetwork] as const
+  return [useAtomValue(selectedNetworkAtomId, { store: settingsStore }), setSelectedNetwork] as const
 }
 
 export const useSetSelectedNetwork = () => {
   const { providers } = useWallet()
-  const setStorageNetwork = useSetAtom(storedSelectedNetworkAtom, { store: settingsStore })
+  const setStorageNetwork = useSetAtom(storedSelectedNetworkIdAtom, { store: settingsStore })
 
   return useCallback(
     async (selectedNetwork: string) => {
@@ -169,7 +219,7 @@ export const useSetSelectedNetwork = () => {
       }
       setStorageNetwork(selectedNetwork)
       // Refresh selected network atom value
-      settingsStore.set(selectedNetworkAtom)
+      settingsStore.set(selectedNetworkAtomId)
     },
     [providers, setStorageNetwork]
   )

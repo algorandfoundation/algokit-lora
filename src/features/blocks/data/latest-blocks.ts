@@ -25,10 +25,11 @@ import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
 import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
 
-const runningSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
-const subscriberStatusAtom = atom<SubscriberStatus>(runningSubscriberStatus)
+const notStartedSubscriberStatus = { state: SubscriberState.NotStarted } satisfies SubscriberStatus
+const startedSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
+const subscriberStatusAtom = atom<SubscriberStatus>(notStartedSubscriberStatus)
 const startSubscriberAtom = atom(null, (_get, set) => {
-  set(subscriberStatusAtom, runningSubscriberStatus)
+  set(subscriberStatusAtom, startedSubscriberStatus)
   const subscriber = set(subscriberAtom)
   subscriber.start()
 })
@@ -330,6 +331,7 @@ const subscriberAtom = atom(null, (get, set) => {
 const subscribeToBlocksEffect = atomEffect((_get, set) => {
   const subscriber = set(subscriberAtom)
 
+  set(subscriberStatusAtom, startedSubscriberStatus)
   subscriber.start()
 
   return async () => {

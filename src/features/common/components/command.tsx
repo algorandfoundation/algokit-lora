@@ -4,7 +4,7 @@ import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Command as CommandPrimitive } from 'cmdk'
 import { Dialog, DialogContent } from '@/features/common/components/dialog'
 import { cn } from '../utils'
-import { XIcon } from 'lucide-react'
+import { X } from 'lucide-react'
 import { Button } from '@/features/common/components/button'
 
 const Command = React.forwardRef<React.ElementRef<typeof CommandPrimitive>, React.ComponentPropsWithoutRef<typeof CommandPrimitive>>(
@@ -59,7 +59,7 @@ const CommandInput = React.forwardRef<
         aria-label={clearSearchButtonLabel}
         className={cn('size-4 text-muted-foreground')}
       >
-        <XIcon size={'1rem'} />
+        <X />
       </Button>
     )}
   </div>

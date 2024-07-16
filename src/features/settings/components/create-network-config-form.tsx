@@ -2,7 +2,7 @@ import { Form } from '@/features/forms/components/form'
 import { useCallback, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { useNetworkConfigs, useSetCustomNetworkConfig } from '@/features/settings/data'
+import { defaultNetworkConfigs, useNetworkConfigs, useSetCustomNetworkConfig } from '@/features/settings/data'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -49,8 +49,8 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       }}
       formAction={
         <FormActions>
-          <SubmitButton>Save</SubmitButton>
           <CancelButton onClick={onSuccess} />
+          <SubmitButton>Save</SubmitButton>
         </FormActions>
       }
     >
@@ -59,6 +59,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
           {helper.textField({
             label: 'Name',
             field: 'name',
+            placeholder: defaultNetworkConfigs.localnet.name,
           })}
           <NetworkFormInner helper={helper} />
         </>

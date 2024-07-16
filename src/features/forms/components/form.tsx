@@ -6,6 +6,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { asError } from '@/utils/error'
+import { cn } from '@/features/common/utils'
 
 export interface FormProps<TData, TSchema extends Record<string, any>> {
   className?: string
@@ -14,17 +15,18 @@ export interface FormProps<TData, TSchema extends Record<string, any>> {
   defaultValues?: DefaultValues<TSchema>
   children: ReactNode | ((helper: FormFieldHelper<TSchema>) => ReactNode)
   formAction: ReactNode
-  onSuccess: (data: TData) => void
+  onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, any>>) => Promise<TData>
 }
 
 export function Form<TData, TSchema extends Record<string, any>>({
+  className,
   header,
   schema,
   children,
   formAction,
   defaultValues,
-  onSubmit: onSubmitProp,
+  onSubmit: _onSubmit,
   onSuccess,
 }: FormProps<TData, TSchema>) {
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
@@ -41,7 +43,7 @@ export function Form<TData, TSchema extends Record<string, any>>({
       setSubmitting(true)
       setErrorMessage(undefined)
       try {
-        const data = await onSubmitProp?.(values)
+        const data = await _onSubmit(values)
         onSuccess?.(data)
       } catch (error: unknown) {
         setErrorMessage(asError(error).message)
@@ -49,21 +51,21 @@ export function Form<TData, TSchema extends Record<string, any>>({
         setSubmitting(false)
       }
     },
-    [onSubmitProp, onSuccess]
+    [_onSubmit, onSuccess]
   )
 
   const handleSubmit = formCtx.handleSubmit(onSubmit)
 
   return (
     <div className={'grid'}>
-      <h1>{header}</h1>
+      {header && <h2>{header}</h2>}
       <FormStateContextProvider
         value={{
           submitting,
         }}
       >
         <FormProvider {...formCtx}>
-          <form className={'mt-4 grid gap-2'} onSubmit={handleSubmit}>
+          <form className={cn('grid gap-4', className)} onSubmit={handleSubmit}>
             {typeof children === 'function' ? children(new FormFieldHelper<TSchema>()) : children}
             {errorMessage && <div className="text-error">{errorMessage}</div>}
             {formAction}

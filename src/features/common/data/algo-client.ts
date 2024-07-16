@@ -10,7 +10,7 @@ Config.configure({
 })
 
 const shouldCreateKmdClient = (config: NetworkConfig) => {
-  return config.kmd && config.walletProviders.includes(PROVIDER_ID.KMD)
+  return config.kmd && config.kmd.token && config.walletProviders.includes(PROVIDER_ID.KMD)
 }
 
 // Init the network config from local storage

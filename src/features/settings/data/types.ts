@@ -10,6 +10,12 @@ export type ServiceConfig = {
   token?: string
 }
 
+export const localnetId = 'localnet'
+export const testnetId = 'testnet'
+export const mainnetId = 'mainnet'
+
+export type NetworkId = typeof localnetId | typeof testnetId | typeof mainnetId | string
+
 export type NetworkConfig = {
   name: string
   indexer: ServiceConfig
@@ -19,5 +25,11 @@ export type NetworkConfig = {
 }
 
 export type NetworkConfigWithId = {
-  id: string
+  id: NetworkId
 } & NetworkConfig
+
+export type NetworkTokens = {
+  algod?: string
+  indexer?: string
+  kmd?: string
+}

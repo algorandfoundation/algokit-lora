@@ -16,17 +16,23 @@ export type InputNumberProps<TSchema extends Record<string, any> = Record<string
 }
 
 export function InputNumber<TSchema extends Record<string, any> = Record<string, any>>({ field, ...rest }: InputNumberProps<TSchema>) {
-  return <Controller name={field} render={({ field }) => <NumericFormatWithRef {...field} {...rest} />} />
+  return (
+    <Controller
+      name={field}
+      render={({ field: controllerField }) => <NumericFormatWithRef field={field} {...controllerField} {...rest} />}
+    />
+  )
 }
 
-type NumericFormatWithRefProps<TSchema extends Record<string, any> = Record<string, any>> = Omit<InputNumberProps<TSchema>, 'field'> & {
+type NumericFormatWithRefProps<TSchema extends Record<string, any> = Record<string, any>> = InputNumberProps<TSchema> & {
   value: number | undefined
   onChange: (value: number | undefined) => void
 }
 const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefProps>(
-  ({ onChange, value, className, decimalScale, thousandSeparator, ...rest }, ref) => {
+  ({ onChange, value, className, decimalScale, thousandSeparator, field, ...rest }, ref) => {
     return (
       <NumericFormat
+        id={field}
         className={cn(
           'border-input ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
           className

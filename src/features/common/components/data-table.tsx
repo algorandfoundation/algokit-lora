@@ -54,10 +54,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex gap-2 pb-4 ">
-        {tableName && <h2>{tableName}</h2>}
+      {/* TODO: NC - Not sure this really belongs in this component */}
+      <div className="mb-4 flex items-center gap-2">
+        {tableName && <h2 className="pb-0">{tableName}</h2>}
         {onCreateButtonClick && (
-          <Button variant="secondary" onClick={onCreateButtonClick} className={'ml-auto w-28'} icon={<Plus size={16} />}>
+          <Button variant="outline-secondary" onClick={onCreateButtonClick} className={'ml-auto w-28'} icon={<Plus size={16} />}>
             Create
           </Button>
         )}

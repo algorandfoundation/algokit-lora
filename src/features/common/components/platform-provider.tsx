@@ -1,4 +1,4 @@
-import { useNetworkConfig, useResolvedTheme } from '@/features/settings/data'
+import { useNetworkConfig, useResolvedTheme, useShouldPromptForTokens } from '@/features/settings/data'
 import { PropsWithChildren } from 'react'
 import { WalletProvider } from './wallet-provider'
 import { DataProvider } from './data-provider'
@@ -16,19 +16,28 @@ function RegisterGlobalEffects() {
 export function PlatformProvider({ children }: PropsWithChildren) {
   const networkConfig = useNetworkConfig()
   const dataProviderToken = useDataProviderToken()
+  const shouldPromptForTokens = useShouldPromptForTokens()
   const theme = useResolvedTheme()
   useTheme()
 
   const key = `${networkConfig.id}-${dataProviderToken}`
 
+  // The DataProvider key prop is super important it governs if the provider is reinitialized
+  const dataProvider = shouldPromptForTokens ? (
+    <DataProvider key={`${key}-tokenprompt`} networkConfig={networkConfig}>
+      {children}
+    </DataProvider>
+  ) : (
+    <DataProvider key={key} networkConfig={networkConfig}>
+      <RegisterGlobalEffects />
+      <WalletProvider networkConfig={networkConfig}>{children}</WalletProvider>
+    </DataProvider>
+  )
+
   return (
-    // The key prop is super important it governs if the provider is reinitialized
     <>
       <ToastContainer theme={theme} toastClassName="border" />
-      <DataProvider key={key} networkConfig={networkConfig}>
-        <RegisterGlobalEffects />
-        <WalletProvider networkConfig={networkConfig}>{children}</WalletProvider>
-      </DataProvider>
+      {dataProvider}
     </>
   )
 }

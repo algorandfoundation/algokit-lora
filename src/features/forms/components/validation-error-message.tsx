@@ -3,5 +3,5 @@ export interface ValidationErrorMessageProps {
 }
 
 export function ValidationErrorMessage({ message }: ValidationErrorMessageProps) {
-  return message ? <span className={'mt-1 text-error'}>{message}</span> : <></>
+  return message ? <span className={'ml-0.5 mt-0.5 text-sm text-error'}>{message}</span> : undefined
 }

@@ -3,16 +3,25 @@ import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
 import { useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Urls } from '@/routes/urls'
+
+const settingsUrl = Urls.Settings.build({})
 
 export function NetworkSelect() {
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
   const networkConfigs = useNetworkConfigs()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const handleNetworkChange = useCallback(
     async (value: string) => {
+      if (location.pathname !== settingsUrl) {
+        navigate(settingsUrl)
+      }
       await setSelectedNetwork(value)
     },
-    [setSelectedNetwork]
+    [location.pathname, navigate, setSelectedNetwork]
   )
 
   return (

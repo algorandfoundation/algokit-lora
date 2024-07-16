@@ -27,7 +27,7 @@ export function NetworksConfigsTable() {
     <>
       <DataTable
         ariaLabel={networkConfigsTableLabel}
-        tableName={'Networks'}
+        tableName="Networks"
         columns={tableColumns}
         data={data}
         onCreateButtonClick={() => setCreateNetworkConfigDialogOpen(true)}
@@ -54,14 +54,14 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     accessorFn: (item) => item.name,
   },
   {
-    header: 'Indexer',
-    meta: { className: 'hidden md:table-cell' },
-    accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
-  },
-  {
     header: 'Algod',
     meta: { className: 'hidden md:table-cell' },
     accessorFn: (item) => `${trimCharacterFromEnd(item.algod.server, '/')}:${item.algod.port}`,
+  },
+  {
+    header: 'Indexer',
+    meta: { className: 'hidden md:table-cell' },
+    accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
   },
   {
     id: 'edit',

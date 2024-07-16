@@ -17,7 +17,15 @@ export function TextFormItem<TSchema extends Record<string, any> = Record<string
 
   return (
     <FormItem {...props} field={field}>
-      <Input autoComplete={'off'} type="text" {...register(field)} placeholder={placeholder} disabled={props.disabled} aria-label={field} />
+      <Input
+        id={field}
+        autoComplete={'off'}
+        type="text"
+        {...register(field)}
+        placeholder={placeholder}
+        disabled={props.disabled}
+        aria-label={field}
+      />
     </FormItem>
   )
 }

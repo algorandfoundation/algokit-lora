@@ -66,6 +66,7 @@ export type Round = number
 export enum SubscriberState {
   Stopped = 'Stopped',
   Started = 'Started',
+  NotStarted = 'NotStarted',
 }
 
 export enum SubscriberStoppedReason {
@@ -83,6 +84,9 @@ export type SubscriberStoppedDetails =
     }
 
 export type SubscriberStatus =
+  | {
+      state: SubscriberState.NotStarted
+    }
   | {
       state: SubscriberState.Started
     }

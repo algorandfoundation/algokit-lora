@@ -77,20 +77,16 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       formAction={
         <FormActions>
           {isBuiltInNetwork && (
-            <Button type="button" variant={'outline-secondary'} className={'w-28'} onClick={onReset}>
+            <Button type="button" variant="destructive" className="mr-auto" onClick={onReset}>
               Reset
             </Button>
           )}
-          <SubmitButton>Save</SubmitButton>
           <CancelButton onClick={onSuccess} />
+          <SubmitButton>Save</SubmitButton>
         </FormActions>
       }
     >
-      {(helper) => (
-        <>
-          <NetworkFormInner networkId={networkConfig.id} helper={helper} />
-        </>
-      )}
+      {(helper) => <NetworkFormInner networkId={networkConfig.id} helper={helper} />}
     </Form>
   )
 }

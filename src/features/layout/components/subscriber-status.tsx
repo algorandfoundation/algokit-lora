@@ -9,14 +9,19 @@ import { useIdleTimer } from 'react-idle-timer'
 
 const idleTimeoutMillis = 300_000 // 5 minutes
 
-export function SubscriberStatus() {
-  const [subscriberStatus, startSubscriber, stopSubscriber] = useSubscriber()
+type Props = {
+  status: ReturnType<typeof useSubscriber>[0]
+  start: ReturnType<typeof useSubscriber>[1]
+  stop: ReturnType<typeof useSubscriber>[2]
+}
+
+function SubscriberStatusInner({ status, start, stop }: Props) {
   const networkMatchesCachedData = useNetworkMatchesCachedData()
   const refreshDataProviderToken = useRefreshDataProviderToken()
 
   const reconnect = useCallback(async () => {
     try {
-      if (subscriberStatus.state !== SubscriberState.Stopped) {
+      if (status.state !== SubscriberState.Stopped) {
         return
       }
 
@@ -25,9 +30,9 @@ export function SubscriberStatus() {
       // Check if the network were about to connect to matches the cached data
       // If it doesn't then it's a new network state, which is likely because LocalNet has been reset.
       const networkMatch = await networkMatchesCachedData()
-      if (networkMatch && subscriberStatus.timestamp > expiredTimestamp) {
+      if (networkMatch && status.timestamp > expiredTimestamp) {
         // Same network and the tip isn't too far ahead, just restart the subscriber
-        startSubscriber()
+        start()
       } else {
         // Clear cached data, which will restart the subscriber automatically
         refreshDataProviderToken()
@@ -36,15 +41,15 @@ export function SubscriberStatus() {
       // eslint-disable-next-line no-console
       console.error(e)
     }
-  }, [subscriberStatus, networkMatchesCachedData, startSubscriber, refreshDataProviderToken])
+  }, [status, networkMatchesCachedData, start, refreshDataProviderToken])
 
   const pause = useCallback(async () => {
-    if (subscriberStatus.state !== SubscriberState.Started) {
+    if (status.state !== SubscriberState.Started) {
       return
     }
 
-    await stopSubscriber({ reason: SubscriberStoppedReason.Inactivity })
-  }, [stopSubscriber, subscriberStatus.state])
+    await stop({ reason: SubscriberStoppedReason.Inactivity })
+  }, [stop, status.state])
 
   useIdleTimer({
     onIdle: pause,
@@ -53,12 +58,12 @@ export function SubscriberStatus() {
     throttle: 500,
   })
 
-  if (subscriberStatus.state === SubscriberState.Stopped) {
-    if (subscriberStatus.details.reason === SubscriberStoppedReason.Error) {
-      let message = subscriberStatus.details.error.message
-      if (subscriberStatus.details.error.message.toLowerCase().includes('failed to fetch')) {
+  if (status.state === SubscriberState.Stopped) {
+    if (status.details.reason === SubscriberStoppedReason.Error) {
+      let message = status.details.error.message
+      if (status.details.error.message.toLowerCase().includes('failed to fetch')) {
         message = 'Subscription failed to retrieve data'
-      } else if (subscriberStatus.details.error.message.toLowerCase().includes('daily free')) {
+      } else if (status.details.error.message.toLowerCase().includes('daily free')) {
         message = 'Algonode daily free limit reached'
       }
 
@@ -73,7 +78,7 @@ export function SubscriberStatus() {
       )
     }
 
-    if (subscriberStatus.details.reason === SubscriberStoppedReason.Inactivity) {
+    if (status.details.reason === SubscriberStoppedReason.Inactivity) {
       return (
         <Alert>
           <Info className="size-4" />
@@ -84,4 +89,14 @@ export function SubscriberStatus() {
   }
 
   return undefined
+}
+
+export function SubscriberStatus() {
+  const [subscriberStatus, startSubscriber, stopSubscriber] = useSubscriber()
+
+  if (subscriberStatus.state === SubscriberState.NotStarted) {
+    return undefined
+  }
+
+  return <SubscriberStatusInner status={subscriberStatus} start={startSubscriber} stop={stopSubscriber} />
 }

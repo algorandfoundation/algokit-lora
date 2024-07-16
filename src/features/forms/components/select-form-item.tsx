@@ -27,7 +27,7 @@ export function SelectFormItem<TSchema extends Record<string, any>>({
         name={field}
         render={({ field: { value, onChange } }) => (
           <Select onValueChange={onChange} value={value} disabled={props.disabled}>
-            <SelectTrigger>
+            <SelectTrigger id={field}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent className={cn(className)}>

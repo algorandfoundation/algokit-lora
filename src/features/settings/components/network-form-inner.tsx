@@ -6,12 +6,18 @@ import { Fieldset } from '@/features/forms/components/fieldset'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
-import { localnetId, mainnetId, testnetId } from '@/features/settings/data'
+import { defaultNetworkConfigs, localnetId, mainnetId, testnetId } from '@/features/settings/data'
 
 type FormInnerProps = {
   networkId?: string
   helper: FormFieldHelper<z.infer<typeof editNetworkConfigFormSchema>> | FormFieldHelper<z.infer<typeof createNetworkConfigFormSchema>>
 }
+
+const serverLabel = 'Server'
+const portLabel = 'Port'
+const promptForTokenLabel = 'Prompt for token'
+const tokenLabel = 'Token'
+
 export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   const { setValue, watch } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
   const [kmdRequired, setKmdRequired] = useState(false)
@@ -47,77 +53,94 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
   const supportedWalletProviders = useMemo(() => getSupportedWalletProviderOptions(networkId), [networkId])
 
-  // TODO: explain that the token is stored in plain text
+  // TODO: NC - explain that the token is stored in plain text
   return (
     <>
       {helper.multiSelectField({
         label: 'Wallet providers',
         field: 'walletProviders',
         options: supportedWalletProviders,
+        placeholder: 'Select wallet providers',
       })}
-      <Fieldset legend="Indexer">
-        {helper.textField({
-          label: 'Server',
-          field: 'indexer.server',
-        })}
-        {helper.numberField({
-          label: 'Port',
-          field: 'indexer.port',
-        })}
-        {helper.checkboxField({
-          label: 'Prompt for token',
-          field: 'indexer.promptForToken',
-        })}
-        {helper.passwordField({
-          label: 'Token',
-          field: 'indexer.token',
-          disabled: indexerPromptForToken,
-        })}
-      </Fieldset>
       <Fieldset legend="Algod">
         {helper.textField({
-          label: 'Server',
+          label: serverLabel,
           field: 'algod.server',
+          placeholder: defaultNetworkConfigs.localnet.algod.server,
         })}
         {helper.numberField({
-          label: 'Port',
+          label: portLabel,
           field: 'algod.port',
+          placeholder: defaultNetworkConfigs.localnet.algod.port.toString(),
         })}
-        {helper.checkboxField({
-          label: 'Prompt for token',
-          field: 'algod.promptForToken',
+        <div className="relative">
+          {helper.checkboxField({
+            label: promptForTokenLabel,
+            field: 'algod.promptForToken',
+            className: 'absolute right-0.5 top-0',
+          })}
+          {helper.passwordField({
+            label: tokenLabel,
+            field: 'algod.token',
+            disabled: algodPromptForToken,
+          })}
+        </div>
+      </Fieldset>
+      <Fieldset legend="Indexer">
+        {helper.textField({
+          label: serverLabel,
+          field: 'indexer.server',
+          placeholder: defaultNetworkConfigs.localnet.indexer.server,
         })}
-        {helper.passwordField({
-          label: 'Token',
-          field: 'algod.token',
-          disabled: algodPromptForToken,
+        {helper.numberField({
+          label: portLabel,
+          field: 'indexer.port',
+          placeholder: defaultNetworkConfigs.localnet.indexer.port.toString(),
         })}
+        <div className="relative">
+          {helper.checkboxField({
+            label: promptForTokenLabel,
+            field: 'indexer.promptForToken',
+            className: 'absolute right-0.5 top-0',
+          })}
+          {helper.passwordField({
+            label: tokenLabel,
+            field: 'indexer.token',
+            disabled: indexerPromptForToken,
+          })}
+        </div>
       </Fieldset>
       {kmdRequired && (
         <Fieldset legend="KMD">
           {helper.textField({
-            label: 'Server',
+            label: serverLabel,
             field: 'kmd.server',
+            placeholder: defaultNetworkConfigs.localnet.kmd?.server,
           })}
           {helper.numberField({
-            label: 'Port',
+            label: portLabel,
             field: 'kmd.port',
+            placeholder: defaultNetworkConfigs.localnet.kmd?.port.toString(),
           })}
-          {helper.checkboxField({
-            label: 'Prompt for token',
-            field: 'kmd.promptForToken',
-          })}
-          {helper.passwordField({
-            label: 'Token',
-            field: 'kmd.token',
-            disabled: kmdPromptForToken,
-          })}
+          <div className="relative">
+            {helper.checkboxField({
+              label: promptForTokenLabel,
+              field: 'kmd.promptForToken',
+              className: 'absolute right-0.5 top-0',
+            })}
+            {helper.passwordField({
+              label: tokenLabel,
+              field: 'kmd.token',
+              disabled: kmdPromptForToken,
+            })}
+          </div>
         </Fieldset>
       )}
     </>
   )
 }
 
+// TODO: NC - This should go somewhere else I think
 const nonLocalWalletProviders = [
   {
     value: PROVIDER_ID.DEFLY,

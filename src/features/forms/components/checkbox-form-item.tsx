@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, FieldPath } from 'react-hook-form'
-import { cn } from '@/features/common/utils'
 import { ValidationErrorMessage } from '@/features/forms/components/validation-error-message'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
+import { Label } from '@/features/common/components/label'
+import { cn } from '@/features/common/utils'
 
 export interface CheckboxFormItemProps<TSchema extends Record<string, any>> {
   className?: string
@@ -21,19 +22,21 @@ export function CheckboxFormItem<TSchema extends Record<string, any>>({
   const error = useFormFieldError(field)
 
   return (
-    <div>
-      <label className={cn('flex gap-2 items-center relative', className)} aria-invalid={error ? 'true' : 'false'}>
-        <Controller
-          name={field}
-          render={({ field: { value, onChange } }) => (
-            <>
-              <Checkbox checked={value} onCheckedChange={onChange} {...rest} />
-              {label && <span>{label}</span>}
-            </>
-          )}
-        />
-      </label>
+    <>
+      <Controller
+        name={field}
+        render={({ field: { value, onChange } }) => (
+          <div className={cn('ml-0.5 flex items-center space-x-2', className)}>
+            <Checkbox id={field} checked={value} onCheckedChange={onChange} {...rest} />
+            {label && (
+              <Label htmlFor={field} aria-invalid={Boolean(error)}>
+                {label}
+              </Label>
+            )}
+          </div>
+        )}
+      />
       <ValidationErrorMessage message={error?.message as string} />
-    </div>
+    </>
   )
 }
