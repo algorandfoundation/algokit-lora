@@ -4,8 +4,8 @@ import { ClearCache } from './clear-cache'
 export function Settings() {
   return (
     <div className="space-y-3">
-      <ClearCache />
       <NetworkSelect />
+      <ClearCache />
     </div>
   )
 }

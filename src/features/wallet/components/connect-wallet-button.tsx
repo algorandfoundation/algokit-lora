@@ -1,11 +1,11 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Account, PROVIDER_ID, Provider, clearAccounts, useWallet } from '@txnlab/use-wallet'
+import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { localnetConfig, mainnetConfig, useNetworkConfig } from '@/features/settings/data'
+import { localnetConfig, useNetworkConfig } from '@/features/settings/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
@@ -17,6 +17,7 @@ import { useAtom, useSetAtom } from 'jotai'
 import { ProviderConnectButton } from './provider-connect-button'
 import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
+import { clearAllActiveWallets } from '../data/clear-active-wallets'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -51,16 +52,6 @@ const preventDefault = (e: Event) => {
   e.preventDefault()
 }
 
-export const forceRemoveConnectedWallet = () => {
-  // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-  mainnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
-  })
-  localnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
-  })
-}
-
 function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
 
@@ -68,7 +59,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
     if (activeProvider) {
       await activeProvider.disconnect()
     } else {
-      forceRemoveConnectedWallet()
+      clearAllActiveWallets()
     }
   }, [activeProvider])
 
@@ -77,7 +68,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       if (activeProvider) {
         activeProvider.setActiveAccount(address)
       } else {
-        forceRemoveConnectedWallet()
+        clearAllActiveWallets()
       }
     },
     [activeProvider]
