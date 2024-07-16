@@ -18,10 +18,13 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
   const walletProviders = watch('walletProviders')
   useEffect(() => {
-    if (walletProviders.includes(PROVIDER_ID.KMD)) {
-      setKmdRequired(true)
+    const isKmdRequired = walletProviders.includes(PROVIDER_ID.KMD)
+
+    setKmdRequired(isKmdRequired)
+    if (!isKmdRequired) {
+      setValue('kmd', undefined)
     }
-  }, [walletProviders])
+  }, [setValue, walletProviders])
 
   const indexerPromptForToken = watch('indexer.promptForToken')
   useEffect(() => {

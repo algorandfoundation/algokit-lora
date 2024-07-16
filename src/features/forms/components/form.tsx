@@ -40,7 +40,6 @@ export function Form<TData, TSchema extends Record<string, any>>({
     async (values: z.infer<z.ZodEffects<any, TSchema, any>>) => {
       setSubmitting(true)
       setErrorMessage(undefined)
-
       try {
         const data = await onSubmitProp?.(values)
         onSuccess?.(data)
@@ -53,7 +52,7 @@ export function Form<TData, TSchema extends Record<string, any>>({
     [onSubmitProp, onSuccess]
   )
 
-  const handleSubmit = onSubmit && formCtx.handleSubmit(onSubmit)
+  const handleSubmit = formCtx.handleSubmit(onSubmit)
 
   return (
     <div className={'grid'}>
@@ -61,7 +60,6 @@ export function Form<TData, TSchema extends Record<string, any>>({
       <FormStateContextProvider
         value={{
           submitting,
-          validator: schema,
         }}
       >
         <FormProvider {...formCtx}>
