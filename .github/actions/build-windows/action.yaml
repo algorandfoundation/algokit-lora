@@ -15,13 +15,13 @@ runs:
         echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Bump version in tauri.conf.json
-      if: ${{ inputs.release-version != '' }}
-      run: |
-        version="${{ inputs.release-version }}"
-        version="${version/beta./}"
-        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
-      shell: bash
+    # - name: Bump version in tauri.conf.json
+    #   if: ${{ inputs.release-version != '' }}
+    #   run: |
+    #     version="${{ inputs.release-version }}"
+    #     version="${version/beta./}"
+    #     sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
+    #   shell: bash
 
     - name: Build tauri app
       env:
