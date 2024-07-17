@@ -17,7 +17,8 @@ import { useAtom, useSetAtom } from 'jotai'
 import { ProviderConnectButton } from './provider-connect-button'
 import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
-import { clearAllActiveWallets } from '../data/clear-active-wallets'
+import { clearAvailableWallets } from '../utils/clear-available-wallets'
+import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -54,21 +55,14 @@ const preventDefault = (e: Event) => {
 
 function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
-
-  const disconnectWallet = useCallback(async () => {
-    if (activeProvider) {
-      await activeProvider.disconnect()
-    } else {
-      clearAllActiveWallets()
-    }
-  }, [activeProvider])
+  const disconnectWallet = useDisconnectWallet(activeProvider)
 
   const switchAccount = useCallback(
     (address: string) => {
       if (activeProvider) {
         activeProvider.setActiveAccount(address)
       } else {
-        clearAllActiveWallets()
+        clearAvailableWallets()
       }
     },
     [activeProvider]

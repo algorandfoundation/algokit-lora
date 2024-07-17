@@ -1,25 +1,12 @@
 import { Button } from '@/features/common/components/button'
-import { useCallback } from 'react'
 import { useWallet } from '@txnlab/use-wallet'
-import { clearAllActiveWallets } from '@/features/wallet/data/clear-active-wallets'
-
-const useDisconnectWallet = () => {
-  const { providers } = useWallet()
-
-  const disconnectWallet = useCallback(async () => {
-    const activeProvider = providers?.find((p) => p.isActive)
-    if (activeProvider) {
-      await activeProvider.disconnect()
-    } else {
-      clearAllActiveWallets()
-    }
-  }, [providers])
-
-  return disconnectWallet
-}
+import { useDisconnectWallet } from '@/features/wallet/hooks/use-disconnect-wallet'
+import { useMemo } from 'react'
 
 export function ClearCache() {
-  const disconnectWallet = useDisconnectWallet()
+  const { providers } = useWallet()
+  const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
+  const disconnectWallet = useDisconnectWallet(activeProvider)
 
   const handleClearCache = async () => {
     await disconnectWallet()
@@ -29,7 +16,7 @@ export function ClearCache() {
   return (
     <>
       <h2>Data</h2>
-      <p>Reset cached state and forcefully reload.</p>
+      <p>Reset cached state and reload the app.</p>
       <Button onClick={handleClearCache} variant="outline" size="sm">
         Reset cache
       </Button>
