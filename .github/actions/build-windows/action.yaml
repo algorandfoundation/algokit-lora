@@ -51,5 +51,6 @@ runs:
 
     - name: Build tauri app
       run: |
+        Install-Module -Name TrustedSigning -RequiredVersion ${{ steps.set-variables.outputs.TRUSTED_SIGNING_MODULE_VERSION }} -Force -Repository PSGallery
         npm run tauri build
       shell: pwsh
