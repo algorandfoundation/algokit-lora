@@ -9,11 +9,11 @@ runs:
   steps:
     #  TODO: set up signing certs here when releasing to production
 
-    - name: Get artifact name
-      id: set-env
-      run: |
-        echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
-      shell: bash
+    # - name: Get artifact name
+    #   id: set-env
+    #   run: |
+    #     echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
+    #   shell: bash
 
     # - name: Bump version in tauri.conf.json
     #   if: ${{ inputs.release-version != '' }}
@@ -24,8 +24,6 @@ runs:
     #   shell: bash
 
     - name: Build tauri app
-      env:
-        TAURI_CONFIG: '{ "build": { "beforeBundleCommand": "echo \\"BEFORE_BUNDLE_COMMAND is working!\\""} }'
       run: |
         npm run tauri build
       shell: bash
