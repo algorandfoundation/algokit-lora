@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/feat
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
+import { Fragment, useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { Label } from '@/features/common/components/label'
@@ -183,6 +183,35 @@ export function ConnectWalletButton() {
     }
   }
 
+  let walletProviders: JSX.Element = <></>
+  if (!isReady) {
+    walletProviders = (
+      <Fragment>
+        {networkConfig.walletProviders.map((providerId) => (
+          // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
+          <div className="h-10" key={`placeholder-${providerId}`}>
+            &nbsp;
+          </div>
+        ))}
+      </Fragment>
+    )
+  } else if (!activeAddress) {
+    if (availableProviders.length > 0) {
+      walletProviders = (
+        <Fragment>
+          {availableProviders.map((provider) =>
+            provider.metadata.id === PROVIDER_ID.KMD ? (
+              <KmdProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
+            ) : (
+              <ProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
+            )
+          )}
+        </Fragment>
+      )
+    } else {
+      walletProviders = <p>No wallet providers available</p>
+    }
+  }
   return (
     <>
       {button}
@@ -191,31 +220,7 @@ export function ConnectWalletButton() {
           <DialogHeader>
             <h2>Wallet Providers</h2>
           </DialogHeader>
-          <SmallSizeDialogBody className="flex flex-col space-y-2 p-4">
-            {!isReady
-              ? networkConfig.walletProviders.map((providerId) => (
-                  // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
-                  <div className="h-10" key={`placeholder-${providerId}`}>
-                    &nbsp;
-                  </div>
-                ))
-              : !activeAddress &&
-                availableProviders.map((provider) =>
-                  provider.metadata.id === PROVIDER_ID.KMD ? (
-                    <KmdProviderConnectButton
-                      key={`provider-${provider.metadata.id}`}
-                      provider={provider}
-                      onConnect={selectProvider(provider)}
-                    />
-                  ) : (
-                    <ProviderConnectButton
-                      key={`provider-${provider.metadata.id}`}
-                      provider={provider}
-                      onConnect={selectProvider(provider)}
-                    />
-                  )
-                )}
-          </SmallSizeDialogBody>
+          <SmallSizeDialogBody className="flex flex-col space-y-2 p-4">{walletProviders}</SmallSizeDialogBody>
         </DialogContent>
       </Dialog>
     </>
