@@ -45,7 +45,7 @@ export function TokenPromptForm({ networkConfig }: Props) {
       defaultValues={defaultValues}
       formAction={
         <FormActions>
-          <SubmitButton>Save</SubmitButton>
+          <SubmitButton className="w-28">Save</SubmitButton>
         </FormActions>
       }
     >

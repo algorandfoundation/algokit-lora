@@ -82,8 +82,8 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
               Reset
             </Button>
           )}
-          <CancelButton onClick={onSuccess} />
-          <SubmitButton>Save</SubmitButton>
+          <CancelButton onClick={onSuccess} className="w-28" />
+          <SubmitButton className="w-28">Save</SubmitButton>
         </FormActions>
       }
     >

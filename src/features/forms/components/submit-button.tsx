@@ -15,7 +15,7 @@ export function SubmitButton({ className, children, icon }: SubmitButtonProps) {
   const { isSubmitting } = useFormState()
 
   return (
-    <Button variant={'default'} type={'submit'} className={cn('w-28', className)} icon={icon}>
+    <Button variant={'default'} type={'submit'} className={cn(className)} icon={icon}>
       {isSubmitting && <Loader className="size-6 animate-spin" />}
       {!isSubmitting && icon && (
         <div className="flex items-center gap-2">

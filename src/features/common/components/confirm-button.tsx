@@ -33,7 +33,7 @@ export function ConfirmButton({ children, dialogContent, onConfirm: onConfirmPro
               <Button variant="default" onClick={onConfirm}>
                 Confirm
               </Button>
-              <CancelButton onClick={() => setDialogOpen(false)} />
+              <CancelButton onClick={() => setDialogOpen(false)} className="w-28" />
             </div>
           </SmallSizeDialogBody>
         </DialogContent>

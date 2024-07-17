@@ -24,7 +24,7 @@ export function MultiSelectFormItem<TSchema extends Record<string, any>>({
   const error = useFormFieldError(field)
 
   return (
-    <FormItem field={field} {...props} className={cn('grid', className)}>
+    <FormItem field={field} {...props} className={cn(className)}>
       <>
         <Controller
           name={field}

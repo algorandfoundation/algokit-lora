@@ -51,8 +51,8 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       }}
       formAction={
         <FormActions>
-          <CancelButton onClick={onSuccess} />
-          <SubmitButton>Save</SubmitButton>
+          <CancelButton onClick={onSuccess} className="w-28" />
+          <SubmitButton className="w-28">Save</SubmitButton>
         </FormActions>
       }
     >
