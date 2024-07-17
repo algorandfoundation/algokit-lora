@@ -12,11 +12,27 @@ runs:
       if: matrix.platform == 'windows-latest'
       shell: bash
       env:
-        BEFORE_BUNDLE_COMMAND: echo "BEFORE_BUNDLE_COMMAND is working!"
+        BEFORE_BUNDLE_COMMAND: trusted-signing-cli -e https://weu.codesigning.azure.net/ -a "${{ secrets.AZURE_CODE_SIGNING_NAME }}" -c "${{ secrets.AZURE_CERT_PROFILE_NAME }}" "${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe"
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
         cargo install trusted-signing-cli
+
+    - uses: tauri-apps/tauri-action@v0
+      env:
+        # GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      with:
+        updaterJsonPreferNsis: true
+        tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+        releaseName: 'v__VERSION__ ${{ env.RELEASE_TITLE }}'
+        releaseBody: "${{ env.RELEASE_NOTES }}"
+        releaseDraft: true
+        prerelease: false
+        args: ${{ matrix.args }}
 
     - name: Build tauri app
       run: |
