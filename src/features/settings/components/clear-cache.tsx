@@ -27,12 +27,12 @@ export function ClearCache() {
   }
 
   return (
-    <div>
+    <>
       <h2>Data</h2>
-      <span>Disconnect wallets and clear cache </span>
+      <p>Reset cached state and forcefully reload.</p>
       <Button onClick={handleClearCache} variant="outline" size="sm">
-        Clear Cache
+        Reset cache
       </Button>
-    </div>
+    </>
   )
 }
