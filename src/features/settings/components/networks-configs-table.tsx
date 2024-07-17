@@ -120,7 +120,7 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
 function DeleteNetworkButton({ network }: { network: NetworkConfigWithId }) {
   const isBuiltInNetwork = network.id in defaultNetworkConfigs
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
-  const onConfirm = useCallback(() => {
+  const deleteNetwork = useCallback(() => {
     deleteNetworkConfig(network.id)
     toast.success('Network deleted')
   }, [deleteNetworkConfig, network])
@@ -128,7 +128,8 @@ function DeleteNetworkButton({ network }: { network: NetworkConfigWithId }) {
   return (
     <ConfirmButton
       variant="destructive"
-      onConfirm={onConfirm}
+      onConfirm={deleteNetwork}
+      dialogHeaderText="Delete Network?"
       dialogContent={<div>Are you sure you want to delete "{network.name}"?</div>}
       disabled={isBuiltInNetwork}
       icon={<Trash size={16} />}

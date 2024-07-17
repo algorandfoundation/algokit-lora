@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/fea
 import { TokenPromptForm } from './token-prompt-form'
 import { NetworkSelect } from '@/features/settings/components/network-select'
 import { useNetworkConfig } from '@/features/settings/data'
+import { Alert } from '@/features/common/components/alert'
 
 export function TokenPromptDialog() {
   const networkConfig = useNetworkConfig()
@@ -12,8 +13,10 @@ export function TokenPromptDialog() {
         <DialogHeader className="space-y-0">
           <h2 className="pb-0">Network Tokens</h2>
         </DialogHeader>
-        <MediumSizeDialogBody className="flex flex-col space-y-2">
-          <p>Please supply the service tokens for {networkConfig.name} or switch networks.</p>
+        <MediumSizeDialogBody className="flex flex-col space-y-4">
+          <Alert className="rounded-md" variant="default">
+            Please supply the service tokens for {networkConfig.name} or switch networks.
+          </Alert>
           <NetworkSelect />
           <TokenPromptForm networkConfig={networkConfig} />
         </MediumSizeDialogBody>

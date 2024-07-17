@@ -1,1 +1,2 @@
-export const tokenStorageText = `When configuring the network, you can optionally store the tokens in browser storage. If you don't wish to, you can check the "Prompt for token" checkboxes. In that case, you will be prompted for the token everytime you load the app.`
+export const tokenStorageText =
+  'When configuring the network, tokens will be stored in browser storage. Alternatively you can choose to "Prompt for token", which will ask you to enter the token everytime you load the app.'

@@ -1,11 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, FieldPath } from 'react-hook-form'
 import { forwardRef } from 'react'
 import { NumericFormat } from 'react-number-format'
 import { cn } from '@/features/common/utils'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
 
-export type InputNumberProps<TSchema extends Record<string, any> = Record<string, any>> = {
+export type InputNumberProps<TSchema extends Record<string, unknown> = Record<string, unknown>> = {
   decimalScale?: number
   thousandSeparator?: boolean
   placeholder?: string
@@ -15,7 +14,10 @@ export type InputNumberProps<TSchema extends Record<string, any> = Record<string
   ['aria-label']?: string
 }
 
-export function InputNumber<TSchema extends Record<string, any> = Record<string, any>>({ field, ...rest }: InputNumberProps<TSchema>) {
+export function InputNumber<TSchema extends Record<string, unknown> = Record<string, unknown>>({
+  field,
+  ...rest
+}: InputNumberProps<TSchema>) {
   return (
     <Controller
       name={field}
@@ -24,7 +26,7 @@ export function InputNumber<TSchema extends Record<string, any> = Record<string,
   )
 }
 
-type NumericFormatWithRefProps<TSchema extends Record<string, any> = Record<string, any>> = InputNumberProps<TSchema> & {
+type NumericFormatWithRefProps<TSchema extends Record<string, unknown> = Record<string, unknown>> = InputNumberProps<TSchema> & {
   value: number | undefined
   onChange: (value: number | undefined) => void
 }
@@ -50,14 +52,14 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
   }
 )
 
-export interface NumberFormItemProps<TSchema extends Record<string, any> = Record<string, any>>
+export interface NumberFormItemProps<TSchema extends Record<string, unknown> = Record<string, unknown>>
   extends Omit<FormItemProps<TSchema>, 'children'> {
   decimalScale?: number
   thousandSeparator?: boolean
   placeholder?: string
 }
 
-export function NumberFormItem<TSchema extends Record<string, any> = Record<string, any>>({
+export function NumberFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
   placeholder,
   decimalScale,

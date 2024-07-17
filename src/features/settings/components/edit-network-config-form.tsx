@@ -32,7 +32,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   const refreshDataProviderToken = useRefreshDataProviderToken()
   const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
 
-  const onSubmit = useCallback(
+  const saveNetwork = useCallback(
     async (values: z.infer<typeof editNetworkConfigFormSchema>) => {
       setCustomNetworkConfig(networkConfig.id, {
         name: networkConfig.name,
@@ -50,7 +50,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     },
     [networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork, setCustomNetworkConfig]
   )
-  const onReset = useCallback(() => {
+  const resetForm = useCallback(() => {
     if (defaultNetworkConfigs[networkConfig.id]) {
       deleteNetworkConfig(networkConfig.id)
       toast.success(`Network "${networkConfig.name}" reset`)
@@ -72,13 +72,13 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   return (
     <Form
       schema={editNetworkConfigFormSchema}
-      onSubmit={onSubmit}
+      onSubmit={saveNetwork}
       onSuccess={onSuccess}
       defaultValues={defaultValues}
       formAction={
         <FormActions>
           {isBuiltInNetwork && (
-            <Button type="button" variant="destructive" className="mr-auto" onClick={onReset}>
+            <Button type="button" variant="destructive" className="mr-auto" onClick={resetForm}>
               Reset
             </Button>
           )}
@@ -89,7 +89,9 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     >
       {(helper) => (
         <>
-          <Alert variant="default">{tokenStorageText}</Alert>
+          <Alert className="rounded-md" variant="default">
+            {tokenStorageText}
+          </Alert>
           <NetworkFormInner networkId={networkConfig.id} helper={helper} />
         </>
       )}

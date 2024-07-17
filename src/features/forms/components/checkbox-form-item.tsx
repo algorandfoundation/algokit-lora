@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Controller, FieldPath } from 'react-hook-form'
 import { ValidationErrorMessage } from '@/features/forms/components/validation-error-message'
 import { Checkbox } from '@/features/common/components/checkbox'
@@ -6,14 +5,14 @@ import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
 import { Label } from '@/features/common/components/label'
 import { cn } from '@/features/common/utils'
 
-export interface CheckboxFormItemProps<TSchema extends Record<string, any>> {
+export interface CheckboxFormItemProps<TSchema extends Record<string, unknown>> {
   className?: string
   field: FieldPath<TSchema>
   label: string
   disabled?: boolean
 }
 
-export function CheckboxFormItem<TSchema extends Record<string, any>>({
+export function CheckboxFormItem<TSchema extends Record<string, unknown>>({
   className,
   field,
   label,

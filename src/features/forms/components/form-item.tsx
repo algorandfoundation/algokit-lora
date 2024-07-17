@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { cloneElement, ReactElement, ReactNode } from 'react'
 import { FieldPath } from 'react-hook-form'
 import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
@@ -6,7 +5,7 @@ import { cn } from '@/features/common/utils'
 import { ValidationErrorMessage } from '@/features/forms/components/validation-error-message'
 import { Label } from '@/features/common/components/label'
 
-export interface FormItemProps<TSchema extends Record<string, any> = Record<string, any>> {
+export interface FormItemProps<TSchema extends Record<string, unknown> = Record<string, unknown>> {
   className?: string
   children: ReactElement | ((props: { className?: string; field: FieldPath<TSchema> }) => ReactNode)
   label: string
@@ -15,7 +14,7 @@ export interface FormItemProps<TSchema extends Record<string, any> = Record<stri
   fullWidth?: boolean
 }
 
-export function FormItem<TSchema extends Record<string, any> = Record<string, any>>({
+export function FormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   className,
   label,
   field,

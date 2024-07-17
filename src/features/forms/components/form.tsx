@@ -8,18 +8,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { asError } from '@/utils/error'
 import { cn } from '@/features/common/utils'
 
-export interface FormProps<TData, TSchema extends Record<string, any>> {
+export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   className?: string
   header?: string
-  schema: z.ZodEffects<any, TSchema, any>
+  schema: z.ZodEffects<any, TSchema, unknown>
   defaultValues?: DefaultValues<TSchema>
   children: ReactNode | ((helper: FormFieldHelper<TSchema>) => ReactNode)
   formAction: ReactNode
   onSuccess?: (data: TData) => void
-  onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, any>>) => Promise<TData>
+  onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData>
 }
 
-export function Form<TData, TSchema extends Record<string, any>>({
+export function Form<TData, TSchema extends Record<string, unknown>>({
   className,
   header,
   schema,

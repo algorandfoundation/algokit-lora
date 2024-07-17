@@ -218,9 +218,9 @@ export function ConnectWalletButton() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card" onOpenAutoFocus={preventDefault}>
           <DialogHeader>
-            <h2>Wallet Providers</h2>
+            <h2 className="pb-0">Wallet Providers</h2>
           </DialogHeader>
-          <SmallSizeDialogBody className="flex flex-col space-y-2 p-4">{walletProviders}</SmallSizeDialogBody>
+          <SmallSizeDialogBody className="flex flex-col space-y-2">{walletProviders}</SmallSizeDialogBody>
         </DialogContent>
       </Dialog>
     </>

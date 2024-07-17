@@ -1,14 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useFormContext } from 'react-hook-form'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
 import { Input } from '@/features/common/components/input'
 
-export interface PasswordFormItemProps<TSchema extends Record<string, any> = Record<string, any>>
+export interface PasswordFormItemProps<TSchema extends Record<string, unknown> = Record<string, unknown>>
   extends Omit<FormItemProps<TSchema>, 'children'> {
   placeholder?: string
 }
 
-export function PasswordFormItem<TSchema extends Record<string, any> = Record<string, any>>({
+export function PasswordFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
   placeholder,
   ...props

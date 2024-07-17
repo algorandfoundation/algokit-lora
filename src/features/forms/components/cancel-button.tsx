@@ -8,7 +8,7 @@ export interface CancelButton {
 
 export function CancelButton({ className, onClick }: CancelButton) {
   return (
-    <Button type="button" variant={'outline'} className={cn(className)} onClick={onClick}>
+    <Button type="button" variant="outline" className={cn(className)} onClick={onClick}>
       Cancel
     </Button>
   )
