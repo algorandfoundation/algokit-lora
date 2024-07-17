@@ -10,29 +10,17 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { DataTablePagination } from './data-table-pagination'
 import { useEffect, useState } from 'react'
-import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Plus } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
-  tableName?: string
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
-  onCreateButtonClick?: () => void
   ariaLabel?: string
 }
 
-export function DataTable<TData, TValue>({
-  tableName,
-  columns,
-  data,
-  getSubRows,
-  subRowsExpanded,
-  onCreateButtonClick,
-  ariaLabel,
-}: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExpanded, ariaLabel }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const table = useReactTable({
     data,
@@ -54,15 +42,6 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      {/* TODO: NC - Not sure this really belongs in this component */}
-      <div className="mb-4 flex items-center gap-2">
-        {tableName && <h2 className="pb-0">{tableName}</h2>}
-        {onCreateButtonClick && (
-          <Button variant="outline-secondary" onClick={onCreateButtonClick} className={'ml-auto w-28'} icon={<Plus size={16} />}>
-            Create
-          </Button>
-        )}
-      </div>
       <div className="grid">
         <Table className="border-b" aria-label={ariaLabel}>
           <TableHeader>

@@ -18,6 +18,8 @@ import { asAlgoServiceConfig } from '@/features/settings/mappers'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 import { useRefreshDataProviderToken } from '@/features/common/data'
+import { Alert } from '@/features/common/components/alert'
+import { tokenStorageText } from '@/features/settings/components/labels'
 
 type Props = {
   networkConfig: NetworkConfigWithId
@@ -49,7 +51,6 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     [networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork, setCustomNetworkConfig]
   )
   const onReset = useCallback(() => {
-    // TODO: check if we can save it straight away or only reset the form
     if (defaultNetworkConfigs[networkConfig.id]) {
       deleteNetworkConfig(networkConfig.id)
       toast.success(`Network "${networkConfig.name}" reset`)
@@ -86,7 +87,12 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
         </FormActions>
       }
     >
-      {(helper) => <NetworkFormInner networkId={networkConfig.id} helper={helper} />}
+      {(helper) => (
+        <>
+          <Alert variant="default">{tokenStorageText}</Alert>
+          <NetworkFormInner networkId={networkConfig.id} helper={helper} />
+        </>
+      )}
     </Form>
   )
 }

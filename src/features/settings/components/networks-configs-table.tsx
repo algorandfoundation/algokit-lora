@@ -10,7 +10,7 @@ import { CreateNetworkConfigForm } from '@/features/settings/components/create-n
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
-import { Pencil, Trash } from 'lucide-react'
+import { Pencil, Plus, Trash } from 'lucide-react'
 
 export const networkConfigsTableLabel = 'network-configs-table'
 export const createNetworkConfigDialogLabel = 'Create Network'
@@ -25,13 +25,18 @@ export function NetworksConfigsTable() {
 
   return (
     <>
-      <DataTable
-        ariaLabel={networkConfigsTableLabel}
-        tableName="Networks"
-        columns={tableColumns}
-        data={data}
-        onCreateButtonClick={() => setCreateNetworkConfigDialogOpen(true)}
-      />
+      <div className="mb-4 flex items-center gap-2">
+        <h2 className="pb-0">Networks</h2>
+        <Button
+          variant="outline-secondary"
+          onClick={() => setCreateNetworkConfigDialogOpen(true)}
+          className={'ml-auto w-28'}
+          icon={<Plus size={16} />}
+        >
+          Create
+        </Button>
+      </div>
+      <DataTable ariaLabel={networkConfigsTableLabel} columns={tableColumns} data={data} />
       <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
         {createNetworkConfigDialogOpen && (
           <DialogContent className="bg-card" aria-label={createNetworkConfigDialogLabel}>

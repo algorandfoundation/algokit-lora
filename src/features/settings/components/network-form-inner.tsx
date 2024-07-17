@@ -53,7 +53,6 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
   const supportedWalletProviders = useMemo(() => getSupportedWalletProviderOptions(networkId), [networkId])
 
-  // TODO: NC - explain that the token is stored in plain text
   return (
     <>
       {helper.multiSelectField({
@@ -140,7 +139,6 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   )
 }
 
-// TODO: NC - This should go somewhere else I think
 const nonLocalWalletProviders = [
   {
     value: PROVIDER_ID.DEFLY,

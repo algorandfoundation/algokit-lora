@@ -11,6 +11,8 @@ import { asAlgoServiceConfig } from '@/features/settings/mappers'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 import { replaceAll } from '@/utils/replace-all.ts'
+import { tokenStorageText } from '@/features/settings/components/labels'
+import { Alert } from '@/features/common/components/alert'
 
 type Props = {
   onSuccess: () => void
@@ -56,6 +58,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
     >
       {(helper) => (
         <>
+          <Alert variant="default">{tokenStorageText}</Alert>
           {helper.textField({
             label: 'Name',
             field: 'name',

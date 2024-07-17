@@ -5,17 +5,9 @@ import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { localnetId, mainnetId, NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, testnetId } from './types'
 
-const supportedWalletProviders = [
-  PROVIDER_ID.KMD,
-  PROVIDER_ID.MNEMONIC,
-  PROVIDER_ID.DEFLY,
-  PROVIDER_ID.DAFFI,
-  PROVIDER_ID.PERA,
-  PROVIDER_ID.EXODUS,
-  PROVIDER_ID.LUTE,
-]
 const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
 const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
+const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {
@@ -62,10 +54,6 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
     walletProviders: nonLocalnetWalletProviders,
   },
 }
-
-// TODO: Prompt for token - Up to 3 (at least 2)
-// TODO: Allow customising the localnet settings as part of viewing localnet
-// TODO: Check clearing logic works for all wallet providers
 
 const customNetworkConfigsAtom = atomWithStorage<Record<NetworkId, NetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,
@@ -123,11 +111,6 @@ const selectedNetworkAtomId = atomWithRefresh((get) => {
 })
 
 const networksPromptedTokensAtom = atom<Record<NetworkId, NetworkTokens>>({})
-
-export const useNetworkPromptedTokens = (id: NetworkId) => {
-  const networksPromptedTokens = useAtomValue(networksPromptedTokensAtom, { store: settingsStore })
-  return id in networksPromptedTokens ? networksPromptedTokens[id] : undefined
-}
 
 export const useSetNetworkPromptedTokens = () => {
   const setPromptedNetworkTokens = useSetAtom(networksPromptedTokensAtom, { store: settingsStore })

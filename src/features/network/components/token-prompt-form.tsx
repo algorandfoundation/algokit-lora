@@ -10,8 +10,6 @@ type Props = {
   networkConfig: NetworkConfigWithId
 }
 
-// TODO: NC - Add description about being stored in memory
-
 const defaultValues = {
   algod: '',
   indexer: '',
