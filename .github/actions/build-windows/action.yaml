@@ -1,9 +1,6 @@
 name: 'Build for Windows'
 description: 'Build for Windows'
 inputs:
-  production-release:
-    description: 'Production release?'
-    required: true
   release-version:
     description: 'The release version'
 
@@ -33,10 +30,10 @@ runs:
         npm run tauri build
       shell: bash
 
-    - name: Upload binary as artifact
-      id: upload-artifact
-      uses: actions/upload-artifact@v4
-      with:
-        if-no-files-found: error
-        name: ${{ steps.set-env.outputs.artifact_name }}
-        path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi
+    # - name: Upload binary as artifact
+    #   id: upload-artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     if-no-files-found: error
+    #     name: ${{ steps.set-env.outputs.artifact_name }}
+    #     path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi
