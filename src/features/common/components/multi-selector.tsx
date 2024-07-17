@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { CheckIcon, XCircle, ChevronDown, XIcon, WandSparkles } from 'lucide-react'
+import { CheckIcon, ChevronDown, XIcon } from 'lucide-react'
 import { cn } from '@/features/common/utils.ts'
 import { Separator } from '@/features/common/components/separator'
 import { Button } from '@/features/common/components/button'
@@ -20,7 +20,7 @@ import {
  * Variants for the multi-select component to handle different styles.
  * Uses class-variance-authority (cva) to define different styles based on "variant" prop.
  */
-const multiSelectVariants = cva('m-1 text-sm transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110', {
+const multiSelectVariants = cva('px-2 py-3 text-sm font-normal transition duration-300 ease-in-out hover:scale-110', {
   variants: {
     variant: {
       default: 'border-foreground/10 bg-card text-foreground hover:bg-card/80',
@@ -68,12 +68,6 @@ interface MultiSelectProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
   placeholder?: string
 
   /**
-   * Animation duration in seconds for the visual effects (e.g., bouncing badges).
-   * Optional, defaults to 0 (no animation).
-   */
-  animation?: number
-
-  /**
    * Maximum number of items to display. Extra selected items will be summarized.
    * Optional, defaults to 3.
    */
@@ -107,7 +101,6 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       variant,
       defaultValue = [],
       placeholder = 'Select options',
-      animation = 0,
       maxCount = 3,
       modalPopover = false,
       className,
@@ -117,7 +110,6 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
   ) => {
     const [selectedValues, setSelectedValues] = React.useState<string[]>(defaultValue)
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
-    const [isAnimating, setIsAnimating] = React.useState(false)
 
     React.useEffect(() => {
       if (JSON.stringify(selectedValues) !== JSON.stringify(defaultValue)) {
@@ -181,20 +173,16 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
           >
             {selectedValues.length > 0 ? (
               <div className="flex w-full items-center justify-between">
-                <div className="flex flex-wrap items-center">
+                <div className="flex flex-wrap items-center gap-1">
                   {selectedValues.slice(0, maxCount).map((value) => {
                     const option = options.find((o) => o.value === value)
                     const IconComponent = option?.icon
                     return (
-                      <Badge
-                        key={value}
-                        className={cn(isAnimating ? 'animate-bounce' : '', multiSelectVariants({ variant }))}
-                        style={{ animationDuration: `${animation}s` }}
-                      >
+                      <Badge key={value} className={cn(multiSelectVariants({ variant }))}>
                         {IconComponent && <IconComponent className="mr-2 size-4" />}
                         {option?.label}
-                        <XCircle
-                          className="ml-2 size-4 cursor-pointer"
+                        <XIcon
+                          className="ml-2 size-3 cursor-pointer"
                           onClick={(event) => {
                             event.stopPropagation()
                             toggleOption(value)
@@ -207,14 +195,12 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                     <Badge
                       className={cn(
                         'bg-transparent text-foreground border-foreground/1 hover:bg-transparent',
-                        isAnimating ? 'animate-bounce' : '',
                         multiSelectVariants({ variant })
                       )}
-                      style={{ animationDuration: `${animation}s` }}
                     >
                       {`+ ${selectedValues.length - maxCount} more`}
-                      <XCircle
-                        className="ml-2 size-4 cursor-pointer"
+                      <XIcon
+                        className="ml-2 size-3 cursor-pointer"
                         onClick={(event) => {
                           event.stopPropagation()
                           clearExtraOptions()
@@ -298,12 +284,6 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             </CommandList>
           </Command>
         </PopoverContent>
-        {animation > 0 && selectedValues.length > 0 && (
-          <WandSparkles
-            className={cn('cursor-pointer my-2 text-foreground bg-background w-3 h-3', isAnimating ? '' : 'text-muted-foreground')}
-            onClick={() => setIsAnimating(!isAnimating)}
-          />
-        )}
       </Popover>
     )
   }
