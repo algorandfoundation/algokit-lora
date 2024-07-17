@@ -23,7 +23,7 @@ runs:
       env:
         # -e https://weu.codesigning.azure.net/ -a "${{ secrets.AZURE_CODE_SIGNING_NAME }}" -c "${{ secrets.AZURE_CERT_PROFILE_NAME }}" "${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe
         # BEFORE_BUNDLE_COMMAND: "Invoke-TrustedSigning"
-        BEFORE_BUNDLE_COMMAND: 'ps'
+        BEFORE_BUNDLE_COMMAND: 'powershell -command Get-Process'
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
