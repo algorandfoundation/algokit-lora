@@ -5,6 +5,15 @@ import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { localnetId, mainnetId, NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, testnetId } from './types'
 
+const supportedWalletProviders = [
+  PROVIDER_ID.KMD,
+  PROVIDER_ID.MNEMONIC,
+  PROVIDER_ID.DEFLY,
+  PROVIDER_ID.DAFFI,
+  PROVIDER_ID.PERA,
+  PROVIDER_ID.EXODUS,
+  PROVIDER_ID.LUTE,
+]
 const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
 const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
 
@@ -152,18 +161,6 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
   const networkConfigs = get(networkConfigsAtom)
   const networksPromptedTokens = get(networksPromptedTokensAtom)
 
-  // TODO: NC - This should be done more generically, so it handles all custom network configurations
-  if (selectedNetworkId === localnetId) {
-    nonLocalnetWalletProviders.forEach((providerId) => {
-      clearAccounts(providerId)
-    })
-    clearAccounts(PROVIDER_ID.MNEMONIC) // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
-  } else {
-    localnetWalletProviders.forEach((providerId) => {
-      clearAccounts(providerId)
-    })
-  }
-
   let id = selectedNetworkId
   if (!(selectedNetworkId in networkConfigs)) {
     id = localnetId
@@ -175,6 +172,17 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
     id,
     ...networkConfigs[id],
   }
+
+  // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
+  if (selectedNetworkId === localnetId) {
+    clearAccounts(PROVIDER_ID.MNEMONIC)
+  }
+  // This clears accounts for all wallet providers that are not configured
+  supportedWalletProviders.forEach((providerId) => {
+    if (!config.walletProviders.includes(providerId)) {
+      clearAccounts(providerId)
+    }
+  })
 
   // Use prompted tokens if they have been supplied
   const networkTokens = id in networksPromptedTokens ? networksPromptedTokens[id] : undefined
