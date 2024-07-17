@@ -3,6 +3,15 @@ description: 'Build for Windows'
 inputs:
   release-version:
     description: 'The release version'
+  azure_tenant_id:
+    description: ""
+    required: true
+  azure_client_id:
+    description: ""
+    required: true
+  azure_client_secret:
+    description: ""
+    required: true
 
 runs:
   using: 'composite'
@@ -12,22 +21,28 @@ runs:
       if: matrix.platform == 'windows-latest'
       shell: bash
       env:
-        BEFORE_BUNDLE_COMMAND: trusted-signing-cli -e https://weu.codesigning.azure.net/ -a "${{ secrets.AZURE_CODE_SIGNING_NAME }}" -c "${{ secrets.AZURE_CERT_PROFILE_NAME }}" "${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe"
+#       -e https://weu.codesigning.azure.net/ -a "${{ secrets.AZURE_CODE_SIGNING_NAME }}" -c "${{ secrets.AZURE_CERT_PROFILE_NAME }}" "${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe
+        BEFORE_BUNDLE_COMMAND: Invoke-TrustedSigning"
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
-        cargo install trusted-signing-cli
 
     - uses: tauri-apps/tauri-action@v0
       env:
-        # GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit-lora
+        files-folder: ${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe
+        files-folder-filter: exe
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
       with:
         updaterJsonPreferNsis: true
-        tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+        tagName: v__VERSION__
         releaseName: 'v__VERSION__ ${{ env.RELEASE_TITLE }}'
         releaseBody: "${{ env.RELEASE_NOTES }}"
         releaseDraft: true
@@ -37,4 +52,4 @@ runs:
     - name: Build tauri app
       run: |
         npm run tauri build
-      shell: bash
+      shell: pwsh
