@@ -6,18 +6,6 @@ on:
       - signing-test
 
 jobs:
-  pr-checks:
-    name: Run PR checks
-    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
-    permissions:
-      contents: read
-      packages: read
-    with:
-      working-directory: .
-      node-version: 20.x
-      test-script: npm run test
-      run-build: true
-
   build-tauri:
     name: Build Tauri app
     runs-on: ${{ matrix.platform }}

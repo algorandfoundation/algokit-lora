@@ -2,7 +2,6 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "beforeBundleCommand": "echo \"BEFORE_BUNDLE_COMMAND is working!\"",
     "devPath": "http://localhost:1420",
     "distDir": "../dist"
   },

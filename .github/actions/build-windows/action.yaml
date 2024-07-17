@@ -8,30 +8,17 @@ runs:
   using: 'composite'
   steps:
     #  TODO: set up signing certs here when releasing to production
-
-    # - name: Get artifact name
-    #   id: set-env
-    #   run: |
-    #     echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
-    #   shell: bash
-
-    # - name: Bump version in tauri.conf.json
-    #   if: ${{ inputs.release-version != '' }}
-    #   run: |
-    #     version="${{ inputs.release-version }}"
-    #     version="${version/beta./}"
-    #     sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
-    #   shell: bash
+    - name: install dependencies (windows only)
+      if: matrix.platform == 'windows-latest'
+      shell: bash
+      env:
+        BEFORE_BUNDLE_COMMAND: echo "BEFORE_BUNDLE_COMMAND is working!"
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
+        cargo install trusted-signing-cli
 
     - name: Build tauri app
       run: |
         npm run tauri build
       shell: bash
-
-    # - name: Upload binary as artifact
-    #   id: upload-artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     if-no-files-found: error
-    #     name: ${{ steps.set-env.outputs.artifact_name }}
-    #     path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi
