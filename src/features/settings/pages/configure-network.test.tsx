@@ -34,10 +34,10 @@ describe('when configuring networks', () => {
           tableAssertion({
             container: networkConfigsTable,
             rows: [
-              { cells: ['LocalNet', 'http://localhost:8980', 'http://localhost:4001'] },
-              { cells: ['TestNet', 'https://testnet-idx.algonode.cloud:443', 'https://testnet-api.algonode.cloud:443'] },
-              { cells: ['MainNet', 'https://mainnet-idx.algonode.cloud:443', 'https://mainnet-api.algonode.cloud:443'] },
-              { cells: ['My LocalNet', 'http://localhost:4000', 'http://localhost:4001'] },
+              { cells: ['LocalNet', 'http://localhost:4001', 'http://localhost:8980'] },
+              { cells: ['TestNet', 'https://testnet-api.algonode.cloud:443', 'https://testnet-idx.algonode.cloud:443'] },
+              { cells: ['MainNet', 'https://mainnet-api.algonode.cloud:443', 'https://mainnet-idx.algonode.cloud:443'] },
+              { cells: ['My LocalNet', 'http://localhost:4001', 'http://localhost:4000'] },
             ],
             matchRowCount: true,
           })

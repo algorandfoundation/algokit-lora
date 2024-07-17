@@ -20,13 +20,12 @@ import {
  * Variants for the multi-select component to handle different styles.
  * Uses class-variance-authority (cva) to define different styles based on "variant" prop.
  */
-const multiSelectVariants = cva('m-1 transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110', {
+const multiSelectVariants = cva('m-1 text-sm transition delay-150 duration-300 ease-in-out hover:-translate-y-1 hover:scale-110', {
   variants: {
     variant: {
       default: 'border-foreground/10 bg-card text-foreground hover:bg-card/80',
       secondary: 'border-foreground/10 bg-secondary text-secondary-foreground hover:bg-secondary/80',
       destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-      inverted: 'inverted',
     },
   },
   defaultVariants: {
@@ -111,7 +110,6 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
       animation = 0,
       maxCount = 3,
       modalPopover = false,
-      asChild = false,
       className,
       ...props
     },
