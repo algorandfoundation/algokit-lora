@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/settings/data/types'
 import { Pencil, Plus, Trash } from 'lucide-react'
 
-export const networkConfigsTableLabel = 'network-configs-table'
+export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
 
 export function NetworksConfigsTable() {
@@ -85,7 +85,6 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     accessorFn: (item) => item,
     cell: (cell) => {
       const item = cell.getValue<NetworkConfigWithId>()
-
       return <DeleteNetworkButton network={item} />
     },
   },
@@ -121,8 +120,9 @@ function DeleteNetworkButton({ network }: { network: NetworkConfigWithId }) {
   const isBuiltInNetwork = network.id in defaultNetworkConfigs
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
   const deleteNetwork = useCallback(() => {
+    network.name
     deleteNetworkConfig(network.id)
-    toast.success('Network deleted')
+    toast.success(`${network.name} has been deleted`)
   }, [deleteNetworkConfig, network])
 
   return (

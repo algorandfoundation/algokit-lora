@@ -15,7 +15,7 @@ export function TokenPromptDialog() {
         </DialogHeader>
         <MediumSizeDialogBody className="flex flex-col space-y-4">
           <Alert className="rounded-md" variant="default">
-            Please supply the service tokens for {networkConfig.name} or switch networks.
+            Please supply the tokens for {networkConfig.name} or switch networks.
           </Alert>
           <NetworkSelect />
           <TokenPromptForm networkConfig={networkConfig} />

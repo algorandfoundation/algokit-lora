@@ -32,28 +32,27 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   const refreshDataProviderToken = useRefreshDataProviderToken()
   const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
 
-  const saveNetwork = useCallback(
-    async (values: z.infer<typeof editNetworkConfigFormSchema>) => {
+  const updateNetwork = useCallback(
+    (values: z.infer<typeof editNetworkConfigFormSchema>) => {
       setCustomNetworkConfig(networkConfig.id, {
         name: networkConfig.name,
         walletProviders: values.walletProviders,
         indexer: asAlgoServiceConfig(values.indexer),
         algod: asAlgoServiceConfig(values.algod),
-        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
+        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asAlgoServiceConfig(values.kmd) : undefined,
       })
 
-      toast.success(`Network "${networkConfig.name}" saved`)
+      toast.success(`${networkConfig.name} has been updated`)
       if (networkConfig.id === selectedNetwork) {
         refreshDataProviderToken()
       }
-      return Promise.resolve()
     },
     [networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork, setCustomNetworkConfig]
   )
   const resetForm = useCallback(() => {
     if (defaultNetworkConfigs[networkConfig.id]) {
       deleteNetworkConfig(networkConfig.id)
-      toast.success(`Network "${networkConfig.name}" reset`)
+      toast.success(`${networkConfig.name} has been reset`)
       onSuccess()
     }
   }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, onSuccess])
@@ -72,7 +71,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   return (
     <Form
       schema={editNetworkConfigFormSchema}
-      onSubmit={saveNetwork}
+      onSubmit={updateNetwork}
       onSuccess={onSuccess}
       defaultValues={defaultValues}
       formAction={

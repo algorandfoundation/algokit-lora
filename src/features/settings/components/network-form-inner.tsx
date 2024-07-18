@@ -19,7 +19,7 @@ const promptForTokenLabel = 'Prompt for token'
 const tokenLabel = 'Token'
 
 export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
-  const { setValue, watch, unregister } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
+  const { setValue, watch } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
   const [kmdRequired, setKmdRequired] = useState(false)
 
   const walletProviders = watch('walletProviders')
@@ -28,21 +28,20 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
     setKmdRequired(isKmdRequired)
     if (!isKmdRequired) {
-      setValue('kmd', undefined, { shouldTouch: true })
-      unregister('kmd')
+      setValue('kmd', undefined)
     }
-  }, [setValue, unregister, walletProviders])
+  }, [setValue, walletProviders])
 
-  const indexerPromptForToken = watch('indexer.promptForToken')
-  useEffect(() => {
-    if (indexerPromptForToken) {
-      setValue('indexer.token', undefined)
-    }
-  })
   const algodPromptForToken = watch('algod.promptForToken')
   useEffect(() => {
     if (algodPromptForToken) {
       setValue('algod.token', undefined)
+    }
+  })
+  const indexerPromptForToken = watch('indexer.promptForToken')
+  useEffect(() => {
+    if (indexerPromptForToken) {
+      setValue('indexer.token', undefined)
     }
   })
   const kmdPromptForToken = watch('kmd.promptForToken')
@@ -140,6 +139,7 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   )
 }
 
+// TODO: NC - I think this should live with the types
 const nonLocalWalletProviders = [
   {
     value: PROVIDER_ID.DEFLY,
@@ -169,7 +169,7 @@ const localWalletProviders = [
   },
   {
     value: PROVIDER_ID.MNEMONIC,
-    label: 'Mnemonic',
+    label: 'MNEMONIC',
   },
 ]
 const getSupportedWalletProviderOptions = (networkId?: string) => {

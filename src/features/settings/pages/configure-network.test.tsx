@@ -8,7 +8,7 @@ import { findByRole, waitFor } from '@testing-library/react'
 
 describe('when configuring networks', () => {
   describe('when creating a new network', () => {
-    it('should work', () => {
+    it('should succeed', () => {
       return executeComponentTest(
         () => render(<SettingsPage />),
         async (component, user) => {

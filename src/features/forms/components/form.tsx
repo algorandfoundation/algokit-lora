@@ -16,7 +16,7 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   children: ReactNode | ((helper: FormFieldHelper<TSchema>) => ReactNode)
   formAction: ReactNode
   onSuccess?: (data: TData) => void
-  onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData>
+  onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
 }
 
 export function Form<TData, TSchema extends Record<string, unknown>>({

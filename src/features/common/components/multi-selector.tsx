@@ -20,7 +20,7 @@ import {
  * Variants for the multi-select component to handle different styles.
  * Uses class-variance-authority (cva) to define different styles based on "variant" prop.
  */
-const multiSelectVariants = cva('px-2 py-3 text-sm font-normal transition duration-300 ease-in-out hover:scale-110', {
+const multiSelectVariants = cva('px-2 py-3 text-sm font-normal', {
   variants: {
     variant: {
       default: 'border-foreground/10 bg-card text-foreground hover:bg-card/80',
@@ -167,7 +167,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
             {...props}
             onClick={handleTogglePopover}
             className={cn(
-              'flex w-full p-1 rounded-md border min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit',
+              'flex w-full p-1 rounded-md border border-input min-h-10 h-auto items-center justify-between bg-inherit hover:bg-inherit',
               className
             )}
           >
@@ -182,7 +182,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                         {IconComponent && <IconComponent className="mr-2 size-4" />}
                         {option?.label}
                         <XIcon
-                          className="ml-2 size-3 cursor-pointer"
+                          className="ml-2 size-3.5 cursor-pointer hover:text-foreground/60"
                           onClick={(event) => {
                             event.stopPropagation()
                             toggleOption(value)
@@ -192,15 +192,10 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
                     )
                   })}
                   {selectedValues.length > maxCount && (
-                    <Badge
-                      className={cn(
-                        'bg-transparent text-foreground border-foreground/1 hover:bg-transparent',
-                        multiSelectVariants({ variant })
-                      )}
-                    >
+                    <Badge className={cn(multiSelectVariants({ variant }))}>
                       {`+ ${selectedValues.length - maxCount} more`}
                       <XIcon
-                        className="ml-2 size-3 cursor-pointer"
+                        className="ml-2 size-3.5 cursor-pointer hover:text-foreground/60"
                         onClick={(event) => {
                           event.stopPropagation()
                           clearExtraOptions()
@@ -223,7 +218,7 @@ export const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>
               </div>
             ) : (
               <div className="mx-auto flex w-full items-center justify-between">
-                <span className="mx-3 text-sm text-muted-foreground">{placeholder}</span>
+                <span className="mx-3 text-sm font-normal text-muted-foreground">{placeholder}</span>
                 <ChevronDown className="mx-2 h-4 cursor-pointer text-muted-foreground" />
               </div>
             )}

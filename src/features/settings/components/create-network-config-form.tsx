@@ -22,10 +22,11 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const networkConfigs = useNetworkConfigs()
   const existingNetworkNames = useMemo(() => Object.values(networkConfigs).map((networkConfig) => networkConfig.name), [networkConfigs])
 
-  const onSubmit = useCallback(
-    async (values: z.infer<typeof createNetworkConfigFormSchema>) => {
+  const createNetwork = useCallback(
+    (values: z.infer<typeof createNetworkConfigFormSchema>) => {
+      // TODO: NC - Can we do this better?
       if (existingNetworkNames.includes(values.name)) {
-        throw new Error(`Network name "${values.name}" already exists`)
+        throw new Error(`${values.name} already exists, please choose a different name`)
       }
 
       setCustomNetworkConfig(generateNetworkId(values.name), {
@@ -33,10 +34,9 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
         walletProviders: values.walletProviders,
         indexer: asAlgoServiceConfig(values.indexer),
         algod: asAlgoServiceConfig(values.algod),
-        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) ? asAlgoServiceConfig(values.kmd!) : undefined,
+        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asAlgoServiceConfig(values.kmd) : undefined,
       })
-      toast.success(`Network "${values.name}" created`)
-      return Promise.resolve()
+      toast.success(`${values.name} has been created`)
     },
     [existingNetworkNames, setCustomNetworkConfig]
   )
@@ -44,7 +44,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
   return (
     <Form
       schema={createNetworkConfigFormSchema}
-      onSubmit={onSubmit}
+      onSubmit={createNetwork}
       onSuccess={onSuccess}
       defaultValues={{
         walletProviders: [],

@@ -64,10 +64,13 @@ export type BlocksExtract = {
 export type Round = number
 
 export enum SubscriberState {
-  Stopped = 'Stopped',
-  Started = 'Started',
   NotStarted = 'NotStarted',
+  Started = 'Started',
+  Stopped = 'Stopped',
 }
+
+// TODO: NC - Move components
+// TODO: NC - why do we use the unique id in the network?
 
 export enum SubscriberStoppedReason {
   Error = 'Error',
