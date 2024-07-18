@@ -10,7 +10,7 @@ import { CreateNetworkConfigForm } from '@/features/network/components/create-ne
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { Pencil, Plus, Trash } from 'lucide-react'
+import { Pencil, Plus, Trash, RotateCcw } from 'lucide-react'
 
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
@@ -74,8 +74,8 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     meta: { className: 'w-24' },
     accessorFn: (item) => item,
     cell: (cell) => {
-      const item = cell.getValue<NetworkConfigWithId>()
-      return <EditNetworkButton network={item} />
+      const networkConfig = cell.getValue<NetworkConfigWithId>()
+      return <EditNetworkButton networkConfig={networkConfig} />
     },
   },
   {
@@ -84,13 +84,26 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     meta: { className: 'w-28' },
     accessorFn: (item) => item,
     cell: (cell) => {
-      const item = cell.getValue<NetworkConfigWithId>()
-      return <DeleteNetworkButton network={item} />
+      const networkConfig = cell.getValue<NetworkConfigWithId>()
+      const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
+      const settingsHaveChanged = isBuiltInNetwork
+        ? JSON.stringify({ id: networkConfig.id, ...defaultNetworkConfigs[networkConfig.id] }) !== JSON.stringify(networkConfig)
+        : false
+
+      return isBuiltInNetwork ? (
+        <ResetNetworkButton networkConfig={networkConfig} settingsHaveChanged={settingsHaveChanged} />
+      ) : (
+        <DeleteNetworkButton networkConfig={networkConfig} />
+      )
     },
   },
 ]
 
-function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
+type ButtonProps = {
+  networkConfig: NetworkConfigWithId
+}
+
+function EditNetworkButton({ networkConfig }: ButtonProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openDialog = useCallback(() => {
@@ -108,7 +121,7 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
             <h2 className="pb-0">Edit Network</h2>
           </DialogHeader>
           <MediumSizeDialogBody>
-            <EditNetworkConfigForm networkConfig={network} onSuccess={() => setDialogOpen(false)} />
+            <EditNetworkConfigForm networkConfig={networkConfig} onSuccess={() => setDialogOpen(false)} />
           </MediumSizeDialogBody>
         </DialogContent>
       </Dialog>
@@ -116,25 +129,49 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
   )
 }
 
-function DeleteNetworkButton({ network }: { network: NetworkConfigWithId }) {
-  const isBuiltInNetwork = network.id in defaultNetworkConfigs
+function DeleteNetworkButton({ networkConfig }: ButtonProps) {
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
   const deleteNetwork = useCallback(() => {
-    network.name
-    deleteNetworkConfig(network.id)
-    toast.success(`${network.name} has been deleted`)
-  }, [deleteNetworkConfig, network])
+    deleteNetworkConfig(networkConfig.id)
+    toast.success(`${networkConfig.name} has been deleted`)
+  }, [deleteNetworkConfig, networkConfig])
 
   return (
     <ConfirmButton
       variant="destructive"
       onConfirm={deleteNetwork}
       dialogHeaderText="Delete Network?"
-      dialogContent={<div>Are you sure you want to delete "{network.name}"?</div>}
-      disabled={isBuiltInNetwork}
+      dialogContent={<div>Are you sure you want to delete '{networkConfig.name}'?</div>}
       icon={<Trash size={16} />}
+      className="w-24"
     >
       Delete
+    </ConfirmButton>
+  )
+}
+
+type ResetNetworkButtonProps = ButtonProps & {
+  settingsHaveChanged: boolean
+}
+
+function ResetNetworkButton({ networkConfig, settingsHaveChanged }: ResetNetworkButtonProps) {
+  const deleteNetworkConfig = useDeleteCustomNetworkConfig()
+  const resetNetworkToDefaults = useCallback(() => {
+    deleteNetworkConfig(networkConfig.id)
+    toast.success(`${networkConfig.name} has been reset`)
+  }, [deleteNetworkConfig, networkConfig])
+
+  return (
+    <ConfirmButton
+      variant="destructive"
+      onConfirm={resetNetworkToDefaults}
+      dialogHeaderText="Reset Network?"
+      dialogContent={<div>Are you sure you want to reset '{networkConfig.name}' to the default settings?</div>}
+      icon={<RotateCcw size={16} />}
+      className="w-24"
+      disabled={!settingsHaveChanged}
+    >
+      Reset
     </ConfirmButton>
   )
 }

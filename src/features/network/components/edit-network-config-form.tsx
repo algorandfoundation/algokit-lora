@@ -2,10 +2,9 @@ import { Form } from '@/features/forms/components/form'
 import { useCallback, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import { defaultNetworkConfigs, useDeleteCustomNetworkConfig, useSelectedNetwork, useSetCustomNetworkConfig } from '@/features/network/data'
+import { useSelectedNetwork, useSetCustomNetworkConfig } from '@/features/network/data'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
-import { Button } from '@/features/common/components/button'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { NetworkFormInner } from '@/features/network/components/network-form-inner'
@@ -23,9 +22,7 @@ type Props = {
 export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
   const setCustomNetworkConfig = useSetCustomNetworkConfig()
-  const deleteNetworkConfig = useDeleteCustomNetworkConfig()
   const refreshDataProviderToken = useRefreshDataProviderToken()
-  const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
 
   const updateNetwork = useCallback(
     (values: z.infer<typeof editNetworkConfigFormSchema>) => {
@@ -44,13 +41,6 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     },
     [networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork, setCustomNetworkConfig]
   )
-  const resetForm = useCallback(() => {
-    if (defaultNetworkConfigs[networkConfig.id]) {
-      deleteNetworkConfig(networkConfig.id)
-      toast.success(`${networkConfig.name} has been reset`)
-      onSuccess()
-    }
-  }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, onSuccess])
 
   const defaultValues = useMemo(
     () => ({
@@ -71,11 +61,6 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       defaultValues={defaultValues}
       formAction={
         <FormActions>
-          {isBuiltInNetwork && (
-            <Button type="button" variant="destructive" className="mr-auto" onClick={resetForm}>
-              Reset
-            </Button>
-          )}
           <CancelButton onClick={onSuccess} className="w-28" />
           <SubmitButton className="w-28">Save</SubmitButton>
         </FormActions>
