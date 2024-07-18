@@ -46,7 +46,7 @@ runs:
         TIMESTAMP_RFC3161: http://timestamp.acs.microsoft.com
         TIMESTAMP_DIGEST: SHA256
         BEFORE_BUNDLE_COMMAND: >
-          pwsh -command "Invoke-TrustedSigning"
+          pwsh -command Invoke-TrustedSigning
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
