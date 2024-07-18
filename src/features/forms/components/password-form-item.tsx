@@ -16,14 +16,7 @@ export function PasswordFormItem<TSchema extends Record<string, unknown> = Recor
 
   return (
     <FormItem {...props} field={field}>
-      <Input
-        id={field}
-        autoComplete={'off'}
-        type="password"
-        {...register(field, { shouldUnregister: true })}
-        placeholder={placeholder}
-        disabled={props.disabled}
-      />
+      <Input id={field} autoComplete={'off'} type="password" {...register(field)} placeholder={placeholder} disabled={props.disabled} />
     </FormItem>
   )
 }

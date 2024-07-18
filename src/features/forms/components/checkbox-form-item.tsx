@@ -24,7 +24,6 @@ export function CheckboxFormItem<TSchema extends Record<string, unknown>>({
     <>
       <Controller
         name={field}
-        shouldUnregister={true}
         render={({ field: { value, onChange } }) => (
           <div className={cn('ml-0.5 flex items-center space-x-2', className)}>
             <Checkbox id={field} checked={value} onCheckedChange={onChange} {...rest} />

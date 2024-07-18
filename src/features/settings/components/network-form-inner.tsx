@@ -19,7 +19,7 @@ const promptForTokenLabel = 'Prompt for token'
 const tokenLabel = 'Token'
 
 export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
-  const { setValue, watch } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
+  const { setValue, watch, unregister } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
   const [kmdRequired, setKmdRequired] = useState(false)
 
   const walletProviders = watch('walletProviders')
@@ -28,9 +28,10 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
     setKmdRequired(isKmdRequired)
     if (!isKmdRequired) {
-      setValue('kmd', undefined)
+      setValue('kmd', undefined, { shouldTouch: true })
+      unregister('kmd')
     }
-  }, [setValue, walletProviders])
+  }, [setValue, unregister, walletProviders])
 
   const indexerPromptForToken = watch('indexer.promptForToken')
   useEffect(() => {
