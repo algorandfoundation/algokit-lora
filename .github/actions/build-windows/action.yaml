@@ -18,7 +18,7 @@ runs:
   steps:
     - name: Create a dummy file
       shell: bash
-      run: echo "This is a dummy file." > dummy.txt
+      run: echo "This is a dummy file." > dummy.exe
 
     - name: List files for debugging
       shell: bash
@@ -33,8 +33,8 @@ runs:
         endpoint: https://weu.codesigning.azure.net/
         trusted-signing-account-name: algokit-signing
         certificate-profile-name: algokit
-        files-folder: dummy.txt
-        files-folder-filter: txt
+        files-folder: dummy.exe
+        files-folder-filter: exe
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
