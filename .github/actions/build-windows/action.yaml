@@ -17,8 +17,9 @@ runs:
   using: 'composite'
   steps:
 
-    - name: Initialize signing executable
+    - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
+      continue-on-error: true
       with:
         azure-tenant-id: ${{ inputs.azure_tenant_id }}
         azure-client-id: ${{ inputs.azure_client_id }}
