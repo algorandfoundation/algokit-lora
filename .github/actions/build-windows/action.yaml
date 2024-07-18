@@ -16,17 +16,35 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    #  TODO: set up signing certs here when releasing to production
-    - name: install dependencies (windows only)
-      if: matrix.platform == 'windows-latest'
+    - name: Sign executable
       shell: bash
       env:
-        # -e https://weu.codesigning.azure.net/ -a "${{ secrets.AZURE_CODE_SIGNING_NAME }}" -c "${{ secrets.AZURE_CERT_PROFILE_NAME }}" "${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe
-        # BEFORE_BUNDLE_COMMAND: "Invoke-TrustedSigning"
-        BEFORE_BUNDLE_COMMAND: 'powershell -command Get-Process'
+        AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
+        AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
+        AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
+        ENDPOINT: https://weu.codesigning.azure.net/
+        TRUSTED_SIGNING_ACCOUNT_NAME: algokit-signing
+        CERTIFICATE_PROFILE_NAME: algokit-lora
+        FILES_FOLDER: ${{ github.workspace }}/src-tauri/target/release/deps/algokit-lora.exe
+        FILES_FOLDER_FILTER: exe
+        FILE_DIGEST: SHA256
+        TIMESTAMP_RFC3161: http://timestamp.acs.microsoft.com
+        TIMESTAMP_DIGEST: SHA256
+        BEFORE_BUNDLE_COMMAND: >
+          pwsh -command "Invoke-TrustedSigning -AzureTenantId $env:AZURE_TENANT_ID
+            -AzureClientId $env:AZURE_CLIENT_ID -AzureClientSecret $env:AZURE_CLIENT_SECRET
+            -Endpoint $env:ENDPOINT -TrustedSigningAccountName $env:TRUSTED_SIGNING_ACCOUNT_NAME
+            -CertificateProfileName $env:CERTIFICATE_PROFILE_NAME -FilesFolder $env:FILES_FOLDER
+            -FilesFolderFilter $env:FILES_FOLDER_FILTER -FileDigest $env:FILE_DIGEST
+            -TimestampRfc3161 $env:TIMESTAMP_RFC3161 -TimestampDigest $env:TIMESTAMP_DIGEST"
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
+
+    - name: Build tauri app
+      run: |
+        npm run tauri build
+      shell: pwsh
 
     # - name: Sign executable
     #   uses: azure/trusted-signing-action@v0.3.20
@@ -64,8 +82,3 @@ runs:
     #     releaseDraft: true
     #     prerelease: false
     #     args: ${{ matrix.args }}
-
-    - name: Build tauri app
-      run: |
-        npm run tauri build
-      shell: pwsh
