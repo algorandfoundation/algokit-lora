@@ -20,6 +20,10 @@ runs:
       shell: bash
       run: echo "This is a dummy file." > dummy.txt
 
+    - name: List files for debugging
+      shell: bash
+      run: ls -R
+
     - name: Sign executable
       uses: azure/trusted-signing-action@v0.3.20
       with:
@@ -29,7 +33,7 @@ runs:
         endpoint: https://weu.codesigning.azure.net/
         trusted-signing-account-name: algokit-signing
         certificate-profile-name: algokit
-        files-folder: ./
+        files-folder: .
         files-folder-filter: dummy.txt
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
