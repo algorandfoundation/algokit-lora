@@ -17,21 +17,36 @@ runs:
   using: 'composite'
   steps:
     - name: Sign executable
+      uses: azure/trusted-signing-action@v0.3.20
+      with:
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ./
+        files-folder-filter: test
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    - name: Sign executable
       shell: bash
       env:
         AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
         AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
         AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
-        # ENDPOINT: https://weu.codesigning.azure.net/
-        # TRUSTED_SIGNING_ACCOUNT_NAME: algokit-signing
-        # CERTIFICATE_PROFILE_NAME: algokit-lora
-        # FILES_FOLDER: ${{ github.workspace }}/src-tauri/target/release/deps/algokit-lora.exe
-        # FILES_FOLDER_FILTER: exe
-        # FILE_DIGEST: SHA256
-        # TIMESTAMP_RFC3161: http://timestamp.acs.microsoft.com
-        # TIMESTAMP_DIGEST: SHA256
+        ENDPOINT: https://weu.codesigning.azure.net/
+        TRUSTED_SIGNING_ACCOUNT_NAME: algokit-signing
+        CERTIFICATE_PROFILE_NAME: algokit-lora
+        FILES_FOLDER: ${{ github.workspace }}/src-tauri/target/release/deps/algokit-lora.exe
+        FILES_FOLDER_FILTER: exe
+        FILE_DIGEST: SHA256
+        TIMESTAMP_RFC3161: http://timestamp.acs.microsoft.com
+        TIMESTAMP_DIGEST: SHA256
         BEFORE_BUNDLE_COMMAND: >
-          pwsh -command "Invoke-TrustedSigning -AzureTenantId $env:AZURE_TENANT_ID -AzureClientId $env:AZURE_CLIENT_ID -AzureClientSecret $env:AZURE_CLIENT_SECRET
+          pwsh -command "Invoke-TrustedSigning"
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
@@ -77,3 +92,8 @@ runs:
     #     releaseDraft: true
     #     prerelease: false
     #     args: ${{ matrix.args }}
+
+            # -Endpoint $env:ENDPOINT -CodeSigningAccountName $env:TRUSTED_SIGNING_ACCOUNT_NAME
+            # -CertificateProfileName $env:CERTIFICATE_PROFILE_NAME -FilesFolder $env:FILES_FOLDER
+            # -FilesFolderFilter $env:FILES_FOLDER_FILTER -FileDigest $env:FILE_DIGEST
+            # -TimestampRfc3161 $env:TIMESTAMP_RFC3161 -TimestampDigest $env:TIMESTAMP_DIGEST"

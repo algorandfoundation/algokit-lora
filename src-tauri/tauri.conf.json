@@ -21,15 +21,7 @@
       {
         "title": "algokit-lora",
         "width": 1400,
-        "height": 800,
-        "endpoint": "https://weu.codesigning.azure.net/",
-        "trustedSigningAccountName": "algokit-signing",
-        "certificateProfileName": "algokit-lora",
-        "filesFolder": "./src-tauri/target/release/deps/algokit-lora.exe",
-        "filesFolderFilter": "exe",
-        "fileDigest": "SHA256",
-        "timestampRfc3161": "http://timestamp.acs.microsoft.com",
-        "timestampDigest": "SHA256"
+        "height": 800
       }
     ],
     "security": {
