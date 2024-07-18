@@ -1,4 +1,4 @@
-import { defaultNetworkConfigs, localnetId } from '@/features/settings/data'
+import { defaultNetworkConfigs, localnetId } from '@/features/network/data'
 import { PropsWithChildren } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
 import { DataProvider } from '@/features/common/components/data-provider'

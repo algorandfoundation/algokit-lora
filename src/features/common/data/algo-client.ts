@@ -1,9 +1,9 @@
 import { Config, getAlgoClient, getAlgoIndexerClient, getAlgoKmdClient } from '@algorandfoundation/algokit-utils'
-import { networkConfigAtom } from '@/features/settings/data'
+import { networkConfigAtom } from '@/features/network/data'
 import { settingsStore } from '@/features/settings/data'
 import algosdk from 'algosdk'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
-import { NetworkConfig } from '@/features/settings/data/types'
+import { NetworkConfig } from '@/features/network/data/types'
 
 Config.configure({
   logger: Config.getLogger(true),

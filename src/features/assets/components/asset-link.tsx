@@ -6,7 +6,7 @@ import { AssetSummary } from '../models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type CommonProps = {
   className?: string

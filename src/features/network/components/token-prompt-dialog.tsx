@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { TokenPromptForm } from './token-prompt-form'
-import { NetworkSelect } from '@/features/settings/components/network-select'
-import { useNetworkConfig } from '@/features/settings/data'
+import { NetworkSelect } from '@/features/network/components/network-select'
+import { useNetworkConfig } from '@/features/network/data'
 import { Alert } from '@/features/common/components/alert'
 
 export function TokenPromptDialog() {

@@ -14,7 +14,7 @@ import {
   mainnetId,
   nonLocalnetWalletProviders,
   testnetId,
-} from '@/features/settings/data'
+} from '@/features/network/data'
 
 type FormInnerProps = {
   networkId?: string

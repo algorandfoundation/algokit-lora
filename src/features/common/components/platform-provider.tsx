@@ -1,4 +1,5 @@
-import { useNetworkConfig, useResolvedTheme, useShouldPromptForTokens } from '@/features/settings/data'
+import { useNetworkConfig, useShouldPromptForTokens } from '@/features/network/data'
+import { useResolvedTheme } from '@/features/settings/data'
 import { PropsWithChildren } from 'react'
 import { WalletProvider } from './wallet-provider'
 import { DataProvider } from './data-provider'

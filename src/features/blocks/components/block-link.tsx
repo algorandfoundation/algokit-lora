@@ -2,7 +2,7 @@ import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type Props = PropsWithChildren<{
   round: number

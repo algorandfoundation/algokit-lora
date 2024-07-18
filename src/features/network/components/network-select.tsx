@@ -1,4 +1,4 @@
-import { useNetworkConfigs, useSelectedNetwork } from '@/features/settings/data'
+import { useNetworkConfigs, useSelectedNetwork } from '@/features/network/data'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'

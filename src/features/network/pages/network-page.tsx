@@ -1,6 +1,6 @@
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { UrlParams } from '@/routes/urls'
-import { useNetworkConfigs, useSelectedNetwork } from '@/features/settings/data'
+import { useNetworkConfigs, useSelectedNetwork } from '@/features/network/data'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 

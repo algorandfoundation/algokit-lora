@@ -2,24 +2,19 @@ import { Form } from '@/features/forms/components/form'
 import { useCallback, useMemo } from 'react'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormActions } from '@/features/forms/components/form-actions'
-import {
-  defaultNetworkConfigs,
-  useDeleteCustomNetworkConfig,
-  useSelectedNetwork,
-  useSetCustomNetworkConfig,
-} from '@/features/settings/data'
+import { defaultNetworkConfigs, useDeleteCustomNetworkConfig, useSelectedNetwork, useSetCustomNetworkConfig } from '@/features/network/data'
 import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { Button } from '@/features/common/components/button'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
-import { NetworkFormInner } from '@/features/settings/components/network-form-inner'
+import { NetworkFormInner } from '@/features/network/components/network-form-inner'
 import { asAlgoServiceConfig } from '@/features/settings/mappers'
-import { NetworkConfigWithId } from '@/features/settings/data/types'
+import { NetworkConfigWithId } from '@/features/network/data/types'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 import { useRefreshDataProviderToken } from '@/features/common/data'
 import { Alert } from '@/features/common/components/alert'
-import { tokenStorageText } from '@/features/settings/components/labels'
+import { tokenStorageText } from '@/features/network/components/labels'
 
 type Props = {
   networkConfig: NetworkConfigWithId

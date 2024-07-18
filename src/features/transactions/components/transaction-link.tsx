@@ -4,7 +4,7 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { ellipseId } from '@/utils/ellipse-id'
 import { PropsWithChildren } from 'react'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type Props = PropsWithChildren<{
   transactionId: string

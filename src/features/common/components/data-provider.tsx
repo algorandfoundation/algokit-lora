@@ -2,7 +2,7 @@ import { JotaiStore } from '../data/types'
 import { useDataStore } from '../data/data-store'
 import { Provider as JotaiProvider } from 'jotai'
 import { PropsWithChildren } from 'react'
-import { NetworkConfigWithId } from '@/features/settings/data/types'
+import { NetworkConfigWithId } from '@/features/network/data/types'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfigWithId

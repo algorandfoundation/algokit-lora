@@ -1,4 +1,4 @@
-import { NetworkConfigWithId } from '@/features/settings/data/types'
+import { NetworkConfigWithId } from '@/features/network/data/types'
 import { PROVIDER_ID, useInitializeProviders } from '@txnlab/use-wallet'
 import { PropsWithChildren } from 'react'
 import algosdk from 'algosdk'

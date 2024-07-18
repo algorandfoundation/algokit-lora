@@ -3,7 +3,7 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { ApplicationId } from '../data/types'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 import { CopyButton } from '@/features/common/components/copy-button'
 
 type Props = PropsWithChildren<{

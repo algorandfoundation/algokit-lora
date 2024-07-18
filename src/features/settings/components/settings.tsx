@@ -1,6 +1,6 @@
-import { NetworkSelect } from '@/features/settings/components/network-select'
+import { NetworkSelect } from '@/features/network/components/network-select'
 import { ClearCache } from './clear-cache'
-import { NetworksConfigsTable } from '@/features/settings/components/networks-configs-table'
+import { NetworksConfigsTable } from '@/features/network/components/networks-configs-table'
 
 export function Settings() {
   return (

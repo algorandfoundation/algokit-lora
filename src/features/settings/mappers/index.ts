@@ -1,4 +1,4 @@
-import { ServiceConfig } from '@/features/settings/data'
+import { ServiceConfig } from '@/features/network/data/types'
 import { algoServiceSchema } from '@/features/settings/form-schemas/algo-service-schema'
 import { z } from 'zod'
 

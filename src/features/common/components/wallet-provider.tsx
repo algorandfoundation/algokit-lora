@@ -7,7 +7,7 @@ import { PropsWithChildren, useMemo } from 'react'
 import algosdk from 'algosdk'
 import { WalletProviderInner } from './wallet-provider-inner'
 import { defaultKmdWallet, useSelectedKmdWallet } from '@/features/wallet/data/kmd'
-import { NetworkConfigWithId } from '@/features/settings/data/types'
+import { NetworkConfigWithId } from '@/features/network/data/types'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfigWithId

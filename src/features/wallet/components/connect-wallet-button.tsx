@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/feat
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { useNetworkConfig } from '@/features/settings/data'
+import { useNetworkConfig } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'

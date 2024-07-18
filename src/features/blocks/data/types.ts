@@ -69,8 +69,6 @@ export enum SubscriberState {
   Stopped = 'Stopped',
 }
 
-// TODO: NC - Move components
-
 export enum SubscriberStoppedReason {
   Error = 'Error',
   Inactivity = 'Inactivity',

@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { useDeepLink } from '@/features/deep-link/hooks/use-deep-link'
 import { ScrollRestoration } from 'react-router-dom'
 import { SubscriberStatus } from '../components/subscriber-status'
-import { useShouldPromptForTokens } from '@/features/settings/data'
+import { useShouldPromptForTokens } from '@/features/network/data'
 import { TokenPromptDialog } from '@/features/network/components/token-prompt-dialog'
 
 type Props = {

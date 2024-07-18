@@ -1,10 +1,11 @@
-import { NetworkConfigWithId, useSetNetworkPromptedTokens } from '@/features/settings/data'
+import { useSetNetworkPromptedTokens } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
+import { NetworkConfigWithId } from '../data/types'
 
 type Props = {
   networkConfig: NetworkConfigWithId
