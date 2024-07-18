@@ -3,7 +3,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { findByRole, render, waitFor } from '@/tests/testing-library'
 import { SettingsPage } from '@/features/settings/pages/settings-page'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
-import { createNetworkConfigDialogLabel, networkConfigsTableLabel } from '@/features/network/components/networks-configs-table'
+import { createNetworkConfigDialogLabel, networkConfigsTableLabel } from '@/features/network/components/network-configs-table'
 
 describe('settings-page', () => {
   describe('when viewing', () => {

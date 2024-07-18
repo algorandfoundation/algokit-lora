@@ -1,12 +1,12 @@
 import { NetworkSelect } from '@/features/network/components/network-select'
 import { ClearCache } from './clear-cache'
-import { NetworksConfigsTable } from '@/features/network/components/networks-configs-table'
+import { NetworkConfigsTable } from '@/features/network/components/network-configs-table'
 
 export function Settings() {
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col space-y-8">
       <NetworkSelect />
-      <NetworksConfigsTable />
+      <NetworkConfigsTable />
       <ClearCache />
     </div>
   )

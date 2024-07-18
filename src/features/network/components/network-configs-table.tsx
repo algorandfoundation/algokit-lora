@@ -15,7 +15,7 @@ import { Pencil, Plus, Trash } from 'lucide-react'
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
 
-export function NetworksConfigsTable() {
+export function NetworkConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
   const networkConfigs = useNetworkConfigs()
   const data = useMemo<NetworkConfigWithId[]>(
@@ -24,7 +24,7 @@ export function NetworksConfigsTable() {
   )
 
   return (
-    <>
+    <div>
       <div className="mb-4 flex items-center gap-2">
         <h2 className="pb-0">Networks</h2>
         <Button
@@ -49,7 +49,7 @@ export function NetworksConfigsTable() {
           </DialogContent>
         )}
       </Dialog>
-    </>
+    </div>
   )
 }
 
@@ -105,7 +105,7 @@ function EditNetworkButton({ network }: { network: NetworkConfigWithId }) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <DialogHeader className="flex-row items-center space-y-0">
-            <h2 className="pb-0">Edit {network.name}</h2>
+            <h2 className="pb-0">Edit Network</h2>
           </DialogHeader>
           <MediumSizeDialogBody>
             <EditNetworkConfigForm networkConfig={network} onSuccess={() => setDialogOpen(false)} />
