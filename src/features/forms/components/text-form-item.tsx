@@ -20,7 +20,9 @@ export function TextFormItem<TSchema extends Record<string, unknown> = Record<st
         id={field}
         autoComplete={'off'}
         type="text"
-        {...register(field)}
+        {...register(field, {
+          shouldUnregister: true,
+        })}
         placeholder={placeholder}
         disabled={props.disabled}
         aria-label={field}

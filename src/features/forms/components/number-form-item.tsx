@@ -21,6 +21,7 @@ export function InputNumber<TSchema extends Record<string, unknown> = Record<str
   return (
     <Controller
       name={field}
+      shouldUnregister={true}
       render={({ field: controllerField }) => <NumericFormatWithRef field={field} {...controllerField} {...rest} />}
     />
   )
