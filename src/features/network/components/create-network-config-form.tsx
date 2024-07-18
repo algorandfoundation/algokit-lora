@@ -7,7 +7,7 @@ import { z } from 'zod'
 import { toast } from 'react-toastify'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { NetworkFormInner } from '@/features/network/components/network-form-inner'
-import { asAlgoServiceConfig } from '@/features/settings/mappers'
+import { asStorableServiceConfig } from '@/features/settings/mappers'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 import { replaceAll } from '@/utils/replace-all.ts'
@@ -33,9 +33,9 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       setCustomNetworkConfig(networkId, {
         name: values.name,
         walletProviders: values.walletProviders,
-        indexer: asAlgoServiceConfig(values.indexer),
-        algod: asAlgoServiceConfig(values.algod),
-        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asAlgoServiceConfig(values.kmd) : undefined,
+        indexer: asStorableServiceConfig(values.indexer),
+        algod: asStorableServiceConfig(values.algod),
+        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
       })
       toast.success(`${values.name} has been created`)
     },

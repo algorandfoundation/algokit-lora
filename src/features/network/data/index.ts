@@ -169,11 +169,7 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
     // eslint-disable-next-line no-console
     console.warn(`Unknown network: ${selectedNetworkId}, fallback to ${defaultNetworkConfigs.localnet.name}`)
   }
-
-  const config = {
-    id,
-    ...networkConfigs[id],
-  }
+  const config = networkConfigs[id]
 
   // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
   if (selectedNetworkId === localnetId) {
@@ -186,21 +182,21 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
     }
   })
 
-  // Use prompted tokens if they have been supplied
   const networkTokens = id in networksPromptedTokens ? networksPromptedTokens[id] : undefined
-  if (networkTokens) {
-    if (config.algod.promptForToken === true) {
-      config.algod.token = networkTokens.algod
-    }
-    if (config.indexer.promptForToken === true) {
-      config.indexer.token = networkTokens.indexer
-    }
-    if (config.kmd && config.kmd.promptForToken === true) {
-      config.kmd.token = networkTokens.kmd
-    }
-  }
 
-  return config
+  return {
+    id,
+    ...config,
+    // Use prompted tokens if they have been supplied.
+    // It's important we do it this way, so we don't mutate the stored network config.
+    ...(networkTokens
+      ? {
+          algod: config.algod.promptForToken === true ? { ...config.algod, token: networkTokens.algod } : config.algod,
+          indexer: config.indexer.promptForToken === true ? { ...config.indexer, token: networkTokens.indexer } : config.indexer,
+          kmd: config.kmd && config.kmd.promptForToken === true ? { ...config.kmd, token: networkTokens.kmd } : config.kmd,
+        }
+      : undefined),
+  }
 })
 
 export const useNetworkConfig = () => {

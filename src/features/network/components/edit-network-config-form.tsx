@@ -9,7 +9,7 @@ import { Button } from '@/features/common/components/button'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { NetworkFormInner } from '@/features/network/components/network-form-inner'
-import { asAlgoServiceConfig } from '@/features/settings/mappers'
+import { asStorableServiceConfig } from '@/features/settings/mappers'
 import { NetworkConfigWithId } from '@/features/network/data/types'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 import { useRefreshDataProviderToken } from '@/features/common/data'
@@ -32,9 +32,9 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       setCustomNetworkConfig(networkConfig.id, {
         name: networkConfig.name,
         walletProviders: values.walletProviders,
-        indexer: asAlgoServiceConfig(values.indexer),
-        algod: asAlgoServiceConfig(values.algod),
-        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asAlgoServiceConfig(values.kmd) : undefined,
+        indexer: asStorableServiceConfig(values.indexer),
+        algod: asStorableServiceConfig(values.algod),
+        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
       })
 
       toast.success(`${networkConfig.name} has been updated`)
