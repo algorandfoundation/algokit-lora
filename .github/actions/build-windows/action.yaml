@@ -16,7 +16,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
       continue-on-error: true
@@ -40,7 +39,7 @@ runs:
       env:
         FILES_FOLDER: ${{ github.workspace }}/src-tauri/target/release/deps/algokit-lora.exe
         FILES_FOLDER_FILTER: exe
-        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning
+        BEFORE_BUNDLE_COMMAND: pwsh -command Get-Process
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
