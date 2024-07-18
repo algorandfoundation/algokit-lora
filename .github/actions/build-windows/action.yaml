@@ -33,8 +33,8 @@ runs:
         endpoint: https://weu.codesigning.azure.net/
         trusted-signing-account-name: algokit-signing
         certificate-profile-name: algokit
-        files-folder: .
-        files-folder-filter: dummy.txt
+        files-folder: dummy.txt
+        files-folder-filter: txt
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
