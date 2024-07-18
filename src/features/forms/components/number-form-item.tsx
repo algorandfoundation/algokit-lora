@@ -53,7 +53,9 @@ export function NumberFormItem<TSchema extends Record<string, unknown> = Record<
     <FormItem {...props} field={field} disabled={disabled}>
       <Controller
         name={field}
-        render={({ field: controllerField }) => <NumericFormatWithRef field={field} {...controllerField} disabled={disabled} {...props} />}
+        render={({ field: controllerField }) => (
+          <NumericFormatWithRef field={field} {...controllerField} disabled={disabled} aria-label={field} {...props} />
+        )}
       />
     </FormItem>
   )
