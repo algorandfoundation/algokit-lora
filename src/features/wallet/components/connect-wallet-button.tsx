@@ -1,10 +1,11 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Account, PROVIDER_ID, Provider, clearAccounts, useWallet } from '@txnlab/use-wallet'
+import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
+import { useNetworkConfig } from '@/features/settings/data'
 import { Fragment, useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
@@ -16,7 +17,8 @@ import { useAtom, useSetAtom } from 'jotai'
 import { ProviderConnectButton } from './provider-connect-button'
 import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
-import { useNetworkConfig } from '@/features/settings/data'
+import { clearAvailableWallets } from '../utils/clear-available-wallets'
+import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -51,30 +53,16 @@ const preventDefault = (e: Event) => {
   e.preventDefault()
 }
 
-const forceRemoveConnectedWallet = () => {
-  // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-  Object.values(PROVIDER_ID).forEach((providerId) => {
-    clearAccounts(providerId)
-  })
-}
-
 function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
-
-  const disconnectWallet = useCallback(async () => {
-    if (activeProvider) {
-      await activeProvider.disconnect()
-    } else {
-      forceRemoveConnectedWallet()
-    }
-  }, [activeProvider])
+  const disconnectWallet = useDisconnectWallet(activeProvider)
 
   const switchAccount = useCallback(
     (address: string) => {
       if (activeProvider) {
         activeProvider.setActiveAccount(address)
       } else {
-        forceRemoveConnectedWallet()
+        clearAvailableWallets()
       }
     },
     [activeProvider]
