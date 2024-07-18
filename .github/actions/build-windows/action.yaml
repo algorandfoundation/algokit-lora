@@ -16,9 +16,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Create a dummy file
-      shell: bash
-      run: echo "This is a dummy file." > dummy.exe
 
     - name: List files for debugging
       shell: bash
@@ -35,6 +32,11 @@ runs:
         certificate-profile-name: algokit
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
+
+    - name: debugging
+      run: |
+        echo "Hello, world!"
+      shell: bash
 
     - name: Sign executable
       shell: bash
