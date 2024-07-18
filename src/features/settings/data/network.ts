@@ -5,9 +5,25 @@ import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { localnetId, mainnetId, NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, testnetId } from './types'
 
-const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
-const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
-const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
+export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
+export const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
+export const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
+export const allWalletProviderNames: Record<PROVIDER_ID, string> = {
+  kmd: 'KMD',
+  mnemonic: 'MNEMONIC',
+  defly: 'Defly',
+  daffi: 'Daffi',
+  pera: 'Pera',
+  exodus: 'Exodus',
+  lute: 'Lute',
+  // The below providers aren't used
+  custom: 'Custom',
+  myalgo: 'My Algo',
+  algosigner: 'Algo Signer',
+  kibisis: 'Kibisis',
+  walletconnect: 'Wallet Connect',
+  magic: 'Magic',
+}
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {

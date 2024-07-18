@@ -70,7 +70,6 @@ export enum SubscriberState {
 }
 
 // TODO: NC - Move components
-// TODO: NC - why do we use the unique id in the network?
 
 export enum SubscriberStoppedReason {
   Error = 'Error',

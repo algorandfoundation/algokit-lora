@@ -20,16 +20,17 @@ type Props = {
 export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const setCustomNetworkConfig = useSetCustomNetworkConfig()
   const networkConfigs = useNetworkConfigs()
-  const existingNetworkNames = useMemo(() => Object.values(networkConfigs).map((networkConfig) => networkConfig.name), [networkConfigs])
+  const existingNetworkIds = useMemo(() => Object.entries(networkConfigs).map(([id, _]) => id), [networkConfigs])
 
   const createNetwork = useCallback(
     (values: z.infer<typeof createNetworkConfigFormSchema>) => {
-      // TODO: NC - Can we do this better?
-      if (existingNetworkNames.includes(values.name)) {
-        throw new Error(`${values.name} already exists, please choose a different name`)
+      const networkId = generateNetworkId(values.name)
+
+      if (existingNetworkIds.includes(networkId)) {
+        throw new Error(`A network with id '${networkId}' already exists, please choose a different name`)
       }
 
-      setCustomNetworkConfig(generateNetworkId(values.name), {
+      setCustomNetworkConfig(networkId, {
         name: values.name,
         walletProviders: values.walletProviders,
         indexer: asAlgoServiceConfig(values.indexer),
@@ -38,7 +39,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       })
       toast.success(`${values.name} has been created`)
     },
-    [existingNetworkNames, setCustomNetworkConfig]
+    [existingNetworkIds, setCustomNetworkConfig]
   )
 
   return (
@@ -72,6 +73,5 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
 }
 
 const generateNetworkId = (name: string) => {
-  const randomStr = Number(new Date()).toString(36).toLowerCase()
-  return `${replaceAll(name.toLowerCase(), ' ', '-')}-${randomStr}`
+  return replaceAll(name.toLowerCase(), ' ', '-')
 }

@@ -6,7 +6,15 @@ import { Fieldset } from '@/features/forms/components/fieldset'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
-import { defaultNetworkConfigs, localnetId, mainnetId, testnetId } from '@/features/settings/data'
+import {
+  allWalletProviderNames,
+  defaultNetworkConfigs,
+  localnetId,
+  localnetWalletProviders,
+  mainnetId,
+  nonLocalnetWalletProviders,
+  testnetId,
+} from '@/features/settings/data'
 
 type FormInnerProps = {
   networkId?: string
@@ -139,53 +147,23 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   )
 }
 
-// TODO: NC - I think this should live with the types
-const nonLocalWalletProviders = [
-  {
-    value: PROVIDER_ID.DEFLY,
-    label: 'Defly',
-  },
-  {
-    value: PROVIDER_ID.DAFFI,
-    label: 'Daffi',
-  },
-  {
-    value: PROVIDER_ID.PERA,
-    label: 'Pera',
-  },
-  {
-    value: PROVIDER_ID.EXODUS,
-    label: 'Exodus',
-  },
-  {
-    value: PROVIDER_ID.LUTE,
-    label: 'Lute',
-  },
-]
-const localWalletProviders = [
-  {
-    value: PROVIDER_ID.KMD,
-    label: 'KMD',
-  },
-  {
-    value: PROVIDER_ID.MNEMONIC,
-    label: 'MNEMONIC',
-  },
-]
 const getSupportedWalletProviderOptions = (networkId?: string) => {
   if (networkId === localnetId) {
-    return localWalletProviders
+    return localnetWalletProviders.map((provider) => ({
+      value: provider,
+      label: allWalletProviderNames[provider],
+    }))
   }
+
+  const nonLocalnetWalletProviderOptions = nonLocalnetWalletProviders.map((provider) => ({
+    value: provider,
+    label: allWalletProviderNames[provider],
+  }))
+
   if (networkId === mainnetId || networkId === testnetId) {
-    return nonLocalWalletProviders
+    return nonLocalnetWalletProviderOptions
   }
 
   // For custom network
-  return [
-    ...nonLocalWalletProviders,
-    {
-      value: PROVIDER_ID.KMD,
-      label: 'KMD',
-    },
-  ]
+  return nonLocalnetWalletProviderOptions.concat({ value: PROVIDER_ID.KMD, label: allWalletProviderNames[PROVIDER_ID.KMD] })
 }
