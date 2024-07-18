@@ -17,11 +17,7 @@ runs:
   using: 'composite'
   steps:
 
-    - name: List files for debugging
-      shell: bash
-      run: ls -R
-
-    - name: Sign executable
+    - name: Initialize signing executable
       uses: azure/trusted-signing-action@v0.3.20
       with:
         azure-tenant-id: ${{ inputs.azure_tenant_id }}
