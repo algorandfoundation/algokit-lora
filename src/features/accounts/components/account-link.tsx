@@ -5,7 +5,7 @@ import { Urls } from '@/routes/urls'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { PropsWithChildren } from 'react'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type Props = PropsWithChildren<{
   address: string

@@ -14,12 +14,14 @@ export function ClearCache() {
   }
 
   return (
-    <>
+    <div>
       <h2>Data</h2>
-      <p>Reset cached state and reload the app.</p>
-      <Button onClick={handleClearCache} variant="outline" size="sm">
-        Reset cache
-      </Button>
-    </>
+      <div>
+        <p className="mb-2">Reset cached state and reload the app.</p>
+        <Button onClick={handleClearCache} variant="outline" size="sm">
+          Reset cache
+        </Button>
+      </div>
+    </div>
   )
 }

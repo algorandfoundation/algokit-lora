@@ -59,7 +59,7 @@ const CommandInput = React.forwardRef<
         aria-label={clearSearchButtonLabel}
         className={cn('size-4 text-muted-foreground')}
       >
-        <XIcon size={'1rem'} />
+        <XIcon />
       </Button>
     )}
   </div>

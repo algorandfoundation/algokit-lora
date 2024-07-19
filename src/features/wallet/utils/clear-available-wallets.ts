@@ -1,12 +1,9 @@
-import { localnetConfig, mainnetConfig } from '@/features/settings/data'
-import { clearAccounts } from '@txnlab/use-wallet'
+import { clearAccounts, PROVIDER_ID } from '@txnlab/use-wallet'
 
 export const clearAvailableWallets = () => {
   // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-  mainnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
-  })
-  localnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
+  // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
+  Object.values(PROVIDER_ID).forEach((providerId) => {
+    clearAccounts(providerId)
   })
 }

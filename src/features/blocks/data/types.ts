@@ -64,8 +64,9 @@ export type BlocksExtract = {
 export type Round = number
 
 export enum SubscriberState {
-  Stopped = 'Stopped',
+  NotStarted = 'NotStarted',
   Started = 'Started',
+  Stopped = 'Stopped',
 }
 
 export enum SubscriberStoppedReason {
@@ -83,6 +84,9 @@ export type SubscriberStoppedDetails =
     }
 
 export type SubscriberStatus =
+  | {
+      state: SubscriberState.NotStarted
+    }
   | {
       state: SubscriberState.Started
     }
