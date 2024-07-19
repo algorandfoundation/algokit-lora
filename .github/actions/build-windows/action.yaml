@@ -49,7 +49,7 @@ runs:
         endpoint: https://weu.codesigning.azure.net/
         trusted-signing-account-name: algokit-signing
         certificate-profile-name: algokit
-        files-folder: ${{ github.workspace }}\src-tauri\target\release\msi\
+        files-folder: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\
         files-folder-filter: msi
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
