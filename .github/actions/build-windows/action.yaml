@@ -19,8 +19,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    # This step is seting up the trusted signing action with the secrets required to authenticate with the trusted signing service.
-    # it will be used later to sign the executable step.
+    # This step is just seting up the trusted signing action with the secrets required to authenticate with the trusted signing service. It is expected to fail.
+    # It will be used later to sign the executable step.
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
       continue-on-error: true
@@ -32,7 +32,10 @@ runs:
     - name: Sign executable
       shell: bash
       env:
-        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FileDigest 'SHA256' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -timeout '1200'
+        AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
+        AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
+        AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
+        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -timeout '1200'
 
       run: |
         cd "$GITHUB_WORKSPACE"
