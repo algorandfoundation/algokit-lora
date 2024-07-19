@@ -35,6 +35,7 @@ jobs:
         uses: ./.github/actions/build-windows
         with:
           release-version: 0.0.1
+          package_name: algokit-lora
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}

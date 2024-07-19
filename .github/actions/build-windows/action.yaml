@@ -3,6 +3,9 @@ description: 'Build for Windows'
 inputs:
   release-version:
     description: 'The release version'
+  package_name:
+    description: 'The name of the package'
+    required: true
   azure_tenant_id:
     description: ''
     required: true
@@ -16,7 +19,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-
+    # This step is seting up the trusted signing action with the secrets required to authenticate with the trusted signing service.
+    # it will be used later to sign the executable step.
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
       continue-on-error: true
@@ -24,21 +28,11 @@ runs:
         azure-tenant-id: ${{ inputs.azure_tenant_id }}
         azure-client-id: ${{ inputs.azure_client_id }}
         azure-client-secret: ${{ inputs.azure_client_secret }}
-        endpoint: https://weu.codesigning.azure.net/
-        trusted-signing-account-name: algokit-signing
-        certificate-profile-name: algokit
-        timestamp-rfc3161: http://timestamp.acs.microsoft.com
-        timestamp-digest: SHA256
-
-    - name: debugging
-      run: |
-        echo "Hello, world!"
-      shell: bash
 
     - name: Sign executable
       shell: bash
       env:
-        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FileDigest 'SHA256' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe'
+        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FileDigest 'SHA256' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\nsis\' -FilesFolderFilter 'exe'
 
       run: |
         cd "$GITHUB_WORKSPACE"
@@ -49,20 +43,28 @@ runs:
         npm run tauri build
       shell: pwsh
 
-    # - name: Sign executable
-    #   uses: azure/trusted-signing-action@v0.3.20
-    #   with:
-    #     azure-tenant-id: ${{ inputs.azure_tenant_id }}
-    #     azure-client-id: ${{ inputs.azure_client_id }}
-    #     azure-client-secret: ${{ inputs.azure_client_secret }}
-    #     endpoint: https://weu.codesigning.azure.net/
-    #     trusted-signing-account-name: algokit-signing
-    #     certificate-profile-name: algokit
-    #     files-folder: './'
-    #     files-folder-filter: exe
-    #     file-digest: SHA256
-    #     timestamp-rfc3161: http://timestamp.acs.microsoft.com
-    #     timestamp-digest: SHA256
+    - name: Sign winget installer
+      uses: azure/trusted-signing-action@v0.3.20
+      with:
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ${{ github.workspace }}\src-tauri\target\release\msi\
+        files-folder-filter: msi
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    - name: Upload msi artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.package_name }}-msi
+        path: ${{ github.workspace }}\src-tauri\target\release\msi\algokit-lora.msi
+        if-no-files-found: error
+
 
     # - uses: tauri-apps/tauri-action@v0
     #   env:
@@ -85,8 +87,3 @@ runs:
     #     releaseDraft: true
     #     prerelease: false
     #     args: ${{ matrix.args }}
-
-    # -Endpoint $env:ENDPOINT -CodeSigningAccountName $env:TRUSTED_SIGNING_ACCOUNT_NAME
-    # -CertificateProfileName $env:CERTIFICATE_PROFILE_NAME -FilesFolder $env:FILES_FOLDER
-    # -FilesFolderFilter $env:FILES_FOLDER_FILTER -FileDigest $env:FILE_DIGEST
-    # -TimestampRfc3161 $env:TIMESTAMP_RFC3161 -TimestampDigest $env:TIMESTAMP_DIGEST"
