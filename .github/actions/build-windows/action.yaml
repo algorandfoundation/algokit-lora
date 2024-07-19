@@ -35,7 +35,7 @@ runs:
         AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
         AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
         AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
-        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -timeout '1200'
+        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit'  -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
 
       run: |
         cd "$GITHUB_WORKSPACE"
