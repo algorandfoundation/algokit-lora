@@ -66,27 +66,5 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.package_name }}-msi
-        path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora.msi
+        path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora_0.0.0_x64_en-US.msi
         if-no-files-found: error
-
-    # - uses: tauri-apps/tauri-action@v0
-    #   env:
-    #     azure-tenant-id: ${{ inputs.azure_tenant_id }}
-    #     azure-client-id: ${{ inputs.azure_client_id }}
-    #     azure-client-secret: ${{ inputs.azure_client_secret }}
-    #     endpoint: https://weu.codesigning.azure.net/
-    #     trusted-signing-account-name: algokit-signing
-    #     certificate-profile-name: algokit-lora
-    #     files-folder: ${{ github.workspace }}/src-tauri/target/release/deps/<algokit-lora>.exe
-    #     files-folder-filter: exe
-    #     file-digest: SHA256
-    #     timestamp-rfc3161: http://timestamp.acs.microsoft.com
-    #     timestamp-digest: SHA256
-    #   with:
-    #     updaterJsonPreferNsis: true
-    #     tagName: v__VERSION__
-    #     releaseName: 'v__VERSION__ ${{ env.RELEASE_TITLE }}'
-    #     releaseBody: "${{ env.RELEASE_NOTES }}"
-    #     releaseDraft: true
-    #     prerelease: false
-    #     args: ${{ matrix.args }}
