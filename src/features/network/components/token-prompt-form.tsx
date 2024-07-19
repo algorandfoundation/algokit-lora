@@ -53,17 +53,17 @@ export function TokenPromptForm({ networkConfig }: Props) {
       {(helper) => (
         <>
           {networkConfig.algod.promptForToken &&
-            helper.textField({
+            helper.passwordField({
               label: 'Algod Token',
               field: 'algod',
             })}
           {networkConfig.indexer.promptForToken &&
-            helper.textField({
+            helper.passwordField({
               label: 'Indexer Token',
               field: 'indexer',
             })}
           {networkConfig.kmd?.promptForToken &&
-            helper.textField({
+            helper.passwordField({
               label: 'KMD Token',
               field: 'kmd',
             })}
