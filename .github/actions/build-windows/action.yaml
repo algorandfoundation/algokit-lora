@@ -32,9 +32,6 @@ runs:
     - name: Sign executable
       shell: bash
       env:
-        AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
-        AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
-        AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
         BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit'  -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
 
       run: |
@@ -42,6 +39,10 @@ runs:
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
 
     - name: Build tauri app
+      env:
+        AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
+        AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
+        AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
       run: |
         npm run tauri build
       shell: pwsh
