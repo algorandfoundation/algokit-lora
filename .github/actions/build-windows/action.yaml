@@ -1,11 +1,20 @@
 name: 'Build for Windows'
 description: 'Build for Windows'
 inputs:
-  production-release:
-    description: 'Production release?'
-    required: true
   release-version:
     description: 'The release version'
+  package_name:
+    description: 'The name of the package'
+    required: true
+  azure_tenant_id:
+    description: ''
+    required: true
+  azure_client_id:
+    description: ''
+    required: true
+  azure_client_secret:
+    description: ''
+    required: true
 
 runs:
   using: 'composite'
@@ -31,10 +40,25 @@ runs:
         npm run tauri build
       shell: bash
 
-    - name: Upload binary as artifact
-      id: upload-artifact
-      uses: actions/upload-artifact@v4
+    - name: Sign winget installer
+      uses: azure/trusted-signing-action@v0.3.20
       with:
-        if-no-files-found: error
-        name: ${{ steps.set-env.outputs.artifact_name }}
-        path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ${{ github.workspace }}\src-tauri\target\release\msi\
+        files-folder-filter: msi
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    # - name: Upload binary as artifact
+    #   id: upload-artifact
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     if-no-files-found: error
+    #     name: ${{ steps.set-env.outputs.artifact_name }}
+    #     path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi
