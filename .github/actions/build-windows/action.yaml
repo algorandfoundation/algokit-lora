@@ -32,7 +32,7 @@ runs:
     - name: Sign executable
       shell: bash
       env:
-        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FileDigest 'SHA256' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\nsis\' -FilesFolderFilter 'exe'
+        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FileDigest 'SHA256' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe'
 
       run: |
         cd "$GITHUB_WORKSPACE"
@@ -64,7 +64,6 @@ runs:
         name: ${{ inputs.package_name }}-msi
         path: ${{ github.workspace }}\src-tauri\target\release\msi\algokit-lora.msi
         if-no-files-found: error
-
 
     # - uses: tauri-apps/tauri-action@v0
     #   env:
