@@ -22,7 +22,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-
     - name: Get artifact name
       id: set-env
       run: |
@@ -35,6 +34,16 @@ runs:
         version="${{ inputs.release-version }}"
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
+      shell: bash
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Update Cargo.lock
+      run: cargo update
       shell: bash
 
     # This step is just seting up the trusted signing action and it is expected to fail.
@@ -80,9 +89,9 @@ runs:
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
 
-    - name: Upload msi artifact
+    - name: Upload msi as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.package_name }}-${{ inputs.release-version }}-msi
-        path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora*.msi
         if-no-files-found: error
+        name: ${{ steps.set-env.outputs.artifact_name }}
+        path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora*.msi
