@@ -180,7 +180,7 @@ export const useDeleteCustomNetworkConfig = () => {
 
 const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
 const selectedNetworkAtomId = atomWithRefresh((get) => {
-  const networkId = window.location.pathname.split('/')[1] // TODO: NC - Fix: If a network called 'settings' is created then things will break
+  const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)
 
   if (networkId in networkConfigs) {

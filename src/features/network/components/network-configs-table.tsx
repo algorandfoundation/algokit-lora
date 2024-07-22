@@ -1,5 +1,11 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { defaultNetworkConfigs, useDeleteCustomNetworkConfig, useNetworkConfigs, useSelectedNetwork } from '@/features/network/data'
+import {
+  defaultNetworkConfigs,
+  localnetId,
+  useDeleteCustomNetworkConfig,
+  useNetworkConfigs,
+  useSelectedNetwork,
+} from '@/features/network/data'
 import { trimCharacterFromEnd } from '@/utils/trim-character-from-end'
 import { DataTable } from '@/features/common/components/data-table'
 import { Button } from '@/features/common/components/button'
@@ -130,13 +136,17 @@ function EditNetworkButton({ networkConfig }: ButtonProps) {
   )
 }
 
-// TODO: NC - If you delete the network you have selected, it doesn't choose a different one.
 function DeleteNetworkButton({ networkConfig }: ButtonProps) {
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
+  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+
   const deleteNetwork = useCallback(() => {
     deleteNetworkConfig(networkConfig.id)
     toast.success(`${networkConfig.name} has been deleted`)
-  }, [deleteNetworkConfig, networkConfig])
+    if (selectedNetwork === networkConfig.id) {
+      setSelectedNetwork(localnetId)
+    }
+  }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, selectedNetwork, setSelectedNetwork])
 
   return (
     <ConfirmButton
@@ -160,6 +170,7 @@ function ResetNetworkButton({ networkConfig, settingsHaveChanged }: ResetNetwork
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
   const refreshDataProviderToken = useRefreshDataProviderToken()
   const [selectedNetwork] = useSelectedNetwork()
+
   const resetNetworkToDefaults = useCallback(() => {
     deleteNetworkConfig(networkConfig.id)
     toast.success(`${networkConfig.name} has been reset`)
