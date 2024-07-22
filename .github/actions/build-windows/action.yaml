@@ -22,8 +22,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    # This step is just seting up the trusted signing action with the secrets required to authenticate with the trusted signing service. It is expected to fail.
-    # It will be used later to sign the executable step.
+    # This step is just seting up the trusted signing action and it is expected to fail.
+    # It is needed later on sign the executable step.
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
       continue-on-error: true
@@ -35,8 +35,8 @@ runs:
     - name: Configure signing for tauri
       shell: bash
       env:
+        # This is used to sign the executable using the azure trusted signing before tauri build command.
         BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit'  -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
-
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'

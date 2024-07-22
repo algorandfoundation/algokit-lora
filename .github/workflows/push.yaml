@@ -34,7 +34,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/build-windows
         with:
-          release_version: 0.0.0
+          release_version: 0.0.1
           package_name: algokit-lora
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
