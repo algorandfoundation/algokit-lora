@@ -112,6 +112,10 @@ jobs:
         with:
           production-release: ${{ inputs.production-release }}
           release-version: ${{ needs.create-release.outputs.release-version }}
+          package_name: algokit-lora
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Build for Mac
         id: build-mac

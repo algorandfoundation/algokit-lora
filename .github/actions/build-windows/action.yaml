@@ -1,6 +1,9 @@
 name: 'Build for Windows'
 description: 'Build for Windows'
 inputs:
+  production-release:
+    description: 'Production release?'
+    required: true
   release-version:
     description: 'The release version'
   package_name:
@@ -29,7 +32,7 @@ runs:
         azure-client-id: ${{ inputs.azure_client_id }}
         azure-client-secret: ${{ inputs.azure_client_secret }}
 
-    - name: Sign executable
+    - name: Configure signing for tauri
       shell: bash
       env:
         BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit'  -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
@@ -47,7 +50,7 @@ runs:
         npm run tauri build
       shell: pwsh
 
-    - name: Sign winget installer
+    - name: Sign the installer
       uses: azure/trusted-signing-action@v0.3.20
       with:
         azure-tenant-id: ${{ inputs.azure_tenant_id }}
@@ -65,6 +68,6 @@ runs:
     - name: Upload msi artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.package_name }}-msi
+        name: ${{ inputs.package_name }}-{{ inputs.release-version}}-msi
         path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora_0.0.0_x64_en-US.msi
         if-no-files-found: error
