@@ -33,7 +33,6 @@ runs:
       if: ${{ inputs.release-version != '' }}
       run: |
         version="${{ inputs.release-version }}"
-        version="${version/beta./}"
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
       shell: bash
