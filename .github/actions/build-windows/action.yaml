@@ -43,7 +43,9 @@ runs:
         override: true
 
     - name: Update Cargo.lock
-      run: cargo update
+      run: |
+        cd src-tauri
+        cargo update
       shell: bash
 
     # This step is just seting up the trusted signing action and it is expected to fail.
