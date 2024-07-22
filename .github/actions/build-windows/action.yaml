@@ -68,6 +68,6 @@ runs:
     - name: Upload msi artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.package_name }}-{{ inputs.release-version}}-msi
+        name: ${{ inputs.package_name }}-{{ inputs.release-version }}-msi
         path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora*.msi
         if-no-files-found: error
