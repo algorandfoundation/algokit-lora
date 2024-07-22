@@ -4,7 +4,7 @@ inputs:
   production-release:
     description: 'Production release?'
     required: true
-  release_version:
+  release-version:
     description: 'The release version'
   package_name:
     description: 'The name of the package'
@@ -22,6 +22,22 @@ inputs:
 runs:
   using: 'composite'
   steps:
+
+    - name: Get artifact name
+      id: set-env
+      run: |
+        echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Bump version in tauri.conf.json and Cargo.toml
+      if: ${{ inputs.release-version != '' }}
+      run: |
+        version="${{ inputs.release-version }}"
+        version="${version/beta./}"
+        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
+        sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
+      shell: bash
+
     # This step is just seting up the trusted signing action and it is expected to fail.
     # It is needed later on sign the executable step.
     - name: Initialize sign executable
@@ -68,6 +84,6 @@ runs:
     - name: Upload msi artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.package_name }}-${{ inputs.release_version }}-msi
+        name: ${{ inputs.package_name }}-${{ inputs.release-version }}-msi
         path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora*.msi
         if-no-files-found: error
