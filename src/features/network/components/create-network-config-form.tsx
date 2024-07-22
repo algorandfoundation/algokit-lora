@@ -18,7 +18,7 @@ type Props = {
   onSuccess: () => void
 }
 
-// All parent routes should be includes, so it's not possible to have a route collision.
+// All parent routes should be included, so it's not possible to have a route collision.
 const disallowedNetworkIds = ['settings', 'app-studio']
 
 export function CreateNetworkConfigForm({ onSuccess }: Props) {
