@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
+import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens } from './types'
@@ -74,16 +74,72 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   },
 }
 
+export const temporaryLocalNetSearchParams = {
+  algodServer: 'algod_url',
+  algodPort: 'algod_port',
+  indexerServer: 'indexer_url',
+  indexerPort: 'indexer_port',
+  kmdServer: 'kmd_url',
+  kmdPort: 'kmd_port',
+}
+
 const customNetworkConfigsAtom = atomWithStorage<Record<NetworkId, NetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,
 })
 
+export const temporaryLocalNetConfigAtom = atomWithDefault<NetworkConfig | undefined>(() => {
+  const searchParams = new URLSearchParams(window.location.search)
+  const networkId = window.location.pathname.split('/')[1]
+
+  if (
+    networkId === localnetId &&
+    searchParams.size > 0 &&
+    (searchParams.has(temporaryLocalNetSearchParams.algodServer) ||
+      searchParams.has(temporaryLocalNetSearchParams.algodPort) ||
+      searchParams.has(temporaryLocalNetSearchParams.indexerServer) ||
+      searchParams.has(temporaryLocalNetSearchParams.indexerPort) ||
+      searchParams.has(temporaryLocalNetSearchParams.kmdServer) ||
+      searchParams.has(temporaryLocalNetSearchParams.kmdPort))
+  ) {
+    const algodServer = searchParams.get(temporaryLocalNetSearchParams.algodServer)
+    const algodPort = searchParams.get(temporaryLocalNetSearchParams.algodPort)
+    const indexerServer = searchParams.get(temporaryLocalNetSearchParams.indexerServer)
+    const indexerPort = searchParams.get(temporaryLocalNetSearchParams.indexerPort)
+    const kmdServer = searchParams.get(temporaryLocalNetSearchParams.kmdServer)
+    const kmdPort = searchParams.get(temporaryLocalNetSearchParams.kmdPort)
+
+    const defaultLocalNetConfig = defaultNetworkConfigs.localnet
+    return {
+      ...defaultLocalNetConfig,
+      algod: {
+        ...defaultLocalNetConfig.algod,
+        server: algodServer ?? defaultLocalNetConfig.algod.server,
+        port: algodPort ? Number(algodPort) : defaultLocalNetConfig.algod.port,
+      },
+      indexer: {
+        ...defaultLocalNetConfig.indexer,
+        server: indexerServer ?? defaultLocalNetConfig.indexer.server,
+        port: indexerPort ? Number(indexerPort) : defaultLocalNetConfig.indexer.port,
+      },
+      kmd: {
+        ...defaultLocalNetConfig.kmd,
+        server: kmdServer ?? defaultLocalNetConfig.kmd!.server,
+        port: kmdPort ? Number(kmdPort) : defaultLocalNetConfig.kmd!.port,
+      },
+    }
+  }
+
+  return undefined
+})
+
 const networkConfigsAtom = atom<Record<NetworkId, NetworkConfig>>((get) => {
   const customNetworkConfigs = get(customNetworkConfigsAtom)
+  const temporaryLocalNetConfig = get(temporaryLocalNetConfigAtom)
 
   return {
     ...defaultNetworkConfigs,
     ...customNetworkConfigs,
+    ...(temporaryLocalNetConfig ? { [localnetId]: temporaryLocalNetConfig } : undefined),
   }
 })
 
@@ -107,20 +163,24 @@ export const useSetCustomNetworkConfig = () => {
 
 export const useDeleteCustomNetworkConfig = () => {
   const setCustomNetworkConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
+  const setTemporaryLocalNetConfig = useSetAtom(temporaryLocalNetConfigAtom, { store: settingsStore })
   return useCallback(
     (id: NetworkId) => {
       setCustomNetworkConfigs((prev) => {
         delete prev[id]
         return { ...prev }
       })
+      if (id === localnetId) {
+        setTemporaryLocalNetConfig(undefined)
+      }
     },
-    [setCustomNetworkConfigs]
+    [setCustomNetworkConfigs, setTemporaryLocalNetConfig]
   )
 }
 
 const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
 const selectedNetworkAtomId = atomWithRefresh((get) => {
-  const networkId = window.location.pathname.split('/')[1]
+  const networkId = window.location.pathname.split('/')[1] // TODO: NC - Fix: If a network called 'settings' is created then things will break
   const networkConfigs = get(networkConfigsAtom)
 
   if (networkId in networkConfigs) {
