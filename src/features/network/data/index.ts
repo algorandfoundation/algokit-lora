@@ -88,25 +88,34 @@ const customNetworkConfigsAtom = atomWithStorage<Record<NetworkId, NetworkConfig
 })
 
 export const temporaryLocalNetConfigAtom = atomWithDefault<NetworkConfig | undefined>(() => {
-  const searchParams = new URLSearchParams(window.location.search)
-  const networkId = window.location.pathname.split('/')[1]
+  const url = new URL(window.location.href)
+  const networkId = url.pathname.split('/')[1]
 
   if (
     networkId === localnetId &&
-    searchParams.size > 0 &&
-    (searchParams.has(temporaryLocalNetSearchParams.algodServer) ||
-      searchParams.has(temporaryLocalNetSearchParams.algodPort) ||
-      searchParams.has(temporaryLocalNetSearchParams.indexerServer) ||
-      searchParams.has(temporaryLocalNetSearchParams.indexerPort) ||
-      searchParams.has(temporaryLocalNetSearchParams.kmdServer) ||
-      searchParams.has(temporaryLocalNetSearchParams.kmdPort))
+    url.searchParams.size > 0 &&
+    (url.searchParams.has(temporaryLocalNetSearchParams.algodServer) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.algodPort) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.indexerServer) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.indexerPort) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.kmdServer) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.kmdPort))
   ) {
-    const algodServer = searchParams.get(temporaryLocalNetSearchParams.algodServer)
-    const algodPort = searchParams.get(temporaryLocalNetSearchParams.algodPort)
-    const indexerServer = searchParams.get(temporaryLocalNetSearchParams.indexerServer)
-    const indexerPort = searchParams.get(temporaryLocalNetSearchParams.indexerPort)
-    const kmdServer = searchParams.get(temporaryLocalNetSearchParams.kmdServer)
-    const kmdPort = searchParams.get(temporaryLocalNetSearchParams.kmdPort)
+    const algodServer = url.searchParams.get(temporaryLocalNetSearchParams.algodServer)
+    const algodPort = url.searchParams.get(temporaryLocalNetSearchParams.algodPort)
+    const indexerServer = url.searchParams.get(temporaryLocalNetSearchParams.indexerServer)
+    const indexerPort = url.searchParams.get(temporaryLocalNetSearchParams.indexerPort)
+    const kmdServer = url.searchParams.get(temporaryLocalNetSearchParams.kmdServer)
+    const kmdPort = url.searchParams.get(temporaryLocalNetSearchParams.kmdPort)
+
+    url.searchParams.delete(temporaryLocalNetSearchParams.algodServer)
+    url.searchParams.delete(temporaryLocalNetSearchParams.algodPort)
+    url.searchParams.delete(temporaryLocalNetSearchParams.indexerServer)
+    url.searchParams.delete(temporaryLocalNetSearchParams.indexerPort)
+    url.searchParams.delete(temporaryLocalNetSearchParams.kmdServer)
+    url.searchParams.delete(temporaryLocalNetSearchParams.kmdPort)
+
+    window.history.replaceState({}, '', url)
 
     const defaultLocalNetConfig = defaultNetworkConfigs.localnet
     return {
