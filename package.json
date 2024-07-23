@@ -54,6 +54,7 @@
     "isutf8": "^4.0.0",
     "jotai": "^2.7.2",
     "jotai-effect": "^0.6.0",
+    "jsonschema": "^1.4.1",
     "lucide-react": "^0.356.0",
     "lute-connect": "^1.2.0",
     "multiformats": "^13.1.0",
