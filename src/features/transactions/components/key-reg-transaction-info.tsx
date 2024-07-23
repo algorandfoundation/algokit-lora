@@ -1,6 +1,6 @@
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
-import { KeyRegTransaction, InnerKeyRegTransaction } from '../models'
+import { KeyRegTransaction, InnerKeyRegTransaction, KeyRegTransactionSubType } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { isDefined } from '@/utils/is-defined'
@@ -36,28 +36,27 @@ export function KeyRegTransactionInfo({ transaction }: Props) {
               dd: transaction.selectionParticipationKey,
             }
           : undefined,
-        transaction.voteFirstValid
-          ? {
-              dt: voteFirstValidLabel,
-              dd: transaction.voteFirstValid,
-            }
-          : undefined,
-        transaction.voteLastValid
-          ? {
-              dt: voteLastValidLabel,
-              dd: transaction.voteLastValid,
-            }
-          : undefined,
-        transaction.voteKeyDilution
-          ? {
-              dt: voteKeyDilutionLabel,
-              dd: transaction.voteKeyDilution,
-            }
-          : undefined,
+        ...(transaction.subType === KeyRegTransactionSubType.Online
+          ? [
+              {
+                dt: voteFirstValidLabel,
+                dd: transaction.voteFirstValid,
+              },
+              {
+                dt: voteLastValidLabel,
+                dd: transaction.voteLastValid,
+              },
+              {
+                dt: voteKeyDilutionLabel,
+                dd: transaction.voteKeyDilution,
+              },
+            ]
+          : []),
       ].filter(isDefined),
     [
       transaction.selectionParticipationKey,
       transaction.sender,
+      transaction.subType,
       transaction.voteFirstValid,
       transaction.voteKeyDilution,
       transaction.voteLastValid,
