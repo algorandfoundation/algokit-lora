@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 type Props = {
   children: React.ReactNode
 }
+
 export function NetworkPage({ children }: Props) {
   const { networkId } = useRequiredParam(UrlParams.NetworkId)
   const networkConfigs = useNetworkConfigs()

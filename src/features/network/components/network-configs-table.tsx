@@ -1,5 +1,11 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { defaultNetworkConfigs, useDeleteCustomNetworkConfig, useNetworkConfigs } from '@/features/network/data'
+import {
+  defaultNetworkConfigs,
+  localnetId,
+  useDeleteCustomNetworkConfig,
+  useNetworkConfigs,
+  useSelectedNetwork,
+} from '@/features/network/data'
 import { trimCharacterFromEnd } from '@/utils/trim-character-from-end'
 import { DataTable } from '@/features/common/components/data-table'
 import { Button } from '@/features/common/components/button'
@@ -11,6 +17,7 @@ import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/network/data/types'
 import { Pencil, Plus, Trash, RotateCcw } from 'lucide-react'
+import { useRefreshDataProviderToken } from '@/features/common/data'
 
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
@@ -131,10 +138,15 @@ function EditNetworkButton({ networkConfig }: ButtonProps) {
 
 function DeleteNetworkButton({ networkConfig }: ButtonProps) {
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
+  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+
   const deleteNetwork = useCallback(() => {
     deleteNetworkConfig(networkConfig.id)
     toast.success(`${networkConfig.name} has been deleted`)
-  }, [deleteNetworkConfig, networkConfig])
+    if (selectedNetwork === networkConfig.id) {
+      setSelectedNetwork(localnetId)
+    }
+  }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, selectedNetwork, setSelectedNetwork])
 
   return (
     <ConfirmButton
@@ -156,10 +168,16 @@ type ResetNetworkButtonProps = ButtonProps & {
 
 function ResetNetworkButton({ networkConfig, settingsHaveChanged }: ResetNetworkButtonProps) {
   const deleteNetworkConfig = useDeleteCustomNetworkConfig()
+  const refreshDataProviderToken = useRefreshDataProviderToken()
+  const [selectedNetwork] = useSelectedNetwork()
+
   const resetNetworkToDefaults = useCallback(() => {
     deleteNetworkConfig(networkConfig.id)
     toast.success(`${networkConfig.name} has been reset`)
-  }, [deleteNetworkConfig, networkConfig])
+    if (networkConfig.id === selectedNetwork) {
+      refreshDataProviderToken()
+    }
+  }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork])
 
   return (
     <ConfirmButton

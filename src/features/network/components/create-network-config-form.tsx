@@ -17,6 +17,10 @@ import { Alert } from '@/features/common/components/alert'
 type Props = {
   onSuccess: () => void
 }
+
+// All parent routes should be included, so it's not possible to have a route collision.
+const disallowedNetworkIds = ['settings', 'app-studio']
+
 export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const setCustomNetworkConfig = useSetCustomNetworkConfig()
   const networkConfigs = useNetworkConfigs()
@@ -25,6 +29,10 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const createNetwork = useCallback(
     (values: z.infer<typeof createNetworkConfigFormSchema>) => {
       const networkId = generateNetworkId(values.name)
+
+      if (disallowedNetworkIds.includes(networkId)) {
+        throw new Error(`A network with id '${networkId}' matches a disallowed value, please choose a different name`)
+      }
 
       if (existingNetworkIds.includes(networkId)) {
         throw new Error(`A network with id '${networkId}' already exists, please choose a different name`)

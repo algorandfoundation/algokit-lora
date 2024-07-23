@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithRefresh, atomWithStorage } from 'jotai/utils'
+import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens } from './types'
@@ -74,16 +74,81 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   },
 }
 
+export const temporaryLocalNetSearchParams = {
+  algodServer: 'algod_url',
+  algodPort: 'algod_port',
+  indexerServer: 'indexer_url',
+  indexerPort: 'indexer_port',
+  kmdServer: 'kmd_url',
+  kmdPort: 'kmd_port',
+}
+
 const customNetworkConfigsAtom = atomWithStorage<Record<NetworkId, NetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,
 })
 
+export const temporaryLocalNetConfigAtom = atomWithDefault<NetworkConfig | undefined>(() => {
+  const url = new URL(window.location.href)
+  const networkId = url.pathname.split('/')[1]
+
+  if (
+    networkId === localnetId &&
+    url.searchParams.size > 0 &&
+    (url.searchParams.has(temporaryLocalNetSearchParams.algodServer) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.algodPort) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.indexerServer) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.indexerPort) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.kmdServer) ||
+      url.searchParams.has(temporaryLocalNetSearchParams.kmdPort))
+  ) {
+    const algodServer = url.searchParams.get(temporaryLocalNetSearchParams.algodServer)
+    const algodPort = url.searchParams.get(temporaryLocalNetSearchParams.algodPort)
+    const indexerServer = url.searchParams.get(temporaryLocalNetSearchParams.indexerServer)
+    const indexerPort = url.searchParams.get(temporaryLocalNetSearchParams.indexerPort)
+    const kmdServer = url.searchParams.get(temporaryLocalNetSearchParams.kmdServer)
+    const kmdPort = url.searchParams.get(temporaryLocalNetSearchParams.kmdPort)
+
+    url.searchParams.delete(temporaryLocalNetSearchParams.algodServer)
+    url.searchParams.delete(temporaryLocalNetSearchParams.algodPort)
+    url.searchParams.delete(temporaryLocalNetSearchParams.indexerServer)
+    url.searchParams.delete(temporaryLocalNetSearchParams.indexerPort)
+    url.searchParams.delete(temporaryLocalNetSearchParams.kmdServer)
+    url.searchParams.delete(temporaryLocalNetSearchParams.kmdPort)
+
+    window.history.replaceState({}, '', url)
+
+    const defaultLocalNetConfig = defaultNetworkConfigs.localnet
+    return {
+      ...defaultLocalNetConfig,
+      algod: {
+        ...defaultLocalNetConfig.algod,
+        server: algodServer ?? defaultLocalNetConfig.algod.server,
+        port: algodPort ? Number(algodPort) : defaultLocalNetConfig.algod.port,
+      },
+      indexer: {
+        ...defaultLocalNetConfig.indexer,
+        server: indexerServer ?? defaultLocalNetConfig.indexer.server,
+        port: indexerPort ? Number(indexerPort) : defaultLocalNetConfig.indexer.port,
+      },
+      kmd: {
+        ...defaultLocalNetConfig.kmd,
+        server: kmdServer ?? defaultLocalNetConfig.kmd!.server,
+        port: kmdPort ? Number(kmdPort) : defaultLocalNetConfig.kmd!.port,
+      },
+    }
+  }
+
+  return undefined
+})
+
 const networkConfigsAtom = atom<Record<NetworkId, NetworkConfig>>((get) => {
   const customNetworkConfigs = get(customNetworkConfigsAtom)
+  const temporaryLocalNetConfig = get(temporaryLocalNetConfigAtom)
 
   return {
     ...defaultNetworkConfigs,
     ...customNetworkConfigs,
+    ...(temporaryLocalNetConfig ? { [localnetId]: temporaryLocalNetConfig } : undefined),
   }
 })
 
@@ -107,14 +172,18 @@ export const useSetCustomNetworkConfig = () => {
 
 export const useDeleteCustomNetworkConfig = () => {
   const setCustomNetworkConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
+  const setTemporaryLocalNetConfig = useSetAtom(temporaryLocalNetConfigAtom, { store: settingsStore })
   return useCallback(
     (id: NetworkId) => {
       setCustomNetworkConfigs((prev) => {
         delete prev[id]
         return { ...prev }
       })
+      if (id === localnetId) {
+        setTemporaryLocalNetConfig(undefined)
+      }
     },
-    [setCustomNetworkConfigs]
+    [setCustomNetworkConfigs, setTemporaryLocalNetConfig]
   )
 }
 
