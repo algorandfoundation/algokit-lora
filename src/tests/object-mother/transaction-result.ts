@@ -2659,7 +2659,7 @@ export const transactionResultMother = {
       signature: {
         sig: 'rMf0tV/n2Yq5l3dWxy99rf1ocTxBN0YZKF67arJauFI5SQ4iOTzGjs2WEIlxD70Foggh5Szfz5I8WYBR+r/7CA==',
       },
-      'tx-type': 'appl',
+      'tx-type': TransactionType.appl,
     } as unknown as TransactionResult)
   },
   ['testnet-DWVIXKZ2URUOKVZRBRJHMERSPIWTMLFFLLVKH5RATFGNPT7VVNIA']: () => {
@@ -2689,6 +2689,40 @@ export const transactionResultMother = {
         sig: 'hHxb/1D5G3EdCwTZ6vWjXTeMFLIa7zAdc0ZxYkcAggWBwepWLO0pgyR9jCG7e4kVTanfoadImmys/M56DYUdBg==',
       },
       'tx-type': TransactionType.axfer,
-    }) as unknown as TransactionResult
+    })
+  },
+  ['mainnet-W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA']: () => {
+    // Asset config
+    return new TransactionResultBuilder({
+      'asset-config-transaction': {
+        'asset-id': 909935715,
+        params: {
+          creator: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+          decimals: 0,
+          'default-frozen': false,
+          manager: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+          total: 0,
+        },
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 26720944,
+      fee: 1000,
+      'first-valid': 26720940,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      id: 'W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA',
+      'intra-round-offset': 6,
+      'last-valid': 26721940,
+      note: 'eyJzdGFuZGFyZCI6ImFyYzY5IiwiYXR0cmlidXRlcyI6W3sidHJhaXRfdHlwZSI6ImJhY2tncm91bmQiLCJ2YWx1ZSI6ImJsdWUifSx7InRyYWl0X3R5cGUiOiJlcXVpcG1lbnQiLCJ2YWx1ZSI6ImJsYW5rIn0seyJ0cmFpdF90eXBlIjoic2tpbnRvbmUiLCJ2YWx1ZSI6InRhbm5lZCBza2luIn0seyJ0cmFpdF90eXBlIjoibmVjayIsInZhbHVlIjoiYmxhbmsifSx7InRyYWl0X3R5cGUiOiJjbG90aGluZyIsInZhbHVlIjoiYmx1ZSBua3MgaG9vZHkgd2l0aCBtIHZlc3QifSx7InRyYWl0X3R5cGUiOiJoYWlyIiwidmFsdWUiOiJyZWQgbG9uZyBib2IgY3V0In0seyJ0cmFpdF90eXBlIjoiaGVhZHNldCIsInZhbHVlIjoiYyBsaW5rIn0seyJ0cmFpdF90eXBlIjoibW91dGgiLCJ2YWx1ZSI6InNtb2tpbmcgbW91dGgifV19',
+      'receiver-rewards': 0,
+      'round-time': 1675433770,
+      sender: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'ucMpP7/WS+hcHvAqNoWw9V+Kcv/JqUG5UFpvxIXIQ4P3Ac5QrxXE1WQiXcVHsrMlCV5irdqje6HVW4G2GN3gCg==',
+      },
+      'tx-type': TransactionType.acfg,
+    })
   },
 }

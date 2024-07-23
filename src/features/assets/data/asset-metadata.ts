@@ -1,7 +1,7 @@
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
-import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetMetadataStandard, AssetResult } from './types'
+import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -15,20 +15,24 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 // ARCs are community standard, therefore, there are edge cases
 // For example:
 // - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
+// - An asset can follow ARC-69 and ARC-3 at the same time: https://allo.info/asset/909935715/nft
 // - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
+
 // - ARC-19 doesn't specify the metadata format but generally people use the ARC-3 format
 const createAssetMetadataResult = async (
   assetResult: AssetResult,
   latestAssetCreateOrReconfigureTransaction?: TransactionResult
 ): Promise<AssetMetadataResult> => {
+  let arc69MetadataResult: Arc69MetadataResult | undefined = undefined
+  let arc3MetadataResult: Arc3MetadataResult | undefined = undefined
+
   // Get ARC-69 metadata if applicable
   if (latestAssetCreateOrReconfigureTransaction && latestAssetCreateOrReconfigureTransaction.note) {
     const metadata = noteToArc69Metadata(latestAssetCreateOrReconfigureTransaction.note)
     if (metadata) {
-      return {
-        standard: AssetMetadataStandard.ARC69,
+      arc69MetadataResult = {
         metadata,
-      } satisfies Arc69MetadataResult
+      }
     }
   }
 
@@ -48,29 +52,26 @@ const createAssetMetadataResult = async (
       const response = await fetch(gatewayMetadataUrl)
       try {
         const { localization: _localization, ...metadata } = await response.json()
-        return {
-          standard: AssetMetadataStandard.ARC3,
+        arc3MetadataResult = {
           metadata_url: gatewayMetadataUrl,
           metadata,
-        } satisfies Arc3MetadataResult
+        }
       } catch (error) {
         if (error instanceof SyntaxError) {
           const headResponse = await fetch(gatewayMetadataUrl, { method: 'HEAD' })
           const contentType = headResponse.headers.get('Content-Type')
           if (contentType && contentType.startsWith('image/')) {
-            return {
-              standard: AssetMetadataStandard.ARC3,
+            arc3MetadataResult = {
               metadata: {
                 image: metadataUrl,
               },
-            } satisfies Arc3MetadataResult
+            }
           } else if (contentType && contentType.startsWith('video/')) {
-            return {
-              standard: AssetMetadataStandard.ARC3,
+            arc3MetadataResult = {
               metadata: {
                 animation_url: metadataUrl,
               },
-            } satisfies Arc3MetadataResult
+            }
           }
           // eslint-disable-next-line no-console
           console.error('Failed to build asset metadata', error)
@@ -78,6 +79,13 @@ const createAssetMetadataResult = async (
           throw error
         }
       }
+    }
+  }
+
+  if (arc3MetadataResult || arc69MetadataResult) {
+    return {
+      arc3: arc3MetadataResult,
+      arc69: arc69MetadataResult,
     }
   }
 
