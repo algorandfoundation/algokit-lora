@@ -37,7 +37,7 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
     const values = get(valuesAtom)
     if (values.has(key)) {
       const [valueAtom] = values.get(key)!
-      if (!options || (options && options.skipTimestampUpdate === false)) {
+      if (!options || (options && !options.skipTimestampUpdate)) {
         set(valuesAtom, (prev) => {
           // Update the timestamp each time the atom is accessed.
           // We mutate without creating a new Map reference (like we do elsewhere).

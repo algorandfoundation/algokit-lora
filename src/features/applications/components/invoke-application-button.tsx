@@ -15,6 +15,7 @@ import { useResolvedTheme } from '@/features/settings/data'
 import { JsonViewStylesDark, JsonViewStylesLight } from '@/features/common/components/json-view-styles'
 import { cn } from '@/features/common/utils'
 import { loadArc32AppSpec } from '@/features/arc-32/load-arc-32'
+import { useSetApplicationArc32AppSpec } from '@/features/applications/data/application-metadata'
 
 type Props = {
   application: Application
@@ -37,7 +38,7 @@ type DialogProps = {
   application: Application
   setDialogOpen: (open: boolean) => void
 }
-function InvokeApplicationDialog({ dialogOpen, setDialogOpen }: DialogProps) {
+function InvokeApplicationDialog({ dialogOpen, application, setDialogOpen }: DialogProps) {
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
       {dialogOpen && (
@@ -46,7 +47,7 @@ function InvokeApplicationDialog({ dialogOpen, setDialogOpen }: DialogProps) {
             <h2 className="pb-0">Call App</h2>
           </DialogHeader>
           <MediumSizeDialogBody>
-            <Body onSuccess={() => setDialogOpen(false)} />
+            <Body application={application} onSuccess={() => setDialogOpen(false)} />
           </MediumSizeDialogBody>
         </DialogContent>
       )}
@@ -61,13 +62,20 @@ export const addAppSpecFormSchema = zfd.formData({
 })
 
 type BodyProps = {
+  application: Application
   onSuccess: () => void
 }
-function Body({ onSuccess }: BodyProps) {
-  const save = useCallback(async (values: z.infer<typeof addAppSpecFormSchema>) => {
-    const content = await readFile(values.file)
-    const arc32AppSpec = loadArc32AppSpec(JSON.parse(content as string))
-  }, [])
+function Body({ application, onSuccess }: BodyProps) {
+  const setApplicationArc32AppSpec = useSetApplicationArc32AppSpec()
+
+  const save = useCallback(
+    async (values: z.infer<typeof addAppSpecFormSchema>) => {
+      const content = await readFile(values.file)
+      const arc32AppSpec = loadArc32AppSpec(JSON.parse(content as string))
+      setApplicationArc32AppSpec(application.id, arc32AppSpec)
+    },
+    [application.id, setApplicationArc32AppSpec]
+  )
 
   return (
     <Form
