@@ -1,8 +1,13 @@
 import { Application } from '@/features/applications/models'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { Button } from '@/features/common/components/button'
-import { useEffect, useState } from 'react'
-import { FileField } from '@/features/forms/components/file-field'
+import { useCallback, useState } from 'react'
+import { zfd } from 'zod-form-data'
+import { z } from 'zod'
+import { Form } from '@/features/forms/components/form'
+import { FormActions } from '@/features/forms/components/form-actions'
+import { CancelButton } from '@/features/forms/components/cancel-button'
+import { SubmitButton } from '@/features/forms/components/submit-button'
 
 type Props = {
   application: Application
@@ -13,7 +18,7 @@ export function InvokeApplicationButton({ application }: Props) {
   return (
     <>
       <Button variant="default" onClick={() => setDialogOpen(true)}>
-        Call Application
+        Upload App Spec
       </Button>
       <InvokeApplicationDialog dialogOpen={dialogOpen} application={application} setDialogOpen={setDialogOpen} />
     </>
@@ -34,7 +39,7 @@ function InvokeApplicationDialog({ dialogOpen, setDialogOpen }: DialogProps) {
             <h2 className="pb-0">Call App</h2>
           </DialogHeader>
           <MediumSizeDialogBody>
-            <Body />
+            <Body onSuccess={() => setDialogOpen(false)} />
           </MediumSizeDialogBody>
         </DialogContent>
       )}
@@ -42,18 +47,56 @@ function InvokeApplicationDialog({ dialogOpen, setDialogOpen }: DialogProps) {
   )
 }
 
-function Body() {
-  const [file, setFile] = useState<File | undefined>(undefined)
-  useEffect(() => {
-    ;(async () => {
-      if (file) {
-        const content = await readFile(file!)
-        console.log(content)
-      }
-    })()
-  }, [file])
+export const fileSchema = z.instanceof(File, { message: 'Required' })
 
-  return <FileField value={file} onChange={setFile} accept="application/json" placeholder="Select a ARC32 JSON file" />
+export const addAppSpecFormSchema = zfd.formData({
+  file: fileSchema.refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
+})
+
+type BodyProps = {
+  onSuccess: () => void
+}
+function Body({ onSuccess }: BodyProps) {
+  // const [file, setFile] = useState<File | undefined>(undefined)
+  // useEffect(() => {
+  //   ;(async () => {
+  //     if (file) {
+  //       const content = await readFile(file!)
+  //       console.log(content)
+  //     }
+  //   })()
+  // }, [file])
+
+  const save = useCallback(async (values: z.infer<typeof addAppSpecFormSchema>) => {
+    const content = await readFile(values.file)
+    console.log(content)
+  }, [])
+
+  return (
+    <Form
+      schema={addAppSpecFormSchema}
+      onSubmit={save}
+      onSuccess={onSuccess}
+      // TODO: default values when edit
+      formAction={
+        <FormActions>
+          <CancelButton onClick={onSuccess} className="w-28" />
+          <SubmitButton className="w-28">Save</SubmitButton>
+        </FormActions>
+      }
+    >
+      {(helper) => (
+        <>
+          {helper.fileField({
+            accept: 'application/json',
+            label: 'ARC32 JSON file',
+            field: 'file',
+            placeholder: 'Select a ARC32 JSON file',
+          })}
+        </>
+      )}
+    </Form>
+  )
 }
 
 const readFile = async (file: File) => {
