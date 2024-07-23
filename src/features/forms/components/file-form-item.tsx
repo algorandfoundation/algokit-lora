@@ -1,6 +1,6 @@
 import { Controller, FieldPath } from 'react-hook-form'
 import { FormItem } from '@/features/forms/components/form-item'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef } from 'react'
 import { useFileDrop } from '@/features/forms/hooks/use-file-drop'
 import { cn } from '@/features/common/utils'
 import { UploadIcon } from 'lucide-react'
@@ -38,18 +38,13 @@ type FileInputProps = {
 }
 
 function FileInput({ accept, placeholder, value, disabled, onChange }: FileInputProps) {
-  const [error, setError] = useState<string | undefined>()
   const inputRef = useRef<HTMLInputElement>(null)
 
   const onFilesAdded = useCallback(
     async (files: File[]) => {
       if (disabled || files.length === 0) return
-      // TODO: is it possible move this to a zod validation
-      if (files.length > 1) {
-        setError('Please only select one file')
-        return
-      }
 
+      // Purposely only take 1 file
       const [file] = files
       onChange(file)
     },
@@ -65,39 +60,36 @@ function FileInput({ accept, placeholder, value, disabled, onChange }: FileInput
   }, [])
 
   return (
-    <>
-      {error && <div className="text-error">{error}</div>}
-      <div className={cn('min-h-24 flex justify-center border rounded', dragging && 'bg-muted')} {...events} onClick={handleClick}>
-        <div className={'flex flex-col items-center justify-center gap-2'}>
-          {(() => {
-            if (value) {
-              return <span className={'text-sm'}>{value.name}</span>
-            } else if (placeholder) {
-              return (
-                <>
-                  <UploadIcon />
-                  <span className={'text-sm'}>{placeholder}</span>
-                </>
-              )
-            } else {
-              return (
-                <>
-                  <UploadIcon />
-                  <>&nbsp;</>
-                </>
-              )
-            }
-          })()}
-        </div>
-        <input
-          ref={inputRef}
-          type={'file'}
-          className={'sr-only'}
-          onChange={(e) => onFilesAdded(Array.from(e.target.files ?? []))}
-          disabled={disabled}
-          accept={accept}
-        />
+    <div className={cn('min-h-24 flex justify-center border rounded', dragging && 'bg-muted')} {...events} onClick={handleClick}>
+      <div className={'flex flex-col items-center justify-center gap-2'}>
+        {(() => {
+          if (value) {
+            return <span className={'text-sm'}>{value.name}</span>
+          } else if (placeholder) {
+            return (
+              <>
+                <UploadIcon />
+                <span className={'text-sm'}>{placeholder}</span>
+              </>
+            )
+          } else {
+            return (
+              <>
+                <UploadIcon />
+                <>&nbsp;</>
+              </>
+            )
+          }
+        })()}
       </div>
-    </>
+      <input
+        ref={inputRef}
+        type={'file'}
+        className={'sr-only'}
+        onChange={(e) => onFilesAdded(Array.from(e.target.files ?? []))}
+        disabled={disabled}
+        accept={accept}
+      />
+    </div>
   )
 }
