@@ -10,6 +10,8 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { useLoadableApplication } from '@/features/applications/data'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -56,6 +58,11 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         id: applicationArgsTabId,
         label: applicationArgsTabLabel,
         children: <ApplicationArgs transaction={transaction} />,
+      },
+      {
+        id: 'decodeApp',
+        label: 'Decode App',
+        children: <DecodeApp transaction={transaction} />,
       },
       {
         id: foreignAccountsTabId,
@@ -123,6 +130,24 @@ function ApplicationArgs({ transaction }: Props) {
         />
       )}
     </div>
+  )
+}
+
+function DecodeApp({ transaction }: Props) {
+  const [loadableApplication] = useLoadableApplication(transaction.applicationId)
+  return (
+    <RenderLoadable loadable={loadableApplication}>
+      {(application) => {
+        if (transaction.applicationArgs.length === 0) {
+          return <span>No application args.</span>
+        }
+        const method = application.methods.find((m) => m.selector === transaction.applicationArgs[0])
+        if (!method) {
+          return <span>Can't detect, maybe not ARC4</span>
+        }
+        return <div>{method.signature}</div>
+      }}
+    </RenderLoadable>
   )
 }
 
