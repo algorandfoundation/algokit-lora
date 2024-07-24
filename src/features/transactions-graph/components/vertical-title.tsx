@@ -3,7 +3,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { Vertical } from '../models'
-import { KeyIcon, LinkIcon } from 'lucide-react'
+import { KeyIcon, LinkIcon, PawPrintIcon } from 'lucide-react'
 
 export function AccountNumber({ number }: { number: number }) {
   return (
@@ -17,9 +17,21 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
   return (
     <span className={cn('text-l font-semibold')}>
       {vertical.type === 'Account' && (
-        <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
-          <AccountLink address={vertical.accountAddress} short={true} />
-        </TitleWrapper>
+        <div className={cn('grid text-center')}>
+          <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
+            <AccountLink address={vertical.accountAddress} short={true} />
+          </TitleWrapper>
+          {vertical.clawbackFromAccounts &&
+            vertical.clawbackFromAccounts.map(({ accountAddress, accountNumber }) => (
+              <TitleWrapper
+                key={accountNumber}
+                leftComponent={<PawPrintIcon size={16} className={'text-primary'} />}
+                rightComponent={<AccountNumber number={accountNumber} />}
+              >
+                <AccountLink address={accountAddress} short={true} />
+              </TitleWrapper>
+            ))}
+        </div>
       )}
       {vertical.type === 'Application' && (
         <div className={cn('grid text-center')}>
@@ -36,6 +48,15 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
             <TitleWrapper
               key={accountNumber}
               leftComponent={<KeyIcon size={16} className={'text-primary'} />}
+              rightComponent={<AccountNumber number={accountNumber} />}
+            >
+              <AccountLink address={accountAddress} short={true} />
+            </TitleWrapper>
+          ))}
+          {vertical.clawbackFromAccounts.map(({ accountAddress, accountNumber }) => (
+            <TitleWrapper
+              key={accountNumber}
+              leftComponent={<PawPrintIcon size={16} className={'text-primary'} />}
               rightComponent={<AccountNumber number={accountNumber} />}
             >
               <AccountLink address={accountAddress} short={true} />

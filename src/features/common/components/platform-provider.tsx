@@ -30,7 +30,7 @@ export function PlatformProvider({ children }: PropsWithChildren) {
     </DataProvider>
   ) : (
     <DataProvider key={key} networkConfig={networkConfig}>
-      <RegisterGlobalEffects />
+      {/* <RegisterGlobalEffects /> */}
       <WalletProvider networkConfig={networkConfig}>{children}</WalletProvider>
     </DataProvider>
   )

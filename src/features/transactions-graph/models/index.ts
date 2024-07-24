@@ -97,18 +97,33 @@ export type Point = {
   fromAccountIndex?: number
 }
 
+// type AssociatedAccount = {
+//   type: 'Rekey' | 'Clawback'
+//   accountNumber: number
+//   accountAddress: Address
+// }
+
 export type AccountVertical = {
   id: number
   accountNumber: number
   type: 'Account'
   accountAddress: Address
+  clawbackFromAccounts?: {
+    accountNumber: number
+    accountAddress: Address
+  }[]
 }
 export type ApplicationVertical = {
   id: number
   type: 'Application'
   applicationId: ApplicationId
   linkedAccount: { accountNumber: number; accountAddress: Address }
+  // associatedAccounts: AssociatedAccount[]
   rekeyedAccounts: {
+    accountNumber: number
+    accountAddress: Address
+  }[]
+  clawbackFromAccounts: {
     accountNumber: number
     accountAddress: Address
   }[]

@@ -176,31 +176,39 @@ const getAssetTransferTransactionRepresentations = (
       })
     : undefined
 
-  const clawbackRepresentation =
-    transaction.subType === AssetTransferTransactionSubType.Clawback
-      ? getRepresentationGivenSenderAndReceiver({
-          sender: transaction.clawbackFrom!,
-          receiver: transaction.sender,
-          verticals,
-          description: {
-            type: LabelType.Clawback,
-            amount: transaction.amount,
-            asset: transaction.asset,
-          },
-        })
-      : undefined
+  // const clawbackRepresentation =
+  //   transaction.subType === AssetTransferTransactionSubType.Clawback
+  //     ? getRepresentationGivenSenderAndReceiver({
+  //         sender: transaction.clawbackFrom!,
+  //         receiver: transaction.sender,
+  //         verticals,
+  //         description: {
+  //           type: LabelType.Clawback,
+  //           amount: transaction.amount,
+  //           asset: transaction.asset,
+  //         },
+  //       })
+  //     : undefined
 
-  const from = parent
-    ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromWithoutParent(transaction.sender, verticals)
+  const sender = transaction.clawbackFrom ?? transaction.sender
+  const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromWithoutParent(sender, verticals)
   const to = getAccountOrApplicationByAddress(verticals, transaction.receiver)
-  const transferRepresentation = asTransactionGraphRepresentation(from, to, {
-    type: LabelType.AssetTransfer,
-    amount: transaction.amount,
-    asset: transaction.asset,
-  })
 
-  return [clawbackRepresentation, transferRepresentation, closeOutRepresentation].filter(isDefined)
+  // TODO: NC - Probably want to rename this
+  const transferRepresentation =
+    transaction.subType === AssetTransferTransactionSubType.Clawback
+      ? asTransactionGraphRepresentation(from, to, {
+          type: LabelType.Clawback,
+          amount: transaction.amount,
+          asset: transaction.asset,
+        })
+      : asTransactionGraphRepresentation(from, to, {
+          type: LabelType.AssetTransfer,
+          amount: transaction.amount,
+          asset: transaction.asset,
+        })
+
+  return [transferRepresentation, closeOutRepresentation].filter(isDefined)
 }
 
 const getKeyRegTransactionRepresentations = (
@@ -333,11 +341,19 @@ const asTransactionGraphRepresentation = (from: RepresentationFromTo, to: Repres
 
 const calculateFromWithoutParent = (sender: Address, verticals: Vertical[]): RepresentationFromTo => {
   // If the transaction is not a child, it is sent an individual account or an application account
-  const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && sender === c.accountAddress)
+  const accountVertical = verticals.find(
+    (c): c is AccountVertical =>
+      c.type === 'Account' &&
+      ((sender === c.accountAddress || c.clawbackFromAccounts?.map((x) => x.accountAddress)?.includes(sender)) ?? false)
+  )
   if (accountVertical) {
+    console.log('accountVertical', accountVertical.id, accountVertical.accountNumber)
     return {
       verticalId: accountVertical.id,
-      accountNumber: accountVertical.accountNumber,
+      accountNumber:
+        accountVertical.accountAddress === sender
+          ? accountVertical.accountNumber
+          : accountVertical.clawbackFromAccounts?.find((x) => x.accountAddress === sender)?.accountNumber,
     }
   }
 
@@ -366,8 +382,17 @@ const calculateFromWithParent = (sender: Address, verticals: Vertical[], parent:
       accountNumber:
         applicationVertical.linkedAccount.accountAddress === sender
           ? applicationVertical.linkedAccount.accountNumber
-          : applicationVertical.rekeyedAccounts.find((account) => account.accountAddress === sender)?.accountNumber,
+          : applicationVertical.rekeyedAccounts
+              .concat(applicationVertical.clawbackFromAccounts)
+              .find((account) => account.accountAddress === sender)?.accountNumber,
     }
   }
   return fallbackFromTo
 }
+
+// TODO: NC - Can we hide a vertical if there isn't anything connecting to it?
+// TODO: NC - Fix the transaction table for clawback
+// TODO: NC - Fix the tooltip for clawback
+// TODO: NC - Can we do a clawback to the clawback account?
+// TODO: NC - Make icon more claw like
+// TODO: NC - Try a transaction group which has the clawback from being used
