@@ -8,14 +8,14 @@ import { latestTransactionsTitle } from '@/features/transactions/components/late
 import { blockResultsAtom, syncedRoundAtom } from '@/features/blocks/data'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
-import { transactionResultsAtom } from '@/features/transactions/data'
+import { latestTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from '@/features/blocks/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionId } from '@/features/transactions/data/types'
 import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
@@ -57,6 +57,10 @@ describe('explore-page', () => {
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
     myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
+    myStore.set(
+      latestTransactionIdsAtom,
+      transactionResults.map((t) => [t.id, createTimestamp()] as const)
+    )
     myStore.set(syncedRoundAtom, block.round)
 
     it('the processed blocks are displayed', () => {
@@ -142,8 +146,12 @@ describe('explore-page', () => {
       )
     })
 
-    it('the latest 10 transactions are displayed', () => {
+    it('the latest 8 transactions are displayed', () => {
       const myStore = createStore()
+      myStore.set(
+        latestTransactionIdsAtom,
+        Array.from(data.transactions.entries()).map(([id, _]) => [id, createTimestamp()] as const)
+      )
       myStore.set(transactionResultsAtom, data.transactions)
       myStore.set(blockResultsAtom, data.blocks)
       myStore.set(syncedRoundAtom, data.syncedRound)
