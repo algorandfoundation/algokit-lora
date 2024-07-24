@@ -1,6 +1,6 @@
 import { asAssetSummary } from './asset-summary'
 import { Asset, AssetMediaType, AssetStandard, AssetType } from '../models'
-import { AssetId, AssetMetadataResult, AssetMetadataStandard, AssetResult } from '../data/types'
+import { AssetId, AssetMetadataResult, AssetResult } from '../data/types'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import Decimal from 'decimal.js'
@@ -29,23 +29,62 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
 
 const asMetadata = (metadataResult: AssetMetadataResult): Asset['metadata'] => {
   if (metadataResult) {
-    const { properties: _properties, ...metadata } = metadataResult.metadata
-    return normalizeObjectForDisplay(metadata) as Record<string, string | number>
+    const { properties: _, ...arc3Metadata } = metadataResult.arc3?.metadata ?? {}
+    const { properties: __, attributes: ___, ...arc69Metadata } = metadataResult.arc69?.metadata ?? {}
+
+    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata }) as Record<string, string | number>
   }
 }
 
 const asTraits = (metadataResult: AssetMetadataResult): Asset['traits'] => {
-  if (metadataResult && metadataResult.metadata.properties) {
-    if (isArc16Properties(metadataResult.metadata.properties)) {
-      return normalizeObjectForDisplay(metadataResult.metadata.properties.traits!) as Record<string, string>
+  if (metadataResult) {
+    const { arc69: _, ...arc3Properties } = metadataResult.arc3?.metadata.properties ?? {}
+    const arc69Properties = metadataResult.arc69?.metadata.properties ?? {}
+    const arc69Attributes = metadataResult.arc69?.metadata.attributes?.reduce(
+      (acc, a) => {
+        return {
+          ...acc,
+          [a.trait_type]: a.value,
+        }
+      },
+      {} as Record<string, string | number>
+    )
+
+    const properties = {
+      ...arc3Properties,
+      ...arc69Attributes,
+      ...arc69Properties,
     }
 
-    return normalizeObjectForDisplay(metadataResult.metadata.properties) as Record<string, string>
+    if (isArc16Properties(properties)) {
+      return normalizeObjectForDisplay(properties.traits!) as Record<string, string>
+    }
+
+    return normalizeObjectForDisplay(properties) as Record<string, string>
   }
 }
 
 const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset['media'] => {
-  if (metadataResult && metadataResult.standard === AssetMetadataStandard.ARC69) {
+  if (metadataResult?.arc3) {
+    const metadata = metadataResult?.arc3.metadata
+    // If the asset follows ARC-3 or ARC-19, we use the media from the metadata
+    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadata.image, metadataResult.arc3.metadata_url)
+    if (imageUrl) {
+      return {
+        url: imageUrl,
+        type: AssetMediaType.Image,
+      }
+    }
+    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadata.animation_url, metadataResult.arc3.metadata_url)
+    if (videoUrl) {
+      return {
+        url: videoUrl,
+        type: AssetMediaType.Video,
+      }
+    }
+  }
+
+  if (metadataResult?.arc69) {
     // If the asset follows ARC-69, we display the media from the asset URL
     // In this scenario, we also support ARC-19 format URLs
     if (!assetResult.params.url) {
@@ -58,29 +97,13 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
 
     if (url) {
       return {
-        type: metadataResult.metadata.mime_type?.startsWith('video/') ? AssetMediaType.Video : AssetMediaType.Image,
+        type: metadataResult.arc69.metadata.mime_type?.startsWith('video/') ? AssetMediaType.Video : AssetMediaType.Image,
         url: replaceIpfsWithGatewayIfNeeded(url),
       }
     }
-  } else if (metadataResult && metadataResult.standard === AssetMetadataStandard.ARC3) {
-    const metadata = metadataResult.metadata
-    // If the asset follows ARC-3 or ARC-19, but not ARC-69
-    // we use the media from the metadata
-    const imageUrl = metadata.image && getArc3MediaUrl(assetResult.index, metadata.image, metadataResult.metadata_url)
-    if (imageUrl) {
-      return {
-        url: imageUrl,
-        type: AssetMediaType.Image,
-      }
-    }
-    const videoUrl = metadata.animation_url && getArc3MediaUrl(assetResult.index, metadata.animation_url, metadataResult.metadata_url)
-    if (videoUrl) {
-      return {
-        url: videoUrl,
-        type: AssetMediaType.Video,
-      }
-    }
-  } else if (!metadataResult && (assetResult.params.url?.startsWith('ipfs://') || assetResult.params.url?.includes('/ipfs/'))) {
+  }
+
+  if (!metadataResult && (assetResult.params.url?.startsWith('ipfs://') || assetResult.params.url?.includes('/ipfs/'))) {
     // There are a lot of NFTs which use the URL to store the ipfs image, however don't follow any standard
     return {
       url: replaceIpfsWithGatewayIfNeeded(assetResult.params.url),
@@ -97,13 +120,13 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
   if (isArc3) {
     standardsUsed.add(AssetStandard.ARC3)
   }
-  if (metadataResult?.metadata.properties && isArc16Properties(metadataResult.metadata.properties)) {
+  if (metadataResult?.arc3?.metadata.properties && isArc16Properties(metadataResult.arc3.metadata.properties)) {
     standardsUsed.add(AssetStandard.ARC16)
   }
   if (isArc19) {
     standardsUsed.add(AssetStandard.ARC19)
   }
-  if (metadataResult && metadataResult.standard === AssetMetadataStandard.ARC69) {
+  if (metadataResult?.arc69) {
     standardsUsed.add(AssetStandard.ARC69)
   }
   return Array.from(standardsUsed)

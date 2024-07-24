@@ -545,4 +545,23 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-909935715': () => {
+    return new AssetResultBuilder({
+      index: 909935715,
+      params: {
+        creator: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+        'metadata-hash': encoder.encode('oI4v6jtZzOWqm+GCfJaLS/FU8QjgR+1EawzZMvonXA0='),
+        name: 'NK 0217',
+        'name-b64': encoder.encode('TksgMDIxNw=='),
+        total: 1,
+        'unit-name': 'NK 0217',
+        'unit-name-b64': encoder.encode('TksgMDIxNw=='),
+        url: 'ipfs://QmfYFvNon3vfxbwtcetjYc1uZZ1Faw7AsQtSzz45sxXnaj#arc3',
+        'url-b64': encoder.encode('aXBmczovL1FtZllGdk5vbjN2Znhid3RjZXRqWWMxdVpaMUZhdzdBc1F0U3p6NDVzeFhuYWojYXJjMw=='),
+      },
+    })
+  },
 }
