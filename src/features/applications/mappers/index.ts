@@ -14,7 +14,7 @@ export const asApplicationSummary = (application: ApplicationResult): Applicatio
 export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult): Application => {
   return {
     id: application.id,
-    name: (metadata && (metadata.standard === 'ARC2' ? metadata.name : metadata.contract.name)) ?? undefined,
+    name: metadata?.name,
     creator: application.params.creator,
     account: getApplicationAddress(application.id),
     globalStateSchema: application.params['global-state-schema']
