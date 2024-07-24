@@ -4,7 +4,7 @@ import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 
 const mapSubType = (keyreg: KeyRegistrationTransactionResult) =>
-  keyreg['vote-first-valid'] && keyreg['vote-last-valid'] && keyreg['vote-key-dilution'] && keyreg['vote-participation-key']
+  keyreg['vote-first-valid'] !== undefined && keyreg['vote-last-valid'] && keyreg['vote-key-dilution'] && keyreg['vote-participation-key']
     ? KeyRegTransactionSubType.Online
     : KeyRegTransactionSubType.Offline
 
