@@ -57,23 +57,25 @@ const createAssetMetadataResult = async (
         }
       } catch (error) {
         if (error instanceof SyntaxError) {
-          const headResponse = await fetch(gatewayMetadataUrl, { method: 'HEAD' })
-          const contentType = headResponse.headers.get('Content-Type')
-          if (contentType && contentType.startsWith('image/')) {
-            arc3MetadataResult = {
-              metadata: {
-                image: metadataUrl,
-              },
-            }
-          } else if (contentType && contentType.startsWith('video/')) {
-            arc3MetadataResult = {
-              metadata: {
-                animation_url: metadataUrl,
-              },
+          // If the metadata url points to an image or video, we construct the faux arc3 metadata, so we can still display the image.
+          // If we already have arc69 metadata, we don't need to do this.
+          if (!arc69MetadataResult) {
+            const headResponse = await fetch(gatewayMetadataUrl, { method: 'HEAD' })
+            const contentType = headResponse.headers.get('Content-Type')
+            if (contentType && contentType.startsWith('image/')) {
+              arc3MetadataResult = {
+                metadata: {
+                  image: metadataUrl,
+                },
+              }
+            } else if (contentType && contentType.startsWith('video/')) {
+              arc3MetadataResult = {
+                metadata: {
+                  animation_url: metadataUrl,
+                },
+              }
             }
           }
-          // eslint-disable-next-line no-console
-          console.error('Failed to build asset metadata', error)
         } else {
           throw error
         }
