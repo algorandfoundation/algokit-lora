@@ -17,7 +17,6 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 // - An asset can follow ARC-69 and ARC-19 at the same time: https://allo.info/asset/1559471783/nft
 // - An asset can follow ARC-69 and ARC-3 at the same time: https://allo.info/asset/909935715/nft
 // - An asset can follow ARC-3 and ARC-19 at the same time: https://allo.info/asset/1494117806/nft
-
 // - ARC-19 doesn't specify the metadata format but generally people use the ARC-3 format
 const createAssetMetadataResult = async (
   assetResult: AssetResult,
