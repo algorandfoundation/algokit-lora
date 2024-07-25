@@ -2,7 +2,7 @@ import { atomsInAtom } from '@/features/common/data'
 import { ApplicationId, ApplicationMetadataResult, ApplicationResult, MethodSpec } from './types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { TransactionType } from 'algosdk'
+import algosdk, { TransactionType } from 'algosdk'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { parseArc2 } from '@/features/transactions/mappers/arc-2'
 import { parseJson } from '@/utils/parse-json'
@@ -11,8 +11,6 @@ import { atom, useSetAtom } from 'jotai'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/arc-32/application'
 import { useCallback } from 'react'
 import { atomWithStorage } from 'jotai/utils'
-import { sha512_256 } from 'js-sha512'
-import { Buffer } from 'buffer'
 
 const getApplicationMetadataResult = atom(null, async (get, _, applicationResult: ApplicationResult) => {
   // We only need to fetch the first page to find the application creation transaction
@@ -49,11 +47,11 @@ const getApplicationMetadataResult = atom(null, async (get, _, applicationResult
     if (arc32AppSpec.contract.methods) {
       methods.push(
         ...arc32AppSpec.contract.methods.map((method) => {
-          const signature = getSignature(method)
+          const abiMethod = new algosdk.ABIMethod(method)
           return {
             name: method.name,
-            selector: getMethodSelector(signature),
-            signature,
+            selector: Buffer.from(abiMethod.getSelector()).toString('base64'),
+            signature: abiMethod.getSignature(),
           }
         })
       )
@@ -91,16 +89,4 @@ export const useSetApplicationArc32AppSpec = () => {
     },
     [setApplicationArc32AppSpec]
   )
-}
-
-const getSignature = (method: Arc32AppSpec['contract']['methods'][0]) => {
-  const args = method.args.map((arg) => arg.type.toString()).join(',')
-  const returns = method.returns.type.toString()
-  return `${method.name}(${args})${returns}`
-}
-
-const getMethodSelector = (methodSignature: string) => {
-  const hash = sha512_256(methodSignature)
-  const methodSelector = Buffer.from(hash, 'hex').subarray(0, 4)
-  return methodSelector.toString('base64')
 }

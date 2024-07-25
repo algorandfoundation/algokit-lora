@@ -12,6 +12,7 @@ import { transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { useLoadableApplication } from '@/features/applications/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
+import algosdk from 'algosdk'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -250,18 +251,11 @@ const convertBase64StringToBytes = (arg: string) => {
 
 const decodeArgToString = (arg: string) => {
   const bytes = convertBase64StringToBytes(arg)
-  // The first 2 bytes are the length of the string
-  const bytesForStr = bytes.subarray(2)
-  return new TextDecoder().decode(bytesForStr)
+  return new algosdk.ABIStringType().decode(bytes)
 }
 
 const decodeReturnValueToString = (returnValue: string) => {
   const bytes = convertBase64StringToBytes(returnValue)
   // The first 4 bytes are SHA512_256 hash of the string "return"
-  // Then there are 2 bytes for the length of the string
-  const bytesForStr = bytes.subarray(6)
-  return new TextDecoder().decode(bytesForStr)
+  return new algosdk.ABIStringType().decode(bytes.subarray(4))
 }
-
-// FR98dQAMSGVsbG8sIHdvcmxk
-console.log(decodeReturnValueToString('FR98dQAMSGVsbG8sIHdvcmxk'))
