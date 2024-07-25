@@ -145,7 +145,19 @@ function DecodeApp({ transaction }: Props) {
         if (!method) {
           return <span>Can't detect, maybe not ARC4</span>
         }
-        return <div>{method.signature}</div>
+        return (
+          <>
+            <span>
+              method: {method.signature} <br />
+            </span>
+            <span>
+              arguments: {decodeArgToString(transaction.applicationArgs[1])} <br />
+            </span>
+            <span>
+              return value: {decodeReturnValueToString(transaction.logs[0])} <br />
+            </span>
+          </>
+        )
       }}
     </RenderLoadable>
   )
@@ -231,3 +243,25 @@ export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
 function LocalStateDeltas({ transaction }: Props) {
   return <DataTable columns={localStateDeltaTableColumns} data={transaction.localStateDeltas} />
 }
+
+const convertBase64StringToBytes = (arg: string) => {
+  return Uint8Array.from(Buffer.from(arg, 'base64'))
+}
+
+const decodeArgToString = (arg: string) => {
+  const bytes = convertBase64StringToBytes(arg)
+  // The first 2 bytes are the length of the string
+  const bytesForStr = bytes.subarray(2)
+  return new TextDecoder().decode(bytesForStr)
+}
+
+const decodeReturnValueToString = (returnValue: string) => {
+  const bytes = convertBase64StringToBytes(returnValue)
+  // The first 4 bytes are SHA512_256 hash of the string "return"
+  // Then there are 2 bytes for the length of the string
+  const bytesForStr = bytes.subarray(6)
+  return new TextDecoder().decode(bytesForStr)
+}
+
+// FR98dQAMSGVsbG8sIHdvcmxk
+console.log(decodeReturnValueToString('FR98dQAMSGVsbG8sIHdvcmxk'))
