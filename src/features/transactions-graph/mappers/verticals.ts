@@ -77,6 +77,14 @@ const mergeRawTransactionGraphVerticals = (verticals: Vertical[]): Vertical[] =>
         return [...acc, app]
       }
 
+      // An account can have associated accounts, if it does prefer this vertical
+      const accountWithAssociatedAccounts = array.find(
+        (a) => a.type === 'Account' && a.accountAddress === current.accountAddress && a.associatedAccounts.length > 0
+      )
+      if (accountWithAssociatedAccounts) {
+        return [...acc, accountWithAssociatedAccounts]
+      }
+
       return [...acc, current]
     }
     if (current.type === 'Application') {

@@ -171,6 +171,38 @@ describe('group-graph', () => {
         algoAssetResult,
       ],
     },
+    {
+      // Clawback scenario 1
+      groupId: 'S5gujlpPmhvXROKCHG5mEOKBUBux7G+uVA4M17N8Ogo=',
+      transactionResults: [
+        transactionResultMother['testnet-YXQOFAL4ZROWRYEUFXSSVUT25JFB4CH3XCQH7UYW7NJQY625PIJA']().build(),
+        transactionResultMother['testnet-GPUOT5Y5MTR6HXT5GYUDFOGKQOU6E536BRFXY5JMNLVHM2OT4K4Q']().build(),
+        transactionResultMother['testnet-WVXEZHZCUA23S2H4WATQKA7DFXA4NWWUCDAQTNMARR7MUUVSKSBQ']().build(),
+        transactionResultMother['testnet-ORSVPJSAFWFOQRNBCECVDLRGWZBI76U2Q6IL7EI6RP6NEPGYAWMQ']().build(),
+      ],
+      assetResults: [assetResultMother['testnet-705735468']().build(), algoAssetResult],
+    },
+    {
+      // Clawback scenario 2
+      groupId: '+Rd88080lmrfzu8EX6pntMRcOvv8AZOpxpQB1wr1h2Y=',
+      transactionResults: [
+        transactionResultMother['testnet-K7TNWCBB5PYBX5OVSYPSD3VCKD4BYLRHWG43KWJ7JOJ7Z6UFUFWQ']().build(),
+        transactionResultMother['testnet-44PALBEBH652BYUIT7SZF5PFWJ7KYSBFJYOPSLYX6KM3G47P53VA']().build(),
+        transactionResultMother['testnet-23RVHEI5OQZWQ5D6NNLOVOKA7LFKSUZEWEWEBDNCBI5GY4HPZS5A']().build(),
+        transactionResultMother['testnet-7XSI3OKXOEHSGVUZDTIYWGBKU3G65XZPRLNCFGNYH3SJWGXVR3AQ']().build(),
+      ],
+      assetResults: [assetResultMother['testnet-705736233']().build(), algoAssetResult],
+    },
+    {
+      // Clawback scenario 3
+      groupId: 'TYEjlEMFUb8dX+OtWME7k0nvN1+L77djDllXHRqz8fo=',
+      transactionResults: [
+        transactionResultMother['testnet-QIMCXEMIV2LNX5RJMYWM4UQTJAUSJE5GGJAOE5NCTQ3BOSQ5MJMA']().build(),
+        transactionResultMother['testnet-DDXYDL7EYTQRHH4G3SSZHT4HUZNBND24PDDNTF2VR73QBK4SL7AQ']().build(),
+        transactionResultMother['testnet-26TWK7B27JHHI6OAKTIXNBTC2IAUUPCUUHCYHD7P5B57X7BUJJKQ']().build(),
+      ],
+      assetResults: [assetResultMother['testnet-705736805']().build(), algoAssetResult],
+    },
   ])(
     'when rendering group $groupId',
     ({

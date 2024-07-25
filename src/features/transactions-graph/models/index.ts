@@ -88,6 +88,7 @@ export type SelfLoop = {
   label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
+  toAccountIndex?: number
 }
 
 export type Point = {
