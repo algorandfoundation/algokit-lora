@@ -60,9 +60,9 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         children: <ApplicationArgs transaction={transaction} />,
       },
       {
-        id: 'decodeApp',
-        label: 'Decode App',
-        children: <DecodeApp transaction={transaction} />,
+        id: 'arc32',
+        label: 'ARC-32',
+        children: <Arc32 transaction={transaction} />,
       },
       {
         id: foreignAccountsTabId,
@@ -133,7 +133,7 @@ function ApplicationArgs({ transaction }: Props) {
   )
 }
 
-function DecodeApp({ transaction }: Props) {
+function Arc32({ transaction }: Props) {
   const [loadableApplication] = useLoadableApplication(transaction.applicationId)
   return (
     <RenderLoadable loadable={loadableApplication}>
