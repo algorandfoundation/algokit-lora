@@ -2,7 +2,6 @@ import { AssetTransferTransactionSubType, InnerTransaction, Transaction, Transac
 import { ApplicationVertical, Vertical } from '../models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
-import { isDefined } from '@/utils/is-defined'
 
 export const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): Vertical[] => {
   const transactionsVerticals = transactions.flatMap(asRawTransactionGraphVerticals)
@@ -15,15 +14,11 @@ const indexTransactionsVerticals = (rawVerticals: Vertical[]): Vertical[] => {
     .flatMap((vertical) => {
       switch (vertical.type) {
         case 'Account':
-          return [vertical.accountAddress, ...(vertical.clawbackFromAccounts?.map((account) => account.accountAddress) ?? [])]
+          return [vertical.accountAddress, ...vertical.associatedAccounts.map((account) => account.accountAddress)]
         case 'Asset':
           return []
         case 'Application':
-          return [
-            vertical.linkedAccount.accountAddress,
-            ...vertical.rekeyedAccounts.map((account) => account.accountAddress),
-            ...vertical.clawbackFromAccounts.map((account) => account.accountAddress),
-          ]
+          return [vertical.linkedAccount.accountAddress, ...vertical.associatedAccounts.map((account) => account.accountAddress)]
       }
     })
     .filter(distinct((x) => x))
@@ -35,7 +30,7 @@ const indexTransactionsVerticals = (rawVerticals: Vertical[]): Vertical[] => {
           ...vertical,
           id: index,
           accountNumber: uniqueAddresses.indexOf(vertical.accountAddress) + 1,
-          clawbackFromAccounts: vertical.clawbackFromAccounts?.map((account) => ({
+          associatedAccounts: vertical.associatedAccounts.map((account) => ({
             ...account,
             accountNumber: uniqueAddresses.indexOf(account.accountAddress) + 1,
           })),
@@ -50,11 +45,7 @@ const indexTransactionsVerticals = (rawVerticals: Vertical[]): Vertical[] => {
             accountNumber: uniqueAddresses.indexOf(vertical.linkedAccount.accountAddress) + 1,
             accountAddress: vertical.linkedAccount.accountAddress,
           },
-          rekeyedAccounts: vertical.rekeyedAccounts.map((account) => ({
-            ...account,
-            accountNumber: uniqueAddresses.indexOf(account.accountAddress) + 1,
-          })),
-          clawbackFromAccounts: vertical.clawbackFromAccounts.map((account) => ({
+          associatedAccounts: vertical.associatedAccounts.map((account) => ({
             ...account,
             accountNumber: uniqueAddresses.indexOf(account.accountAddress) + 1,
           })),
@@ -98,10 +89,7 @@ const mergeRawTransactionGraphVerticals = (verticals: Vertical[]): Vertical[] =>
           type: 'Application' as const,
           applicationId: current.applicationId,
           linkedAccount: current.linkedAccount,
-          rekeyedAccounts: [...(acc[index] as ApplicationVertical).rekeyedAccounts, ...current.rekeyedAccounts].filter(
-            distinct((x) => x.accountAddress)
-          ),
-          clawbackFromAccounts: [...(acc[index] as ApplicationVertical).clawbackFromAccounts, ...current.clawbackFromAccounts].filter(
+          associatedAccounts: [...(acc[index] as ApplicationVertical).associatedAccounts, ...current.associatedAccounts].filter(
             distinct((x) => x.accountAddress)
           ),
         }
@@ -134,12 +122,12 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       accountNumber: -1,
       type: 'Account',
       accountAddress: transaction.sender,
-      clawbackFromAccounts:
+      associatedAccounts:
         transaction.type === TransactionType.AssetTransfer &&
         transaction.subType === AssetTransferTransactionSubType.Clawback &&
         transaction.clawbackFrom
-          ? [{ accountNumber: -1, accountAddress: transaction.clawbackFrom }]
-          : undefined,
+          ? [{ type: 'Clawback', accountNumber: -1, accountAddress: transaction.clawbackFrom }]
+          : [],
     },
   ]
   if (transaction.type === TransactionType.Payment) {
@@ -148,6 +136,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       accountNumber: -1,
       type: 'Account',
       accountAddress: transaction.receiver,
+      associatedAccounts: [],
     })
     if (transaction.closeRemainder) {
       verticals.push({
@@ -155,24 +144,17 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
         accountNumber: -1,
         type: 'Account',
         accountAddress: transaction.closeRemainder.to,
+        associatedAccounts: [],
       })
     }
   }
   if (transaction.type === TransactionType.AssetTransfer) {
-    // if (!('innerId' in transaction) && transaction.subType === AssetTransferTransactionSubType.Clawback) {
-    //   verticals.push({
-    //     id: -1,
-    //     accountNumber: -1,
-    //     type: 'Account',
-    //     accountAddress: transaction.clawbackFrom!,
-    //   })
-    //   verticals[0].clawbackFromAccounts =
-    // }
     verticals.push({
       id: -1,
       accountNumber: -1,
       type: 'Account',
       accountAddress: transaction.receiver,
+      associatedAccounts: [],
     })
     if (transaction.closeRemainder) {
       verticals.push({
@@ -180,6 +162,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
         accountNumber: -1,
         type: 'Account',
         accountAddress: transaction.closeRemainder.to,
+        associatedAccounts: [],
       })
     }
   }
@@ -190,6 +173,35 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
         type: 'OpUp',
       })
     } else {
+      const associatedAccounts = transaction.innerTransactions
+        .reduce(
+          (acc, itxn) => {
+            if (itxn.sender !== getApplicationAddress(transaction.applicationId)) {
+              acc.push({
+                type: 'Rekey',
+                accountNumber: -1,
+                accountAddress: itxn.sender,
+              })
+            }
+
+            if (
+              itxn.type === TransactionType.AssetTransfer &&
+              itxn.subType === AssetTransferTransactionSubType.Clawback &&
+              itxn.clawbackFrom
+            ) {
+              acc.push({
+                type: 'Clawback',
+                accountNumber: -1,
+                accountAddress: itxn.clawbackFrom,
+              })
+            }
+
+            return acc
+          },
+          [] as ApplicationVertical['associatedAccounts']
+        )
+        .filter(distinct((a) => a.accountAddress))
+
       verticals.push({
         id: -1,
         type: 'Application',
@@ -198,33 +210,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
           accountNumber: -1,
           accountAddress: getApplicationAddress(transaction.applicationId),
         },
-        rekeyedAccounts: transaction.innerTransactions
-          .flatMap((innerTransaction) => innerTransaction.sender)
-          .filter((address) => address !== getApplicationAddress(transaction.applicationId))
-          .filter(distinct((x) => x))
-          .map((address) => ({
-            accountNumber: -1,
-            accountAddress: address,
-          })),
-        clawbackFromAccounts: transaction.innerTransactions
-          .flatMap((innerTransaction) => innerTransaction)
-          .filter(
-            (innerTransaction) =>
-              innerTransaction.type === TransactionType.AssetTransfer &&
-              innerTransaction.subType === AssetTransferTransactionSubType.Clawback &&
-              innerTransaction.clawbackFrom
-          )
-          .map((x) => {
-            if (x.type === TransactionType.AssetTransfer) {
-              return x.clawbackFrom!
-            }
-          })
-          .filter(isDefined)
-          .filter(distinct((x) => x))
-          .map((address) => ({
-            accountNumber: -1,
-            accountAddress: address,
-          })),
+        associatedAccounts,
       })
     }
   }
@@ -241,6 +227,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       accountNumber: -1,
       type: 'Account',
       accountAddress: transaction.address,
+      associatedAccounts: [],
     })
   }
   return verticals

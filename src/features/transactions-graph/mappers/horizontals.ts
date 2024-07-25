@@ -176,25 +176,13 @@ const getAssetTransferTransactionRepresentations = (
       })
     : undefined
 
-  // const clawbackRepresentation =
-  //   transaction.subType === AssetTransferTransactionSubType.Clawback
-  //     ? getRepresentationGivenSenderAndReceiver({
-  //         sender: transaction.clawbackFrom!,
-  //         receiver: transaction.sender,
-  //         verticals,
-  //         description: {
-  //           type: LabelType.Clawback,
-  //           amount: transaction.amount,
-  //           asset: transaction.asset,
-  //         },
-  //       })
-  //     : undefined
-
-  const sender = transaction.clawbackFrom ?? transaction.sender
+  const sender =
+    transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
+      ? transaction.clawbackFrom
+      : transaction.sender
   const from = parent ? calculateFromWithParent(sender, verticals, parent) : calculateFromWithoutParent(sender, verticals)
   const to = getAccountOrApplicationByAddress(verticals, transaction.receiver)
 
-  // TODO: NC - Probably want to rename this
   const transferRepresentation =
     transaction.subType === AssetTransferTransactionSubType.Clawback
       ? asTransactionGraphRepresentation(from, to, {
@@ -343,17 +331,15 @@ const calculateFromWithoutParent = (sender: Address, verticals: Vertical[]): Rep
   // If the transaction is not a child, it is sent an individual account or an application account
   const accountVertical = verticals.find(
     (c): c is AccountVertical =>
-      c.type === 'Account' &&
-      ((sender === c.accountAddress || c.clawbackFromAccounts?.map((x) => x.accountAddress)?.includes(sender)) ?? false)
+      c.type === 'Account' && ((sender === c.accountAddress || c.associatedAccounts.map((x) => x.accountAddress).includes(sender)) ?? false)
   )
   if (accountVertical) {
-    console.log('accountVertical', accountVertical.id, accountVertical.accountNumber)
     return {
       verticalId: accountVertical.id,
       accountNumber:
         accountVertical.accountAddress === sender
           ? accountVertical.accountNumber
-          : accountVertical.clawbackFromAccounts?.find((x) => x.accountAddress === sender)?.accountNumber,
+          : accountVertical.associatedAccounts.find((x) => x.accountAddress === sender)?.accountNumber,
     }
   }
 
@@ -382,17 +368,8 @@ const calculateFromWithParent = (sender: Address, verticals: Vertical[], parent:
       accountNumber:
         applicationVertical.linkedAccount.accountAddress === sender
           ? applicationVertical.linkedAccount.accountNumber
-          : applicationVertical.rekeyedAccounts
-              .concat(applicationVertical.clawbackFromAccounts)
-              .find((account) => account.accountAddress === sender)?.accountNumber,
+          : applicationVertical.associatedAccounts.find((account) => account.accountAddress === sender)?.accountNumber,
     }
   }
   return fallbackFromTo
 }
-
-// TODO: NC - Can we hide a vertical if there isn't anything connecting to it?
-// TODO: NC - Fix the transaction table for clawback
-// TODO: NC - Fix the tooltip for clawback
-// TODO: NC - Can we do a clawback to the clawback account?
-// TODO: NC - Make icon more claw like
-// TODO: NC - Try a transaction group which has the clawback from being used
