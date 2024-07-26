@@ -59,7 +59,9 @@ runs:
     #   shell: bash
 
     - name: Create a dummy JavaScript file
-      run: echo 'console.log("This is a dummy JavaScript file.");' > ./dummy/dummy.js
+      run: |
+        mkdir -p ./dummy
+        echo 'console.log("This is a dummy JavaScript file.");' > ./dummy/dummy.js
       shell: bash
 
     # This step is seting up the trusted signing action to sign a dummy file.
