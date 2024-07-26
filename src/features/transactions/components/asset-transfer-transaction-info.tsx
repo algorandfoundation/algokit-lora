@@ -25,10 +25,6 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         dt: transactionSenderLabel,
         dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
       },
-      {
-        dt: transactionReceiverLabel,
-        dd: <AccountLink address={transaction.receiver} showCopyButton={true} />,
-      },
       ...(subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
         ? [
             {
@@ -37,6 +33,10 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
             },
           ]
         : []),
+      {
+        dt: transactionReceiverLabel,
+        dd: <AccountLink address={transaction.receiver} showCopyButton={true} />,
+      },
       {
         dt: assetLabel,
         dd: <AssetLink asset={transaction.asset} showCopyButton={true} />,
