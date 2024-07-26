@@ -10,13 +10,13 @@ inputs:
     description: 'The name of the package'
     required: true
   azure_tenant_id:
-    description: ''
+    description: 'The Microsoft Entra tenant (directory) ID.'
     required: true
   azure_client_id:
-    description: ''
+    description: 'The client (application) ID of an App Registration in the tenant.'
     required: true
   azure_client_secret:
-    description: ''
+    description: 'A client secret that was generated for the App Registration.'
     required: true
 
 runs:
@@ -36,7 +36,19 @@ runs:
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
       shell: bash
 
-    # This step is just seting up the trusted signing action and it is expected to fail.
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+
+    - name: Update Cargo.lock
+      run: |
+        cd src-tauri
+        cargo update
+      shell: bash
+
+    # This step is seting up the trusted signing action and it is expected to fail.
     # It is needed later on sign the executable step.
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
