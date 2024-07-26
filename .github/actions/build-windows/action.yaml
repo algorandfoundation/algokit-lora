@@ -28,27 +28,39 @@ runs:
         echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Bump version in tauri.conf.json and Cargo.toml
+    - name: Bump version in tauri.conf.json and Cargo files
       if: ${{ inputs.release-version != '' }}
       run: |
         version="${{ inputs.release-version }}"
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
+        sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.lock"
+
+        echo "Updated tauri.conf.json:"
+        cat "src-tauri/tauri.conf.json"
+        echo "Updated Cargo.toml:"
+        cat "src-tauri/Cargo.toml"
+        echo "Updated Cargo.lock:"
+        cat "src-tauri/Cargo.lock"
       shell: bash
 
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: stable
-        override: true
+    # - name: Set up Rust
+    #   uses: actions-rs/toolchain@v1
+    #   with:
+    #     toolchain: stable
+    #     override: true
 
-    - name: Update Cargo.lock
-      run: |
-        cd src-tauri
-        cargo update
+    # - name: Update Cargo.lock
+    #   run: |
+    #     cd src-tauri
+    #     cargo update
+    #   shell: bash
+
+    - name: Create a dummy JavaScript file
+      run: echo 'console.log("This is a dummy JavaScript file.");' > dummy.js
       shell: bash
 
-    # This step is seting up the trusted signing action and it is expected to fail.
+    # This step is seting up the trusted signing action to sign a dummy file.
     # It is needed later on sign the executable step.
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
@@ -57,6 +69,14 @@ runs:
         azure-tenant-id: ${{ inputs.azure_tenant_id }}
         azure-client-id: ${{ inputs.azure_client_id }}
         azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ./
+        files-folder-filter:
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
 
     - name: Configure signing for tauri
       shell: bash
