@@ -10,9 +10,7 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { useLoadableApplication } from '@/features/applications/data'
-import { RenderLoadable } from '@/features/common/components/render-loadable'
-import algosdk from 'algosdk'
+import { Arc32 } from '@/features/transactions/components/arc-32'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -134,36 +132,6 @@ function ApplicationArgs({ transaction }: Props) {
   )
 }
 
-function Arc32({ transaction }: Props) {
-  const [loadableApplication] = useLoadableApplication(transaction.applicationId)
-  return (
-    <RenderLoadable loadable={loadableApplication}>
-      {(application) => {
-        if (transaction.applicationArgs.length === 0) {
-          return <span>No application args.</span>
-        }
-        const method = application.methods.find((m) => m.selector === transaction.applicationArgs[0])
-        if (!method) {
-          return <span>Can't detect, maybe not ARC4</span>
-        }
-        return (
-          <>
-            <span>
-              method: {method.signature} <br />
-            </span>
-            <span>
-              arguments: {decodeArgToString(transaction.applicationArgs[1])} <br />
-            </span>
-            <span>
-              return value: {decodeReturnValueToString(transaction.logs[0])} <br />
-            </span>
-          </>
-        )
-      }}
-    </RenderLoadable>
-  )
-}
-
 function ForeignAccounts({ transaction }: Props) {
   return (
     <div className="flex flex-col overflow-hidden">
@@ -243,19 +211,4 @@ export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
 
 function LocalStateDeltas({ transaction }: Props) {
   return <DataTable columns={localStateDeltaTableColumns} data={transaction.localStateDeltas} />
-}
-
-const convertBase64StringToBytes = (arg: string) => {
-  return Uint8Array.from(Buffer.from(arg, 'base64'))
-}
-
-const decodeArgToString = (arg: string) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIStringType().decode(bytes)
-}
-
-const decodeReturnValueToString = (returnValue: string) => {
-  const bytes = convertBase64StringToBytes(returnValue)
-  // The first 4 bytes are SHA512_256 hash of the string "return"
-  return new algosdk.ABIStringType().decode(bytes.subarray(4))
 }

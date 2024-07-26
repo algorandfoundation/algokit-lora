@@ -1,5 +1,5 @@
 import { atomsInAtom } from '@/features/common/data'
-import { ApplicationId, ApplicationMetadataResult, ApplicationResult, MethodSpec } from './types'
+import { ApplicationId, ApplicationMetadataResult, ApplicationResult } from './types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import algosdk, { TransactionType } from 'algosdk'
@@ -31,7 +31,7 @@ const getApplicationMetadataResult = atom(null, async (get, _, applicationResult
   const maybeArc2 = parseArc2(text)
 
   let name = ''
-  const methods: MethodSpec[] = []
+  const methods: algosdk.ABIMethod[] = []
 
   if (maybeArc2 && maybeArc2.format === 'j') {
     const arc2Data = parseJson(maybeArc2.data)
@@ -45,16 +45,7 @@ const getApplicationMetadataResult = atom(null, async (get, _, applicationResult
       name = arc32AppSpec.contract.name
     }
     if (arc32AppSpec.contract.methods) {
-      methods.push(
-        ...arc32AppSpec.contract.methods.map((method) => {
-          const abiMethod = new algosdk.ABIMethod(method)
-          return {
-            name: method.name,
-            selector: Buffer.from(abiMethod.getSelector()).toString('base64'),
-            signature: abiMethod.getSignature(),
-          }
-        })
-      )
+      methods.push(...arc32AppSpec.contract.methods.map((method) => new algosdk.ABIMethod(method)))
     }
   }
 

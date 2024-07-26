@@ -8,7 +8,7 @@ import { settingsStore } from '@/features/settings/data'
 export const localnetId = 'localnet'
 export const testnetId = 'testnet'
 export const mainnetId = 'mainnet'
-export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
+export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
 export const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
 export const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
 export const allWalletProviderNames: Record<PROVIDER_ID, string> = {
