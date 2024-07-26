@@ -37,27 +37,6 @@ runs:
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.lock"
       shell: bash
 
-    - name: Upload modified files
-      uses: actions/upload-artifact@v2
-      with:
-        name: modified-files
-        path: |
-          src-tauri/tauri.conf.json
-          src-tauri/Cargo.toml
-          src-tauri/Cargo.lock
-
-    # - name: Set up Rust
-    #   uses: actions-rs/toolchain@v1
-    #   with:
-    #     toolchain: stable
-    #     override: true
-
-    # - name: Update Cargo.lock
-    #   run: |
-    #     cd src-tauri
-    #     cargo update
-    #   shell: bash
-
     - name: Create a dummy JavaScript file
       run: |
         mkdir -p ./dummy
@@ -65,7 +44,7 @@ runs:
       shell: bash
 
     # This step is seting up the trusted signing action to sign a dummy file.
-    # It is needed later on sign the executable step.
+    # It is needed later on Configure signing for tauri step.
     - name: Initialize sign executable
       uses: azure/trusted-signing-action@v0.3.20
       continue-on-error: true
