@@ -35,14 +35,16 @@ runs:
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.lock"
-
-        echo "Updated tauri.conf.json:"
-        cat "src-tauri/tauri.conf.json"
-        echo "Updated Cargo.toml:"
-        cat "src-tauri/Cargo.toml"
-        echo "Updated Cargo.lock:"
-        cat "src-tauri/Cargo.lock"
       shell: bash
+
+    - name: Upload modified files
+      uses: actions/upload-artifact@v2
+      with:
+        name: modified-files
+        path: |
+          src-tauri/tauri.conf.json
+          src-tauri/Cargo.toml
+          src-tauri/Cargo.lock
 
     # - name: Set up Rust
     #   uses: actions-rs/toolchain@v1
@@ -57,7 +59,7 @@ runs:
     #   shell: bash
 
     - name: Create a dummy JavaScript file
-      run: echo 'console.log("This is a dummy JavaScript file.");' > dummy.js
+      run: echo 'console.log("This is a dummy JavaScript file.");' > ./dummy/dummy.js
       shell: bash
 
     # This step is seting up the trusted signing action to sign a dummy file.
@@ -72,7 +74,7 @@ runs:
         endpoint: https://weu.codesigning.azure.net/
         trusted-signing-account-name: algokit-signing
         certificate-profile-name: algokit
-        files-folder: ./
+        files-folder: ./dummy
         files-folder-filter:
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
