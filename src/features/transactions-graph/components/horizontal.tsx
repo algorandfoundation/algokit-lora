@@ -1,6 +1,6 @@
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { Horizontal as HorizontalModel, Point, SelfLoop, Vector, Vertical, RepresentationType, LabelType } from '../models'
+import { Horizontal as HorizontalModel, LabelType, Point, RepresentationType, SelfLoop, Vector, Vertical } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
@@ -18,6 +18,9 @@ import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/c
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
+import { AlgoAppSpec as Arc32AppSpec } from '@/features/arc-32/application'
+import { Buffer } from 'buffer'
+import algosdk from 'algosdk'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -83,11 +86,33 @@ function VectorLabelText({ type }: { type: LabelType }) {
   return undefined
 }
 
-function VectorLabel({ transaction, vector }: { transaction: Transaction | InnerTransaction; vector: Vector }) {
+const uint8ArrayToBase64 = (arr: Uint8Array) => {
+  return Buffer.from(arr).toString('base64')
+}
+
+function VectorLabel({
+  transaction,
+  vector,
+  appSpec,
+}: {
+  transaction: Transaction | InnerTransaction
+  vector: Vector
+  appSpec?: Arc32AppSpec
+}) {
   const colorClass = colorClassMap[transaction.type]
+  // TODO: maybe do it a bit more efficiently
+  const method =
+    transaction.type === TransactionType.AppCall
+      ? appSpec?.contract.methods.find((m) => {
+          const abiMethod = new algosdk.ABIMethod(m)
+          return uint8ArrayToBase64(abiMethod.getSelector()) === transaction.applicationArgs[0]
+        })
+      : undefined
+
   return (
     <>
       <VectorLabelText type={vector.label.type} />
+      {vector.label.type === LabelType.AppCall && method && <div>{method.name}</div>}
       {(vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) && (
         <DisplayAlgo className="flex justify-center" amount={vector.label.amount} short={true} />
       )}
@@ -134,10 +159,12 @@ const RenderTransactionVector = fixedForwardRef(
     {
       transaction,
       vector,
+      appSpec,
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
       vector: Vector
+      appSpec?: Arc32AppSpec
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -175,7 +202,7 @@ const RenderTransactionVector = fixedForwardRef(
         </div>
         <div className="absolute flex justify-center">
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
-            <VectorLabel transaction={transaction} vector={vector} />
+            <VectorLabel transaction={transaction} vector={vector} appSpec={appSpec} />
           </div>
         </div>
         <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex} />
@@ -269,8 +296,9 @@ const RenderTransactionPoint = fixedForwardRef(
 type Props = {
   horizontal: HorizontalModel
   verticals: Vertical[]
+  appSpec?: Arc32AppSpec
 }
-export function Horizontal({ horizontal, verticals }: Props) {
+export function Horizontal({ horizontal, verticals, appSpec }: Props) {
   const { transaction, representation, ancestors, isSubHorizontal } = horizontal
 
   return (
@@ -299,7 +327,7 @@ export function Horizontal({ horizontal, verticals }: Props) {
             <Tooltip key={index} delayDuration={400}>
               <TooltipTrigger asChild>
                 {representation.type === RepresentationType.Vector ? (
-                  <RenderTransactionVector key={index} vector={representation} transaction={transaction} />
+                  <RenderTransactionVector key={index} vector={representation} transaction={transaction} appSpec={appSpec} />
                 ) : representation.type === RepresentationType.SelfLoop ? (
                   <RenderTransactionSelfLoop key={index} loop={representation} transaction={transaction} />
                 ) : representation.type === RepresentationType.Point ? (

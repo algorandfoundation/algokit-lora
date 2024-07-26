@@ -3,8 +3,7 @@ import { Group } from '../models'
 import { TransactionsGraph } from '@/features/transactions-graph'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
 import { transactionsTableColumnsWithoutRound } from '@/features/transactions/components/transactions-table-columns'
-import { useMemo } from 'react'
-import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
+import { useTransactionsGraphData } from '@/features/transactions-graph/mappers'
 
 type Props = {
   group: Group
@@ -17,8 +16,7 @@ export const groupVisualGraphLabel = 'Visual'
 export const groupVisualTableLabel = 'Table'
 
 export function GroupTransactionsViewTabs({ group }: Props) {
-  const transactionsGraph = useMemo(() => asTransactionsGraphData(group.transactions), [group.transactions])
-
+  const transactionsGraphData = useTransactionsGraphData(group.transactions)
   return (
     <Tabs defaultValue={graphTabId}>
       <TabsList aria-label={groupVisual}>
@@ -30,7 +28,7 @@ export function GroupTransactionsViewTabs({ group }: Props) {
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={graphTabId}>
-        <TransactionsGraph transactionsGraphData={transactionsGraph} />
+        <TransactionsGraph transactionsGraphData={transactionsGraphData} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={tableTabId}>
         <TransactionsTable transactions={group.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />

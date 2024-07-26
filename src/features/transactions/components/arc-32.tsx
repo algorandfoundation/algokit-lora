@@ -54,7 +54,6 @@ const parseMethodArgs = (
   let argIndex = 0
 
   const transactionArgs = extractTransactionTypeArgs(transaction, group, method)
-  console.log(transactionArgs)
   let transactionArgIndex = 0
 
   return method.args.map((arg) => {
@@ -82,10 +81,6 @@ const extractTransactionTypeArgs = (
 ): Transaction[] => {
   if (!group) return []
   const transactionIndexInGroup = group.transactions.findIndex((t) => t.id === transaction.id)
-  console.log(
-    method.args.filter((arg) => algosdk.abiTypeIsTransaction(arg.type)),
-    transactionIndexInGroup
-  )
   const transactionTypeArgsCount = method.args.filter((arg) => algosdk.abiTypeIsTransaction(arg.type)).length
   return group.transactions.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
 }

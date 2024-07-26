@@ -7,7 +7,7 @@ import { applicationResultsAtom, getApplicationResultAtom } from './application-
 import { getApplicationMetadataResultAtom } from './application-metadata'
 import { atomEffect } from 'jotai-effect'
 
-const createApplicationAtoms = (applicationId: ApplicationId) => {
+export const createApplicationAtoms = (applicationId: ApplicationId) => {
   const isStaleAtom = atom(false)
   const detectIsStaleEffect = atomEffect((get, set) => {
     const applicationResults = get(applicationResultsAtom)

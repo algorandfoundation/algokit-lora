@@ -64,6 +64,7 @@ export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] 
   (applicationResult) => applicationResult.id
 )
 
+// TODO: rename
 export const applicationArc32AppSpec = atomWithStorage<Record<ApplicationId, Arc32AppSpec>>('arc32', {}, undefined, {
   getOnInit: true,
 })

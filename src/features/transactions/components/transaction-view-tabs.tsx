@@ -3,8 +3,7 @@ import { InnerTransaction, Transaction } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionsGraph } from '@/features/transactions-graph'
 import { transactionsTableColumnsWithoutRound } from './transactions-table-columns'
-import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { useMemo } from 'react'
+import { useTransactionsGraphData } from '@/features/transactions-graph/mappers'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -17,7 +16,7 @@ export const transactionVisualGraphTabLabel = 'Visual'
 export const transactionVisualTableTabLabel = 'Table'
 
 export function TransactionViewTabs({ transaction }: Props) {
-  const transactionsGraph = useMemo(() => asTransactionsGraphData([transaction]), [transaction])
+  const transactionsGraphData = useTransactionsGraphData([transaction])
   return (
     <Tabs defaultValue={transactionVisualGraphTabId}>
       <TabsList aria-label={transactionDetailsLabel}>
@@ -29,7 +28,7 @@ export function TransactionViewTabs({ transaction }: Props) {
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={transactionVisualGraphTabId}>
-        <TransactionsGraph transactionsGraphData={transactionsGraph} />
+        <TransactionsGraph transactionsGraphData={transactionsGraphData} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={transactionVisualTableTabId}>
         <TransactionsTable transactions={[transaction]} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={true} />

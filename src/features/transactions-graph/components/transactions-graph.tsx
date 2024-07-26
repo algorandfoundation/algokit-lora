@@ -3,12 +3,13 @@ import { TransactionsGraphData } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { VerticalTitle } from '@/features/transactions-graph/components/vertical-title'
 import { Horizontal } from '@/features/transactions-graph/components/horizontal'
+import { TransactionType } from '@/features/transactions/models'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
 }
 export function TransactionsGraph({ transactionsGraphData }: Props) {
-  const { verticals, horizontals } = transactionsGraphData
+  const { verticals, horizontals, appSpecs } = transactionsGraphData
   const horizontalsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
   const horizontalTitleWidth = graphConfig.defaultHorizontalTitleWidth + maxNestingLevel * graphConfig.indentationWidth
@@ -68,9 +69,10 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
             </div>
           </div>
         </div>
-        {horizontals.map((row, index) => (
-          <Horizontal key={index} verticals={verticals} horizontal={row} />
-        ))}
+        {horizontals.map((row, index) => {
+          const appSpec = row.transaction.type === TransactionType.AppCall ? appSpecs[row.transaction.applicationId] : undefined
+          return <Horizontal key={index} verticals={verticals} horizontal={row} appSpec={appSpec} />
+        })}
       </div>
     </div>
   )
