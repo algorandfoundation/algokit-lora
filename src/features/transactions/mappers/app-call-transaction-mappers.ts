@@ -54,13 +54,14 @@ const mapCommonAppCallTransactionProperties = (
     opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
     opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
 
-  let methodName: string | undefined = undefined
+  let abiMethod: algosdk.ABIMethod | undefined = undefined
   const appSpec = appSpecResolver(transactionResult['application-transaction']['application-id'])
   if (appSpec && transactionResult['application-transaction']['application-args']?.length) {
-    methodName = appSpec.contract.methods.find((m) => {
+    const methodContract = appSpec.contract.methods.find((m) => {
       const abiMethod = new algosdk.ABIMethod(m)
       return uint8ArrayToBase64(abiMethod.getSelector()) === transactionResult['application-transaction']!['application-args']?.[0]
-    })?.name
+    })
+    if (methodContract) abiMethod = new algosdk.ABIMethod(methodContract)
   }
 
   return {
@@ -86,7 +87,7 @@ const mapCommonAppCallTransactionProperties = (
     onCompletion,
     logs: transactionResult['logs'] ?? [],
     // Map app spec
-    methodName,
+    abiMethod,
   } satisfies BaseAppCallTransaction
 }
 

@@ -10,7 +10,7 @@ export function TransactionTypeDescriptionDetails({ transaction }: { transaction
       {
         // TODO: style this
       }
-      {transaction.type === TransactionType.AppCall && transaction.methodName && <span>{transaction.methodName}</span>}
+      {transaction.type === TransactionType.AppCall && transaction.abiMethod && <span>{transaction.abiMethod.name}</span>}
       {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
       {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
       {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}

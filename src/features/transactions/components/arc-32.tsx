@@ -2,35 +2,33 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AppCallTransaction, InnerAppCallTransaction, Transaction } from '@/features/transactions/models'
 import algosdk, { ABIReferenceType } from 'algosdk'
 import { Buffer } from 'buffer'
-import { useLoadableArc32Data } from '@/features/transactions/data/arc-32'
 import { Group } from '@/features/groups/models'
-import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
 }
 
 export function Arc32({ transaction }: Props) {
-  const loadableArc32Data = useLoadableArc32Data(transaction)
+  const loadableGroup = useLoadableMaybeGroup(transaction.confirmedRound, transaction.group)
   return (
-    <RenderLoadable loadable={loadableArc32Data}>
-      {({ group, application }) => {
+    <RenderLoadable loadable={loadableGroup}>
+      {({ group }) => {
         if (transaction.applicationArgs.length === 0) {
           return <span>No application args.</span>
         }
-        const method = application.methods.find((m) => uint8ArrayToBase64(m.getSelector()) === transaction.applicationArgs[0])
-        if (!method) {
+        if (!transaction.abiMethod) {
           return <span>Can't detect, maybe not ARC-32</span>
         }
         return (
           <>
             <span>
-              Method name: {method.name} <br />
+              Method name: {transaction.abiMethod.name} <br />
             </span>
             <div>
               Arguments:
               <ul>
-                {parseMethodArgs(method, transaction, group).map((arg, index) => (
+                {parseMethodArgs(transaction.abiMethod, transaction, group).map((arg, index) => (
                   <li key={index}>{`${arg}`}</li>
                 ))}
               </ul>

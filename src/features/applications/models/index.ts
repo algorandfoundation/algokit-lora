@@ -1,5 +1,4 @@
 import { ApplicationId } from '../data/types'
-import algosdk from 'algosdk'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -17,7 +16,6 @@ export type Application = {
   globalState?: Map<string, ApplicationGlobalStateValue>
   json: string
   isDeleted: boolean
-  methods: algosdk.ABIMethod[]
 }
 
 export type ApplicationStateSchema = {
