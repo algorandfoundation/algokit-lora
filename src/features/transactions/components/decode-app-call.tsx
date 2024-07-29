@@ -56,20 +56,18 @@ const parseMethodArgs = (
   let transactionArgIndex = 0
 
   return method.args.map((arg) => {
-    if (arg.type.toString() === 'string') {
-      return argToString(args[argIndex++])
-    }
-    if (arg.type.toString().startsWith('uint')) {
-      const bitSize = parseInt(arg.type.toString().slice(4))
-      return argToNumber(args[argIndex++], bitSize)
-    }
     if (arg.type === ABIReferenceType.asset) {
       const assetIndex = Number(argToNumber(args[argIndex++], 8))
-      return `Asset ID: ${transaction.foreignAssets[assetIndex]}`
+      return `${arg.name}: ${transaction.foreignAssets[assetIndex]}`
     }
     if (algosdk.abiTypeIsTransaction(arg.type)) {
-      return `Transaction ID: ${transactionArgs[transactionArgIndex++].id}`
+      const transaction = transactionArgs[transactionArgIndex++]
+      return `${arg.name}: ${transaction.id}`
     }
+
+    const abiType = algosdk.ABIType.from(arg.type.toString())
+    const bytes = convertBase64StringToBytes(args[argIndex++])
+    return `${arg.name}: ${abiType.decode(bytes)}`
   })
 }
 
