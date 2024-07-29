@@ -6,11 +6,12 @@ import { TransactionId } from './types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { getTransactionResultAtom } from './transaction-result'
 import { assetSummaryResolver } from '@/features/assets/data/asset-summary'
+import { appSpecResolverBuilder } from '@/features/arc-32/app-spec-resolver'
 
 export const createTransactionsAtom = (transactionResults: TransactionResult[]) => {
-  return atom((_get) => {
+  return atom((get) => {
     return transactionResults.map((transactionResult) => {
-      return asTransaction(transactionResult, assetSummaryResolver)
+      return asTransaction(transactionResult, assetSummaryResolver, appSpecResolverBuilder(get))
     })
   })
 }
@@ -18,7 +19,7 @@ export const createTransactionsAtom = (transactionResults: TransactionResult[]) 
 export const createTransactionAtom = (transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return asTransaction(txn, assetSummaryResolver)
+    return asTransaction(txn, assetSummaryResolver, appSpecResolverBuilder(get))
   })
 }
 

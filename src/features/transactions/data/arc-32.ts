@@ -7,6 +7,8 @@ import { getApplicationResultAtom } from '@/features/applications/data'
 import { getApplicationMetadataResultAtom } from '@/features/applications/data/application-metadata'
 import { asApplication } from '@/features/applications/mappers'
 
+// TODO: rename to app spec,
+// TODO: ABIContract is a better fit for this
 const createArc32DataAtom = (transaction: AppCallTransaction | InnerAppCallTransaction) => {
   return atom(async (get) => {
     const group = transaction.group ? await fetchGroup(get, transaction.group, transaction.confirmedRound) : undefined

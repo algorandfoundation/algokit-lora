@@ -143,6 +143,7 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
   logs: string[]
+  methodName?: string
 }
 
 export type AppCallTransaction = BaseAppCallTransaction & {

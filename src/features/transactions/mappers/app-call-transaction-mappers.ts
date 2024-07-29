@@ -10,7 +10,7 @@ import {
 import { invariant } from '@/utils/invariant'
 import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+import algosdk, { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { AssetSummary } from '@/features/assets/models'
@@ -19,6 +19,8 @@ import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mapper
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
+import { AlgoAppSpec } from '@/features/arc-32/application'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const opUpPrograms = [
   'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
@@ -40,6 +42,7 @@ const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  appSpecResolver: (applicationId: number) => AlgoAppSpec | undefined,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -50,6 +53,15 @@ const mapCommonAppCallTransactionProperties = (
     onCompletion === AppCallOnComplete.Delete &&
     opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
     opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
+
+  let methodName: string | undefined = undefined
+  const appSpec = appSpecResolver(transactionResult['application-transaction']['application-id'])
+  if (appSpec && transactionResult['application-transaction']['application-args']?.length) {
+    methodName = appSpec.contract.methods.find((m) => {
+      const abiMethod = new algosdk.ABIMethod(m)
+      return uint8ArrayToBase64(abiMethod.getSelector()) === transactionResult['application-transaction']!['application-args']?.[0]
+    })?.name
+  }
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
@@ -69,18 +81,21 @@ const mapCommonAppCallTransactionProperties = (
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
-        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver)
+        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver, appSpecResolver)
       }) ?? [],
     onCompletion,
     logs: transactionResult['logs'] ?? [],
+    // Map app spec
+    methodName,
   } satisfies BaseAppCallTransaction
 }
 
 export const asAppCallTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  appSpecResolver: (applicationId: number) => AlgoAppSpec | undefined
 ): AppCallTransaction => {
-  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver)
+  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver, appSpecResolver)
 
   return {
     id: transactionResult.id,
@@ -92,11 +107,12 @@ export const asInnerAppCallTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  appSpecResolver: (applicationId: number) => AlgoAppSpec | undefined
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assetResolver, `${index}`),
+    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assetResolver, appSpecResolver, `${index}`),
   }
 }
 
@@ -121,7 +137,8 @@ const asInnerTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  appSpecResolver: (applicationId: number) => AlgoAppSpec | undefined
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
@@ -130,7 +147,7 @@ const asInnerTransaction = (
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
-    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver)
+    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, appSpecResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)

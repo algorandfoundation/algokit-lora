@@ -4,6 +4,7 @@ import algosdk, { ABIReferenceType } from 'algosdk'
 import { Buffer } from 'buffer'
 import { useLoadableArc32Data } from '@/features/transactions/data/arc-32'
 import { Group } from '@/features/groups/models'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -85,10 +86,6 @@ const extractTransactionTypeArgs = (
   return group.transactions.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
 }
 
-const uint8ArrayToBase64 = (arr: Uint8Array) => {
-  return Buffer.from(arr).toString('base64')
-}
-
 const convertBase64StringToBytes = (arg: string) => {
   return Uint8Array.from(Buffer.from(arg, 'base64'))
 }
@@ -103,8 +100,9 @@ const argToNumber = (arg: string, size: number) => {
   return new algosdk.ABIUintType(size).decode(bytes)
 }
 
-const returnValueToString = (returnValue: string) => {
-  const bytes = convertBase64StringToBytes(returnValue)
-  // The first 4 bytes are SHA512_256 hash of the string "return"
-  return new algosdk.ABIStringType().decode(bytes.subarray(4))
-}
+// TODO: return value
+// const returnValueToString = (returnValue: string) => {
+//   const bytes = convertBase64StringToBytes(returnValue)
+//   // The first 4 bytes are SHA512_256 hash of the string "return"
+//   return new algosdk.ABIStringType().decode(bytes.subarray(4))
+// }

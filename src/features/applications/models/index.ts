@@ -1,4 +1,4 @@
-import { ApplicationId, MethodSpec } from '../data/types'
+import { ApplicationId } from '../data/types'
 import algosdk from 'algosdk'
 
 export type ApplicationSummary = {

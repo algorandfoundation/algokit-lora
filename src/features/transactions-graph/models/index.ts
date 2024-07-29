@@ -10,6 +10,7 @@ import { AlgoAppSpec as Arc32AppSpec } from '@/features/arc-32/application'
 export type TransactionsGraphData = {
   horizontals: Horizontal[]
   verticals: Vertical[]
+  // TODO: check if we still need this
   appSpecs: Record<ApplicationId, Arc32AppSpec>
 }
 
