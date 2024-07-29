@@ -57,7 +57,7 @@ runs:
         trusted-signing-account-name: algokit-signing
         certificate-profile-name: algokit
         files-folder: ./dummy
-        files-folder-filter:
+        files-folder-filter: js
         file-digest: SHA256
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
