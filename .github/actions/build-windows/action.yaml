@@ -6,35 +6,98 @@ inputs:
     required: true
   release-version:
     description: 'The release version'
+  package_name:
+    description: 'The name of the package'
+    required: true
+  azure_tenant_id:
+    description: 'The Microsoft Entra tenant (directory) ID.'
+    required: true
+  azure_client_id:
+    description: 'The client (application) ID of an App Registration in the tenant.'
+    required: true
+  azure_client_secret:
+    description: 'A client secret that was generated for the App Registration.'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    #  TODO: set up signing certs here when releasing to production
-
     - name: Get artifact name
       id: set-env
       run: |
         echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
       shell: bash
 
-    - name: Bump version in tauri.conf.json
+    - name: Bump version in tauri.conf.json and Cargo files
       if: ${{ inputs.release-version != '' }}
       run: |
         version="${{ inputs.release-version }}"
-        version="${version/beta./}"
         sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
+        sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
+        sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.lock"
       shell: bash
+
+    # Create a dummy file to sign, so we can install the signing tools without any errors
+    - name: Create a dummy file to sign
+      run: |
+        mkdir -p ./dummy
+        echo 'console.log("This is a dummy JavaScript file.");' > ./dummy/dummy.js
+      shell: bash
+
+    # This step is setting up the trusted signing action to sign a dummy file.
+    # Used in later steps to sign the tauri binary.
+    - name: Initialise environment for code signing
+      uses: azure/trusted-signing-action@v0.3.20
+      continue-on-error: true
+      with:
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ./dummy
+        files-folder-filter: js
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    - name: Configure signing for tauri
+      shell: bash
+      env:
+        # This is used to sign the executable using the azure trusted signing before tauri build command.
+        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
 
     - name: Build tauri app
+      env:
+        AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
+        AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
+        AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
       run: |
         npm run tauri build
-      shell: bash
+      shell: pwsh
 
-    - name: Upload binary as artifact
-      id: upload-artifact
+    - name: Sign the installer
+      uses: azure/trusted-signing-action@v0.3.20
+      with:
+        azure-tenant-id: ${{ inputs.azure_tenant_id }}
+        azure-client-id: ${{ inputs.azure_client_id }}
+        azure-client-secret: ${{ inputs.azure_client_secret }}
+        endpoint: https://weu.codesigning.azure.net/
+        trusted-signing-account-name: algokit-signing
+        certificate-profile-name: algokit
+        files-folder: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\
+        files-folder-filter: msi
+        file-digest: SHA256
+        timestamp-rfc3161: http://timestamp.acs.microsoft.com
+        timestamp-digest: SHA256
+
+    - name: Upload installer artifact
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
         name: ${{ steps.set-env.outputs.artifact_name }}
-        path: src-tauri/target/release/bundle/msi/algokit-lora_*.msi
+        path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora*.msi

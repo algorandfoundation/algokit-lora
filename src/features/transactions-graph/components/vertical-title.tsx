@@ -2,10 +2,11 @@ import { cn } from '@/features/common/utils'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { Vertical } from '../models'
+import { ApplicationVertical, Vertical } from '../models'
 import { KeyIcon, LinkIcon } from 'lucide-react'
+import SvgClaw from '@/features/common/components/icons/claw'
 
-export function AccountNumber({ number }: { number: number }) {
+function AccountNumber({ number }: { number: number }) {
   return (
     <div className="flex size-4 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem] text-primary">
       {number}
@@ -13,13 +14,36 @@ export function AccountNumber({ number }: { number: number }) {
   )
 }
 
+function AssociatedAccountTitleWrapper({ type, accountAddress, accountNumber }: ApplicationVertical['associatedAccounts'][0]) {
+  return (
+    <TitleWrapper
+      key={accountNumber}
+      leftComponent={
+        type === 'Clawback' ? (
+          <SvgClaw width={16} height={16} className={'text-primary'} />
+        ) : (
+          <KeyIcon size={16} className={'text-primary'} />
+        )
+      }
+      rightComponent={<AccountNumber number={accountNumber} />}
+    >
+      <AccountLink address={accountAddress} short={true} />
+    </TitleWrapper>
+  )
+}
+
 export function VerticalTitle({ vertical }: { vertical: Vertical }) {
   return (
     <span className={cn('text-l font-semibold')}>
       {vertical.type === 'Account' && (
-        <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
-          <AccountLink address={vertical.accountAddress} short={true} />
-        </TitleWrapper>
+        <div className={cn('grid text-center')}>
+          <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
+            <AccountLink address={vertical.accountAddress} short={true} />
+          </TitleWrapper>
+          {vertical.associatedAccounts.map((associatedAccount, i) => (
+            <AssociatedAccountTitleWrapper key={i} {...associatedAccount} />
+          ))}
+        </div>
       )}
       {vertical.type === 'Application' && (
         <div className={cn('grid text-center')}>
@@ -32,14 +56,8 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
           >
             <AccountLink address={vertical.linkedAccount.accountAddress} short={true} />
           </TitleWrapper>
-          {vertical.rekeyedAccounts.map(({ accountAddress, accountNumber }) => (
-            <TitleWrapper
-              key={accountNumber}
-              leftComponent={<KeyIcon size={16} className={'text-primary'} />}
-              rightComponent={<AccountNumber number={accountNumber} />}
-            >
-              <AccountLink address={accountAddress} short={true} />
-            </TitleWrapper>
+          {vertical.associatedAccounts.map((associatedAccount, i) => (
+            <AssociatedAccountTitleWrapper key={i} {...associatedAccount} />
           ))}
         </div>
       )}

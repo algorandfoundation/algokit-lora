@@ -564,4 +564,55 @@ export const assetResultMother = {
       },
     })
   },
+  'testnet-705735468': () => {
+    return new AssetResultBuilder({
+      index: 705735468,
+      params: {
+        clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        name: 'Test',
+        'name-b64': encoder.encode('VGVzdA=='),
+        total: 1,
+        'unit-name': 'test',
+        'unit-name-b64': encoder.encode('dGVzdA=='),
+      },
+    })
+  },
+  'testnet-705736233': () => {
+    return new AssetResultBuilder({
+      index: 705736233,
+      params: {
+        clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        name: 'Test',
+        'name-b64': encoder.encode('VGVzdA=='),
+        total: 1,
+        'unit-name': 'test',
+        'unit-name-b64': encoder.encode('dGVzdA=='),
+      },
+    })
+  },
+  'testnet-705736805': () => {
+    return new AssetResultBuilder({
+      index: 705736805,
+      params: {
+        clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        name: 'Test',
+        'name-b64': encoder.encode('VGVzdA=='),
+        total: 1,
+        'unit-name': 'test',
+        'unit-name-b64': encoder.encode('dGVzdA=='),
+      },
+    })
+  },
 }

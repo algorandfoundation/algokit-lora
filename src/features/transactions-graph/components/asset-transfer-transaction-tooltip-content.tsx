@@ -1,4 +1,4 @@
-import { AssetTransferTransaction, InnerAssetTransferTransaction } from '@/features/transactions/models'
+import { AssetTransferTransaction, AssetTransferTransactionSubType, InnerAssetTransferTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { transactionFeeLabel, transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -10,6 +10,7 @@ import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 import {
+  transactionClawbackAddressLabel,
   transactionCloseRemainderAmountLabel,
   transactionCloseRemainderToLabel,
 } from '@/features/transactions/components/asset-transfer-transaction-info'
@@ -34,6 +35,14 @@ export function AssetTransferTransactionTooltipContent({
         dt: transactionSenderLabel,
         dd: <AccountLink address={transaction.sender} />,
       },
+      ...(transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
+        ? [
+            {
+              dt: transactionClawbackAddressLabel,
+              dd: <AccountLink address={transaction.clawbackFrom} />,
+            },
+          ]
+        : []),
       {
         dt: transactionReceiverLabel,
         dd: <AccountLink address={transaction.receiver} />,

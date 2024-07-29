@@ -1,4 +1,4 @@
-import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import { AssetTransferTransactionSubType, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { cn } from '@/features/common/utils'
 import { ColumnDef } from '@tanstack/react-table'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
@@ -77,8 +77,17 @@ const timestampColumn: ColumnDef<Transaction | InnerTransaction> = {
 }
 const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionFromLabel,
-  accessorFn: (transaction) => transaction.sender,
-  cell: (c) => <AccountLink address={c.getValue<string>()} short={true} />,
+  accessorFn: (transaction) => transaction,
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    const from =
+      transaction.type === TransactionType.AssetTransfer &&
+      transaction.subType === AssetTransferTransactionSubType.Clawback &&
+      transaction.clawbackFrom
+        ? transaction.clawbackFrom
+        : transaction.sender
+    return <AccountLink address={from} short={true} />
+  },
 }
 const toColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionToLabel,
