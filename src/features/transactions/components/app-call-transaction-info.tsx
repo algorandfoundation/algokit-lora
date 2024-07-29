@@ -10,7 +10,8 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { Arc32 } from '@/features/transactions/components/arc-32'
+import { DecodeAppCall } from '@/features/transactions/components/decode-app-call'
+import { isDefined } from '@/utils/is-defined'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -22,6 +23,7 @@ const foreignApplicationsTabId = 'foreign-applications'
 const foreignAssetsTabId = 'foreign-assets'
 const globalStateDeltaTabId = 'global-state'
 const localStateDeltaTabId = 'local-state'
+const decodeAppCallTabId = 'decode-app-call'
 
 export const applicationArgsTabLabel = 'Application Args'
 export const foreignAccountsTabLabel = 'Foreign Accounts'
@@ -29,6 +31,7 @@ export const foreignApplicationsTabLabel = 'Foreign Applications'
 export const foreignAssetsTabLabel = 'Foreign Assets'
 export const globalStateDeltaTabLabel = 'Global State Delta'
 export const localStateDeltaTabLabel = 'Local State Delta'
+export const decodeAppCallTabLabel = 'Decode App Call'
 
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
@@ -52,43 +55,46 @@ export function AppCallTransactionInfo({ transaction }: Props) {
     [transaction.applicationId, transaction.onCompletion, transaction.sender]
   )
   const tabs = useMemo(
-    () => [
-      {
-        id: applicationArgsTabId,
-        label: applicationArgsTabLabel,
-        children: <ApplicationArgs transaction={transaction} />,
-      },
-      {
-        id: 'arc32',
-        label: 'ARC-32',
-        children: <Arc32 transaction={transaction} />,
-      },
-      {
-        id: foreignAccountsTabId,
-        label: foreignAccountsTabLabel,
-        children: <ForeignAccounts transaction={transaction} />,
-      },
-      {
-        id: foreignApplicationsTabId,
-        label: foreignApplicationsTabLabel,
-        children: <ForeignApplications transaction={transaction} />,
-      },
-      {
-        id: foreignAssetsTabId,
-        label: foreignAssetsTabLabel,
-        children: <ForeignAssets transaction={transaction} />,
-      },
-      {
-        id: globalStateDeltaTabId,
-        label: globalStateDeltaTabLabel,
-        children: <GlobalStateDeltas transaction={transaction} />,
-      },
-      {
-        id: localStateDeltaTabId,
-        label: localStateDeltaTabLabel,
-        children: <LocalStateDeltas transaction={transaction} />,
-      },
-    ],
+    () =>
+      [
+        transaction.abiMethod
+          ? {
+              id: decodeAppCallTabId,
+              label: decodeAppCallTabLabel,
+              children: <DecodeAppCall transaction={transaction} />,
+            }
+          : undefined,
+        {
+          id: applicationArgsTabId,
+          label: applicationArgsTabLabel,
+          children: <ApplicationArgs transaction={transaction} />,
+        },
+        {
+          id: foreignAccountsTabId,
+          label: foreignAccountsTabLabel,
+          children: <ForeignAccounts transaction={transaction} />,
+        },
+        {
+          id: foreignApplicationsTabId,
+          label: foreignApplicationsTabLabel,
+          children: <ForeignApplications transaction={transaction} />,
+        },
+        {
+          id: foreignAssetsTabId,
+          label: foreignAssetsTabLabel,
+          children: <ForeignAssets transaction={transaction} />,
+        },
+        {
+          id: globalStateDeltaTabId,
+          label: globalStateDeltaTabLabel,
+          children: <GlobalStateDeltas transaction={transaction} />,
+        },
+        {
+          id: localStateDeltaTabId,
+          label: localStateDeltaTabLabel,
+          children: <LocalStateDeltas transaction={transaction} />,
+        },
+      ].filter(isDefined),
     [transaction]
   )
 
@@ -98,7 +104,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         <h2>Application Call</h2>
       </div>
       <DescriptionList items={items} />
-      <Tabs defaultValue={applicationArgsTabId}>
+      <Tabs defaultValue={transaction.abiMethod ? decodeAppCallTabId : applicationArgsTabId}>
         <TabsList aria-label={appCallTransactionDetailsLabel}>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} className="w-44" value={tab.id}>

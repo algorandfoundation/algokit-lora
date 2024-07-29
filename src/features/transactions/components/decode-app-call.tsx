@@ -9,7 +9,7 @@ type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
 }
 
-export function Arc32({ transaction }: Props) {
+export function DecodeAppCall({ transaction }: Props) {
   const loadableGroup = useLoadableMaybeGroup(transaction.confirmedRound, transaction.group)
   return (
     <RenderLoadable loadable={loadableGroup}>
@@ -88,14 +88,48 @@ const convertBase64StringToBytes = (arg: string) => {
   return Uint8Array.from(Buffer.from(arg, 'base64'))
 }
 
+const argToNumber = (arg: string, size: number) => {
+  const bytes = convertBase64StringToBytes(arg)
+  return new algosdk.ABIUintType(size).decode(bytes)
+}
+
+const argToByte = (arg: string) => {
+  return argToNumber(arg, 8)
+}
+
+const argToBoolean = (arg: string) => {
+  const bytes = convertBase64StringToBytes(arg)
+  return new algosdk.ABIBoolType().decode(bytes)
+}
+
+const argToUfixed = (arg: string, size: number, denominator: number) => {
+  const bytes = convertBase64StringToBytes(arg)
+  return new algosdk.ABIUfixedType(size, denominator).decode(bytes)
+}
+
+const argToStaticArray = (arg: string, abiType: algosdk.ABIType, size: number) => {
+  const bytes = convertBase64StringToBytes(arg)
+  return new algosdk.ABIArrayStaticType(abiType, size).decode(bytes)
+}
+
+const argToAddress = (arg: string) => {
+  const bytes = convertBase64StringToBytes(arg)
+  return new algosdk.ABIAddressType().decode(bytes)
+}
+
+const argToDynamicArray = (arg: string, abiType: algosdk.ABIType) => {
+  const bytes = convertBase64StringToBytes(arg)
+  return new algosdk.ABIArrayDynamicType(abiType).decode(bytes)
+}
+
 const argToString = (arg: string) => {
   const bytes = convertBase64StringToBytes(arg)
   return new algosdk.ABIStringType().decode(bytes)
 }
 
-const argToNumber = (arg: string, size: number) => {
+const argToTuple = (arg: string, abiTypes: algosdk.ABIType[]) => {
   const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIUintType(size).decode(bytes)
+  return new algosdk.ABITupleType(abiTypes).decode(bytes)
 }
 
 // TODO: return value
