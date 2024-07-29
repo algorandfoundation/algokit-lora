@@ -1,11 +1,11 @@
-import { NetworkConfig } from '@/features/settings/data'
+import { NetworkConfigWithId } from '@/features/network/data/types'
 import { PROVIDER_ID, useInitializeProviders } from '@txnlab/use-wallet'
 import { PropsWithChildren } from 'react'
 import algosdk from 'algosdk'
 import { WalletProviderInner } from '@/features/common/components/wallet-provider-inner'
 
 type Props = PropsWithChildren<{
-  networkConfig: NetworkConfig
+  networkConfig: NetworkConfigWithId
 }>
 
 export function TestWalletProvider({ networkConfig, children }: Props) {

@@ -545,4 +545,74 @@ export const assetResultMother = {
       },
     })
   },
+  'mainnet-909935715': () => {
+    return new AssetResultBuilder({
+      index: 909935715,
+      params: {
+        creator: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4',
+        'metadata-hash': encoder.encode('oI4v6jtZzOWqm+GCfJaLS/FU8QjgR+1EawzZMvonXA0='),
+        name: 'NK 0217',
+        'name-b64': encoder.encode('TksgMDIxNw=='),
+        total: 1,
+        'unit-name': 'NK 0217',
+        'unit-name-b64': encoder.encode('TksgMDIxNw=='),
+        url: 'ipfs://QmfYFvNon3vfxbwtcetjYc1uZZ1Faw7AsQtSzz45sxXnaj#arc3',
+        'url-b64': encoder.encode('aXBmczovL1FtZllGdk5vbjN2Znhid3RjZXRqWWMxdVpaMUZhdzdBc1F0U3p6NDVzeFhuYWojYXJjMw=='),
+      },
+    })
+  },
+  'testnet-705735468': () => {
+    return new AssetResultBuilder({
+      index: 705735468,
+      params: {
+        clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        name: 'Test',
+        'name-b64': encoder.encode('VGVzdA=='),
+        total: 1,
+        'unit-name': 'test',
+        'unit-name-b64': encoder.encode('dGVzdA=='),
+      },
+    })
+  },
+  'testnet-705736233': () => {
+    return new AssetResultBuilder({
+      index: 705736233,
+      params: {
+        clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        name: 'Test',
+        'name-b64': encoder.encode('VGVzdA=='),
+        total: 1,
+        'unit-name': 'test',
+        'unit-name-b64': encoder.encode('dGVzdA=='),
+      },
+    })
+  },
+  'testnet-705736805': () => {
+    return new AssetResultBuilder({
+      index: 705736805,
+      params: {
+        clawback: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        creator: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        decimals: 0,
+        'default-frozen': false,
+        manager: 'GYLUGN4H7Z45AW2BHYFLWS2YUMTK2MI6YANBFPW3SCHYXFRCACYXJDPSPI',
+        name: 'Test',
+        'name-b64': encoder.encode('VGVzdA=='),
+        total: 1,
+        'unit-name': 'test',
+        'unit-name-b64': encoder.encode('dGVzdA=='),
+      },
+    })
+  },
 }

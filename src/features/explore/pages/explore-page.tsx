@@ -4,7 +4,7 @@ import { cn } from '@/features/common/utils'
 import { LatestTransactions } from '@/features/transactions/components/latest-transactions'
 import { Switch } from '@/features/common/components/switch'
 import { Label } from '@/features/common/components/label'
-import { useLiveExplorer } from '@/features/explore/data/live-explorer.ts'
+import { useLiveExplorer } from '@/features/explore/data/live-explorer'
 
 export const explorePageTitle = 'Explore'
 

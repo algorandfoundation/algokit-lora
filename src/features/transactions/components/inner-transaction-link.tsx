@@ -1,7 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link.tsx'
 
 type Props = PropsWithChildren<{

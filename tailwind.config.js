@@ -76,6 +76,10 @@ export default {
           DEFAULT: 'rgb(var(--key-registration) / <alpha-value>)',
           foreground: 'rgb(var(--key-registration-foreground) / <alpha-value>)',
         },
+        error: {
+          DEFAULT: 'rgb(var(--error) / <alpha-value>)',
+          foreground: 'rgb(var(--error-foreground) / <alpha-value>)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

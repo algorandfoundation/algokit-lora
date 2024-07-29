@@ -1,11 +1,11 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Account, PROVIDER_ID, Provider, clearAccounts, useWallet } from '@txnlab/use-wallet'
-import { Dialog, DialogContent, DialogHeader } from '@/features/common/components/dialog'
+import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
+import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { localnetConfig, mainnetConfig, useNetworkConfig } from '@/features/settings/data'
+import { useNetworkConfig } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
@@ -17,6 +17,8 @@ import { useAtom, useSetAtom } from 'jotai'
 import { ProviderConnectButton } from './provider-connect-button'
 import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
+import { clearAvailableWallets } from '../utils/clear-available-wallets'
+import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -51,33 +53,16 @@ const preventDefault = (e: Event) => {
   e.preventDefault()
 }
 
-const forceRemoveConnectedWallet = () => {
-  // A fallback cleanup mechanism in the rare case of provider configuration and state being out of sync.
-  mainnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
-  })
-  localnetConfig.walletProviders.forEach((provider) => {
-    clearAccounts(provider)
-  })
-}
-
 function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
   const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
-
-  const disconnectWallet = useCallback(async () => {
-    if (activeProvider) {
-      await activeProvider.disconnect()
-    } else {
-      forceRemoveConnectedWallet()
-    }
-  }, [activeProvider])
+  const disconnectWallet = useDisconnectWallet(activeProvider)
 
   const switchAccount = useCallback(
     (address: string) => {
       if (activeProvider) {
         activeProvider.setActiveAccount(address)
       } else {
-        forceRemoveConnectedWallet()
+        clearAvailableWallets()
       }
     },
     [activeProvider]
@@ -88,7 +73,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       <PopoverTrigger asChild>
         <Button className="hidden w-36 md:flex" variant="outline">
           {activeProvider &&
-            (localnetConfig.walletProviders.includes(activeProvider.metadata.id) ? (
+            ([PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC].includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
             ) : (
               <img
@@ -148,10 +133,9 @@ export function ConnectWalletButton() {
 
   let button = <></>
 
-  const availableProviders = useMemo(
-    () => providers?.filter((p) => networkConfig.walletProviders.includes(p.metadata.id)) ?? [],
-    [networkConfig.walletProviders, providers]
-  )
+  const [availableProviderIds, availableProviders] = useMemo(() => {
+    return [providers?.map((p) => p.metadata.id) ?? [], providers ?? []] as const
+  }, [providers])
 
   const selectProvider = useCallback(
     (provider: Provider) => async () => {
@@ -180,46 +164,47 @@ export function ConnectWalletButton() {
   } else if (activeAddress) {
     button = <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
   } else {
-    if (networkConfig.id === localnetConfig.id) {
+    if (availableProviderIds.includes(PROVIDER_ID.KMD)) {
       button = <ConnectWallet onConnect={refreshAvailableKmdWallets} />
     } else {
       button = <ConnectWallet />
     }
   }
 
+  let walletProviders = <p>No wallet providers available</p>
+  if (!isReady) {
+    walletProviders = (
+      <>
+        {networkConfig.walletProviders.map((providerId) => (
+          // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
+          <div className="h-10" key={`placeholder-${providerId}`}>
+            &nbsp;
+          </div>
+        ))}
+      </>
+    )
+  } else if (!activeAddress && availableProviders.length > 0) {
+    walletProviders = (
+      <>
+        {availableProviders.map((provider) =>
+          provider.metadata.id === PROVIDER_ID.KMD ? (
+            <KmdProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
+          ) : (
+            <ProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
+          )
+        )}
+      </>
+    )
+  }
   return (
     <>
       {button}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
-        <DialogContent className="w-[500px] bg-card" onOpenAutoFocus={preventDefault}>
+        <DialogContent className="bg-card" onOpenAutoFocus={preventDefault}>
           <DialogHeader>
-            <h2>Wallet Providers</h2>
+            <h2 className="pb-0">Wallet Providers</h2>
           </DialogHeader>
-          <div className="flex flex-col space-y-2">
-            {!isReady
-              ? networkConfig.walletProviders.map((providerId) => (
-                  // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
-                  <div className="h-10" key={`placeholder-${providerId}`}>
-                    &nbsp;
-                  </div>
-                ))
-              : !activeAddress &&
-                availableProviders.map((provider) =>
-                  provider.metadata.id === PROVIDER_ID.KMD ? (
-                    <KmdProviderConnectButton
-                      key={`provider-${provider.metadata.id}`}
-                      provider={provider}
-                      onConnect={selectProvider(provider)}
-                    />
-                  ) : (
-                    <ProviderConnectButton
-                      key={`provider-${provider.metadata.id}`}
-                      provider={provider}
-                      onConnect={selectProvider(provider)}
-                    />
-                  )
-                )}
-          </div>
+          <SmallSizeDialogBody className="flex flex-col space-y-2">{walletProviders}</SmallSizeDialogBody>
         </DialogContent>
       </Dialog>
     </>

@@ -200,25 +200,27 @@ const RenderTransactionSelfLoop = fixedForwardRef(
     return (
       <div
         ref={ref}
-        className={cn('flex items-center justify-center relative z-10')}
+        className={cn('flex items-center justify-center relative z-10', colorClass.text)}
         {...rest}
         style={{
           gridColumnStart: loop.fromVerticalIndex + 2, // 2 to offset the name column
           gridColumnEnd: loop.fromVerticalIndex + 4, // 4 to offset the name column and make this cell span 2 columns
         }}
       >
-        <Circle className={cn(colorClass.border, 'z-10')} />
+        <Circle
+          className={cn(colorClass.border, 'z-10')}
+          text={loop.fromAccountIndex === loop.toAccountIndex ? loop.fromAccountIndex : undefined}
+        />
         <div
           style={{
             width: `50%`,
             height: `${graphConfig.circleDimension}px`,
           }}
-          className={colorClass.text}
         >
           <SvgPointerLeft className={cn('relative')} style={{ left: `calc(50% + ${graphConfig.circleDimension})px` }} />
         </div>
         <div
-          className={cn('absolute size-1/2', colorClass.text, colorClass.border)}
+          className={cn('absolute size-1/2', colorClass.border)}
           style={{
             borderWidth: graphConfig.lineWidth,
             borderRadius: '4px',
@@ -226,7 +228,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
             right: `25%`,
           }}
         ></div>
-        <div className={cn('absolute flex w-1/2 justify-center text-xs', colorClass.text)}>
+        <div className={cn('absolute flex w-1/2 justify-center text-xs')}>
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
             <SelfLoopLabel transaction={transaction} loop={loop} />
           </div>

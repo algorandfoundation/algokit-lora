@@ -88,6 +88,7 @@ export type SelfLoop = {
   label: Label
   fromVerticalIndex: number
   fromAccountIndex?: number
+  toAccountIndex?: number
 }
 
 export type Point = {
@@ -97,21 +98,32 @@ export type Point = {
   fromAccountIndex?: number
 }
 
+type AssociatedAccount = {
+  accountNumber: number
+  accountAddress: Address
+}
+
+type ClawbackAssociatedAccount = AssociatedAccount & {
+  type: 'Clawback'
+}
+
+type RekeyAssociatedAccount = AssociatedAccount & {
+  type: 'Rekey'
+}
+
 export type AccountVertical = {
   id: number
   accountNumber: number
   type: 'Account'
   accountAddress: Address
+  associatedAccounts: ClawbackAssociatedAccount[]
 }
 export type ApplicationVertical = {
   id: number
   type: 'Application'
   applicationId: ApplicationId
   linkedAccount: { accountNumber: number; accountAddress: Address }
-  rekeyedAccounts: {
-    accountNumber: number
-    accountAddress: Address
-  }[]
+  associatedAccounts: (ClawbackAssociatedAccount | RekeyAssociatedAccount)[]
 }
 export type AssetVertical = {
   id: number

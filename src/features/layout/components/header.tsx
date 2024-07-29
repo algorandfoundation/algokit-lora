@@ -3,7 +3,7 @@ import SvgLoraLight from '@/features/common/components/svg/lora-light'
 import { cn } from '@/features/common/utils'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Search } from '@/features/search/components/search'
-import { useNetworkConfig } from '@/features/settings/data'
+import { useNetworkConfig } from '@/features/network/data'
 import { ConnectWalletButton } from '@/features/wallet/components/connect-wallet-button'
 import { Urls } from '@/routes/urls'
 

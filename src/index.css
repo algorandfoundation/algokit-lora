@@ -120,6 +120,9 @@
 
     --key-registration: 164 144 20;
     --key-registration-foreground: 0 19 36;
+
+    --error: 203 69 83;
+    --error-foreground: 255 255 255;
   }
 }
 

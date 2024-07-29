@@ -360,6 +360,14 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              image: 'ipfs://bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi',
+            }),
+        } as Response)
+      )
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
@@ -429,7 +437,7 @@ describe('asset-page', () => {
     })
   })
 
-  describe('when rendering an ARC16 + ARC-19 asset', () => {
+  describe('when rendering an ARC-16 + ARC-19 asset', () => {
     const assetResult = assetResultMother['mainnet-1820067164']().build()
     const transactionResult = transactionResultMother['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']().build()
 
@@ -539,6 +547,138 @@ describe('asset-page', () => {
                 { term: 'Upper Head', description: 'Scoopy' },
                 { term: 'Eyes', description: 'Coop Brokelys' },
                 { term: 'Ears', description: 'Hoop' },
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an ARC-3 + ARC-69 asset', () => {
+    const assetResult = assetResultMother['mainnet-909935715']().build()
+    const transactionResult = transactionResultMother['mainnet-W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA']().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              name: 'NK 0217',
+              decimals: 0,
+              description: 'Protecting decentralization since 2029. Join the rebellion!',
+              image: 'ipfs://QmSayaiy8H4UhYY5kbgZF5knYqtmfuZkaJ84fx5gpgPSKB',
+              image_integrity: 'sha256-9DLERd+0OFGoETUCebETjjaiPjn8OywsISozPuEgjaU=',
+              image_mimetype: 'image/png',
+              unitName: 'NK 0217',
+              assetName: 'NK 0217',
+              properties: {
+                creator: { name: 'Node Keepers', description: '', address: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4' },
+                royalties: [{ name: 'creator', addr: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4', share: 5 }],
+                collection: { name: 'NODE KEEPERS' },
+                keyWords: [],
+                publisher: 'dartroom.xyz',
+                itemListElement: 1,
+                numberOfItems: 1,
+                arc69: {
+                  standard: 'arc69',
+                  attributes: [
+                    { trait_type: 'backgrounds', value: 'blue' },
+                    { trait_type: 'equpiment', value: 'blank' },
+                    { trait_type: 'skintones', value: 'tanned skin' },
+                    { trait_type: 'neck', value: 'blank' },
+                    { trait_type: 'clothing', value: 'blue nks hoody with m vest' },
+                    { trait_type: 'hair', value: 'red long bob cut' },
+                    { trait_type: 'headsets', value: 'c link' },
+                    { trait_type: 'lips', value: 'normal lips smoking' },
+                  ],
+                },
+              },
+            }),
+        } as Response)
+      )
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '909935715ARC-3ARC-69Pure Non-Fungible' },
+                { term: assetNameLabel, description: 'NK 0217' },
+                { term: assetUnitLabel, description: 'NK 0217' },
+                { term: assetTotalSupplyLabel, description: '1 NK 0217' },
+                { term: assetDecimalsLabel, description: '0' },
+                { term: assetDefaultFrozenLabel, description: 'No' },
+                { term: assetUrlLabel, description: 'ipfs://QmfYFvNon3vfxbwtcetjYc1uZZ1Faw7AsQtSzz45sxXnaj#arc3' },
+              ],
+            })
+
+            const mediaCard = component.getByLabelText(assetMediaLabel)
+            expect(mediaCard.querySelector(`img[src="${ipfsGatewayUrl}QmSayaiy8H4UhYY5kbgZF5knYqtmfuZkaJ84fx5gpgPSKB"]`)).toBeTruthy()
+
+            const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            descriptionListAssertion({
+              container: assetAddressesCard,
+              items: [
+                { term: assetCreatorLabel, description: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4' },
+                { term: assetManagerLabel, description: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4' },
+              ],
+            })
+
+            const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            descriptionListAssertion({
+              container: assetMetadataCard,
+              items: [
+                { term: 'Name', description: 'NK 0217' },
+                { term: 'Decimals', description: '0' },
+                { term: 'Description', description: 'Protecting decentralization since 2029. Join the rebellion!' },
+                { term: 'Image', description: 'ipfs://QmSayaiy8H4UhYY5kbgZF5knYqtmfuZkaJ84fx5gpgPSKB' },
+                { term: 'Image Integrity', description: 'sha256-9DLERd+0OFGoETUCebETjjaiPjn8OywsISozPuEgjaU=' },
+                { term: 'Image Mimetype', description: 'image/png' },
+                { term: 'UnitName', description: 'NK 0217' },
+                { term: 'AssetName', description: 'NK 0217' },
+                { term: 'Standard', description: 'arc69' },
+              ],
+            })
+
+            const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            descriptionListAssertion({
+              container: assetTraitsCard,
+              items: [
+                {
+                  term: 'creator',
+                  description:
+                    '{"name":"Node Keepers","description":"","address":"CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4"}',
+                },
+                {
+                  term: 'royalties',
+                  description: '[{"name":"creator","addr":"CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4","share":5}]',
+                },
+                { term: 'collection', description: '{"name":"NODE KEEPERS"}' },
+                { term: 'keyWords', description: '[]' },
+                { term: 'publisher', description: 'dartroom.xyz' },
+                { term: 'itemListElement', description: '1' },
+                { term: 'numberOfItems', description: '1' },
+                { term: 'background', description: 'blue' },
+                { term: 'equipment', description: 'blank' },
+                { term: 'skintone', description: 'tanned skin' },
+                { term: 'neck', description: 'blank' },
+                { term: 'clothing', description: 'blue nks hoody with m vest' },
+                { term: 'hair', description: 'red long bob cut' },
+                { term: 'headset', description: 'c link' },
+                { term: 'mouth', description: 'smoking mouth' },
               ],
             })
           })
@@ -697,7 +837,7 @@ describe('asset-page', () => {
     })
   })
 
-  describe('when rendering an Arc19 asset with invalid json metadata', () => {
+  describe('when rendering an ARC-19 asset with invalid json metadata', () => {
     const assetResult = assetResultMother['mainnet-1024439078']().build()
     const transactionResult = transactionResultMother.assetConfig().build()
     it('should be rendered with the correct data', () => {

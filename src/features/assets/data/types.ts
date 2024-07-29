@@ -11,7 +11,6 @@ type Arc16MetadataProperties = {
 
 // ARC-3 and ARC-19 share the same metadata structure, which is defined in the ARC-3 spec
 export type Arc3MetadataResult = {
-  standard: AssetMetadataStandard.ARC3
   metadata_url?: string
   metadata: {
     name?: string
@@ -33,21 +32,24 @@ export type Arc3MetadataResult = {
   }
 }
 
+type Arc69Attribute = {
+  trait_type: string
+  value: string | number
+}
+
 export type Arc69MetadataResult = {
-  standard: AssetMetadataStandard.ARC69
   metadata: {
     description?: string
     external_url?: string
     media_url?: string
     properties?: Arc16MetadataProperties
+    attributes?: Arc69Attribute[] // This is deprecated in the ARC-69 spec, but can still be used
     mime_type?: string
     [key: string]: unknown
   }
 }
 
-export enum AssetMetadataStandard {
-  ARC3 = 'ARC-3',
-  ARC69 = 'ARC-69',
-}
-
-export type AssetMetadataResult = Arc3MetadataResult | Arc69MetadataResult | null
+export type AssetMetadataResult = {
+  arc3?: Arc3MetadataResult
+  arc69?: Arc69MetadataResult
+} | null

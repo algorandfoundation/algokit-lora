@@ -1,5 +1,5 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 
 export const appStudioPageTitle = 'App Studio'
 

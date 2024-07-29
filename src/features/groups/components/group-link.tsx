@@ -5,7 +5,7 @@ import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { GroupId } from '../data/types'
 import { ellipseId } from '@/utils/ellipse-id'
-import { useSelectedNetwork } from '@/features/settings/data'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type Props = PropsWithChildren<{
   round: Round

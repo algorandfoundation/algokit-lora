@@ -1,18 +1,19 @@
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { UrlParams } from '@/routes/urls'
-import { networksConfigs, useSelectedNetwork } from '@/features/settings/data'
+import { useNetworkConfigs, useSelectedNetwork } from '@/features/network/data'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 
 type Props = {
   children: React.ReactNode
 }
+
 export function NetworkPage({ children }: Props) {
   const { networkId } = useRequiredParam(UrlParams.NetworkId)
+  const networkConfigs = useNetworkConfigs()
 
   const isWildcardNetworkRoute = networkId === '_'
-  const networkConfig = networksConfigs.find((c) => c.id === networkId)
-  if (!networkConfig && !isWildcardNetworkRoute) {
+  if (!(networkId in networkConfigs) && !isWildcardNetworkRoute) {
     throw new Error(`"${networkId}" is not a valid network.`)
   }
 
