@@ -37,15 +37,16 @@ runs:
         sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.lock"
       shell: bash
 
-    - name: Create a dummy JavaScript file
+    # Create a dummy file to sign, so we can install the signing tools without any errors
+    - name: Create a dummy file to sign
       run: |
         mkdir -p ./dummy
         echo 'console.log("This is a dummy JavaScript file.");' > ./dummy/dummy.js
       shell: bash
 
-    # This step is seting up the trusted signing action to sign a dummy file.
-    # It is needed later on Configure signing for tauri step.
-    - name: Initialize sign executable
+    # This step is setting up the trusted signing action to sign a dummy file.
+    # Used in later steps to sign the tauri binary.
+    - name: Initialise environment for code signing
       uses: azure/trusted-signing-action@v0.3.20
       continue-on-error: true
       with:
@@ -65,7 +66,7 @@ runs:
       shell: bash
       env:
         # This is used to sign the executable using the azure trusted signing before tauri build command.
-        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit'  -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
+        BEFORE_BUNDLE_COMMAND: pwsh -command Invoke-TrustedSigning -Endpoint 'https://weu.codesigning.azure.net/' -CodeSigningAccountName 'algokit-signing' -CertificateProfileName 'algokit' -FilesFolder '${{ github.workspace }}\src-tauri\target\release\deps\' -FilesFolderFilter 'exe' -FileDigest 'SHA256' -timeout '1200' -TimestampRfc3161 'http://timestamp.acs.microsoft.com' -TimestampDigest 'SHA256'
       run: |
         cd "$GITHUB_WORKSPACE"
         cat './src-tauri/tauri.conf.json' | jq '.build += {"beforeBundleCommand": env.BEFORE_BUNDLE_COMMAND}' > './src-tauri/temp.json' && mv './src-tauri/temp.json' './src-tauri/tauri.conf.json'
@@ -94,7 +95,7 @@ runs:
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
 
-    - name: Upload msi as artifact
+    - name: Upload installer artifact
       uses: actions/upload-artifact@v4
       with:
         if-no-files-found: error
