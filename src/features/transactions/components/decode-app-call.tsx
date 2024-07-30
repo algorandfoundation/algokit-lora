@@ -33,9 +33,9 @@ export function DecodeAppCall({ transaction }: Props) {
                 ))}
               </ul>
             </div>
-            {/*<span>*/}
-            {/*  return value: {decodeReturnValueToString(transaction.logs[0])} <br />*/}
-            {/*</span>*/}
+            <span>
+              return value: {parseMethodReturnValue(transaction.abiMethod, transaction)} <br />
+            </span>
           </>
         )
       }}
@@ -49,26 +49,58 @@ const parseMethodArgs = (
   group: Group | undefined
 ) => {
   // Ignore the first arg, which is the method selector
-  const args = transaction.applicationArgs.slice(1)
-  let argIndex = 0
-
-  const transactionArgs = extractTransactionTypeArgs(transaction, group, method)
+  const transactionArgs = transaction.applicationArgs.slice(1)
   let transactionArgIndex = 0
 
+  const transactionTypeArgs = extractTransactionTypeArgs(transaction, group, method)
+  let transactionTypeArgIndex = 0
+
+  // TODO: link to ARC-4
+  const nonTransactionTypeArgs = method.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
+  // TODO: test for transaction arg type
+  // TODO: test for reference arg type
+  const lastTuple: algosdk.ABIValue[] = []
+  if (nonTransactionTypeArgs.length > 15) {
+    const argsEncodedInsideTheLastTuple = nonTransactionTypeArgs.slice(14)
+    const lastTupleType = new algosdk.ABITupleType(
+      argsEncodedInsideTheLastTuple.map((arg) =>
+        // if the arg is a reference type, then it is an uint8
+        // transaction args were filtered out earlier
+        !algosdk.abiTypeIsReference(arg.type) ? (arg.type as algosdk.ABIType) : new algosdk.ABIUintType(8)
+      )
+    )
+    const bytes = convertBase64StringToBytes(transactionArgs[14])
+    lastTuple.push(...lastTupleType.decode(bytes))
+  }
+
   return method.args.map((arg) => {
+    if (transactionArgIndex === 14 && lastTuple.length > 0) {
+      return `${arg.name}: ${lastTuple.shift()}`
+    }
+    // TODO: test account type, application call type
     if (arg.type === ABIReferenceType.asset) {
-      const assetIndex = Number(argToNumber(args[argIndex++], 8))
+      const assetIndex = Number(argToNumber(transactionArgs[transactionArgIndex++], 8))
       return `${arg.name}: ${transaction.foreignAssets[assetIndex]}`
     }
     if (algosdk.abiTypeIsTransaction(arg.type)) {
-      const transaction = transactionArgs[transactionArgIndex++]
+      const transaction = transactionTypeArgs[transactionTypeArgIndex++]
       return `${arg.name}: ${transaction.id}`
     }
 
     const abiType = algosdk.ABIType.from(arg.type.toString())
-    const bytes = convertBase64StringToBytes(args[argIndex++])
+    const bytes = convertBase64StringToBytes(transactionArgs[transactionArgIndex++])
     return `${arg.name}: ${abiType.decode(bytes)}`
   })
+}
+
+const parseMethodReturnValue = (method: algosdk.ABIMethod, transaction: AppCallTransaction | InnerAppCallTransaction) => {
+  if (method.returns.type === 'void') return undefined
+  if (transaction.logs.length === 0) return undefined
+
+  const abiType = algosdk.ABIType.from(method.returns.type.toString())
+  // The first 4 bytes are SHA512_256 hash of the string "return"
+  const bytes = convertBase64StringToBytes(transaction.logs.slice(-1)[0]).subarray(4)
+  return abiType.decode(bytes).toString()
 }
 
 const extractTransactionTypeArgs = (
@@ -89,45 +121,6 @@ const convertBase64StringToBytes = (arg: string) => {
 const argToNumber = (arg: string, size: number) => {
   const bytes = convertBase64StringToBytes(arg)
   return new algosdk.ABIUintType(size).decode(bytes)
-}
-
-const argToByte = (arg: string) => {
-  return argToNumber(arg, 8)
-}
-
-const argToBoolean = (arg: string) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIBoolType().decode(bytes)
-}
-
-const argToUfixed = (arg: string, size: number, denominator: number) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIUfixedType(size, denominator).decode(bytes)
-}
-
-const argToStaticArray = (arg: string, abiType: algosdk.ABIType, size: number) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIArrayStaticType(abiType, size).decode(bytes)
-}
-
-const argToAddress = (arg: string) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIAddressType().decode(bytes)
-}
-
-const argToDynamicArray = (arg: string, abiType: algosdk.ABIType) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIArrayDynamicType(abiType).decode(bytes)
-}
-
-const argToString = (arg: string) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIStringType().decode(bytes)
-}
-
-const argToTuple = (arg: string, abiTypes: algosdk.ABIType[]) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABITupleType(abiTypes).decode(bytes)
 }
 
 // TODO: return value
