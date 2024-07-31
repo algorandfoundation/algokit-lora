@@ -5,7 +5,7 @@ import { Buffer } from 'buffer'
 import { Group } from '@/features/groups/models'
 import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
 import { ABIArgumentType } from 'algosdk/src/abi/method'
-import { ReactNode, useMemo } from 'react'
+import { useMemo } from 'react'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -26,10 +26,10 @@ export function DecodeAppCall({ transaction }: Props) {
           <>
             <span>{transaction.abiMethod.name}(</span>
             <div>
-              <ul>
+              <ul className={'pl-4'}>
                 {parseMethodArgs(transaction.abiMethod, transaction, group).map((arg, index, arr) => (
-                  <li key={index} className={'pl-4'}>
-                    {`${arg}`}
+                  <li key={index}>
+                    {arg}
                     {index < arr.length - 1 ? ', ' : ''}
                   </li>
                 ))}
@@ -117,9 +117,17 @@ const getValueFromString = (
   }
   const abiType = algosdk.ABIType.from(arg.type.toString())
   const bytes = convertBase64StringToBytes(transactionArg)
-  return `${arg.name}: ${abiType.decode(bytes)}`
+  const abiValue = abiType.decode(bytes)
+
+  console.log(arg.type, abiValue)
+  return (
+    <>
+      {arg.name}: <RenderABITypeValue type={arg.type as algosdk.ABIType} value={abiValue} />
+    </>
+  )
 }
 
+// TODO: merge this with getValueFromString
 const getValueFromABIValue = (
   transaction: AppCallTransaction | InnerAppCallTransaction,
   arg: {
@@ -150,7 +158,12 @@ const getValueFromABIValue = (
       return `${arg.name}: ${transaction.foreignApps[applicationIndex - 1]}`
     }
   }
-  return `${arg.name}: ${transactionArg}`
+
+  return (
+    <>
+      {arg.name}: <RenderABITypeValue type={arg.type as algosdk.ABIType} value={transactionArg} />
+    </>
+  )
 }
 
 const parseMethodReturnValue = (method: algosdk.ABIMethod, transaction: AppCallTransaction | InnerAppCallTransaction) => {
