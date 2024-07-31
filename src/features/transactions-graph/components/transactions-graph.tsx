@@ -3,6 +3,8 @@ import { TransactionsGraphData } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { VerticalTitle } from '@/features/transactions-graph/components/vertical-title'
 import { Horizontal } from '@/features/transactions-graph/components/horizontal'
+import html2canvas from 'html2canvas-pro'
+import { useEffect } from 'react'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
@@ -14,6 +16,19 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
   const horizontalTitleWidth = graphConfig.defaultHorizontalTitleWidth + maxNestingLevel * graphConfig.indentationWidth
   const verticalsCount = verticals.length
   const gridTemplateColumns = `minmax(${horizontalTitleWidth}px, ${horizontalTitleWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
+
+  useEffect(() => {
+    html2canvas(document.getElementById('visual-transactions')!, {
+      foreignObjectRendering: false,
+      removeContainer: true,
+      backgroundColor: '#001223',
+    }).then((canvas) => {
+      const dataUrl = canvas.toDataURL()
+      const img = new Image()
+      img.src = dataUrl
+      document.body.appendChild(img)
+    })
+  }, [])
 
   return (
     // Don't change this id value, it's used by a bot Alessandro is building.

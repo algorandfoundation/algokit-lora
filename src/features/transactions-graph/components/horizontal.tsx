@@ -46,7 +46,10 @@ const colorClassMap = {
 function Circle({ className, text }: { className?: string; text?: string | number }) {
   return (
     <div
-      className={cn('inline-flex size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem]', className)}
+      className={cn(
+        'inline-flex relative size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem]',
+        className
+      )}
     >
       {text}
     </div>
