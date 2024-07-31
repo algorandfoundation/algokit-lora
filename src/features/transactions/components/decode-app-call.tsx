@@ -4,6 +4,7 @@ import algosdk, { ABIReferenceType } from 'algosdk'
 import { Buffer } from 'buffer'
 import { Group } from '@/features/groups/models'
 import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
+import { ABIArgumentType } from 'algosdk/src/abi/method'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -22,20 +23,18 @@ export function DecodeAppCall({ transaction }: Props) {
         }
         return (
           <>
-            <span>
-              Method name: {transaction.abiMethod.name} <br />
-            </span>
+            <span>{transaction.abiMethod.name}(</span>
             <div>
-              Arguments:
               <ul>
-                {parseMethodArgs(transaction.abiMethod, transaction, group).map((arg, index) => (
-                  <li key={index}>{`${arg}`}</li>
+                {parseMethodArgs(transaction.abiMethod, transaction, group).map((arg, index, arr) => (
+                  <li key={index} className={'pl-4'}>
+                    {`${arg}`}
+                    {index < arr.length - 1 ? ', ' : ''}
+                  </li>
                 ))}
               </ul>
             </div>
-            <span>
-              return value: {parseMethodReturnValue(transaction.abiMethod, transaction)} <br />
-            </span>
+            <span>): {parseMethodReturnValue(transaction.abiMethod, transaction)}</span>
           </>
         )
       }}
@@ -56,9 +55,8 @@ const parseMethodArgs = (
   let transactionTypeArgIndex = 0
 
   // TODO: link to ARC-4
+  // TODO: handle nested tuples, array in tuple, nested array, long array
   const nonTransactionTypeArgs = method.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
-  // TODO: test for transaction arg type
-  // TODO: test for reference arg type
   const lastTuple: algosdk.ABIValue[] = []
   if (nonTransactionTypeArgs.length > 15) {
     const argsEncodedInsideTheLastTuple = nonTransactionTypeArgs.slice(14)
@@ -74,28 +72,89 @@ const parseMethodArgs = (
   }
 
   return method.args.map((arg) => {
-    if (transactionArgIndex === 14 && lastTuple.length > 0) {
-      return `${arg.name}: ${lastTuple.shift()}`
-    }
-    // TODO: test account type, application call type
-    if (arg.type === ABIReferenceType.asset) {
-      const assetIndex = Number(argToNumber(transactionArgs[transactionArgIndex++], 8))
-      return `${arg.name}: ${transaction.foreignAssets[assetIndex]}`
-    }
     if (algosdk.abiTypeIsTransaction(arg.type)) {
       const transaction = transactionTypeArgs[transactionTypeArgIndex++]
       return `${arg.name}: ${transaction.id}`
     }
-
-    const abiType = algosdk.ABIType.from(arg.type.toString())
-    const bytes = convertBase64StringToBytes(transactionArgs[transactionArgIndex++])
-    return `${arg.name}: ${abiType.decode(bytes)}`
+    if (transactionArgIndex === 14 && lastTuple.length > 0) {
+      return getValueFromABIValue(transaction, arg, lastTuple.shift()!)
+    }
+    return getValueFromString(transaction, arg, transactionArgs[transactionArgIndex++])
   })
 }
 
+const getValueFromString = (
+  transaction: AppCallTransaction | InnerAppCallTransaction,
+  arg: {
+    type: ABIArgumentType
+    name?: string
+    description?: string
+  },
+  transactionArg: string
+) => {
+  if (arg.type === ABIReferenceType.asset) {
+    const assetIndex = Number(argToNumber(transactionArg, 8))
+    return `${arg.name}: ${transaction.foreignAssets[assetIndex]}`
+  }
+  if (arg.type === ABIReferenceType.account) {
+    const accountIndex = Number(argToNumber(transactionArg, 8))
+    // Index 0 of application accounts is the sender
+    if (accountIndex === 0) {
+      return `${arg.name}: ${transaction.sender}`
+    } else {
+      return `${arg.name}: ${transaction.applicationAccounts[accountIndex + 1]}`
+    }
+  }
+  if (arg.type === ABIReferenceType.application) {
+    const applicationIndex = Number(argToNumber(transactionArg, 8))
+    // Index 0 of foreign apps is the called app
+    if (applicationIndex === 0) {
+      return `${arg.name}: ${transaction.applicationId}`
+    } else {
+      return `${arg.name}: ${transaction.foreignApps[applicationIndex + 1]}`
+    }
+  }
+  const abiType = algosdk.ABIType.from(arg.type.toString())
+  const bytes = convertBase64StringToBytes(transactionArg)
+  return `${arg.name}: ${abiType.decode(bytes)}`
+}
+
+const getValueFromABIValue = (
+  transaction: AppCallTransaction | InnerAppCallTransaction,
+  arg: {
+    type: ABIArgumentType
+    name?: string
+    description?: string
+  },
+  transactionArg: algosdk.ABIValue
+) => {
+  if (arg.type === ABIReferenceType.asset) {
+    return `${arg.name}: ${transaction.foreignAssets[Number(transactionArg)]}`
+  }
+  if (arg.type === ABIReferenceType.account) {
+    const accountIndex = Number(transactionArg)
+    // Index 0 of application accounts is the sender
+    if (accountIndex === 0) {
+      return `${arg.name}: ${transaction.sender}`
+    } else {
+      return `${arg.name}: ${transaction.applicationAccounts[accountIndex - 1]}`
+    }
+  }
+  if (arg.type === ABIReferenceType.application) {
+    const applicationIndex = Number(transactionArg)
+    // Index 0 of foreign apps is the called app
+    if (applicationIndex === 0) {
+      return `${arg.name}: ${transaction.applicationId}`
+    } else {
+      return `${arg.name}: ${transaction.foreignApps[applicationIndex - 1]}`
+    }
+  }
+  return `${arg.name}: ${transactionArg}`
+}
+
 const parseMethodReturnValue = (method: algosdk.ABIMethod, transaction: AppCallTransaction | InnerAppCallTransaction) => {
-  if (method.returns.type === 'void') return undefined
-  if (transaction.logs.length === 0) return undefined
+  if (method.returns.type === 'void') return 'void'
+  if (transaction.logs.length === 0) return 'void'
 
   const abiType = algosdk.ABIType.from(method.returns.type.toString())
   // The first 4 bytes are SHA512_256 hash of the string "return"
@@ -122,10 +181,3 @@ const argToNumber = (arg: string, size: number) => {
   const bytes = convertBase64StringToBytes(arg)
   return new algosdk.ABIUintType(size).decode(bytes)
 }
-
-// TODO: return value
-// const returnValueToString = (returnValue: string) => {
-//   const bytes = convertBase64StringToBytes(returnValue)
-//   // The first 4 bytes are SHA512_256 hash of the string "return"
-//   return new algosdk.ABIStringType().decode(bytes.subarray(4))
-// }
