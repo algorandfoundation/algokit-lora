@@ -5,6 +5,7 @@ import { Buffer } from 'buffer'
 import { Group } from '@/features/groups/models'
 import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
 import { ABIArgumentType } from 'algosdk/src/abi/method'
+import { ReactNode, useMemo } from 'react'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -159,8 +160,13 @@ const parseMethodReturnValue = (method: algosdk.ABIMethod, transaction: AppCallT
   const abiType = algosdk.ABIType.from(method.returns.type.toString())
   // The first 4 bytes are SHA512_256 hash of the string "return"
   const bytes = convertBase64StringToBytes(transaction.logs.slice(-1)[0]).subarray(4)
-  return abiType.decode(bytes).toString()
+  const returnedValue = abiType.decode(bytes)
+
+  return <RenderABITypeValue type={abiType} value={returnedValue} />
 }
+
+const isTupleType = (type: algosdk.ABIType) =>
+  type.toString().length > 2 && type.toString().startsWith('(') && type.toString().endsWith(')')
 
 const extractTransactionTypeArgs = (
   transaction: AppCallTransaction | InnerAppCallTransaction,
@@ -181,3 +187,67 @@ const argToNumber = (arg: string, size: number) => {
   const bytes = convertBase64StringToBytes(arg)
   return new algosdk.ABIUintType(size).decode(bytes)
 }
+
+type RenderABIArrayValuesProps = {
+  type: algosdk.ABIArrayStaticType | algosdk.ABIArrayDynamicType
+  values: algosdk.ABIValue[]
+}
+function RenderABIArrayValues({ type, values }: RenderABIArrayValuesProps) {
+  return (
+    <>
+      <>[</>
+      <ul className={'pl-4'}>
+        {values.map((value, index, array) => (
+          <li key={index}>
+            <RenderABITypeValue type={type.childType} value={value} />
+            {index < array.length - 1 ? ',' : ''}
+          </li>
+        ))}
+      </ul>
+      <>]</>
+    </>
+  )
+}
+
+type RenderABITupleValuesProps = {
+  type: algosdk.ABITupleType
+  values: algosdk.ABIValue[]
+}
+function RenderABITupleValues({ type, values }: RenderABITupleValuesProps) {
+  return (
+    <>
+      <>(</>
+      <ul className={'pl-4'}>
+        {values.map((value, index, array) => (
+          <li key={index}>
+            <RenderABITypeValue type={type.childTypes[index]} value={value} />
+            {index < array.length - 1 ? ',' : ''}
+          </li>
+        ))}
+      </ul>
+      <>)</>
+    </>
+  )
+}
+
+type RenderABITypeValueProps = {
+  type: algosdk.ABIType
+  value: algosdk.ABIValue
+}
+function RenderABITypeValue({ type, value }: RenderABITypeValueProps) {
+  return useMemo(() => {
+    if (isTupleType(type)) {
+      return <RenderABITupleValues type={type as algosdk.ABITupleType} values={value as algosdk.ABIValue[]} />
+    }
+    if (isStaticArrayType(type)) {
+      return <RenderABIArrayValues type={type as algosdk.ABIArrayStaticType} values={value as algosdk.ABIValue[]} />
+    }
+    if (isDynamicArrayType(type)) {
+      return <RenderABIArrayValues type={type as algosdk.ABIArrayDynamicType} values={value as algosdk.ABIValue[]} />
+    }
+    return `${value}`
+  }, [type, value])
+}
+
+const isStaticArrayType = (type: algosdk.ABIType) => type.toString().endsWith('[]')
+const isDynamicArrayType = (type: algosdk.ABIType) => type.toString().endsWith(']')
