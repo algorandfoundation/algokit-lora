@@ -10,16 +10,21 @@ import { NetworkFormInner } from '@/features/network/components/network-form-inn
 import { asStorableServiceConfig } from '@/features/settings/mappers'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
-import { replaceAll } from '@/utils/replace-all.ts'
+import { replaceAll } from '@/utils/replace-all'
 import { tokenStorageText } from '@/features/network/components/labels'
 import { Alert } from '@/features/common/components/alert'
+import { Urls } from '@/routes/urls'
 
 type Props = {
   onSuccess: () => void
 }
-
-// All parent routes should be included, so it's not possible to have a route collision.
-const disallowedNetworkIds = ['settings', 'app-studio']
+// Include all parent routes, so it's not possible to have a route collision.
+export const disallowedNetworkIds = Object.values(Urls)
+  .filter((t) => t !== Urls.Index && t !== Urls.Explore)
+  .map((t) => {
+    // We don't use the networkId here, it's simply to keep the type system happy
+    return t.build({ networkId: '_' }).replace('/', '')
+  })
 
 export function CreateNetworkConfigForm({ onSuccess }: Props) {
   const setCustomNetworkConfig = useSetCustomNetworkConfig()

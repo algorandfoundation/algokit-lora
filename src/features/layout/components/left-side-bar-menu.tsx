@@ -5,7 +5,7 @@ import { cn } from '@/features/common/utils'
 import { Button } from '@/features/common/components/button'
 import { useCallback } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
-import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft } from 'lucide-react'
+import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, PiggyBank, Coins, Banknote, HandCoins } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
@@ -26,6 +26,7 @@ export function LeftSideBarMenu({ className }: Props) {
   const menuItems = [
     { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <Braces />, text: 'App Studio' },
+    { urlTemplate: Urls.Fund, icon: <Coins />, text: 'Fund' },
   ]
   const [layout, setLayout] = useLayout()
 
