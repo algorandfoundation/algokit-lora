@@ -56,7 +56,6 @@ const parseMethodArgs = (
   let transactionTypeArgIndex = 0
 
   // TODO: link to ARC-4
-  // TODO: handle nested tuples, array in tuple, nested array, long array
   const nonTransactionTypeArgs = method.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
   const lastTuple: algosdk.ABIValue[] = []
   if (nonTransactionTypeArgs.length > 15) {
