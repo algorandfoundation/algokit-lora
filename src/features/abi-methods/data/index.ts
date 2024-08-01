@@ -46,12 +46,12 @@ export const useSetAppSpec = (applicationId: ApplicationId) => {
       const appSpec = mapJsonToArc32AppSpec(json)
       await setAppSpec({
         applicationId: applicationId,
-        appSpecs: [
+        appSpecVersions: [
           {
             standard: standard,
             validFromRound: validFromRound,
             validUntilRound: validUntilRound,
-            spec: appSpec,
+            appSpec: appSpec,
           },
         ],
       })
