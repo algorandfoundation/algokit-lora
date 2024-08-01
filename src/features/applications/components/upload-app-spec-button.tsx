@@ -14,7 +14,7 @@ export function UploadAppSpecButton({ application }: Props) {
     <>
       <Button variant="default" onClick={() => setDialogOpen(true)}>
         Upload App Spec
-      </Button>{' '}
+      </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         {dialogOpen && (
           <DialogContent className="bg-card">
