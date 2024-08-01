@@ -19,7 +19,7 @@ import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mapper
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
-import { AlgoAppSpec } from '@/features/arc-32/application'
+import { AlgoAppSpec } from '@/features/abi-methods/types/application'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const opUpPrograms = [

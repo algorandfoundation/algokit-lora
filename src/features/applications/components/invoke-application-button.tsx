@@ -14,8 +14,8 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useResolvedTheme } from '@/features/settings/data'
 import { JsonViewStylesDark, JsonViewStylesLight } from '@/features/common/components/json-view-styles'
 import { cn } from '@/features/common/utils'
-import { loadArc32AppSpec } from '@/features/arc-32/load-arc-32'
-import { useSetApplicationArc32AppSpec } from '@/features/applications/data/application-metadata'
+import { useSetAppSpec } from '@/features/abi-methods/data'
+import { mapJsonToAppSpec } from '@/features/abi-methods/mappers'
 
 type Props = {
   application: Application
@@ -66,15 +66,14 @@ type BodyProps = {
   onSuccess: () => void
 }
 function Body({ application, onSuccess }: BodyProps) {
-  const setApplicationArc32AppSpec = useSetApplicationArc32AppSpec()
+  const setAppSpec = useSetAppSpec(application.id)
 
   const save = useCallback(
     async (values: z.infer<typeof addAppSpecFormSchema>) => {
       const content = await readFile(values.file)
-      const arc32AppSpec = loadArc32AppSpec(JSON.parse(content as string))
-      setApplicationArc32AppSpec(application.id, arc32AppSpec)
+      setAppSpec(JSON.parse(content as string))
     },
-    [application.id, setApplicationArc32AppSpec]
+    [setAppSpec]
   )
 
   return (
@@ -106,7 +105,7 @@ function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof addAppSp
     ;(async () => {
       if (file) {
         const content = await readFile(file!)
-        const arc32AppSpec = loadArc32AppSpec(JSON.parse(content as string))
+        const arc32AppSpec = mapJsonToAppSpec(JSON.parse(content as string))
         setJson(arc32AppSpec)
       }
     })()

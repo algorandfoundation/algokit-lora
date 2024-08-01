@@ -5,7 +5,6 @@ import { AssetId } from '@/features/assets/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AssetSummary } from '@/features/assets/models'
-import { AlgoAppSpec as Arc32AppSpec } from '@/features/arc-32/application'
 
 export type TransactionsGraphData = {
   horizontals: Horizontal[]
@@ -15,8 +14,6 @@ export type TransactionsGraphData = {
 export type Horizontal = {
   ancestors: Horizontal[]
   transaction: Transaction | InnerTransaction
-  // TODO: this is hacky, this field should be only for app call transactions
-  appSpec?: Arc32AppSpec
   representation: Representation
   hasNextSibling: boolean
   depth: number

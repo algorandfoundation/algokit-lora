@@ -1,9 +1,9 @@
+import { AlgoAppSpec } from '@/features/abi-methods/types/application'
 import { Schema, Validator } from 'jsonschema'
-import { AlgoAppSpec } from './application'
-import appJsonSchema from './application.schema.json' with { type: 'json' }
-import contractSchema from './contract.schema.json' with { type: 'json' }
+import contractSchema from '@/features/abi-methods/types/contract.schema.json'
+import appJsonSchema from '@/features/abi-methods/types/application.schema.json'
 
-export function loadArc32AppSpec(json: unknown): AlgoAppSpec {
+export const mapJsonToAppSpec = (json: unknown): AlgoAppSpec => {
   const validator = new Validator()
   validator.addSchema(contractSchema, '/contract.schema.json')
 

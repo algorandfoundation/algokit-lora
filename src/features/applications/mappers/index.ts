@@ -34,7 +34,6 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
     globalState: asGlobalStateValue(application.params['global-state']),
     isDeleted: application.deleted ?? false,
     json: asJson(application),
-    methods: metadata?.methods ?? [],
   }
 }
 

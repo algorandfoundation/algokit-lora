@@ -93,8 +93,8 @@ function VectorLabel({ transaction, vector }: { transaction: Transaction | Inner
         // TODO: style, truncate if too long
         // TODO: do the same for other types
       }
-      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && transaction.methodName && (
-        <div>{transaction.methodName}</div>
+      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && transaction.abiMethod?.name && (
+        <div>{transaction.abiMethod.name}</div>
       )}
       {(vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) && (
         <DisplayAlgo className="flex justify-center" amount={vector.label.amount} short={true} />

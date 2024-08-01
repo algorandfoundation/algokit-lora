@@ -7,7 +7,7 @@ import { asTransaction } from '../mappers/transaction-mappers'
 import { assetSummaryResolver } from '@/features/assets/data'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { getTransactionResultAtom } from './transaction-result'
-import { appSpecResolverBuilder } from '@/features/arc-32/app-spec-resolver'
+import { appSpecResolverBuilder } from '@/features/abi-methods/app-spec-resolver'
 
 export const createInnerTransactionAtom = (
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,

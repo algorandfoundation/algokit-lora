@@ -12,7 +12,7 @@ import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { AlgoAppSpec } from '@/features/arc-32/application'
+import { AlgoAppSpec } from '@/features/abi-methods/types/application'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
