@@ -144,7 +144,7 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
   logs: string[]
-  abiMethod?: algosdk.ABIMethod
+  abiMethod: AsyncMaybeAtom<algosdk.ABIMethod | undefined>
 }
 
 export type AppCallTransaction = BaseAppCallTransaction & {

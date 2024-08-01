@@ -1,5 +1,5 @@
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
-import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { Horizontal as HorizontalModel, LabelType, Point, RepresentationType, SelfLoop, Vector, Vertical } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
@@ -18,6 +18,7 @@ import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/c
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
+import { useAtomValue } from 'jotai'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -83,6 +84,11 @@ function VectorLabelText({ type }: { type: LabelType }) {
   return undefined
 }
 
+function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
+  const abiMethod = useAtomValue(transaction.abiMethod)
+  return abiMethod ? <div>{abiMethod?.name}</div> : null
+}
+
 function VectorLabel({ transaction, vector }: { transaction: Transaction | InnerTransaction; vector: Vector }) {
   const colorClass = colorClassMap[transaction.type]
 
@@ -93,8 +99,8 @@ function VectorLabel({ transaction, vector }: { transaction: Transaction | Inner
         // TODO: style, truncate if too long
         // TODO: do the same for other types
       }
-      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && transaction.abiMethods?.arc32?.name && (
-        <div>{transaction.abiMethod.name}</div>
+      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && (
+        <AppCallAbiMethodName transaction={transaction} />
       )}
       {(vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) && (
         <DisplayAlgo className="flex justify-center" amount={vector.label.amount} short={true} />

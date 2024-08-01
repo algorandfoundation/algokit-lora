@@ -12,6 +12,7 @@ import { transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { DecodeAppCall } from '@/features/transactions/components/decode-app-call'
 import { isDefined } from '@/utils/is-defined'
+import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -37,6 +38,7 @@ export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
+  const abiMethod = useAtomValue(transaction.abiMethod)
   const items = useMemo(
     () => [
       {
@@ -57,7 +59,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
   const tabs = useMemo(
     () =>
       [
-        transaction.abiMethods
+        abiMethod
           ? {
               id: decodeAppCallTabId,
               label: decodeAppCallTabLabel,
@@ -95,7 +97,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
           children: <LocalStateDeltas transaction={transaction} />,
         },
       ].filter(isDefined),
-    [transaction]
+    [abiMethod, transaction]
   )
 
   return (
@@ -104,7 +106,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         <h2>Application Call</h2>
       </div>
       <DescriptionList items={items} />
-      <Tabs defaultValue={transaction.abiMethods ? decodeAppCallTabId : applicationArgsTabId}>
+      <Tabs defaultValue={abiMethod ? decodeAppCallTabId : applicationArgsTabId}>
         <TabsList aria-label={appCallTransactionDetailsLabel}>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} className="w-44" value={tab.id}>

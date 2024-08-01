@@ -6,12 +6,14 @@ import { Group } from '@/features/groups/models'
 import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
 import { ABIArgumentType } from 'algosdk/src/abi/method'
 import { useMemo } from 'react'
+import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
 }
 
 export function DecodeAppCall({ transaction }: Props) {
+  const abiMethod = useAtomValue(transaction.abiMethod)
   const loadableGroup = useLoadableMaybeGroup(transaction.confirmedRound, transaction.group)
   return (
     <RenderLoadable loadable={loadableGroup}>
@@ -19,15 +21,15 @@ export function DecodeAppCall({ transaction }: Props) {
         if (transaction.applicationArgs.length === 0) {
           return <span>No application args.</span>
         }
-        if (!transaction.abiMethods) {
+        if (!abiMethod) {
           return <span>Can't detect, maybe not ARC-32</span>
         }
         return (
           <>
-            <span>{transaction.abiMethods.name}(</span>
+            <span>{abiMethod.name}(</span>
             <div>
               <ul className={'pl-4'}>
-                {parseMethodArgs(transaction.abiMethods, transaction, group).map((arg, index, arr) => (
+                {parseMethodArgs(abiMethod, transaction, group).map((arg, index, arr) => (
                   <li key={index}>
                     {arg}
                     {index < arr.length - 1 ? ', ' : ''}
@@ -35,7 +37,7 @@ export function DecodeAppCall({ transaction }: Props) {
                 ))}
               </ul>
             </div>
-            <span>): {parseMethodReturnValue(transaction.abiMethods, transaction)}</span>
+            <span>): {parseMethodReturnValue(abiMethod, transaction)}</span>
           </>
         )
       }}

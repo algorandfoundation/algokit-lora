@@ -1,25 +1,61 @@
-import { MiniDb } from 'jotai-minidb'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useSetAtom } from 'jotai'
 import { mapJsonToArc32AppSpec } from '@/features/abi-methods/mappers'
 import { useCallback } from 'react'
-import { AppSpec } from '@/features/abi-methods/models'
+import { atomFamily, atomWithStorage } from 'jotai/utils'
+import { dataStore } from '@/features/common/data/data-store'
+import { dbAtom } from '@/features/common/data/indexed-db'
+import { ApplicationAppSpecs } from '@/features/abi-methods/data/types'
 
-export const appSpecsMiniDb = new MiniDb<AppSpec>({ name: 'app-specs' })
+// TODO: test getOnInit
+export const applicationsAppSpecsAtom = atomFamily(
+  (applicationId: ApplicationId) =>
+    atomWithStorage<ApplicationAppSpecs | undefined>(applicationId.toString(), undefined, {
+      setItem: async (key, value) => {
+        if (!value) return
+        const db = await dataStore.get(dbAtom)
+        await db.put('applications-app-specs', value, key)
+      },
+      getItem: async (key: string) => {
+        const db = await dataStore.get(dbAtom)
+        return await db.get('applications-app-specs', key)
+      },
+      removeItem: async (key: string) => {
+        const db = await dataStore.get(dbAtom)
+        await db.delete('applications-app-specs', key)
+      },
+    }),
+  (appId1, appId2) => appId1.toString() === appId2.toString()
+)
 
-export const useSetAppSpec = (applicationId: ApplicationId, standard: 'ARC-32') => {
-  const setAppSpec = useSetAtom(appSpecsMiniDb.item(applicationId.toString()))
+export const useSetAppSpec = (applicationId: ApplicationId) => {
+  const setAppSpec = useSetAtom(applicationsAppSpecsAtom(applicationId))
 
   return useCallback(
-    (json: unknown) => {
-      setAppSpec((prev) => {
-        // Currently we only support ARC-32
-        if (standard === 'ARC-32') {
-          return { ...prev, arc32: mapJsonToArc32AppSpec(json) }
-        }
-        throw new Error(`Unknown standard ${standard}`)
+    async ({
+      standard,
+      validFromRound,
+      validUntilRound,
+      json,
+    }: {
+      standard: 'ARC-32'
+      json: unknown
+      validFromRound?: number
+      validUntilRound?: number
+    }) => {
+      const appSpec = mapJsonToArc32AppSpec(json)
+      await setAppSpec({
+        applicationId: applicationId,
+        appSpecs: [
+          {
+            standard: standard,
+            validFromRound: validFromRound,
+            validUntilRound: validUntilRound,
+            spec: appSpec,
+          },
+        ],
       })
     },
-    [setAppSpec, standard]
+    [applicationId, setAppSpec]
   )
 }

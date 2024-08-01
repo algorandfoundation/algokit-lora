@@ -6,12 +6,12 @@ import { TransactionId } from './types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { getTransactionResultAtom } from './transaction-result'
 import { assetSummaryResolver } from '@/features/assets/data/asset-summary'
-import { appSpecResolverBuilder } from '@/features/abi-methods/app-spec-resolver-builder'
+import { abiMethodResolver } from '@/features/abi-methods/abi-method-resolver'
 
 export const createTransactionsAtom = (transactionResults: TransactionResult[]) => {
-  return atom((get) => {
+  return atom((_) => {
     return transactionResults.map((transactionResult) => {
-      return asTransaction(transactionResult, assetSummaryResolver, appSpecResolverBuilder(get))
+      return asTransaction(transactionResult, assetSummaryResolver, abiMethodResolver)
     })
   })
 }
@@ -19,7 +19,7 @@ export const createTransactionsAtom = (transactionResults: TransactionResult[]) 
 export const createTransactionAtom = (transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    return asTransaction(txn, assetSummaryResolver, appSpecResolverBuilder(get))
+    return asTransaction(txn, assetSummaryResolver, abiMethodResolver)
   })
 }
 

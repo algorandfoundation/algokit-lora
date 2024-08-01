@@ -8,9 +8,8 @@ export function TransactionTypeDescriptionDetails({ transaction }: { transaction
       {transaction.subType && <Badge variant="outline">{transaction.subType}</Badge>}
       {transaction.type === TransactionType.AppCall && transaction.isOpUp && <Badge variant="outline">OpUp</Badge>}
       {
-        // TODO: style this
+        // TODO: show abi method name as an item
       }
-      {transaction.type === TransactionType.AppCall && transaction.abiMethod && <span>{transaction.abiMethod.name}</span>}
       {transaction.signature?.type === SignatureType.Multi && <Badge variant="outline">Multisig</Badge>}
       {transaction.signature?.type === SignatureType.Logic && <Badge variant="outline">LogicSig</Badge>}
       {transaction.rekeyTo && <Badge variant="outline">Rekey</Badge>}
