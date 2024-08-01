@@ -19,15 +19,15 @@ export function DecodeAppCall({ transaction }: Props) {
         if (transaction.applicationArgs.length === 0) {
           return <span>No application args.</span>
         }
-        if (!transaction.abiMethod) {
+        if (!transaction.abiMethods) {
           return <span>Can't detect, maybe not ARC-32</span>
         }
         return (
           <>
-            <span>{transaction.abiMethod.name}(</span>
+            <span>{transaction.abiMethods.name}(</span>
             <div>
               <ul className={'pl-4'}>
-                {parseMethodArgs(transaction.abiMethod, transaction, group).map((arg, index, arr) => (
+                {parseMethodArgs(transaction.abiMethods, transaction, group).map((arg, index, arr) => (
                   <li key={index}>
                     {arg}
                     {index < arr.length - 1 ? ', ' : ''}
@@ -35,7 +35,7 @@ export function DecodeAppCall({ transaction }: Props) {
                 ))}
               </ul>
             </div>
-            <span>): {parseMethodReturnValue(transaction.abiMethod, transaction)}</span>
+            <span>): {parseMethodReturnValue(transaction.abiMethods, transaction)}</span>
           </>
         )
       }}

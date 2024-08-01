@@ -1,9 +1,9 @@
 import { Getter } from 'jotai'
-import { AlgoAppSpec } from './types/application'
 import { appSpecsMiniDb } from '@/features/abi-methods/data'
+import { AppSpec } from '@/features/abi-methods/models'
 
 export const appSpecResolverBuilder =
   (get: Getter) =>
-  (appId: number): AlgoAppSpec | undefined => {
+  (appId: number): AppSpec | undefined => {
     return get(appSpecsMiniDb.item(appId.toString()))
   }

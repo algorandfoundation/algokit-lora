@@ -19,7 +19,7 @@ type UploadAppSpecFormProps = {
 }
 
 export function UploadAppSpecForm({ application, onSuccess }: UploadAppSpecFormProps) {
-  const setAppSpec = useSetAppSpec(application.id)
+  const setAppSpec = useSetAppSpec(application.id, 'ARC-32')
 
   const save = useCallback(
     async (values: z.infer<typeof addAppSpecFormSchema>) => {

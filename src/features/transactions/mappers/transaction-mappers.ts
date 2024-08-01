@@ -12,12 +12,12 @@ import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { AlgoAppSpec } from '@/features/abi-methods/types/application'
+import { AppSpec } from '@/features/abi-methods/models'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  appSpecResolver: (applicationId: number) => AlgoAppSpec | undefined
+  appSpecResolver: (applicationId: number) => AppSpec | undefined
 ) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:

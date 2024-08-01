@@ -93,7 +93,7 @@ function VectorLabel({ transaction, vector }: { transaction: Transaction | Inner
         // TODO: style, truncate if too long
         // TODO: do the same for other types
       }
-      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && transaction.abiMethod?.name && (
+      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && transaction.abiMethods?.arc32?.name && (
         <div>{transaction.abiMethod.name}</div>
       )}
       {(vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) && (

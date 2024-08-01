@@ -57,7 +57,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
   const tabs = useMemo(
     () =>
       [
-        transaction.abiMethod
+        transaction.abiMethods
           ? {
               id: decodeAppCallTabId,
               label: decodeAppCallTabLabel,
@@ -104,7 +104,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
         <h2>Application Call</h2>
       </div>
       <DescriptionList items={items} />
-      <Tabs defaultValue={transaction.abiMethod ? decodeAppCallTabId : applicationArgsTabId}>
+      <Tabs defaultValue={transaction.abiMethods ? decodeAppCallTabId : applicationArgsTabId}>
         <TabsList aria-label={appCallTransactionDetailsLabel}>
           {tabs.map((tab) => (
             <TabsTrigger key={tab.id} className="w-44" value={tab.id}>

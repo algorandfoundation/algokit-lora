@@ -6,7 +6,7 @@ import { TransactionId } from './types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { getTransactionResultAtom } from './transaction-result'
 import { assetSummaryResolver } from '@/features/assets/data/asset-summary'
-import { appSpecResolverBuilder } from '@/features/abi-methods/app-spec-resolver'
+import { appSpecResolverBuilder } from '@/features/abi-methods/app-spec-resolver-builder'
 
 export const createTransactionsAtom = (transactionResults: TransactionResult[]) => {
   return atom((get) => {
