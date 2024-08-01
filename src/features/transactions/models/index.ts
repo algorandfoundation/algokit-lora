@@ -5,6 +5,7 @@ import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { GroupId } from '@/features/groups/data/types'
 import algosdk from 'algosdk'
+import { Atom } from 'jotai/index'
 
 export type CommonTransactionProperties = {
   type: TransactionType
@@ -144,7 +145,7 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
   logs: string[]
-  abiMethod: AsyncMaybeAtom<algosdk.ABIMethod | undefined>
+  abiMethod: Atom<Promise<algosdk.ABIMethod | undefined>>
 }
 
 export type AppCallTransaction = BaseAppCallTransaction & {

@@ -1,11 +1,10 @@
-import { atom } from 'jotai'
+import { Atom, atom } from 'jotai'
 import { applicationsAppSpecsAtom } from '@/features/abi-methods/data'
 import algosdk, { TransactionType } from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
-export const abiMethodResolver = (transaction: TransactionResult): AsyncMaybeAtom<algosdk.ABIMethod | undefined> => {
+export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
   return atom(async (get) => {
     if (transaction['tx-type'] !== TransactionType.appl || !transaction['application-transaction']) return undefined
 

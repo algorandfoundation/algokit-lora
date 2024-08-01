@@ -120,7 +120,6 @@ const getValueFromString = (
   const bytes = convertBase64StringToBytes(transactionArg)
   const abiValue = abiType.decode(bytes)
 
-  console.log(arg.type, abiValue)
   return (
     <>
       {arg.name}: <RenderABITypeValue type={arg.type as algosdk.ABIType} value={abiValue} />
