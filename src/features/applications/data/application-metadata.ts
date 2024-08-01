@@ -7,9 +7,8 @@ import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { parseArc2 } from '@/features/transactions/mappers/arc-2'
 import { parseJson } from '@/utils/parse-json'
 import { indexer } from '@/features/common/data/algo-client'
-import { atom } from 'jotai'
 
-const getApplicationMetadataResult = atom(null, async (_get, _, applicationResult: ApplicationResult) => {
+const getApplicationMetadataResult = async (applicationResult: ApplicationResult): Promise<ApplicationMetadataResult> => {
   // We only need to fetch the first page to find the application creation transaction
   const transactionResults = await indexer
     .searchForTransactions()
@@ -26,24 +25,15 @@ const getApplicationMetadataResult = atom(null, async (_get, _, applicationResul
   const text = base64ToUtf8(creationTransaction.note ?? '')
 
   const maybeArc2 = parseArc2(text)
-
-  let name = ''
-
   if (maybeArc2 && maybeArc2.format === 'j') {
     const arc2Data = parseJson(maybeArc2.data)
     if (arc2Data && 'name' in arc2Data) {
-      name = arc2Data.name
+      return { name: arc2Data.name }
     }
   }
 
-  if (name) {
-    return {
-      name,
-    } satisfies ApplicationMetadataResult
-  } else {
-    return null
-  }
-})
+  return null
+}
 
 export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] = atomsInAtom(
   getApplicationMetadataResult,
