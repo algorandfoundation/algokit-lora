@@ -15,6 +15,8 @@ import { algoAssetResult } from '@/features/assets/data'
 import { atom } from 'jotai'
 import { invariant } from '@/utils/invariant'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
+import { Atom } from 'jotai/index'
+import algosdk from 'algosdk'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -118,7 +120,7 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults))
+        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults), createAbiMethodResolver())
         const graphData = asTransactionsGraphData([model])
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
@@ -216,7 +218,7 @@ describe('group-graph', () => {
     }) => {
       it('should match snapshot', () => {
         const assetResolver = createAssetResolver(assetResults)
-        const transactions = transactionResults.map((t) => asTransaction(t, assetResolver))
+        const transactions = transactionResults.map((t) => asTransaction(t, assetResolver, createAbiMethodResolver()))
         const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()
 
         const group = asGroup(groupResult, transactions)
@@ -240,3 +242,9 @@ const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) =
   invariant(assetResult, `Could not find asset result ${assetId}`)
   return atom(() => asAssetSummary(assetResult))
 }
+
+const createAbiMethodResolver =
+  () =>
+  (_: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
+    return atom(() => Promise.resolve(undefined))
+  }

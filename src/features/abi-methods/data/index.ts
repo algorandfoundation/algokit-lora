@@ -7,7 +7,7 @@ import { dataStore } from '@/features/common/data/data-store'
 import { dbAtom } from '@/features/common/data/indexed-db'
 import { ApplicationAppSpecs } from '@/features/abi-methods/data/types'
 
-// TODO: test getOnInit
+// TODO: review this, maybe use atoms-in-atom
 export const applicationsAppSpecsAtom = atomFamily(
   (applicationId: ApplicationId) =>
     atomWithStorage<ApplicationAppSpecs | undefined>(
