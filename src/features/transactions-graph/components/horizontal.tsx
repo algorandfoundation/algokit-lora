@@ -85,7 +85,11 @@ function VectorLabelText({ type }: { type: LabelType }) {
 }
 
 function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
-  return <RenderInlineAsyncAtom atom={transaction.abiMethod}>{(abiMethod) => <div>{abiMethod?.name}</div>}</RenderInlineAsyncAtom>
+  return (
+    <RenderInlineAsyncAtom atom={transaction.abiMethod}>
+      {(abiMethod) => <div className="overflow-y-hidden text-ellipsis">{abiMethod?.name}</div>}
+    </RenderInlineAsyncAtom>
+  )
 }
 
 function VectorLabel({ transaction, vector }: { transaction: Transaction | InnerTransaction; vector: Vector }) {
@@ -94,10 +98,6 @@ function VectorLabel({ transaction, vector }: { transaction: Transaction | Inner
   return (
     <>
       <VectorLabelText type={vector.label.type} />
-      {
-        // TODO: style, truncate if too long
-        // TODO: do the same for other types
-      }
       {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && (
         <AppCallAbiMethodName transaction={transaction} />
       )}
@@ -124,6 +124,9 @@ function SelfLoopLabel({ transaction, loop }: { transaction: Transaction | Inner
   return (
     <>
       <VectorLabelText type={loop.label.type} />
+      {loop.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && (
+        <AppCallAbiMethodName transaction={transaction} />
+      )}
       {(loop.label.type === LabelType.Payment || loop.label.type === LabelType.PaymentTransferRemainder) && (
         <DisplayAlgo className={cn('flex justify-center')} amount={loop.label.amount} short={true} />
       )}
@@ -187,7 +190,7 @@ const RenderTransactionVector = fixedForwardRef(
           {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
         </div>
         <div className="absolute flex justify-center">
-          <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
+          <div className={cn('z-20 bg-card p-0.5 text-xs text-center max-w-[65%]')}>
             <VectorLabel transaction={transaction} vector={vector} />
           </div>
         </div>

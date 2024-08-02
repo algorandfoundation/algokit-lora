@@ -12,7 +12,7 @@ type Props = {
   abiMethod: algosdk.ABIMethod | undefined
 }
 
-export function DecodeAppCall({ transaction, abiMethod }: Props) {
+export function DecodedAbiMethod({ transaction, abiMethod }: Props) {
   const loadableGroup = useLoadableMaybeGroup(transaction.confirmedRound, transaction.group)
   return (
     <RenderLoadable loadable={loadableGroup}>
@@ -24,7 +24,7 @@ export function DecodeAppCall({ transaction, abiMethod }: Props) {
           return <span>Can't detect, maybe not ARC-32</span>
         }
         return (
-          <>
+          <div className="h-[450px] overflow-x-scroll">
             <span>{abiMethod.name}(</span>
             <div>
               <ul className={'pl-4'}>
@@ -37,7 +37,7 @@ export function DecodeAppCall({ transaction, abiMethod }: Props) {
               </ul>
             </div>
             <span>): {parseMethodReturnValue(abiMethod, transaction)}</span>
-          </>
+          </div>
         )
       }}
     </RenderLoadable>

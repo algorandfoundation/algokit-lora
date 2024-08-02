@@ -10,7 +10,7 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { DecodeAppCall } from '@/features/transactions/components/decode-app-call'
+import { DecodedAbiMethod } from '@/features/transactions/components/decoded-abi-method'
 import { isDefined } from '@/utils/is-defined'
 import { useAtomValue } from 'jotai'
 import algosdk from 'algosdk'
@@ -27,7 +27,7 @@ const foreignApplicationsTabId = 'foreign-applications'
 const foreignAssetsTabId = 'foreign-assets'
 const globalStateDeltaTabId = 'global-state'
 const localStateDeltaTabId = 'local-state'
-const decodeAppCallTabId = 'decode-app-call'
+const decodedAbiMethodTabId = 'decode-app-call'
 
 export const applicationArgsTabLabel = 'Application Args'
 export const foreignAccountsTabLabel = 'Foreign Accounts'
@@ -35,42 +35,58 @@ export const foreignApplicationsTabLabel = 'Foreign Applications'
 export const foreignAssetsTabLabel = 'Foreign Assets'
 export const globalStateDeltaTabLabel = 'Global State Delta'
 export const localStateDeltaTabLabel = 'Local State Delta'
-export const decodeAppCallTabLabel = 'Decode App Call'
-
+export const decodedAbiMethodTabLabel = 'Decoded ABI Method'
+export const abiMethodNameLabel = 'ABI Method Name'
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
   const loadableAbiMethod = useAtomValue(loadable(transaction.abiMethod))
-  const items = useMemo(
-    () => [
-      {
-        dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
-      },
-      {
-        dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
-      },
-      {
-        dt: onCompletionLabel,
-        dd: transaction.onCompletion,
-      },
-    ],
-    [transaction.applicationId, transaction.onCompletion, transaction.sender]
-  )
 
   return (
     <div className={cn('space-y-2')}>
       <div className={cn('flex items-center justify-between')}>
         <h2>Application Call</h2>
       </div>
-      <DescriptionList items={items} />
       <RenderLoadable loadable={loadableAbiMethod}>
-        {(abiMethod) => <AppCallTransactionTabs transaction={transaction} abiMethod={abiMethod} />}
+        {(abiMethod) => (
+          <>
+            <AppCallDescriptionList transaction={transaction} abiMethod={abiMethod} />
+            <AppCallTransactionTabs transaction={transaction} abiMethod={abiMethod} />
+          </>
+        )}
       </RenderLoadable>
     </div>
   )
+}
+
+function AppCallDescriptionList({
+  transaction,
+  abiMethod,
+}: {
+  transaction: AppCallTransaction | InnerAppCallTransaction
+  abiMethod: algosdk.ABIMethod | undefined
+}) {
+  const items = useMemo(
+    () =>
+      [
+        {
+          dt: transactionSenderLabel,
+          dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+        },
+        {
+          dt: applicationIdLabel,
+          dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
+        },
+        ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
+        {
+          dt: onCompletionLabel,
+          dd: transaction.onCompletion,
+        },
+      ].filter(isDefined),
+    [abiMethod, transaction.applicationId, transaction.onCompletion, transaction.sender]
+  )
+  return <DescriptionList items={items} />
 }
 
 function AppCallTransactionTabs({
@@ -85,9 +101,9 @@ function AppCallTransactionTabs({
       [
         abiMethod
           ? {
-              id: decodeAppCallTabId,
-              label: decodeAppCallTabLabel,
-              children: <DecodeAppCall transaction={transaction} abiMethod={abiMethod} />,
+              id: decodedAbiMethodTabId,
+              label: decodedAbiMethodTabLabel,
+              children: <DecodedAbiMethod transaction={transaction} abiMethod={abiMethod} />,
             }
           : undefined,
         {
@@ -125,7 +141,7 @@ function AppCallTransactionTabs({
   )
 
   return (
-    <Tabs defaultValue={abiMethod ? decodeAppCallTabId : applicationArgsTabId}>
+    <Tabs defaultValue={abiMethod ? decodedAbiMethodTabId : applicationArgsTabId}>
       <TabsList aria-label={appCallTransactionDetailsLabel}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} className="w-44" value={tab.id}>
