@@ -4,7 +4,6 @@ import algosdk, { ABIReferenceType } from 'algosdk'
 import { Buffer } from 'buffer'
 import { Group } from '@/features/groups/models'
 import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
-import { ABIArgumentType } from 'algosdk/src/abi/method'
 import { useMemo } from 'react'
 
 type Props = {
@@ -56,9 +55,9 @@ const parseMethodArgs = (
   const transactionTypeArgs = extractTransactionTypeArgs(transaction, group, method)
   let transactionTypeArgIndex = 0
 
-  // TODO: link to ARC-4
   const nonTransactionTypeArgs = method.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
-  const lastTuple: algosdk.ABIValue[] = []
+  // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
+  const argsBeyond15thTuple: algosdk.ABIValue[] = []
   if (nonTransactionTypeArgs.length > 15) {
     const argsEncodedInsideTheLastTuple = nonTransactionTypeArgs.slice(14)
     const lastTupleType = new algosdk.ABITupleType(
@@ -69,7 +68,7 @@ const parseMethodArgs = (
       )
     )
     const bytes = convertBase64StringToBytes(transactionArgs[14])
-    lastTuple.push(...lastTupleType.decode(bytes))
+    argsBeyond15thTuple.push(...lastTupleType.decode(bytes))
   }
 
   return method.args.map((arg) => {
@@ -77,63 +76,27 @@ const parseMethodArgs = (
       const transaction = transactionTypeArgs[transactionTypeArgIndex++]
       return `${arg.name}: ${transaction.id}`
     }
-    if (transactionArgIndex === 14 && lastTuple.length > 0) {
-      return getValueFromABIValue(transaction, arg, lastTuple.shift()!)
-    }
-    return getValueFromString(transaction, arg, transactionArgs[transactionArgIndex++])
+
+    const abiValue =
+      transactionArgIndex === 14 && argsBeyond15thTuple.length > 0
+        ? argsBeyond15thTuple.shift()!
+        : getAbiValueForTransactionArg(arg, transactionArgs[transactionArgIndex++])
+    return getValueFromABIValue(transaction, arg, abiValue)
   })
 }
 
-const getValueFromString = (
-  transaction: AppCallTransaction | InnerAppCallTransaction,
-  arg: {
-    type: ABIArgumentType
-    name?: string
-    description?: string
-  },
-  transactionArg: string
-) => {
-  if (arg.type === ABIReferenceType.asset) {
-    const assetIndex = Number(argToNumber(transactionArg, 8))
-    return `${arg.name}: ${transaction.foreignAssets[assetIndex]}`
-  }
-  if (arg.type === ABIReferenceType.account) {
-    const accountIndex = Number(argToNumber(transactionArg, 8))
-    // Index 0 of application accounts is the sender
-    if (accountIndex === 0) {
-      return `${arg.name}: ${transaction.sender}`
-    } else {
-      return `${arg.name}: ${transaction.applicationAccounts[accountIndex + 1]}`
-    }
-  }
-  if (arg.type === ABIReferenceType.application) {
-    const applicationIndex = Number(argToNumber(transactionArg, 8))
-    // Index 0 of foreign apps is the called app
-    if (applicationIndex === 0) {
-      return `${arg.name}: ${transaction.applicationId}`
-    } else {
-      return `${arg.name}: ${transaction.foreignApps[applicationIndex + 1]}`
-    }
+const getAbiValueForTransactionArg = (arg: algosdk.ABIMethod['args'][0], transactionArg: string) => {
+  const bytes = convertBase64StringToBytes(transactionArg)
+  if (arg.type === ABIReferenceType.asset || arg.type === ABIReferenceType.application || arg.type === ABIReferenceType.account) {
+    return new algosdk.ABIUintType(8).decode(bytes)
   }
   const abiType = algosdk.ABIType.from(arg.type.toString())
-  const bytes = convertBase64StringToBytes(transactionArg)
-  const abiValue = abiType.decode(bytes)
-
-  return (
-    <>
-      {arg.name}: <RenderABITypeValue type={arg.type as algosdk.ABIType} value={abiValue} />
-    </>
-  )
+  return abiType.decode(bytes)
 }
 
-// TODO: merge this with getValueFromString
 const getValueFromABIValue = (
   transaction: AppCallTransaction | InnerAppCallTransaction,
-  arg: {
-    type: ABIArgumentType
-    name?: string
-    description?: string
-  },
+  arg: algosdk.ABIMethod['args'][0],
   transactionArg: algosdk.ABIValue
 ) => {
   if (arg.type === ABIReferenceType.asset) {
@@ -195,11 +158,6 @@ const convertBase64StringToBytes = (arg: string) => {
   return Uint8Array.from(Buffer.from(arg, 'base64'))
 }
 
-const argToNumber = (arg: string, size: number) => {
-  const bytes = convertBase64StringToBytes(arg)
-  return new algosdk.ABIUintType(size).decode(bytes)
-}
-
 type RenderABIArrayValuesProps = {
   type: algosdk.ABIArrayStaticType | algosdk.ABIArrayDynamicType
   values: algosdk.ABIValue[]
@@ -256,6 +214,9 @@ function RenderABITypeValue({ type, value }: RenderABITypeValueProps) {
     }
     if (isDynamicArrayType(type)) {
       return <RenderABIArrayValues type={type as algosdk.ABIArrayDynamicType} values={value as algosdk.ABIValue[]} />
+    }
+    if (type.toString() === 'string') {
+      return `"${value}"`
     }
     return `${value}`
   }, [type, value])
