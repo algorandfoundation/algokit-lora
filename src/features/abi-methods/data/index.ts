@@ -10,21 +10,26 @@ import { ApplicationAppSpecs } from '@/features/abi-methods/data/types'
 // TODO: test getOnInit
 export const applicationsAppSpecsAtom = atomFamily(
   (applicationId: ApplicationId) =>
-    atomWithStorage<ApplicationAppSpecs | undefined>(applicationId.toString(), undefined, {
-      setItem: async (key, value) => {
-        if (!value) return
-        const db = await dataStore.get(dbAtom)
-        await db.put('applications-app-specs', value, key)
+    atomWithStorage<ApplicationAppSpecs | undefined>(
+      applicationId.toString(),
+      undefined,
+      {
+        setItem: async (key, value) => {
+          if (!value) return
+          const db = await dataStore.get(dbAtom)
+          await db.put('applications-app-specs', value, key)
+        },
+        getItem: async (key: string) => {
+          const db = await dataStore.get(dbAtom)
+          return await db.get('applications-app-specs', key)
+        },
+        removeItem: async (key: string) => {
+          const db = await dataStore.get(dbAtom)
+          await db.delete('applications-app-specs', key)
+        },
       },
-      getItem: async (key: string) => {
-        const db = await dataStore.get(dbAtom)
-        return await db.get('applications-app-specs', key)
-      },
-      removeItem: async (key: string) => {
-        const db = await dataStore.get(dbAtom)
-        await db.delete('applications-app-specs', key)
-      },
-    }),
+      { getOnInit: true }
+    ),
   (appId1, appId2) => appId1.toString() === appId2.toString()
 )
 

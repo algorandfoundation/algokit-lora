@@ -6,14 +6,13 @@ import { Group } from '@/features/groups/models'
 import { useLoadableMaybeGroup } from '@/features/groups/data/maybe-group'
 import { ABIArgumentType } from 'algosdk/src/abi/method'
 import { useMemo } from 'react'
-import { useAtomValue } from 'jotai'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
+  abiMethod: algosdk.ABIMethod | undefined
 }
 
-export function DecodeAppCall({ transaction }: Props) {
-  const abiMethod = useAtomValue(transaction.abiMethod)
+export function DecodeAppCall({ transaction, abiMethod }: Props) {
   const loadableGroup = useLoadableMaybeGroup(transaction.confirmedRound, transaction.group)
   return (
     <RenderLoadable loadable={loadableGroup}>

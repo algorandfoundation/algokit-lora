@@ -13,6 +13,9 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { DecodeAppCall } from '@/features/transactions/components/decode-app-call'
 import { isDefined } from '@/utils/is-defined'
 import { useAtomValue } from 'jotai'
+import algosdk from 'algosdk'
+import { loadable } from 'jotai/utils'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -38,7 +41,7 @@ export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 
 export function AppCallTransactionInfo({ transaction }: Props) {
-  const abiMethod = useAtomValue(transaction.abiMethod)
+  const loadableAbiMethod = useAtomValue(loadable(transaction.abiMethod))
   const items = useMemo(
     () => [
       {
@@ -56,6 +59,27 @@ export function AppCallTransactionInfo({ transaction }: Props) {
     ],
     [transaction.applicationId, transaction.onCompletion, transaction.sender]
   )
+
+  return (
+    <div className={cn('space-y-2')}>
+      <div className={cn('flex items-center justify-between')}>
+        <h2>Application Call</h2>
+      </div>
+      <DescriptionList items={items} />
+      <RenderLoadable loadable={loadableAbiMethod}>
+        {(abiMethod) => <AppCallTransactionTabs transaction={transaction} abiMethod={abiMethod} />}
+      </RenderLoadable>
+    </div>
+  )
+}
+
+function AppCallTransactionTabs({
+  transaction,
+  abiMethod,
+}: {
+  transaction: AppCallTransaction | InnerAppCallTransaction
+  abiMethod: algosdk.ABIMethod | undefined
+}) {
   const tabs = useMemo(
     () =>
       [
@@ -63,7 +87,7 @@ export function AppCallTransactionInfo({ transaction }: Props) {
           ? {
               id: decodeAppCallTabId,
               label: decodeAppCallTabLabel,
-              children: <DecodeAppCall transaction={transaction} />,
+              children: <DecodeAppCall transaction={transaction} abiMethod={abiMethod} />,
             }
           : undefined,
         {
@@ -101,26 +125,20 @@ export function AppCallTransactionInfo({ transaction }: Props) {
   )
 
   return (
-    <div className={cn('space-y-2')}>
-      <div className={cn('flex items-center justify-between')}>
-        <h2>Application Call</h2>
-      </div>
-      <DescriptionList items={items} />
-      <Tabs defaultValue={abiMethod ? decodeAppCallTabId : applicationArgsTabId}>
-        <TabsList aria-label={appCallTransactionDetailsLabel}>
-          {tabs.map((tab) => (
-            <TabsTrigger key={tab.id} className="w-44" value={tab.id}>
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+    <Tabs defaultValue={abiMethod ? decodeAppCallTabId : applicationArgsTabId}>
+      <TabsList aria-label={appCallTransactionDetailsLabel}>
         {tabs.map((tab) => (
-          <OverflowAutoTabsContent key={tab.id} value={tab.id} className="h-auto">
-            {tab.children}
-          </OverflowAutoTabsContent>
+          <TabsTrigger key={tab.id} className="w-44" value={tab.id}>
+            {tab.label}
+          </TabsTrigger>
         ))}
-      </Tabs>
-    </div>
+      </TabsList>
+      {tabs.map((tab) => (
+        <OverflowAutoTabsContent key={tab.id} value={tab.id} className="h-auto">
+          {tab.children}
+        </OverflowAutoTabsContent>
+      ))}
+    </Tabs>
   )
 }
 
