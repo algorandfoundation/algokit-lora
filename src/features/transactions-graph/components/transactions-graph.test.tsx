@@ -17,6 +17,7 @@ import { invariant } from '@/utils/invariant'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { Atom } from 'jotai/index'
 import algosdk from 'algosdk'
+import { sleep } from '@/utils/sleep'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -125,6 +126,8 @@ describe('application-call-graph', () => {
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
+            // Sleep to make sure the ABI method is loaded
+            await sleep(10)
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
             )
@@ -227,6 +230,9 @@ describe('group-graph', () => {
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
+            // Sleep to make sure the ABI method is loaded
+            await sleep(10)
+
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`
             )
