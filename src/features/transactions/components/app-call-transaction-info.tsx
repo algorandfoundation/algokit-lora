@@ -13,9 +13,9 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { DecodedAbiMethod } from '@/features/abi-methods/components/decoded-abi-method'
 import { isDefined } from '@/utils/is-defined'
 import { useAtomValue } from 'jotai'
-import algosdk from 'algosdk'
 import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { AbiMethod } from '@/features/abi-methods/models'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -64,7 +64,7 @@ function AppCallDescriptionList({
   abiMethod,
 }: {
   transaction: AppCallTransaction | InnerAppCallTransaction
-  abiMethod: algosdk.ABIMethod | undefined
+  abiMethod: AbiMethod | undefined
 }) {
   const items = useMemo(
     () =>
@@ -93,7 +93,7 @@ function AppCallTransactionTabs({
   abiMethod,
 }: {
   transaction: AppCallTransaction | InnerAppCallTransaction
-  abiMethod: algosdk.ABIMethod | undefined
+  abiMethod: AbiMethod | undefined
 }) {
   const tabs = useMemo(
     () =>

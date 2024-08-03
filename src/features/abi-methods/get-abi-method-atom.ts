@@ -8,59 +8,7 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { getGroupResultAtom } from '@/features/groups/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-
-enum AbiValueType {
-  String = 'string',
-  Number = 'number',
-  Boolean = 'boolean',
-  Address = 'address',
-  Array = 'array',
-  Tuple = 'tuple',
-  Account = 'account',
-  Transaction = 'transaction',
-  Application = 'application',
-  Asset = 'asset',
-}
-
-export type AbiPrimitiveValue =
-  | {
-      type: AbiValueType.String
-      value: string
-    }
-  | {
-      type: AbiValueType.Number
-      value: number
-    }
-  | {
-      type: AbiValueType.Boolean
-      value: boolean
-    }
-  | {
-      type: AbiValueType.Address
-      value: string
-    }
-  | { type: AbiValueType.Array; value: AbiPrimitiveValue[] }
-  | { type: AbiValueType.Tuple; value: AbiPrimitiveValue[] }
-
-export type AbiReferenceValue =
-  | { type: AbiValueType.Account; value: string }
-  | { type: AbiValueType.Application; value: string }
-  | { type: AbiValueType.Asset; value: string }
-
-export type AbiTransactionValue = { type: AbiValueType.Transaction; value: string }
-
-export type AbiMethodArgument =
-  | ({ name: string } & AbiPrimitiveValue)
-  | ({ name: string } & AbiReferenceValue)
-  | ({ name: string } & AbiTransactionValue)
-
-export type AbiMethodReturn = AbiPrimitiveValue | 'void'
-
-export type AbiMethod = {
-  name: string
-  arguments: AbiMethodArgument[]
-  return: AbiMethodReturn
-}
+import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiPrimitiveValue, AbiValueType } from '@/features/abi-methods/models'
 
 // TODO: ARC-32 has network info, do we need to check it?
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {

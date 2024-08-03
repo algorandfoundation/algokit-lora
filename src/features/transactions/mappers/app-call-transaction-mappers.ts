@@ -10,7 +10,7 @@ import {
 import { invariant } from '@/utils/invariant'
 import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import algosdk, { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { AssetSummary } from '@/features/assets/models'
@@ -20,6 +20,7 @@ import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 import { Atom } from 'jotai/index'
+import { AbiMethod } from '@/features/abi-methods/models'
 
 const opUpPrograms = [
   'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
@@ -41,7 +42,7 @@ const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<algosdk.ABIMethod | undefined>>,
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -83,7 +84,7 @@ const mapCommonAppCallTransactionProperties = (
 export const asAppCallTransaction = (
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<algosdk.ABIMethod | undefined>>
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
 ): AppCallTransaction => {
   const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver, abiMethodResolver)
 
@@ -98,7 +99,7 @@ export const asInnerAppCallTransaction = (
   index: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<algosdk.ABIMethod | undefined>>
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
@@ -128,7 +129,7 @@ const asInnerTransaction = (
   index: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<algosdk.ABIMethod | undefined>>
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
