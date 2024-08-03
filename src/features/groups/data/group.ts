@@ -7,6 +7,7 @@ import { getGroupResultAtom } from './group-result'
 import { asGroup } from '../mappers'
 import { createTransactionsAtom, getTransactionResultAtoms } from '@/features/transactions/data'
 
+// TODO: once the refactor is done, revert this and the maybe group
 export const fetchGroup = async (get: Getter, groupId: GroupId, round: Round) => {
   const groupResult = await get(getGroupResultAtom(groupId, round))
   const transactionResults = await Promise.all(getTransactionResultAtoms(groupResult.transactionIds).map((txn) => get(txn)))
