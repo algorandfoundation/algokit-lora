@@ -90,11 +90,10 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
           : mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[transactionArgIndex++])
 
       if (argumentSpec.type === ABIReferenceType.asset) {
-        // return `${argumentSpec.name}: ${transaction.foreignAssets[Number(argumentValue)]}`
         return {
           name: argName,
           type: AbiValueType.Asset,
-          value: transaction.foreignAssets[Number(abiValue)],
+          value: transaction['application-transaction']!['foreign-assets']![Number(abiValue)],
         }
       }
       if (argumentSpec.type === ABIReferenceType.account) {
@@ -103,7 +102,7 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
         return {
           name: argName,
           type: AbiValueType.Account,
-          value: accountIndex === 0 ? transaction.sender : transaction.applicationAccounts[accountIndex - 1],
+          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']!['accounts']![accountIndex - 1],
         }
       }
       if (argumentSpec.type === ABIReferenceType.application) {
@@ -112,7 +111,10 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
         return {
           name: argName,
           type: AbiValueType.Application,
-          value: applicationIndex === 0 ? transaction.applicationId : transaction.foreignApps[applicationIndex - 1],
+          value:
+            applicationIndex === 0
+              ? transaction.applicationId
+              : transaction['application-transaction']!['foreign-apps']![applicationIndex - 1],
         }
       }
 

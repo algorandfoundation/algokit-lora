@@ -13,10 +13,10 @@ export function DecodedAbiMethod({ transaction, abiMethod }: Props) {
     return <span>No application args.</span>
   }
   if (!abiMethod) {
-    return <span>Can't detect, maybe not ARC-32</span>
+    return <span>Could not find ABI method.</span>
   }
   return (
-    <div className="h-[450px] overflow-x-scroll">
+    <div className="max-h-[450px] overflow-x-scroll">
       <span>{abiMethod.name}(</span>
       <DecodedAbiMethodArguments method={abiMethod} />
       ): <DecodedAbiMethodReturnValue method={abiMethod} />
