@@ -1,5 +1,5 @@
 import { Atom, atom } from 'jotai'
-import { applicationsAppSpecsAtom } from '@/features/abi-methods/data'
+import { applicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
 import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'

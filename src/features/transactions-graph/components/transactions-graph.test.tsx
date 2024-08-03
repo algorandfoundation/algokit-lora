@@ -16,8 +16,8 @@ import { atom } from 'jotai'
 import { invariant } from '@/utils/invariant'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { Atom } from 'jotai/index'
-import algosdk from 'algosdk'
 import { sleep } from '@/utils/sleep'
+import { AbiMethod } from '@/features/abi-methods/models'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -251,6 +251,6 @@ const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) =
 
 const createAbiMethodResolver =
   () =>
-  (_: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
+  (_: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
     return atom(() => Promise.resolve(undefined))
   }
