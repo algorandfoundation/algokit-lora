@@ -10,15 +10,9 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiPrimitiveValue, AbiValueType } from '@/features/abi-methods/models'
 
-// TODO: ARC-32 has network info, do we need to check it?
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
-    if (
-      transaction['tx-type'] !== TransactionType.appl ||
-      !transaction['application-transaction'] ||
-      !transaction['confirmed-round'] ||
-      !transaction['application-transaction']['application-args']
-    ) {
+    if (!isValidAppCallTransaction(transaction)) {
       return undefined
     }
 
