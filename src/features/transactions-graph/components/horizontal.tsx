@@ -191,6 +191,9 @@ const RenderTransactionVector = fixedForwardRef(
           ></div>
           {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
         </div>
+        {
+          // TODO: fix max-w-65% here
+        }
         <div className="absolute flex max-w-[65%] justify-center">
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
             <VectorLabel transaction={transaction} vector={vector} />

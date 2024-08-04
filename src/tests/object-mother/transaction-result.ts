@@ -3047,4 +3047,74 @@ export const transactionResultMother = {
       'tx-type': TransactionType.axfer,
     })
   },
+  ['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']: () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': ['KCayAg==', 'AA=='],
+        'application-id': 705410358,
+        'foreign-apps': [],
+        'foreign-assets': [705457144],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'noop',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 42227864,
+      fee: 2000,
+      'first-valid': 42227859,
+      'genesis-hash': 'SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=',
+      'genesis-id': 'testnet-v1.0',
+      'global-state-delta': [
+        {
+          key: 'YXNh',
+          value: {
+            action: 2,
+            uint: 705457144,
+          },
+        },
+      ],
+      group: 'kk6u1A9C9x1roBZOci/4Ne3XtHOtxKRq2O7OLVCbKOc=',
+      id: 'QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A',
+      'inner-txns': [
+        {
+          'asset-transfer-transaction': {
+            amount: 0,
+            'asset-id': 705457144,
+            'close-amount': 0,
+            receiver: '5VLJQQVCC2FARS5OKXWDPPYKJLJNEP7SKFHXD76DRN4WCV7SGI6W2IB5ME',
+          },
+          'close-rewards': 0,
+          'closing-amount': 0,
+          'confirmed-round': 42227864,
+          fee: 0,
+          'first-valid': 42227859,
+          'intra-round-offset': 2,
+          'last-valid': 42228859,
+          'receiver-rewards': 0,
+          'round-time': 1721892883,
+          sender: '5VLJQQVCC2FARS5OKXWDPPYKJLJNEP7SKFHXD76DRN4WCV7SGI6W2IB5ME',
+          'sender-rewards': 0,
+          'tx-type': TransactionType.axfer,
+        },
+      ],
+      'intra-round-offset': 2,
+      'last-valid': 42228859,
+      'receiver-rewards': 0,
+      'round-time': 1721892883,
+      sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'aJjwZDVvDhYTp/IEjFz/y1cNSlC065MVv5dpTNXkIjr/ApI1J9VlTYyT+1Ib+KkpR1VMqdmruQdndrRWhkKTDQ==',
+      },
+      'tx-type': TransactionType.appl,
+    } as unknown as TransactionResult)
+  },
 }
