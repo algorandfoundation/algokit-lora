@@ -1,25 +1,25 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { localnetId, useSelectedNetwork } from '@/features/network/data'
-import { FundLocalnetAddressForm } from './components/fund-localnet-address-form'
-import { CreateKmdDevAccountButton } from './components/create-kmd-dev-account'
+import { localnetId, testnetId, useSelectedNetwork } from '@/features/network/data'
+import { LocalnetFunding } from './components/localnet-funding'
 
 export const fundPageTitle = 'Fund'
 
 export function FundPage() {
   const [selectedNetwork] = useSelectedNetwork()
 
+  const inner =
+    selectedNetwork === localnetId ? (
+      <LocalnetFunding />
+    ) : selectedNetwork === testnetId ? (
+      'Funding is coming soon on this network.'
+    ) : (
+      'Funding is not available on this network.'
+    )
+
   return (
     <>
       <PageTitle title={fundPageTitle} />
-      <div>
-        <p>{selectedNetwork}</p>
-        {selectedNetwork === localnetId && (
-          <>
-            <CreateKmdDevAccountButton />
-            <FundLocalnetAddressForm />
-          </>
-        )}
-      </div>
+      {inner}
     </>
   )
 }

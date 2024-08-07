@@ -19,6 +19,7 @@ import { KmdProviderConnectButton } from './kmd-provider-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
 import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
+import { CopyButton } from '@/features/common/components/copy-button'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -90,7 +91,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       <PopoverContent align="end" className="w-56 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1 w-full">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+            <abbr className="ml-1">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">
@@ -110,7 +111,8 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
               </Select>
             </>
           )}
-          <AccountLink address={activeAddress} className={cn('ml-2 text-primary underline text-sm')}>
+          <CopyButton value={activeAddress} />
+          <AccountLink address={activeAddress} className={cn('pl-2 text-primary underline text-sm ml-auto')}>
             View
           </AccountLink>
         </div>
