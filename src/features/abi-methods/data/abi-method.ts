@@ -219,12 +219,13 @@ const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: 
     !transaction['application-transaction'] ||
     !transaction['confirmed-round'] ||
     !transaction['application-transaction']['application-args'] ||
-    transaction['application-transaction']['application-args'].length < 15
+    transaction['application-transaction']['application-args'].length < 1
   ) {
     return []
   }
 
-  const transactionArgs = transaction['application-transaction']['application-args']
+  // The first arg is the method selector
+  const transactionArgs = transaction['application-transaction']['application-args'].slice(1)
   const nonTransactionTypeArgs = abiMethod.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
 
   const results: algosdk.ABIValue[] = []
@@ -236,6 +237,7 @@ const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: 
         !algosdk.abiTypeIsReference(arg.type) ? (arg.type as algosdk.ABIType) : new algosdk.ABIUintType(8)
       )
     )
+
     const bytes = base64ToBytes(transactionArgs[14])
     results.push(...lastTupleType.decode(bytes))
   }
