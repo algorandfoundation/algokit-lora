@@ -88,7 +88,7 @@ function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction
   return (
     <RenderInlineAsyncAtom atom={transaction.abiMethod}>
       {(abiMethod) => {
-        return abiMethod ? <div className="overflow-y-hidden text-ellipsis">{abiMethod.name}</div> : null
+        return abiMethod ? <div className="overflow-x-hidden text-ellipsis">{abiMethod.name}</div> : null
       }}
     </RenderInlineAsyncAtom>
   )
@@ -163,7 +163,7 @@ const RenderTransactionVector = fixedForwardRef(
 
     return (
       <div
-        className={cn('flex items-center justify-center z-10', colorClass.text)}
+        className={cn('flex items-center justify-center z-10 relative', colorClass.text)}
         style={{
           // 2 and 3 are the number to offset the name column
           gridColumnStart: vector.fromVerticalIndex + 2,
@@ -194,8 +194,8 @@ const RenderTransactionVector = fixedForwardRef(
         {
           // TODO: fix max-w-65% here
         }
-        <div className="absolute flex max-w-[65%] justify-center">
-          <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
+        <div className="absolute flex max-w-[35%] justify-center ">
+          <div className={cn('z-20 bg-card p-0.5 text-xs text-center w-full')}>
             <VectorLabel transaction={transaction} vector={vector} />
           </div>
         </div>
