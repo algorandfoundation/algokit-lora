@@ -56,13 +56,13 @@ export function LocalnetFunding() {
       <AccordionItem value={fundExistingAccountAccordionId}>
         <AccordionTrigger>Fund an existing LocalNet account</AccordionTrigger>
         <AccordionContent>
-          <FundAccountForm onFund={fundLocalnetAccount} />
+          <FundAccountForm onSubmit={fundLocalnetAccount} />
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value={fundNewAccountAccordionId}>
         <AccordionTrigger>Create and fund a new LocalNet account</AccordionTrigger>
         <AccordionContent>
-          <FundAccountForm onCreateReceiver={createLocalnetAccount} onFund={fundLocalnetAccount} />
+          <FundAccountForm onCreateReceiver={createLocalnetAccount} onSubmit={fundLocalnetAccount} />
           {createdAddress && (
             <p>
               A new account&nbsp;

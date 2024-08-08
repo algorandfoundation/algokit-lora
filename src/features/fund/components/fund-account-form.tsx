@@ -22,18 +22,18 @@ const fundFormSchema = zfd.formData({
 
 type Props = {
   onCreateReceiver?: () => Promise<Address>
-  onFund: (receiver: Address, amount: AlgoAmount) => Promise<void>
+  onSubmit: (receiver: Address, amount: AlgoAmount) => Promise<void>
 }
 
-export function FundAccountForm({ onCreateReceiver, onFund }: Props) {
+export function FundAccountForm({ onCreateReceiver, onSubmit }: Props) {
   const fundAccount = useCallback(
     async (values: z.infer<typeof fundFormSchema>) => {
       const receiver = onCreateReceiver ? await onCreateReceiver() : values.receiver
       invariant(receiver, 'Receiver is required')
-      await onFund(receiver, algos(values.amount))
+      await onSubmit(receiver, algos(values.amount))
       toast.success('Account funded successfully')
     },
-    [onCreateReceiver, onFund]
+    [onCreateReceiver, onSubmit]
   )
 
   return (
