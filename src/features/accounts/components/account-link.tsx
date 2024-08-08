@@ -18,25 +18,31 @@ export const AccountLink = fixedForwardRef(
   ({ address, short, className, children, showCopyButton, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
     const [selectedNetwork] = useSelectedNetwork()
 
-    return (
+    const link = (
+      <TemplatedNavLink
+        className={cn(!children && 'text-primary underline', !children && !short && 'truncate', className)}
+        urlTemplate={Urls.Explore.Account.ByAddress}
+        urlParams={{ address, networkId: selectedNetwork }}
+        ref={ref}
+        {...rest}
+      >
+        {children ? (
+          children
+        ) : short ? (
+          <abbr className="tracking-wide" title={address}>
+            {ellipseAddress(address)}
+          </abbr>
+        ) : (
+          address
+        )}
+      </TemplatedNavLink>
+    )
+
+    return children ? (
+      link
+    ) : (
       <div className="flex items-center">
-        <TemplatedNavLink
-          className={cn(!children && 'text-primary underline', !children && !short && 'truncate', className)}
-          urlTemplate={Urls.Explore.Account.ByAddress}
-          urlParams={{ address, networkId: selectedNetwork }}
-          ref={ref}
-          {...rest}
-        >
-          {children ? (
-            children
-          ) : short ? (
-            <abbr className="tracking-wide" title={address}>
-              {ellipseAddress(address)}
-            </abbr>
-          ) : (
-            address
-          )}
-        </TemplatedNavLink>
+        {link}
         {showCopyButton && <CopyButton value={address} />}
       </div>
     )

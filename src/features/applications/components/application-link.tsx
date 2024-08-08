@@ -14,15 +14,22 @@ type Props = PropsWithChildren<{
 
 export function ApplicationLink({ applicationId, className, showCopyButton, children }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
-  return (
+
+  const link = (
+    <TemplatedNavLink
+      className={cn(!children && 'text-primary underline truncate', className)}
+      urlTemplate={Urls.Explore.Application.ById}
+      urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
+    >
+      {children ? children : applicationId}
+    </TemplatedNavLink>
+  )
+
+  return children ? (
+    link
+  ) : (
     <div className="flex items-center">
-      <TemplatedNavLink
-        className={cn(!children && 'text-primary underline truncate', className)}
-        urlTemplate={Urls.Explore.Application.ById}
-        urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
-      >
-        {children ? children : applicationId}
-      </TemplatedNavLink>
+      {link}
       {showCopyButton && <CopyButton value={applicationId.toString()} />}
     </div>
   )

@@ -11,11 +11,12 @@ import { InnerTransactionPage } from './features/transactions/pages/inner-transa
 import { AccountPage, accountPageTitle } from './features/accounts/pages/account-page'
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
-import { SettingsPage } from './features/settings/pages/settings-page'
+import { SettingsPage, settingsPageTitle } from './features/settings/pages/settings-page'
 import { TxPage } from './features/transactions/pages/tx-page'
 import { IndexPage } from '@/index-page'
 import { NetworkPage } from '@/features/network/pages/network-page'
 import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/app-studio-page'
+import { FundPage, fundPageTitle } from './features/fund/fund-page'
 
 export const routes = evalTemplates([
   {
@@ -103,7 +104,13 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Settings,
+        errorElement: <ErrorPage title={settingsPageTitle} />,
         element: <SettingsPage />,
+      },
+      {
+        template: Urls.Fund,
+        errorElement: <ErrorPage title={fundPageTitle} />,
+        element: <FundPage />,
       },
     ],
   },

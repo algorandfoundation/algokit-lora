@@ -43,4 +43,5 @@ export const Urls = {
   }),
   AppStudio: UrlTemplate`/app-studio`,
   Settings: UrlTemplate`/settings`,
+  Fund: UrlTemplate`/fund`,
 }
