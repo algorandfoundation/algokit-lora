@@ -28,7 +28,7 @@ export type AbiPrimitiveValue =
     }
   | {
       type: AbiValueType.Address
-      value: Uint8Array
+      value: string
     }
   | AbiArrayValue
   | AbiTupleValue
