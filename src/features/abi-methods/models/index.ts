@@ -35,7 +35,7 @@ export type AbiPrimitiveValue =
 
 export type AbiReferenceValue =
   | { type: AbiValueType.Account; value: string }
-  | { type: AbiValueType.Application; value: string }
+  | { type: AbiValueType.Application; value: number }
   | { type: AbiValueType.Asset; value: number }
 
 export type AbiTransactionValue = { type: AbiValueType.Transaction; value: string }

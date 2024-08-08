@@ -1,26 +1,46 @@
 import { useMemo } from 'react'
 import { AbiMethod, AbiValueType } from '@/features/abi-methods/models'
-import { RenderAbiPrimitiveValue } from '@/features/abi-methods/components/render-abi-primitive-value'
+import { RenderAbiValue } from '@/features/abi-methods/components/render-abi-value'
+import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { ApplicationLink } from '@/features/applications/components/application-link'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
 
 export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
   const components = useMemo(
     () =>
       method.arguments.map((argument) => {
         if (argument.type === AbiValueType.Transaction) {
-          return `${argument.name}: ${argument.value}`
+          return (
+            <>
+              <span>{argument.name}:</span> <TransactionLink transactionId={argument.value} />
+            </>
+          )
         }
         if (argument.type === AbiValueType.Account) {
-          return `${argument.name}: ${argument.value}`
+          return (
+            <>
+              <span>{argument.name}:</span> <AccountLink address={argument.value} />
+            </>
+          )
         }
         if (argument.type === AbiValueType.Application) {
-          return `${argument.name}: ${argument.value}`
+          return (
+            <>
+              <span>{argument.name}:</span> <ApplicationLink applicationId={argument.value} />
+            </>
+          )
         }
         if (argument.type === AbiValueType.Asset) {
-          return `${argument.name}: ${argument.value}`
+          return (
+            <>
+              <span>{argument.name}:</span> <AssetIdLink assetId={argument.value} />
+            </>
+          )
         }
         return (
           <div className="inline">
-            <span>{argument.name}: </span> <RenderAbiPrimitiveValue abiValue={argument} />
+            <span>{argument.name}: </span> <RenderAbiValue abiValue={argument} />
           </div>
         )
       }),

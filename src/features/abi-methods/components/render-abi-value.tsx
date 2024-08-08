@@ -6,7 +6,7 @@ type Props = {
   abiValue: AbiPrimitiveValue
 }
 
-export function RenderAbiPrimitiveValue({ abiValue }: Props) {
+export function RenderAbiValue({ abiValue }: Props) {
   if (abiValue.type === AbiValueType.Tuple) {
     return <RenderAbiTupleValue tuple={abiValue} />
   }

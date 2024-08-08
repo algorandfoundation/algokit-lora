@@ -1,4 +1,4 @@
-import { RenderAbiPrimitiveValue } from '@/features/abi-methods/components/render-abi-primitive-value'
+import { RenderAbiValue } from '@/features/abi-methods/components/render-abi-value'
 import { AbiArrayValue } from '@/features/abi-methods/models'
 
 type Props = {
@@ -12,7 +12,7 @@ export function RenderAbiArrayValue({ array }: Props) {
       <ul className={'pl-4'}>
         {array.value.map((item, index, array) => (
           <li key={index}>
-            <RenderAbiPrimitiveValue abiValue={item} />
+            <RenderAbiValue abiValue={item} />
             {index < array.length - 1 ? <span>{', '}</span> : null}
           </li>
         ))}
