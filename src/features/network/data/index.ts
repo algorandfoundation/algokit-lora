@@ -9,10 +9,10 @@ export const localnetId = 'localnet'
 export const testnetId = 'testnet'
 export const mainnetId = 'mainnet'
 export const fnetId = 'fnet'
-export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
+export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
 export const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
-export const fnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
-export const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
+const fnetWalletProviders = [PROVIDER_ID.LUTE]
+const supportedWalletProviders = Array.from(new Set([...localnetWalletProviders, ...nonLocalnetWalletProviders]))
 export const allWalletProviderNames: Record<PROVIDER_ID, string> = {
   kmd: 'KMD',
   mnemonic: 'MNEMONIC',
