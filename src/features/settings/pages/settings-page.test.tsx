@@ -16,6 +16,7 @@ describe('settings-page', () => {
             container: networkConfigsTable,
             rows: [
               { cells: ['LocalNet', 'http://localhost:4001', 'http://localhost:8980'] },
+              { cells: ['FNet', 'https://fnet-api.4160.nodely.io:443', 'https://fnet-idx.4160.nodely.io:443'] },
               { cells: ['TestNet', 'https://testnet-api.algonode.cloud:443', 'https://testnet-idx.algonode.cloud:443'] },
               { cells: ['MainNet', 'https://mainnet-api.algonode.cloud:443', 'https://mainnet-idx.algonode.cloud:443'] },
             ],
@@ -54,6 +55,7 @@ describe('settings-page', () => {
             container: networkConfigsTable,
             rows: [
               { cells: ['LocalNet', 'http://localhost:4001', 'http://localhost:8980'] },
+              { cells: ['FNet', 'https://fnet-api.4160.nodely.io:443', 'https://fnet-idx.4160.nodely.io:443'] },
               { cells: ['TestNet', 'https://testnet-api.algonode.cloud:443', 'https://testnet-idx.algonode.cloud:443'] },
               { cells: ['MainNet', 'https://mainnet-api.algonode.cloud:443', 'https://mainnet-idx.algonode.cloud:443'] },
               { cells: ['My LocalNet', 'http://localhost:4001', 'http://localhost:4000'] },
