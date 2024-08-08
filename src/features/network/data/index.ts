@@ -53,11 +53,11 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [fnetId]: {
     name: 'FNet',
     indexer: {
-      server: 'https://fnet-idx.4160.nodely.io',
+      server: 'https://fnet-idx.4160.nodely.io/',
       port: 443,
     },
     algod: {
-      server: 'https://fnet-api.4160.nodely.io',
+      server: 'https://fnet-api.4160.nodely.io/',
       port: 443,
     },
     walletProviders: fnetWalletProviders,
