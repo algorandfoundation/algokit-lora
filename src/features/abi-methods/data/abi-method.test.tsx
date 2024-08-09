@@ -20,7 +20,6 @@ const { myStore } = await vi.hoisted(async () => {
   return { myStore: result }
 })
 
-// TODO: write a test to confirm the DOM output
 vi.mock('@/features/common/data/data-store', async () => {
   const original = await vi.importActual('@/features/common/data/data-store')
   return {
