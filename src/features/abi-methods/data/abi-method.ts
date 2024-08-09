@@ -8,7 +8,7 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { getGroupResultAtom } from '@/features/groups/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiPrimitiveValue, AbiValueType } from '@/features/abi-methods/models'
+import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
@@ -72,7 +72,7 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
       if (algosdk.abiTypeIsTransaction(argumentSpec.type)) {
         return {
           name: argumentSpec.name!,
-          type: AbiValueType.Transaction,
+          type: AbiType.Transaction,
           value: referencedTransactionIds.shift()!,
         }
       }
@@ -86,7 +86,7 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
       if (argumentSpec.type === ABIReferenceType.asset) {
         return {
           name: argName,
-          type: AbiValueType.Asset,
+          type: AbiType.Asset,
           value: transaction['application-transaction']!['foreign-assets']![Number(abiValue)],
         }
       }
@@ -95,7 +95,7 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
         // Index 0 of application accounts is the sender
         return {
           name: argName,
-          type: AbiValueType.Account,
+          type: AbiType.Account,
           value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']!['accounts']![accountIndex - 1],
         }
       }
@@ -104,7 +104,7 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
         // Index 0 of foreign apps is the called app
         return {
           name: argName,
-          type: AbiValueType.Application,
+          type: AbiType.Application,
           value:
             applicationIndex === 0
               ? transaction.applicationId
@@ -133,7 +133,7 @@ const getMethodReturn = (transaction: TransactionResult, abiMethod: algosdk.ABIM
   return getAbiPrimitiveValue(abiType, abiValue)
 }
 
-const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiPrimitiveValue => {
+const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiValue => {
   if (isTupleType(abiType)) {
     const childTypes = (abiType as algosdk.ABITupleType).childTypes
     const abiValues = abiValue as algosdk.ABIValue[]
@@ -142,47 +142,47 @@ const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIVal
     }
 
     return {
-      type: AbiValueType.Tuple,
-      value: abiValues.map((abiValue, index) => getAbiPrimitiveValue(childTypes[index], abiValue)),
+      type: AbiType.Tuple,
+      values: abiValues.map((abiValue, index) => getAbiPrimitiveValue(childTypes[index], abiValue)),
     }
   }
   if (isStaticArrayType(abiType)) {
     const childType = (abiType as algosdk.ABIArrayStaticType).childType
     const abiValues = abiValue as algosdk.ABIValue[]
     return {
-      type: AbiValueType.Array,
-      value: abiValues.map((abiValue) => getAbiPrimitiveValue(childType, abiValue)),
+      type: AbiType.Array,
+      values: abiValues.map((abiValue) => getAbiPrimitiveValue(childType, abiValue)),
     }
   }
   if (isDynamicArrayType(abiType)) {
     const childType = (abiType as algosdk.ABIArrayDynamicType).childType
     const abiValues = abiValue as algosdk.ABIValue[]
     return {
-      type: AbiValueType.Array,
-      value: abiValues.map((abiValue) => getAbiPrimitiveValue(childType, abiValue)),
+      type: AbiType.Array,
+      values: abiValues.map((abiValue) => getAbiPrimitiveValue(childType, abiValue)),
     }
   }
   if (abiType.toString() === 'string') {
     return {
-      type: AbiValueType.String,
+      type: AbiType.String,
       value: abiValue as string,
     }
   }
   if (abiType.toString() === 'address') {
     return {
-      type: AbiValueType.Address,
+      type: AbiType.Address,
       value: abiValue as string,
     }
   }
   if (abiType.toString() === 'bool') {
     return {
-      type: AbiValueType.Boolean,
+      type: AbiType.Boolean,
       value: abiValue as boolean,
     }
   }
   // For the rest, we treat as number
   return {
-    type: AbiValueType.Number,
+    type: AbiType.Number,
     value: Number(abiValue),
   }
 }

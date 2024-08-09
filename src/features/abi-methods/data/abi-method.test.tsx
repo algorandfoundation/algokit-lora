@@ -9,7 +9,7 @@ import SampleThreeAppSpec from '@/features/abi-methods/data/test-app-specs/sampl
 import SampleFourAppSpec from '@/features/abi-methods/data/test-app-specs/sample-four.arc32.json'
 import { applicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { AbiValueType } from '@/features/abi-methods/models'
+import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
@@ -54,7 +54,7 @@ describe('resolving ABI method', () => {
       expect(abiMethod!.arguments).toStrictEqual([
         {
           name: 'asset',
-          type: AbiValueType.Asset,
+          type: AbiType.Asset,
           value: 705457144,
         },
       ])
@@ -92,17 +92,17 @@ describe('resolving ABI method', () => {
       expect(abiMethod!.arguments).toStrictEqual([
         {
           name: 'starting_price',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 10000,
         },
         {
           name: 'length',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 36000,
         },
         {
           name: 'axfer',
-          type: AbiValueType.Transaction,
+          type: AbiType.Transaction,
           value: '5JZDTA4H7SMWADF4TNE447CNBEOJEBZ5ECKEPHH5LEWQ7DMBRGXQ',
         },
       ])
@@ -139,156 +139,156 @@ describe('resolving ABI method', () => {
       expect(abiMethod!.arguments).toStrictEqual([
         {
           name: 'a1',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 1,
         },
         {
           name: 'a2',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 2,
         },
         {
           name: 'a3',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 3,
         },
         {
           name: 'a4',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 4,
         },
         {
           name: 'a5',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 5,
         },
         {
           name: 'a6',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 6,
         },
         {
           name: 'a7',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 7,
         },
         {
           name: 'a8',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 8,
         },
         {
           name: 'a9',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 9,
         },
         {
           name: 'a10',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 10,
         },
         {
           name: 'a11',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 11,
         },
         {
           name: 'a12',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 12,
         },
         {
           name: 'a13',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 13,
         },
         {
           name: 'a14',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 14,
         },
         {
           name: 'a15',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 15,
         },
         {
           name: 'a16',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 16,
         },
         {
           name: 'a17',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 17,
         },
         {
           name: 'asset',
-          type: AbiValueType.Asset,
+          type: AbiType.Asset,
           value: 705457144,
         },
         {
           name: 'a18',
-          type: AbiValueType.Number,
+          type: AbiType.Number,
           value: 18,
         },
         {
           name: 'application',
-          type: AbiValueType.Application,
+          type: AbiType.Application,
           value: 705410358,
         },
         {
           name: 'pay',
-          type: AbiValueType.Transaction,
+          type: AbiType.Transaction,
           value: 'O3PWUKD7HK23GI2MWSSGQ2F7MKG4VBSS3NNIJFOIF5ABE7YF3BSA',
         },
         {
           name: 'account',
-          type: AbiValueType.Account,
+          type: AbiType.Account,
           value: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
         },
       ])
       expect(abiMethod!.return).toStrictEqual({
-        type: AbiValueType.Tuple,
-        value: [
-          { type: AbiValueType.Number, value: 705457144 },
-          { type: AbiValueType.Number, value: 705410358 },
-          { type: AbiValueType.Number, value: 9780000 },
+        type: AbiType.Tuple,
+        values: [
+          { type: AbiType.Number, value: 705457144 },
+          { type: AbiType.Number, value: 705410358 },
+          { type: AbiType.Number, value: 9780000 },
           {
-            type: AbiValueType.Array,
-            value: [
-              { type: AbiValueType.Number, value: 118 },
-              { type: AbiValueType.Number, value: 223 },
-              { type: AbiValueType.Number, value: 106 },
-              { type: AbiValueType.Number, value: 40 },
-              { type: AbiValueType.Number, value: 127 },
-              { type: AbiValueType.Number, value: 58 },
-              { type: AbiValueType.Number, value: 181 },
-              { type: AbiValueType.Number, value: 179 },
-              { type: AbiValueType.Number, value: 35 },
-              { type: AbiValueType.Number, value: 76 },
-              { type: AbiValueType.Number, value: 180 },
-              { type: AbiValueType.Number, value: 164 },
-              { type: AbiValueType.Number, value: 104 },
-              { type: AbiValueType.Number, value: 104 },
-              { type: AbiValueType.Number, value: 191 },
-              { type: AbiValueType.Number, value: 98 },
-              { type: AbiValueType.Number, value: 141 },
-              { type: AbiValueType.Number, value: 202 },
-              { type: AbiValueType.Number, value: 134 },
-              { type: AbiValueType.Number, value: 82 },
-              { type: AbiValueType.Number, value: 219 },
-              { type: AbiValueType.Number, value: 90 },
-              { type: AbiValueType.Number, value: 132 },
-              { type: AbiValueType.Number, value: 149 },
-              { type: AbiValueType.Number, value: 200 },
-              { type: AbiValueType.Number, value: 47 },
-              { type: AbiValueType.Number, value: 64 },
-              { type: AbiValueType.Number, value: 18 },
-              { type: AbiValueType.Number, value: 127 },
-              { type: AbiValueType.Number, value: 5 },
-              { type: AbiValueType.Number, value: 216 },
-              { type: AbiValueType.Number, value: 100 },
+            type: AbiType.Array,
+            values: [
+              { type: AbiType.Number, value: 118 },
+              { type: AbiType.Number, value: 223 },
+              { type: AbiType.Number, value: 106 },
+              { type: AbiType.Number, value: 40 },
+              { type: AbiType.Number, value: 127 },
+              { type: AbiType.Number, value: 58 },
+              { type: AbiType.Number, value: 181 },
+              { type: AbiType.Number, value: 179 },
+              { type: AbiType.Number, value: 35 },
+              { type: AbiType.Number, value: 76 },
+              { type: AbiType.Number, value: 180 },
+              { type: AbiType.Number, value: 164 },
+              { type: AbiType.Number, value: 104 },
+              { type: AbiType.Number, value: 104 },
+              { type: AbiType.Number, value: 191 },
+              { type: AbiType.Number, value: 98 },
+              { type: AbiType.Number, value: 141 },
+              { type: AbiType.Number, value: 202 },
+              { type: AbiType.Number, value: 134 },
+              { type: AbiType.Number, value: 82 },
+              { type: AbiType.Number, value: 219 },
+              { type: AbiType.Number, value: 90 },
+              { type: AbiType.Number, value: 132 },
+              { type: AbiType.Number, value: 149 },
+              { type: AbiType.Number, value: 200 },
+              { type: AbiType.Number, value: 47 },
+              { type: AbiType.Number, value: 64 },
+              { type: AbiType.Number, value: 18 },
+              { type: AbiType.Number, value: 127 },
+              { type: AbiType.Number, value: 5 },
+              { type: AbiType.Number, value: 216 },
+              { type: AbiType.Number, value: 100 },
             ],
           },
         ],
@@ -319,56 +319,56 @@ describe('resolving ABI method', () => {
       expect(abiMethod!.arguments).toStrictEqual([
         {
           name: 'arr',
-          type: AbiValueType.Array,
-          value: [
+          type: AbiType.Array,
+          values: [
             {
-              type: AbiValueType.Array,
-              value: [
-                { type: AbiValueType.Number, value: 1 },
-                { type: AbiValueType.Number, value: 2 },
-                { type: AbiValueType.Number, value: 3 },
-                { type: AbiValueType.Number, value: 4 },
-                { type: AbiValueType.Number, value: 5 },
+              type: AbiType.Array,
+              values: [
+                { type: AbiType.Number, value: 1 },
+                { type: AbiType.Number, value: 2 },
+                { type: AbiType.Number, value: 3 },
+                { type: AbiType.Number, value: 4 },
+                { type: AbiType.Number, value: 5 },
               ],
             },
             {
-              type: AbiValueType.Array,
-              value: [
-                { type: AbiValueType.Number, value: 6 },
-                { type: AbiValueType.Number, value: 7 },
-                { type: AbiValueType.Number, value: 8 },
-                { type: AbiValueType.Number, value: 9 },
-                { type: AbiValueType.Number, value: 10 },
+              type: AbiType.Array,
+              values: [
+                { type: AbiType.Number, value: 6 },
+                { type: AbiType.Number, value: 7 },
+                { type: AbiType.Number, value: 8 },
+                { type: AbiType.Number, value: 9 },
+                { type: AbiType.Number, value: 10 },
               ],
             },
             {
-              type: AbiValueType.Array,
-              value: [
-                { type: AbiValueType.Number, value: 111 },
-                { type: AbiValueType.Number, value: 222 },
-                { type: AbiValueType.Number, value: 333 },
-                { type: AbiValueType.Number, value: 444 },
-                { type: AbiValueType.Number, value: 555 },
+              type: AbiType.Array,
+              values: [
+                { type: AbiType.Number, value: 111 },
+                { type: AbiType.Number, value: 222 },
+                { type: AbiType.Number, value: 333 },
+                { type: AbiType.Number, value: 444 },
+                { type: AbiType.Number, value: 555 },
               ],
             },
           ],
         },
         {
           name: 'tuple',
-          type: AbiValueType.Tuple,
-          value: [
+          type: AbiType.Tuple,
+          values: [
             {
-              type: AbiValueType.Array,
-              value: [
-                { type: AbiValueType.Number, value: 666 },
-                { type: AbiValueType.Number, value: 777 },
-                { type: AbiValueType.Number, value: 888 },
-                { type: AbiValueType.Number, value: 999 },
-                { type: AbiValueType.Number, value: 1111 },
+              type: AbiType.Array,
+              values: [
+                { type: AbiType.Number, value: 666 },
+                { type: AbiType.Number, value: 777 },
+                { type: AbiType.Number, value: 888 },
+                { type: AbiType.Number, value: 999 },
+                { type: AbiType.Number, value: 1111 },
               ],
             },
             {
-              type: AbiValueType.String,
+              type: AbiType.String,
               value:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
             },
