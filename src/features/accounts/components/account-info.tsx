@@ -68,7 +68,7 @@ export function AccountInfo({ account }: Props) {
         ? [
             {
               dt: accountRekeyedToLabel,
-              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true}></AccountLink>,
+              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} />,
             },
           ]
         : []),

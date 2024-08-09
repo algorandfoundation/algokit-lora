@@ -8,7 +8,7 @@ import { Label } from '@/features/common/components/label'
 export interface FormItemProps<TSchema extends Record<string, unknown> = Record<string, unknown>> {
   className?: string
   children: ReactElement | ((props: { className?: string; field: FieldPath<TSchema> }) => ReactNode)
-  label: string
+  label: string | ReactElement
   field: FieldPath<TSchema>
   disabled?: boolean
   fullWidth?: boolean

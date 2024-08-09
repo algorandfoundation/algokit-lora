@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { CheckIcon, ChevronDown, XIcon } from 'lucide-react'
-import { cn } from '@/features/common/utils.ts'
+import { cn } from '@/features/common/utils'
 import { Separator } from '@/features/common/components/separator'
 import { Button } from '@/features/common/components/button'
 import { Badge } from '@/features/common/components/badge'
