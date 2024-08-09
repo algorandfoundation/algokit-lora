@@ -68,9 +68,9 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
             </div>
           </div>
         </div>
-        {horizontals.map((row, index) => {
-          return <Horizontal key={index} verticals={verticals} horizontal={row} />
-        })}
+        {horizontals.map((row, index) => (
+          <Horizontal key={index} verticals={verticals} horizontal={row} />
+        ))}
       </div>
     </div>
   )

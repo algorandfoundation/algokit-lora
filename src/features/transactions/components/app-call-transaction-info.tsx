@@ -102,7 +102,7 @@ function AppCallTransactionTabs({
           ? {
               id: decodedAbiMethodTabId,
               label: decodedAbiMethodTabLabel,
-              children: <DecodedAbiMethod transaction={transaction} abiMethod={abiMethod} />,
+              children: <DecodedAbiMethod abiMethod={abiMethod} />,
             }
           : undefined,
         {

@@ -8,6 +8,7 @@ import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { zfd } from 'zod-form-data'
+import { toast } from 'react-toastify'
 
 const addAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -30,6 +31,7 @@ export function UploadAppSpecForm({ application, onSuccess }: UploadAppSpecFormP
         validFromRound: undefined,
         validUntilRound: undefined,
       })
+      toast.success('ARC32 app spec saved successfully')
     },
     [setAppSpec]
   )
