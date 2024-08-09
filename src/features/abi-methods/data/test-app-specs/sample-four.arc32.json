@@ -1,0 +1,58 @@
+{
+    "hints": {
+        "nest_array_and_tuple(uint64[][],(uint64[],string))(uint64[][],(uint64[],string))": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuc2FtcGxlX2ZvdXIuY29udHJhY3QuU2FtcGxlRm91ci5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9mb3VyL2NvbnRyYWN0LnB5OjExCiAgICAvLyBjbGFzcyBTYW1wbGVGb3VyKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdANQogICAgbWV0aG9kICJuZXN0X2FycmF5X2FuZF90dXBsZSh1aW50NjRbXVtdLCh1aW50NjRbXSxzdHJpbmcpKSh1aW50NjRbXVtdLCh1aW50NjRbXSxzdHJpbmcpKSIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fbmVzdF9hcnJheV9hbmRfdHVwbGVfcm91dGVAMgogICAgZXJyIC8vIHJlamVjdCB0cmFuc2FjdGlvbgoKbWFpbl9uZXN0X2FycmF5X2FuZF90dXBsZV9yb3V0ZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9mb3VyL2NvbnRyYWN0LnB5OjEyCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZm91ci9jb250cmFjdC5weToxMQogICAgLy8gY2xhc3MgU2FtcGxlRm91cihBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9mb3VyL2NvbnRyYWN0LnB5OjEyCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgbmVzdF9hcnJheV9hbmRfdHVwbGUKICAgIGJ5dGUgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludCAxCiAgICByZXR1cm4KCm1haW5fYmFyZV9yb3V0aW5nQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvc2FtcGxlX2ZvdXIvY29udHJhY3QucHk6MTEKICAgIC8vIGNsYXNzIFNhbXBsZUZvdXIoQVJDNENvbnRyYWN0KToKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyByZWplY3QgdHJhbnNhY3Rpb24KICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICBhc3NlcnQgLy8gaXMgY3JlYXRpbmcKICAgIGludCAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMuc2FtcGxlX2ZvdXIuY29udHJhY3QuU2FtcGxlRm91ci5uZXN0X2FycmF5X2FuZF90dXBsZShhcnI6IGJ5dGVzLCB0dXBsZTogYnl0ZXMpIC0+IGJ5dGVzOgpuZXN0X2FycmF5X2FuZF90dXBsZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZm91ci9jb250cmFjdC5weToxMi0xNQogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgbmVzdF9hcnJheV9hbmRfdHVwbGUoc2VsZiwKICAgIC8vICAgICAgICAgYXJyOiBEeW5hbWljTmVzdGVkSW50cywKICAgIC8vICAgICAgICAgdHVwbGU6IGFyYzQuVHVwbGVbRHluYW1pY0ludHMsIGFyYzQuU3RyaW5nXSkgLT4gUmV0dXJuVHlwZToKICAgIHByb3RvIDIgMQogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9mb3VyL2NvbnRyYWN0LnB5OjE2CiAgICAvLyAoY2hpbGRfYXJyYXksIHN0cikgPSB0dXBsZS5uYXRpdmUKICAgIGZyYW1lX2RpZyAtMQogICAgaW50IDAKICAgIGV4dHJhY3RfdWludDE2CiAgICBmcmFtZV9kaWcgLTEKICAgIGludCAyCiAgICBleHRyYWN0X3VpbnQxNgogICAgZnJhbWVfZGlnIC0xCiAgICB1bmNvdmVyIDIKICAgIGRpZyAyCiAgICBzdWJzdHJpbmczCiAgICBzd2FwCiAgICBmcmFtZV9kaWcgLTEKICAgIGxlbgogICAgZnJhbWVfZGlnIC0xCiAgICBjb3ZlciAyCiAgICBzdWJzdHJpbmczCiAgICBzd2FwCiAgICAvLyBzbWFydF9jb250cmFjdHMvc2FtcGxlX2ZvdXIvY29udHJhY3QucHk6MjEKICAgIC8vIGFyYzQuVHVwbGVbRHluYW1pY0ludHMsIGFyYzQuU3RyaW5nXSgoY2hpbGRfYXJyYXkuY29weSgpLCBzdHIpKQogICAgZHVwCiAgICBsZW4KICAgIGludCA0CiAgICArCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgYnl0ZSAweDAwMDQKICAgIHN3YXAKICAgIGNvbmNhdAogICAgc3dhcAogICAgY29uY2F0CiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZm91ci9jb250cmFjdC5weToxOC0yMwogICAgLy8gcmV0dXJuIFJldHVyblR5cGUoCiAgICAvLyAgICAgKAogICAgLy8gICAgICAgICBhcnIuY29weSgpLAogICAgLy8gICAgICAgICBhcmM0LlR1cGxlW0R5bmFtaWNJbnRzLCBhcmM0LlN0cmluZ10oKGNoaWxkX2FycmF5LmNvcHkoKSwgc3RyKSkKICAgIC8vICAgICApCiAgICAvLyApCiAgICBmcmFtZV9kaWcgLTIKICAgIGxlbgogICAgaW50IDQKICAgICsKICAgIGl0b2IKICAgIGV4dHJhY3QgNiAyCiAgICBieXRlIDB4MDAwNAogICAgc3dhcAogICAgY29uY2F0CiAgICBmcmFtZV9kaWcgLTIKICAgIGNvbmNhdAogICAgc3dhcAogICAgY29uY2F0CiAgICByZXRzdWIK",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuc2FtcGxlX2ZvdXIuY29udHJhY3QuU2FtcGxlRm91ci5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9mb3VyL2NvbnRyYWN0LnB5OjExCiAgICAvLyBjbGFzcyBTYW1wbGVGb3VyKEFSQzRDb250cmFjdCk6CiAgICBpbnQgMQogICAgcmV0dXJuCg=="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {},
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "SampleFour",
+        "methods": [
+            {
+                "name": "nest_array_and_tuple",
+                "args": [
+                    {
+                        "type": "uint64[][]",
+                        "name": "arr"
+                    },
+                    {
+                        "type": "(uint64[],string)",
+                        "name": "tuple"
+                    }
+                ],
+                "returns": {
+                    "type": "(uint64[][],(uint64[],string))"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

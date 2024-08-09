@@ -19,6 +19,8 @@ import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mapper
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
+import { Atom } from 'jotai/index'
+import { AbiMethod } from '@/features/abi-methods/models'
 
 const opUpPrograms = [
   'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
@@ -40,6 +42,7 @@ const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -50,6 +53,7 @@ const mapCommonAppCallTransactionProperties = (
     onCompletion === AppCallOnComplete.Delete &&
     opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
     opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
+  const abiMethod = abiMethodResolver(transactionResult)
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
@@ -69,18 +73,20 @@ const mapCommonAppCallTransactionProperties = (
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
-        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver)
+        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver, abiMethodResolver)
       }) ?? [],
     onCompletion,
     logs: transactionResult['logs'] ?? [],
+    abiMethod,
   } satisfies BaseAppCallTransaction
 }
 
 export const asAppCallTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
 ): AppCallTransaction => {
-  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver)
+  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver, abiMethodResolver)
 
   return {
     id: transactionResult.id,
@@ -92,11 +98,12 @@ export const asInnerAppCallTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assetResolver, `${index}`),
+    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assetResolver, abiMethodResolver, `${index}`),
   }
 }
 
@@ -121,7 +128,8 @@ const asInnerTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
@@ -130,7 +138,7 @@ const asInnerTransaction = (
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
-    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver)
+    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, abiMethodResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)

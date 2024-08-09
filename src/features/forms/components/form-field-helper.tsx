@@ -4,6 +4,7 @@ import { SelectFormItem, SelectFormItemProps } from '@/features/forms/components
 import { CheckboxFormItem, CheckboxFormItemProps } from '@/features/forms/components/checkbox-form-item'
 import { PasswordFormItem, PasswordFormItemProps } from '@/features/forms/components/password-form-item'
 import { MultiSelectFormItem, MultiSelectFormItemProps } from '@/features/forms/components/multi-select-form-item.tsx'
+import { FileFormItem, FileFormItemProps } from '@/features/forms/components/file-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -41,5 +42,9 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   passwordField(props: PasswordFormItemProps<TSchema>) {
     return <PasswordFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  fileField(props: FileFormItemProps<TSchema>) {
+    return <FileFormItem {...this.prefixFieldProp(props)} />
   }
 }
