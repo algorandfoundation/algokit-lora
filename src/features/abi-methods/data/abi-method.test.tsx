@@ -20,6 +20,7 @@ const { myStore } = await vi.hoisted(async () => {
   return { myStore: result }
 })
 
+// TODO: write a test to confirm the DOM output
 vi.mock('@/features/common/data/data-store', async () => {
   const original = await vi.importActual('@/features/common/data/data-store')
   return {
@@ -38,15 +39,12 @@ describe('resolving ABI method', () => {
       myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), {
-        applicationId: applicationId,
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      })
+      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+        {
+          standard: 'ARC-32',
+          appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+        },
+      ])
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeDefined()
@@ -76,15 +74,12 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), {
-        applicationId: applicationId,
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      })
+      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+        {
+          standard: 'ARC-32',
+          appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+        },
+      ])
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
       expect(abiMethod).toBeDefined()
@@ -123,15 +118,12 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), {
-        applicationId: applicationId,
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      })
+      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+        {
+          standard: 'ARC-32',
+          appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
+        },
+      ])
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
       expect(abiMethod).toBeDefined()
@@ -303,15 +295,12 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), {
-        applicationId: applicationId,
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      })
+      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+        {
+          standard: 'ARC-32',
+          appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
+        },
+      ])
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeDefined()
