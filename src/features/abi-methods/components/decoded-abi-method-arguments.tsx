@@ -13,28 +13,40 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
         if (argument.type === AbiType.Transaction) {
           return (
             <>
-              <span>{argument.name}:</span> <TransactionLink transactionId={argument.value} />
+              <span>{argument.name}: </span>
+              <TransactionLink className={'text-primary underline'} transactionId={argument.value}>
+                {argument.value}
+              </TransactionLink>
             </>
           )
         }
         if (argument.type === AbiType.Account) {
           return (
             <>
-              <span>{argument.name}:</span> <AccountLink address={argument.value} />
+              <span>{argument.name}: </span>
+              <AccountLink className={'text-primary underline'} address={argument.value}>
+                {argument.value}
+              </AccountLink>
             </>
           )
         }
         if (argument.type === AbiType.Application) {
           return (
             <>
-              <span>{argument.name}:</span> <ApplicationLink applicationId={argument.value} />
+              <span>{argument.name}: </span>
+              <ApplicationLink className={'text-primary underline'} applicationId={argument.value}>
+                {argument.value}
+              </ApplicationLink>
             </>
           )
         }
         if (argument.type === AbiType.Asset) {
           return (
             <>
-              <span>{argument.name}:</span> <AssetIdLink assetId={argument.value} />
+              <span>{argument.name}: </span>
+              <AssetIdLink className={'text-primary underline'} assetId={argument.value}>
+                {argument.value}
+              </AssetIdLink>
             </>
           )
         }

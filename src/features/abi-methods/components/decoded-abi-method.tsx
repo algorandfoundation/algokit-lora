@@ -9,9 +9,17 @@ type Props = {
 export function DecodedAbiMethod({ abiMethod }: Props) {
   return (
     <div className="max-h-[450px] overflow-x-scroll">
-      <span>{abiMethod.name}(</span>
-      <DecodedAbiMethodArguments method={abiMethod} />
-      ): <DecodedAbiMethodReturnValue method={abiMethod} />
+      <div>
+        <span>{abiMethod.name}(</span>
+        <DecodedAbiMethodArguments method={abiMethod} />)
+      </div>
+      <div className={'my-4'} />
+      <div className="flex">
+        <div>Returns:&nbsp;</div>
+        <div>
+          <DecodedAbiMethodReturnValue method={abiMethod} />
+        </div>
+      </div>
     </div>
   )
 }

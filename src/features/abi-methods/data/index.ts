@@ -8,8 +8,6 @@ import { dbAtom } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 
-// TODO: format the function call and the return value
-// TODO: capture the formatting with prettier (maybe) story
 // TODO: review this, maybe use atoms-in-atom
 export const applicationsAppSpecsAtom = atomFamily(
   (applicationId: ApplicationId) =>
