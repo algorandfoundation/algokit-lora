@@ -1,12 +1,12 @@
 import { DBSchema, IDBPDatabase, openDB } from 'idb'
-import { ApplicationAppSpecs } from '@/features/abi-methods/data/types'
+import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { atom } from 'jotai'
 import { selectedNetworkAtomId } from '@/features/network/data'
 
 interface LoraDBSchema extends DBSchema {
   'applications-app-specs': {
     key: string
-    value: ApplicationAppSpecs
+    value: AppSpecVersion[]
   }
 }
 

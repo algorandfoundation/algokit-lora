@@ -36,10 +36,8 @@ const getAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.
       return undefined
     }
 
-    const applicationAppSpecs = await get(applicationsAppSpecsAtom(transaction['application-transaction']['application-id']))
-    const appSpecVersion = applicationAppSpecs?.appSpecVersions.find((appSpecVersion) =>
-      isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!)
-    )
+    const appSpecVersions = await get(applicationsAppSpecsAtom(transaction['application-transaction']['application-id']))
+    const appSpecVersion = appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
     const transactionArgs = transaction['application-transaction']['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
       const methodContract = appSpecVersion.appSpec.contract.methods.find((m) => {

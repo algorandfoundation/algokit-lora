@@ -5,14 +5,17 @@ import { useCallback } from 'react'
 import { atomFamily, atomWithStorage } from 'jotai/utils'
 import { dataStore } from '@/features/common/data/data-store'
 import { dbAtom } from '@/features/common/data/indexed-db'
-import { ApplicationAppSpecs } from '@/features/abi-methods/data/types'
+import { AppSpecVersion } from '@/features/abi-methods/data/types'
+import { invariant } from '@/utils/invariant'
 
+// TODO: format the function call and the return value
+// TODO: capture the formatting with prettier (maybe) story
 // TODO: review this, maybe use atoms-in-atom
 export const applicationsAppSpecsAtom = atomFamily(
   (applicationId: ApplicationId) =>
-    atomWithStorage<ApplicationAppSpecs | undefined>(
+    atomWithStorage<AppSpecVersion[]>(
       applicationId.toString(),
-      undefined,
+      [],
       {
         setItem: async (key, value) => {
           if (!value) return
@@ -21,7 +24,8 @@ export const applicationsAppSpecsAtom = atomFamily(
         },
         getItem: async (key: string) => {
           const db = await dataStore.get(dbAtom)
-          return await db.get('applications-app-specs', key)
+          const items = await db.get('applications-app-specs', key)
+          return items ?? []
         },
         removeItem: async (key: string) => {
           const db = await dataStore.get(dbAtom)
@@ -48,19 +52,44 @@ export const useSetAppSpec = (applicationId: ApplicationId) => {
       validFromRound?: number
       validUntilRound?: number
     }) => {
+      invariant(validFromRound === undefined || validFromRound >= 0, 'validFromRound must be greater than or equal to 0')
+      invariant(validUntilRound === undefined || validUntilRound >= 0, 'validUntilRound must be greater than or equal to 0')
+      if (validFromRound !== undefined && validUntilRound !== undefined) {
+        invariant(validUntilRound > validFromRound, 'validUntilRound must be greater than validFromRound')
+      }
+
       const appSpec = mapJsonToArc32AppSpec(json)
-      await setAppSpec({
-        applicationId: applicationId,
-        appSpecVersions: [
-          {
-            standard: standard,
-            validFromRound: validFromRound,
-            validUntilRound: validUntilRound,
-            appSpec: appSpec,
-          },
-        ],
+      await setAppSpec(async (prev) => {
+        const existing = await prev
+        const applicationAppSpec: AppSpecVersion = { standard, validFromRound, validUntilRound, appSpec }
+
+        // If there is an existing app spec with the same standard and valid rounds, remove it and add the new one
+        const matchingAppSpecVersion = existing.find(
+          (e) => e.standard === standard && e.validFromRound === validFromRound && e.validFromRound === validFromRound
+        )
+        if (matchingAppSpecVersion) {
+          return [...existing.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
+        }
+
+        // Check if there is an existing app spec with the same standard and valid rounds that overlaps with the new one
+        const overlappingWithExistingData = existing.some(
+          (e) =>
+            e.standard === standard &&
+            (isInRange(validFromRound, e.validFromRound, e.validUntilRound) ||
+              isInRange(validUntilRound, e.validFromRound, e.validUntilRound))
+        )
+        invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
+
+        return [...existing, applicationAppSpec]
       })
     },
-    [applicationId, setAppSpec]
+    [setAppSpec]
   )
+}
+
+const isInRange = (value: number | undefined, start: number | undefined, end: number | undefined) => {
+  const a = value ?? -1
+  const b = start ?? -1
+  const c = end ?? Number.MAX_SAFE_INTEGER
+  return a >= b && a <= c
 }
