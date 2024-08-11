@@ -1,5 +1,5 @@
 import { Atom, atom } from 'jotai'
-import { applicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
+import { getApplicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
 import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -36,7 +36,7 @@ const getAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.
       return undefined
     }
 
-    const appSpecVersions = await get(applicationsAppSpecsAtom(transaction['application-transaction']['application-id']))
+    const appSpecVersions = await get(getApplicationsAppSpecsAtom(transaction['application-transaction']['application-id']))
     const appSpecVersion = appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
     const transactionArgs = transaction['application-transaction']['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {

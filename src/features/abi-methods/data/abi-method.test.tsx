@@ -7,7 +7,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/features/abi-methods/data/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/features/abi-methods/data/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/features/abi-methods/data/test-app-specs/sample-four.arc32.json'
-import { applicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
+import { getApplicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
@@ -38,7 +38,7 @@ describe('resolving ABI method', () => {
       myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+      await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
         {
           standard: 'ARC-32',
           appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
@@ -73,7 +73,7 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+      await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
         {
           standard: 'ARC-32',
           appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
@@ -117,7 +117,7 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+      await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
         {
           standard: 'ARC-32',
           appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
@@ -294,7 +294,7 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      await myStore.set(applicationsAppSpecsAtom(applicationId), [
+      await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
         {
           standard: 'ARC-32',
           appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,

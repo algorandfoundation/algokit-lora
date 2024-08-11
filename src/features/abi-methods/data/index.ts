@@ -2,14 +2,15 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { useSetAtom } from 'jotai'
 import { mapJsonToArc32AppSpec } from '@/features/abi-methods/mappers'
 import { useCallback } from 'react'
-import { atomFamily, atomWithStorage } from 'jotai/utils'
+import { atomWithStorage } from 'jotai/utils'
 import { dataStore } from '@/features/common/data/data-store'
 import { dbAtom } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
+import { atomsInAtomV2 } from '@/features/common/data'
 
 // TODO: review this, maybe use atoms-in-atom
-export const applicationsAppSpecsAtom = atomFamily(
+export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAtomV2(
   (applicationId: ApplicationId) =>
     atomWithStorage<AppSpecVersion[]>(
       applicationId.toString(),
@@ -32,11 +33,13 @@ export const applicationsAppSpecsAtom = atomFamily(
       },
       { getOnInit: true }
     ),
-  (appId1, appId2) => appId1.toString() === appId2.toString()
+  (applicationId) => applicationId
 )
 
 export const useSetAppSpec = (applicationId: ApplicationId) => {
-  const setAppSpec = useSetAtom(applicationsAppSpecsAtom(applicationId))
+  const foo = getApplicationsAppSpecsAtom(applicationId)
+
+  const setAppSpec = useSetAtom(foo)
 
   return useCallback(
     async ({

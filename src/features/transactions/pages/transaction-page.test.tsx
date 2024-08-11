@@ -81,7 +81,7 @@ import { transactionAmountLabel } from '../components/transactions-table-columns
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
-import { applicationsAppSpecsAtom } from '@/features/abi-methods/data'
+import { getApplicationsAppSpecsAtom } from '@/features/abi-methods/data'
 import SampleFiveAppSpec from '@/features/abi-methods/data/test-app-specs/sample-five.arc32.json'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 
@@ -1250,7 +1250,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
       },
       async (component) => {
         const applicationId = transaction['application-transaction']!['application-id']!
-        await myStore.set(applicationsAppSpecsAtom(applicationId), [
+        await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
           {
             standard: 'ARC-32',
             appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
