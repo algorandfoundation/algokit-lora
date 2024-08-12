@@ -1,11 +1,10 @@
 import { atom } from 'jotai'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { atomsInAtomV4, createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
-import { atomsInAtom } from '@/features/common/data'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { indexer } from '@/features/common/data/algo-client'
 
@@ -102,7 +101,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         blockResultsToAdd.forEach((blockResult) => {
           if (!next.has(blockResult.round)) {
-            next.set(blockResult.round, createAtomAndTimestamp(blockResult))
+            next.set(blockResult.round, createPromiseAtomAndTimestamp(blockResult))
           }
         })
         return next
@@ -111,12 +110,14 @@ export const addStateExtractedFromBlocksAtom = atom(
   }
 )
 
-const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, round: Round) => {
-  const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
+const syncAssociatedDataAndReturnBlockResultAtom = atom(null, (_get, set, round: Round) => {
+  return atom(async () => {
+    const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
 
-  // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
-  set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
-  return blockResult
+    // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
+    set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
+    return blockResult
+  })
 })
 
-export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)
+export const [blockResultsAtom, getBlockResultAtom] = atomsInAtomV4(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)
