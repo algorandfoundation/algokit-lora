@@ -2,12 +2,11 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
-import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens } from './types'
+import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId } from './types'
 import { settingsStore } from '@/features/settings/data'
+import config from '@/config'
 
-export const localnetId = 'localnet'
-export const testnetId = 'testnet'
-export const mainnetId = 'mainnet'
+export { localnetId, testnetId, mainnetId } from './types'
 export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
 export const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
 export const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
@@ -59,6 +58,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       port: 443,
     },
     walletProviders: nonLocalnetWalletProviders,
+    dispenserApiUrl: config.testNetDispenserApiUrl,
   },
   [mainnetId]: {
     name: 'MainNet',

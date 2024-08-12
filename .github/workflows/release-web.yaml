@@ -64,6 +64,15 @@ jobs:
           mkdir -p website
           unzip website.zip -d website
 
+      - name: Apply Staging Transforms
+        uses: ./.github/actions/static-site-transforms
+        with:
+          directory: artifacts/website
+          transforms: |-
+            VITE_DISPENSER_AUTH0_DOMAIN:dispenser-staging.eu.auth0.com
+            VITE_DISPENSER_AUTH0_CLIENT_ID:pSffrx40HwIdWAJFeGCsy5FZn2NzYIvO
+            VITE_DISPENSER_AUTH0_AUDIENCE:api-staging-dispenser-user
+
       - name: Deploy website to Netlify
         run: |
           npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --prod
@@ -90,6 +99,15 @@ jobs:
           cd artifacts
           mkdir -p website
           unzip website.zip -d website
+
+      - name: Apply Production Transforms
+        uses: ./.github/actions/static-site-transforms
+        with:
+          directory: artifacts/website
+          transforms: |-
+            VITE_DISPENSER_AUTH0_DOMAIN:dispenser-prod.eu.auth0.com
+            VITE_DISPENSER_AUTH0_CLIENT_ID:Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
+            VITE_DISPENSER_AUTH0_AUDIENCE:api-prod-dispenser-user
 
       - name: Deploy website to Netlify
         run: |
