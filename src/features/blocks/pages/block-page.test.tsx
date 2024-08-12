@@ -3,7 +3,7 @@ import { getAllByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { BlockPage, blockFailedToLoadMessage, blockInvalidRoundMessage, blockNotFoundMessage } from './block-page'
-import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
@@ -104,7 +104,7 @@ describe('block-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createPromiseAtomAndTimestamp(block)]]))
-        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createPromiseAtomAndTimestamp(x)])))
         myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 

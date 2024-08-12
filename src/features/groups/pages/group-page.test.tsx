@@ -3,7 +3,7 @@ import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { GroupPage, blockInvalidRoundMessage, groupNotFoundMessage, groupFailedToLoadMessage } from './group-page'
-import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { createStore } from 'jotai'
@@ -81,7 +81,7 @@ describe('group-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
       const myStore = createStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createPromiseAtomAndTimestamp(group)]]))
-      myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
+      myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createPromiseAtomAndTimestamp(x)])))
       myStore.set(
         assetResultsAtom,
         new Map([

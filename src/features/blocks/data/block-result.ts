@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomsInAtomV4, createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { atomsInAtomV4, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
@@ -73,7 +73,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
           if (!next.has(transactionResult.id)) {
-            next.set(transactionResult.id, createAtomAndTimestamp(transactionResult))
+            next.set(transactionResult.id, createPromiseAtomAndTimestamp(transactionResult))
           }
         })
         return next

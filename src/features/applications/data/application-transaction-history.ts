@@ -1,5 +1,5 @@
 import { ApplicationId } from './types'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
@@ -29,7 +29,7 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
           const next = new Map(prev)
           transactionResults.forEach((transactionResult) => {
             if (!next.has(transactionResult.id)) {
-              next.set(transactionResult.id, createAtomAndTimestamp(transactionResult))
+              next.set(transactionResult.id, createPromiseAtomAndTimestamp(transactionResult))
             }
           })
           return next

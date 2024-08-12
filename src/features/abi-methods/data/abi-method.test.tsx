@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/features/abi-methods/data/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/features/abi-methods/data/test-app-specs/sample-three.arc32.json'
@@ -34,7 +34,7 @@ describe('resolving ABI method', () => {
     const asset = assetResultMother['testnet-705457144']().build()
 
     it('should resolve the correct data', async () => {
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createPromiseAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
@@ -70,7 +70,7 @@ describe('resolving ABI method', () => {
 
     it('should resolve the correct data', async () => {
       myStore.set(groupResultsAtom, new Map([[group.id, createPromiseAtomAndTimestamp(group)]]))
-      myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createPromiseAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
@@ -114,7 +114,7 @@ describe('resolving ABI method', () => {
 
     it('should resolve the correct data', async () => {
       myStore.set(groupResultsAtom, new Map([[group.id, createPromiseAtomAndTimestamp(group)]]))
-      myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createPromiseAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
@@ -291,7 +291,7 @@ describe('resolving ABI method', () => {
     const transaction = transactionResultMother['testnet-QLQS5F2U2OZJQJVQWZE5F6DKPDMY4LXEKHWE6NFHGTWJJGKKFA7A']().build()
 
     it('should resolve the correct data', async () => {
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createPromiseAtomAndTimestamp(transaction)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationsAppSpecsAtom(applicationId), [
