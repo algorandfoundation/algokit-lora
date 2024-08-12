@@ -63,8 +63,8 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
     // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
     const argValuesBeyondIndex15th = getArgValuesBeyondIndex15th(transaction, abiMethod)
 
-    const abiArguments: AbiMethodArgument[] = abiMethod.args.map((argumentSpec) => {
-      const argName = argumentSpec.name!
+    const abiArguments: AbiMethodArgument[] = abiMethod.args.map((argumentSpec, index) => {
+      const argName = argumentSpec.name ?? `arg${index}`
 
       if (algosdk.abiTypeIsTransaction(argumentSpec.type)) {
         return {
