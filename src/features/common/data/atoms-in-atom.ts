@@ -9,6 +9,11 @@ export const createAtomAndTimestamp = <T>(value: T) => {
   return [defaultCreateInitialValueAtom(value), createTimestamp()] as const
 }
 
+export const createPromiseAtomAndTimestamp = <T>(value: T) => {
+  const createAtomFunc = (value: T) => atom(() => Promise.resolve(value))
+  return [createAtomFunc(value), createTimestamp()] as const
+}
+
 /**
  * Creates a atoms in atom map structure for storing collections of data indexeable via a key.
  * If the size of the collection is unbound, then the memory usage will grow indefinitely.
@@ -150,6 +155,59 @@ export function atomsInAtomV3<Args extends unknown[], Key extends string | numbe
     })
 
     return value
+  })
+
+  const getValueAtom = (...params: [...args: Args, options?: Options]) => {
+    return dataStore.set(getOrCreateValueAtom, params)
+  }
+
+  return [valuesAtom, getValueAtom] as const
+}
+
+export function atomsInAtomV4<
+  Args extends unknown[],
+  Key extends string | number,
+  TResult,
+  TWriteArgs extends unknown[],
+  TWriteResult,
+  Value extends Atom<TResult> | WritableAtom<TResult, TWriteArgs, TWriteResult>,
+>(
+  createInitialValue: ((...args: Args) => Value) | WritableAtom<null, Args, Value>,
+  keySelector: (...args: Args) => Key,
+  initialValues: Map<Key, readonly [Value, number]> = new Map()
+) {
+  // Note: The for unbound collections, this will grow indefinitely.
+  // Stale data should be cleaned up in state-cleanup.ts
+  const valuesAtom = atom(initialValues)
+
+  const getOrCreateValueAtom = atom(null, (get, set, params: [...args: Args, options?: Options]) => {
+    const _options = params.length > 1 ? params[params.length - 1] : undefined
+    const options = _options && typeof _options === 'object' && 'skipTimestampUpdate' in _options ? (_options as Options) : undefined
+    const args = (options ? params.slice(0, -1) : params) as Args
+    const key = keySelector(...args)
+    const values = get(valuesAtom)
+    if (values.has(key)) {
+      const [valueAtom] = values.get(key)!
+      if (!options || (options && !options.skipTimestampUpdate)) {
+        set(valuesAtom, (prev) => {
+          // Update the timestamp each time the atom is accessed.
+          // We mutate without creating a new Map reference (like we do elsewhere).
+          // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
+          return prev.set(key, [valueAtom, createTimestamp()])
+        })
+      }
+      return valueAtom
+    }
+
+    const valueAtom = 'write' in createInitialValue ? set(createInitialValue, ...args) : createInitialValue(...args)
+
+    set(valuesAtom, (prev) => {
+      const next = new Map(prev)
+      next.set(key, [valueAtom, createTimestamp()])
+      return next
+    })
+
+    return valueAtom
   })
 
   const getValueAtom = (...params: [...args: Args, options?: Options]) => {

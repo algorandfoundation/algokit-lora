@@ -7,10 +7,10 @@ import { dataStore } from '@/features/common/data/data-store'
 import { dbAtom } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
-import { atomsInAtomV2 } from '@/features/common/data'
+import { atomsInAtomV4 } from '@/features/common/data'
 
 // TODO: review this, maybe use atoms-in-atom
-export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAtomV2(
+export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAtomV4(
   (applicationId: ApplicationId) =>
     atomWithStorage<AppSpecVersion[]>(
       applicationId.toString(),

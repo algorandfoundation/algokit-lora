@@ -1,7 +1,8 @@
 import { ApplicationId, ApplicationResult } from './types'
-import { atomsInAtom } from '@/features/common/data'
+import { atomsInAtomV4 } from '@/features/common/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { asError, is404 } from '@/utils/error'
+import { atom } from 'jotai'
 
 const getApplicationResult = async (applicationId: ApplicationId) => {
   try {
@@ -23,4 +24,13 @@ const getApplicationResult = async (applicationId: ApplicationId) => {
   }
 }
 
-export const [applicationResultsAtom, getApplicationResultAtom] = atomsInAtom(getApplicationResult, (applicationId) => applicationId)
+const applicationResultAtomBuilder = (applicationId: ApplicationId) => {
+  return atom(async (_) => {
+    return await getApplicationResult(applicationId)
+  })
+}
+
+export const [applicationResultsAtom, getApplicationResultAtom] = atomsInAtomV4(
+  applicationResultAtomBuilder,
+  (applicationId) => applicationId
+)
