@@ -3,7 +3,7 @@ import { render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { accountResultMother } from '@/tests/object-mother/account-result'
 import { createStore } from 'jotai'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
@@ -68,7 +68,7 @@ describe('account-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -121,7 +121,7 @@ describe('account-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -166,7 +166,7 @@ describe('account-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
@@ -216,7 +216,7 @@ describe('account-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -257,7 +257,7 @@ describe('account-page', () => {
     const accountResult = accountResultMother['mainnet-X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE']().build()
     it('should render the account without the assets', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 

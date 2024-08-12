@@ -1,7 +1,6 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
-import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
-import { atomsInAtom } from '@/features/common/data'
+import { atomsInAtomV4, createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
@@ -31,36 +30,38 @@ const getAccountResult = async (address: Address) => {
   }
 }
 
-const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set, address: Address) => {
-  const accountResult = await getAccountResult(address)
-  const assetResults = get(assetResultsAtom)
-  const applicationResults = get(applicationResultsAtom)
+const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, address: Address) => {
+  return atom(async () => {
+    const accountResult = await getAccountResult(address)
+    const assetResults = get(assetResultsAtom)
+    const applicationResults = get(applicationResultsAtom)
 
-  const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
-  if (assetsToAdd.length > 0) {
-    set(assetResultsAtom, (prev) => {
-      const next = new Map(prev)
-      assetsToAdd.forEach((asset) => {
-        if (!next.has(asset.index)) {
-          next.set(asset.index, createAtomAndTimestamp(asset))
-        }
+    const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
+    if (assetsToAdd.length > 0) {
+      set(assetResultsAtom, (prev) => {
+        const next = new Map(prev)
+        assetsToAdd.forEach((asset) => {
+          if (!next.has(asset.index)) {
+            next.set(asset.index, createAtomAndTimestamp(asset))
+          }
+        })
+        return next
       })
-      return next
-    })
-  }
-  const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
-  if (applicationsToAdd.length > 0) {
-    set(applicationResultsAtom, (prev) => {
-      const next = new Map(prev)
-      applicationsToAdd.forEach((application) => {
-        if (!next.has(application.id)) {
-          next.set(application.id, createPromiseAtomAndTimestamp(application))
-        }
+    }
+    const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
+    if (applicationsToAdd.length > 0) {
+      set(applicationResultsAtom, (prev) => {
+        const next = new Map(prev)
+        applicationsToAdd.forEach((application) => {
+          if (!next.has(application.id)) {
+            next.set(application.id, createPromiseAtomAndTimestamp(application))
+          }
+        })
+        return next
       })
-      return next
-    })
-  }
-  return accountResult
+    }
+    return accountResult
+  })
 })
 
-export const [accountResultsAtom, getAccountResultAtom] = atomsInAtom(syncAssociatedDataAndReturnAccountResultAtom, (address) => address)
+export const [accountResultsAtom, getAccountResultAtom] = atomsInAtomV4(syncAssociatedDataAndReturnAccountResultAtom, (address) => address)

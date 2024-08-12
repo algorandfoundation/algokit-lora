@@ -72,105 +72,13 @@ export function atomsInAtom<Args extends unknown[], Key extends string | number,
   return [valuesAtom, getValueAtom] as const
 }
 
-export function atomsInAtomV2<Args extends unknown[], Key extends string | number, Value>(
-  createInitialValue: (...args: Args) => Value,
-  keySelector: (...args: Args) => Key,
-  initialValues: Map<Key, readonly [Value, number]> = new Map()
-) {
-  // Note: The for unbound collections, this will grow indefinitely.
-  // Stale data should be cleaned up in state-cleanup.ts
-  const valuesAtom = atom(initialValues)
-
-  const getOrCreateValueAtom = atom(null, (get, set, params: [...args: Args, options?: Options]) => {
-    const _options = params.length > 1 ? params[params.length - 1] : undefined
-    const options = _options && typeof _options === 'object' && 'skipTimestampUpdate' in _options ? (_options as Options) : undefined
-    const args = (options ? params.slice(0, -1) : params) as Args
-    const key = keySelector(...args)
-    const values = get(valuesAtom)
-    if (values.has(key)) {
-      const [valueAtom] = values.get(key)!
-      if (!options || (options && !options.skipTimestampUpdate)) {
-        set(valuesAtom, (prev) => {
-          // Update the timestamp each time the atom is accessed.
-          // We mutate without creating a new Map reference (like we do elsewhere).
-          // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
-          return prev.set(key, [valueAtom, createTimestamp()])
-        })
-      }
-      return valueAtom
-    }
-
-    const value = createInitialValue(...args)
-
-    set(valuesAtom, (prev) => {
-      const next = new Map(prev)
-      next.set(key, [value, createTimestamp()])
-      return next
-    })
-
-    return value
-  })
-
-  const getValueAtom = (...params: [...args: Args, options?: Options]) => {
-    return dataStore.set(getOrCreateValueAtom, params)
-  }
-
-  return [valuesAtom, getValueAtom] as const
-}
-
-export function atomsInAtomV3<Args extends unknown[], Key extends string | number, Value, TWArgs extends unknown[], TWResult>(
-  createInitialValue: (...args: Args) => WritableAtom<Value, TWArgs, TWResult>,
-  keySelector: (...args: Args) => Key,
-  initialValues: Map<Key, readonly [WritableAtom<Value, TWArgs, TWResult>, number]> = new Map()
-) {
-  // Note: The for unbound collections, this will grow indefinitely.
-  // Stale data should be cleaned up in state-cleanup.ts
-  const valuesAtom = atom(initialValues)
-
-  const getOrCreateValueAtom = atom(null, (get, set, params: [...args: Args, options?: Options]) => {
-    const _options = params.length > 1 ? params[params.length - 1] : undefined
-    const options = _options && typeof _options === 'object' && 'skipTimestampUpdate' in _options ? (_options as Options) : undefined
-    const args = (options ? params.slice(0, -1) : params) as Args
-    const key = keySelector(...args)
-    const values = get(valuesAtom)
-    if (values.has(key)) {
-      const [valueAtom] = values.get(key)!
-      if (!options || (options && !options.skipTimestampUpdate)) {
-        set(valuesAtom, (prev) => {
-          // Update the timestamp each time the atom is accessed.
-          // We mutate without creating a new Map reference (like we do elsewhere).
-          // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
-          return prev.set(key, [valueAtom, createTimestamp()])
-        })
-      }
-      return valueAtom
-    }
-
-    const value = createInitialValue(...args)
-
-    set(valuesAtom, (prev) => {
-      const next = new Map(prev)
-      next.set(key, [value, createTimestamp()])
-      return next
-    })
-
-    return value
-  })
-
-  const getValueAtom = (...params: [...args: Args, options?: Options]) => {
-    return dataStore.set(getOrCreateValueAtom, params)
-  }
-
-  return [valuesAtom, getValueAtom] as const
-}
-
 export function atomsInAtomV4<
   Args extends unknown[],
   Key extends string | number,
   TResult,
   TWriteArgs extends unknown[],
   TWriteResult,
-  Value extends Atom<TResult> | WritableAtom<TResult, TWriteArgs, TWriteResult>,
+  Value extends Atom<TResult | Awaited<TResult>> | WritableAtom<TResult, TWriteArgs, TWriteResult>,
 >(
   createInitialValue: ((...args: Args) => Value) | WritableAtom<null, Args, Value>,
   keySelector: (...args: Args) => Key,
