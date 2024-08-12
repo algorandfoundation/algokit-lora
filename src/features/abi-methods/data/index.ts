@@ -1,6 +1,6 @@
 import { ApplicationId } from '@/features/applications/data/types'
 import { useSetAtom } from 'jotai'
-import { mapJsonToArc32AppSpec } from '@/features/abi-methods/mappers'
+import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { useCallback } from 'react'
 import { atomWithStorage } from 'jotai/utils'
 import { dataStore } from '@/features/common/data/data-store'
@@ -58,7 +58,7 @@ export const useSetAppSpec = (applicationId: ApplicationId) => {
         invariant(validUntilRound > validFromRound, 'validUntilRound must be greater than validFromRound')
       }
 
-      const appSpec = mapJsonToArc32AppSpec(json)
+      const appSpec = jsonAsArc32AppSpec(json)
       await setAppSpec(async (prev) => {
         const existing = await prev
         const applicationAppSpec: AppSpecVersion = { standard, validFromRound, validUntilRound, appSpec }

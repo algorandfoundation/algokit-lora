@@ -32,13 +32,13 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
 
 const getAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
   return atom(async (get) => {
-    if (transaction['tx-type'] !== TransactionType.appl || !transaction['application-transaction'] || !transaction['confirmed-round']) {
+    if (!isValidAppCallTransaction(transaction)) {
       return undefined
     }
 
-    const appSpecVersions = await get(getApplicationsAppSpecsAtom(transaction['application-transaction']['application-id']))
+    const appSpecVersions = await get(getApplicationsAppSpecsAtom(transaction['application-transaction']!['application-id']))
     const appSpecVersion = appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
-    const transactionArgs = transaction['application-transaction']['application-args'] ?? []
+    const transactionArgs = transaction['application-transaction']!['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
       const methodContract = appSpecVersion.appSpec.contract.methods.find((m) => {
         const abiMethod = new algosdk.ABIMethod(m)
@@ -55,9 +55,6 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
   return atom(async (get) => {
     if (!isValidAppCallTransaction(transaction)) {
       throw new Error('Cannot get method arguments without a valid app call transaction')
-    }
-    if (transaction['application-transaction']!['application-args']!.length === 0) {
-      return []
     }
 
     const transactionArgs = transaction['application-transaction']!['application-args']!.slice(1)
@@ -112,7 +109,7 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
 
       return {
         name: argName,
-        ...getAbiPrimitiveValue(argumentSpec.type, abiValue),
+        ...getAbiValue(argumentSpec.type, abiValue),
       }
     })
 
@@ -128,10 +125,10 @@ const getMethodReturn = (transaction: TransactionResult, abiMethod: algosdk.ABIM
   // The first 4 bytes are SHA512_256 hash of the string "return"
   const bytes = base64ToBytes(transaction.logs.slice(-1)[0]).subarray(4)
   const abiValue = abiType.decode(bytes)
-  return getAbiPrimitiveValue(abiType, abiValue)
+  return getAbiValue(abiType, abiValue)
 }
 
-const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiValue => {
+const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiValue => {
   if (isTupleType(abiType)) {
     const childTypes = (abiType as algosdk.ABITupleType).childTypes
     const abiValues = abiValue as algosdk.ABIValue[]
@@ -141,7 +138,7 @@ const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIVal
 
     return {
       type: AbiType.Tuple,
-      values: abiValues.map((abiValue, index) => getAbiPrimitiveValue(childTypes[index], abiValue)),
+      values: abiValues.map((abiValue, index) => getAbiValue(childTypes[index], abiValue)),
     }
   }
   if (isStaticArrayType(abiType)) {
@@ -149,7 +146,7 @@ const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIVal
     const abiValues = abiValue as algosdk.ABIValue[]
     return {
       type: AbiType.Array,
-      values: abiValues.map((abiValue) => getAbiPrimitiveValue(childType, abiValue)),
+      values: abiValues.map((abiValue) => getAbiValue(childType, abiValue)),
     }
   }
   if (isDynamicArrayType(abiType)) {
@@ -157,7 +154,7 @@ const getAbiPrimitiveValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIVal
     const abiValues = abiValue as algosdk.ABIValue[]
     return {
       type: AbiType.Array,
-      values: abiValues.map((abiValue) => getAbiPrimitiveValue(childType, abiValue)),
+      values: abiValues.map((abiValue) => getAbiValue(childType, abiValue)),
     }
   }
   if (abiType.toString() === 'string') {
@@ -190,7 +187,8 @@ const isValidAppCallTransaction = (transaction: TransactionResult): boolean => {
     transaction['tx-type'] === TransactionType.appl &&
     Boolean(transaction['application-transaction']) &&
     Boolean(transaction['confirmed-round']) &&
-    Boolean(transaction['application-transaction']?.['application-args'])
+    Boolean(transaction['application-transaction']?.['application-args']) &&
+    (transaction['application-transaction']?.['application-args'] ?? []).length > 0
   )
 }
 
@@ -211,18 +209,12 @@ const getReferencedTransactionIdsAtom = (transaction: TransactionResult, abiMeth
 }
 
 const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): algosdk.ABIValue[] => {
-  if (
-    transaction['tx-type'] !== TransactionType.appl ||
-    !transaction['application-transaction'] ||
-    !transaction['confirmed-round'] ||
-    !transaction['application-transaction']['application-args'] ||
-    transaction['application-transaction']['application-args'].length < 1
-  ) {
+  if (!isValidAppCallTransaction(transaction)) {
     return []
   }
 
   // The first arg is the method selector
-  const transactionArgs = transaction['application-transaction']['application-args'].slice(1)
+  const transactionArgs = transaction['application-transaction']!['application-args']!.slice(1)
   const nonTransactionTypeArgs = abiMethod.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
 
   const results: algosdk.ABIValue[] = []
