@@ -28,24 +28,7 @@ type DispenserApiErrorResponse =
       resetsAt: string
     }
 
-// TODO: NC - Need to do a bit of code cleanup on this.
-
-const getFundLimit = async (dispenserUrl: string, token: string) => {
-  const response = await fetch(`${dispenserUrl}/fund/0/limit`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-    },
-    signal: AbortSignal && 'timeout' in AbortSignal ? AbortSignal.timeout(20_000) : undefined,
-  })
-
-  return await handleApiResponse(response, async (response) => {
-    return microAlgos((await response.json()).amount as number)
-  })
-}
-
-const getHoursUntilReset = (resetsAt: string): number => {
+const calculateHoursUntilReset = (resetsAt: string): number => {
   const nowUtc = new Date()
   const resetDate = new Date(resetsAt)
   const diffInMillis = resetDate.getTime() - nowUtc.getTime()
@@ -64,7 +47,7 @@ const handleApiResponse = async <T>(response: Response, mapper: (response: Respo
       if (statusCode === 401) {
         errorMessage = `Unauthorized. Please log out and try again.`
       } else if (errorResponse.code === 'fund_limit_exceeded') {
-        const hoursUntilReset = getHoursUntilReset(errorResponse.resetsAt)
+        const hoursUntilReset = calculateHoursUntilReset(errorResponse.resetsAt)
         errorMessage = `Funding limit exceeded. Try again in ~${hoursUntilReset} hours.`
       }
     }
@@ -73,6 +56,21 @@ const handleApiResponse = async <T>(response: Response, mapper: (response: Respo
   }
 
   return await mapper(response)
+}
+
+const getFundLimit = async (dispenserUrl: string, token: string) => {
+  const response = await fetch(`${dispenserUrl}/fund/0/limit`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
+    signal: AbortSignal && 'timeout' in AbortSignal ? AbortSignal.timeout(20_000) : undefined,
+  })
+
+  return await handleApiResponse(response, async (response) => {
+    return microAlgos((await response.json()).amount as number)
+  })
 }
 
 const fundAccount = async (dispenserUrl: string, token: string, receiver: Address, amount: AlgoAmount) => {
@@ -108,20 +106,20 @@ const useFundLimitAtom = (dispenserUrl: string, getAccessTokenSilently: Auth0Con
   return fundLimitAtom
 }
 
-export const useDispenserApi = (dispenserUrl: string) => {
+export const useDispenserApi = (dispenserApiUrl: string) => {
   const { getAccessTokenSilently } = useAuth0()
 
-  const fundLimitAtom = useFundLimitAtom(dispenserUrl, getAccessTokenSilently)
+  const fundLimitAtom = useFundLimitAtom(dispenserApiUrl, getAccessTokenSilently)
 
   const fundAccountAndRefreshFundLimit = useAtomCallback(
     useCallback(
       async (_get, set, receiver: Address, amount: AlgoAmount) => {
         const token = await getAccessTokenSilently()
 
-        await fundAccount(dispenserUrl, token, receiver, amount)
+        await fundAccount(dispenserApiUrl, token, receiver, amount)
         set(fundLimitAtom)
       },
-      [dispenserUrl, fundLimitAtom, getAccessTokenSilently]
+      [dispenserApiUrl, fundLimitAtom, getAccessTokenSilently]
     )
   )
 
