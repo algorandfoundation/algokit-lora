@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/features/abi-methods/data/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/features/abi-methods/data/test-app-specs/sample-three.arc32.json'
@@ -35,7 +35,7 @@ describe('resolving ABI method', () => {
 
     it('should resolve the correct data', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationsAppSpecsAtom(applicationId), [

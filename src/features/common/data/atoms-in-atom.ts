@@ -100,7 +100,7 @@ export function atomsInAtomV4<
         set(valuesAtom, (prev) => {
           // Update the timestamp each time the atom is accessed.
           // We mutate without creating a new Map reference (like we do elsewhere).
-          // This ensure jotai doesn't notify dependent atoms of the change, as it's unnecessary.
+          // This ensures jotai doesn't notify dependent atoms of the change, as it's unnecessary.
           return prev.set(key, [valueAtom, createTimestamp()])
         })
       }

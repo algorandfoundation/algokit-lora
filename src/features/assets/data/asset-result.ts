@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { AssetId, AssetResult } from './types'
 import { asError, is404 } from '@/utils/error'
-import { atomsInAtom } from '@/features/common/data'
+import { atomsInAtomV4 } from '@/features/common/data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { algod, indexer } from '@/features/common/data/algo-client'
 
@@ -38,8 +38,14 @@ const getAssetResult = async (assetId: AssetId) => {
   }
 }
 
-export const [assetResultsAtom, getAssetResultAtom] = atomsInAtom(
-  getAssetResult,
+const assetResultAtomBuilder = (assetId: AssetId) => {
+  return atom(async () => {
+    return await getAssetResult(assetId)
+  })
+}
+
+export const [assetResultsAtom, getAssetResultAtom] = atomsInAtomV4(
+  assetResultAtomBuilder,
   (assetId) => assetId,
-  new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]])
+  new Map([[algoAssetResult.index, [atom(() => Promise.resolve(algoAssetResult)), -1]]])
 )

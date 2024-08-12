@@ -38,7 +38,7 @@ describe('search', () => {
 
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[blockResult.round, createAtomAndTimestamp(blockResult)]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, createPromiseAtomAndTimestamp(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createPromiseAtomAndTimestamp(applicationResult)]]))
 
     describe.each([

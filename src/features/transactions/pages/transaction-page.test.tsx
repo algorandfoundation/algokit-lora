@@ -15,7 +15,7 @@ import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
@@ -492,7 +492,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -553,7 +553,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -578,7 +578,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -603,7 +603,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {
@@ -639,8 +639,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
-          [asset.index, createAtomAndTimestamp(asset)],
+          [algoAssetResult.index, createPromiseAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createPromiseAtomAndTimestamp(asset)],
         ])
       )
 
@@ -737,8 +737,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createAtomAndTimestamp(a)] as const),
+          [algoAssetResult.index, createPromiseAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createPromiseAtomAndTimestamp(a)] as const),
         ])
       )
 
@@ -866,8 +866,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
-          ...assets.map((a) => [a.index, createAtomAndTimestamp(a)] as const),
+          [algoAssetResult.index, createPromiseAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createPromiseAtomAndTimestamp(a)] as const),
         ])
       )
 
@@ -903,8 +903,8 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createAtomAndTimestamp(algoAssetResult)],
-          [asset.index, createAtomAndTimestamp(asset)],
+          [algoAssetResult.index, createPromiseAtomAndTimestamp(algoAssetResult)],
+          [asset.index, createPromiseAtomAndTimestamp(asset)],
         ])
       )
 
@@ -1055,7 +1055,7 @@ describe('transaction-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createAtomAndTimestamp(transaction)]]))
-      myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
         () => {

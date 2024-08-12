@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
-import { atomsInAtomV4, createAtomAndTimestamp, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { atomsInAtomV4, createPromiseAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
@@ -30,6 +30,7 @@ const getAccountResult = async (address: Address) => {
   }
 }
 
+// TODO: I think this type is wrong
 const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, address: Address) => {
   return atom(async () => {
     const accountResult = await getAccountResult(address)
@@ -42,7 +43,7 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, addre
         const next = new Map(prev)
         assetsToAdd.forEach((asset) => {
           if (!next.has(asset.index)) {
-            next.set(asset.index, createAtomAndTimestamp(asset))
+            next.set(asset.index, createPromiseAtomAndTimestamp(asset))
           }
         })
         return next
