@@ -9,7 +9,6 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { atomsInAtom } from '@/features/common/data'
 
-// TODO: review this, maybe use atoms-in-atom
 export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAtom(
   (applicationId: ApplicationId) =>
     atomWithStorage<AppSpecVersion[]>(

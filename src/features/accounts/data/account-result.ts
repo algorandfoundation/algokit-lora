@@ -30,7 +30,6 @@ const getAccountResult = async (address: Address) => {
   }
 }
 
-// TODO: I think this type is wrong
 const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, address: Address) => {
   return atom(async () => {
     const accountResult = await getAccountResult(address)
