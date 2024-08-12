@@ -51,9 +51,9 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           )
         }
         return (
-          <div className="inline">
+          <>
             <span>{argument.name}: </span> <AbiValue abiValue={argument} />
-          </div>
+          </>
         )
       }),
     [method.arguments]

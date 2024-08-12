@@ -64,15 +64,16 @@ const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algos
     const argValuesBeyondIndex15th = getArgValuesBeyondIndex15th(transaction, abiMethod)
 
     const abiArguments: AbiMethodArgument[] = abiMethod.args.map((argumentSpec) => {
+      const argName = argumentSpec.name!
+
       if (algosdk.abiTypeIsTransaction(argumentSpec.type)) {
         return {
-          name: argumentSpec.name!,
+          name: argName,
           type: AbiType.Transaction,
           value: referencedTransactionIds.shift()!,
         }
       }
 
-      const argName = argumentSpec.name!
       const abiValue =
         transactionArgIndex === 14 && argValuesBeyondIndex15th.length > 0
           ? argValuesBeyondIndex15th.shift()!
