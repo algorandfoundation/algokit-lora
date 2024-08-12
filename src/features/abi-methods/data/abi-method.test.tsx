@@ -69,7 +69,7 @@ describe('resolving ABI method', () => {
       .build()
 
     it('should resolve the correct data', async () => {
-      myStore.set(groupResultsAtom, new Map([[group.id, createAtomAndTimestamp(group)]]))
+      myStore.set(groupResultsAtom, new Map([[group.id, createPromiseAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
@@ -113,7 +113,7 @@ describe('resolving ABI method', () => {
       .build()
 
     it('should resolve the correct data', async () => {
-      myStore.set(groupResultsAtom, new Map([[group.id, createAtomAndTimestamp(group)]]))
+      myStore.set(groupResultsAtom, new Map([[group.id, createPromiseAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!

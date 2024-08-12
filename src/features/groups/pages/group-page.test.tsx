@@ -80,7 +80,7 @@ describe('group-page', () => {
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
       const myStore = createStore()
-      myStore.set(groupResultsAtom, new Map([[group.id, createAtomAndTimestamp(group)]]))
+      myStore.set(groupResultsAtom, new Map([[group.id, createPromiseAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
       myStore.set(
         assetResultsAtom,

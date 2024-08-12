@@ -87,7 +87,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         groupResultsToAdd.forEach((groupResult) => {
           if (!next.has(groupResult.id)) {
-            next.set(groupResult.id, createAtomAndTimestamp(groupResult))
+            next.set(groupResult.id, createPromiseAtomAndTimestamp(groupResult))
           }
         })
         return next
