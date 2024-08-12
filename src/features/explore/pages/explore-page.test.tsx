@@ -15,7 +15,7 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { createPromiseAtomAndTimestamp, createTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
@@ -55,8 +55,8 @@ describe('explore-page', () => {
     const transactionResults = [transactionResult1]
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[block.round, createPromiseAtomAndTimestamp(block)]]))
-    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createPromiseAtomAndTimestamp(x)])))
+    myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
+    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
     myStore.set(
       latestTransactionIdsAtom,
       transactionResults.map((t) => [t.id, createTimestamp()] as const)
@@ -114,8 +114,8 @@ describe('explore-page', () => {
       (acc, [block, transactions]) => {
         return {
           syncedRound: block.round > acc.syncedRound ? block.round : acc.syncedRound,
-          blocks: new Map([...acc.blocks, [block.round, createPromiseAtomAndTimestamp(block)]]),
-          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, createPromiseAtomAndTimestamp(t)] as const)]),
+          blocks: new Map([...acc.blocks, [block.round, createAtomAndTimestamp(block)]]),
+          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, createAtomAndTimestamp(t)] as const)]),
         }
       },
       {

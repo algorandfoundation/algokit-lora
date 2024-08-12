@@ -3,7 +3,7 @@ import { atom } from 'jotai'
 import { GroupId } from './types'
 import { addStateExtractedFromBlocksAtom, getBlockAndExtractData } from '@/features/blocks/data'
 import { invariant } from '@/utils/invariant'
-import { atomsInAtomV4 } from '@/features/common/data'
+import { atomsInAtom } from '@/features/common/data'
 
 const syncAssociatedDataAndReturnGroupResultAtom = atom(null, (_get, set, groupId: GroupId, round: Round) => {
   return atom(async () => {
@@ -20,7 +20,4 @@ const syncAssociatedDataAndReturnGroupResultAtom = atom(null, (_get, set, groupI
   })
 })
 
-export const [groupResultsAtom, getGroupResultAtom] = atomsInAtomV4(
-  syncAssociatedDataAndReturnGroupResultAtom,
-  (groupId, _round) => groupId
-)
+export const [groupResultsAtom, getGroupResultAtom] = atomsInAtom(syncAssociatedDataAndReturnGroupResultAtom, (groupId, _round) => groupId)

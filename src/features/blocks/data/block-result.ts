@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomsInAtomV4, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { atomsInAtom, createAtomAndTimestamp } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
@@ -73,7 +73,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
           if (!next.has(transactionResult.id)) {
-            next.set(transactionResult.id, createPromiseAtomAndTimestamp(transactionResult))
+            next.set(transactionResult.id, createAtomAndTimestamp(transactionResult))
           }
         })
         return next
@@ -87,7 +87,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         groupResultsToAdd.forEach((groupResult) => {
           if (!next.has(groupResult.id)) {
-            next.set(groupResult.id, createPromiseAtomAndTimestamp(groupResult))
+            next.set(groupResult.id, createAtomAndTimestamp(groupResult))
           }
         })
         return next
@@ -101,7 +101,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         blockResultsToAdd.forEach((blockResult) => {
           if (!next.has(blockResult.round)) {
-            next.set(blockResult.round, createPromiseAtomAndTimestamp(blockResult))
+            next.set(blockResult.round, createAtomAndTimestamp(blockResult))
           }
         })
         return next
@@ -120,4 +120,4 @@ const syncAssociatedDataAndReturnBlockResultAtom = atom(null, (_get, set, round:
   })
 })
 
-export const [blockResultsAtom, getBlockResultAtom] = atomsInAtomV4(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)
+export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)

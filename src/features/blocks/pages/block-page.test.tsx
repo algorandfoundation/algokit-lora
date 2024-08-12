@@ -3,7 +3,7 @@ import { getAllByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { BlockPage, blockFailedToLoadMessage, blockInvalidRoundMessage, blockNotFoundMessage } from './block-page'
-import { createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
@@ -68,7 +68,7 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blockResultsAtom, new Map([[block.round, createPromiseAtomAndTimestamp(block)]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(
@@ -103,9 +103,9 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blockResultsAtom, new Map([[block.round, createPromiseAtomAndTimestamp(block)]]))
-        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createPromiseAtomAndTimestamp(x)])))
-        myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, createAtomAndTimestamp(block)]]))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createAtomAndTimestamp(x)])))
+        myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(

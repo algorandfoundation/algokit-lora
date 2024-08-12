@@ -3,7 +3,7 @@ import { render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
-import { createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { accountResultMother } from '@/tests/object-mother/account-result'
 import { createStore } from 'jotai'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
@@ -61,14 +61,14 @@ describe('account-page', () => {
   describe('when rendering an account', () => {
     const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
     const assetResults = new Map([
-      [924268058, createPromiseAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
-      [1010208883, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
-      [1096015467, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
+      [924268058, createAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883, createAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467, createAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
     ])
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -111,17 +111,17 @@ describe('account-page', () => {
   describe('when rendering an account with assets and applications', () => {
     const accountResult = accountResultMother['mainnet-ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA']().build()
     const assetResults = new Map([
-      [1336655079, createPromiseAtomAndTimestamp(accountResult['created-assets']![0])],
-      [1284444444, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1284444444']().build())],
-      [1162292622, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1162292622']().build())],
-      [1294765516, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1294765516']().build())],
-      [1355858325, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1355858325']().build())],
-      [1355898842, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1355898842']().build())],
+      [1336655079, createAtomAndTimestamp(accountResult['created-assets']![0])],
+      [1284444444, createAtomAndTimestamp(assetResultMother['mainnet-1284444444']().build())],
+      [1162292622, createAtomAndTimestamp(assetResultMother['mainnet-1162292622']().build())],
+      [1294765516, createAtomAndTimestamp(assetResultMother['mainnet-1294765516']().build())],
+      [1355858325, createAtomAndTimestamp(assetResultMother['mainnet-1355858325']().build())],
+      [1355898842, createAtomAndTimestamp(assetResultMother['mainnet-1355898842']().build())],
     ])
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -166,7 +166,7 @@ describe('account-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
@@ -209,14 +209,14 @@ describe('account-page', () => {
   describe('when rendering an account that becomes stale', () => {
     const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
     const assetResults = new Map([
-      [924268058, createPromiseAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
-      [1010208883, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
-      [1096015467, createPromiseAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
+      [924268058, createAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883, createAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467, createAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
     ])
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
@@ -257,7 +257,7 @@ describe('account-page', () => {
     const accountResult = accountResultMother['mainnet-X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE']().build()
     it('should render the account without the assets', () => {
       const myStore = createStore()
-      myStore.set(accountResultsAtom, new Map([[accountResult.address, createPromiseAtomAndTimestamp(accountResult)]]))
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createAtomAndTimestamp(accountResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 

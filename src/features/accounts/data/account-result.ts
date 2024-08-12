@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
-import { atomsInAtomV4, createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { atomsInAtom, createAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
@@ -43,7 +43,7 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, addre
         const next = new Map(prev)
         assetsToAdd.forEach((asset) => {
           if (!next.has(asset.index)) {
-            next.set(asset.index, createPromiseAtomAndTimestamp(asset))
+            next.set(asset.index, createAtomAndTimestamp(asset))
           }
         })
         return next
@@ -55,7 +55,7 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, addre
         const next = new Map(prev)
         applicationsToAdd.forEach((application) => {
           if (!next.has(application.id)) {
-            next.set(application.id, createPromiseAtomAndTimestamp(application))
+            next.set(application.id, createAtomAndTimestamp(application))
           }
         })
         return next
@@ -65,4 +65,4 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, addre
   })
 })
 
-export const [accountResultsAtom, getAccountResultAtom] = atomsInAtomV4(syncAssociatedDataAndReturnAccountResultAtom, (address) => address)
+export const [accountResultsAtom, getAccountResultAtom] = atomsInAtom(syncAssociatedDataAndReturnAccountResultAtom, (address) => address)

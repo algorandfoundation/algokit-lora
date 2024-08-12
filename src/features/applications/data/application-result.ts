@@ -1,5 +1,5 @@
 import { ApplicationId, ApplicationResult } from './types'
-import { atomsInAtomV4 } from '@/features/common/data'
+import { atomsInAtom } from '@/features/common/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { asError, is404 } from '@/utils/error'
 import { atom } from 'jotai'
@@ -30,7 +30,7 @@ const applicationResultAtomBuilder = (applicationId: ApplicationId) => {
   })
 }
 
-export const [applicationResultsAtom, getApplicationResultAtom] = atomsInAtomV4(
+export const [applicationResultsAtom, getApplicationResultAtom] = atomsInAtom(
   applicationResultAtomBuilder,
   (applicationId) => applicationId
 )

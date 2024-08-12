@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { createStore } from 'jotai/index'
-import { createPromiseAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
@@ -17,7 +17,7 @@ describe('asset-transaction-history', () => {
 
   it('should be able to handle pagination', () => {
     const myStore = createStore()
-    myStore.set(assetResultsAtom, new Map([[asset.index, createPromiseAtomAndTimestamp(asset)]]))
+    myStore.set(assetResultsAtom, new Map([[asset.index, createAtomAndTimestamp(asset)]]))
 
     // Given 18 transactions and the page size is 10
     vi.mocked(indexer.searchForTransactions().assetID(ANY_NUMBER).nextToken(ANY_STRING).limit(ANY_NUMBER).do).mockImplementation(() => {
