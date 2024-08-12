@@ -52,3 +52,47 @@ export type AbiMethod = {
   arguments: AbiMethodArgument[]
   return: AbiMethodReturn
 }
+
+export type AbiTupleRender = {
+  type: AbiType.Tuple
+  values: AbiValueRender[]
+  multiLine: boolean
+  length: number
+}
+export type AbiArrayRender = {
+  type: AbiType.Array
+  values: AbiValueRender[]
+  multiLine: boolean
+  length: number
+}
+export type AbiValueRender =
+  | {
+      type: AbiType.String
+      value: string
+      length: number
+      multiLine: boolean
+    }
+  | {
+      type: AbiType.Number
+      value: number
+      length: number
+      multiLine: boolean
+    }
+  | {
+      type: AbiType.Boolean
+      value: boolean
+      length: number
+      multiLine: boolean
+    }
+  | {
+      type: AbiType.Address
+      value: string
+      length: number
+      multiLine: boolean
+    }
+  | AbiTupleRender
+  | AbiArrayRender
+export type AbiMethodArgumentRender =
+  | ({ name: string; multiLine: boolean; length: number } & AbiValueRender)
+  | ({ name: string; multiLine: boolean; length: number } & AbiReferenceValue)
+  | ({ name: string; multiLine: boolean; length: number } & AbiTransactionValue)

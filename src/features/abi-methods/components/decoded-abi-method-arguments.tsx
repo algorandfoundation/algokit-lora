@@ -5,11 +5,15 @@ import { TransactionLink } from '@/features/transactions/components/transaction-
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { asAbiMethodArgumentRender } from '@/features/abi-methods/mappers'
+import { sum } from '@/utils/sum'
 
 export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
+  const argumentsRender = useMemo(() => method.arguments.map((argument) => asAbiMethodArgumentRender(argument)), [method.arguments])
+
   const components = useMemo(
     () =>
-      method.arguments.map((argument) => {
+      argumentsRender.map((argument) => {
         if (argument.type === AbiType.Transaction) {
           return (
             <>
@@ -56,19 +60,33 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           </>
         )
       }),
-    [method.arguments]
+    [argumentsRender]
   )
 
-  return (
-    <ul className={'pl-4'}>
-      {components.map((component, index, arr) => (
-        <li key={index}>
+  const multiLine = argumentsRender.some((argument) => argument.multiLine) || sum(argumentsRender.map((argument) => argument.length)) > 20
+  if (multiLine) {
+    return (
+      <ul className={'pl-4'}>
+        {components.map((component, index, arr) => (
+          <li key={index}>
+            <>
+              {component}
+              {index < arr.length - 1 ? <span>{', '}</span> : null}
+            </>
+          </li>
+        ))}
+      </ul>
+    )
+  } else {
+    return (
+      <div className="inline">
+        {components.map((component, index, arr) => (
           <>
             {component}
             {index < arr.length - 1 ? <span>{', '}</span> : null}
           </>
-        </li>
-      ))}
-    </ul>
-  )
+        ))}
+      </div>
+    )
+  }
 }
