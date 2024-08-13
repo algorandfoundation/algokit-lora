@@ -4,6 +4,7 @@ import { LocalnetFunding } from './components/localnet-funding'
 import { DispenserApiFunding } from './components/dispenser-api-funding'
 
 export const fundPageTitle = 'Fund'
+export const fundingNotAvailableMessage = 'Funding is not available on this network.'
 
 export function FundPage() {
   const networkConfig = useNetworkConfig()

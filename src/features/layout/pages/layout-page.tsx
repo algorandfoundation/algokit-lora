@@ -18,7 +18,6 @@ type Props = {
 
 const callbackUrl = `${window.location.origin}${Urls.FundAuthCallback.build({})}`
 const scope = 'openid email'
-// TODO: NC - Tests
 
 export function LayoutPage({ children }: Props) {
   useDeepLink()

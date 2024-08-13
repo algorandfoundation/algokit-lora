@@ -2,6 +2,8 @@ import { useCallback } from 'react'
 import { Button } from '@/features/common/components/button'
 import { useAuth0 } from '@auth0/auth0-react'
 
+export const dispenserApiLoginButtonLabel = 'log in to fund your account'
+
 export function DispenserApiLoggedOut() {
   const { loginWithPopup } = useAuth0()
 
@@ -12,10 +14,11 @@ export function DispenserApiLoggedOut() {
   return (
     <div>
       <p>
-        To help protect this network, we impose daily fund limits. <br />
+        To help protect this network, we impose daily fund limits.
+        <br />
         Please&nbsp;
         <Button onClick={logIn} variant="link" className="h-auto p-0 text-base">
-          log in to fund your account
+          {dispenserApiLoginButtonLabel}
         </Button>
         .
       </p>

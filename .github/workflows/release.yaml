@@ -71,7 +71,7 @@ jobs:
       release-tag: ${{ steps.create-release-action.outputs.release-tag }}
       release-id: ${{ steps.create-release-action.outputs.release-id }}
 
-  # TODO: NC - Do we need to replace the VITE_ tokens for the Tauri app?
+  # TODO: VITE_ tokens need to be replaced after building, but before bundling the Tauri app
   build-tauri:
     name: Build Tauri app
     needs:
