@@ -43,9 +43,15 @@ describe('resolving ABI method', () => {
       const applicationId = transaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationAppSpecsAtom(applicationId), [
         {
-          standard: 'ARC-32',
-          appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
-        },
+        id: applicationId.toString(),
+        displayName: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+          },
+        ],
+      },
       ])
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
@@ -78,9 +84,15 @@ describe('resolving ABI method', () => {
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationAppSpecsAtom(applicationId), [
         {
-          standard: 'ARC-32',
-          appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
-        },
+        id: applicationId.toString(),
+        displayName: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+          },
+        ],
+      },
       ])
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
@@ -121,10 +133,16 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-        {
-          standard: 'ARC-32',
-          appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
-        },
+         {
+        id: applicationId.toString(),
+        displayName: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
+          },
+        ],
+      },
       ])
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
@@ -298,10 +316,16 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-        {
-          standard: 'ARC-32',
-          appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
-        },
+       {
+        id: applicationId.toString(),
+        displayName: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
+          },
+        ],
+      },
       ])
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))

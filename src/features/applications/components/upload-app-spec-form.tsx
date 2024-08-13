@@ -1,8 +1,6 @@
 import { Application } from '@/features/applications/models'
-import { useSetAppSpec } from '@/features/abi-methods/data'
 import { useCallback } from 'react'
 import { z } from 'zod'
-import { readFile } from '@/utils/read-file'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -19,8 +17,8 @@ type UploadAppSpecFormProps = {
   onSuccess: () => void
 }
 
-export function UploadAppSpecForm({ application, onSuccess }: UploadAppSpecFormProps) {
-  const setAppSpec = useSetAppSpec(application.id)
+export function UploadAppSpecForm({ onSuccess }: UploadAppSpecFormProps) {
+  // const setAppSpec = useSetAppSpec(application.id)
 
   const save = useCallback(
     async (values: z.infer<typeof addAppSpecFormSchema>) => {

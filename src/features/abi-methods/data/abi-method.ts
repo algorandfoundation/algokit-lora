@@ -35,9 +35,13 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-    const appSpecVersions = await get(getApplicationAppSpecsAtom(transaction['application-transaction']['application-id']))
-    const appSpecVersion = appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
-    const transactionArgs = transaction['application-transaction']['application-args'] ?? []
+    const applicationEntity = await get(getApplicationEntityAtom(transaction['application-transaction']!['application-id']))
+    if (!applicationEntity) return undefined
+
+    const appSpecVersion = applicationEntity.appSpecVersions.find((appSpecVersion) =>
+      isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!)
+    )
+    const transactionArgs = transaction['application-transaction']!['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
       const contractMethod = appSpecVersion.appSpec.contract.methods.find((m) => {
         const abiMethod = new algosdk.ABIMethod(m)

@@ -1252,9 +1252,15 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
         [
           applicationId,
           createWritableAtomAndTimestamp({
-            standard: 'ARC-32' as const,
-            appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
-          } satisfies AppSpecVersion),
+          id: applicationId.toString(),
+          displayName: 'test',
+          appSpecVersions: [
+            {
+              standard: 'ARC-32',
+              appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
+            },
+          ],
+        } satisfies AppSpecVersion),
         ],
       ])
     )

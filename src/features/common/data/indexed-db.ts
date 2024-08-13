@@ -8,10 +8,10 @@ interface LoraDBSchemaV1 extends DBSchema {
   }
 }
 
-type ApplicationEntity = {
+export type ApplicationEntity = {
   id: string
   displayName: string
-  versions: AppSpecVersion[]
+  appSpecVersions: AppSpecVersion[]
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
@@ -56,7 +56,7 @@ export const updateDbConnection = (networkId: string) => {
 }
 
 const dbMigrations = [
-  async (db: IDBPDatabase<LoraDBSchemaV2>) => {
+  async (db: IDBPDatabase<LoraDBSchemaV1>) => {
     const v1Db = db as unknown as IDBPDatabase<LoraDBSchemaV1>
     v1Db.createObjectStore('applications-app-specs')
   },
@@ -73,7 +73,7 @@ const dbMigrations = [
         newItems.push({
           id: key,
           displayName: '',
-          versions: [...item],
+          appSpecVersions: [...item],
         })
       }
     }
@@ -82,11 +82,11 @@ const dbMigrations = [
 
     const v2Db = db as unknown as IDBPDatabase<LoraDBSchemaV2>
     v2Db.createObjectStore('applications', {
-      keyPath: 'applicationId',
+      keyPath: 'id',
     })
 
     const v2Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV2, StoreNames<LoraDBSchemaV2>[], 'versionchange'>
-    const v2Store = v2Transaction.objectStore('applications')!
+    const v2Store = v2Transaction.objectStore('applications')
 
     for (const newItem of newItems) {
       await v2Store.put(newItem)
