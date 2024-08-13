@@ -5,19 +5,17 @@ import { addStateExtractedFromBlocksAtom, getBlockAndExtractData } from '@/featu
 import { invariant } from '@/utils/invariant'
 import { atomsInAtom } from '@/features/common/data'
 
-const syncAssociatedDataAndReturnGroupResultAtom = atom(null, (_get, set, groupId: GroupId, round: Round) => {
-  return atom(async () => {
-    const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
+const syncAssociatedDataAndReturnGroupResultAtom = atom(null, async (_get, set, groupId: GroupId, round: Round) => {
+  const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
 
-    const groupIndex = groupResults.findIndex((groupResult) => groupResult.id === groupId)
-    invariant(groupIndex !== -1, `Group ${groupId} does not exist in block ${round}`)
-    const [group] = groupResults.splice(groupIndex, 1)
+  const groupIndex = groupResults.findIndex((groupResult) => groupResult.id === groupId)
+  invariant(groupIndex !== -1, `Group ${groupId} does not exist in block ${round}`)
+  const [group] = groupResults.splice(groupIndex, 1)
 
-    // Don't need to sync the group (hence the splice), as it's synced by atomsInAtom, due to this atom returning the group
-    set(addStateExtractedFromBlocksAtom, [blockResult], transactionResults, groupResults)
+  // Don't need to sync the group (hence the splice), as it's synced by atomsInAtom, due to this atom returning the group
+  set(addStateExtractedFromBlocksAtom, [blockResult], transactionResults, groupResults)
 
-    return group
-  })
+  return group
 })
 
 export const [groupResultsAtom, getGroupResultAtom] = atomsInAtom(syncAssociatedDataAndReturnGroupResultAtom, (groupId, _round) => groupId)

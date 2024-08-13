@@ -120,8 +120,8 @@ describe('explore-page', () => {
       },
       {
         syncedRound: 0,
-        blocks: new Map<Round, readonly [Atom<Promise<BlockResult>>, number]>(),
-        transactions: new Map<TransactionId, readonly [Atom<Promise<TransactionResult>>, number]>(),
+        blocks: new Map<Round, readonly [Atom<BlockResult>, number]>(),
+        transactions: new Map<TransactionId, readonly [Atom<TransactionResult>, number]>(),
       }
     )
 

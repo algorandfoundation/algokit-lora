@@ -4,7 +4,7 @@ import { dataStore } from './data-store'
 export const createTimestamp = (): number => Date.now()
 
 export const createAtomAndTimestamp = <T>(value: T) => {
-  const createAtomFunc = (value: T) => atom(() => Promise.resolve(value))
+  const createAtomFunc = (value: T) => atom(() => value)
   return [createAtomFunc(value), createTimestamp()] as const
 }
 
@@ -17,17 +17,13 @@ export const createAtomAndTimestamp = <T>(value: T) => {
  * @param initialValues The initial value of the atom (parent atom)
  * @returns A tuple containing the values atom and a function to get the value atom for a given key
  */
-export function atomsInAtom<
-  Args extends unknown[],
-  Key extends string | number,
-  TResult,
-  TWriteArgs extends unknown[],
-  TWriteResult,
-  Value extends Atom<TResult | Awaited<TResult>> | WritableAtom<TResult, TWriteArgs, TWriteResult>,
->(
-  createInitialValue: ((...args: Args) => Value) | WritableAtom<null, Args, Value>,
+export function atomsInAtom<Args extends unknown[], Key extends string | number, Value, TWriteArgs extends unknown[], TWriteResult>(
+  createInitialValue:
+    | ((...args: Args) => Atom<Value | Awaited<Value>>)
+    | ((...args: Args) => WritableAtom<Value, TWriteArgs, TWriteResult>)
+    | WritableAtom<null, Args, Value>,
   keySelector: (...args: Args) => Key,
-  initialValues: Map<Key, readonly [Value, number]> = new Map()
+  initialValues: Map<Key, readonly [Atom<Value | Awaited<Value>>, number]> = new Map()
 ) {
   // Note: The for unbound collections, this will grow indefinitely.
   // Stale data should be cleaned up in state-cleanup.ts
@@ -52,7 +48,7 @@ export function atomsInAtom<
       return valueAtom
     }
 
-    const valueAtom = 'write' in createInitialValue ? set(createInitialValue, ...args) : createInitialValue(...args)
+    const valueAtom = 'write' in createInitialValue ? atom(() => set(createInitialValue, ...args)) : createInitialValue(...args)
 
     set(valuesAtom, (prev) => {
       const next = new Map(prev)

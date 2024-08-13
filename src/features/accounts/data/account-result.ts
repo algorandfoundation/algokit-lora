@@ -30,38 +30,36 @@ const getAccountResult = async (address: Address) => {
   }
 }
 
-const syncAssociatedDataAndReturnAccountResultAtom = atom(null, (get, set, address: Address) => {
-  return atom(async () => {
-    const accountResult = await getAccountResult(address)
-    const assetResults = get(assetResultsAtom)
-    const applicationResults = get(applicationResultsAtom)
+const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set, address: Address) => {
+  const accountResult = await getAccountResult(address)
+  const assetResults = get(assetResultsAtom)
+  const applicationResults = get(applicationResultsAtom)
 
-    const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
-    if (assetsToAdd.length > 0) {
-      set(assetResultsAtom, (prev) => {
-        const next = new Map(prev)
-        assetsToAdd.forEach((asset) => {
-          if (!next.has(asset.index)) {
-            next.set(asset.index, createAtomAndTimestamp(asset))
-          }
-        })
-        return next
+  const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
+  if (assetsToAdd.length > 0) {
+    set(assetResultsAtom, (prev) => {
+      const next = new Map(prev)
+      assetsToAdd.forEach((asset) => {
+        if (!next.has(asset.index)) {
+          next.set(asset.index, createAtomAndTimestamp(asset))
+        }
       })
-    }
-    const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
-    if (applicationsToAdd.length > 0) {
-      set(applicationResultsAtom, (prev) => {
-        const next = new Map(prev)
-        applicationsToAdd.forEach((application) => {
-          if (!next.has(application.id)) {
-            next.set(application.id, createAtomAndTimestamp(application))
-          }
-        })
-        return next
+      return next
+    })
+  }
+  const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
+  if (applicationsToAdd.length > 0) {
+    set(applicationResultsAtom, (prev) => {
+      const next = new Map(prev)
+      applicationsToAdd.forEach((application) => {
+        if (!next.has(application.id)) {
+          next.set(application.id, createAtomAndTimestamp(application))
+        }
       })
-    }
-    return accountResult
-  })
+      return next
+    })
+  }
+  return accountResult
 })
 
 export const [accountResultsAtom, getAccountResultAtom] = atomsInAtom(syncAssociatedDataAndReturnAccountResultAtom, (address) => address)
