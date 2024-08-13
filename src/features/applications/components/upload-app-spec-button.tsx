@@ -11,7 +11,7 @@ type Props = {
 export function UploadAppSpecButton({ application }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
   return (
-    <div className="hidden">
+    <div className="">
       <Button variant="default" onClick={() => setDialogOpen(true)}>
         Upload App Spec
       </Button>
