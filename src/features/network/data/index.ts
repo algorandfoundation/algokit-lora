@@ -2,14 +2,14 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
-import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId } from './types'
+import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId } from './types'
 import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
 
-export { localnetId, testnetId, mainnetId } from './types'
-export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC]
+export { localnetId, testnetId, mainnetId, fnetId } from './types'
+export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
 export const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
-export const supportedWalletProviders = [...localnetWalletProviders, ...nonLocalnetWalletProviders]
+const supportedWalletProviders = Array.from(new Set([...localnetWalletProviders, ...nonLocalnetWalletProviders]))
 export const allWalletProviderNames: Record<PROVIDER_ID, string> = {
   kmd: 'KMD',
   mnemonic: 'MNEMONIC',
@@ -46,6 +46,18 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     },
     walletProviders: localnetWalletProviders,
+  },
+  [fnetId]: {
+    name: 'FNet',
+    indexer: {
+      server: 'https://fnet-idx.4160.nodely.io/',
+      port: 443,
+    },
+    algod: {
+      server: 'https://fnet-api.4160.nodely.io/',
+      port: 443,
+    },
+    walletProviders: [PROVIDER_ID.LUTE],
   },
   [testnetId]: {
     name: 'TestNet',
