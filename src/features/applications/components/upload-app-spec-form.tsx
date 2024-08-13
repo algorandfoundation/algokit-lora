@@ -28,8 +28,8 @@ export function UploadAppSpecForm({ application, onSuccess }: UploadAppSpecFormP
       await setAppSpec({
         standard: 'ARC-32',
         json: JSON.parse(content as string),
-        validFromRound: undefined,
-        validUntilRound: undefined,
+        roundFirstValid: undefined,
+        roundLastValid: undefined,
       })
       toast.success('ARC32 app spec saved successfully')
     },
