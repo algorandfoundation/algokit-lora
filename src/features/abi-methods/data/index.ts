@@ -1,8 +1,7 @@
 import { ApplicationId } from '@/features/applications/data/types'
-import { useSetAtom } from 'jotai'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { useCallback } from 'react'
-import { atomWithStorage } from 'jotai/utils'
+import { atomWithStorage, useAtomCallback } from 'jotai/utils'
 import { dataStore } from '@/features/common/data/data-store'
 import { dbAtom } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
@@ -36,52 +35,56 @@ export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = atomsInAto
 )
 
 export const useSetAppSpec = (applicationId: ApplicationId) => {
-  const setAppSpec = useSetAtom(getApplicationAppSpecsAtom(applicationId))
-
-  return useCallback(
-    async ({
-      standard,
-      validFromRound,
-      validUntilRound,
-      json,
-    }: {
-      standard: 'ARC-32'
-      json: unknown
-      validFromRound?: number
-      validUntilRound?: number
-    }) => {
-      invariant(validFromRound === undefined || validFromRound >= 0, 'validFromRound must be greater than or equal to 0')
-      invariant(validUntilRound === undefined || validUntilRound >= 0, 'validUntilRound must be greater than or equal to 0')
-      if (validFromRound !== undefined && validUntilRound !== undefined) {
-        invariant(validUntilRound > validFromRound, 'validUntilRound must be greater than validFromRound')
-      }
-
-      const appSpec = jsonAsArc32AppSpec(json)
-      await setAppSpec(async (prev) => {
-        const existing = await prev
-        const applicationAppSpec: AppSpecVersion = { standard, validFromRound, validUntilRound, appSpec }
-
-        // If there is an existing app spec with the same standard and valid rounds, remove it and add the new one
-        const matchingAppSpecVersion = existing.find(
-          (e) => e.standard === standard && e.validFromRound === validFromRound && e.validFromRound === validFromRound
-        )
-        if (matchingAppSpecVersion) {
-          return [...existing.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
+  return useAtomCallback(
+    useCallback(
+      async (
+        _,
+        set,
+        {
+          standard,
+          roundFirstValid,
+          roundLastValid,
+          json,
+        }: {
+          standard: 'ARC-32'
+          json: unknown
+          roundFirstValid?: number
+          roundLastValid?: number
+        }
+      ) => {
+        invariant(roundFirstValid === undefined || roundFirstValid >= 0, 'roundFirstValid must be greater than or equal to 0')
+        invariant(roundLastValid === undefined || roundLastValid >= 0, 'roundLastValid must be greater than or equal to 0')
+        if (roundFirstValid !== undefined && roundLastValid !== undefined) {
+          invariant(roundLastValid > roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
         }
 
-        // Check if there is an existing app spec with the same standard and valid rounds that overlaps with the new one
-        const overlappingWithExistingData = existing.some(
-          (e) =>
-            e.standard === standard &&
-            (isInRange(validFromRound, e.validFromRound, e.validUntilRound) ||
-              isInRange(validUntilRound, e.validFromRound, e.validUntilRound))
-        )
-        invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
+        const appSpec = jsonAsArc32AppSpec(json)
+        await set(getApplicationAppSpecsAtom(applicationId), async (prev) => {
+          const existing = await prev
+          const applicationAppSpec: AppSpecVersion = { standard, roundFirstValid: roundFirstValid, roundLastValid: roundLastValid, appSpec }
 
-        return [...existing, applicationAppSpec]
-      })
-    },
-    [setAppSpec]
+          // If there is an existing app spec with the same standard and valid rounds, remove it and add the new one
+          const matchingAppSpecVersion = existing.find(
+            (e) => e.standard === standard && e.roundFirstValid === roundFirstValid && e.roundFirstValid === roundFirstValid
+          )
+          if (matchingAppSpecVersion) {
+            return [...existing.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
+          }
+
+          // Check if there is an existing app spec with the same standard and valid rounds that overlaps with the new one
+          const overlappingWithExistingData = existing.some(
+            (e) =>
+              e.standard === standard &&
+              (isInRange(roundFirstValid, e.roundFirstValid, e.roundLastValid) ||
+                isInRange(roundLastValid, e.roundFirstValid, e.roundLastValid))
+          )
+          invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
+
+          return [...existing, applicationAppSpec]
+        })
+      },
+      [applicationId]
+    )
   )
 }
 

@@ -3,8 +3,8 @@ import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/a
 // Only ARC-32 is supported for now
 export type AppSpecVersion = {
   standard: 'ARC-32'
-  validFromRound?: number
-  validUntilRound?: number
+  roundFirstValid?: number
+  roundLastValid?: number
   appSpec: Arc32AppSpec
 }
 

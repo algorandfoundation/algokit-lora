@@ -1,5 +1,5 @@
 import { Atom, atom } from 'jotai'
-import { getApplicationsAppSpecsAtom } from '@/features/abi-methods/data/index'
+import { getApplicationAppSpecsAtom } from '@/features/abi-methods/data/index'
 import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -36,7 +36,7 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
       return undefined
     }
 
-    const appSpecVersions = await get(getApplicationsAppSpecsAtom(transaction['application-transaction']!['application-id']))
+    const appSpecVersions = await get(getApplicationAppSpecsAtom(transaction['application-transaction']!['application-id']))
     const appSpecVersion = appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
     const transactionArgs = transaction['application-transaction']!['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
@@ -244,9 +244,9 @@ const mapAbiArgumentToAbiValue = (type: algosdk.ABIArgumentType, value: string) 
 }
 
 const isValidAppSpecVersion = (appSpec: AppSpecVersion, round: Round) => {
-  const validFromRound = appSpec.validUntilRound ?? -1
-  const validToRound = appSpec.validUntilRound ?? Number.MAX_SAFE_INTEGER
-  return validFromRound <= round && round <= validToRound
+  const roundFirstValid = appSpec.roundLastValid ?? -1
+  const roundLastValid = appSpec.roundLastValid ?? Number.MAX_SAFE_INTEGER
+  return roundFirstValid <= round && round <= roundLastValid
 }
 
 const isTupleType = (type: algosdk.ABIType) =>
