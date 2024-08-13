@@ -9,6 +9,7 @@ import { getGroupResultAtom } from '@/features/groups/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
+import { invariant } from '@/utils/invariant'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
@@ -32,13 +33,11 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
 
 const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
   return atom(async (get) => {
-    if (!isValidAppCallTransaction(transaction)) {
-      return undefined
-    }
+    invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-    const appSpecVersions = await get(getApplicationAppSpecsAtom(transaction['application-transaction']!['application-id']))
+    const appSpecVersions = await get(getApplicationAppSpecsAtom(transaction['application-transaction']['application-id']))
     const appSpecVersion = appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
-    const transactionArgs = transaction['application-transaction']!['application-args'] ?? []
+    const transactionArgs = transaction['application-transaction']['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
       const contractMethod = appSpecVersion.appSpec.contract.methods.find((m) => {
         const abiMethod = new algosdk.ABIMethod(m)
@@ -53,11 +52,10 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
 
 const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): Atom<Promise<AbiMethodArgument[]>> => {
   return atom(async (get) => {
-    if (!isValidAppCallTransaction(transaction)) {
-      throw new Error('Cannot get method arguments without a valid app call transaction')
-    }
+    invariant(transaction['application-transaction'], 'application-transaction is not set')
+    invariant(transaction['application-transaction']?.['application-args'], 'application-transaction application-args is not set')
 
-    const transactionArgs = transaction['application-transaction']!['application-args']!.slice(1)
+    const transactionArgs = transaction['application-transaction']['application-args'].slice(1)
     let transactionArgIndex = 0
     const referencedTransactionIds = await get(getReferencedTransactionIdsAtom(transaction, abiMethod))
     // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
@@ -80,22 +78,28 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
           : mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[transactionArgIndex++])
 
       if (argumentSpec.type === ABIReferenceType.asset) {
+        invariant(transaction['application-transaction']?.['foreign-assets'], 'application-transaction foreign-assets is not set')
+
         return {
           name: argName,
           type: AbiType.Asset,
-          value: transaction['application-transaction']!['foreign-assets']![Number(abiValue)],
+          value: transaction['application-transaction']['foreign-assets'][Number(abiValue)],
         }
       }
       if (argumentSpec.type === ABIReferenceType.account) {
+        invariant(transaction['application-transaction']?.['accounts'], 'application-transaction accounts is not set')
+
         const accountIndex = Number(abiValue)
         // Index 0 of application accounts is the sender
         return {
           name: argName,
           type: AbiType.Account,
-          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']!['accounts']![accountIndex - 1],
+          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex - 1],
         }
       }
       if (argumentSpec.type === ABIReferenceType.application) {
+        invariant(transaction['application-transaction']?.['foreign-apps'], 'application-transaction foreign-apps is not set')
+
         const applicationIndex = Number(abiValue)
         // Index 0 of foreign apps is the called app
         return {
@@ -104,7 +108,7 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
           value:
             applicationIndex === 0
               ? transaction.applicationId
-              : transaction['application-transaction']!['foreign-apps']![applicationIndex - 1],
+              : transaction['application-transaction']['foreign-apps'][applicationIndex - 1],
         }
       }
 
@@ -198,11 +202,9 @@ const getReferencedTransactionIdsAtom = (transaction: TransactionResult, abiMeth
     const hasReferencedTransactions = abiMethod.args.some((arg) => algosdk.abiTypeIsTransaction(arg.type))
     if (!hasReferencedTransactions) return []
 
-    if (hasReferencedTransactions && !transaction['confirmed-round'] && !transaction['group']) {
-      throw new Error('Cannot get referenced transactions without a group')
-    }
+    invariant(transaction['confirmed-round'] && transaction['group'], 'Cannot get referenced transactions without a group')
 
-    const groupResult = await get(getGroupResultAtom(transaction['group']!, transaction['confirmed-round']!))
+    const groupResult = await get(getGroupResultAtom(transaction['group'], transaction['confirmed-round']))
     const transactionIndexInGroup = groupResult.transactionIds.findIndex((id) => id === transaction.id)
     const transactionTypeArgsCount = abiMethod.args.filter((arg) => algosdk.abiTypeIsTransaction(arg.type)).length
     return groupResult.transactionIds.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
@@ -210,12 +212,11 @@ const getReferencedTransactionIdsAtom = (transaction: TransactionResult, abiMeth
 }
 
 const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): algosdk.ABIValue[] => {
-  if (!isValidAppCallTransaction(transaction)) {
-    return []
-  }
+  invariant(transaction['application-transaction'], 'application-transaction is not set')
+  invariant(transaction['application-transaction']?.['application-args'], 'application-transaction application-args is not set')
 
   // The first arg is the method selector
-  const transactionArgs = transaction['application-transaction']!['application-args']!.slice(1)
+  const transactionArgs = transaction['application-transaction']['application-args'].slice(1)
   const nonTransactionTypeArgs = abiMethod.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
 
   const results: algosdk.ABIValue[] = []
