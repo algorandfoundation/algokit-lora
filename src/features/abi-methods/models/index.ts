@@ -1,14 +1,14 @@
 export enum AbiType {
-  String = 'string',
-  Number = 'number',
-  Boolean = 'boolean',
-  Address = 'address',
-  Array = 'array',
-  Tuple = 'tuple',
-  Account = 'account',
-  Transaction = 'transaction',
-  Application = 'application',
-  Asset = 'asset',
+  String = 'String',
+  Number = 'Number',
+  Boolean = 'Boolean',
+  Address = 'Address',
+  Array = 'Array',
+  Tuple = 'Tuple',
+  Account = 'Account',
+  Transaction = 'Transaction',
+  Application = 'Application',
+  Asset = 'Asset',
 }
 
 export type AbiTupleValue = { type: AbiType.Tuple; values: AbiValue[] }

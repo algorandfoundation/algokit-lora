@@ -9,7 +9,7 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { atomsInAtom } from '@/features/common/data'
 
-export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAtom(
+export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = atomsInAtom(
   (applicationId: ApplicationId) =>
     atomWithStorage<AppSpecVersion[]>(
       applicationId.toString(),
@@ -36,7 +36,7 @@ export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAt
 )
 
 export const useSetAppSpec = (applicationId: ApplicationId) => {
-  const setAppSpec = useSetAtom(getApplicationsAppSpecsAtom(applicationId))
+  const setAppSpec = useSetAtom(getApplicationAppSpecsAtom(applicationId))
 
   return useCallback(
     async ({

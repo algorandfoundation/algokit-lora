@@ -9,7 +9,7 @@ import { assetSummaryResolver } from '@/features/assets/data/asset-summary'
 import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
 
 export const createTransactionsAtom = (transactionResults: TransactionResult[]) => {
-  return atom((_) => {
+  return atom(() => {
     return transactionResults.map((transactionResult) => {
       return asTransaction(transactionResult, assetSummaryResolver, abiMethodResolver)
     })
