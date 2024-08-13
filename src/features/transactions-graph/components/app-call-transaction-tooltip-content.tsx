@@ -10,7 +10,6 @@ import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
-import { isDefined } from '@/utils/is-defined'
 import { useAtomValue } from 'jotai/index'
 import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -34,30 +33,29 @@ function AppCallDescriptionList({
   abiMethod: AbiMethod | undefined
 }) {
   const items = useMemo(
-    () =>
-      [
-        {
-          dt: transactionIdLabel,
-          dd: <TransactionLink transactionId={transaction.id} />,
-        },
-        {
-          dt: transactionTypeLabel,
-          dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
-        },
-        ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
-        {
-          dt: transactionSenderLabel,
-          dd: <AccountLink address={transaction.sender} />,
-        },
-        {
-          dt: applicationIdLabel,
-          dd: <ApplicationLink applicationId={transaction.applicationId} />,
-        },
-        {
-          dt: transactionFeeLabel,
-          dd: <DisplayAlgo amount={transaction.fee} />,
-        },
-      ].filter(isDefined),
+    () => [
+      {
+        dt: transactionIdLabel,
+        dd: <TransactionLink transactionId={transaction.id} />,
+      },
+      {
+        dt: transactionTypeLabel,
+        dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
+      },
+      ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
+      {
+        dt: transactionSenderLabel,
+        dd: <AccountLink address={transaction.sender} />,
+      },
+      {
+        dt: applicationIdLabel,
+        dd: <ApplicationLink applicationId={transaction.applicationId} />,
+      },
+      {
+        dt: transactionFeeLabel,
+        dd: <DisplayAlgo amount={transaction.fee} />,
+      },
+    ],
     [transaction, abiMethod]
   )
 
