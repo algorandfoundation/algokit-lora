@@ -13,8 +13,7 @@ export function DecodedAbiMethod({ abiMethod }: Props) {
         <span>{abiMethod.name}(</span>
         <DecodedAbiMethodArguments method={abiMethod} />)
       </div>
-      <div className={'my-4'} />
-      <div>
+      <div className="mt-4">
         <span>Returns: </span>
         <div className="inline">
           <DecodedAbiMethodReturnValue method={abiMethod} />

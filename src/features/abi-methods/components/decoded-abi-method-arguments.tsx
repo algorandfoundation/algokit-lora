@@ -14,7 +14,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <TransactionLink className={'text-primary underline'} transactionId={argument.value}>
+              <TransactionLink className="text-primary underline" transactionId={argument.value}>
                 {argument.value}
               </TransactionLink>
             </>
@@ -24,7 +24,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <AccountLink className={'text-primary underline'} address={argument.value}>
+              <AccountLink className="text-primary underline" address={argument.value}>
                 {argument.value}
               </AccountLink>
             </>
@@ -34,7 +34,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <ApplicationLink className={'text-primary underline'} applicationId={argument.value}>
+              <ApplicationLink className="text-primary underline" applicationId={argument.value}>
                 {argument.value}
               </ApplicationLink>
             </>
@@ -44,7 +44,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <AssetIdLink className={'text-primary underline'} assetId={argument.value}>
+              <AssetIdLink className="text-primary underline" assetId={argument.value}>
                 {argument.value}
               </AssetIdLink>
             </>
@@ -63,10 +63,8 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
     <ul className={'pl-4'}>
       {components.map((component, index, arr) => (
         <li key={index}>
-          <>
-            {component}
-            {index < arr.length - 1 ? <span>{', '}</span> : null}
-          </>
+          {component}
+          {index < arr.length - 1 ? <span>{', '}</span> : null}
         </li>
       ))}
     </ul>

@@ -11,7 +11,6 @@ import { applicationIdLabel } from '@/features/applications/components/labels'
 import { abiMethodNameLabel, transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { DecodedAbiMethod } from '@/features/abi-methods/components/decoded-abi-method'
-import { isDefined } from '@/utils/is-defined'
 import { useAtomValue } from 'jotai'
 import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -27,7 +26,7 @@ const foreignApplicationsTabId = 'foreign-applications'
 const foreignAssetsTabId = 'foreign-assets'
 const globalStateDeltaTabId = 'global-state'
 const localStateDeltaTabId = 'local-state'
-const decodedAbiMethodTabId = 'decode-app-call'
+const decodedAbiMethodTabId = 'decoded-app-call'
 
 export const applicationArgsTabLabel = 'Application Args'
 export const foreignAccountsTabLabel = 'Foreign Accounts'
@@ -67,22 +66,21 @@ function AppCallDescriptionList({
   abiMethod: AbiMethod | undefined
 }) {
   const items = useMemo(
-    () =>
-      [
-        {
-          dt: transactionSenderLabel,
-          dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
-        },
-        {
-          dt: applicationIdLabel,
-          dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
-        },
-        ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
-        {
-          dt: onCompletionLabel,
-          dd: transaction.onCompletion,
-        },
-      ].filter(isDefined),
+    () => [
+      {
+        dt: transactionSenderLabel,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+      },
+      {
+        dt: applicationIdLabel,
+        dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
+      },
+      ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
+      {
+        dt: onCompletionLabel,
+        dd: transaction.onCompletion,
+      },
+    ],
     [abiMethod, transaction.applicationId, transaction.onCompletion, transaction.sender]
   )
   return <DescriptionList items={items} />
@@ -96,46 +94,47 @@ function AppCallTransactionTabs({
   abiMethod: AbiMethod | undefined
 }) {
   const tabs = useMemo(
-    () =>
-      [
-        abiMethod
-          ? {
+    () => [
+      ...(abiMethod
+        ? [
+            {
               id: decodedAbiMethodTabId,
               label: decodedAbiMethodTabLabel,
               children: <DecodedAbiMethod abiMethod={abiMethod} />,
-            }
-          : undefined,
-        {
-          id: applicationArgsTabId,
-          label: applicationArgsTabLabel,
-          children: <ApplicationArgs transaction={transaction} />,
-        },
-        {
-          id: foreignAccountsTabId,
-          label: foreignAccountsTabLabel,
-          children: <ForeignAccounts transaction={transaction} />,
-        },
-        {
-          id: foreignApplicationsTabId,
-          label: foreignApplicationsTabLabel,
-          children: <ForeignApplications transaction={transaction} />,
-        },
-        {
-          id: foreignAssetsTabId,
-          label: foreignAssetsTabLabel,
-          children: <ForeignAssets transaction={transaction} />,
-        },
-        {
-          id: globalStateDeltaTabId,
-          label: globalStateDeltaTabLabel,
-          children: <GlobalStateDeltas transaction={transaction} />,
-        },
-        {
-          id: localStateDeltaTabId,
-          label: localStateDeltaTabLabel,
-          children: <LocalStateDeltas transaction={transaction} />,
-        },
-      ].filter(isDefined),
+            },
+          ]
+        : []),
+      {
+        id: applicationArgsTabId,
+        label: applicationArgsTabLabel,
+        children: <ApplicationArgs transaction={transaction} />,
+      },
+      {
+        id: foreignAccountsTabId,
+        label: foreignAccountsTabLabel,
+        children: <ForeignAccounts transaction={transaction} />,
+      },
+      {
+        id: foreignApplicationsTabId,
+        label: foreignApplicationsTabLabel,
+        children: <ForeignApplications transaction={transaction} />,
+      },
+      {
+        id: foreignAssetsTabId,
+        label: foreignAssetsTabLabel,
+        children: <ForeignAssets transaction={transaction} />,
+      },
+      {
+        id: globalStateDeltaTabId,
+        label: globalStateDeltaTabLabel,
+        children: <GlobalStateDeltas transaction={transaction} />,
+      },
+      {
+        id: localStateDeltaTabId,
+        label: localStateDeltaTabLabel,
+        children: <LocalStateDeltas transaction={transaction} />,
+      },
+    ],
     [abiMethod, transaction]
   )
 

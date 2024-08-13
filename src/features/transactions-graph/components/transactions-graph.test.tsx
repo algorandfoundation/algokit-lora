@@ -16,8 +16,8 @@ import { atom } from 'jotai'
 import { invariant } from '@/utils/invariant'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { Atom } from 'jotai/index'
-import { sleep } from '@/utils/sleep'
 import { AbiMethod } from '@/features/abi-methods/models'
+import { setTimeout } from 'timers/promises'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -127,7 +127,7 @@ describe('application-call-graph', () => {
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
             // Sleep to make sure the ABI method is loaded
-            await sleep(10)
+            await setTimeout(10)
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
             )
@@ -231,7 +231,7 @@ describe('group-graph', () => {
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
             // Sleep to make sure the ABI method is loaded
-            await sleep(10)
+            await setTimeout(10)
 
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`

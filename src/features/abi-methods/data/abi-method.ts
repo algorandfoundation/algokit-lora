@@ -16,10 +16,10 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
       return undefined
     }
 
-    const abiMethod = await get(getAbiMethodAtom(transaction))
+    const abiMethod = await get(createAbiMethodAtom(transaction))
     if (!abiMethod) return undefined
 
-    const methodArguments = await get(getMethodArgumentsAtom(transaction, abiMethod))
+    const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethod))
     const methodReturn = getMethodReturn(transaction, abiMethod)
 
     return {
@@ -30,7 +30,7 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
   })
 }
 
-const getAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
+const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
   return atom(async (get) => {
     if (!isValidAppCallTransaction(transaction)) {
       return undefined
@@ -51,7 +51,7 @@ const getAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.
   })
 }
 
-const getMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): Atom<Promise<AbiMethodArgument[]>> => {
+const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): Atom<Promise<AbiMethodArgument[]>> => {
   return atom(async (get) => {
     if (!isValidAppCallTransaction(transaction)) {
       throw new Error('Cannot get method arguments without a valid app call transaction')
