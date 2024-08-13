@@ -36,9 +36,7 @@ export const [applicationsAppSpecsAtom, getApplicationsAppSpecsAtom] = atomsInAt
 )
 
 export const useSetAppSpec = (applicationId: ApplicationId) => {
-  const foo = getApplicationsAppSpecsAtom(applicationId)
-
-  const setAppSpec = useSetAtom(foo)
+  const setAppSpec = useSetAtom(getApplicationsAppSpecsAtom(applicationId))
 
   return useCallback(
     async ({
