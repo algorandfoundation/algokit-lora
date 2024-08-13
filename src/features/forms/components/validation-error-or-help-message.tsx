@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { cn } from '@/features/common/utils'
 import { ReactElement } from 'react'
 
 export interface ValidationErrorMessageProps {
@@ -8,7 +8,7 @@ export interface ValidationErrorMessageProps {
 
 export function ValidationErrorOrHelpMessage({ errorText, helpText }: ValidationErrorMessageProps) {
   return (
-    <span className={clsx('ml-0.5 mt-0.5 text-sm', errorText ? 'text-error' : 'text-muted-foreground')}>
+    <span className={cn('ml-0.5 mt-0.5 text-sm', errorText ? 'text-error' : 'text-muted-foreground')}>
       {errorText ?? helpText ?? undefined}
     </span>
   )
