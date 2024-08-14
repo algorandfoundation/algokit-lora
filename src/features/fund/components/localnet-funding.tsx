@@ -1,6 +1,6 @@
 import { FundAccountForm } from './fund-account-form'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { algod, indexer, kmd } from '@/features/common/data/algo-client'
+import { algorandClient } from '@/features/common/data/algo-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { createLoraKmdDevAccount, loraKmdDevWalletName } from '../utils/kmd'
 import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
@@ -9,8 +9,6 @@ import { Address } from '@/features/accounts/data/types'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { cn } from '@/features/common/utils'
 import { ellipseAddress } from '@/utils/ellipse-address'
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { invariant } from '@/utils/invariant'
 
 const fundExistingAccountAccordionId = 'existing'
 const fundNewAccountAccordionId = 'new'
@@ -18,8 +16,6 @@ export const fundExistingAccountAccordionLabel = 'Fund an existing LocalNet acco
 export const fundNewAccountAccordionLabel = 'Create and fund a new LocalNet account'
 
 const fundLocalnetAccount = async (receiver: Address, amount: AlgoAmount) => {
-  invariant(kmd, 'KMD client is required')
-  const algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
   const from = await algorandClient.account.kmd.getLocalNetDispenserAccount()
   await algorandClient.send.payment({
     sender: from.addr,
@@ -37,8 +33,7 @@ export function LocalnetFunding() {
   const [createdAddress, setCreatedAddress] = useState<Address | undefined>(undefined)
 
   const createLocalnetAccount = useCallback(async () => {
-    invariant(kmd, 'KMD client is required')
-    const address = await createLoraKmdDevAccount(kmd)
+    const address = await createLoraKmdDevAccount(algorandClient.client.kmd)
     if (activeProvider && activeProvider.metadata.id === PROVIDER_ID.KMD) {
       // Force connect to refresh the list of wallets and accounts available.
       await activeProvider.connect()

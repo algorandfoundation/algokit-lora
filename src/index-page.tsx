@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Urls } from '@/routes/urls'
-import { Loader } from 'lucide-react'
+import { Loader2 as Loader } from 'lucide-react'
 import { useEffect } from 'react'
 import { useSelectedNetwork } from './features/network/data'
 

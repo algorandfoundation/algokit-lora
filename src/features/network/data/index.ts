@@ -70,7 +70,10 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       port: 443,
     },
     walletProviders: nonLocalnetWalletProviders,
-    dispenserApiUrl: config.testNetDispenserApiUrl,
+    dispenserApi: {
+      url: config.testNetDispenserApiUrl,
+      address: config.testNetDispenserAddress,
+    },
   },
   [mainnetId]: {
     name: 'MainNet',

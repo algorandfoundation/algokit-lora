@@ -5,13 +5,16 @@ import { atom, useAtomValue } from 'jotai/index'
 import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
 import { loadable, useAtomCallback } from 'jotai/utils'
 import algosdk from 'algosdk'
-import { AlgorandClient, getTransactionParams, sendTransaction } from '@algorandfoundation/algokit-utils'
-import { algod, indexer } from '@/features/common/data/algo-client'
+import { getTransactionParams, sendTransaction } from '@algorandfoundation/algokit-utils'
+import { algod, algorandClient } from '@/features/common/data/algo-client'
 import { toast } from 'react-toastify'
 import { asError } from '@/utils/error'
 
+// Gives approx 90 seconds to approve the transaction
+const transactionValidityWindow = 30
+
 export const useAssetOptInOut = (asset: Asset) => {
-  const { signTransactions } = useWallet()
+  const { signer } = useWallet()
 
   const status = useMemo(() => {
     return atom(async (get) => {
@@ -41,6 +44,12 @@ export const useAssetOptInOut = (asset: Asset) => {
         if (!activeAccount) {
           return
         }
+        const suggestedParams = await getTransactionParams(undefined, algod)
+        const transactionParams = {
+          ...suggestedParams,
+          lastRound: suggestedParams.firstRound + transactionValidityWindow,
+        }
+
         const transaction = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
           from: activeAccount.address,
           to: activeAccount.address,
@@ -49,13 +58,9 @@ export const useAssetOptInOut = (asset: Asset) => {
           rekeyTo: undefined,
           revocationTarget: undefined,
           closeRemainderTo: activeAccount.address,
-          suggestedParams: await getTransactionParams(undefined, algod),
+          suggestedParams: transactionParams,
         })
 
-        const signer = (txnGroup: algosdk.Transaction[], indexesToSign: number[]) => {
-          const encodedTransactions = txnGroup.map((txn) => algosdk.encodeUnsignedTransaction(txn))
-          return signTransactions(encodedTransactions, indexesToSign)
-        }
         const signerAccount = {
           addr: activeAccount.address,
           signer,
@@ -65,6 +70,9 @@ export const useAssetOptInOut = (asset: Asset) => {
             {
               transaction,
               from: signerAccount,
+              sendParams: {
+                maxRoundsToWaitForConfirmation: transactionValidityWindow,
+              },
             },
             algod
           )
@@ -81,7 +89,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           errorHandler(error)
         }
       },
-      [asset.id, signTransactions]
+      [asset.id, signer]
     )
   )
 
@@ -93,23 +101,14 @@ export const useAssetOptInOut = (asset: Asset) => {
         if (!activeAccount) {
           return
         }
-        const algorandClient = AlgorandClient.fromClients({
-          algod,
-          indexer,
-        })
-        const signer = (txnGroup: algosdk.Transaction[], indexesToSign: number[]) => {
-          const encodedTransactions = txnGroup.map((txn) => algosdk.encodeUnsignedTransaction(txn))
-          return signTransactions(encodedTransactions, indexesToSign)
-        }
-        algorandClient.setDefaultSigner(signer)
+
         try {
-          const sendResult = await algorandClient.send.assetOptIn(
-            {
-              assetId: BigInt(asset.id),
-              sender: activeAccount.address,
-            },
-            {}
-          )
+          const sendResult = await algorandClient.send.assetOptIn({
+            assetId: BigInt(asset.id),
+            sender: activeAccount.address,
+            signer,
+            validityWindow: transactionValidityWindow,
+          })
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successful')
             set(activeWalletAccountAtom)
@@ -124,7 +123,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           errorHandler(error)
         }
       },
-      [asset.id, signTransactions]
+      [asset.id, signer]
     )
   )
 

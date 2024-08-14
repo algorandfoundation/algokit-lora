@@ -58,7 +58,6 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit }: Props) {
     <Form
       schema={fundFormSchema}
       onSubmit={fundAccount}
-      defaultValues={{}}
       formAction={
         <FormActions>
           <SubmitButton>{onCreateReceiver ? 'Create and Fund' : 'Fund'}</SubmitButton>

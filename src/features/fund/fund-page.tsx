@@ -12,7 +12,7 @@ export function FundPage() {
   const inner =
     networkConfig.id === localnetId ? (
       <LocalnetFunding />
-    ) : networkConfig.dispenserApiUrl ? (
+    ) : networkConfig.dispenserApi ? (
       <DispenserApiFunding networkConfig={networkConfig} />
     ) : (
       'Funding is not available on this network.'
