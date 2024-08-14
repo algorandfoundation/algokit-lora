@@ -72,7 +72,7 @@ jobs:
             VITE_DISPENSER_AUTH0_DOMAIN:dispenser-staging.eu.auth0.com
             VITE_DISPENSER_AUTH0_CLIENT_ID:pSffrx40HwIdWAJFeGCsy5FZn2NzYIvO
             VITE_DISPENSER_AUTH0_AUDIENCE:api-staging-dispenser-user
-            VITE_TESTNET_DISPENSER_API_URL=https://api.dispenser-dev.algorandfoundation.tools
+            VITE_TESTNET_DISPENSER_API_URL:https://api.dispenser-dev.algorandfoundation.tools
 
       - name: Deploy website to Netlify
         run: |
@@ -109,7 +109,7 @@ jobs:
             VITE_DISPENSER_AUTH0_DOMAIN:dispenser-prod.eu.auth0.com
             VITE_DISPENSER_AUTH0_CLIENT_ID:Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
             VITE_DISPENSER_AUTH0_AUDIENCE:api-prod-dispenser-user
-            VITE_TESTNET_DISPENSER_API_URL=https://api.dispenser.algorandfoundation.tools
+            VITE_TESTNET_DISPENSER_API_URL:https://api.dispenser.algorandfoundation.tools
 
       - name: Deploy website to Netlify
         run: |
