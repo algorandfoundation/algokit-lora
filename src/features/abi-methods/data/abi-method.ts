@@ -13,7 +13,7 @@ import { invariant } from '@/utils/invariant'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
-    if (!isValidAppCallTransaction(transaction)) {
+    if (!isPossibleAbiAppCallTransaction(transaction)) {
       return undefined
     }
 
@@ -55,11 +55,8 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
     invariant(transaction['application-transaction'], 'application-transaction is not set')
     invariant(transaction['application-transaction']?.['application-args'], 'application-transaction application-args is not set')
 
-    const transactionArgs = transaction['application-transaction']['application-args'].slice(1)
-    let transactionArgIndex = 0
     const referencedTransactionIds = await get(getReferencedTransactionIdsAtom(transaction, abiMethod))
-    // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
-    const argValuesBeyondIndex15th = getArgValuesBeyondIndex15th(transaction, abiMethod)
+    const abiValues = getAbiValueArgs(transaction, abiMethod)
 
     const abiArguments: AbiMethodArgument[] = abiMethod.args.map((argumentSpec, index) => {
       const argName = argumentSpec.name ?? `arg${index}`
@@ -72,10 +69,7 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
         }
       }
 
-      const abiValue =
-        transactionArgIndex === 14 && argValuesBeyondIndex15th.length > 0
-          ? argValuesBeyondIndex15th.shift()!
-          : mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[transactionArgIndex++])
+      const abiValue = abiValues.shift()!
 
       if (argumentSpec.type === ABIReferenceType.asset) {
         invariant(transaction['application-transaction']?.['foreign-assets'], 'application-transaction foreign-assets is not set')
@@ -187,7 +181,7 @@ const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiV
   }
 }
 
-const isValidAppCallTransaction = (transaction: TransactionResult): boolean => {
+const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolean => {
   return (
     transaction['tx-type'] === TransactionType.appl &&
     Boolean(transaction['application-transaction']) &&
@@ -211,7 +205,7 @@ const getReferencedTransactionIdsAtom = (transaction: TransactionResult, abiMeth
   })
 }
 
-const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): algosdk.ABIValue[] => {
+const getAbiValueArgs = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): algosdk.ABIValue[] => {
   invariant(transaction['application-transaction'], 'application-transaction is not set')
   invariant(transaction['application-transaction']?.['application-args'], 'application-transaction application-args is not set')
 
@@ -219,11 +213,15 @@ const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: 
   const transactionArgs = transaction['application-transaction']['application-args'].slice(1)
   const nonTransactionTypeArgs = abiMethod.args.filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
 
-  const results: algosdk.ABIValue[] = []
+  // If there are more than 15 args, the args from 15 to the end are encoded inside a tuple
   if (nonTransactionTypeArgs.length > 15) {
-    const argsEncodedInsideTheLastTuple = nonTransactionTypeArgs.slice(14)
+    const [head, tail] = [nonTransactionTypeArgs.slice(0, 14), nonTransactionTypeArgs.slice(14)]
+    const results: algosdk.ABIValue[] = head.map((argumentSpec, index) =>
+      mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index])
+    )
+
     const lastTupleType = new algosdk.ABITupleType(
-      argsEncodedInsideTheLastTuple.map((arg) =>
+      tail.map((arg) =>
         // if the arg is a reference type, then it is an uint8
         !algosdk.abiTypeIsReference(arg.type) ? (arg.type as algosdk.ABIType) : new algosdk.ABIUintType(8)
       )
@@ -231,8 +229,11 @@ const getArgValuesBeyondIndex15th = (transaction: TransactionResult, abiMethod: 
 
     const bytes = base64ToBytes(transactionArgs[14])
     results.push(...lastTupleType.decode(bytes))
+
+    return results
+  } else {
+    return nonTransactionTypeArgs.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index]))
   }
-  return results
 }
 
 const mapAbiArgumentToAbiValue = (type: algosdk.ABIArgumentType, value: string) => {
