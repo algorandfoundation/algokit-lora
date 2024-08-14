@@ -2,8 +2,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { useCallback } from 'react'
 import { atomWithStorage, useAtomCallback } from 'jotai/utils'
-import { dataStore } from '@/features/common/data/data-store'
-import { dbAtom } from '@/features/common/data/indexed-db'
+import { dbConnection } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { atomsInAtomV2 } from '@/features/common/data'
@@ -15,18 +14,18 @@ export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = atomsInAto
       [],
       {
         setItem: async (key, value) => {
+          if (!dbConnection) throw new Error('dbConnection is undefined')
           if (!value) return
-          const db = await dataStore.get(dbAtom)
-          await db.put('applications-app-specs', value, key)
+          await (await dbConnection).put('applications-app-specs', value, key)
         },
         getItem: async (key: string) => {
-          const db = await dataStore.get(dbAtom)
-          const items = await db.get('applications-app-specs', key)
+          if (!dbConnection) throw new Error('dbConnection is undefined')
+          const items = await (await dbConnection).get('applications-app-specs', key)
           return items ?? []
         },
         removeItem: async (key: string) => {
-          const db = await dataStore.get(dbAtom)
-          await db.delete('applications-app-specs', key)
+          if (!dbConnection) throw new Error('dbConnection is undefined')
+          await (await dbConnection).delete('applications-app-specs', key)
         },
       },
       { getOnInit: true }

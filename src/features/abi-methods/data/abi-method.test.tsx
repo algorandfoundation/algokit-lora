@@ -16,7 +16,10 @@ import { groupResultsAtom } from '@/features/groups/data'
 
 const { myStore } = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
+  const { updateDbConnection } = await import('@/features/common/data/indexed-db')
   const result = getDefaultStore()
+
+  updateDbConnection('localnet')
   return { myStore: result }
 })
 
