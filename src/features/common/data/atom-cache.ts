@@ -48,13 +48,13 @@ function getOrCreateValueInCacheAtom<Key extends string | number, Args extends u
  * Creates cache for storing collections of read-only atoms indexeable via a key.
  * If the size of the cache is unbound, then the memory usage will grow indefinitely.
  * It's highly recommended to register some cleanup code in `state-cleanup.ts` to remove old entries.
- * @param createInitialValue A function to create the read-only atom (child atom)
+ * @param createInitialValue A function to create the read-only atom value (child atom)
  * @param keySelector A function to select the key (used in the map) from the args
  * @param initialValues The initial value of the atom (parent atom)
  * @returns A tuple containing the values atom and a function to get the value atom for a given key
  */
 export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
-  createInitialValue: (...args: Args) => Atom<Value | Awaited<Value>>,
+  createInitialValue: (...args: Args) => Value,
   keySelector: (...args: Args) => Key,
   initialValues: Map<Key, readonly [Atom<Value | Awaited<Value>>, number]> = new Map()
 ) {
@@ -62,7 +62,7 @@ export function readOnlyAtomCache<Args extends unknown[], Key extends string | n
   // Stale data should be cleaned up in state-cleanup.ts
   const valuesAtom = atom(initialValues)
 
-  const valueAtom = getOrCreateValueInCacheAtom(keySelector, valuesAtom, (_, ...args) => createInitialValue(...args))
+  const valueAtom = getOrCreateValueInCacheAtom(keySelector, valuesAtom, (_, ...args) => atom(() => createInitialValue(...args)))
 
   const getValueAtom = (...params: [...args: Args, options?: Options]) => {
     return dataStore.set(valueAtom, params)

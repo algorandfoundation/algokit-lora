@@ -10,7 +10,6 @@ import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
-import { atom } from 'jotai'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -151,13 +150,7 @@ const getAssetMetadataResult = async (assetResult: AssetResult) => {
   return await createAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
 }
 
-const assetMetadataResultAtomBuilder = (assetResult: AssetResult) => {
-  return atom(async () => {
-    return await getAssetMetadataResult(assetResult)
-  })
-}
-
 export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = readOnlyAtomCache(
-  assetMetadataResultAtomBuilder,
+  getAssetMetadataResult,
   (assetResult) => assetResult.index
 )

@@ -2,7 +2,6 @@ import { ApplicationId, ApplicationResult } from './types'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { asError, is404 } from '@/utils/error'
-import { atom } from 'jotai'
 
 const getApplicationResult = async (applicationId: ApplicationId) => {
   try {
@@ -24,13 +23,4 @@ const getApplicationResult = async (applicationId: ApplicationId) => {
   }
 }
 
-const applicationResultAtomBuilder = (applicationId: ApplicationId) => {
-  return atom(async (_) => {
-    return await getApplicationResult(applicationId)
-  })
-}
-
-export const [applicationResultsAtom, getApplicationResultAtom] = readOnlyAtomCache(
-  applicationResultAtomBuilder,
-  (applicationId) => applicationId
-)
+export const [applicationResultsAtom, getApplicationResultAtom] = readOnlyAtomCache(getApplicationResult, (applicationId) => applicationId)
