@@ -7,9 +7,8 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { writableAtomCache } from '@/features/common/data'
 import { atom } from 'jotai'
-import { atomEffect } from 'jotai-effect'
 
-const readAppSpecVersions = async (applicationId: ApplicationId) => {
+const getAppSpecVersions = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
   return (await (await dbConnection).get('applications-app-specs', applicationId.toString())) ?? []
 }
@@ -21,25 +20,10 @@ const writeAppSpecVersions = async (applicationId: ApplicationId, appSpecs: AppS
 }
 
 const createWritableAppSpecVersionsAtom = (applicationId: ApplicationId) => {
-  const appSpecVersions = atom<AppSpecVersion[] | undefined>(undefined)
-
-  const createEffect = (valueFromDb: AppSpecVersion[]) => {
-    return atomEffect((_, set) => {
-      set(appSpecVersions, valueFromDb)
-    })
-  }
+  const appSpecVersions = atom<AppSpecVersion[] | Promise<AppSpecVersion[]>>(getAppSpecVersions(applicationId))
 
   return atom(
-    async (get) => {
-      const value = get(appSpecVersions)
-      if (value === undefined) {
-        const valueFromDb = await readAppSpecVersions(applicationId)
-        get(createEffect(valueFromDb))
-        return valueFromDb
-      }
-
-      return value
-    },
+    (get) => get(appSpecVersions),
     async (_, set, appSpecs: AppSpecVersion[]) => {
       await writeAppSpecVersions(applicationId, appSpecs)
       set(appSpecVersions, appSpecs)
