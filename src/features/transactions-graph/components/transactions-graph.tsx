@@ -48,15 +48,17 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
       foreignObjectRendering: false,
       removeContainer: true,
       backgroundColor: '#001223',
-    })
+    }) // TODO: Need to get some more padding around the image
+
     const dataUrl = canvas.toDataURL()
-    visual.setAttribute('data-url', dataUrl)
+    // visual.setAttribute('data-url', dataUrl)
     const link = document.createElement('a')
     link.text = 'Download image'
     // link.className = 'hidden'
     link.href = dataUrl
     link.setAttribute('download', 'transactions-graph.png')
     // document.body.appendChild(link)
+    // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
     link.click()
   }, [])
 
@@ -64,7 +66,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
     <>
       <Button onClick={downloadImage}>Download image</Button>
       {/* Don't change this id value, it's used by a bot Alessandro is building. */}
-      <div id="visual-transactions">
+      <div id="visual-transactions" className="w-min">
         <div
           className={cn('relative grid')}
           style={{
