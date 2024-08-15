@@ -41,5 +41,5 @@ const getAssetResult = async (assetId: AssetId) => {
 export const [assetResultsAtom, getAssetResultAtom] = readOnlyAtomCache(
   getAssetResult,
   (assetId) => assetId,
-  new Map([[algoAssetResult.index, [atom(() => Promise.resolve(algoAssetResult)), -1]]])
+  new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]])
 )

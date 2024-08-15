@@ -83,26 +83,24 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
       if (argumentSpec.type === ABIReferenceType.account) {
         invariant(transaction['application-transaction']?.['accounts'], 'application-transaction accounts is not set')
 
-        const accountIndex = Number(abiValue)
         // Index 0 of application accounts is the sender
+        const accountIndex = Number(abiValue) - 1
         return {
           name: argName,
           type: AbiType.Account,
-          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex - 1],
+          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex],
         }
       }
       if (argumentSpec.type === ABIReferenceType.application) {
         invariant(transaction['application-transaction']?.['foreign-apps'], 'application-transaction foreign-apps is not set')
 
-        const applicationIndex = Number(abiValue)
         // Index 0 of foreign apps is the called app
+        const applicationIndex = Number(abiValue) - 1
         return {
           name: argName,
           type: AbiType.Application,
           value:
-            applicationIndex === 0
-              ? transaction.applicationId
-              : transaction['application-transaction']['foreign-apps'][applicationIndex - 1],
+            applicationIndex === 0 ? transaction.applicationId : transaction['application-transaction']['foreign-apps'][applicationIndex],
         }
       }
 
@@ -118,7 +116,7 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
 
 const getMethodReturn = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): AbiMethodReturn => {
   if (abiMethod.returns.type === 'void') return 'void'
-  if (!transaction['logs'] || transaction['logs'].length === 0) return 'void'
+  invariant(transaction.logs && transaction.logs.length > 0, 'transaction logs is not set')
 
   const abiType = algosdk.ABIType.from(abiMethod.returns.type.toString())
   // The first 4 bytes are SHA512_256 hash of the string "return"
@@ -220,7 +218,7 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: algosdk.ABIM
       mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index])
     )
 
-    const lastTupleType = new algosdk.ABITupleType(
+    const tupleType = new algosdk.ABITupleType(
       tail.map((arg) =>
         // if the arg is a reference type, then it is an uint8
         !algosdk.abiTypeIsReference(arg.type) ? (arg.type as algosdk.ABIType) : new algosdk.ABIUintType(8)
@@ -228,7 +226,7 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: algosdk.ABIM
     )
 
     const bytes = base64ToBytes(transactionArgs[14])
-    results.push(...lastTupleType.decode(bytes))
+    results.push(...tupleType.decode(bytes))
 
     return results
   } else {
