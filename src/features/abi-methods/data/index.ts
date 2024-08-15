@@ -7,38 +7,48 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { writableAtomCache } from '@/features/common/data'
 import { atom } from 'jotai'
+import { atomEffect } from 'jotai-effect'
 
-const getAppSpecs = async (applicationId: ApplicationId) => {
+const readAppSpecVersions = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
   return (await (await dbConnection).get('applications-app-specs', applicationId.toString())) ?? []
 }
-const writeAppSpecs = async (applicationId: ApplicationId, appSpecs: AppSpecVersion[]) => {
+const writeAppSpecVersions = async (applicationId: ApplicationId, appSpecs: AppSpecVersion[]) => {
   invariant(dbConnection, 'dbConnection is not initialised')
   if (!appSpecs) return
 
   await (await dbConnection).put('applications-app-specs', appSpecs, applicationId.toString())
 }
 
-const writableAppSpecVersionsAtom = (applicationId: ApplicationId) => {
-  const appSpecVersions = atom<AppSpecVersion[]>([])
+const createWritableAppSpecVersionsAtom = (applicationId: ApplicationId) => {
+  const appSpecVersions = atom<AppSpecVersion[] | undefined>(undefined)
+
+  const createEffect = (valueFromDb: AppSpecVersion[]) => {
+    return atomEffect((_, set) => {
+      set(appSpecVersions, valueFromDb)
+    })
+  }
 
   return atom(
-    (get) => {
+    async (get) => {
       const value = get(appSpecVersions)
-      if (!value.length) {
-        return getAppSpecs(applicationId)
+      if (value === undefined) {
+        const valueFromDb = await readAppSpecVersions(applicationId)
+        get(createEffect(valueFromDb))
+        return valueFromDb
       }
+
       return value
     },
     async (_, set, appSpecs: AppSpecVersion[]) => {
-      await writeAppSpecs(applicationId, appSpecs)
+      await writeAppSpecVersions(applicationId, appSpecs)
       set(appSpecVersions, appSpecs)
     }
   )
 }
 
 export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = writableAtomCache(
-  (applicationId: ApplicationId) => writableAppSpecVersionsAtom(applicationId),
+  createWritableAppSpecVersionsAtom,
   (applicationId: ApplicationId) => applicationId
 )
 
