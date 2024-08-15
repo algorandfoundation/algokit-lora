@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { atomsInAtom, createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, readOnlyAtomWithEffectsCache } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
@@ -118,4 +118,7 @@ const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, 
   return blockResult
 })
 
-export const [blockResultsAtom, getBlockResultAtom] = atomsInAtom(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)
+export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomWithEffectsCache(
+  syncAssociatedDataAndReturnBlockResultAtom,
+  (round) => round
+)

@@ -5,26 +5,26 @@ import { atomWithStorage, useAtomCallback } from 'jotai/utils'
 import { dbConnection } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
-import { atomsInAtomV2 } from '@/features/common/data'
+import { writableAtomCache } from '@/features/common/data'
 
-export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = atomsInAtomV2(
+export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = writableAtomCache(
   (applicationId: ApplicationId) =>
     atomWithStorage<AppSpecVersion[]>(
       applicationId.toString(),
       [],
       {
         setItem: async (key, value) => {
-          if (!dbConnection) throw new Error('dbConnection is undefined')
+          invariant(dbConnection, 'dbConnection is not initialised')
           if (!value) return
           await (await dbConnection).put('applications-app-specs', value, key)
         },
         getItem: async (key: string) => {
-          if (!dbConnection) throw new Error('dbConnection is undefined')
+          invariant(dbConnection, 'dbConnection is not initialised')
           const items = await (await dbConnection).get('applications-app-specs', key)
           return items ?? []
         },
         removeItem: async (key: string) => {
-          if (!dbConnection) throw new Error('dbConnection is undefined')
+          invariant(dbConnection, 'dbConnection is not initialised')
           await (await dbConnection).delete('applications-app-specs', key)
         },
       },

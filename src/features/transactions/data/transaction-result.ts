@@ -1,6 +1,6 @@
 import { TransactionId } from './types'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
-import { atomsInAtom } from '@/features/common/data'
+import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { atom } from 'jotai'
 
@@ -15,7 +15,7 @@ const transactionResultAtomBuilder = (transactionId: TransactionId) => {
   })
 }
 
-export const [transactionResultsAtom, getTransactionResultAtom] = atomsInAtom(
+export const [transactionResultsAtom, getTransactionResultAtom] = readOnlyAtomCache(
   transactionResultAtomBuilder,
   (transactionId) => transactionId
 )

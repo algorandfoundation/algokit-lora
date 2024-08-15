@@ -85,6 +85,7 @@ function VectorLabelText({ type }: { type: LabelType }) {
 }
 
 function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
+  // TODO: fallback to null
   return (
     <RenderInlineAsyncAtom atom={transaction.abiMethod}>
       {(abiMethod) => {

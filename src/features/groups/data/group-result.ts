@@ -3,7 +3,7 @@ import { atom } from 'jotai'
 import { GroupId } from './types'
 import { addStateExtractedFromBlocksAtom, getBlockAndExtractData } from '@/features/blocks/data'
 import { invariant } from '@/utils/invariant'
-import { atomsInAtom } from '@/features/common/data'
+import { readOnlyAtomWithEffectsCache } from '@/features/common/data'
 
 const syncAssociatedDataAndReturnGroupResultAtom = atom(null, async (_get, set, groupId: GroupId, round: Round) => {
   const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
@@ -18,4 +18,7 @@ const syncAssociatedDataAndReturnGroupResultAtom = atom(null, async (_get, set, 
   return group
 })
 
-export const [groupResultsAtom, getGroupResultAtom] = atomsInAtom(syncAssociatedDataAndReturnGroupResultAtom, (groupId, _round) => groupId)
+export const [groupResultsAtom, getGroupResultAtom] = readOnlyAtomWithEffectsCache(
+  syncAssociatedDataAndReturnGroupResultAtom,
+  (groupId, _round) => groupId
+)

@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
-import { atomsInAtom, createAtomAndTimestamp } from '@/features/common/data'
+import { createAtomAndTimestamp, readOnlyAtomWithEffectsCache } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
@@ -62,4 +62,7 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set,
   return accountResult
 })
 
-export const [accountResultsAtom, getAccountResultAtom] = atomsInAtom(syncAssociatedDataAndReturnAccountResultAtom, (address) => address)
+export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomWithEffectsCache(
+  syncAssociatedDataAndReturnAccountResultAtom,
+  (address) => address
+)

@@ -1,4 +1,4 @@
-import { atomsInAtom } from '@/features/common/data'
+import { readOnlyAtomCache } from '@/features/common/data'
 import { ApplicationMetadataResult, ApplicationResult } from './types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -42,7 +42,7 @@ const applicationMetadataResultAtomBuilder = (applicationResult: ApplicationResu
   })
 }
 
-export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] = atomsInAtom(
+export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] = readOnlyAtomCache(
   applicationMetadataResultAtomBuilder,
   (applicationResult) => applicationResult.id
 )
