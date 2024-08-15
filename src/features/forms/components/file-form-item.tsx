@@ -61,15 +61,15 @@ function FileInput({ accept, placeholder, value, disabled, onChange }: FileInput
 
   return (
     <div className={cn('min-h-24 flex justify-center border rounded', dragging && 'bg-muted')} {...events} onClick={handleClick}>
-      <div className={'flex flex-col items-center justify-center gap-2'}>
+      <div className="flex flex-col items-center justify-center gap-2">
         {(() => {
           if (value) {
-            return <span className={'text-sm'}>{value.name}</span>
+            return <span className="text-sm">{value.name}</span>
           } else if (placeholder) {
             return (
               <>
                 <UploadIcon />
-                <span className={'text-sm'}>{placeholder}</span>
+                <span className="text-sm">{placeholder}</span>
               </>
             )
           } else {
@@ -85,7 +85,7 @@ function FileInput({ accept, placeholder, value, disabled, onChange }: FileInput
       <input
         ref={inputRef}
         type={'file'}
-        className={'sr-only'}
+        className="sr-only"
         onChange={(e) => onFilesAdded(Array.from(e.target.files ?? []))}
         disabled={disabled}
         accept={accept}

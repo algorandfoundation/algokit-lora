@@ -18,7 +18,7 @@ import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/c
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
-import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -85,13 +85,12 @@ function VectorLabelText({ type }: { type: LabelType }) {
 }
 
 function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
-  // TODO: fallback to null
   return (
-    <RenderInlineAsyncAtom atom={transaction.abiMethod}>
+    <RenderAsyncAtom atom={transaction.abiMethod} fallback={null}>
       {(abiMethod) => {
         return abiMethod ? <div className="overflow-x-hidden text-ellipsis">{abiMethod.name}</div> : null
       }}
-    </RenderInlineAsyncAtom>
+    </RenderAsyncAtom>
   )
 }
 

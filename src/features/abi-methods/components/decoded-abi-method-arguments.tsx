@@ -60,7 +60,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
   )
 
   return (
-    <ul className={'pl-4'}>
+    <ul className="pl-4">
       {components.map((component, index, arr) => (
         <li key={index}>
           {component}
