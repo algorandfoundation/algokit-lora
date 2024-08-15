@@ -3,9 +3,8 @@ import { dataStore } from './data-store'
 
 export const createTimestamp = (): number => Date.now()
 
-export const createAtomAndTimestamp = <T>(value: T) => {
-  const createAtomFunc = (value: T) => atom(() => value)
-  return [createAtomFunc(value), createTimestamp()] as const
+export const createReadOnlyAtomAndTimestamp = <T>(value: T) => {
+  return [atom(() => value), createTimestamp()] as const
 }
 
 function getOrCreateValueInCacheAtom<Key extends string | number, Args extends unknown[], Value>(
@@ -24,7 +23,7 @@ function getOrCreateValueInCacheAtom<Key extends string | number, Args extends u
       if (!options || (options && !options.skipTimestampUpdate)) {
         set(cacheAtom, (prev) => {
           // Update the timestamp each time the atom is accessed.
-          // We mutate without creating a new Map reference (like we do elsewhere).
+          // We mutate without creating a new Map reference (which differs from what we do elsewhere).
           // This ensures jotai doesn't notify dependent atoms of the change, as it's unnecessary.
           return prev.set(key, [value, createTimestamp()])
         })

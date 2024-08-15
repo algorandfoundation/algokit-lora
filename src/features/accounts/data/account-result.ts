@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { AccountResult, Address } from './types'
-import { createAtomAndTimestamp, readOnlyAtomWithEffectsCache } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, readOnlyAtomWithEffectsCache } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
@@ -41,7 +41,7 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set,
       const next = new Map(prev)
       assetsToAdd.forEach((asset) => {
         if (!next.has(asset.index)) {
-          next.set(asset.index, createAtomAndTimestamp(asset))
+          next.set(asset.index, createReadOnlyAtomAndTimestamp(asset))
         }
       })
       return next
@@ -53,7 +53,7 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set,
       const next = new Map(prev)
       applicationsToAdd.forEach((application) => {
         if (!next.has(application.id)) {
-          next.set(application.id, createAtomAndTimestamp(application))
+          next.set(application.id, createReadOnlyAtomAndTimestamp(application))
         }
       })
       return next

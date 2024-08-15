@@ -184,10 +184,11 @@ const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiV
 const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolean => {
   return (
     transaction['tx-type'] === TransactionType.appl &&
-    Boolean(transaction['application-transaction']) &&
-    Boolean(transaction['confirmed-round']) &&
-    Boolean(transaction['application-transaction']?.['application-args']) &&
-    (transaction['application-transaction']?.['application-args'] ?? []).length > 0
+    transaction['application-transaction'] !== undefined &&
+    transaction['confirmed-round'] !== undefined &&
+    transaction['application-transaction']?.['application-args'] !== undefined &&
+    transaction['application-transaction']['application-args'].length > 0 &&
+    base64ToBytes(transaction['application-transaction']['application-args'][0]).length === 4
   )
 }
 

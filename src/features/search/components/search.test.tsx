@@ -11,7 +11,7 @@ import { blockResultsAtom } from '@/features/blocks/data'
 import { useNavigate } from 'react-router-dom'
 import { SearchResultType } from '../models'
 import { assetResultsAtom } from '@/features/assets/data'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
 
 describe('search', () => {
   describe('when no search results have been returned', () => {
@@ -37,9 +37,9 @@ describe('search', () => {
     const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
 
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[blockResult.round, createAtomAndTimestamp(blockResult)]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
-    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
+    myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
     describe.each([
       {
