@@ -84,23 +84,25 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
         invariant(transaction['application-transaction']?.['accounts'], 'application-transaction accounts is not set')
 
         // Index 0 of application accounts is the sender
-        const accountIndex = Number(abiValue) - 1
+        const accountIndex = Number(abiValue)
         return {
           name: argName,
           type: AbiType.Account,
-          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex],
+          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex - 1],
         }
       }
       if (argumentSpec.type === ABIReferenceType.application) {
         invariant(transaction['application-transaction']?.['foreign-apps'], 'application-transaction foreign-apps is not set')
 
         // Index 0 of foreign apps is the called app
-        const applicationIndex = Number(abiValue) - 1
+        const applicationIndex = Number(abiValue)
         return {
           name: argName,
           type: AbiType.Application,
           value:
-            applicationIndex === 0 ? transaction.applicationId : transaction['application-transaction']['foreign-apps'][applicationIndex],
+            applicationIndex === 0
+              ? transaction.applicationId
+              : transaction['application-transaction']['foreign-apps'][applicationIndex - 1],
         }
       }
 

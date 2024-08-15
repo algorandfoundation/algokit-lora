@@ -1,43 +1,52 @@
 import { ApplicationId } from '@/features/applications/data/types'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { useCallback } from 'react'
-import { atomWithStorage, useAtomCallback } from 'jotai/utils'
+import { useAtomCallback } from 'jotai/utils'
 import { dbConnection } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { writableAtomCache } from '@/features/common/data'
+import { atom } from 'jotai'
+
+const getAppSpecs = async (applicationId: ApplicationId) => {
+  invariant(dbConnection, 'dbConnection is not initialised')
+  return (await (await dbConnection).get('applications-app-specs', applicationId.toString())) ?? []
+}
+const writeAppSpecs = async (applicationId: ApplicationId, appSpecs: AppSpecVersion[]) => {
+  invariant(dbConnection, 'dbConnection is not initialised')
+  if (!appSpecs) return
+
+  await (await dbConnection).put('applications-app-specs', appSpecs, applicationId.toString())
+}
+
+const writableAppSpecVersionsAtom = (applicationId: ApplicationId) => {
+  const appSpecVersions = atom<AppSpecVersion[]>([])
+
+  return atom(
+    (get) => {
+      const value = get(appSpecVersions)
+      if (!value.length) {
+        return getAppSpecs(applicationId)
+      }
+      return value
+    },
+    async (_, set, appSpecs: AppSpecVersion[]) => {
+      await writeAppSpecs(applicationId, appSpecs)
+      set(appSpecVersions, appSpecs)
+    }
+  )
+}
 
 export const [applicationsAppSpecsAtom, getApplicationAppSpecsAtom] = writableAtomCache(
-  (applicationId: ApplicationId) =>
-    atomWithStorage<AppSpecVersion[]>(
-      applicationId.toString(),
-      [],
-      {
-        setItem: async (key, value) => {
-          invariant(dbConnection, 'dbConnection is not initialised')
-          if (!value) return
-          await (await dbConnection).put('applications-app-specs', value, key)
-        },
-        getItem: async (key: string) => {
-          invariant(dbConnection, 'dbConnection is not initialised')
-          const items = await (await dbConnection).get('applications-app-specs', key)
-          return items ?? []
-        },
-        removeItem: async (key: string) => {
-          invariant(dbConnection, 'dbConnection is not initialised')
-          await (await dbConnection).delete('applications-app-specs', key)
-        },
-      },
-      { getOnInit: true }
-    ),
-  (applicationId) => applicationId
+  (applicationId: ApplicationId) => writableAppSpecVersionsAtom(applicationId),
+  (applicationId: ApplicationId) => applicationId
 )
 
 export const useSetAppSpec = (applicationId: ApplicationId) => {
   return useAtomCallback(
     useCallback(
       async (
-        _,
+        get,
         set,
         {
           standard,
@@ -58,18 +67,17 @@ export const useSetAppSpec = (applicationId: ApplicationId) => {
         }
 
         const appSpec = jsonAsArc32AppSpec(json)
-        await set(getApplicationAppSpecsAtom(applicationId), async (prev) => {
-          const existing = await prev
-          const applicationAppSpec: AppSpecVersion = { standard, roundFirstValid: roundFirstValid, roundLastValid: roundLastValid, appSpec }
+        const existing = await get(getApplicationAppSpecsAtom(applicationId))
+        const applicationAppSpec: AppSpecVersion = { standard, roundFirstValid: roundFirstValid, roundLastValid: roundLastValid, appSpec }
 
-          // If there is an existing app spec with the same standard and valid rounds, remove it and add the new one
-          const matchingAppSpecVersion = existing.find(
-            (e) => e.standard === standard && e.roundFirstValid === roundFirstValid && e.roundFirstValid === roundFirstValid
-          )
-          if (matchingAppSpecVersion) {
-            return [...existing.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
-          }
-
+        // If there is an existing app spec with the same standard and valid rounds, remove it and add the new one
+        const matchingAppSpecVersion = existing.find(
+          (e) => e.standard === standard && e.roundFirstValid === roundFirstValid && e.roundFirstValid === roundFirstValid
+        )
+        if (matchingAppSpecVersion) {
+          const newSpecs = [...existing.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
+          await set(getApplicationAppSpecsAtom(applicationId), newSpecs)
+        } else {
           // Check if there is an existing app spec with the same standard and valid rounds that overlaps with the new one
           const overlappingWithExistingData = existing.some(
             (e) =>
@@ -79,8 +87,9 @@ export const useSetAppSpec = (applicationId: ApplicationId) => {
           )
           invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
 
-          return [...existing, applicationAppSpec]
-        })
+          const newSpecs = [...existing, applicationAppSpec]
+          await set(getApplicationAppSpecsAtom(applicationId), newSpecs)
+        }
       },
       [applicationId]
     )
