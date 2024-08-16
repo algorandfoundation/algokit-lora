@@ -2,8 +2,9 @@ import { ApplicationId, ApplicationResult } from './types'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { asError, is404 } from '@/utils/error'
+import { Getter, Setter } from 'jotai/index'
 
-const getApplicationResult = async (applicationId: ApplicationId) => {
+const getApplicationResult = async (_: Getter, __: Setter, applicationId: ApplicationId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
     return await algod

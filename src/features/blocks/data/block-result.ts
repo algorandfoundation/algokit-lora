@@ -1,5 +1,5 @@
-import { atom } from 'jotai'
-import { createReadOnlyAtomAndTimestamp, readOnlyAtomWithEffectsCache } from '@/features/common/data'
+import { atom, Getter, Setter } from 'jotai'
+import { createReadOnlyAtomAndTimestamp, readOnlyAtomCache } from '@/features/common/data'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
@@ -110,15 +110,12 @@ export const addStateExtractedFromBlocksAtom = atom(
   }
 )
 
-const syncAssociatedDataAndReturnBlockResultAtom = atom(null, async (_get, set, round: Round) => {
+const syncAssociatedDataAndReturnBlockResultAtom = async (_: Getter, set: Setter, round: Round) => {
   const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
 
   // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
   set(addStateExtractedFromBlocksAtom, [], transactionResults, groupResults)
   return blockResult
-})
+}
 
-export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomWithEffectsCache(
-  syncAssociatedDataAndReturnBlockResultAtom,
-  (round) => round
-)
+export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)

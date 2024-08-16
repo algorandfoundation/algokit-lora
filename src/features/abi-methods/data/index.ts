@@ -6,7 +6,7 @@ import { dbConnection } from '@/features/common/data/indexed-db'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 import { invariant } from '@/utils/invariant'
 import { writableAtomCache } from '@/features/common/data'
-import { atom } from 'jotai'
+import { atom, Getter, Setter } from 'jotai'
 
 const getAppSpecVersions = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
@@ -19,7 +19,7 @@ const writeAppSpecVersions = async (applicationId: ApplicationId, appSpecs: AppS
   await (await dbConnection).put('applications-app-specs', appSpecs, applicationId.toString())
 }
 
-const createWritableAppSpecVersionsAtom = (applicationId: ApplicationId) => {
+const createWritableAppSpecVersionsAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
   const appSpecVersions = atom<AppSpecVersion[] | Promise<AppSpecVersion[]>>(getAppSpecVersions(applicationId))
 
   return atom(

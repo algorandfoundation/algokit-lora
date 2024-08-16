@@ -1,6 +1,6 @@
-import { atom } from 'jotai'
+import { Getter, Setter } from 'jotai'
 import { AccountResult, Address } from './types'
-import { createReadOnlyAtomAndTimestamp, readOnlyAtomWithEffectsCache } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, readOnlyAtomCache } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
@@ -30,7 +30,7 @@ const getAccountResult = async (address: Address) => {
   }
 }
 
-const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set, address: Address) => {
+const syncAssociatedDataAndReturnAccountResultAtom = async (get: Getter, set: Setter, address: Address) => {
   const accountResult = await getAccountResult(address)
   const assetResults = get(assetResultsAtom)
   const applicationResults = get(applicationResultsAtom)
@@ -60,9 +60,9 @@ const syncAssociatedDataAndReturnAccountResultAtom = atom(null, async (get, set,
     })
   }
   return accountResult
-})
+}
 
-export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomWithEffectsCache(
+export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache(
   syncAssociatedDataAndReturnAccountResultAtom,
   (address) => address
 )

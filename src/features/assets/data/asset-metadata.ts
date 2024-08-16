@@ -10,6 +10,7 @@ import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
+import { Getter, Setter } from 'jotai/index'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -105,7 +106,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
   return undefined
 }
 
-const getAssetMetadataResult = async (assetResult: AssetResult) => {
+const getAssetMetadataResult = async (_: Getter, __: Setter, assetResult: AssetResult) => {
   if (assetResult.index === 0) {
     return null
   }
