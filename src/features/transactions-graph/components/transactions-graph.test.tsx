@@ -15,6 +15,9 @@ import { algoAssetResult } from '@/features/assets/data'
 import { atom } from 'jotai'
 import { invariant } from '@/utils/invariant'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
+import { Atom } from 'jotai/index'
+import { AbiMethod } from '@/features/abi-methods/models'
+import { setTimeout } from 'timers/promises'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -118,11 +121,13 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults))
+        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults), createAbiMethodResolver())
         const graphData = asTransactionsGraphData([model])
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
+            // Sleep to make sure the ABI method is loaded
+            await setTimeout(10)
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
             )
@@ -216,7 +221,7 @@ describe('group-graph', () => {
     }) => {
       it('should match snapshot', () => {
         const assetResolver = createAssetResolver(assetResults)
-        const transactions = transactionResults.map((t) => asTransaction(t, assetResolver))
+        const transactions = transactionResults.map((t) => asTransaction(t, assetResolver, createAbiMethodResolver()))
         const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()
 
         const group = asGroup(groupResult, transactions)
@@ -225,6 +230,9 @@ describe('group-graph', () => {
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} />),
           async (component) => {
+            // Sleep to make sure the ABI method is loaded
+            await setTimeout(10)
+
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`
             )
@@ -240,3 +248,9 @@ const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) =
   invariant(assetResult, `Could not find asset result ${assetId}`)
   return atom(() => asAssetSummary(assetResult))
 }
+
+const createAbiMethodResolver =
+  () =>
+  (_: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
+    return atom(() => Promise.resolve(undefined))
+  }

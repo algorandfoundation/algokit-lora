@@ -11,7 +11,7 @@ import { blockResultsAtom } from '@/features/blocks/data'
 import { useNavigate } from 'react-router-dom'
 import { SearchResultType } from '../models'
 import { assetResultsAtom } from '@/features/assets/data'
-import { createAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 
@@ -40,10 +40,10 @@ describe('search', () => {
     const transactionResult = transactionResultMother.payment().withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ').build()
 
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[blockResult.round, createAtomAndTimestamp(blockResult)]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, createAtomAndTimestamp(assetResult)]]))
-    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createAtomAndTimestamp(applicationResult)]]))
-    myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createAtomAndTimestamp(transactionResult)]]))
+    myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+    myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult)]]))
 
     describe.each([
       {
