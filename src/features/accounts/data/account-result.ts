@@ -30,7 +30,7 @@ const getAccountResult = async (address: Address) => {
   }
 }
 
-const syncAssociatedDataAndReturnAccountResultAtom = async (get: Getter, set: Setter, address: Address) => {
+const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter, address: Address) => {
   const accountResult = await getAccountResult(address)
   const assetResults = get(assetResultsAtom)
   const applicationResults = get(applicationResultsAtom)
@@ -62,7 +62,4 @@ const syncAssociatedDataAndReturnAccountResultAtom = async (get: Getter, set: Se
   return accountResult
 }
 
-export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache(
-  syncAssociatedDataAndReturnAccountResultAtom,
-  (address) => address
-)
+export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnAccountResult, (address) => address)

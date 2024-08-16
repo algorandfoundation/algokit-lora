@@ -5,7 +5,7 @@ import { addStateExtractedFromBlocksAtom, getBlockAndExtractData } from '@/featu
 import { invariant } from '@/utils/invariant'
 import { readOnlyAtomCache } from '@/features/common/data'
 
-const syncAssociatedDataAndReturnGroupResultAtom = async (_: Getter, set: Setter, groupId: GroupId, round: Round) => {
+const syncAssociatedDataAndReturnGroupResult = async (_: Getter, set: Setter, groupId: GroupId, round: Round) => {
   const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
 
   const groupIndex = groupResults.findIndex((groupResult) => groupResult.id === groupId)
@@ -19,6 +19,6 @@ const syncAssociatedDataAndReturnGroupResultAtom = async (_: Getter, set: Setter
 }
 
 export const [groupResultsAtom, getGroupResultAtom] = readOnlyAtomCache(
-  syncAssociatedDataAndReturnGroupResultAtom,
+  syncAssociatedDataAndReturnGroupResult,
   (groupId, _round) => groupId
 )

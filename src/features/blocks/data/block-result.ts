@@ -110,7 +110,7 @@ export const addStateExtractedFromBlocksAtom = atom(
   }
 )
 
-const syncAssociatedDataAndReturnBlockResultAtom = async (_: Getter, set: Setter, round: Round) => {
+const syncAssociatedDataAndReturnBlockResult = async (_: Getter, set: Setter, round: Round) => {
   const [blockResult, transactionResults, groupResults] = await getBlockAndExtractData(round)
 
   // Don't need to sync the block, as it's synced by atomsInAtom, due to this atom returning the block
@@ -118,4 +118,4 @@ const syncAssociatedDataAndReturnBlockResultAtom = async (_: Getter, set: Setter
   return blockResult
 }
 
-export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnBlockResultAtom, (round) => round)
+export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnBlockResult, (round) => round)
