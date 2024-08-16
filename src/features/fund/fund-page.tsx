@@ -1,17 +1,19 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { localnetId, testnetId, useSelectedNetwork } from '@/features/network/data'
+import { localnetId, useNetworkConfig } from '@/features/network/data'
 import { LocalnetFunding } from './components/localnet-funding'
+import { DispenserApiFunding } from './components/dispenser-api-funding'
 
 export const fundPageTitle = 'Fund'
+export const fundingNotAvailableMessage = 'Funding is not available on this network.'
 
 export function FundPage() {
-  const [selectedNetwork] = useSelectedNetwork()
+  const networkConfig = useNetworkConfig()
 
   const inner =
-    selectedNetwork === localnetId ? (
+    networkConfig.id === localnetId ? (
       <LocalnetFunding />
-    ) : selectedNetwork === testnetId ? (
-      'Funding is coming soon on this network.'
+    ) : networkConfig.dispenserApiUrl ? (
+      <DispenserApiFunding networkConfig={networkConfig} />
     ) : (
       'Funding is not available on this network.'
     )

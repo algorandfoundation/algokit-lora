@@ -206,7 +206,7 @@ export function ConnectWalletButton() {
           <DialogHeader>
             <h2 className="pb-0">Wallet Providers</h2>
           </DialogHeader>
-          <SmallSizeDialogBody className="flex flex-col space-y-2">{walletProviders}</SmallSizeDialogBody>
+          <SmallSizeDialogBody className="flex flex-col space-y-4">{walletProviders}</SmallSizeDialogBody>
         </DialogContent>
       </Dialog>
     </>

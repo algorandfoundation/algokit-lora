@@ -16,7 +16,9 @@ import { TxPage } from './features/transactions/pages/tx-page'
 import { IndexPage } from '@/index-page'
 import { NetworkPage } from '@/features/network/pages/network-page'
 import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/app-studio-page'
-import { FundPage, fundPageTitle } from './features/fund/fund-page'
+import { FundPage } from './features/fund/fund-page'
+import { FundAuthCallbackPage } from './features/fund/fund-auth-callback-page'
+import { FundErrorPage } from './features/fund/fund-error-page'
 
 export const routes = evalTemplates([
   {
@@ -109,8 +111,13 @@ export const routes = evalTemplates([
       },
       {
         template: Urls.Fund,
-        errorElement: <ErrorPage title={fundPageTitle} />,
+        errorElement: <FundErrorPage />,
         element: <FundPage />,
+      },
+      {
+        template: Urls.FundAuthCallback,
+        errorElement: <FundErrorPage />,
+        element: <FundAuthCallbackPage />,
       },
     ],
   },

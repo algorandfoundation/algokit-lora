@@ -1,5 +1,9 @@
 import { PROVIDER_ID } from '@txnlab/use-wallet'
-import { localnetId, mainnetId, testnetId } from '.'
+
+export const localnetId = 'localnet'
+export const testnetId = 'testnet'
+export const mainnetId = 'mainnet'
+export const fnetId = 'fnet'
 
 export type ServiceConfig = {
   server: string
@@ -8,7 +12,7 @@ export type ServiceConfig = {
   token?: string
 }
 
-export type NetworkId = typeof localnetId | typeof testnetId | typeof mainnetId | string
+export type NetworkId = typeof localnetId | typeof testnetId | typeof mainnetId | typeof fnetId | string
 
 export type NetworkConfig = {
   name: string
@@ -16,6 +20,7 @@ export type NetworkConfig = {
   algod: ServiceConfig
   kmd?: ServiceConfig
   walletProviders: PROVIDER_ID[]
+  dispenserApiUrl?: string
 }
 
 export type NetworkConfigWithId = {

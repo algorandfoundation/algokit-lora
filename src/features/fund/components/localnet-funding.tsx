@@ -14,6 +14,8 @@ import { invariant } from '@/utils/invariant'
 
 const fundExistingAccountAccordionId = 'existing'
 const fundNewAccountAccordionId = 'new'
+export const fundExistingAccountAccordionLabel = 'Fund an existing LocalNet account'
+export const fundNewAccountAccordionLabel = 'Create and fund a new LocalNet account'
 
 const fundLocalnetAccount = async (receiver: Address, amount: AlgoAmount) => {
   invariant(kmd, 'KMD client is required')
@@ -54,13 +56,13 @@ export function LocalnetFunding() {
       onValueChange={() => setCreatedAddress(undefined)}
     >
       <AccordionItem value={fundExistingAccountAccordionId}>
-        <AccordionTrigger>Fund an existing LocalNet account</AccordionTrigger>
+        <AccordionTrigger>{fundExistingAccountAccordionLabel}</AccordionTrigger>
         <AccordionContent>
           <FundAccountForm onSubmit={fundLocalnetAccount} />
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value={fundNewAccountAccordionId}>
-        <AccordionTrigger>Create and fund a new LocalNet account</AccordionTrigger>
+        <AccordionTrigger>{fundNewAccountAccordionLabel}</AccordionTrigger>
         <AccordionContent>
           <FundAccountForm onCreateReceiver={createLocalnetAccount} onSubmit={fundLocalnetAccount} />
           {createdAddress && (

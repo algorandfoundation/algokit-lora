@@ -10,6 +10,12 @@ Install dependencies
 npm install
 ```
 
+Configure your environment
+
+```
+cp .env.sample .env
+```
+
 To run the web version locally
 
 ```

@@ -7,6 +7,6 @@ const transformError = (error: Error) => {
   return undefined
 }
 
-export function RenderInlineAsyncAtom<T>(props: RenderAsyncAtomProps<T>) {
+export function RenderInlineAsyncAtom<T>(props: Omit<RenderAsyncAtomProps<T>, 'fallback'>) {
   return <RenderAsyncAtom transformError={transformError} fallback={<Ellipsis className="size-4 h-full animate-pulse" />} {...props} />
 }
