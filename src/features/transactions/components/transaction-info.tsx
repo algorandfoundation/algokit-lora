@@ -11,7 +11,6 @@ import { TransactionLink } from './transaction-link'
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { InnerTransactionLink, asInnerTransactionLinkText } from '@/features/transactions/components/inner-transaction-link'
-import { isDefined } from '@/utils/is-defined'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 import { CopyButton } from '@/features/common/components/copy-button'
 
@@ -70,7 +69,7 @@ export function TransactionInfo({ transaction }: Props) {
           <span className="truncate">{asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId, true)}</span>
         ),
       },
-      parentTransactionLink,
+      ...(parentTransactionLink ? [parentTransactionLink] : []),
       {
         dt: transactionTypeLabel,
         dd: <TransactionTypeDescriptionDetails transaction={transaction} />,
@@ -105,7 +104,7 @@ export function TransactionInfo({ transaction }: Props) {
         : []),
     ],
     [isInnerTransaction, parentTransactionLink, transaction]
-  ).filter(isDefined)
+  )
 
   return (
     <Card>

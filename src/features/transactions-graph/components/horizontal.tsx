@@ -1,6 +1,6 @@
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
-import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { Horizontal as HorizontalModel, Point, SelfLoop, Vector, Vertical, RepresentationType, LabelType } from '../models'
+import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import { Horizontal as HorizontalModel, LabelType, Point, RepresentationType, SelfLoop, Vector, Vertical } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
@@ -18,6 +18,7 @@ import { KeyRegTransactionTooltipContent } from '@/features/transactions-graph/c
 import { StateProofTransactionTooltipContent } from './state-proof-transaction-tooltip-content'
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
+import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -83,11 +84,25 @@ function VectorLabelText({ type }: { type: LabelType }) {
   return undefined
 }
 
+function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
+  return (
+    <RenderAsyncAtom atom={transaction.abiMethod} fallback={null}>
+      {(abiMethod) => {
+        return abiMethod ? <div className="overflow-x-hidden text-ellipsis">{abiMethod.name}</div> : null
+      }}
+    </RenderAsyncAtom>
+  )
+}
+
 function VectorLabel({ transaction, vector }: { transaction: Transaction | InnerTransaction; vector: Vector }) {
   const colorClass = colorClassMap[transaction.type]
+
   return (
     <>
       <VectorLabelText type={vector.label.type} />
+      {vector.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && (
+        <AppCallAbiMethodName transaction={transaction} />
+      )}
       {(vector.label.type === LabelType.Payment || vector.label.type === LabelType.PaymentTransferRemainder) && (
         <DisplayAlgo className="flex justify-center" amount={vector.label.amount} short={true} />
       )}
@@ -111,6 +126,9 @@ function SelfLoopLabel({ transaction, loop }: { transaction: Transaction | Inner
   return (
     <>
       <VectorLabelText type={loop.label.type} />
+      {loop.label.type === LabelType.AppCall && transaction.type === TransactionType.AppCall && (
+        <AppCallAbiMethodName transaction={transaction} />
+      )}
       {(loop.label.type === LabelType.Payment || loop.label.type === LabelType.PaymentTransferRemainder) && (
         <DisplayAlgo className={cn('flex justify-center')} amount={loop.label.amount} short={true} />
       )}
@@ -145,7 +163,7 @@ const RenderTransactionVector = fixedForwardRef(
 
     return (
       <div
-        className={cn('flex items-center justify-center z-10', colorClass.text)}
+        className={cn('flex items-center justify-center z-10 relative', colorClass.text)}
         style={{
           // 2 and 3 are the number to offset the name column
           gridColumnStart: vector.fromVerticalIndex + 2,
@@ -173,8 +191,8 @@ const RenderTransactionVector = fixedForwardRef(
           ></div>
           {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
         </div>
-        <div className="absolute flex justify-center">
-          <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
+        <div className="absolute flex max-w-[35%] justify-center ">
+          <div className={cn('z-20 bg-card p-0.5 text-xs text-center w-full')}>
             <VectorLabel transaction={transaction} vector={vector} />
           </div>
         </div>

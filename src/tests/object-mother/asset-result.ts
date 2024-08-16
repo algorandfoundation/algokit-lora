@@ -615,4 +615,25 @@ export const assetResultMother = {
       },
     })
   },
+  'testnet-705457144': () => {
+    return new AssetResultBuilder({
+      index: 705457144,
+      params: {
+        clawback: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        decimals: 0,
+        'default-frozen': false,
+        freeze: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        manager: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        name: 'gold nugget',
+        'name-b64': encoder.encode('Z29sZCBudWdnZXQ='),
+        reserve: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        total: 1,
+        'unit-name': 'piece',
+        'unit-name-b64': encoder.encode('cGllY2U='),
+        url: 'https://path/to/my/asset/details',
+        'url-b64': encoder.encode('aHR0cHM6Ly9wYXRoL3RvL215L2Fzc2V0L2RldGFpbHM='),
+      },
+    })
+  },
 }
