@@ -65,7 +65,7 @@ jobs:
           unzip website.zip -d website
 
       - name: Apply Staging Transforms
-        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms/action.yaml@main
+        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms@main
         with:
           app-artifact-path: artifacts/website
           static-site-transforms: |-
@@ -102,7 +102,7 @@ jobs:
           unzip website.zip -d website
 
       - name: Apply Production Transforms
-        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms/action.yaml@main
+        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms@main
         with:
           app-artifact-path: artifacts/website
           static-site-transforms: |-
