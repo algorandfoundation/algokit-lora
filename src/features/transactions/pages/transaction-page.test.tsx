@@ -1244,19 +1244,21 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
     const myStore = createStore()
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
+    // Render an empty component to set the dataStore
+    render(<></>, undefined, myStore)
+    const applicationId = transaction['application-transaction']!['application-id']!
+    await myStore.set(getApplicationAppSpecsAtom(applicationId), [
+      {
+        standard: 'ARC-32',
+        appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
+      },
+    ])
+
     return executeComponentTest(
       () => {
         return render(<TransactionPage />, undefined, myStore)
       },
       async (component) => {
-        const applicationId = transaction['application-transaction']!['application-id']!
-        await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-          {
-            standard: 'ARC-32',
-            appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
-          },
-        ])
-
         await waitFor(() => {
           const tabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
           expect(tabList).toBeTruthy()
