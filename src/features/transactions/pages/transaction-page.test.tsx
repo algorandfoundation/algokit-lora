@@ -15,7 +15,7 @@ import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
-import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createWritableAtomAndTimestamp } from '@/features/common/data'
 import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
@@ -81,9 +81,10 @@ import { transactionAmountLabel } from '../components/transactions-table-columns
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
-import { getApplicationAppSpecsAtom } from '@/features/abi-methods/data'
+import { applicationsAppSpecsAtom } from '@/features/abi-methods/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
+import { AppSpecVersion } from '@/features/abi-methods/data/types'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -1244,15 +1245,19 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
     const myStore = createStore()
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-    // Render an empty component to set the dataStore
-    render(<></>, undefined, myStore)
     const applicationId = transaction['application-transaction']!['application-id']!
-    await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-      {
-        standard: 'ARC-32',
-        appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
-      },
-    ])
+    myStore.set(
+      applicationsAppSpecsAtom,
+      new Map([
+        [
+          applicationId,
+          createWritableAtomAndTimestamp({
+            standard: 'ARC-32' as const,
+            appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
+          } satisfies AppSpecVersion),
+        ],
+      ])
+    )
 
     return executeComponentTest(
       () => {
