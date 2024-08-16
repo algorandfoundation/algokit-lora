@@ -34,16 +34,21 @@ type AssetLinkProps = PropsWithChildren<
 
 function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   const [selectedNetwork] = useSelectedNetwork()
+  const link = (
+    <TemplatedNavLink
+      className={cn(!props.children && 'text-primary underline truncate', props.className)}
+      urlTemplate={Urls.Explore.Asset.ById}
+      urlParams={{ assetId: props.assetId.toString(), networkId: selectedNetwork }}
+    >
+      {props.children ? props.children : props.assetId}
+    </TemplatedNavLink>
+  )
 
-  return (
+  return props.children ? (
+    link
+  ) : (
     <div className="flex items-center">
-      <TemplatedNavLink
-        className={cn(!props.children && 'text-primary underline truncate', props.className)}
-        urlTemplate={Urls.Explore.Asset.ById}
-        urlParams={{ assetId: props.assetId.toString(), networkId: selectedNetwork }}
-      >
-        {props.children ? props.children : props.assetId}
-      </TemplatedNavLink>
+      {link}
       {'assetName' in props && props.assetName && <span className="ml-1 truncate">({props.assetName})</span>}
       {props.showCopyButton && <CopyButton value={props.assetId.toString()} />}
     </div>

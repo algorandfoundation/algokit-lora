@@ -1,4 +1,4 @@
-import { atomsInAtom } from '@/features/common/data'
+import { readOnlyAtomCache } from '@/features/common/data'
 import { ApplicationMetadataResult, ApplicationResult } from './types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -7,8 +7,13 @@ import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { parseArc2 } from '@/features/transactions/mappers/arc-2'
 import { parseJson } from '@/utils/parse-json'
 import { indexer } from '@/features/common/data/algo-client'
+import { Getter, Setter } from 'jotai/index'
 
-const getApplicationMetadataResult = async (applicationResult: ApplicationResult): Promise<ApplicationMetadataResult> => {
+const getApplicationMetadataResult = async (
+  _: Getter,
+  __: Setter,
+  applicationResult: ApplicationResult
+): Promise<ApplicationMetadataResult> => {
   // We only need to fetch the first page to find the application creation transaction
   const transactionResults = await indexer
     .searchForTransactions()
@@ -35,7 +40,7 @@ const getApplicationMetadataResult = async (applicationResult: ApplicationResult
   return null
 }
 
-export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] = atomsInAtom(
+export const [applicationMetadataResultsAtom, getApplicationMetadataResultAtom] = readOnlyAtomCache(
   getApplicationMetadataResult,
   (applicationResult) => applicationResult.id
 )

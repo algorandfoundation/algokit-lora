@@ -111,7 +111,6 @@ describe('fund-page', () => {
             </Auth0Provider>
           ),
         async (component) => {
-          expect(1).toBe(1)
           await waitFor(() => {
             expect(component.getByText('Fund an existing TestNet account')).toBeTruthy()
             expect(component.getByText('Refund unused TestNet ALGO')).toBeTruthy()
