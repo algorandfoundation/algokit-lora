@@ -65,10 +65,10 @@ jobs:
           unzip website.zip -d website
 
       - name: Apply Staging Transforms
-        uses: ./.github/actions/static-site-transforms
+        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms/action.yaml@main
         with:
-          directory: artifacts/website
-          transforms: |-
+          app-artifact-path: artifacts/website
+          static-site-transforms: |-
             VITE_DISPENSER_AUTH0_DOMAIN:dispenser-staging.eu.auth0.com
             VITE_DISPENSER_AUTH0_CLIENT_ID:pSffrx40HwIdWAJFeGCsy5FZn2NzYIvO
             VITE_DISPENSER_AUTH0_AUDIENCE:api-staging-dispenser-user
@@ -102,10 +102,10 @@ jobs:
           unzip website.zip -d website
 
       - name: Apply Production Transforms
-        uses: ./.github/actions/static-site-transforms
+        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms/action.yaml@main
         with:
-          directory: artifacts/website
-          transforms: |-
+          app-artifact-path: artifacts/website
+          static-site-transforms: |-
             VITE_DISPENSER_AUTH0_DOMAIN:dispenser-prod.eu.auth0.com
             VITE_DISPENSER_AUTH0_CLIENT_ID:Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
             VITE_DISPENSER_AUTH0_AUDIENCE:api-prod-dispenser-user
