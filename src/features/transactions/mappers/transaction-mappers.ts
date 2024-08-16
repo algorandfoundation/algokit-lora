@@ -12,8 +12,14 @@ import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { Atom } from 'jotai/index'
+import { AbiMethod } from '@/features/abi-methods/models'
 
-export const asTransaction = (transactionResult: TransactionResult, assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>) => {
+export const asTransaction = (
+  transactionResult: TransactionResult,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
+) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
       return asPaymentTransaction(transactionResult)
@@ -21,7 +27,7 @@ export const asTransaction = (transactionResult: TransactionResult, assetResolve
       return asAssetTransferTransaction(transactionResult, assetResolver)
     }
     case algosdk.TransactionType.appl: {
-      return asAppCallTransaction(transactionResult, assetResolver)
+      return asAppCallTransaction(transactionResult, assetResolver, abiMethodResolver)
     }
     case algosdk.TransactionType.acfg: {
       return asAssetConfigTransaction(transactionResult)

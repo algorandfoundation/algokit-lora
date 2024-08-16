@@ -1,12 +1,13 @@
 import { blockResultsAtom } from '@/features/blocks/data'
 import { groupResultsAtom } from '@/features/groups/data'
 import { latestTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
-import { Atom, Getter, PrimitiveAtom, Setter, useAtom } from 'jotai'
+import { Getter, PrimitiveAtom, Setter, useAtom } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import { accountResultsAtom } from '@/features/accounts/data'
 import { applicationMetadataResultsAtom } from '@/features/applications/data/application-metadata'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { assetMetadataResultsAtom, assetResultsAtom } from '@/features/assets/data'
+import { applicationsAppSpecsAtom } from '@/features/abi-methods/data'
 
 const cleanUpIntervalMillis = 600_000 // 10 minutes
 export const cachedDataExpirationMillis = 1_800_000 // 30 minutes
@@ -32,13 +33,14 @@ const stateCleanupEffect = atomEffect((get, set) => {
     removeExpired(applicationResultsAtom)
     removeExpired(assetMetadataResultsAtom)
     removeExpired(assetResultsAtom)
+    removeExpired(applicationsAppSpecsAtom)
   }, cleanUpIntervalMillis)
 
   return () => clearInterval(cleanup)
 })
 
 const createExpiredDataRemover = (get: Getter, set: Setter, expiredTimestamp: number) => {
-  return <Key extends string | number, Value>(resultsAtom: PrimitiveAtom<Map<Key, readonly [Atom<Value | Promise<Value>>, number]>>) => {
+  return <Key extends string | number, Value>(resultsAtom: PrimitiveAtom<Map<Key, readonly [Value, number]>>) => {
     const keysToRemove: Key[] = []
     const results = get(resultsAtom)
     results.forEach(([_, timestamp], key) => {

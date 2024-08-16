@@ -1,9 +1,10 @@
 import { atom } from 'jotai'
 import { AssetId, AssetResult } from './types'
 import { asError, is404 } from '@/utils/error'
-import { atomsInAtom } from '@/features/common/data'
+import { readOnlyAtomCache } from '@/features/common/data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { algod, indexer } from '@/features/common/data/algo-client'
+import { Getter, Setter } from 'jotai/index'
 
 export const algoAssetResult = {
   index: 0,
@@ -18,7 +19,7 @@ export const algoAssetResult = {
   },
 } as AssetResult
 
-const getAssetResult = async (assetId: AssetId) => {
+const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
     return await algod
@@ -38,7 +39,7 @@ const getAssetResult = async (assetId: AssetId) => {
   }
 }
 
-export const [assetResultsAtom, getAssetResultAtom] = atomsInAtom(
+export const [assetResultsAtom, getAssetResultAtom] = readOnlyAtomCache(
   getAssetResult,
   (assetId) => assetId,
   new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]])
