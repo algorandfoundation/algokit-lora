@@ -50,7 +50,6 @@ As part of this evaluation we came up with several design goals, which are:
 
 ## Roadmap
 
-- Connect to a custom network.
 - App studio, allowing developers to manage their apps.
 - Installable app with tighter AlgoKit tooling integration.
 - Learn about Algorand concepts as you're exploring data.

@@ -1,6 +1,5 @@
 import { atom, useSetAtom } from 'jotai'
-import { getAccountInformation } from '@algorandfoundation/algokit-utils'
-import { algod } from '@/features/common/data/algo-client'
+import { algorandClient } from '@/features/common/data/algo-client'
 import { atomWithRefresh } from 'jotai/utils'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet-account'
 import { Address } from '@/features/accounts/data/types'
@@ -24,7 +23,7 @@ export const useSetActiveWalletAddress = (activeAddress: string | undefined) => 
 }
 
 export const getActiveWalletAccount = async (address: string) => {
-  const accountInformation = await getAccountInformation(address, algod)
+  const accountInformation = await algorandClient.account.getInformation(address)
   const assetHolding = accountInformation?.assets ?? []
 
   return {
@@ -32,6 +31,10 @@ export const getActiveWalletAccount = async (address: string) => {
     // In algosdk, the asset ID has type bigint | number
     // but in lora, we use number only
     assetHolding: new Map(assetHolding.map((asset) => [Number(asset.assetId), { amount: asset.amount }])),
+    algoHolding: {
+      amount: accountInformation.amount,
+    },
+    minBalance: accountInformation.minBalance,
     validAtRound: accountInformation.round,
   } satisfies ActiveWalletAccount
 }

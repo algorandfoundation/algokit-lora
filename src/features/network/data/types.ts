@@ -1,3 +1,4 @@
+import { Address } from '@/features/accounts/data/types'
 import { PROVIDER_ID } from '@txnlab/use-wallet'
 
 export const localnetId = 'localnet'
@@ -20,7 +21,10 @@ export type NetworkConfig = {
   algod: ServiceConfig
   kmd?: ServiceConfig
   walletProviders: PROVIDER_ID[]
-  dispenserApiUrl?: string
+  dispenserApi?: {
+    url: string
+    address: Address
+  }
 }
 
 export type NetworkConfigWithId = {

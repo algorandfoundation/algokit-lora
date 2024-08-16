@@ -1,10 +1,16 @@
 import { Address } from '@/features/accounts/data/types'
+import { algorandClient } from '@/features/common/data/algo-client'
+import { NetworkConfig } from '@/features/network/data/types'
+import { TransactionId } from '@/features/transactions/data/types'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
+import { invariant } from '@/utils/invariant'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { Auth0ContextInterface, useAuth0 } from '@auth0/auth0-react'
-import { useAtomValue } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
+import { useWallet } from '@txnlab/use-wallet'
 
 type DispenserApiErrorResponse =
   | {
@@ -73,7 +79,7 @@ const getFundLimit = async (dispenserUrl: string, token: string) => {
   })
 }
 
-const fundAccount = async (dispenserUrl: string, token: string, receiver: Address, amount: AlgoAmount) => {
+const fund = async (dispenserUrl: string, token: string, receiver: Address, amount: AlgoAmount) => {
   const response = await fetch(`${dispenserUrl}/fund/0`, {
     method: 'POST',
     headers: {
@@ -91,6 +97,23 @@ const fundAccount = async (dispenserUrl: string, token: string, receiver: Addres
   await handleApiResponse(response, () => {})
 }
 
+const refund = async (dispenserUrl: string, token: string, refundTransactionId: TransactionId) => {
+  const response = await fetch(`${dispenserUrl}/refund`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      refundTransactionID: refundTransactionId,
+    }),
+    signal: AbortSignal && 'timeout' in AbortSignal ? AbortSignal.timeout(20_000) : undefined,
+  })
+
+  await handleApiResponse(response, () => {})
+}
+
 const createFundLimitAtom = (dispenserUrl: string, getAccessTokenSilently: Auth0ContextInterface['getAccessTokenSilently']) => {
   return atomWithRefresh(async (_get) => {
     const accessToken = await getAccessTokenSilently()
@@ -99,15 +122,33 @@ const createFundLimitAtom = (dispenserUrl: string, getAccessTokenSilently: Auth0
 }
 
 const useFundLimitAtom = (dispenserUrl: string, getAccessTokenSilently: Auth0ContextInterface['getAccessTokenSilently']) => {
-  const fundLimitAtom = useMemo(() => {
+  return useMemo(() => {
     return createFundLimitAtom(dispenserUrl, getAccessTokenSilently)
   }, [dispenserUrl, getAccessTokenSilently])
-
-  return fundLimitAtom
 }
 
-export const useDispenserApi = (dispenserApiUrl: string) => {
+const createRefundStatusAtom = () => {
+  return atom(async (get) => {
+    const activeAccount = await get(activeWalletAccountAtom)
+    // approxLimit = balance - minBalance - likelyTransactionFee
+    const approxLimit = Number(activeAccount?.algoHolding.amount ?? 0) - (activeAccount?.minBalance ?? 0) - 1000
+
+    return {
+      canRefund: !!activeAccount,
+      limit: microAlgos(approxLimit < 0 ? 0 : approxLimit),
+    }
+  })
+}
+
+const useRefundStatusAtom = () => {
+  return useMemo(() => {
+    return createRefundStatusAtom()
+  }, [])
+}
+
+export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddress }: NonNullable<NetworkConfig['dispenserApi']>) => {
   const { getAccessTokenSilently } = useAuth0()
+  const { signer } = useWallet()
 
   const fundLimitAtom = useFundLimitAtom(dispenserApiUrl, getAccessTokenSilently)
 
@@ -116,15 +157,46 @@ export const useDispenserApi = (dispenserApiUrl: string) => {
       async (_get, set, receiver: Address, amount: AlgoAmount) => {
         const token = await getAccessTokenSilently()
 
-        await fundAccount(dispenserApiUrl, token, receiver, amount)
+        await fund(dispenserApiUrl, token, receiver, amount)
         set(fundLimitAtom)
       },
       [dispenserApiUrl, fundLimitAtom, getAccessTokenSilently]
     )
   )
 
+  const refundStatusAtom = useRefundStatusAtom()
+
+  const refundDispenserAccount = useAtomCallback(
+    useCallback(
+      async (get, _set, amount: AlgoAmount) => {
+        const activeAccount = await get(activeWalletAccountAtom)
+
+        invariant(activeAccount, 'No active wallet account is available')
+
+        const token = await getAccessTokenSilently()
+
+        const sendResult = await algorandClient.send.payment({
+          sender: activeAccount.address,
+          receiver: dispenserAddress,
+          amount,
+          signer,
+          validityWindow: 30, // Gives approx 90 seconds to approve the transaction
+        })
+
+        if (!sendResult.confirmation.confirmedRound) {
+          throw new Error(`Failed to refund. ${sendResult.confirmation.poolError ?? ''}`)
+        }
+
+        await refund(dispenserApiUrl, token, sendResult.transaction.txID())
+      },
+      [dispenserAddress, dispenserApiUrl, getAccessTokenSilently, signer]
+    )
+  )
+
   return {
     fundLimit: useAtomValue(loadable(fundLimitAtom)),
     fundAccount: fundAccountAndRefreshFundLimit,
+    refundStatus: useAtomValue(loadable(refundStatusAtom)),
+    refundDispenserAccount,
   }
 }

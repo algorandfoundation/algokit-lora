@@ -54,6 +54,14 @@ describe('fund-page', () => {
           data: algos(10),
         },
         fundAccount: vi.fn(),
+        refundStatus: {
+          state: 'hasData',
+          data: {
+            canRefund: true,
+            limit: algos(10),
+          },
+        },
+        refundDispenserAccount: vi.fn(),
       }
     })
 

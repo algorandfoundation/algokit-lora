@@ -51,7 +51,7 @@ export function LayoutPage({ children }: Props) {
     </div>
   )
 
-  return networkConfig.dispenserApiUrl ? (
+  return networkConfig.dispenserApi ? (
     <Auth0Provider
       domain={config.dispenserAuth0Domain}
       clientId={config.dispenserAuth0ClientId}
