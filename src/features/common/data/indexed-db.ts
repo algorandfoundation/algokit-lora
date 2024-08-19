@@ -26,10 +26,13 @@ interface LoraDBSchemaV2 extends DBSchema {
 export async function getDbConnection(networkId: string) {
   return await openDB<LoraDBSchemaV2>(networkId, 2, {
     async upgrade(db, oldVersion, newVersion, transaction) {
+      // Casting to DBSchema to trick TypeScript
+      const anyDb = db as unknown as IDBPDatabase<DBSchema>
+      const anyTransaction = transaction as unknown as IDBPTransaction<DBSchema, StoreNames<DBSchema>[], 'versionchange'>
       try {
         const migrationsToRun = dbMigrations.slice(oldVersion, newVersion ?? undefined)
         for (const migration of migrationsToRun) {
-          await migration(db, transaction)
+          await migration(anyDb, anyTransaction)
         }
       } catch (e) {
         // Need to abort the transaction here, so that the database version doesn't get updated to the new version
@@ -46,12 +49,11 @@ export const updateDbConnection = (networkId: string) => {
 }
 
 const dbMigrations = [
-  // TODO: clean up, the args don't make sense
-  async (db: IDBPDatabase<LoraDBSchemaV2>) => {
+  async (db: IDBPDatabase<DBSchema>) => {
     const v1Db = db as unknown as IDBPDatabase<LoraDBSchemaV1>
     v1Db.createObjectStore('applications-app-specs')
   },
-  async (db: IDBPDatabase<LoraDBSchemaV2>, transaction: IDBPTransaction<LoraDBSchemaV2, StoreNames<LoraDBSchemaV2>[], 'versionchange'>) => {
+  async (db: IDBPDatabase<DBSchema>, transaction: IDBPTransaction<DBSchema, StoreNames<DBSchema>[], 'versionchange'>) => {
     const v1Db = db as unknown as IDBPDatabase<LoraDBSchemaV1>
     const v1Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV1, StoreNames<LoraDBSchemaV1>[], 'versionchange'>
     const v1Store = v1Transaction.objectStore('applications-app-specs')
