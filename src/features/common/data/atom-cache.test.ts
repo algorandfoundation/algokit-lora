@@ -16,7 +16,7 @@ vi.mock('@/features/common/data/data-store', async () => {
 })
 
 describe('atom-cache', () => {
-  const asShortId = (date: Date) => new Number(date).toString(36).toUpperCase()
+  const asShortId = (date: Date) => Number(date).toString(36).toUpperCase()
 
   afterEach(async () => {
     vi.resetAllMocks()
