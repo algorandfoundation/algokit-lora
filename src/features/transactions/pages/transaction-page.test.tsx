@@ -10,12 +10,12 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
-import { createStore } from 'jotai'
+import { atom, createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
-import { createReadOnlyAtomAndTimestamp, createWritableAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 import {
   transactionVisualTableTabLabel,
   transactionDetailsLabel,
@@ -1251,7 +1251,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
       new Map([
         [
           applicationId,
-          createWritableAtomAndTimestamp({
+          createApplicationEntityAtomAndTimestamp({
             id: applicationId,
             displayName: 'test',
             appSpecVersions: [
@@ -1260,7 +1260,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
                 appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
               },
             ],
-          } satisfies ApplicationEntity),
+          }),
         ],
       ])
     )
@@ -1285,3 +1285,15 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
     )
   })
 })
+
+function createApplicationEntityAtomAndTimestamp(applicationEntity: ApplicationEntity) {
+  return [
+    atom(
+      () => applicationEntity,
+      () => {
+        return Promise.resolve()
+      }
+    ),
+    createTimestamp(),
+  ] as const
+}

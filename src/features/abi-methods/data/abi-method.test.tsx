@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { createReadOnlyAtomAndTimestamp, createWritableAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
@@ -14,6 +14,7 @@ import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
 import { ApplicationEntity } from '@/features/common/data/indexed-db'
+import { atom } from 'jotai/index'
 
 const { myStore } = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -43,7 +44,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createWritableAtomAndTimestamp({
+            createApplicationEntityAtomAndTimestamp({
               id: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -85,13 +86,12 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      // TODO: consider using map
       myStore.set(
         applicationEntitiesAtom,
         new Map([
           [
             applicationId,
-            createWritableAtomAndTimestamp({
+            createApplicationEntityAtomAndTimestamp({
               id: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -147,7 +147,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createWritableAtomAndTimestamp({
+            createApplicationEntityAtomAndTimestamp({
               id: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -336,7 +336,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createWritableAtomAndTimestamp({
+            createApplicationEntityAtomAndTimestamp({
               id: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -415,3 +415,15 @@ describe('resolving ABI method', () => {
     })
   })
 })
+
+function createApplicationEntityAtomAndTimestamp(applicationEntity: ApplicationEntity) {
+  return [
+    atom(
+      () => applicationEntity,
+      () => {
+        return Promise.resolve()
+      }
+    ),
+    createTimestamp(),
+  ] as const
+}
