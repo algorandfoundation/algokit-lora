@@ -1,5 +1,6 @@
 import { DBSchema, IDBPDatabase, IDBPTransaction, openDB, StoreNames } from 'idb'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
+import { ApplicationId } from '@/features/applications/data/types'
 
 interface LoraDBSchemaV1 extends DBSchema {
   'applications-app-specs': {
@@ -10,7 +11,7 @@ interface LoraDBSchemaV1 extends DBSchema {
 
 export type ApplicationEntity = {
   // TODO: use ApplicationId if possible
-  id: string
+  id: ApplicationId
   displayName: string
   appSpecVersions: AppSpecVersion[]
   // TODO: created at
@@ -64,7 +65,7 @@ const dbMigrations = [
       const item = await v1Store.get(key)
       if (item) {
         newItems.push({
-          id: key,
+          id: Number(key),
           displayName: '',
           appSpecVersions: [...item],
         })

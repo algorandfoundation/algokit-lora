@@ -44,7 +44,7 @@ describe('resolving ABI method', () => {
           [
             applicationId,
             createWritableAtomAndTimestamp({
-              id: applicationId.toString(),
+              id: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -92,7 +92,7 @@ describe('resolving ABI method', () => {
           [
             applicationId,
             createWritableAtomAndTimestamp({
-              id: applicationId.toString(),
+              id: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -148,7 +148,7 @@ describe('resolving ABI method', () => {
           [
             applicationId,
             createWritableAtomAndTimestamp({
-              id: applicationId.toString(),
+              id: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -337,7 +337,7 @@ describe('resolving ABI method', () => {
           [
             applicationId,
             createWritableAtomAndTimestamp({
-              id: applicationId.toString(),
+              id: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {

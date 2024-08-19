@@ -1252,7 +1252,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
         [
           applicationId,
           createWritableAtomAndTimestamp({
-            id: applicationId.toString(),
+            id: applicationId,
             displayName: 'test',
             appSpecVersions: [
               {
