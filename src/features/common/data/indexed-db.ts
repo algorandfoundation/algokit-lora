@@ -10,11 +10,10 @@ interface LoraDBSchemaV1 extends DBSchema {
 }
 
 export type ApplicationEntity = {
-  // TODO: use ApplicationId if possible
   id: ApplicationId
   displayName: string
   appSpecVersions: AppSpecVersion[]
-  // TODO: created at
+  // TODO: uploaded at
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
