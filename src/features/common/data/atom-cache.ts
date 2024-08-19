@@ -7,18 +7,6 @@ export const createReadOnlyAtomAndTimestamp = <T>(value: T) => {
   return [atom(() => value), createTimestamp()] as const
 }
 
-export const createWritableAtomAndTimestamp = <T>(value: T) => {
-  return [
-    atom(
-      () => [value],
-      () => {
-        return Promise.resolve()
-      }
-    ),
-    createTimestamp(),
-  ] as const
-}
-
 function getOrCreateValueInCacheAtom<Key extends string | number, Args extends unknown[], Value>(
   keySelector: (...args: Args) => Key,
   cacheAtom: PrimitiveAtom<Map<Key, readonly [Value, number]>>,
