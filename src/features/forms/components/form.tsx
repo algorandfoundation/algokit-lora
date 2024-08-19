@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 import { DefaultValues, FormProvider, useForm } from 'react-hook-form'
-import { ReactNode, useCallback, useState } from 'react'
+import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,7 +13,7 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   header?: string
   schema: z.ZodEffects<any, TSchema, unknown>
   defaultValues?: DefaultValues<TSchema>
-  children: ReactNode | ((helper: FormFieldHelper<TSchema>) => ReactNode)
+  children: ReactNode | ((helper: FormFieldHelper<TSchema>, handleSubmit: () => Promise<void>) => ReactNode)
   formAction: ReactNode
   onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
@@ -54,7 +54,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     [_onSubmit, onSuccess]
   )
 
-  const handleSubmit = formCtx.handleSubmit(onSubmit)
+  const handleSubmit = useMemo(() => formCtx.handleSubmit(onSubmit), [formCtx, onSubmit])
 
   return (
     <div className={'grid'}>
@@ -66,7 +66,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
       >
         <FormProvider {...formCtx}>
           <form className={cn('grid gap-4', className)} onSubmit={handleSubmit}>
-            {typeof children === 'function' ? children(new FormFieldHelper<TSchema>()) : children}
+            {typeof children === 'function' ? children(new FormFieldHelper<TSchema>(), handleSubmit) : children}
             {errorMessage && <div className="text-error">{errorMessage}</div>}
             {formAction}
           </form>

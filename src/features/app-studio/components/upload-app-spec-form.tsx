@@ -1,9 +1,8 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { z } from 'zod'
 import { Form } from '@/features/forms/components/form'
 import { zfd } from 'zod-form-data'
-import { useFormContext } from 'react-hook-form'
-import { asError } from '@/utils/error'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
@@ -18,37 +17,40 @@ type UploadAppSpecFormProps = {
 }
 
 export function UploadAppSpecForm({ onFileSelected }: UploadAppSpecFormProps) {
+  const onSubmit = useCallback(async (values: z.infer<typeof uploadAppSpecFormSchema>) => {
+    const appSpec = await readFileIntoAppSpec(values.file)
+    return {
+      file: values.file,
+      appSpec,
+    }
+  }, [])
+
+  const onSuccess = useCallback(
+    ({ file, appSpec }: { file: File; appSpec: Arc32AppSpec }) => {
+      onFileSelected(file, appSpec)
+    },
+    [onFileSelected]
+  )
+
   return (
-    <Form schema={uploadAppSpecFormSchema} onSubmit={() => {}} onSuccess={() => {}} formAction={<></>}>
-      {(helper) => <FormInner helper={helper} onFileSelected={onFileSelected} />}
+    <Form schema={uploadAppSpecFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} formAction={<></>}>
+      {(helper, handleSubmit) => <FormInner helper={helper} handleSubmit={handleSubmit} />}
     </Form>
   )
 }
 
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof uploadAppSpecFormSchema>>
-  onFileSelected: (file: File, appSpec: Arc32AppSpec) => void
+  handleSubmit: () => Promise<void> | void
 }
-function FormInner({ helper, onFileSelected }: FormInnerProps) {
-  const { watch, setError } = useFormContext<z.infer<typeof uploadAppSpecFormSchema>>()
-  const file = watch('file')
+function FormInner({ helper, handleSubmit }: FormInnerProps) {
+  const { control } = useFormContext<z.infer<typeof uploadAppSpecFormSchema>>()
+  const file = useWatch({ name: 'file', control })
 
   useEffect(() => {
     if (!file) return
-    ;(async () => {
-      try {
-        const appSpec = await readFileIntoAppSpec(file)
-
-        onFileSelected(file, appSpec)
-      } catch (e: unknown) {
-        const error = asError(e)
-        setError('file', {
-          type: 'custom',
-          message: error.message,
-        })
-      }
-    })()
-  }, [file, onFileSelected, setError])
+    handleSubmit()
+  }, [file, handleSubmit])
 
   return helper.fileField({
     accept: 'application/json',

@@ -13,7 +13,7 @@ export function AppStudioWipPage() {
         <Card>
           <CardContent className="relative min-h-44 space-y-1">
             <h2>{newContractLabel}</h2>
-            <p>Upload an ARC-04 or ARC-32 JSON file</p>
+            <p>Upload an ARC-32 JSON file</p>
             <NewContractButton />
           </CardContent>
         </Card>
