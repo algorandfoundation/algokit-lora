@@ -2,25 +2,22 @@ import { describe, expect, it, vi } from 'vitest'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
-import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createWritableAtomAndTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
-import { getApplicationAppSpecsAtom } from '@/features/abi-methods/data/index'
+import { applicationEntitiesAtom } from '@/features/abi-methods/data/index'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
+import { ApplicationEntity } from '@/features/common/data/indexed-db'
 
 const { myStore } = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
-  const { updateDbConnection } = await import('@/features/common/data/indexed-db')
-  const result = getDefaultStore()
-
-  updateDbConnection('localnet')
-  return { myStore: result }
+  return { myStore: getDefaultStore() }
 })
 
 vi.mock('@/features/common/data/data-store', async () => {
@@ -41,18 +38,24 @@ describe('resolving ABI method', () => {
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-        {
-        id: applicationId.toString(),
-        displayName: 'test',
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      },
-      ])
+      myStore.set(
+        applicationEntitiesAtom,
+        new Map([
+          [
+            applicationId,
+            createWritableAtomAndTimestamp({
+              id: applicationId.toString(),
+              displayName: 'test',
+              appSpecVersions: [
+                {
+                  standard: 'ARC-32',
+                  appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+                },
+              ],
+            } satisfies ApplicationEntity),
+          ],
+        ])
+      )
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeDefined()
@@ -82,18 +85,25 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-        {
-        id: applicationId.toString(),
-        displayName: 'test',
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      },
-      ])
+      // TODO: consider using map
+      myStore.set(
+        applicationEntitiesAtom,
+        new Map([
+          [
+            applicationId,
+            createWritableAtomAndTimestamp({
+              id: applicationId.toString(),
+              displayName: 'test',
+              appSpecVersions: [
+                {
+                  standard: 'ARC-32',
+                  appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+                },
+              ],
+            } satisfies ApplicationEntity),
+          ],
+        ])
+      )
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
       expect(abiMethod).toBeDefined()
@@ -132,18 +142,24 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-         {
-        id: applicationId.toString(),
-        displayName: 'test',
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      },
-      ])
+      myStore.set(
+        applicationEntitiesAtom,
+        new Map([
+          [
+            applicationId,
+            createWritableAtomAndTimestamp({
+              id: applicationId.toString(),
+              displayName: 'test',
+              appSpecVersions: [
+                {
+                  standard: 'ARC-32',
+                  appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
+                },
+              ],
+            } satisfies ApplicationEntity),
+          ],
+        ])
+      )
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
       expect(abiMethod).toBeDefined()
@@ -315,18 +331,24 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      await myStore.set(getApplicationAppSpecsAtom(applicationId), [
-       {
-        id: applicationId.toString(),
-        displayName: 'test',
-        appSpecVersions: [
-          {
-            standard: 'ARC-32',
-            appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
-          },
-        ],
-      },
-      ])
+      myStore.set(
+        applicationEntitiesAtom,
+        new Map([
+          [
+            applicationId,
+            createWritableAtomAndTimestamp({
+              id: applicationId.toString(),
+              displayName: 'test',
+              appSpecVersions: [
+                {
+                  standard: 'ARC-32',
+                  appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
+                },
+              ],
+            } satisfies ApplicationEntity),
+          ],
+        ])
+      )
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeDefined()

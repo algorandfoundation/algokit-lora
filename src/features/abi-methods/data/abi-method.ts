@@ -1,5 +1,4 @@
 import { Atom, atom } from 'jotai'
-import { getApplicationAppSpecsAtom } from '@/features/abi-methods/data/index'
 import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
@@ -10,6 +9,7 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
+import { getApplicationEntityAtom } from '@/features/abi-methods/data/index'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {

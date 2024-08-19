@@ -9,9 +9,11 @@ interface LoraDBSchemaV1 extends DBSchema {
 }
 
 export type ApplicationEntity = {
+  // TODO: use ApplicationId if possible
   id: string
   displayName: string
   appSpecVersions: AppSpecVersion[]
+  // TODO: created at
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
@@ -21,21 +23,9 @@ interface LoraDBSchemaV2 extends DBSchema {
   }
 }
 
-export async function getDb(networkId: string) {
+export async function getDbConnection(networkId: string) {
   return await openDB<LoraDBSchemaV2>(networkId, 2, {
     async upgrade(db, oldVersion, newVersion, transaction) {
-      try {
-        const migrationsToRun = dbMigrations.slice(oldVersion, newVersion ?? undefined)
-        for (const migration of migrationsToRun) {
-          await migration(db, transaction)
-        }
-      } catch (e) {
-        // Need to abort the transaction here, so that the database version doesn't get updated to the new version
-        transaction.abort()
-      }
-export async function getDbConnection(networkId: string) {
-  return await openDB<LoraDBSchema>(networkId, 1, {
-    upgrade(db, oldVersion, newVersion) {
       try {
         const migrationsToRun = dbMigrations.slice(oldVersion, newVersion ?? undefined)
         for (const migration of migrationsToRun) {
@@ -49,14 +39,15 @@ export async function getDbConnection(networkId: string) {
   })
 }
 
-export let dbConnection: Promise<IDBPDatabase<LoraDBSchema>> | undefined = undefined
+export let dbConnection: Promise<IDBPDatabase<LoraDBSchemaV2>> | undefined = undefined
 
 export const updateDbConnection = (networkId: string) => {
   dbConnection = getDbConnection(networkId)
 }
 
 const dbMigrations = [
-  async (db: IDBPDatabase<LoraDBSchemaV1>) => {
+  // TODO: clean up, the args don't make sense
+  async (db: IDBPDatabase<LoraDBSchemaV2>) => {
     const v1Db = db as unknown as IDBPDatabase<LoraDBSchemaV1>
     v1Db.createObjectStore('applications-app-specs')
   },

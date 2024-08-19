@@ -10,7 +10,7 @@ export const createReadOnlyAtomAndTimestamp = <T>(value: T) => {
 export const createWritableAtomAndTimestamp = <T>(value: T) => {
   return [
     atom(
-      () => [value],
+      () => value,
       () => {
         return Promise.resolve()
       }
