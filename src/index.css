@@ -59,6 +59,9 @@
     --key-registration: 107 94 9;
     --key-registration-foreground: 255 255 255;
 
+    --error: 203 69 83;
+    --error-foreground: 255 255 255;
+
     --toastify-color-light: rgb(var(--card));
     --toastify-color-dark: rgb(var(--card));
     --toastify-color-info: rgb(var(--application-call));
