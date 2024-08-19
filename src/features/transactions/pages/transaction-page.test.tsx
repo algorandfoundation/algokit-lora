@@ -81,10 +81,10 @@ import { transactionAmountLabel } from '../components/transactions-table-columns
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
-import { applicationEntitiesAtom } from '@/features/abi-methods/data'
+import { contractEntitiesAtom } from '@/features/abi-methods/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { ApplicationEntity } from '@/features/common/data/indexed-db'
+import { ContractEntity } from '@/features/common/data/indexed-db'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -1247,12 +1247,12 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
 
     const applicationId = transaction['application-transaction']!['application-id']!
     myStore.set(
-      applicationEntitiesAtom,
+      contractEntitiesAtom,
       new Map([
         [
           applicationId,
-          createApplicationEntityAtomAndTimestamp({
-            id: applicationId,
+          createContractEntityAtomAndTimestamp({
+            applicationId: applicationId,
             displayName: 'test',
             appSpecVersions: [
               {
@@ -1260,6 +1260,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
                 appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
               },
             ],
+            lastModified: createTimestamp(),
           }),
         ],
       ])
@@ -1286,10 +1287,10 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
   })
 })
 
-function createApplicationEntityAtomAndTimestamp(applicationEntity: ApplicationEntity) {
+function createContractEntityAtomAndTimestamp(entity: ContractEntity) {
   return [
     atom(
-      () => applicationEntity,
+      () => entity,
       () => {
         return Promise.resolve()
       }

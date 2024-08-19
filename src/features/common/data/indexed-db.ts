@@ -9,18 +9,17 @@ interface LoraDBSchemaV1 extends DBSchema {
   }
 }
 
-export type ApplicationEntity = {
-  id: ApplicationId
+export type ContractEntity = {
+  applicationId: ApplicationId
   displayName: string
   appSpecVersions: AppSpecVersion[]
-  // TODO: uploaded at
+  lastModified: number
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
-  // TODO: rename to contracts
-  applications: {
+  contracts: {
     key: string
-    value: ApplicationEntity
+    value: ContractEntity
   }
 }
 
@@ -59,15 +58,16 @@ const dbMigrations = [
     const v1Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV1, StoreNames<LoraDBSchemaV1>[], 'versionchange'>
     const v1Store = v1Transaction.objectStore('applications-app-specs')
 
-    const newItems: ApplicationEntity[] = []
+    const newItems: ContractEntity[] = []
     const keys = await v1Store.getAllKeys()
     for (const key of keys) {
       const item = await v1Store.get(key)
       if (item) {
         newItems.push({
-          id: Number(key),
+          applicationId: Number(key),
           displayName: '',
           appSpecVersions: [...item],
+          lastModified: Date.now(),
         })
       }
     }
@@ -75,12 +75,12 @@ const dbMigrations = [
     v1Db.deleteObjectStore('applications-app-specs')
 
     const v2Db = db as unknown as IDBPDatabase<LoraDBSchemaV2>
-    v2Db.createObjectStore('applications', {
-      keyPath: 'id',
+    v2Db.createObjectStore('contracts', {
+      keyPath: 'applicationId',
     })
 
     const v2Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV2, StoreNames<LoraDBSchemaV2>[], 'versionchange'>
-    const v2Store = v2Transaction.objectStore('applications')
+    const v2Store = v2Transaction.objectStore('contracts')
 
     for (const newItem of newItems) {
       await v2Store.put(newItem)

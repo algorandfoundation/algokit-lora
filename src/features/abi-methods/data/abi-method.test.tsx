@@ -7,13 +7,13 @@ import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
-import { applicationEntitiesAtom } from '@/features/abi-methods/data/index'
+import { contractEntitiesAtom } from '@/features/abi-methods/data/index'
 import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
-import { ApplicationEntity } from '@/features/common/data/indexed-db'
+import { ContractEntity } from '@/features/common/data/indexed-db'
 import { atom } from 'jotai/index'
 
 const { myStore } = await vi.hoisted(async () => {
@@ -40,12 +40,12 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       myStore.set(
-        applicationEntitiesAtom,
+        contractEntitiesAtom,
         new Map([
           [
             applicationId,
-            createApplicationEntityAtomAndTimestamp({
-              id: applicationId,
+            createContractEntityAtomAndTimestamp({
+              applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -53,7 +53,8 @@ describe('resolving ABI method', () => {
                   appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
                 },
               ],
-            } satisfies ApplicationEntity),
+              lastModified: createTimestamp(),
+            } satisfies ContractEntity),
           ],
         ])
       )
@@ -87,12 +88,12 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       myStore.set(
-        applicationEntitiesAtom,
+        contractEntitiesAtom,
         new Map([
           [
             applicationId,
-            createApplicationEntityAtomAndTimestamp({
-              id: applicationId,
+            createContractEntityAtomAndTimestamp({
+              applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -100,7 +101,8 @@ describe('resolving ABI method', () => {
                   appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
                 },
               ],
-            } satisfies ApplicationEntity),
+              lastModified: createTimestamp(),
+            } satisfies ContractEntity),
           ],
         ])
       )
@@ -143,12 +145,12 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       myStore.set(
-        applicationEntitiesAtom,
+        contractEntitiesAtom,
         new Map([
           [
             applicationId,
-            createApplicationEntityAtomAndTimestamp({
-              id: applicationId,
+            createContractEntityAtomAndTimestamp({
+              applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -156,7 +158,8 @@ describe('resolving ABI method', () => {
                   appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
                 },
               ],
-            } satisfies ApplicationEntity),
+              lastModified: createTimestamp(),
+            } satisfies ContractEntity),
           ],
         ])
       )
@@ -332,12 +335,12 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       myStore.set(
-        applicationEntitiesAtom,
+        contractEntitiesAtom,
         new Map([
           [
             applicationId,
-            createApplicationEntityAtomAndTimestamp({
-              id: applicationId,
+            createContractEntityAtomAndTimestamp({
+              applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
                 {
@@ -345,7 +348,8 @@ describe('resolving ABI method', () => {
                   appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
                 },
               ],
-            } satisfies ApplicationEntity),
+              lastModified: createTimestamp(),
+            } satisfies ContractEntity),
           ],
         ])
       )
@@ -416,10 +420,10 @@ describe('resolving ABI method', () => {
   })
 })
 
-function createApplicationEntityAtomAndTimestamp(applicationEntity: ApplicationEntity) {
+function createContractEntityAtomAndTimestamp(contractEntity: ContractEntity) {
   return [
     atom(
-      () => applicationEntity,
+      () => contractEntity,
       () => {
         return Promise.resolve()
       }

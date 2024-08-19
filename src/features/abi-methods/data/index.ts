@@ -1,42 +1,40 @@
 import { ApplicationId } from '@/features/applications/data/types'
-import { ApplicationEntity, dbConnection } from '@/features/common/data/indexed-db'
+import { ContractEntity, dbConnection } from '@/features/common/data/indexed-db'
 import { invariant } from '@/utils/invariant'
-import { writableAtomCache } from '@/features/common/data'
+import { createTimestamp, writableAtomCache } from '@/features/common/data'
 import { atom, Getter, Setter } from 'jotai'
 import { useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 import { AppSpecVersion } from '@/features/abi-methods/data/types'
 
-const getApplicationEntity = async (applicationId: ApplicationId) => {
+const getContractEntity = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).get('applications', applicationId.toString())
+  return await (await dbConnection).get('contracts', applicationId.toString())
 }
-const writeApplicationEntity = async (applicationEntity: ApplicationEntity) => {
+const writeContractEntity = async (contractEntity: ContractEntity) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  await (await dbConnection).put('applications', applicationEntity)
+  await (await dbConnection).put('contracts', contractEntity)
 }
-const getApplicationEntities = async () => {
+const getContractEntities = async () => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).getAll('applications')
+  return await (await dbConnection).getAll('contracts')
 }
 
-const createWritableApplicationEntitiesAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
-  const applicationEntityAtom = atom<ApplicationEntity | undefined | Promise<ApplicationEntity | undefined>>(
-    getApplicationEntity(applicationId)
-  )
+const createWritableContractEntitiesAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
+  const contractEntityAtom = atom<ContractEntity | undefined | Promise<ContractEntity | undefined>>(getContractEntity(applicationId))
 
   return atom(
-    (get) => get(applicationEntityAtom),
-    async (_, set, applicationEntity: ApplicationEntity) => {
-      await writeApplicationEntity(applicationEntity)
-      set(applicationEntityAtom, applicationEntity)
+    (get) => get(contractEntityAtom),
+    async (_, set, contractEntity: ContractEntity) => {
+      await writeContractEntity(contractEntity)
+      set(contractEntityAtom, contractEntity)
     }
   )
 }
 
-export const [applicationEntitiesAtom, getApplicationEntityAtom] = writableAtomCache(
-  createWritableApplicationEntitiesAtom,
+export const [contractEntitiesAtom, getContractEntityAtom] = writableAtomCache(
+  createWritableContractEntitiesAtom,
   (applicationId: ApplicationId) => applicationId
 )
 
@@ -68,16 +66,17 @@ export const useSetContractEntity = () => {
           invariant(roundLastValid > roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
         }
 
-        const existingContractEntities = await getApplicationEntities()
+        const existingContractEntities = await getContractEntities()
         invariant(
-          existingContractEntities.find((e) => e.displayName.toLowerCase() === name.toLowerCase() && e.id !== applicationId) === undefined,
+          existingContractEntities.find((e) => e.displayName.toLowerCase() === name.toLowerCase() && e.applicationId !== applicationId) ===
+            undefined,
           'A contract with the same name already exists'
         )
 
-        const entity = await get(getApplicationEntityAtom(applicationId))
+        const entity = await get(getContractEntityAtom(applicationId))
         if (!entity) {
-          await set(getApplicationEntityAtom(applicationId), {
-            id: applicationId,
+          await set(getContractEntityAtom(applicationId), {
+            applicationId: applicationId,
             displayName: name,
             appSpecVersions: [
               {
@@ -87,6 +86,7 @@ export const useSetContractEntity = () => {
                 appSpec,
               },
             ],
+            lastModified: createTimestamp(),
           })
         } else {
           const existingAppSpecVersions = entity.appSpecVersions
@@ -103,9 +103,10 @@ export const useSetContractEntity = () => {
           )
           if (matchingAppSpecVersion) {
             const newSpecs = [...existingAppSpecVersions.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
-            await set(getApplicationEntityAtom(applicationId), {
+            await set(getContractEntityAtom(applicationId), {
               ...entity,
               appSpecVersions: newSpecs,
+              lastModified: createTimestamp(),
             })
           } else {
             // Check if there is an existing app spec with the same standard and valid rounds that overlaps with the new one
@@ -118,9 +119,10 @@ export const useSetContractEntity = () => {
             invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
 
             const newSpecs = [...existingAppSpecVersions, applicationAppSpec]
-            await set(getApplicationEntityAtom(applicationId), {
+            await set(getContractEntityAtom(applicationId), {
               ...entity,
               appSpecVersions: newSpecs,
+              lastModified: createTimestamp(),
             })
           }
         }
