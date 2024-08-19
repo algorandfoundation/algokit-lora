@@ -7,6 +7,7 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { toast } from 'react-toastify'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
+import { useSetContractEntity } from '@/features/abi-methods/data'
 
 const newContractFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -21,18 +22,23 @@ type Props = {
 }
 
 export function NewContractForm({ appSpecFile, appSpec, onSuccess }: Props) {
-  // const setAppSpec = useSetAppSpec(application.id)
+  const setContractEntity = useSetContractEntity()
 
-  const save = useCallback(async (values: z.infer<typeof newContractFormSchema>) => {
-    // const content = await readFile(values.file)
-    // await setAppSpec({
-    //   standard: 'ARC-32',
-    //   json: JSON.parse(content as string),
-    //   roundFirstValid: undefined,
-    //   roundLastValid: undefined,
-    // })
-    toast.success('ARC32 app spec saved successfully')
-  }, [])
+  const save = useCallback(
+    async (values: z.infer<typeof newContractFormSchema>) => {
+      await setContractEntity({
+        name: values.contractName,
+        standard: 'ARC-32',
+        appSpec: appSpec,
+        roundFirstValid: undefined,
+        roundLastValid: undefined,
+        applicationId: values.appId,
+      })
+      toast.success(`Contract ${values.contractName} was saved successfully`)
+      onSuccess()
+    },
+    [appSpec, onSuccess, setContractEntity]
+  )
 
   return (
     <Form

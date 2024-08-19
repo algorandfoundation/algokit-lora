@@ -21,7 +21,7 @@ export function NewContractButton() {
               <h2 className="pb-0">New contract</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <NewContractDialogBody />
+              <NewContractDialogBody onSuccess={off} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}
@@ -30,7 +30,10 @@ export function NewContractButton() {
   )
 }
 
-function NewContractDialogBody() {
+type NewContractDialogBodyProps = {
+  onSuccess: () => void
+}
+function NewContractDialogBody({ onSuccess }: NewContractDialogBodyProps) {
   const [appSpecFile, setAppSpecFile] = useState<File | undefined>()
   const [appSpec, setAppSpec] = useState<Arc32AppSpec | undefined>()
 
@@ -42,6 +45,6 @@ function NewContractDialogBody() {
   return !appSpec || !appSpecFile ? (
     <UploadAppSpecForm onFileSelected={onFileSelected} />
   ) : (
-    <NewContractForm appSpec={appSpec} appSpecFile={appSpecFile} onSuccess={() => console.log('success')} />
+    <NewContractForm appSpec={appSpec} appSpecFile={appSpecFile} onSuccess={onSuccess} />
   )
 }

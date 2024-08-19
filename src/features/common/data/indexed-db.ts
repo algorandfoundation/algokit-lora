@@ -17,6 +17,7 @@ export type ApplicationEntity = {
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
+  // TODO: rename to contracts
   applications: {
     key: string
     value: ApplicationEntity
