@@ -62,10 +62,10 @@ const dbMigrations = [
     const keys = await v1Store.getAllKeys()
     for (const key of keys) {
       const item = await v1Store.get(key)
-      if (item) {
+      if (item && item.length > 0) {
         newItems.push({
           applicationId: Number(key),
-          displayName: '',
+          displayName: item[0].appSpec.contract.name,
           appSpecVersions: [...item],
           lastModified: Date.now(),
         })
