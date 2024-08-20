@@ -6,11 +6,18 @@ import { useCallback, useState } from 'react'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
 import { SelectAppSpecForm } from '@/features/app-studio/components/select-app-spec-form'
 
-export function NewContractButton() {
+type Props = {
+  onSuccess: () => void
+}
+export function NewContractButton({ onSuccess: _onSuccess }: Props) {
   const { on, off, state: dialogOpen } = useToggle(false)
+  const onSuccess = useCallback(() => {
+    off()
+    _onSuccess()
+  }, [off, _onSuccess])
 
   return (
-    <div className="absolute bottom-0 right-0">
+    <div className="flex justify-end">
       <Button variant="outline-secondary" onClick={on}>
         Upload App Spec
       </Button>
@@ -21,7 +28,7 @@ export function NewContractButton() {
               <h2 className="pb-0">New contract</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <NewContractDialogBody onSuccess={off} />
+              <NewContractDialogBody onSuccess={onSuccess} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}

@@ -1,23 +1,21 @@
 import { PageTitle } from '@/features/common/components/page-title'
 import { appStudioPageTitle } from '@/features/app-studio/pages/app-studio-page'
-import { Card, CardContent } from '@/features/common/components/card'
-import { NewContractButton } from '@/features/app-studio/components/new-contract-button'
-
-export const newContractLabel = 'New contract'
+import { useContractEntities } from '@/features/abi-methods/data'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { Contracts } from '@/features/app-studio/components/contracts'
+import { PageLoader } from '@/features/common/components/page-loader'
 
 export function AppStudioWipPage() {
+  const [contractEntities, refreshContractEntities] = useContractEntities()
+
   return (
     <>
       <PageTitle title={appStudioPageTitle} />
-      <div className="grid grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="relative min-h-44 space-y-1">
-            <h2>{newContractLabel}</h2>
-            <p>Upload an ARC-32 JSON file</p>
-            <NewContractButton />
-          </CardContent>
-        </Card>
-      </div>
+      <RenderLoadable loadable={contractEntities} fallback={<PageLoader />}>
+        {(contractEntities) => {
+          return <Contracts contractEntities={contractEntities} onNewContractAdded={refreshContractEntities} />
+        }}
+      </RenderLoadable>
     </>
   )
 }

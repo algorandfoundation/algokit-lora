@@ -2,11 +2,10 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { ContractEntity, dbConnection } from '@/features/common/data/indexed-db'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp, writableAtomCache } from '@/features/common/data'
-import { atom, Getter, Setter } from 'jotai'
-import { useAtomCallback } from 'jotai/utils'
-import { useCallback } from 'react'
+import { atom, Getter, Setter, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
+import { useCallback, useMemo } from 'react'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { AppSpecVersion } from '@/features/abi-methods/data/types'
 
 const getContractEntity = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
@@ -38,11 +37,11 @@ export const [contractEntitiesAtom, getContractEntityAtom] = writableAtomCache(
   (applicationId: ApplicationId) => applicationId
 )
 
-export const useSetContractEntity = () => {
+export const useCreateContractEntity = () => {
   return useAtomCallback(
     useCallback(
       async (
-        get,
+        _,
         set,
         {
           applicationId,
@@ -68,74 +67,41 @@ export const useSetContractEntity = () => {
 
         const existingContractEntities = await getContractEntities()
         invariant(
-          existingContractEntities.find((e) => e.displayName.toLowerCase() === name.toLowerCase() && e.applicationId !== applicationId) ===
-            undefined,
-          'A contract with the same name already exists'
+          existingContractEntities.find((e) => e.applicationId === applicationId) === undefined,
+          `Application Id ${applicationId} is already associated with a contract`
+        )
+
+        invariant(
+          existingContractEntities.find((e) => e.displayName.toLowerCase() === name.toLowerCase()) === undefined,
+          `Contract ${name} already exists`
         )
 
         const contractEntityAtom = getContractEntityAtom(applicationId)
-        const entity = await get(contractEntityAtom)
-        if (!entity) {
-          await set(contractEntityAtom, {
-            applicationId: applicationId,
-            displayName: name,
-            appSpecVersions: [
-              {
-                standard,
-                roundFirstValid,
-                roundLastValid,
-                appSpec,
-              },
-            ],
-            lastModified: createTimestamp(),
-          })
-        } else {
-          const existingAppSpecVersions = entity.appSpecVersions
-          const applicationAppSpec: AppSpecVersion = {
-            standard,
-            roundFirstValid: roundFirstValid,
-            roundLastValid: roundLastValid,
-            appSpec,
-          }
-
-          // If there is an existing app spec with the same standard and valid rounds, remove it and add the new one
-          const matchingAppSpecVersion = existingAppSpecVersions.find(
-            (e) => e.standard === standard && e.roundFirstValid === roundFirstValid && e.roundFirstValid === roundFirstValid
-          )
-          if (matchingAppSpecVersion) {
-            const newSpecs = [...existingAppSpecVersions.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
-            await set(contractEntityAtom, {
-              ...entity,
-              appSpecVersions: newSpecs,
-              lastModified: createTimestamp(),
-            })
-          } else {
-            // Check if there is an existing app spec with the same standard and valid rounds that overlaps with the new one
-            const overlappingWithExistingData = existingAppSpecVersions.some(
-              (e) =>
-                e.standard === standard &&
-                (isInRange(roundFirstValid, e.roundFirstValid, e.roundLastValid) ||
-                  isInRange(roundLastValid, e.roundFirstValid, e.roundLastValid))
-            )
-            invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
-
-            const newSpecs = [...existingAppSpecVersions, applicationAppSpec]
-            await set(contractEntityAtom, {
-              ...entity,
-              appSpecVersions: newSpecs,
-              lastModified: createTimestamp(),
-            })
-          }
-        }
+        await set(contractEntityAtom, {
+          applicationId: applicationId,
+          displayName: name,
+          appSpecVersions: [
+            {
+              standard,
+              roundFirstValid,
+              roundLastValid,
+              appSpec,
+            },
+          ],
+          lastModified: createTimestamp(),
+        })
       },
       []
     )
   )
 }
 
-const isInRange = (value: number | undefined, start: number | undefined, end: number | undefined) => {
-  const a = value ?? -1
-  const b = start ?? -1
-  const c = end ?? Number.MAX_SAFE_INTEGER
-  return a >= b && a <= c
+export const useContractEntities = () => {
+  const contractEntitiesAtom = useMemo(() => {
+    return atomWithRefresh(async () => {
+      const entities = await getContractEntities()
+      return entities.sort((a, b) => b.lastModified - a.lastModified)
+    })
+  }, [])
+  return [useAtomValue(loadable(contractEntitiesAtom)), useSetAtom(contractEntitiesAtom)] as const
 }

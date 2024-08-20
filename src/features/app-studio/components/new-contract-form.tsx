@@ -7,7 +7,7 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { toast } from 'react-toastify'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { useSetContractEntity } from '@/features/abi-methods/data'
+import { useCreateContractEntity } from '@/features/abi-methods/data'
 
 const newContractFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -22,7 +22,7 @@ type Props = {
 }
 
 export function NewContractForm({ appSpecFile, appSpec, onSuccess }: Props) {
-  const setContractEntity = useSetContractEntity()
+  const setContractEntity = useCreateContractEntity()
 
   const save = useCallback(
     async (values: z.infer<typeof newContractFormSchema>) => {
