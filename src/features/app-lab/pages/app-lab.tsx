@@ -1,6 +1,6 @@
 import { PageTitle } from '@/features/common/components/page-title'
 import { Card, CardContent } from '@/features/common/components/card'
-import { NewContractButton } from '@/features/app-studio/components/new-contract-button'
+import { NewContractButton } from '@/features/app-lab/components/new-contract-button'
 
 export const appLabPageTitle = 'App Lab'
 export const newContractLabel = 'New contract'

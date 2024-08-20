@@ -1,10 +1,10 @@
 import { Button } from '@/features/common/components/button'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { useToggle } from '@/features/common/hooks/use-toggle'
-import { NewContractForm } from '@/features/app-studio/components/new-contract-form'
+import { NewContractForm } from '@/features/app-lab/components/new-contract-form'
 import { useCallback, useState } from 'react'
-import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { SelectAppSpecForm } from '@/features/app-studio/components/select-app-spec-form'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { SelectAppSpecForm } from '@/features/app-lab/components/select-app-spec-form'
 
 export function NewContractButton() {
   const { on, off, state: dialogOpen } = useToggle(false)
