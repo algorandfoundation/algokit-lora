@@ -52,9 +52,9 @@ function ContractCard({ contractEntity }: { contractEntity: ContractEntity }) {
 
   return (
     <Card>
-      <CardContent className="relative min-h-44 space-y-1">
+      <CardContent className="flex min-h-44 flex-col">
         <h2>{displayName}</h2>
-        <div className="flex flex-col justify-between">
+        <div className="flex grow flex-col justify-between">
           <DescriptionList items={items} />
           <p>Last modified: {dateFormatter.asShortDate(new Date(contractEntity.lastModified))}</p>
         </div>
