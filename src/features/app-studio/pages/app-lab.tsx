@@ -1,14 +1,14 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { appStudioPageTitle } from '@/features/app-studio/pages/app-studio-page'
 import { Card, CardContent } from '@/features/common/components/card'
 import { NewContractButton } from '@/features/app-studio/components/new-contract-button'
 
+export const appLabPageTitle = 'App Lab'
 export const newContractLabel = 'New contract'
 
-export function AppStudioWipPage() {
+export function AppLab() {
   return (
     <>
-      <PageTitle title={appStudioPageTitle} />
+      <PageTitle title={appLabPageTitle} />
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="relative min-h-44 space-y-1">
