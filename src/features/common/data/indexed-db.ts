@@ -18,7 +18,7 @@ export type ContractEntity = {
 
 interface LoraDBSchemaV2 extends DBSchema {
   contracts: {
-    key: string
+    key: number
     value: ContractEntity
   }
 }

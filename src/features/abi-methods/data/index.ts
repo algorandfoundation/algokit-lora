@@ -10,7 +10,7 @@ import { AppSpecVersion } from '@/features/abi-methods/data/types'
 
 const getContractEntity = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).get('contracts', applicationId.toString())
+  return await (await dbConnection).get('contracts', applicationId)
 }
 const writeContractEntity = async (contractEntity: ContractEntity) => {
   invariant(dbConnection, 'dbConnection is not initialised')
