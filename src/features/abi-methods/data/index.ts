@@ -19,6 +19,10 @@ const getContractEntities = async () => {
   invariant(dbConnection, 'dbConnection is not initialised')
   return await (await dbConnection).getAll('contracts')
 }
+const deleteContractEntity = async (applicationId: ApplicationId) => {
+  invariant(dbConnection, 'dbConnection is not initialised')
+  await (await dbConnection).delete('contracts', applicationId)
+}
 
 const createWritableContractEntityAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
   const contractEntityAtom = atom<ContractEntity | undefined | Promise<ContractEntity | undefined>>(getContractEntity(applicationId))
@@ -94,6 +98,12 @@ export const useCreateContractEntity = () => {
       []
     )
   )
+}
+
+export const useDeleteContractEntity = (applicationId: ApplicationId) => {
+  return useCallback(async () => {
+    await deleteContractEntity(applicationId)
+  }, [applicationId])
 }
 
 export const useContractEntities = () => {

@@ -6,14 +6,14 @@ import { Contracts } from '@/features/app-studio/components/contracts'
 import { PageLoader } from '@/features/common/components/page-loader'
 
 export function AppStudioWipPage() {
-  const [contractEntities, refreshContractEntities] = useContractEntities()
+  const [contracts, refreshContracts] = useContractEntities()
 
   return (
     <>
       <PageTitle title={appStudioPageTitle} />
-      <RenderLoadable loadable={contractEntities} fallback={<PageLoader />}>
+      <RenderLoadable loadable={contracts} fallback={<PageLoader />}>
         {(contractEntities) => {
-          return <Contracts contractEntities={contractEntities} onNewContractAdded={refreshContractEntities} />
+          return <Contracts contracts={contractEntities} refreshContracts={refreshContracts} />
         }}
       </RenderLoadable>
     </>
