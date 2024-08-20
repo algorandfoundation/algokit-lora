@@ -8,16 +8,16 @@ import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 
-const uploadAppSpecFormSchema = zfd.formData({
+const selectAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
 })
 
-type UploadAppSpecFormProps = {
+type SelectAppSpecFormProps = {
   onFileSelected: (file: File, appSpec: Arc32AppSpec) => void
 }
 
-export function UploadAppSpecForm({ onFileSelected }: UploadAppSpecFormProps) {
-  const onSubmit = useCallback(async (values: z.infer<typeof uploadAppSpecFormSchema>) => {
+export function SelectAppSpecForm({ onFileSelected }: SelectAppSpecFormProps) {
+  const onSubmit = useCallback(async (values: z.infer<typeof selectAppSpecFormSchema>) => {
     const appSpec = await readFileIntoAppSpec(values.file)
     return {
       file: values.file,
@@ -33,18 +33,18 @@ export function UploadAppSpecForm({ onFileSelected }: UploadAppSpecFormProps) {
   )
 
   return (
-    <Form schema={uploadAppSpecFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} formAction={<></>}>
+    <Form schema={selectAppSpecFormSchema} onSubmit={onSubmit} onSuccess={onSuccess} formAction={<></>}>
       {(helper, handleSubmit) => <FormInner helper={helper} handleSubmit={handleSubmit} />}
     </Form>
   )
 }
 
 type FormInnerProps = {
-  helper: FormFieldHelper<z.infer<typeof uploadAppSpecFormSchema>>
+  helper: FormFieldHelper<z.infer<typeof selectAppSpecFormSchema>>
   handleSubmit: () => Promise<void> | void
 }
 function FormInner({ helper, handleSubmit }: FormInnerProps) {
-  const { control } = useFormContext<z.infer<typeof uploadAppSpecFormSchema>>()
+  const { control } = useFormContext<z.infer<typeof selectAppSpecFormSchema>>()
   const file = useWatch({ name: 'file', control })
 
   useEffect(() => {

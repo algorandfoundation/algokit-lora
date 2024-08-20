@@ -41,7 +41,7 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
     const appSpecVersion = contractEntity.appSpecVersions.find((appSpecVersion) =>
       isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!)
     )
-    const transactionArgs = transaction['application-transaction']!['application-args'] ?? []
+    const transactionArgs = transaction['application-transaction']['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
       const contractMethod = appSpecVersion.appSpec.contract.methods.find((m) => {
         const abiMethod = new algosdk.ABIMethod(m)

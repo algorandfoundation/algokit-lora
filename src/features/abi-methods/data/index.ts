@@ -21,7 +21,7 @@ const getContractEntities = async () => {
   return await (await dbConnection).getAll('contracts')
 }
 
-const createWritableContractEntitiesAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
+const createWritableContractEntityAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
   const contractEntityAtom = atom<ContractEntity | undefined | Promise<ContractEntity | undefined>>(getContractEntity(applicationId))
 
   return atom(
@@ -34,7 +34,7 @@ const createWritableContractEntitiesAtom = (_: Getter, __: Setter, applicationId
 }
 
 export const [contractEntitiesAtom, getContractEntityAtom] = writableAtomCache(
-  createWritableContractEntitiesAtom,
+  createWritableContractEntityAtom,
   (applicationId: ApplicationId) => applicationId
 )
 
@@ -73,9 +73,10 @@ export const useSetContractEntity = () => {
           'A contract with the same name already exists'
         )
 
-        const entity = await get(getContractEntityAtom(applicationId))
+        const contractEntityAtom = getContractEntityAtom(applicationId)
+        const entity = await get(contractEntityAtom)
         if (!entity) {
-          await set(getContractEntityAtom(applicationId), {
+          await set(contractEntityAtom, {
             applicationId: applicationId,
             displayName: name,
             appSpecVersions: [
@@ -103,7 +104,7 @@ export const useSetContractEntity = () => {
           )
           if (matchingAppSpecVersion) {
             const newSpecs = [...existingAppSpecVersions.filter((e) => e !== matchingAppSpecVersion), applicationAppSpec]
-            await set(getContractEntityAtom(applicationId), {
+            await set(contractEntityAtom, {
               ...entity,
               appSpecVersions: newSpecs,
               lastModified: createTimestamp(),
@@ -119,7 +120,7 @@ export const useSetContractEntity = () => {
             invariant(!overlappingWithExistingData, 'The supplied app spec valid rounds overlap with existing data')
 
             const newSpecs = [...existingAppSpecVersions, applicationAppSpec]
-            await set(getContractEntityAtom(applicationId), {
+            await set(contractEntityAtom, {
               ...entity,
               appSpecVersions: newSpecs,
               lastModified: createTimestamp(),

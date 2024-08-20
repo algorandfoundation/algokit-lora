@@ -12,7 +12,7 @@ import { useSetContractEntity } from '@/features/abi-methods/data'
 const newContractFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
   contractName: zfd.text(),
-  appId: zfd.numeric(),
+  applicationId: zfd.numeric(),
 })
 
 type Props = {
@@ -32,12 +32,11 @@ export function NewContractForm({ appSpecFile, appSpec, onSuccess }: Props) {
         appSpec: appSpec,
         roundFirstValid: undefined,
         roundLastValid: undefined,
-        applicationId: values.appId,
+        applicationId: values.applicationId,
       })
       toast.success(`Contract ${values.contractName} was saved successfully`)
-      onSuccess()
     },
-    [appSpec, onSuccess, setContractEntity]
+    [appSpec, setContractEntity]
   )
 
   return (
@@ -67,7 +66,7 @@ export function NewContractForm({ appSpecFile, appSpec, onSuccess }: Props) {
             label: 'Contract Name',
           })}
           {helper.numberField({
-            field: 'appId',
+            field: 'applicationId',
             label: 'App ID',
           })}
         </>
