@@ -4,7 +4,7 @@ import { useToggle } from '@/features/common/hooks/use-toggle'
 import { NewContractForm } from '@/features/app-studio/components/new-contract-form'
 import { useCallback, useState } from 'react'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { UploadAppSpecForm } from '@/features/app-studio/components/upload-app-spec-form'
+import { SelectAppSpecForm } from '@/features/app-studio/components/select-app-spec-form'
 
 export function NewContractButton() {
   const { on, off, state: dialogOpen } = useToggle(false)
@@ -43,7 +43,7 @@ function NewContractDialogBody({ onSuccess }: NewContractDialogBodyProps) {
   }, [])
 
   return !appSpec || !appSpecFile ? (
-    <UploadAppSpecForm onFileSelected={onFileSelected} />
+    <SelectAppSpecForm onFileSelected={onFileSelected} />
   ) : (
     <NewContractForm appSpec={appSpec} appSpecFile={appSpecFile} onSuccess={onSuccess} />
   )
