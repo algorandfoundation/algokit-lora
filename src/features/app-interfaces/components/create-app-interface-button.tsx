@@ -1,11 +1,21 @@
 import { Button } from '@/features/common/components/button'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { useToggle } from '@/features/common/hooks/use-toggle'
+import { useCallback } from 'react'
 import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
-import { createAppInterfaceLabel } from '@/features/app-lab/pages/app-lab'
+import { createAppInterfaceLabel } from '@/features/app-interfaces/components/app-interfaces'
 
-export function CreateAppInterfaceButton() {
+type Props = {
+  onSuccess: () => void
+}
+
+export function CreateAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
   const { on, off, state: dialogOpen } = useToggle(false)
+
+  const onSuccess = useCallback(() => {
+    off()
+    _onSuccess()
+  }, [off, _onSuccess])
 
   return (
     <div className="flex justify-end">
@@ -19,7 +29,7 @@ export function CreateAppInterfaceButton() {
               <h2 className="pb-0">{createAppInterfaceLabel}</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <CreateAppInterfaceDialogBody onSuccess={off} />
+              <CreateAppInterfaceDialogBody onSuccess={onSuccess} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}

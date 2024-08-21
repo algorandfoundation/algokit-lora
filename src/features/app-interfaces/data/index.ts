@@ -2,9 +2,9 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { AppInterfaceEntity, dbConnection } from '@/features/common/data/indexed-db'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp, writableAtomCache } from '@/features/common/data'
-import { atom, Getter, Setter } from 'jotai'
-import { useAtomCallback } from 'jotai/utils'
-import { useCallback } from 'react'
+import { atom, Getter, Setter, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
+import { useCallback, useMemo } from 'react'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 const getAppInterface = async (applicationId: ApplicationId) => {
@@ -18,6 +18,10 @@ const writeAppInterface = async (appInterface: AppInterfaceEntity) => {
 const getAppInterfaces = async () => {
   invariant(dbConnection, 'dbConnection is not initialised')
   return await (await dbConnection).getAll('app-interfaces')
+}
+const deleteAppInterface = async (applicationId: ApplicationId) => {
+  invariant(dbConnection, 'dbConnection is not initialised')
+  await (await dbConnection).delete('app-interfaces', applicationId)
 }
 
 const createWritableAppInterfaceEntityAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
@@ -92,4 +96,20 @@ export const useCreateAppInterface = () => {
       []
     )
   )
+}
+
+export const useDeleteAppInterface = (applicationId: ApplicationId) => {
+  return useCallback(async () => {
+    await deleteAppInterface(applicationId)
+  }, [applicationId])
+}
+
+export const useAppInterfaces = () => {
+  const appInterfacesAtom = useMemo(() => {
+    return atomWithRefresh(async () => {
+      const entities = await getAppInterfaces()
+      return entities.sort((a, b) => b.lastModified - a.lastModified)
+    })
+  }, [])
+  return [useAtomValue(loadable(appInterfacesAtom)), useSetAtom(appInterfacesAtom)] as const
 }
