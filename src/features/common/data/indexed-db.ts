@@ -1,6 +1,8 @@
 import { DBSchema, IDBPDatabase, IDBPTransaction, openDB, StoreNames } from 'idb'
 import { AppSpecVersion } from 'src/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
+import { genesisHashAtom } from '@/features/blocks/data'
+import { dataStore } from '@/features/common/data/data-store'
 
 interface LoraDBSchemaV1 extends DBSchema {
   'applications-app-specs': {
@@ -24,7 +26,8 @@ interface LoraDBSchemaV2 extends DBSchema {
 }
 
 export async function getDbConnection(networkId: string) {
-  return await openDB<LoraDBSchemaV2>(networkId, 2, {
+  const genesisHash = await dataStore.get(genesisHashAtom)
+  return await openDB<LoraDBSchemaV2>(`${networkId}-${genesisHash}`, 2, {
     async upgrade(db, oldVersion, newVersion, transaction) {
       // Casting to DBSchema to trick TypeScript
       const anyDb = db as unknown as IDBPDatabase<DBSchema>

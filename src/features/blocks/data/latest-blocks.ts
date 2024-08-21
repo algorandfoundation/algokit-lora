@@ -94,7 +94,7 @@ const subscriberAtom = atom(null, (get, set) => {
       return
     }
 
-    const genesisHash = get(genesisHashAtom)
+    const genesisHash = await get(genesisHashAtom)
     const resultGenesisHash = result.blockMetadata[0].genesisHash
     if (!genesisHash) {
       set(genesisHashAtom, resultGenesisHash)
