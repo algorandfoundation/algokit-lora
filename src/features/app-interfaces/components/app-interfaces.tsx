@@ -15,8 +15,8 @@ export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
       <Card>
         <CardContent className="flex min-h-44 flex-col">
           <h2>{createAppInterfaceLabel}</h2>
-          <div className="flex grow flex-col justify-between">
-            <p>Upload an ARC-32 JSON file</p>
+          <div className="flex grow flex-col justify-between gap-4">
+            <p>Create an app interface by uploading an App Spec file</p>
             <CreateAppInterfaceButton onSuccess={refreshAppInterfaces} />
           </div>
         </CardContent>
