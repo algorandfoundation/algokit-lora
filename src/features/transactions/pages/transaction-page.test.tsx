@@ -81,10 +81,10 @@ import { transactionAmountLabel } from '../components/transactions-table-columns
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
-import { applicationsAppSpecsAtom } from '@/features/abi-methods/data'
+import { appInterfacesAtom } from '@/features/app-interfaces/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
-import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
-import { AppSpecVersion } from '@/features/abi-methods/data/types'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -1247,16 +1247,21 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
 
     const applicationId = transaction['application-transaction']!['application-id']!
     myStore.set(
-      applicationsAppSpecsAtom,
+      appInterfacesAtom,
       new Map([
         [
           applicationId,
-          createAppSpecsAtomAndTimestamp([
-            {
-              standard: 'ARC-32' as const,
-              appSpec: SampleFiveAppSpec as unknown as AlgoAppSpec,
-            },
-          ]),
+          createAppInterfaceAtomAndTimestamp({
+            applicationId: applicationId,
+            name: 'test',
+            appSpecVersions: [
+              {
+                standard: 'ARC-32',
+                appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
+              },
+            ],
+            lastModified: createTimestamp(),
+          }),
         ],
       ])
     )
@@ -1282,10 +1287,10 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
   })
 })
 
-function createAppSpecsAtomAndTimestamp(appSpecVersions: AppSpecVersion[]) {
+function createAppInterfaceAtomAndTimestamp(entity: AppInterfaceEntity) {
   return [
     atom(
-      () => appSpecVersions,
+      () => entity,
       () => {
         return Promise.resolve()
       }

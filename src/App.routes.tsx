@@ -19,6 +19,7 @@ import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/a
 import { FundPage } from './features/fund/fund-page'
 import { FundAuthCallbackPage } from './features/fund/fund-auth-callback-page'
 import { FundErrorPage } from './features/fund/fund-error-page'
+import { AppLab, appLabPageTitle } from './features/app-lab/pages/app-lab'
 
 export const routes = evalTemplates([
   {
@@ -103,6 +104,11 @@ export const routes = evalTemplates([
         template: Urls.AppStudio,
         errorElement: <ErrorPage title={appStudioPageTitle} />,
         element: <AppStudioPage />,
+      },
+      {
+        template: Urls.AppLab,
+        errorElement: <ErrorPage title={appLabPageTitle} />,
+        element: <AppLab />,
       },
       {
         template: Urls.Settings,

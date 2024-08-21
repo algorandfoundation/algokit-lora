@@ -36,7 +36,6 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { UploadAppSpecButton } from '@/features/applications/components/upload-app-spec-button'
 
 type Props = {
   application: Application
@@ -117,7 +116,6 @@ export function ApplicationDetails({ application }: Props) {
           <div className={cn('flex gap-2')}>
             <DescriptionList items={applicationItems} />
             <OpenJsonViewDialogButton json={application.json} expandJsonLevel={expandApplicationJsonLevel} />
-            <UploadAppSpecButton application={application} />
           </div>
         </CardContent>
       </Card>

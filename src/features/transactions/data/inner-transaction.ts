@@ -7,7 +7,7 @@ import { asTransaction } from '../mappers/transaction-mappers'
 import { assetSummaryResolver } from '@/features/assets/data'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { getTransactionResultAtom } from './transaction-result'
-import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
+import { abiMethodResolver } from '@/features/abi-methods/data'
 
 export const createInnerTransactionAtom = (
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
