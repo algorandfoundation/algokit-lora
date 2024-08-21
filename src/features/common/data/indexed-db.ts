@@ -2,7 +2,8 @@ import { DBSchema, IDBPDatabase, IDBPTransaction, openDB, StoreNames } from 'idb
 import { AppSpecVersion } from 'src/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { genesisHashAtom } from '@/features/blocks/data'
-import { dataStore } from '@/features/common/data/data-store'
+import { atom } from 'jotai/index'
+import { selectedNetworkAtomId } from '@/features/network/data'
 
 interface LoraDBSchemaV1 extends DBSchema {
   'applications-app-specs': {
@@ -25,8 +26,10 @@ interface LoraDBSchemaV2 extends DBSchema {
   }
 }
 
-export async function getDbConnection(networkId: string) {
-  const genesisHash = await dataStore.get(genesisHashAtom)
+export const dbConnectionAtom = atom(async (get) => {
+  const networkId = get(selectedNetworkAtomId)
+  const genesisHash = await get(genesisHashAtom)
+
   return await openDB<LoraDBSchemaV2>(`${networkId}-${genesisHash}`, 2, {
     async upgrade(db, oldVersion, newVersion, transaction) {
       // Casting to DBSchema to trick TypeScript
@@ -43,13 +46,7 @@ export async function getDbConnection(networkId: string) {
       }
     },
   })
-}
-
-export let dbConnection: Promise<IDBPDatabase<LoraDBSchemaV2>> | undefined = undefined
-
-export const updateDbConnection = (networkId: string) => {
-  dbConnection = getDbConnection(networkId)
-}
+})
 
 const dbMigrations = [
   async (db: IDBPDatabase<DBSchema>) => {
@@ -90,3 +87,5 @@ const dbMigrations = [
     }
   },
 ]
+
+export type DbConnection = IDBPDatabase<LoraDBSchemaV2>

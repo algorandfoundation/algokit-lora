@@ -1,6 +1,6 @@
 import { algod } from '@/features/common/data/algo-client'
-import { atom, useSetAtom } from 'jotai'
-import { atomWithDefault } from 'jotai/utils'
+import { atomWithDefault, useAtomCallback } from 'jotai/utils'
+import { useCallback } from 'react'
 
 const getGenesisHash = () =>
   algod
@@ -14,13 +14,13 @@ export const genesisHashAtom = atomWithDefault<string | Promise<string>>(async (
   return await getGenesisHash()
 })
 
-const networkMatchesCachedDataAtom = atom(null, async (get) => {
-  const nextGenesisHash = await getGenesisHash()
-  const genesisHash = await get(genesisHashAtom)
-
-  return !genesisHash || genesisHash === nextGenesisHash
-})
-
 export const useNetworkMatchesCachedData = () => {
-  return useSetAtom(networkMatchesCachedDataAtom)
+  return useAtomCallback(
+    useCallback(async (get) => {
+      const nextGenesisHash = await getGenesisHash()
+      const genesisHash = await get(genesisHashAtom)
+
+      return !genesisHash || genesisHash === nextGenesisHash
+    }, [])
+  )
 }

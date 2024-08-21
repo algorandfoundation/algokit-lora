@@ -1,36 +1,41 @@
 import { ApplicationId } from '@/features/applications/data/types'
-import { AppInterfaceEntity, dbConnection } from '@/features/common/data/indexed-db'
+import { AppInterfaceEntity, DbConnection, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp, writableAtomCache } from '@/features/common/data'
 import { atom, Getter, Setter, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
+import { atomWithDefault, atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
-const getAppInterface = async (applicationId: ApplicationId) => {
+const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).get('app-interfaces', applicationId)
+  return await dbConnection.get('app-interfaces', applicationId)
 }
-const writeAppInterface = async (appInterface: AppInterfaceEntity) => {
+const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  await (await dbConnection).put('app-interfaces', appInterface)
+  await dbConnection.put('app-interfaces', appInterface)
 }
-const getAppInterfaces = async () => {
+const getAppInterfaces = async (dbConnection: DbConnection) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).getAll('app-interfaces')
+  return await dbConnection.getAll('app-interfaces')
 }
-const deleteAppInterface = async (applicationId: ApplicationId) => {
+const deleteAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  await (await dbConnection).delete('app-interfaces', applicationId)
+  await dbConnection.delete('app-interfaces', applicationId)
 }
 
 const createWritableAppInterfaceEntityAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
-  const appInterfaceAtom = atom<AppInterfaceEntity | undefined | Promise<AppInterfaceEntity | undefined>>(getAppInterface(applicationId))
+  const appInterfaceAtom = atomWithDefault<AppInterfaceEntity | undefined | Promise<AppInterfaceEntity | undefined>>(async (get) => {
+    const dbConnection = await get(dbConnectionAtom)
+    return await getAppInterface(dbConnection, applicationId)
+  })
 
   return atom(
     (get) => get(appInterfaceAtom),
-    async (_, set, appInterface: AppInterfaceEntity) => {
-      await writeAppInterface(appInterface)
+    async (get, set, appInterface: AppInterfaceEntity) => {
+      const dbConnection = await get(dbConnectionAtom)
+
+      await writeAppInterface(dbConnection, appInterface)
       set(appInterfaceAtom, appInterface)
     }
   )
@@ -45,7 +50,7 @@ export const useCreateAppInterface = () => {
   return useAtomCallback(
     useCallback(
       async (
-        _,
+        get,
         set,
         {
           applicationId,
@@ -69,7 +74,8 @@ export const useCreateAppInterface = () => {
           invariant(roundLastValid > roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
         }
 
-        const existingAppInterfaces = await getAppInterfaces()
+        const dbConnection = await get(dbConnectionAtom)
+        const existingAppInterfaces = await getAppInterfaces(dbConnection)
         invariant(
           existingAppInterfaces.find((e) => e.applicationId === applicationId) === undefined,
           `Application ID "${applicationId}" is already associated with another app interface`
@@ -99,15 +105,23 @@ export const useCreateAppInterface = () => {
 }
 
 export const useDeleteAppInterface = (applicationId: ApplicationId) => {
-  return useCallback(async () => {
-    await deleteAppInterface(applicationId)
-  }, [applicationId])
+  return useAtomCallback(
+    useCallback(
+      async (get) => {
+        const dbConnection = await get(dbConnectionAtom)
+        await deleteAppInterface(dbConnection, applicationId)
+      },
+      [applicationId]
+    )
+  )
 }
 
 export const useAppInterfaces = () => {
   const appInterfacesAtom = useMemo(() => {
-    return atomWithRefresh(async () => {
-      const entities = await getAppInterfaces()
+    return atomWithRefresh(async (get) => {
+      const dbConnection = await get(dbConnectionAtom)
+
+      const entities = await getAppInterfaces(dbConnection)
       return entities.sort((a, b) => b.lastModified - a.lastModified)
     })
   }, [])
