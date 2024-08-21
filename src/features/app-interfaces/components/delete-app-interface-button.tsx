@@ -5,10 +5,13 @@ import { useCallback } from 'react'
 import { toast } from 'react-toastify'
 import { useDeleteAppInterface } from '@/features/app-interfaces/data'
 
+export const deleteAppInterfaceLabel = 'Delete App Interface'
+
 type Props = {
   appInterface: AppInterfaceEntity
   onDelete: () => void
 }
+
 export function DeleteAppInterfaceButton({ appInterface, onDelete }: Props) {
   const deleteAppInterface = useDeleteAppInterface(appInterface.applicationId)
 
@@ -23,7 +26,7 @@ export function DeleteAppInterfaceButton({ appInterface, onDelete }: Props) {
       icon={<Trash2Icon className="text-secondary" />}
       size="sm"
       variant="no-style"
-      dialogHeaderText="Remove app interface"
+      dialogHeaderText={deleteAppInterfaceLabel}
       dialogContent={<div>Are you sure you want to delete '{appInterface.name}'?</div>}
       onConfirm={onConfirm}
     />
