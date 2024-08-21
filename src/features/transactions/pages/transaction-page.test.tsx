@@ -1251,7 +1251,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
       new Map([
         [
           applicationId,
-          createContractEntityAtomAndTimestamp({
+          createAppInterfaceAtomAndTimestamp({
             applicationId: applicationId,
             displayName: 'test',
             appSpecVersions: [
@@ -1287,7 +1287,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
   })
 })
 
-function createContractEntityAtomAndTimestamp(entity: AppInterfaceEntity) {
+function createAppInterfaceAtomAndTimestamp(entity: AppInterfaceEntity) {
   return [
     atom(
       () => entity,

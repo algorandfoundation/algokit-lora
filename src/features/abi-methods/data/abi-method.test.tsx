@@ -44,7 +44,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -92,7 +92,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -149,7 +149,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -339,7 +339,7 @@ describe('resolving ABI method', () => {
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
               displayName: 'test',
               appSpecVersions: [
@@ -420,10 +420,10 @@ describe('resolving ABI method', () => {
   })
 })
 
-function createContractEntityAtomAndTimestamp(contractEntity: AppInterfaceEntity) {
+function createAppInterfaceAtomAndTimestamp(appInterface: AppInterfaceEntity) {
   return [
     atom(
-      () => contractEntity,
+      () => appInterface,
       () => {
         return Promise.resolve()
       }

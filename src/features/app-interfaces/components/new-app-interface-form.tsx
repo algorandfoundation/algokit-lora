@@ -9,9 +9,9 @@ import { toast } from 'react-toastify'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
 
-const newContractFormSchema = zfd.formData({
+const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
-  contractName: zfd.text(),
+  name: zfd.text(),
   applicationId: zfd.numeric(),
 })
 
@@ -21,32 +21,32 @@ type Props = {
   onSuccess: () => void
 }
 
-export function NewContractForm({ appSpecFile, appSpec, onSuccess }: Props) {
-  const setContractEntity = useCreateAppInterface()
+export function NewAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
+  const createAppInterface = useCreateAppInterface()
 
   const save = useCallback(
-    async (values: z.infer<typeof newContractFormSchema>) => {
-      await setContractEntity({
-        name: values.contractName,
+    async (values: z.infer<typeof formSchema>) => {
+      await createAppInterface({
+        name: values.name,
         standard: 'ARC-32',
         appSpec: appSpec,
         roundFirstValid: undefined,
         roundLastValid: undefined,
         applicationId: values.applicationId,
       })
-      toast.success(`Contract ${values.contractName} was saved successfully`)
+      toast.success(`App interface ${values.name} was saved successfully`)
     },
-    [appSpec, setContractEntity]
+    [appSpec, createAppInterface]
   )
 
   return (
     <Form
-      schema={newContractFormSchema}
+      schema={formSchema}
       onSubmit={save}
       onSuccess={onSuccess}
       defaultValues={{
         file: appSpecFile,
-        contractName: appSpec.contract.name,
+        name: appSpec.contract.name,
       }}
       formAction={
         <FormActions>
@@ -62,12 +62,12 @@ export function NewContractForm({ appSpecFile, appSpec, onSuccess }: Props) {
             label: 'File name',
           })}
           {helper.textField({
-            field: 'contractName',
-            label: 'Contract Name',
+            field: 'name',
+            label: 'Name',
           })}
           {helper.numberField({
             field: 'applicationId',
-            label: 'App ID',
+            label: 'Application ID',
           })}
         </>
       )}
