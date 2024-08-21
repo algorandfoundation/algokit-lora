@@ -1,6 +1,6 @@
 import { TransactionsTable } from './transactions-table'
 import { InnerTransaction, Transaction } from '../models'
-import { OverflowAutoTabsContent, Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { TransactionsGraph } from '@/features/transactions-graph'
 import { transactionsTableColumnsWithoutRound } from './transactions-table-columns'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
@@ -28,14 +28,9 @@ export function TransactionViewTabs({ transaction }: Props) {
           {transactionVisualTableTabLabel}
         </TabsTrigger>
       </TabsList>
-      {/* <OverflowAutoTabsContent value={transactionVisualGraphTabId}>
+      <OverflowAutoTabsContent value={transactionVisualGraphTabId}>
         <TransactionsGraph transactionsGraphData={transactionsGraph} />
-      </OverflowAutoTabsContent> */}
-      <TabsContent value={transactionVisualGraphTabId}>
-        <div className="relative grid p-4">
-          <TransactionsGraph transactionsGraphData={transactionsGraph} />
-        </div>
-      </TabsContent>
+      </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={transactionVisualTableTabId}>
         <TransactionsTable transactions={[transaction]} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={true} />
       </OverflowAutoTabsContent>

@@ -1,4 +1,4 @@
-import { OverflowAutoTabsContent, Tabs, TabsContent, TabsList, TabsTrigger } from '@/features/common/components/tabs'
+import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { Group } from '../models'
 import { TransactionsGraph } from '@/features/transactions-graph'
 import { TransactionsTable } from '@/features/transactions/components/transactions-table'
@@ -29,11 +29,9 @@ export function GroupTransactionsViewTabs({ group }: Props) {
           {groupVisualTableLabel}
         </TabsTrigger>
       </TabsList>
-      <TabsContent value={graphTabId}>
-        <div className="relative grid p-4">
-          <TransactionsGraph transactionsGraphData={transactionsGraph} />
-        </div>
-      </TabsContent>
+      <OverflowAutoTabsContent value={graphTabId}>
+        <TransactionsGraph transactionsGraphData={transactionsGraph} />
+      </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={tableTabId}>
         <TransactionsTable transactions={group.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />
       </OverflowAutoTabsContent>
