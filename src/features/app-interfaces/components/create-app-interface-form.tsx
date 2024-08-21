@@ -59,7 +59,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
         <>
           {helper.readonlyFileField({
             field: 'file',
-            label: 'File name',
+            label: 'App spec',
           })}
           {helper.textField({
             field: 'name',

@@ -54,9 +54,9 @@ function FormInner({ helper, handleSubmit }: FormInnerProps) {
 
   return helper.fileField({
     accept: 'application/json',
-    label: 'ARC-32 JSON file',
+    label: 'JSON app spec file',
     field: 'file',
-    placeholder: 'Select an ARC-32 JSON file',
+    placeholder: 'Select an ARC-32 JSON app spec file',
   })
 }
 

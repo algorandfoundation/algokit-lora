@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { CreateAppInterfaceButton } from '@/features/app-interfaces/components/create-app-interface-button'
 
 export const appLabPageTitle = 'App Lab'
-export const newAppInterfaceLabel = 'New app interface'
+export const createAppInterfaceLabel = 'Create App Interface'
 
 export function AppLab() {
   return (
@@ -12,8 +12,8 @@ export function AppLab() {
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="relative min-h-44 space-y-1">
-            <h2>{newAppInterfaceLabel}</h2>
-            <p>Upload an ARC-32 JSON file</p>
+            <h2>{createAppInterfaceLabel}</h2>
+            <p>Create an app interface by uploading an App Spec file</p>
             <CreateAppInterfaceButton />
           </CardContent>
         </Card>
