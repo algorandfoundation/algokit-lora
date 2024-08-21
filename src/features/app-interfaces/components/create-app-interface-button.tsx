@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/fea
 import { useToggle } from '@/features/common/hooks/use-toggle'
 import { useCallback } from 'react'
 import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
+import { createAppInterfaceLabel } from '@/features/app-interfaces/components/app-interfaces'
 
 type Props = {
   onSuccess: () => void
@@ -25,7 +26,7 @@ export function CreateAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
         {dialogOpen && (
           <DialogContent className="bg-card">
             <DialogHeader className="flex-row items-center space-y-0">
-              <h2 className="pb-0">New app interface</h2>
+              <h2 className="pb-0">{createAppInterfaceLabel}</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
               <CreateAppInterfaceDialogBody onSuccess={onSuccess} />

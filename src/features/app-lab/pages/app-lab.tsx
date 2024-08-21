@@ -5,6 +5,7 @@ import { PageLoader } from '@/features/common/components/page-loader'
 import { AppInterfaces } from '@/features/app-interfaces/components/app-interfaces'
 
 export const appLabPageTitle = 'App Lab'
+export const createAppInterfaceLabel = 'Create App Interface'
 
 export function AppLab() {
   const [appInterfaces, refreshAppInterfaces] = useAppInterfaces()

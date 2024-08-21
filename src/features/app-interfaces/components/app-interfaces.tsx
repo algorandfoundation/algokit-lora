@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { AppInterfaceCard } from '@/features/app-interfaces/components/app-interface-card'
 import { CreateAppInterfaceButton } from '@/features/app-interfaces/components/create-app-interface-button'
 
-export const newAppInterfaceLabel = 'New app interface'
+export const createAppInterfaceLabel = 'Create App Interface'
 
 type Props = {
   appInterfaces: AppInterfaceEntity[]
@@ -14,7 +14,7 @@ export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardContent className="flex min-h-44 flex-col">
-          <h2>{newAppInterfaceLabel}</h2>
+          <h2>{createAppInterfaceLabel}</h2>
           <div className="flex grow flex-col justify-between">
             <p>Upload an ARC-32 JSON file</p>
             <CreateAppInterfaceButton onSuccess={refreshAppInterfaces} />
