@@ -4,8 +4,9 @@ import { graphConfig } from '@/features/transactions-graph/components/graph-conf
 import { VerticalTitle } from '@/features/transactions-graph/components/vertical-title'
 import { Horizontal } from '@/features/transactions-graph/components/horizontal'
 import html2canvas from 'html2canvas-pro'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { Button } from '@/features/common/components/button'
+import { useResolvedTheme } from '@/features/settings/data/theme'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
@@ -18,55 +19,35 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
   const verticalsCount = verticals.length
   const gridTemplateColumns = `minmax(${horizontalTitleWidth}px, ${horizontalTitleWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
 
-  // useEffect(() => {
-  //   html2canvas(document.getElementById('visual-transactions')!, {
-  //     foreignObjectRendering: false,
-  //     removeContainer: true,
-  //     backgroundColor: '#001223',
-  //   }).then((canvas) => {
-  //     const dataUrl = canvas.toDataURL()
-
-  //     // console.log(dataUrl)
-  //     // window.location.href = dataUrl
-
-  //     const link = document.createElement('a')
-  //     link.text = 'Download image'
-  //     link.href = dataUrl
-  //     link.setAttribute('download', 'transactions-graph.png')
-  //     document.body.appendChild(link)
-  //     link.click()
-
-  //     // const img = new Image()
-  //     // img.src = dataUrl
-  //     // document.body.appendChild(img)
-  //   })
-  // }, [])
+  const theme = useResolvedTheme()
+  const backgroundColor = theme === 'dark' ? '#07192a' : '#f8f8f9'
+  const visualRef = useRef<HTMLDivElement>(null)
 
   const downloadImage = useCallback(async () => {
-    const visual = document.getElementById('visual-transactions')!
+    const visual = visualRef.current
+    if (!visual) return
+    const originalStyle = visual.style.cssText
+    visual.style.padding = '10px'
     const canvas = await html2canvas(visual, {
       foreignObjectRendering: false,
       removeContainer: true,
-      backgroundColor: '#001223',
-    }) // TODO: Need to get some more padding around the image
-
+      backgroundColor: backgroundColor,
+      // padding: 10,
+    })
+    visual.style.cssText = originalStyle
     const dataUrl = canvas.toDataURL()
-    // visual.setAttribute('data-url', dataUrl)
     const link = document.createElement('a')
-    link.text = 'Download image'
-    // link.className = 'hidden'
     link.href = dataUrl
-    link.setAttribute('download', 'transactions-graph.png')
-    // document.body.appendChild(link)
+    link.setAttribute('download', 'transaction-visual.png')
     // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
     link.click()
-  }, [])
+  }, [backgroundColor])
 
   return (
     <>
       <Button onClick={downloadImage}>Download image</Button>
       {/* Don't change this id value, it's used by a bot Alessandro is building. */}
-      <div id="visual-transactions" className="w-min">
+      <div id="visual-transactions" className="w-min" ref={visualRef} aria-label="Visual representation of transactions">
         <div
           className={cn('relative grid')}
           style={{
