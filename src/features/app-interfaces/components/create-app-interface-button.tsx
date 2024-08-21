@@ -1,9 +1,9 @@
 import { Button } from '@/features/common/components/button'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { useToggle } from '@/features/common/hooks/use-toggle'
-import { NewAppInterfaceDialogBody } from '@/features/app-interfaces/components/new-app-interface-dialog-body'
+import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
 
-export function NewAppInterfaceButton() {
+export function CreateAppInterfaceButton() {
   const { on, off, state: dialogOpen } = useToggle(false)
 
   return (
@@ -18,7 +18,7 @@ export function NewAppInterfaceButton() {
               <h2 className="pb-0">New app interface</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <NewAppInterfaceDialogBody onSuccess={off} />
+              <CreateAppInterfaceDialogBody onSuccess={off} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}
