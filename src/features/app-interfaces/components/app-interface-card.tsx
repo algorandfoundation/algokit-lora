@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { dateFormatter } from '@/utils/format'
 import { DeleteAppInterfaceButton } from '@/features/app-interfaces/components/delete-app-interface-button'
+import { appIdLabel, contractNameLabel, methodsLabel } from '@/features/app-interfaces/components/labels'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -16,15 +17,15 @@ export function AppInterfaceCard({ appInterface, onDelete }: Props) {
     const latestAppSpecVersion = appInterface.appSpecVersions[0]
     return [
       {
-        dt: 'Name',
+        dt: contractNameLabel,
         dd: latestAppSpecVersion.appSpec.contract.name,
       },
       {
-        dt: 'Methods',
+        dt: methodsLabel,
         dd: latestAppSpecVersion.appSpec.contract.methods.length,
       },
       {
-        dt: 'App ID',
+        dt: appIdLabel,
         dd: appInterface.applicationId,
       },
     ]

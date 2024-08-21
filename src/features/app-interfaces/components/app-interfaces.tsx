@@ -2,8 +2,7 @@ import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { Card, CardContent } from '@/features/common/components/card'
 import { AppInterfaceCard } from '@/features/app-interfaces/components/app-interface-card'
 import { CreateAppInterfaceButton } from '@/features/app-interfaces/components/create-app-interface-button'
-
-export const createAppInterfaceLabel = 'Create App Interface'
+import { createAppInterfaceLabel } from '@/features/app-interfaces/components/labels'
 
 type Props = {
   appInterfaces: AppInterfaceEntity[]
