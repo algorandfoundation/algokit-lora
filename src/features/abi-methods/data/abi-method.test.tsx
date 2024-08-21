@@ -46,7 +46,7 @@ describe('resolving ABI method', () => {
             applicationId,
             createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
@@ -94,7 +94,7 @@ describe('resolving ABI method', () => {
             applicationId,
             createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
@@ -151,7 +151,7 @@ describe('resolving ABI method', () => {
             applicationId,
             createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
@@ -341,7 +341,7 @@ describe('resolving ABI method', () => {
             applicationId,
             createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',

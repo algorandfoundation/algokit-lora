@@ -11,7 +11,7 @@ interface LoraDBSchemaV1 extends DBSchema {
 
 export type AppInterfaceEntity = {
   applicationId: ApplicationId
-  displayName: string
+  name: string
   appSpecVersions: AppSpecVersion[]
   lastModified: number
 }
@@ -65,7 +65,7 @@ const dbMigrations = [
       if (item && item.length > 0) {
         newItems.push({
           applicationId: Number(key),
-          displayName: item[0].appSpec.contract.name,
+          name: item[0].appSpec.contract.name,
           appSpecVersions: [...item],
           lastModified: Date.now(),
         })

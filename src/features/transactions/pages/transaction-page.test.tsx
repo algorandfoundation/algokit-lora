@@ -1253,7 +1253,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
           applicationId,
           createAppInterfaceAtomAndTimestamp({
             applicationId: applicationId,
-            displayName: 'test',
+            name: 'test',
             appSpecVersions: [
               {
                 standard: 'ARC-32',

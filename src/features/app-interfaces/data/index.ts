@@ -71,13 +71,13 @@ export const useCreateAppInterface = () => {
           `Application ID "${applicationId}" is already associated with another app interface`
         )
         invariant(
-          existingAppInterfaces.find((e) => e.displayName.toLowerCase() === name.toLowerCase()) === undefined,
+          existingAppInterfaces.find((e) => e.name.toLowerCase() === name.toLowerCase()) === undefined,
           `An app interface with the name "${name}" already exists`
         )
 
         await set(getAppInterfaceAtom(applicationId), {
           applicationId: applicationId,
-          displayName: name,
+          name: name,
           appSpecVersions: [
             {
               standard,
