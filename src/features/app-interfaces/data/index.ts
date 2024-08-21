@@ -8,19 +8,15 @@ import { useCallback, useMemo } from 'react'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
-  invariant(dbConnection, 'dbConnection is not initialised')
   return await dbConnection.get('app-interfaces', applicationId)
 }
 const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
-  invariant(dbConnection, 'dbConnection is not initialised')
   await dbConnection.put('app-interfaces', appInterface)
 }
 const getAppInterfaces = async (dbConnection: DbConnection) => {
-  invariant(dbConnection, 'dbConnection is not initialised')
   return await dbConnection.getAll('app-interfaces')
 }
 const deleteAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
-  invariant(dbConnection, 'dbConnection is not initialised')
   await dbConnection.delete('app-interfaces', applicationId)
 }
 

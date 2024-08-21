@@ -85,6 +85,7 @@ import { appInterfacesAtom } from '@/features/app-interfaces/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
+import { genesisHashAtom } from '@/features/blocks/data'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -644,6 +645,7 @@ describe('transaction-page', () => {
           [asset.index, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )
+      myStore.set(genesisHashAtom, 'some-hash')
 
       return executeComponentTest(
         () => {
@@ -742,6 +744,7 @@ describe('transaction-page', () => {
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
+      myStore.set(genesisHashAtom, 'some-hash')
 
       return executeComponentTest(
         () => {
