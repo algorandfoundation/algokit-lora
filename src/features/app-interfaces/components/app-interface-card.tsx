@@ -11,29 +11,30 @@ type Props = {
 }
 
 export function AppInterfaceCard({ appInterface, onDelete }: Props) {
-  const items = useMemo(
-    () => [
+  const items = useMemo(() => {
+    // Pick the first item in the array because we don't support multiple versions yet
+    const latestAppSpecVersion = appInterface.appSpecVersions[0]
+    return [
       {
         dt: 'Name',
-        dd: appInterface.appSpecVersions[0].appSpec.contract.name,
+        dd: latestAppSpecVersion.appSpec.contract.name,
       },
       {
         dt: 'Methods',
-        dd: appInterface.appSpecVersions[0].appSpec.contract.methods.length,
+        dd: latestAppSpecVersion.appSpec.contract.methods.length,
       },
       {
         dt: 'App ID',
         dd: appInterface.applicationId,
       },
-    ],
-    [appInterface]
-  )
+    ]
+  }, [appInterface])
 
   return (
     <Card>
       <CardContent className="flex min-h-44 flex-col">
         <h2>{appInterface.name}</h2>
-        <div className="flex grow flex-col justify-between">
+        <div className="flex grow flex-col justify-between gap-4">
           <DescriptionList items={items} />
           <div className="flex items-center justify-between">
             <p>Last modified: {dateFormatter.asShortDate(new Date(appInterface.lastModified))}</p>

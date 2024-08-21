@@ -1,4 +1,4 @@
-import { Trash2Icon } from 'lucide-react'
+import { TrashIcon } from 'lucide-react'
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { useCallback } from 'react'
@@ -17,13 +17,13 @@ export function DeleteAppInterfaceButton({ appInterface, onDelete }: Props) {
 
   const onConfirm = useCallback(async () => {
     await deleteAppInterface()
-    toast.success(`App interface ${appInterface.name} has been removed`)
+    toast.success(`App interface ${appInterface.name} has been deleted`)
     onDelete()
   }, [appInterface.name, deleteAppInterface, onDelete])
 
   return (
     <ConfirmButton
-      icon={<Trash2Icon className="text-secondary" />}
+      icon={<TrashIcon className="text-secondary" />}
       size="sm"
       variant="no-style"
       dialogHeaderText={deleteAppInterfaceLabel}
