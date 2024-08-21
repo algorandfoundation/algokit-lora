@@ -4,6 +4,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { atom } from 'jotai/index'
 import { selectedNetworkAtomId } from '@/features/network/data'
+import { settingsStore } from '@/features/settings/data'
 
 interface LoraDBSchemaV1 extends DBSchema {
   'applications-app-specs': {
@@ -27,7 +28,7 @@ interface LoraDBSchemaV2 extends DBSchema {
 }
 
 export const dbConnectionAtom = atom(async (get) => {
-  const networkId = get(selectedNetworkAtomId)
+  const networkId = settingsStore.get(selectedNetworkAtomId)
   const genesisHash = await get(genesisHashAtom)
 
   return await openDB<LoraDBSchemaV2>(`${networkId}-${genesisHash}`, 2, {
