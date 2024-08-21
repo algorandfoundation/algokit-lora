@@ -9,15 +9,15 @@ import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 const getAppInterface = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).get('appInterfaces', applicationId)
+  return await (await dbConnection).get('app-interfaces', applicationId)
 }
 const writeAppInterface = async (contractEntity: AppInterfaceEntity) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  await (await dbConnection).put('appInterfaces', contractEntity)
+  await (await dbConnection).put('app-interfaces', contractEntity)
 }
 const getAppInterfaces = async () => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  return await (await dbConnection).getAll('appInterfaces')
+  return await (await dbConnection).getAll('app-interfaces')
 }
 
 const createWritableAppInterfaceEntityAtom = (_: Getter, __: Setter, applicationId: ApplicationId) => {
@@ -68,11 +68,11 @@ export const useCreateAppInterface = () => {
         const existingAppInterfaces = await getAppInterfaces()
         invariant(
           existingAppInterfaces.find((e) => e.applicationId === applicationId) === undefined,
-          `Application Id ${applicationId} is already associated with another app interface`
+          `Application ID "${applicationId}" is already associated with another app interface`
         )
         invariant(
           existingAppInterfaces.find((e) => e.displayName.toLowerCase() === name.toLowerCase()) === undefined,
-          `App interface named ${name} already exists`
+          `An app interface with the name "${name}" already exists`
         )
 
         await set(getAppInterfaceAtom(applicationId), {

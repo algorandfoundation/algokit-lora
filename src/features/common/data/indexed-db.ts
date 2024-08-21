@@ -17,7 +17,7 @@ export type AppInterfaceEntity = {
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
-  appInterfaces: {
+  'app-interfaces': {
     key: number
     value: AppInterfaceEntity
   }
@@ -75,12 +75,12 @@ const dbMigrations = [
     v1Db.deleteObjectStore('applications-app-specs')
 
     const v2Db = db as unknown as IDBPDatabase<LoraDBSchemaV2>
-    v2Db.createObjectStore('appInterfaces', {
+    v2Db.createObjectStore('app-interfaces', {
       keyPath: 'applicationId',
     })
 
     const v2Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV2, StoreNames<LoraDBSchemaV2>[], 'versionchange'>
-    const v2Store = v2Transaction.objectStore('appInterfaces')
+    const v2Store = v2Transaction.objectStore('app-interfaces')
 
     for (const newItem of newItems) {
       await v2Store.put(newItem)
