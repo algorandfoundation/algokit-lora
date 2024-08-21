@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/fea
 import { useToggle } from '@/features/common/hooks/use-toggle'
 import { useCallback } from 'react'
 import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
-import { createAppInterfaceLabel } from '@/features/app-interfaces/components/app-interfaces'
+import { createAppInterfaceLabel } from '@/features/app-interfaces/components/labels'
 
 type Props = {
   onSuccess: () => void

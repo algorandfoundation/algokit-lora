@@ -4,8 +4,7 @@ import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { useCallback } from 'react'
 import { toast } from 'react-toastify'
 import { useDeleteAppInterface } from '@/features/app-interfaces/data'
-
-export const deleteAppInterfaceLabel = 'Delete App Interface'
+import { deleteAppInterfaceLabel } from '@/features/app-interfaces/components/labels'
 
 type Props = {
   appInterface: AppInterfaceEntity
