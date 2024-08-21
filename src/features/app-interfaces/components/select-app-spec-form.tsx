@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Form } from '@/features/forms/components/form'
 import { zfd } from 'zod-form-data'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -65,7 +65,6 @@ const readFileIntoAppSpec = async (file: File): Promise<Arc32AppSpec> => {
   try {
     return jsonAsArc32AppSpec(JSON.parse(content as string))
   } catch (e) {
-    // ignore
+    throw new Error('The file is not a valid ARC-32 app spec')
   }
-  throw new Error('The file is not a valid ARC-32 app spec')
 }

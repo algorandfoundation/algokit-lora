@@ -1,7 +1,7 @@
 import { Schema, Validator } from 'jsonschema'
 import Arc32ContractSchema from '@/features/abi-methods/mappers/arc-32-json-schemas/contract.schema.json'
 import Arc32AppJsonSchema from '@/features/abi-methods/mappers/arc-32-json-schemas/application.schema.json'
-import { Arc32AppSpec } from '../data/types'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 export const jsonAsArc32AppSpec = (json: unknown): Arc32AppSpec => {
   const validator = new Validator()

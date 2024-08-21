@@ -1,4 +1,4 @@
-import { AlgoAppSpec as Arc32AppSpec } from '@/features/abi-methods/data/types/arc-32/application'
+import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 
 // Only ARC-32 is supported for now
 export type AppSpecVersion = {

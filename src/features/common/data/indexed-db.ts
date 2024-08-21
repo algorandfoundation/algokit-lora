@@ -1,5 +1,5 @@
 import { DBSchema, IDBPDatabase, IDBPTransaction, openDB, StoreNames } from 'idb'
-import { AppSpecVersion } from '@/features/abi-methods/data/types'
+import { AppSpecVersion } from 'src/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 
 interface LoraDBSchemaV1 extends DBSchema {
@@ -9,17 +9,17 @@ interface LoraDBSchemaV1 extends DBSchema {
   }
 }
 
-export type ContractEntity = {
+export type AppInterfaceEntity = {
   applicationId: ApplicationId
-  displayName: string
+  name: string
   appSpecVersions: AppSpecVersion[]
   lastModified: number
 }
 
 interface LoraDBSchemaV2 extends DBSchema {
-  contracts: {
+  'app-interfaces': {
     key: number
-    value: ContractEntity
+    value: AppInterfaceEntity
   }
 }
 
@@ -58,14 +58,14 @@ const dbMigrations = [
     const v1Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV1, StoreNames<LoraDBSchemaV1>[], 'versionchange'>
     const v1Store = v1Transaction.objectStore('applications-app-specs')
 
-    const newItems: ContractEntity[] = []
+    const newItems: AppInterfaceEntity[] = []
     const keys = await v1Store.getAllKeys()
     for (const key of keys) {
       const item = await v1Store.get(key)
       if (item && item.length > 0) {
         newItems.push({
           applicationId: Number(key),
-          displayName: item[0].appSpec.contract.name,
+          name: item[0].appSpec.contract.name,
           appSpecVersions: [...item],
           lastModified: Date.now(),
         })
@@ -75,12 +75,12 @@ const dbMigrations = [
     v1Db.deleteObjectStore('applications-app-specs')
 
     const v2Db = db as unknown as IDBPDatabase<LoraDBSchemaV2>
-    v2Db.createObjectStore('contracts', {
+    v2Db.createObjectStore('app-interfaces', {
       keyPath: 'applicationId',
     })
 
     const v2Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV2, StoreNames<LoraDBSchemaV2>[], 'versionchange'>
-    const v2Store = v2Transaction.objectStore('contracts')
+    const v2Store = v2Transaction.objectStore('app-interfaces')
 
     for (const newItem of newItems) {
       await v2Store.put(newItem)

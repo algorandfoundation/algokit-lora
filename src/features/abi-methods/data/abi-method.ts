@@ -3,13 +3,13 @@ import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { Round } from '@/features/blocks/data/types'
-import { AppSpecVersion } from '@/features/abi-methods/data/types'
+import { AppSpecVersion } from '@/features/app-interfaces/data/types'
 import { getGroupResultAtom } from '@/features/groups/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
-import { getContractEntityAtom } from '@/features/abi-methods/data/index'
+import { getAppInterfaceAtom } from '@/features/app-interfaces/data'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
@@ -35,10 +35,10 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-    const contractEntity = await get(getContractEntityAtom(transaction['application-transaction']['application-id']))
-    if (!contractEntity) return undefined
+    const appInterface = await get(getAppInterfaceAtom(transaction['application-transaction']['application-id']))
+    if (!appInterface) return undefined
 
-    const appSpecVersion = contractEntity.appSpecVersions.find((appSpecVersion) =>
+    const appSpecVersion = appInterface.appSpecVersions.find((appSpecVersion) =>
       isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!)
     )
     const transactionArgs = transaction['application-transaction']['application-args'] ?? []

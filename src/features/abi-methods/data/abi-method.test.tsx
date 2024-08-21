@@ -7,13 +7,13 @@ import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
-import { contractEntitiesAtom } from '@/features/abi-methods/data/index'
-import { AlgoAppSpec } from '@/features/abi-methods/data/types/arc-32/application'
+import { appInterfacesAtom } from '@/features/app-interfaces/data'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AbiType } from '@/features/abi-methods/models'
-import { abiMethodResolver } from '@/features/abi-methods/data/abi-method'
+import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
-import { ContractEntity } from '@/features/common/data/indexed-db'
+import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { atom } from 'jotai/index'
 
 const { myStore } = await vi.hoisted(async () => {
@@ -40,21 +40,21 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       myStore.set(
-        contractEntitiesAtom,
+        appInterfacesAtom,
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
-                  appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+                  appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
                 },
               ],
               lastModified: createTimestamp(),
-            } satisfies ContractEntity),
+            } satisfies AppInterfaceEntity),
           ],
         ])
       )
@@ -88,21 +88,21 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       myStore.set(
-        contractEntitiesAtom,
+        appInterfacesAtom,
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
-                  appSpec: AuctionAppSpec as unknown as AlgoAppSpec,
+                  appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
                 },
               ],
               lastModified: createTimestamp(),
-            } satisfies ContractEntity),
+            } satisfies AppInterfaceEntity),
           ],
         ])
       )
@@ -145,21 +145,21 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       myStore.set(
-        contractEntitiesAtom,
+        appInterfacesAtom,
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
-                  appSpec: SampleThreeAppSpec as unknown as AlgoAppSpec,
+                  appSpec: SampleThreeAppSpec as unknown as Arc32AppSpec,
                 },
               ],
               lastModified: createTimestamp(),
-            } satisfies ContractEntity),
+            } satisfies AppInterfaceEntity),
           ],
         ])
       )
@@ -335,21 +335,21 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       myStore.set(
-        contractEntitiesAtom,
+        appInterfacesAtom,
         new Map([
           [
             applicationId,
-            createContractEntityAtomAndTimestamp({
+            createAppInterfaceAtomAndTimestamp({
               applicationId: applicationId,
-              displayName: 'test',
+              name: 'test',
               appSpecVersions: [
                 {
                   standard: 'ARC-32',
-                  appSpec: SampleFourAppSpec as unknown as AlgoAppSpec,
+                  appSpec: SampleFourAppSpec as unknown as Arc32AppSpec,
                 },
               ],
               lastModified: createTimestamp(),
-            } satisfies ContractEntity),
+            } satisfies AppInterfaceEntity),
           ],
         ])
       )
@@ -420,10 +420,10 @@ describe('resolving ABI method', () => {
   })
 })
 
-function createContractEntityAtomAndTimestamp(contractEntity: ContractEntity) {
+function createAppInterfaceAtomAndTimestamp(appInterface: AppInterfaceEntity) {
   return [
     atom(
-      () => contractEntity,
+      () => appInterface,
       () => {
         return Promise.resolve()
       }
