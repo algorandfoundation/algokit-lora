@@ -165,7 +165,11 @@ const RenderTransactionVector = fixedForwardRef(
           }}
           className="relative"
         >
-          {vector.direction === 'rightToLeft' && <PointerLeft className="absolute left-0 top-0" />}
+          {vector.direction === 'rightToLeft' && (
+            <span className="absolute left-0 top-0">
+              <PointerLeft />
+            </span>
+          )}
           <div
             className={cn(colorClass.border)}
             style={{
@@ -174,7 +178,11 @@ const RenderTransactionVector = fixedForwardRef(
               margin: vector.direction === 'leftToRight' ? '0 1px 0 0' : '0 0 0 1px',
             }}
           ></div>
-          {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
+          {vector.direction === 'leftToRight' && (
+            <span className="absolute right-0 top-0">
+              <PointerRight />
+            </span>
+          )}
         </div>
         <div className="absolute flex justify-center">
           <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
