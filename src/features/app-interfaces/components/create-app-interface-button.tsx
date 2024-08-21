@@ -8,7 +8,7 @@ export function CreateAppInterfaceButton() {
   const { on, off, state: dialogOpen } = useToggle(false)
 
   return (
-    <div className="absolute bottom-0 right-0">
+    <div className="flex justify-end">
       <Button variant="outline-secondary" onClick={on}>
         Create
       </Button>

@@ -43,7 +43,7 @@ export function FileInput({ accept, placeholder, value, disabled, onChange }: Fi
             return (
               <>
                 <UploadIcon />
-                <span className="text-sm">{placeholder}</span>
+                <span className="mx-2 text-center text-sm">{placeholder}</span>
               </>
             )
           } else {

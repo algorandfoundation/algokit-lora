@@ -9,12 +9,14 @@ export function AppLab() {
   return (
     <>
       <PageTitle title={appLabPageTitle} />
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
-          <CardContent className="relative min-h-44 space-y-1">
+          <CardContent className="flex min-h-44 flex-col ">
             <h2>{createAppInterfaceLabel}</h2>
-            <p>Create an app interface by uploading an App Spec file</p>
-            <CreateAppInterfaceButton />
+            <div className="flex grow flex-col justify-between gap-4">
+              <p>Create an app interface by uploading an App Spec file</p>
+              <CreateAppInterfaceButton />
+            </div>
           </CardContent>
         </Card>
       </div>
