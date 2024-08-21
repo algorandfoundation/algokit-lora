@@ -105,11 +105,11 @@ export const useDeleteAppInterface = (applicationId: ApplicationId) => {
 }
 
 export const useAppInterfaces = () => {
-  const contractEntitiesAtom = useMemo(() => {
+  const appInterfacesAtom = useMemo(() => {
     return atomWithRefresh(async () => {
       const entities = await getAppInterfaces()
       return entities.sort((a, b) => b.lastModified - a.lastModified)
     })
   }, [])
-  return [useAtomValue(loadable(contractEntitiesAtom)), useSetAtom(contractEntitiesAtom)] as const
+  return [useAtomValue(loadable(appInterfacesAtom)), useSetAtom(appInterfacesAtom)] as const
 }

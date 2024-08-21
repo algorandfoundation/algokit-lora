@@ -23,7 +23,7 @@ export function DeleteAppInterfaceButton({ appInterface, onDelete }: Props) {
 
   return (
     <ConfirmButton
-      icon={<TrashIcon className="text-secondary" />}
+      icon={<TrashIcon className="text-destructive" />}
       size="sm"
       variant="no-style"
       dialogHeaderText={deleteAppInterfaceLabel}
