@@ -11,9 +11,9 @@ const getAppInterface = async (applicationId: ApplicationId) => {
   invariant(dbConnection, 'dbConnection is not initialised')
   return await (await dbConnection).get('app-interfaces', applicationId)
 }
-const writeAppInterface = async (contractEntity: AppInterfaceEntity) => {
+const writeAppInterface = async (appInterface: AppInterfaceEntity) => {
   invariant(dbConnection, 'dbConnection is not initialised')
-  await (await dbConnection).put('app-interfaces', contractEntity)
+  await (await dbConnection).put('app-interfaces', appInterface)
 }
 const getAppInterfaces = async () => {
   invariant(dbConnection, 'dbConnection is not initialised')

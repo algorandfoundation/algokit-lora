@@ -65,7 +65,6 @@ const readFileIntoAppSpec = async (file: File): Promise<Arc32AppSpec> => {
   try {
     return jsonAsArc32AppSpec(JSON.parse(content as string))
   } catch (e) {
-    // ignore
+    throw new Error('The file is not a valid ARC-32 app spec')
   }
-  throw new Error('The file is not a valid ARC-32 app spec')
 }
