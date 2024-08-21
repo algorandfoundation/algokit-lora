@@ -18,6 +18,7 @@ import { groupVisual, groupVisualGraphLabel, groupVisualTableLabel } from '../co
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
+import { genesisHashAtom } from '@/features/blocks/data'
 
 describe('group-page', () => {
   describe('when rendering a group using an invalid round number', () => {
@@ -89,6 +90,7 @@ describe('group-page', () => {
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
+      myStore.set(genesisHashAtom, 'some-hash')
 
       return executeComponentTest(
         () => render(<GroupPage />, undefined, myStore),
