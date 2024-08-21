@@ -1,14 +1,14 @@
 import { Button } from '@/features/common/components/button'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { useToggle } from '@/features/common/hooks/use-toggle'
-import { NewAppInterfaceDialogBody } from '@/features/app-interfaces/components/new-app-interface-dialog-body'
 import { useCallback } from 'react'
+import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
 
 type Props = {
   onSuccess: () => void
 }
 
-export function NewAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
+export function CreateAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
   const { on, off, state: dialogOpen } = useToggle(false)
 
   const onSuccess = useCallback(() => {
@@ -28,7 +28,7 @@ export function NewAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
               <h2 className="pb-0">New app interface</h2>
             </DialogHeader>
             <MediumSizeDialogBody>
-              <NewAppInterfaceDialogBody onSuccess={onSuccess} />
+              <CreateAppInterfaceDialogBody onSuccess={onSuccess} />
             </MediumSizeDialogBody>
           </DialogContent>
         )}

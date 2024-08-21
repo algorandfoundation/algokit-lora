@@ -1,7 +1,7 @@
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { Card, CardContent } from '@/features/common/components/card'
-import { NewAppInterfaceButton } from '@/features/app-interfaces/components/new-app-interface-button'
 import { AppInterfaceCard } from '@/features/app-interfaces/components/app-interface-card'
+import { CreateAppInterfaceButton } from '@/features/app-interfaces/components/create-app-interface-button'
 
 export const newAppInterfaceLabel = 'New app interface'
 
@@ -17,7 +17,7 @@ export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
           <h2>{newAppInterfaceLabel}</h2>
           <div className="flex grow flex-col justify-between">
             <p>Upload an ARC-32 JSON file</p>
-            <NewAppInterfaceButton onSuccess={refreshAppInterfaces} />
+            <CreateAppInterfaceButton onSuccess={refreshAppInterfaces} />
           </div>
         </CardContent>
       </Card>

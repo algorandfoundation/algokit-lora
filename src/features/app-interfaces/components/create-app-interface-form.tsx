@@ -21,7 +21,7 @@ type Props = {
   onSuccess: () => void
 }
 
-export function NewAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
+export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
   const createAppInterface = useCreateAppInterface()
 
   const save = useCallback(
