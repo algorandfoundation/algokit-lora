@@ -1,6 +1,6 @@
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -8,6 +8,9 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { toast } from 'react-toastify'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
+import { useActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
+import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app-button'
+import { ApplicationId } from '@/features/applications/data/types'
 
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -23,6 +26,7 @@ type Props = {
 
 export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
   const createAppInterface = useCreateAppInterface()
+  const activeAccount = useActiveWalletAccount()
 
   const save = useCallback(
     async (values: z.infer<typeof formSchema>) => {
@@ -38,6 +42,15 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
     },
     [appSpec, createAppInterface]
   )
+
+  const canDeploy = useMemo(() => {
+    const result = activeAccount && activeAccount.algoHolding.amount > 1000
+    return Boolean(result)
+  }, [activeAccount])
+
+  const onAppCreated = useCallback((appId: ApplicationId) => {
+    console.log(appId)
+  }, [])
 
   return (
     <Form
@@ -65,10 +78,14 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
             field: 'name',
             label: 'Name',
           })}
-          {helper.numberField({
-            field: 'applicationId',
-            label: 'Application ID',
-          })}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
+            {helper.numberField({
+              field: 'applicationId',
+              label: 'Application ID',
+            })}
+            <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
+            <DeployAppButton canDeploy={canDeploy} appSpec={appSpec} onSuccess={onAppCreated} />
+          </div>
         </>
       )}
     </Form>
