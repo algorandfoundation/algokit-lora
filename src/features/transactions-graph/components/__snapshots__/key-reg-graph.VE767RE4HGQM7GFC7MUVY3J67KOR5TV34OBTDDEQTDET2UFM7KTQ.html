@@ -1,12 +1,7 @@
 <div>
-  <button
-    class="relative inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-  >
-    Download image
-  </button>
   <div
-    class="w-min"
-    id="visual-transactions"
+    aria-label="Visual representation of transactions"
+    class="w-min bg-card"
   >
     <div
       class="relative grid"
@@ -130,5 +125,40 @@
         />
       </div>
     </div>
+  </div>
+  <div
+    class="sticky bottom-0 left-full z-50 flex size-0 overflow-visible"
+  >
+    <button
+      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 absolute bottom-1 right-0 w-32"
+      id="download-transactions-visual"
+    >
+      <svg
+        class="lucide lucide-download mr-2 size-4"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+        />
+        <polyline
+          points="7 10 12 15 17 10"
+        />
+        <line
+          x1="12"
+          x2="12"
+          y1="15"
+          y2="3"
+        />
+      </svg>
+      Download
+    </button>
   </div>
 </div>
