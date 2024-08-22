@@ -1,5 +1,5 @@
 import { Controller, FieldPath } from 'react-hook-form'
-import { ValidationErrorMessage } from '@/features/forms/components/validation-error-message'
+import { ValidationErrorOrHelpMessage } from '@/features/forms/components/validation-error-or-help-message'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
 import { Label } from '@/features/common/components/label'
@@ -35,7 +35,7 @@ export function CheckboxFormItem<TSchema extends Record<string, unknown>>({
           </div>
         )}
       />
-      <ValidationErrorMessage message={error?.message as string} />
+      <ValidationErrorOrHelpMessage errorText={error?.message} />
     </>
   )
 }

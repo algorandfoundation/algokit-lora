@@ -1,0 +1,34 @@
+name: 'Static Site Transforms'
+description: Transforms the environment specific configuration of a static site build.
+inputs:
+  directory:
+    description: 'The directory to search for files to transform.'
+    required: true
+  transforms:
+    description:
+      'One or more (lines) of colon-separated pairs, indicating A) placeholder variable value used in static site build B) secret value to replace placeholder value with throughout the build E.g.:
+      transforms: |-
+      VITE_CLIENT_ID:SECRET VALUE
+      VITE_TENANT_ID:SECRET VALUE'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Apply transforms
+      run: |
+        readarray -t transforms <<<"${{ inputs.transforms }}"
+        replacements=""
+        for i in "${!transforms[@]}"
+        do
+          trimmed="$(echo -e "${transforms[i]}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          IFS=':' read -r placeholder value <<< "$trimmed"
+          if [ ! -z "$placeholder" ]
+          then
+            replacements+="s/{{$placeholder}}/$(echo $value | sed -e 's/\\/\\\\/g; s/\//\\\//g; s/&/\\\&/g')/gI;"
+          fi
+        done
+        if [ ! -z "$replacements" ]
+        then
+          find "${{ inputs.directory }}" -type f \( -name '*.js' -o -name '*.html' \) -exec sed -i "$replacements" {} \;
+        fi
+      shell: bash

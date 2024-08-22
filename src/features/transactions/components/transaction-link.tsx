@@ -16,23 +16,29 @@ type Props = PropsWithChildren<{
 export function TransactionLink({ transactionId, short = false, className, children, showCopyButton }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
 
-  return (
+  const link = (
+    <TemplatedNavLink
+      className={cn(!children && 'text-primary underline inline', !children && !short && 'truncate', className)}
+      urlTemplate={Urls.Explore.Transaction.ById}
+      urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
+    >
+      {children ? (
+        children
+      ) : short ? (
+        <abbr className="tracking-wide" title={transactionId}>
+          {ellipseId(transactionId)}
+        </abbr>
+      ) : (
+        transactionId
+      )}
+    </TemplatedNavLink>
+  )
+
+  return children ? (
+    link
+  ) : (
     <div className="flex items-center">
-      <TemplatedNavLink
-        className={cn(!children && 'text-primary underline inline', !children && !short && 'truncate', className)}
-        urlTemplate={Urls.Explore.Transaction.ById}
-        urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
-      >
-        {children ? (
-          children
-        ) : short ? (
-          <abbr className="tracking-wide" title={transactionId}>
-            {ellipseId(transactionId)}
-          </abbr>
-        ) : (
-          transactionId
-        )}
-      </TemplatedNavLink>
+      {link}
       {showCopyButton && <CopyButton value={transactionId} />}
     </div>
   )

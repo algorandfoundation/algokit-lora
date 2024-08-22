@@ -1,4 +1,4 @@
-import { Loader } from 'lucide-react'
+import { Loader2 as Loader } from 'lucide-react'
 import { useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 

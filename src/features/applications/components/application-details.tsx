@@ -67,11 +67,11 @@ export function ApplicationDetails({ application }: Props) {
         : undefined,
       {
         dt: applicationCreatorAccountLabel,
-        dd: <AccountLink address={application.creator} showCopyButton={true}></AccountLink>,
+        dd: <AccountLink address={application.creator} showCopyButton={true} />,
       },
       {
         dt: applicationAccountLabel,
-        dd: <AccountLink address={application.account} showCopyButton={true}></AccountLink>,
+        dd: <AccountLink address={application.account} showCopyButton={true} />,
       },
       application.globalStateSchema
         ? {

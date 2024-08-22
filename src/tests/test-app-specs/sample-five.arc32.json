@@ -1,0 +1,71 @@
+{
+    "hints": {
+        "echo_address(address)address": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        },
+        "echo_boolean(bool)bool": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuc2FtcGxlX2ZpdmUuY29udHJhY3QuU2FtcGxlRml2ZS5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjExCiAgICAvLyBjbGFzcyBTYW1wbGVGaXZlKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdANgogICAgbWV0aG9kICJlY2hvX2FkZHJlc3MoYWRkcmVzcylhZGRyZXNzIgogICAgbWV0aG9kICJlY2hvX2Jvb2xlYW4oYm9vbClib29sIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9lY2hvX2FkZHJlc3Nfcm91dGVAMiBtYWluX2VjaG9fYm9vbGVhbl9yb3V0ZUAzCiAgICBlcnIgLy8gcmVqZWN0IHRyYW5zYWN0aW9uCgptYWluX2VjaG9fYWRkcmVzc19yb3V0ZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjEyCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZml2ZS9jb250cmFjdC5weToxMQogICAgLy8gY2xhc3MgU2FtcGxlRml2ZShBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjEyCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgZWNob19hZGRyZXNzCiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2VjaG9fYm9vbGVhbl9yb3V0ZUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjE3CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZml2ZS9jb250cmFjdC5weToxMQogICAgLy8gY2xhc3MgU2FtcGxlRml2ZShBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjE3CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIGNhbGxzdWIgZWNob19ib29sZWFuCiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A2OgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjExCiAgICAvLyBjbGFzcyBTYW1wbGVGaXZlKEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gcmVqZWN0IHRyYW5zYWN0aW9uCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGlzIGNyZWF0aW5nCiAgICBpbnQgMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLnNhbXBsZV9maXZlLmNvbnRyYWN0LlNhbXBsZUZpdmUuZWNob19hZGRyZXNzKGFkZHJlc3M6IGJ5dGVzKSAtPiBieXRlczoKZWNob19hZGRyZXNzOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjEyLTE0CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIC8vIGRlZiBlY2hvX2FkZHJlc3Moc2VsZiwKICAgIC8vICAgICAgICAgYWRkcmVzczogYXJjNC5BZGRyZXNzKSAtPiBhcmM0LkFkZHJlc3M6CiAgICBwcm90byAxIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZml2ZS9jb250cmFjdC5weToxNQogICAgLy8gcmV0dXJuIGFkZHJlc3MKICAgIGZyYW1lX2RpZyAtMQogICAgcmV0c3ViCgoKLy8gc21hcnRfY29udHJhY3RzLnNhbXBsZV9maXZlLmNvbnRyYWN0LlNhbXBsZUZpdmUuZWNob19ib29sZWFuKGJvb2w6IGJ5dGVzKSAtPiBieXRlczoKZWNob19ib29sZWFuOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjE3LTE4CiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIC8vIGRlZiBlY2hvX2Jvb2xlYW4oc2VsZiwgYm9vbDogYXJjNC5Cb29sKSAtPiBhcmM0LkJvb2w6CiAgICBwcm90byAxIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfZml2ZS9jb250cmFjdC5weToxOQogICAgLy8gcmV0dXJuIGJvb2wKICAgIGZyYW1lX2RpZyAtMQogICAgcmV0c3ViCg==",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuc2FtcGxlX2ZpdmUuY29udHJhY3QuU2FtcGxlRml2ZS5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9maXZlL2NvbnRyYWN0LnB5OjExCiAgICAvLyBjbGFzcyBTYW1wbGVGaXZlKEFSQzRDb250cmFjdCk6CiAgICBpbnQgMQogICAgcmV0dXJuCg=="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {},
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "SampleFive",
+        "methods": [
+            {
+                "name": "echo_address",
+                "args": [
+                    {
+                        "type": "address",
+                        "name": "address"
+                    }
+                ],
+                "returns": {
+                    "type": "address"
+                }
+            },
+            {
+                "name": "echo_boolean",
+                "args": [
+                    {
+                        "type": "bool",
+                        "name": "bool"
+                    }
+                ],
+                "returns": {
+                    "type": "bool"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

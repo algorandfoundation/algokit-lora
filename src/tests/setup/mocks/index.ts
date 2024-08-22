@@ -118,3 +118,18 @@ vi.mock('@tauri-apps/api/event', async () => {
 
 export const ANY_NUMBER = -1
 export const ANY_STRING = 'ANY_STRING'
+
+vi.mock('@auth0/auth0-react', async () => {
+  const original = await vi.importActual('@auth0/auth0-react')
+  return {
+    ...original,
+    useAuth0: vi.fn().mockReturnValue({
+      isAuthenticated: false,
+      isLoading: false,
+      getAccessTokenSilently: vi.fn(),
+      loginWithRedirect: vi.fn(),
+      loginWithPopup: vi.fn(),
+      logout: vi.fn(),
+    }),
+  }
+})

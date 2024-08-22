@@ -1,6 +1,11 @@
 import { StateProofTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
-import { transactionFeeLabel, transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
+import {
+  transactionFeeLabel,
+  transactionIdLabel,
+  transactionRekeyToLabel,
+  transactionTypeLabel,
+} from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -28,6 +33,14 @@ export function StateProofTransactionTooltipContent({ transaction }: { transacti
         dt: transactionFeeLabel,
         dd: <DisplayAlgo amount={transaction.fee} />,
       },
+      ...(transaction.rekeyTo
+        ? [
+            {
+              dt: transactionRekeyToLabel,
+              dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
     ],
     [transaction]
   )

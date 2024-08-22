@@ -22,7 +22,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
       initialState
         ? initialState
         : {
-            id: randomString(52, 52),
+            id: randomString(52, 52).toUpperCase(),
             'tx-type': randomElement(Object.values(algosdk.TransactionType)),
             'last-valid': randomNumber(),
             'first-valid': randomNumber(),

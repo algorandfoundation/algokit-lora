@@ -16,6 +16,7 @@ import { isInteger } from '@/utils/is-integer'
 import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
 import { useSelectedNetwork } from '@/features/network/data'
+import { getTransactionResultAtom } from '@/features/transactions/data'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -47,12 +48,16 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isTransactionId(term)) {
-      results.push({
-        type: SearchResultType.Transaction,
-        id: term,
-        label: ellipseId(term),
-        url: Urls.Explore.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
-      })
+      const transactionAtom = getTransactionResultAtom(term)
+      const transaction = await handleErrorInAsyncMaybeAtom(get(transactionAtom), handle404)
+      if (transaction) {
+        results.push({
+          type: SearchResultType.Transaction,
+          id: term,
+          label: ellipseId(term),
+          url: Urls.Explore.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
+        })
+      }
     } else if (isInteger(term)) {
       const id = parseInt(term, 10)
       if (id >= 0) {

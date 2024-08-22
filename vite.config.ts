@@ -16,9 +16,16 @@ export default defineConfig({
   ],
   test: {
     environment: 'happy-dom',
-    setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks/index.ts'],
+    setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks/index.ts', 'fake-indexeddb/auto'],
     globals: true,
-    globalSetup: 'src/tests/setup/setup-timezone.ts',
+    globalSetup: ['src/tests/setup/setup-timezone.ts'],
+    env: {
+      VITE_DISPENSER_AUTH0_DOMAIN: 'test',
+      VITE_DISPENSER_AUTH0_CLIENT_ID: 'test',
+      VITE_DISPENSER_AUTH0_AUDIENCE: 'test',
+      VITE_TESTNET_DISPENSER_API_URL: 'https://test.api',
+      VITE_TESTNET_DISPENSER_ADDRESS: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+    },
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

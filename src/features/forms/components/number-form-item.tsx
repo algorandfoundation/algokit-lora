@@ -1,5 +1,5 @@
 import { Controller, FieldPath } from 'react-hook-form'
-import { forwardRef } from 'react'
+import { forwardRef, ReactElement } from 'react'
 import { NumericFormat } from 'react-number-format'
 import { cn } from '@/features/common/utils'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
@@ -42,15 +42,17 @@ export interface NumberFormItemProps<TSchema extends Record<string, unknown> = R
   decimalScale?: number
   thousandSeparator?: boolean
   placeholder?: string
+  helpText?: string | ReactElement
 }
 
 export function NumberFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
   disabled,
+  helpText,
   ...props
 }: NumberFormItemProps<TSchema>) {
   return (
-    <FormItem {...props} field={field} disabled={disabled}>
+    <FormItem {...props} field={field} disabled={disabled} helpText={helpText}>
       <Controller
         name={field}
         render={({ field: controllerField }) => (

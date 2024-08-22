@@ -7,6 +7,7 @@ import { asTransaction } from '../mappers/transaction-mappers'
 import { assetSummaryResolver } from '@/features/assets/data'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { getTransactionResultAtom } from './transaction-result'
+import { abiMethodResolver } from '@/features/abi-methods/data'
 
 export const createInnerTransactionAtom = (
   transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>,
@@ -14,7 +15,7 @@ export const createInnerTransactionAtom = (
 ) => {
   return atom(async (get) => {
     const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
-    const transaction = asTransaction(txn, assetSummaryResolver)
+    const transaction = asTransaction(txn, assetSummaryResolver, abiMethodResolver)
     if (transaction.type !== TransactionType.AppCall) {
       throw new Error('Only application call transactions have inner transactions')
     }
