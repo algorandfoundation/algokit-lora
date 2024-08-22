@@ -11,7 +11,6 @@ import { algod, indexer } from '@/features/common/data/algo-client'
 import { Arc32AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
-import { OnSchemaBreak, OnUpdate } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 
 type Props = {
@@ -20,7 +19,15 @@ type Props = {
   onCancel: () => void
 }
 
-const formSchema = zfd.formData({})
+// TODO: rethink z.union vs enum
+const formSchema = zfd.formData({
+  name: zfd.text(),
+  version: zfd.text(),
+  onUpdate: zfd.text(z.union([z.literal('fail'), z.literal('update'), z.literal('replace'), z.literal('append')]).optional()),
+  onSchemaBreak: zfd.text(z.union([z.literal('fail'), z.literal('replace'), z.literal('append')]).optional()),
+  deletable: z.boolean().optional(),
+  updatable: z.boolean().optional(),
+})
 
 export function DeployAppForm({ appSpec, onSuccess, onCancel }: Props) {
   const { signer, activeAccount } = useWallet()
@@ -48,20 +55,30 @@ export function DeployAppForm({ appSpec, onSuccess, onCancel }: Props) {
             globalByteSlices: appSpec.state.global.num_byte_slices,
           },
           metadata: {
-            name: 'Sample Four - new',
-            version: '1.0.0',
+            name: values.name,
+            version: values.version,
           },
-          onUpdate: OnUpdate.Fail,
-          onSchemaBreak: OnSchemaBreak.Fail,
+          onUpdate: values.onUpdate,
+          onSchemaBreak: values.onSchemaBreak,
         },
         algod,
         indexer
       )
-
+      // TODO: handle operationPerformed
+      console.log(deployAppResult)
       // TODO: bigint?
       return Number(deployAppResult.appId)
     },
-    [activeAccount, appSpec, signer]
+    [
+      activeAccount,
+      appSpec.source.approval,
+      appSpec.source.clear,
+      appSpec.state.global.num_byte_slices,
+      appSpec.state.global.num_uints,
+      appSpec.state.local.num_byte_slices,
+      appSpec.state.local.num_uints,
+      signer,
+    ]
   )
 
   return (
@@ -75,8 +92,50 @@ export function DeployAppForm({ appSpec, onSuccess, onCancel }: Props) {
           <SubmitButton className="w-28">Deploy</SubmitButton>
         </FormActions>
       }
+      defaultValues={{
+        name: appSpec.contract.name,
+      }}
     >
-      {(helper) => <></>}
+      {(helper) => (
+        <>
+          {helper.textField({
+            field: 'name',
+            label: 'Name',
+          })}
+          {helper.textField({
+            field: 'version',
+            label: 'Version',
+            placeholder: '1.0.0',
+          })}
+          {helper.selectField({
+            field: 'onUpdate',
+            label: 'On Update',
+            options: [
+              { value: 'fail', label: 'Fail' },
+              { value: 'update', label: 'Update App' },
+              { value: 'replace', label: 'Replace App' },
+              { value: 'append', label: 'Append App' },
+            ],
+          })}
+          {helper.selectField({
+            field: 'onSchemaBreak',
+            label: 'On Schema Break',
+            options: [
+              { value: 'fail', label: 'Fail' },
+              { value: 'replace', label: 'Replace App' },
+              { value: 'append', label: 'Append App' },
+            ],
+          })}
+          {helper.checkboxField({
+            field: 'deletable',
+            label: 'Deletable',
+          })}
+          {helper.checkboxField({
+            field: 'updatable',
+            label: 'Updatable',
+          })}
+        </>
+      )}
     </Form>
   )
 }

@@ -43,16 +43,14 @@ export function DeployAppButton({ appSpec, canDeploy, onSuccess: _onSuccess }: P
         {!canDeploy && <ValidationErrorOrHelpMessage errorText="Please connect a wallet with min 0.001 ALGO" />}
       </div>
       <Dialog open={dialogOpen} onOpenChange={(open) => (open ? on() : off())} modal={true}>
-        {dialogOpen && (
-          <DialogContent className="bg-card">
-            <DialogHeader className="flex-row items-center space-y-0">
-              <h2 className="pb-0">{deployAppLabel}</h2>
-            </DialogHeader>
-            <MediumSizeDialogBody>
-              <DeployAppForm appSpec={appSpec} onSuccess={onSuccess} onCancel={onCancel} />
-            </MediumSizeDialogBody>
-          </DialogContent>
-        )}
+        <DialogContent className="bg-card">
+          <DialogHeader className="flex-row items-center space-y-0">
+            <h2 className="pb-0">{deployAppLabel}</h2>
+          </DialogHeader>
+          <MediumSizeDialogBody>
+            <DeployAppForm appSpec={appSpec} onSuccess={onSuccess} onCancel={onCancel} />
+          </MediumSizeDialogBody>
+        </DialogContent>
       </Dialog>
     </>
   )
