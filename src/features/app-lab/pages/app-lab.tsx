@@ -35,8 +35,15 @@ export function AppLab() {
       setApplicationId(Number(deepLinkSearchParams.applicationId))
       on()
     }
+    // TODO: clear search params
   }, [on])
 
+  const onAppCreated = useCallback(() => {
+    off()
+    refreshAppInterfaces()
+  }, [off, refreshAppInterfaces])
+
+  console.log(applicationId, dialogOpen)
   return (
     <>
       <PageTitle title={appLabPageTitle} />
@@ -46,13 +53,7 @@ export function AppLab() {
         }}
       </RenderLoadable>
       {applicationId && (
-        <CreateAppInterfaceDialog
-          applicationId={applicationId}
-          dialogOpen={dialogOpen}
-          on={on}
-          off={off}
-          onSuccess={refreshAppInterfaces}
-        />
+        <CreateAppInterfaceDialog applicationId={applicationId} dialogOpen={dialogOpen} off={off} onSuccess={onAppCreated} />
       )}
     </>
   )
@@ -88,12 +89,11 @@ type CreateAppInterfaceDialogProps = {
   applicationId: ApplicationId
   onSuccess: () => void
   dialogOpen: boolean
-  on: () => void
   off: () => void
 }
-function CreateAppInterfaceDialog({ applicationId, onSuccess, dialogOpen, on, off }: CreateAppInterfaceDialogProps) {
+function CreateAppInterfaceDialog({ applicationId, onSuccess, dialogOpen, off }: CreateAppInterfaceDialogProps) {
   return (
-    <Dialog open={dialogOpen} onOpenChange={(open) => (open ? on() : off())} modal={true}>
+    <Dialog open={dialogOpen} onOpenChange={(open) => (open ? undefined : off())} modal={true}>
       <DialogContent className="bg-card">
         <DialogHeader className="flex-row items-center space-y-0">
           <h2 className="pb-0">{createAppInterfaceLabel}</h2>
