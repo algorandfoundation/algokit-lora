@@ -98,17 +98,17 @@ export const routes = evalTemplates([
             template: Urls.Explore.Tx,
             element: <TxPage />,
           },
+          {
+            template: Urls.Explore.AppLab,
+            errorElement: <ErrorPage title={appLabPageTitle} />,
+            element: <AppLab />,
+          },
         ],
       },
       {
         template: Urls.AppStudio,
         errorElement: <ErrorPage title={appStudioPageTitle} />,
         element: <AppStudioPage />,
-      },
-      {
-        template: Urls.AppLab,
-        errorElement: <ErrorPage title={appLabPageTitle} />,
-        element: <AppLab />,
       },
       {
         template: Urls.Settings,
