@@ -34,7 +34,6 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
     const link = document.createElement('a')
     link.href = dataUrl
     link.setAttribute('download', 'transactions-visual.png')
-    // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
     link.click()
   }, [])
 
@@ -97,6 +96,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
         </div>
       </div>
       <div className="sticky bottom-0 left-full z-50 flex size-0 overflow-visible">
+        // Don't change this id value, it's used by a bot Alessandro is building.
         <Button id="download-transactions-visual" className="absolute bottom-1 right-0 w-32" variant="outline" onClick={downloadImage}>
           <Download className="mr-2 size-4" />
           Download
