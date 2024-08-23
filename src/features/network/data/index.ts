@@ -2,7 +2,7 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
-import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId } from './types'
+import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
 import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
 
@@ -55,6 +55,18 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
     },
     algod: {
       server: 'https://fnet-api.4160.nodely.io/',
+      port: 443,
+    },
+    walletProviders: [PROVIDER_ID.LUTE],
+  },
+  [betanetId]: {
+    name: 'BetaNet',
+    indexer: {
+      server: 'https://betanet-idx.algonode.cloud/',
+      port: 443,
+    },
+    algod: {
+      server: 'https://betanet-api.algonode.cloud/',
       port: 443,
     },
     walletProviders: [PROVIDER_ID.LUTE],
