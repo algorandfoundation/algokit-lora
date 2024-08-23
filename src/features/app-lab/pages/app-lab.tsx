@@ -26,16 +26,22 @@ export const appLabPageTitle = 'App Lab'
 
 export function AppLab() {
   const [appInterfaces, refreshAppInterfaces] = useAppInterfaces()
-  const { on, off, state: dialogOpen } = useToggle(false)
   const [applicationId, setApplicationId] = useState<ApplicationId | undefined>()
+  const { on, off, state: dialogOpen } = useToggle(false)
 
   useEffect(() => {
     const deepLinkSearchParams = getAppLapDeepLinkSearchParams()
     if (deepLinkSearchParams) {
       setApplicationId(Number(deepLinkSearchParams.applicationId))
       on()
+
+      const url = new URL(window.location.href)
+      url.searchParams.delete(appLapDeepLinkSearchParams.applicationId)
+      url.searchParams.delete(appLapDeepLinkSearchParams.filePath)
+      url.searchParams.delete(appLapDeepLinkSearchParams.roundFirstValid)
+      url.searchParams.delete(appLapDeepLinkSearchParams.roundLastValid)
+      window.history.replaceState({}, '', url)
     }
-    // TODO: clear search params
   }, [on])
 
   const onAppCreated = useCallback(() => {
@@ -43,18 +49,22 @@ export function AppLab() {
     refreshAppInterfaces()
   }, [off, refreshAppInterfaces])
 
-  console.log(applicationId, dialogOpen)
+  // TODO: why the dialog is double rendered if it's outside of the render loadable?
   return (
     <>
       <PageTitle title={appLabPageTitle} />
       <RenderLoadable loadable={appInterfaces} fallback={<PageLoader />}>
         {(appInterfaces) => {
-          return <AppInterfaces appInterfaces={appInterfaces} refreshAppInterfaces={refreshAppInterfaces} />
+          return (
+            <>
+              <AppInterfaces appInterfaces={appInterfaces} refreshAppInterfaces={refreshAppInterfaces} />
+              {applicationId && (
+                <CreateAppInterfaceDialog applicationId={applicationId} onSuccess={onAppCreated} dialogOpen={dialogOpen} off={off} />
+              )}
+            </>
+          )
         }}
       </RenderLoadable>
-      {applicationId && (
-        <CreateAppInterfaceDialog applicationId={applicationId} dialogOpen={dialogOpen} off={off} onSuccess={onAppCreated} />
-      )}
     </>
   )
 }
