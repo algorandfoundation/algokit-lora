@@ -37,8 +37,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
               while (ellipsisElement.scrollWidth >= clientWidth) {
                 ellipsisElement.textContent = ellipsisElement.textContent.slice(0, -1)
               }
-              const smallEllipsis = `<span style="font-size: 0.4em;">...</span>`
-              ellipsisElement.innerHTML = `${ellipsisElement.textContent}${smallEllipsis}`
+              ellipsisElement.textContent = `${ellipsisElement.textContent}…`
             }
           }
         })
