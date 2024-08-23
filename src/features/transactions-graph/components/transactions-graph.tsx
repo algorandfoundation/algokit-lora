@@ -39,7 +39,7 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
   }, [])
 
   return (
-    <>
+    <div className="relative">
       <div className="w-min bg-card" ref={visualRef} aria-label="Visual representation of transactions">
         <div
           className={cn('relative grid')}
@@ -96,12 +96,14 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
           ))}
         </div>
       </div>
-      <div className="sticky bottom-0 left-full z-50 flex size-0 overflow-visible">
-        <Button id="download-transactions-visual" className="absolute bottom-1 right-0 w-32" variant="outline" onClick={downloadImage}>
-          <Download className="mr-2 size-4" />
-          Download
-        </Button>
-      </div>
-    </>
+      <Button
+        className="absolute bottom-1 right-0 w-32"
+        variant="outline"
+        onClick={downloadImage}
+        icon={<Download className="mr-2 size-4" />}
+      >
+        Download
+      </Button>
+    </div>
   )
 }
