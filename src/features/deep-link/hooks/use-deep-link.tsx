@@ -1,11 +1,5 @@
-import { useCallback, useEffect } from 'react'
-import { listen } from '@tauri-apps/api/event'
-import { useNavigate } from 'react-router-dom'
-import { useSetSelectedNetwork } from '@/features/network/data'
-import { parseDeepLink } from '@/features/deep-link/parse-deep-link'
-import { Urls } from '@/routes/urls'
 // import { onOpenUrl } from '@tauri-apps/plugin-deep-link'
-
+//
 // await onOpenUrl((urls) => {
 //   console.log('deep link:', urls)
 // })

@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel, selectAccountLabel, disconnectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
 import { PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
-import { Event as TauriEvent, listen } from '@tauri-apps/api/event'
+import { listen } from '@tauri-apps/api/event'
 import { networkConfigAtom } from '@/features/network/data'
 import { useNavigate } from 'react-router-dom'
 import { settingsStore } from '@/features/settings/data'
@@ -195,19 +195,6 @@ describe('when rendering the layout page', () => {
         const mockNavigate = vi.fn()
         vi.mocked(useNavigate).mockReturnValue(mockNavigate)
 
-        vi.mocked(listen).mockImplementation((_, handler: (event: TauriEvent<string>) => void) => {
-          handler({
-            event: 'deep-link-received',
-            windowLabel: 'main',
-            id: 1,
-            payload: 'algokit-lora://testnet',
-          })
-
-          return Promise.resolve({
-            then: () => {},
-            catch: () => {},
-          })
-        })
         await executeComponentTest(
           () => render(<LayoutPage />),
           async (component) => {
