@@ -28,6 +28,20 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
       scale: 2,
       onclone: (_, element) => {
         element.style.padding = '10px'
+        const ellipsisElements = element.querySelectorAll('[class*="ellipsis"]')
+        ellipsisElements.forEach((ellipsisElement) => {
+          if (ellipsisElement.textContent) {
+            const clientWidth = ellipsisElement.clientWidth
+            const scrollWidth = ellipsisElement.scrollWidth
+            if (scrollWidth > clientWidth) {
+              while (ellipsisElement.scrollWidth >= clientWidth) {
+                ellipsisElement.textContent = ellipsisElement.textContent.slice(0, -1)
+              }
+              const smallEllipsis = `<span style="font-size: 0.4em;">...</span>`
+              ellipsisElement.innerHTML = `${ellipsisElement.textContent}${smallEllipsis}`
+            }
+          }
+        })
       },
     })
     const dataUrl = canvas.toDataURL()
