@@ -203,7 +203,7 @@ export const useDeleteCustomNetworkConfig = () => {
 }
 
 const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
-export const selectedNetworkAtomId = atomWithRefresh((get) => {
+export const selectedNetworkAtomId = atomWithDefault((get) => {
   const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)
 
@@ -309,7 +309,7 @@ export const useSetSelectedNetwork = () => {
       }
       setStorageNetwork(selectedNetwork)
       // Refresh selected network atom value
-      settingsStore.set(selectedNetworkAtomId)
+      settingsStore.set(selectedNetworkAtomId, selectedNetwork)
     },
     [providers, setStorageNetwork]
   )
