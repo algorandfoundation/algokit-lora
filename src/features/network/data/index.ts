@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
+import { atomWithDefault, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId } from './types'

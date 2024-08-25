@@ -12,18 +12,13 @@ export function useDeepLink() {
   const handleDeepLink = useCallback(
     async (url: string | undefined) => {
       const options = parseDeepLink(url)
-      console.log(options)
       if (options) {
-        console.log('set network')
         await setSelectedNetwork(options.networkId)
         if (options.transactionId) {
           navigate(Urls.Explore.Transaction.ById.build({ transactionId: options.transactionId, networkId: options.networkId }))
         } else {
           const url = Urls.Index.build({})
-          console.log(url)
           navigate(url)
-          // navigate('/settings')
-          console.log('navigate to', url)
         }
       }
     },
@@ -44,7 +39,6 @@ export function useDeepLink() {
     }
     // On deep link event while the app is open
     const unlisten = listen('deep-link-received', (event) => {
-      console.log(event)
       handleDeepLink(event.payload as string)
     })
 
