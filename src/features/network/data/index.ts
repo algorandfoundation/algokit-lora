@@ -203,6 +203,7 @@ export const useDeleteCustomNetworkConfig = () => {
 }
 
 const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
+
 export const selectedNetworkAtomId = atomWithDefault((get) => {
   const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)

@@ -1,4 +1,5 @@
 use tauri::{AppHandle, Emitter, Manager};
+use tauri_plugin_cli::CliExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -8,6 +9,11 @@ pub fn run() {
         }))
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_cli::init())
+        .setup(|app| {
+            dbg!(std::env::args());
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

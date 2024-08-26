@@ -47,6 +47,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-table": "^8.16.0",
     "@tauri-apps/api": "^2.0.0-rc.0",
+    "@tauri-apps/plugin-cli": "^2.0.0-rc.0",
     "@tauri-apps/plugin-deep-link": "^2.0.0-rc.0",
     "@tauri-apps/plugin-shell": "^2.0.0-rc.0",
     "@txnlab/use-wallet": "2.8.2",

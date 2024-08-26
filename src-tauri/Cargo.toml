@@ -23,4 +23,5 @@ tauri-plugin-deep-link = "2.0.0-rc"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2.0.0-rc"
+tauri-plugin-cli = "2.0.0-rc"
 
