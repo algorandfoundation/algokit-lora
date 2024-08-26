@@ -7,16 +7,15 @@ import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
 
 const selectAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
 })
 
-type SelectAppSpecFormProps = {
-  onFileSelected: (file: File, appSpec: Arc32AppSpec) => void
-}
+export function SelectAppSpecForm() {
+  const [_, send] = useCreateAppInterfaceStateMachine()
 
-export function SelectAppSpecForm({ onFileSelected }: SelectAppSpecFormProps) {
   const onSubmit = useCallback(async (values: z.infer<typeof selectAppSpecFormSchema>) => {
     const appSpec = await readFileIntoAppSpec(values.file)
     return {
@@ -27,9 +26,9 @@ export function SelectAppSpecForm({ onFileSelected }: SelectAppSpecFormProps) {
 
   const onSuccess = useCallback(
     ({ file, appSpec }: { file: File; appSpec: Arc32AppSpec }) => {
-      onFileSelected(file, appSpec)
+      send({ type: 'file_selected', file, appSpec })
     },
-    [onFileSelected]
+    [send]
   )
 
   return (

@@ -12,11 +12,11 @@ import { Arc32AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
 
 type Props = {
+  className?: string
   appSpec: Arc32AppSpec
-  onSuccess: (appId: ApplicationId) => void
-  onCancel: () => void
 }
 
 // TODO: rethink z.union vs enum
@@ -29,7 +29,8 @@ const formSchema = zfd.formData({
   updatable: z.boolean().optional(),
 })
 
-export function DeployAppForm({ appSpec, onSuccess, onCancel }: Props) {
+export function DeployAppForm({ className, appSpec }: Props) {
+  const [_, send] = useCreateAppInterfaceStateMachine()
   const { signer, activeAccount } = useWallet()
 
   const save = useCallback(
@@ -81,6 +82,17 @@ export function DeployAppForm({ appSpec, onSuccess, onCancel }: Props) {
     ]
   )
 
+  const onSuccess = useCallback(
+    (appId: ApplicationId) => {
+      send({ type: 'new_app_created', applicationId: appId })
+    },
+    [send]
+  )
+
+  const onCancel = useCallback(() => {
+    send({ type: 'create_new_app_request_cancel' })
+  }, [send])
+
   return (
     <Form
       schema={formSchema}
@@ -95,6 +107,7 @@ export function DeployAppForm({ appSpec, onSuccess, onCancel }: Props) {
       defaultValues={{
         name: appSpec.contract.name,
       }}
+      className={className}
     >
       {(helper) => (
         <>
