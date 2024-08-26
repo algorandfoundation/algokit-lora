@@ -34,6 +34,7 @@ export function CreateAppInterfaceDialogBody({ onSuccess }: Props) {
   //   transitionToFormState({ applicationId: undefined, appSpecFile: currentState.appSpecFile, appSpec: currentState.appSpec })
   // }, [state, transitionToFormState])
 
+  // TODO: strongly type the state/context value
   return (
     <>
       {snapshot.value === 'upload_file' && <SelectAppSpecForm />}

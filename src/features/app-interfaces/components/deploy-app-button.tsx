@@ -3,7 +3,6 @@ import { deployAppLabel, deployToNetworkLabel } from '@/features/app-interfaces/
 import { ValidationErrorOrHelpMessage } from '@/features/forms/components/validation-error-or-help-message'
 import { useToggle } from '@/features/common/hooks/use-toggle'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
-import { useCallback } from 'react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { DeployAppForm } from '@/features/app-interfaces/components/deploy-app-form'
 import { Arc32AppSpec } from '../data/types'
@@ -16,16 +15,6 @@ type Props = {
 
 export function DeployAppButton({ appSpec, canDeploy, onSuccess: _onSuccess }: Props) {
   const { on, off, state: dialogOpen } = useToggle(false)
-  const onSuccess = useCallback(
-    (appId: ApplicationId) => {
-      off()
-      _onSuccess(appId)
-    },
-    [off, _onSuccess]
-  )
-  const onCancel = useCallback(() => {
-    off()
-  }, [off])
 
   return (
     <>
@@ -48,7 +37,7 @@ export function DeployAppButton({ appSpec, canDeploy, onSuccess: _onSuccess }: P
             <h2 className="pb-0">{deployAppLabel}</h2>
           </DialogHeader>
           <MediumSizeDialogBody>
-            <DeployAppForm appSpec={appSpec} onSuccess={onSuccess} onCancel={onCancel} />
+            <DeployAppForm appSpec={appSpec} />
           </MediumSizeDialogBody>
         </DialogContent>
       </Dialog>
