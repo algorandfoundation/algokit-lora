@@ -78,7 +78,7 @@ export const useCreateAppInterface = () => {
         )
         invariant(
           existingAppInterfaces.find((e) => e.name.toLowerCase() === name.toLowerCase()) === undefined,
-          `An app interface with the name "${name}" already exists`
+          `App interface "${name}" already exists, please choose a different name`
         )
 
         await set(getAppInterfaceAtom(applicationId), {

@@ -1,8 +1,8 @@
 import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
-import { ValidationErrorOrHelpMessage } from '@/features/forms/components/validation-error-or-help-message'
 import { useActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
 import { useMemo } from 'react'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 type Props = {
   disabled: boolean
@@ -15,8 +15,8 @@ export function DeployAppButton({ disabled, onClick }: Props) {
     return activeAccount && activeAccount.algoHolding.amount > 1000
   }, [activeAccount])
 
-  return (
-    <div className="grid">
+  const button = useMemo(
+    () => (
       <Button
         type="button"
         variant="secondary"
@@ -27,7 +27,23 @@ export function DeployAppButton({ disabled, onClick }: Props) {
       >
         {deployToNetworkLabel}
       </Button>
-      {!hasValidAccount && <ValidationErrorOrHelpMessage errorText="Please connect a wallet with min 0.001 ALGO" />}
+    ),
+    [disabled, hasValidAccount, onClick]
+  )
+
+  return (
+    <div className="grid">
+      {hasValidAccount && button}
+      {!hasValidAccount && (
+        <Tooltip delayDuration={400}>
+          <TooltipTrigger asChild>
+            <div tabIndex={0}>{button}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span>Please connect a wallet with min 0.001 ALGO</span>
+          </TooltipContent>
+        </Tooltip>
+      )}
     </div>
   )
 }

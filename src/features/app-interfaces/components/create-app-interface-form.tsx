@@ -16,7 +16,7 @@ import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
   name: zfd.text(),
-  applicationId: zfd.numeric(),
+  applicationId: zfd.numeric(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
 })
 
 type Props = {
