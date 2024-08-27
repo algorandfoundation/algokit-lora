@@ -1,6 +1,6 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { algorandClient } from '@/features/common/data/algo-client'
-import { atomWithRefresh } from 'jotai/utils'
+import { atomWithRefresh, loadable } from 'jotai/utils'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet-account'
 import { Address } from '@/features/accounts/data/types'
 import { useEffect } from 'react'
@@ -39,6 +39,6 @@ export const getActiveWalletAccount = async (address: string) => {
   } satisfies ActiveWalletAccount
 }
 
-export const useActiveWalletAccount = () => {
-  return useAtomValue(activeWalletAccountAtom)
+export const useLoadableActiveWalletAccount = () => {
+  return useAtomValue(loadable(activeWalletAccountAtom))
 }

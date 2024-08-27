@@ -11,7 +11,7 @@ import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
-import { useActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
+import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
 import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
@@ -86,9 +86,9 @@ function FormInner({ helper }: FormInnerProps) {
   const { getValues, control } = useFormContext<z.infer<typeof formSchema>>()
   const appId = useWatch({ name: 'applicationId', control })
 
-  const activeAccount = useActiveWalletAccount()
+  const activeAccount = useLoadableActiveWalletAccount()
   const hasValidAccount = useMemo(() => {
-    return activeAccount && activeAccount.algoHolding.amount > 1000
+    return activeAccount.state === 'hasData' && activeAccount.data && activeAccount.data.algoHolding.amount > 1000
   }, [activeAccount])
 
   const onDeployButtonClick = useCallback(() => {
