@@ -44,11 +44,11 @@ export function AssetOptInOutButton({ asset }: { asset: Asset }) {
         else {
           const { reason, button } = !status.hasActiveAccount
             ? {
-                reason: 'Please connect a wallet with min 0.001 ALGO',
+                reason: 'Please connect a wallet with min 0.101 ALGO',
                 button: <OptInButton disabled={true} />,
               }
             : {
-                reason: 'Please make sure the holding balance of this asset is 0',
+                reason: 'Please ensure the holding balance of this asset is 0',
                 button: <OptOutButton disabled={true} />,
               }
 

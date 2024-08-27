@@ -12,7 +12,7 @@ import { Arc32AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 
 type Props = {
   className?: string

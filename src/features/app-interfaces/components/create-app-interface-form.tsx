@@ -10,7 +10,7 @@ import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app-button'
 
 const formSchema = zfd.formData({

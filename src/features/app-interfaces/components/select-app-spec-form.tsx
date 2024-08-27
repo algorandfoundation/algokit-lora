@@ -7,7 +7,7 @@ import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec } from '@/features/abi-methods/mappers'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 
 const selectAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),

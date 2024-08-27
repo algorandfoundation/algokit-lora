@@ -1,7 +1,7 @@
 import { SelectAppSpecForm } from '@/features/app-interfaces/components/select-app-spec-form'
 import { CreateAppInterfaceForm } from '@/features/app-interfaces/components/create-app-interface-form'
 import { DeployAppForm } from './deploy-app-form'
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 
 type Props = {
   onSuccess: () => void
