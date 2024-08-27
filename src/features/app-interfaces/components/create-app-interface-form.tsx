@@ -8,9 +8,8 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { toast } from 'react-toastify'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
-import { useActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
 import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app-button'
 
@@ -55,43 +54,37 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   )
 
   return (
-    <Form
-      schema={createAppInterfaceFormSchema}
-      onSubmit={save}
-      onSuccess={onSuccess}
-      defaultValues={defaultValues}
-      formAction={
-        <FormActions>
-          <CancelButton onClick={onSuccess} className="w-28" />
-          <SubmitButton className="w-28">Create</SubmitButton>
-        </FormActions>
-      }
-    >
-      {(helper) => <FormInner helper={helper} />}
-    </Form>
+    <div className="duration-300 animate-in fade-in-20">
+      <Form
+        schema={createAppInterfaceFormSchema}
+        onSubmit={save}
+        onSuccess={onSuccess}
+        defaultValues={defaultValues}
+        formAction={
+          <FormActions>
+            <CancelButton onClick={onSuccess} className="w-28" />
+            <SubmitButton className="w-28">Create</SubmitButton>
+          </FormActions>
+        }
+      >
+        {(helper) => <FormInner helper={helper} />}
+      </Form>
+    </div>
   )
 }
+
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof createAppInterfaceFormSchema>>
 }
 
 function FormInner({ helper }: FormInnerProps) {
-  const [snapshot, send] = useCreateAppInterfaceStateMachine()
-  const { getValues } = useFormContext<z.infer<typeof createAppInterfaceFormSchema>>()
-  const activeAccount = useActiveWalletAccount()
-
-  const canDeploy = useMemo(() => {
-    const result = activeAccount && activeAccount.algoHolding.amount > 1000
-    return Boolean(result)
-  }, [activeAccount])
-
-  const alreadyDeployed = useMemo(() => {
-    return Boolean(snapshot.context.appDeployed)
-  }, [snapshot.context.appDeployed])
+  const [_, send] = useCreateAppInterfaceStateMachine()
+  const { getValues, control } = useFormContext<z.infer<typeof createAppInterfaceFormSchema>>()
+  const appId = useWatch({ name: 'applicationId', control })
 
   const onDeployButtonClick = useCallback(() => {
     const values = getValues()
-    send({ type: 'create_new_app_requested', name: values.name, applicationId: values.applicationId })
+    send({ type: 'deployAppRequested', name: values.name, applicationId: values.applicationId })
   }, [getValues, send])
 
   return (
@@ -110,7 +103,7 @@ function FormInner({ helper }: FormInnerProps) {
           label: 'Application ID',
         })}
         <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
-        <DeployAppButton canDeploy={canDeploy} alreadyDeployed={alreadyDeployed} onClick={onDeployButtonClick} />
+        <DeployAppButton disabled={Boolean(appId)} onClick={onDeployButtonClick} />
       </div>
     </>
   )

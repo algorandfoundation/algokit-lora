@@ -12,11 +12,11 @@ export function CreateAppInterfaceDialogBody({ onSuccess }: Props) {
 
   return (
     <>
-      {snapshot.value === 'upload_file' && <SelectAppSpecForm />}
-      {snapshot.value === 'form' && snapshot.context.appSpec && snapshot.context.file && (
+      {snapshot.value === 'selectAppSpec' && <SelectAppSpecForm />}
+      {snapshot.value === 'createAppInterface' && snapshot.context.appSpec && snapshot.context.file && (
         <CreateAppInterfaceForm appSpec={snapshot.context.appSpec} appSpecFile={snapshot.context.file} onSuccess={onSuccess} />
       )}
-      {snapshot.value === 'deploy_app' && snapshot.context.appSpec && <DeployAppForm appSpec={snapshot.context.appSpec} />}
+      {snapshot.value === 'deployApp' && snapshot.context.appSpec && <DeployAppForm appSpec={snapshot.context.appSpec} />}
     </>
   )
 }

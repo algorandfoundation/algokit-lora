@@ -26,7 +26,7 @@ export function SelectAppSpecForm() {
 
   const onSuccess = useCallback(
     ({ file, appSpec }: { file: File; appSpec: Arc32AppSpec }) => {
-      send({ type: 'file_selected', file, appSpec })
+      send({ type: 'fileSelected', file, appSpec })
     },
     [send]
   )

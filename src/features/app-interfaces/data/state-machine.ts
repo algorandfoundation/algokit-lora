@@ -14,23 +14,22 @@ const createMachine = () =>
         applicationId?: ApplicationId
         roundFirstValid?: number
         roundLastValid?: number
-        appDeployed?: boolean
       },
       events: {} as
-        | { type: 'file_selected'; file: File; appSpec: Arc32AppSpec }
-        | { type: 'create_new_app_requested'; name?: string; applicationId?: ApplicationId }
-        | { type: 'new_app_created'; applicationId: ApplicationId }
-        | { type: 'create_new_app_request_cancel' },
+        | { type: 'fileSelected'; file: File; appSpec: Arc32AppSpec }
+        | { type: 'deployAppRequested'; name?: string; applicationId?: ApplicationId }
+        | { type: 'deployAppCompleted'; applicationId: ApplicationId }
+        | { type: 'deployAppCancelled' },
     },
   }).createMachine({
     id: 'createAppInterface',
-    initial: 'upload_file',
+    initial: 'selectAppSpec',
     context: {},
     states: {
-      upload_file: {
+      selectAppSpec: {
         on: {
-          file_selected: {
-            target: 'form',
+          fileSelected: {
+            target: 'createAppInterface',
             actions: assign({
               file: ({ event }) => event.file,
               appSpec: ({ event }) => event.appSpec,
@@ -38,10 +37,10 @@ const createMachine = () =>
           },
         },
       },
-      form: {
+      createAppInterface: {
         on: {
-          create_new_app_requested: {
-            target: 'deploy_app',
+          deployAppRequested: {
+            target: 'deployApp',
             actions: assign({
               name: ({ context, event }) => (event.name != null ? event.name : context.name),
               applicationId: ({ context, event }) => (event.applicationId != null ? event.applicationId : context.applicationId),
@@ -49,21 +48,20 @@ const createMachine = () =>
           },
         },
       },
-      deploy_app: {
+      deployApp: {
         on: {
-          new_app_created: {
-            target: 'form',
-            actions: assign({ applicationId: ({ event }) => event.applicationId, appDeployed: true }),
+          deployAppCompleted: {
+            target: 'createAppInterface',
+            actions: assign({ applicationId: ({ event }) => event.applicationId }),
           },
-          create_new_app_request_cancel: {
-            target: 'form',
+          deployAppCancelled: {
+            target: 'createAppInterface',
           },
         },
       },
     },
   })
 
-// TODO: change to camelCase
 const createAppInterfaceMachineAtom = atomWithMachine(() => createMachine())
 
 export const useCreateAppInterfaceStateMachine = () => {

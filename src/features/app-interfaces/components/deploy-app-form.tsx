@@ -19,7 +19,6 @@ type Props = {
   appSpec: Arc32AppSpec
 }
 
-// TODO: rethink z.union vs enum
 const formSchema = zfd.formData({
   name: zfd.text(),
   version: zfd.text(),
@@ -44,30 +43,25 @@ export function DeployAppForm({ className, appSpec }: Props) {
         signer,
       }
 
-      const deployAppResult = await deployApp(
-        {
-          from: signerAccount,
-          approvalProgram: base64ToUtf8(appSpec.source.approval),
-          clearStateProgram: base64ToUtf8(appSpec.source.clear),
-          schema: {
-            localInts: appSpec.state.local.num_uints,
-            localByteSlices: appSpec.state.local.num_byte_slices,
-            globalInts: appSpec.state.global.num_uints,
-            globalByteSlices: appSpec.state.global.num_byte_slices,
-          },
-          metadata: {
-            name: values.name,
-            version: values.version,
-          },
-          onUpdate: values.onUpdate,
-          onSchemaBreak: values.onSchemaBreak,
+      const request = {
+        from: signerAccount,
+        approvalProgram: base64ToUtf8(appSpec.source.approval),
+        clearStateProgram: base64ToUtf8(appSpec.source.clear),
+        schema: {
+          localInts: appSpec.state.local.num_uints,
+          localByteSlices: appSpec.state.local.num_byte_slices,
+          globalInts: appSpec.state.global.num_uints,
+          globalByteSlices: appSpec.state.global.num_byte_slices,
         },
-        algod,
-        indexer
-      )
-      // TODO: handle operationPerformed
-      console.log(deployAppResult)
-      // TODO: bigint?
+        metadata: {
+          name: values.name,
+          version: values.version,
+        },
+        onUpdate: values.onUpdate,
+        onSchemaBreak: values.onSchemaBreak,
+      }
+
+      const deployAppResult = await deployApp(request, algod, indexer)
       return Number(deployAppResult.appId)
     },
     [
@@ -84,71 +78,84 @@ export function DeployAppForm({ className, appSpec }: Props) {
 
   const onSuccess = useCallback(
     (appId: ApplicationId) => {
-      send({ type: 'new_app_created', applicationId: appId })
+      send({ type: 'deployAppCompleted', applicationId: appId })
     },
     [send]
   )
 
   const onCancel = useCallback(() => {
-    send({ type: 'create_new_app_request_cancel' })
+    send({ type: 'deployAppCancelled' })
   }, [send])
 
   return (
-    <Form
-      schema={formSchema}
-      onSubmit={save}
-      onSuccess={onSuccess}
-      formAction={
-        <FormActions>
-          <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Deploy</SubmitButton>
-        </FormActions>
-      }
-      defaultValues={{
-        name: appSpec.contract.name,
-      }}
-      className={className}
-    >
-      {(helper) => (
-        <>
-          {helper.textField({
-            field: 'name',
-            label: 'Name',
-          })}
-          {helper.textField({
-            field: 'version',
-            label: 'Version',
-            placeholder: '1.0.0',
-          })}
-          {helper.selectField({
-            field: 'onUpdate',
-            label: 'On Update',
-            options: [
-              { value: 'fail', label: 'Fail' },
-              { value: 'update', label: 'Update App' },
-              { value: 'replace', label: 'Replace App' },
-              { value: 'append', label: 'Append App' },
-            ],
-          })}
-          {helper.selectField({
-            field: 'onSchemaBreak',
-            label: 'On Schema Break',
-            options: [
-              { value: 'fail', label: 'Fail' },
-              { value: 'replace', label: 'Replace App' },
-              { value: 'append', label: 'Append App' },
-            ],
-          })}
-          {helper.checkboxField({
-            field: 'deletable',
-            label: 'Deletable',
-          })}
-          {helper.checkboxField({
-            field: 'updatable',
-            label: 'Updatable',
-          })}
-        </>
-      )}
-    </Form>
+    <div className="duration-300 animate-in fade-in-20">
+      <p className="mb-4">
+        <a
+          href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#deployapp"
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary underline"
+        >
+          Learn more
+        </a>
+        &nbsp;about deploying an app.
+      </p>
+      <Form
+        schema={formSchema}
+        onSubmit={save}
+        onSuccess={onSuccess}
+        formAction={
+          <FormActions>
+            <CancelButton onClick={onCancel} className="w-28" />
+            <SubmitButton className="w-28">Deploy</SubmitButton>
+          </FormActions>
+        }
+        defaultValues={{
+          name: appSpec.contract.name,
+        }}
+        className={className}
+      >
+        {(helper) => (
+          <>
+            {helper.textField({
+              field: 'name',
+              label: 'Name',
+            })}
+            {helper.textField({
+              field: 'version',
+              label: 'Version',
+              placeholder: '1.0.0',
+            })}
+            {helper.selectField({
+              field: 'onUpdate',
+              label: 'On Update',
+              options: [
+                { value: 'fail', label: 'Fail' },
+                { value: 'update', label: 'Update App' },
+                { value: 'replace', label: 'Replace App' },
+                { value: 'append', label: 'Append App' },
+              ],
+            })}
+            {helper.selectField({
+              field: 'onSchemaBreak',
+              label: 'On Schema Break',
+              options: [
+                { value: 'fail', label: 'Fail' },
+                { value: 'replace', label: 'Replace App' },
+                { value: 'append', label: 'Append App' },
+              ],
+            })}
+            {helper.checkboxField({
+              field: 'deletable',
+              label: 'Deletable',
+            })}
+            {helper.checkboxField({
+              field: 'updatable',
+              label: 'Updatable',
+            })}
+          </>
+        )}
+      </Form>
+    </div>
   )
 }
