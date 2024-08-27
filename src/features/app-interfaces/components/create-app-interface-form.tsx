@@ -97,16 +97,16 @@ function FormInner({ helper }: FormInnerProps) {
   }, [getValues, send])
 
   const { deployButtonDisabled, reason } = useMemo(() => {
-    if (!hasValidAccount) {
-      return {
-        deployButtonDisabled: true,
-        reason: 'Please connect a wallet with min 0.001 ALGO',
-      }
-    }
     if (appId) {
       return {
         deployButtonDisabled: true,
         reason: 'The application ID field is already set',
+      }
+    }
+    if (!hasValidAccount) {
+      return {
+        deployButtonDisabled: true,
+        reason: 'Please connect a wallet with min 0.001 ALGO',
       }
     }
     return {
