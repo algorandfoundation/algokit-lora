@@ -1,6 +1,6 @@
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -9,10 +9,10 @@ import { toast } from 'react-toastify'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { useActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
-import { Button } from '@/features/common/components/button'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
+import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app-button'
 
 export const createAppInterfaceFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -20,16 +20,15 @@ export const createAppInterfaceFormSchema = zfd.formData({
   applicationId: zfd.numeric(),
 })
 
-// TODO: I think we need to do something with the default values
 type Props = {
-  className?: string
   appSpecFile: File
   appSpec: Arc32AppSpec
   onSuccess: () => void
 }
 
-export function CreateAppInterfaceForm({ className, appSpecFile, appSpec, onSuccess }: Props) {
+export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
   const createAppInterface = useCreateAppInterface()
+  const [snapshot] = useCreateAppInterfaceStateMachine()
 
   const save = useCallback(
     async (values: z.infer<typeof createAppInterfaceFormSchema>) => {
@@ -46,22 +45,27 @@ export function CreateAppInterfaceForm({ className, appSpecFile, appSpec, onSucc
     [appSpec, createAppInterface]
   )
 
+  const defaultValues = useMemo(
+    () => ({
+      file: appSpecFile,
+      name: snapshot.context.name ?? appSpec.contract.name,
+      applicationId: snapshot.context.applicationId,
+    }),
+    [appSpec.contract.name, appSpecFile, snapshot.context.applicationId, snapshot.context.name]
+  )
+
   return (
     <Form
       schema={createAppInterfaceFormSchema}
       onSubmit={save}
       onSuccess={onSuccess}
-      defaultValues={{
-        file: appSpecFile,
-        name: appSpec.contract.name,
-      }}
+      defaultValues={defaultValues}
       formAction={
         <FormActions>
           <CancelButton onClick={onSuccess} className="w-28" />
           <SubmitButton className="w-28">Create</SubmitButton>
         </FormActions>
       }
-      className={className}
     >
       {(helper) => <FormInner helper={helper} />}
     </Form>
@@ -73,7 +77,7 @@ type FormInnerProps = {
 
 function FormInner({ helper }: FormInnerProps) {
   const [snapshot, send] = useCreateAppInterfaceStateMachine()
-  const { setValue, getValues } = useFormContext<z.infer<typeof createAppInterfaceFormSchema>>()
+  const { getValues } = useFormContext<z.infer<typeof createAppInterfaceFormSchema>>()
   const activeAccount = useActiveWalletAccount()
 
   const canDeploy = useMemo(() => {
@@ -81,14 +85,12 @@ function FormInner({ helper }: FormInnerProps) {
     return Boolean(result)
   }, [activeAccount])
 
-  useEffect(() => {
-    if (snapshot.context.name) setValue('name', snapshot.context.name)
-    if (snapshot.context.applicationId) setValue('applicationId', snapshot.context.applicationId)
-  }, [snapshot.context.name, snapshot.context.applicationId, setValue])
+  const alreadyDeployed = useMemo(() => {
+    return Boolean(snapshot.context.appDeployed)
+  }, [snapshot.context.appDeployed])
 
-  const foo = useCallback(() => {
+  const onDeployButtonClick = useCallback(() => {
     const values = getValues()
-    // TODO: these values could be undefined
     send({ type: 'create_new_app_requested', name: values.name, applicationId: values.applicationId })
   }, [getValues, send])
 
@@ -108,9 +110,7 @@ function FormInner({ helper }: FormInnerProps) {
           label: 'Application ID',
         })}
         <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
-        <Button disabled={!canDeploy} onClick={foo}>
-          Deploy App
-        </Button>
+        <DeployAppButton canDeploy={canDeploy} alreadyDeployed={alreadyDeployed} onClick={onDeployButtonClick} />
       </div>
     </>
   )
