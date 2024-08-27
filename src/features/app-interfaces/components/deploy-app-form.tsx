@@ -43,25 +43,29 @@ export function DeployAppForm({ className, appSpec }: Props) {
         signer,
       }
 
-      const request = {
-        from: signerAccount,
-        approvalProgram: base64ToUtf8(appSpec.source.approval),
-        clearStateProgram: base64ToUtf8(appSpec.source.clear),
-        schema: {
-          localInts: appSpec.state.local.num_uints,
-          localByteSlices: appSpec.state.local.num_byte_slices,
-          globalInts: appSpec.state.global.num_uints,
-          globalByteSlices: appSpec.state.global.num_byte_slices,
+      const deployAppResult = await deployApp(
+        {
+          from: signerAccount,
+          approvalProgram: base64ToUtf8(appSpec.source.approval),
+          clearStateProgram: base64ToUtf8(appSpec.source.clear),
+          schema: {
+            localInts: appSpec.state.local.num_uints,
+            localByteSlices: appSpec.state.local.num_byte_slices,
+            globalInts: appSpec.state.global.num_uints,
+            globalByteSlices: appSpec.state.global.num_byte_slices,
+          },
+          metadata: {
+            name: values.name,
+            version: values.version,
+            deletable: values.deletable,
+            updatable: values.updatable,
+          },
+          onUpdate: values.onUpdate,
+          onSchemaBreak: values.onSchemaBreak,
         },
-        metadata: {
-          name: values.name,
-          version: values.version,
-        },
-        onUpdate: values.onUpdate,
-        onSchemaBreak: values.onSchemaBreak,
-      }
-
-      const deployAppResult = await deployApp(request, algod, indexer)
+        algod,
+        indexer
+      )
       return Number(deployAppResult.appId)
     },
     [
@@ -93,7 +97,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
         <a
           href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#deployapp"
           target="_blank"
-          rel="noreferrer"
+          rel="nofollow"
           className="text-primary underline"
         >
           Learn more

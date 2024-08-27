@@ -12,8 +12,7 @@ type Props = {
 export function DeployAppButton({ disabled, onClick }: Props) {
   const activeAccount = useActiveWalletAccount()
   const hasValidAccount = useMemo(() => {
-    const result = activeAccount && activeAccount.algoHolding.amount > 1000
-    return Boolean(result)
+    return activeAccount && activeAccount.algoHolding.amount > 1000
   }, [activeAccount])
 
   return (

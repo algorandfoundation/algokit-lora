@@ -13,7 +13,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/state-machine'
 import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app-button'
 
-export const createAppInterfaceFormSchema = zfd.formData({
+const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
   name: zfd.text(),
   applicationId: zfd.numeric(),
@@ -30,7 +30,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   const [snapshot] = useCreateAppInterfaceStateMachine()
 
   const save = useCallback(
-    async (values: z.infer<typeof createAppInterfaceFormSchema>) => {
+    async (values: z.infer<typeof formSchema>) => {
       await createAppInterface({
         name: values.name,
         standard: 'ARC-32',
@@ -56,7 +56,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   return (
     <div className="duration-300 animate-in fade-in-20">
       <Form
-        schema={createAppInterfaceFormSchema}
+        schema={formSchema}
         onSubmit={save}
         onSuccess={onSuccess}
         defaultValues={defaultValues}
@@ -74,12 +74,12 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
 }
 
 type FormInnerProps = {
-  helper: FormFieldHelper<z.infer<typeof createAppInterfaceFormSchema>>
+  helper: FormFieldHelper<z.infer<typeof formSchema>>
 }
 
 function FormInner({ helper }: FormInnerProps) {
   const [_, send] = useCreateAppInterfaceStateMachine()
-  const { getValues, control } = useFormContext<z.infer<typeof createAppInterfaceFormSchema>>()
+  const { getValues, control } = useFormContext<z.infer<typeof formSchema>>()
   const appId = useWatch({ name: 'applicationId', control })
 
   const onDeployButtonClick = useCallback(() => {
