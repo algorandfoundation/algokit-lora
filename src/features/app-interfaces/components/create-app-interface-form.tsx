@@ -11,7 +11,10 @@ import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
-import { DeployAppButton } from '@/features/app-interfaces/components/deploy-app-button'
+import { useActiveWalletAccount } from '@/features/wallet/data/active-wallet-account'
+import { Button } from '@/features/common/components/button'
+import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -79,13 +82,54 @@ type FormInnerProps = {
 
 function FormInner({ helper }: FormInnerProps) {
   const [_, send] = useCreateAppInterfaceStateMachine()
+
   const { getValues, control } = useFormContext<z.infer<typeof formSchema>>()
   const appId = useWatch({ name: 'applicationId', control })
+
+  const activeAccount = useActiveWalletAccount()
+  const hasValidAccount = useMemo(() => {
+    return activeAccount && activeAccount.algoHolding.amount > 1000
+  }, [activeAccount])
 
   const onDeployButtonClick = useCallback(() => {
     const values = getValues()
     send({ type: 'deployAppRequested', name: values.name, applicationId: values.applicationId })
   }, [getValues, send])
+
+  const { deployButtonDisabled, reason } = useMemo(() => {
+    if (!hasValidAccount) {
+      return {
+        deployButtonDisabled: true,
+        reason: 'Please connect a wallet with min 0.001 ALGO',
+      }
+    }
+    if (appId) {
+      return {
+        deployButtonDisabled: true,
+        reason: 'The application ID field is already set',
+      }
+    }
+    return {
+      deployButtonDisabled: false,
+      reason: undefined,
+    }
+  }, [appId, hasValidAccount])
+
+  const deployButton = useMemo(
+    () => (
+      <Button
+        type="button"
+        variant="outline-secondary"
+        disabled={!hasValidAccount || Boolean(appId)}
+        className="w-fit "
+        aria-label={deployToNetworkLabel}
+        onClick={onDeployButtonClick}
+      >
+        {deployToNetworkLabel}
+      </Button>
+    ),
+    [appId, hasValidAccount, onDeployButtonClick]
+  )
 
   return (
     <>
@@ -103,7 +147,19 @@ function FormInner({ helper }: FormInnerProps) {
           label: 'Application ID',
         })}
         <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
-        <DeployAppButton disabled={Boolean(appId)} onClick={onDeployButtonClick} />
+        <div className="grid sm:mt-[1.375rem]">
+          {!deployButtonDisabled && deployButton}
+          {deployButtonDisabled && (
+            <Tooltip delayDuration={400}>
+              <TooltipTrigger asChild>
+                <div tabIndex={0}>{deployButton}</div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <span>{reason}</span>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
       </div>
     </>
   )
