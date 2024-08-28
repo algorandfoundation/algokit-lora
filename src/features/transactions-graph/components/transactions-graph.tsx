@@ -31,6 +31,20 @@ export function TransactionsGraph({ transactionsGraphData, transaction, group }:
       scale: 2,
       onclone: (_, element) => {
         element.style.padding = '10px'
+
+        if (transaction) {
+          const transactionInfo = document.createElement('div')
+          transactionInfo.className = 'w-max'
+          transactionInfo.textContent = `Transaction ID: ${transaction.id}`
+          element.prepend(transactionInfo)
+        }
+
+        if (group) {
+          const groupInfo = document.createElement('div')
+          groupInfo.innerHTML = `Group ID: ${group.id}<br>Round: ${group.round}`
+          element.prepend(groupInfo)
+        }
+
         const ellipsisElements = element.querySelectorAll('[class*="ellipsis"]')
         ellipsisElements.forEach((ellipsisElement) => {
           if (ellipsisElement.textContent) {
@@ -57,14 +71,6 @@ export function TransactionsGraph({ transactionsGraphData, transaction, group }:
   return (
     <>
       <div className="w-min bg-card" ref={visualRef} aria-label="Visual representation of transactions">
-        {transaction && <div className="w-max">{`Transaction ID: ${transaction.id}`}</div>}
-        {group && (
-          <div>
-            Group ID: {group.id}
-            <br />
-            Round: {group.round}
-          </div>
-        )}
         <div
           className={cn('relative grid')}
           style={{
