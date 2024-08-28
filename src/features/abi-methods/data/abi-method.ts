@@ -190,7 +190,8 @@ const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolea
     transaction['tx-type'] === TransactionType.appl &&
     transaction['application-transaction'] !== undefined &&
     transaction['confirmed-round'] !== undefined &&
-    transaction['application-transaction']?.['application-args'] !== undefined &&
+    Boolean(transaction['application-transaction']['application-id']) &&
+    transaction['application-transaction']['application-args'] !== undefined &&
     transaction['application-transaction']['application-args'].length > 0 &&
     base64ToBytes(transaction['application-transaction']['application-args'][0]).length === 4
   )
