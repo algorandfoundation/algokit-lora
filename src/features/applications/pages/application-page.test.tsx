@@ -32,6 +32,7 @@ import { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
+import { genesisHashAtom } from '@/features/blocks/data'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -81,6 +82,8 @@ describe('application-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
@@ -194,6 +197,8 @@ describe('application-page', () => {
 
     it('should be rendered with the correct app name', () => {
       const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
@@ -226,6 +231,8 @@ describe('application-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))

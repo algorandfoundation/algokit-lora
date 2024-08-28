@@ -48,5 +48,3 @@ export type ApplicationBox = {
   name: string
   value: string
 }
-
-export * from './abi-methods'
