@@ -23,16 +23,14 @@ export function CreateAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
         Create
       </Button>
       <Dialog open={dialogOpen} onOpenChange={(open) => (open ? on() : off())} modal={true}>
-        {dialogOpen && (
-          <DialogContent className="bg-card">
-            <DialogHeader className="flex-row items-center space-y-0">
-              <h2 className="pb-0">{createAppInterfaceLabel}</h2>
-            </DialogHeader>
-            <MediumSizeDialogBody>
-              <CreateAppInterfaceDialogBody onSuccess={onSuccess} />
-            </MediumSizeDialogBody>
-          </DialogContent>
-        )}
+        <DialogContent className="bg-card">
+          <DialogHeader className="flex-row items-center space-y-0">
+            <h2 className="pb-0">{createAppInterfaceLabel}</h2>
+          </DialogHeader>
+          <MediumSizeDialogBody>
+            <CreateAppInterfaceDialogBody onSuccess={onSuccess} />
+          </MediumSizeDialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   )
