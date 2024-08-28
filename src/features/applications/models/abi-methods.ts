@@ -1,18 +1,5 @@
 import { AbiType } from '@/features/abi-methods/models'
 
-export type AppInterface = {
-  applicationId: number
-  name: string
-  appSpecs: AppSpec[]
-}
-
-export type AppSpec = {
-  standard: 'ARC-32'
-  roundFirstValid?: number
-  roundLastValid?: number
-  abiMethods: AbiMethodDefinition[]
-}
-
 export type AbiTupleDefinition = { type: AbiType.Tuple; childTypes: AbiTypeDefinition[] }
 export type AbiArrayDefinition = { type: AbiType.Array; childType: AbiTypeDefinition }
 export type AbiTypeDefinition =
@@ -36,9 +23,9 @@ export type AbiReferenceTypeDefinition = { type: AbiType.Account } | { type: Abi
 export type AbiTransactionTypeDefinition = { type: AbiType.Transaction }
 
 export type AbiMethodArgumentDefinition =
-  | ({ name: string } & AbiTypeDefinition)
-  | ({ name: string } & AbiReferenceTypeDefinition)
-  | ({ name: string } & AbiTransactionTypeDefinition)
+  | ({ name?: string; description?: string } & AbiTypeDefinition)
+  | ({ name?: string; description?: string } & AbiReferenceTypeDefinition)
+  | ({ name?: string; description?: string } & AbiTransactionTypeDefinition)
 
 export type AbiMethodReturnDefinition = AbiTypeDefinition | 'void'
 

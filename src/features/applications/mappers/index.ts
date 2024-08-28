@@ -1,5 +1,5 @@
 import { Application, ApplicationGlobalStateType, ApplicationGlobalStateValue, ApplicationSummary } from '../models'
-import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
+import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
@@ -11,7 +11,11 @@ export const asApplicationSummary = (application: ApplicationResult): Applicatio
   }
 }
 
-export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult): Application => {
+export const asApplication = (
+  application: ApplicationResult,
+  metadata: ApplicationMetadataResult,
+  abiMethods: algosdk.ABIMethod[]
+): Application => {
   return {
     id: application.id,
     name: metadata?.name,
@@ -34,6 +38,7 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
     globalState: asGlobalStateValue(application.params['global-state']),
     isDeleted: application.deleted ?? false,
     json: asJson(application),
+    abiMethods,
   }
 }
 
@@ -89,3 +94,38 @@ const getValue = (bytes: string) => {
     }
   }
 }
+//
+// export const asAbiMethodDefinition = (abiMethod: algosdk.ABIMethod): AbiMethodDefinition => {
+//   const arguments = abiMethod.args.map((arg) => ({
+//     name: arg.name,
+//     type: arg.type,
+//   }))
+// }
+//
+// const asAbiMethodArgumentDefinition = (arg: algosdk.ABIMethod['args'][0]): AbiMethodArgumentDefinition => {
+//   if (algosdk.abiTypeIsTransaction(arg.type)) {
+//     return {
+//       name: arg.name,
+//       description: arg.description,
+//       type: AbiType.Transaction,
+//     }
+//   }
+//
+//   if (algosdk.abiTypeIsReference(arg.type)) {
+//     const map: Record<string, AbiType> = {
+//       asset: AbiType.Asset,
+//       account: AbiType.Account,
+//       application: AbiType.Application,
+//     }
+//     return {
+//       name: arg.name,
+//       description: arg.description,
+//       type: map[arg.type],
+//     }
+//   }
+//
+//
+// }
+//
+//
+// const foo = (arg: algosdk.ABIArgumentType): AbiMethodArgumentDefinition => {

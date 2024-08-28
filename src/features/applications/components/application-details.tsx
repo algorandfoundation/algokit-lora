@@ -36,6 +36,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { ApplicationAbiMethods } from '@/features/applications/components/application-abi-methods'
 
 type Props = {
   application: Application
@@ -119,6 +120,14 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
+      {application.abiMethods.length > 0 && (
+        <Card aria-label="abi-methods">
+          <CardContent className={cn('space-y-1')}>
+            <h2>ABI Methods</h2>
+            <ApplicationAbiMethods application={application} />
+          </CardContent>
+        </Card>
+      )}
       <Card aria-label={applicationApprovalProgramLabel}>
         <CardContent className={cn('space-y-1')}>
           <h2>{applicationApprovalProgramLabel}</h2>
