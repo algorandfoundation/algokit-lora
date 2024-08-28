@@ -6,7 +6,7 @@ import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { toast } from 'react-toastify'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -24,8 +24,31 @@ const formSchema = zfd.formData({
 
 type Props = {
   appSpecFile: File
-  appSpec: Arc32AppSpec
+  appSpec: Arc32AppSpec | Arc4AppSpec
   onSuccess: () => void
+}
+
+export function isArc32AppSpec(appSpec: Arc32AppSpec | Arc4AppSpec): appSpec is Arc32AppSpec {
+  return (
+    appSpec !== null &&
+    typeof appSpec === 'object' &&
+    'source' in appSpec &&
+    'contract' in appSpec &&
+    'schema' in appSpec &&
+    'state' in appSpec
+  )
+}
+
+export function isArc4AppSpec(appSpec: Arc32AppSpec | Arc4AppSpec): appSpec is Arc4AppSpec {
+  // Check for properties specific to Arc4AppSpec
+  return (
+    appSpec !== null &&
+    typeof appSpec === 'object' &&
+    'methods' in appSpec &&
+    Array.isArray(appSpec.methods) &&
+    appSpec.methods.length > 0 &&
+    typeof appSpec.methods[0] === 'object'
+  )
 }
 
 export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
@@ -34,14 +57,28 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
 
   const save = useCallback(
     async (values: z.infer<typeof formSchema>) => {
-      await createAppInterface({
-        name: values.name,
-        standard: 'ARC-32',
-        appSpec: appSpec,
-        roundFirstValid: undefined,
-        roundLastValid: undefined,
-        applicationId: values.applicationId,
-      })
+      if (isArc32AppSpec(appSpec)) {
+        await createAppInterface({
+          applicationId: values.applicationId,
+          name: values.name,
+          appSpec: appSpec as Arc32AppSpec,
+          roundFirstValid: undefined,
+          roundLastValid: undefined,
+          standard: AppSpecStandard.ARC32,
+        })
+      } else if (isArc4AppSpec(appSpec)) {
+        await createAppInterface({
+          applicationId: values.applicationId,
+          name: values.name,
+          appSpec: appSpec as Arc4AppSpec,
+          roundFirstValid: undefined,
+          roundLastValid: undefined,
+          standard: AppSpecStandard.ARC4,
+        })
+      } else {
+        throw new Error('Invalid appSpec type')
+      }
+
       toast.success(`App interface ${values.name} was saved successfully`)
     },
     [appSpec, createAppInterface]
@@ -50,10 +87,10 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   const defaultValues = useMemo(
     () => ({
       file: appSpecFile,
-      name: snapshot.context.name ?? appSpec.contract.name,
+      name: isArc32AppSpec(appSpec) && snapshot.context.name ? appSpec.contract.name : isArc4AppSpec(appSpec) ? appSpec.name : '',
       applicationId: snapshot.context.applicationId,
     }),
-    [appSpec.contract.name, appSpecFile, snapshot.context.applicationId, snapshot.context.name]
+    [appSpec, appSpecFile, snapshot.context.applicationId, snapshot.context.name]
   )
 
   return (

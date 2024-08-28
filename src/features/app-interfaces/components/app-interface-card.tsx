@@ -5,6 +5,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { dateFormatter } from '@/utils/format'
 import { DeleteAppInterfaceButton } from '@/features/app-interfaces/components/delete-app-interface-button'
 import { appIdLabel, contractNameLabel, methodsLabel } from '@/features/app-interfaces/components/labels'
+import { AppSpecStandard } from '../data/types'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -13,22 +14,29 @@ type Props = {
 
 export function AppInterfaceCard({ appInterface, onDelete }: Props) {
   const items = useMemo(() => {
-    // Pick the first item in the array because we don't support multiple versions yet
-    const latestAppSpecVersion = appInterface.appSpecVersions[0]
-    return [
-      {
-        dt: contractNameLabel,
-        dd: latestAppSpecVersion.appSpec.contract.name,
-      },
-      {
-        dt: methodsLabel,
-        dd: latestAppSpecVersion.appSpec.contract.methods.length,
-      },
-      {
-        dt: appIdLabel,
-        dd: appInterface.applicationId,
-      },
-    ]
+    return appInterface.appSpecVersions
+      .map((version, _) => {
+        const contractName = version.standard === AppSpecStandard.ARC32 ? version.appSpec.contract.name : version.appSpec.name
+
+        const methodsCount =
+          version.standard === AppSpecStandard.ARC32 ? version.appSpec.contract.methods.length : version.appSpec.methods.length
+
+        return [
+          {
+            dt: contractNameLabel,
+            dd: contractName,
+          },
+          {
+            dt: methodsLabel,
+            dd: methodsCount,
+          },
+          {
+            dt: appIdLabel,
+            dd: appInterface.applicationId,
+          },
+        ]
+      })
+      .flat()
   }, [appInterface])
 
   return (

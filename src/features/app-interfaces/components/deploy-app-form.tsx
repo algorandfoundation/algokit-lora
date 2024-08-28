@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { useCallback } from 'react'
 import { deployApp } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '@/features/common/data/algo-client'
-import { Arc32AppSpec } from '../data/types'
+import { Arc32AppSpec, Arc4AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -16,7 +16,7 @@ import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/dat
 
 type Props = {
   className?: string
-  appSpec: Arc32AppSpec
+  appSpec: Arc32AppSpec | Arc4AppSpec
 }
 
 const formSchema = zfd.formData({

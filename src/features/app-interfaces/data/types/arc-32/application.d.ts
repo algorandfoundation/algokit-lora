@@ -8,217 +8,217 @@
 /**
  * @minItems 2
  */
-export type StructElement = [FieldName, ABIType];
-export type FieldName = string;
-export type ABIType = string;
+export type StructElement = [FieldName, ABIType]
+export type FieldName = string
+export type ABIType = string
 /**
  * Defines a strategy for obtaining a default value for a given ABI arg.
  */
 export type DefaultArgument =
   | {
-  /**
-   * The default value should be fetched by invoking an ABI method
-   */
-  source: "abi-method";
-  data: ContractMethod;
-  [k: string]: unknown;
-}
+      /**
+       * The default value should be fetched by invoking an ABI method
+       */
+      source: 'abi-method'
+      data: ContractMethod
+      [k: string]: unknown
+    }
   | {
-  /**
-   * The default value should be fetched from global state
-   */
-  source: "global-state";
-  /**
-   * The key of the state variable
-   */
-  data: string;
-  [k: string]: unknown;
-}
+      /**
+       * The default value should be fetched from global state
+       */
+      source: 'global-state'
+      /**
+       * The key of the state variable
+       */
+      data: string
+      [k: string]: unknown
+    }
   | {
-  /**
-   * The default value should be fetched from the local state of the sender user
-   */
-  source: "local-state";
-  /**
-   * The key of the state variable
-   */
-  data: string;
-  [k: string]: unknown;
-}
+      /**
+       * The default value should be fetched from the local state of the sender user
+       */
+      source: 'local-state'
+      /**
+       * The key of the state variable
+       */
+      data: string
+      [k: string]: unknown
+    }
   | {
-  /**
-   * The default value is a constant.
-   */
-  source: "constant";
-  /**
-   * The static default value to use.
-   */
-  data: string | number;
-  [k: string]: unknown;
-};
-export type CallConfigValue = "NEVER" | "CALL" | "CREATE" | "ALL";
+      /**
+       * The default value is a constant.
+       */
+      source: 'constant'
+      /**
+       * The static default value to use.
+       */
+      data: string | number
+      [k: string]: unknown
+    }
+export type CallConfigValue = 'NEVER' | 'CALL' | 'CREATE' | 'ALL'
 
 export interface AlgoAppSpec {
   hints?: {
-    [k: string]: Hint;
-  };
-  source: AppSources;
-  contract: AbiContract;
-  schema: SchemaSpec;
-  state: StateSchemaSpec;
-  bare_call_config?: CallConfig;
-  [k: string]: unknown;
+    [k: string]: Hint
+  }
+  source: AppSources
+  contract: AbiContract
+  schema: SchemaSpec
+  state: StateSchemaSpec
+  bare_call_config?: CallConfig
+  [k: string]: unknown
 }
 export interface Hint {
-  read_only?: boolean;
+  read_only?: boolean
   structs?: {
-    output?: Struct;
-    [k: string]: Struct;
-  };
+    output?: Struct
+    [k: string]: Struct
+  }
   default_arguments?: {
-    [k: string]: DefaultArgument;
-  };
-  call_config?: CallConfig;
-  [k: string]: unknown;
+    [k: string]: DefaultArgument
+  }
+  call_config?: CallConfig
+  [k: string]: unknown
 }
 export interface Struct {
-  name: string;
-  elements: StructElement[];
-  [k: string]: unknown;
+  name: string
+  elements: StructElement[]
+  [k: string]: unknown
 }
 /**
  * The contract of the ABI method to invoke.
  */
 export interface ContractMethod {
-  name: string;
-  args: ContractMethodArg[];
-  desc?: string;
+  name: string
+  args: ContractMethodArg[]
+  desc?: string
   returns: {
-    desc?: string;
+    desc?: string
     /**
      * Catch all for fixed length arrays and tuples
      */
-    type: string;
-    [k: string]: unknown;
-  };
-  readonly?: boolean;
-  events?: Event[];
-  [k: string]: unknown;
+    type: string
+    [k: string]: unknown
+  }
+  readonly?: boolean
+  events?: Event[]
+  [k: string]: unknown
 }
 export interface ContractMethodArg {
-  desc?: string;
+  desc?: string
   /**
    * Catch all for fixed length arrays and tuples
    */
-  type: string;
-  name: string;
-  [k: string]: unknown;
+  type: string
+  name: string
+  [k: string]: unknown
 }
 export interface Event {
-  name: string;
-  args: ContractMethodArg[];
-  desc?: string;
-  [k: string]: unknown;
+  name: string
+  args: ContractMethodArg[]
+  desc?: string
+  [k: string]: unknown
 }
 export interface CallConfig {
-  no_op?: CallConfigValue;
-  opt_in?: CallConfigValue;
-  close_out?: CallConfigValue;
-  update_application?: CallConfigValue;
-  delete_application?: CallConfigValue;
+  no_op?: CallConfigValue
+  opt_in?: CallConfigValue
+  close_out?: CallConfigValue
+  update_application?: CallConfigValue
+  delete_application?: CallConfigValue
 }
 export interface AppSources {
-  approval?: string;
-  clear?: string;
-  [k: string]: unknown;
+  approval?: string
+  clear?: string
+  [k: string]: unknown
 }
 export interface AbiContract {
-  name: string;
-  desc?: string;
-  methods: ContractMethod1[];
-  events?: Event[];
+  name: string
+  desc?: string
+  methods: ContractMethod1[]
+  events?: Event[]
   networks?: {
     [k: string]: {
-      appID: number;
-      [k: string]: unknown;
-    };
-  };
-  [k: string]: unknown;
+      appID: number
+      [k: string]: unknown
+    }
+  }
+  [k: string]: unknown
 }
 export interface ContractMethod1 {
-  name: string;
-  args: ContractMethodArg[];
-  desc?: string;
+  name: string
+  args: ContractMethodArg[]
+  desc?: string
   returns: {
-    desc?: string;
+    desc?: string
     /**
      * Catch all for fixed length arrays and tuples
      */
-    type: string;
-    [k: string]: unknown;
-  };
-  readonly?: boolean;
-  events?: Event[];
-  [k: string]: unknown;
+    type: string
+    [k: string]: unknown
+  }
+  readonly?: boolean
+  events?: Event[]
+  [k: string]: unknown
 }
 /**
  * The schema for global and local storage
  */
 export interface SchemaSpec {
-  global?: Schema;
-  local?: Schema;
-  [k: string]: unknown;
+  global?: Schema
+  local?: Schema
+  [k: string]: unknown
 }
 export interface Schema {
   declared?: {
-    [k: string]: DeclaredSchemaValueSpec;
-  };
+    [k: string]: DeclaredSchemaValueSpec
+  }
   reserved?: {
-    [k: string]: ReservedSchemaValueSpec;
-  };
-  [k: string]: unknown;
+    [k: string]: ReservedSchemaValueSpec
+  }
+  [k: string]: unknown
 }
 export interface DeclaredSchemaValueSpec {
   /**
    * The type of the value
    */
-  type: "uint64" | "bytes";
+  type: 'uint64' | 'bytes'
   /**
    * The name of the key
    */
-  key: string;
+  key: string
   /**
    * A description of the variable
    */
-  descr?: string;
+  descr?: string
   /**
    * Whether the value is set statically (at create time only) or dynamically
    */
-  static?: boolean;
-  [k: string]: unknown;
+  static?: boolean
+  [k: string]: unknown
 }
 export interface ReservedSchemaValueSpec {
   /**
    * The type of the value
    */
-  type: "uint64" | "bytes";
+  type: 'uint64' | 'bytes'
   /**
    * A description of the variable
    */
-  descr?: string;
+  descr?: string
   /**
    * The maximum number of slots to reserve
    */
-  max_keys?: number;
-  [k: string]: unknown;
+  max_keys?: number
+  [k: string]: unknown
 }
 export interface StateSchemaSpec {
-  global: StateSchema;
-  local: StateSchema;
-  [k: string]: unknown;
+  global: StateSchema
+  local: StateSchema
+  [k: string]: unknown
 }
 export interface StateSchema {
-  num_uints: number;
-  num_byte_slices: number;
-  [k: string]: unknown;
+  num_uints: number
+  num_byte_slices: number
+  [k: string]: unknown
 }
