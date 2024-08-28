@@ -420,10 +420,10 @@ describe('resolving ABI method', () => {
     })
   })
 
-  describe('for an create application transaction from algod', () => {
+  describe('for an create application transaction received from algod', () => {
     const transaction = transactionResultMother['localnet-AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q']().build()
 
-    it('should return undefined abiMethod', async () => {
+    it('abiMethod should be undefined', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(genesisHashAtom, 'some-hash')
 
