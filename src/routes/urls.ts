@@ -46,4 +46,5 @@ export const Urls = {
   Settings: UrlTemplate`/settings`,
   Fund: UrlTemplate`/fund`,
   FundAuthCallback: UrlTemplate`/fund/auth-callback`, // This is intentionally not a nested route, as there is no need
+  TransactionWizard: UrlTemplate`/transaction-wizard`,
 }

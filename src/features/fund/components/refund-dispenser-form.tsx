@@ -60,7 +60,7 @@ export function RefundDispenserForm({ onSubmit, limit }: Props) {
             field: 'amount',
             placeholder: (1).toString(),
             helpText: limit ? <span className="flex items-center">{limit.algos}&nbsp;ALGO available</span> : undefined,
-            decimalScale: 5,
+            decimalScale: 6,
             thousandSeparator: true,
           })}
         </>

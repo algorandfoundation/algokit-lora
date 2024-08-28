@@ -1,11 +1,12 @@
-import { cloneElement, ReactElement, ReactNode } from 'react'
+import { cloneElement, Key, ReactElement, ReactNode } from 'react'
 import { FieldPath } from 'react-hook-form'
 import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
 import { cn } from '@/features/common/utils'
-import { ValidationErrorOrHelpMessage } from '@/features/forms/components/validation-error-or-help-message'
+import { HintText } from '@/features/forms/components/hint-text'
 import { Label } from '@/features/common/components/label'
 
 export interface FormItemProps<TSchema extends Record<string, unknown> = Record<string, unknown>> {
+  key?: Key
   className?: string
   children: ReactElement | ((props: { className?: string; field: FieldPath<TSchema> }) => ReactNode)
   label: string | ReactElement
@@ -32,7 +33,7 @@ export function FormItem<TSchema extends Record<string, unknown> = Record<string
         (typeof children === 'function'
           ? children({ className, field })
           : cloneElement(children, { className: cn(children.props.className) }))}
-      <ValidationErrorOrHelpMessage errorText={error?.message} helpText={helpText} />
+      <HintText errorText={error?.message} helpText={helpText} />
     </div>
   )
 }

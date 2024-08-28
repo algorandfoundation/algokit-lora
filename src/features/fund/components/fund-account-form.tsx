@@ -15,7 +15,7 @@ import { isAddress } from '@/utils/is-address'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { RenderInlineLoadable } from '@/features/common/components/render-inline-loadable'
 
-const receiverAddressLabel = 'Receiver Address'
+const receiverAddressLabel = 'Receiver address'
 const amountLabel = 'Amount'
 
 type Props = {
@@ -86,7 +86,7 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit }: Props) {
                 <RenderInlineLoadable loadable={limit}>{(limit) => limit.algos}</RenderInlineLoadable>&nbsp;ALGO available
               </span>
             ) : undefined,
-            decimalScale: 5,
+            decimalScale: 6,
             thousandSeparator: true,
           })}
         </>
