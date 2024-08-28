@@ -3380,4 +3380,74 @@ export const transactionResultMother = {
       'tx-type': 'appl',
     } as unknown as TransactionResult)
   },
+  'localnet-AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q': () => {
+    return new TransactionResultBuilder({
+      id: 'AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q',
+      'application-transaction': {
+        // algod returns undefined for application-id when creating an application
+        'application-id': undefined,
+        'approval-program':
+          'CiADAAEEJgYLYXVjdGlvbl9lbmQMcHJldmlvdXNfYmlkD3ByZXZpb3VzX2JpZGRlcgNhc2EKYXNhX2Ftb3VudAVjbGFpbTEYQAADiAGjMRtBAKaABCgmsgKABPCqcCOABDDG1YqABNt/6EOABOZUYluABB7BK+82GgCOBgABABMAMQA9AFMAXwAxGRREMRhENhoBF8AwiABqI0MxGRREMRhENhoBFzYaAhcxFiMJSTgQJBJEiABwI0MxGRREMRhEiACQI0MxGRREMRhEMRYjCUk4ECMSRIgAfiNDMRkURDEYRIgAoiNDMRkURDEYRDYaARfAMIgAzyNDMRkURDEYFEQjQ4oBADEAMgkSRCIrZUQURCuL/2exMgqL/7IRshQkshAisgGziYoDADEAMgkSRCIoZUQURIv/OBQyChJEi/84EicETGcyB4v+CChMZymL/WeJigAAiYoBADIHIihlRAxEi/84AEkxABJEi/84CCIpZURLAQxEKUsBZypPAmcxACcFTwJmiYoAADEAIicFY0xJTwJEMQAiKmVEEkEACiIpZUSLAEwJjAGxMQCyB4sBSbIII7IQIrIBszEAiwBPAgknBUxmiYoBADIHIihlRA1EsSIqZUQiKmVEIicEZUSyErIUshWL/7IRJLIQIrIBs4mKAAAoImcpImcnBCJnKyJnKjIDZ4k=',
+        'clear-state-program': 'CoEBQw==',
+        'on-completion': 'noop',
+        'global-state-schema': {
+          'num-byte-slice': 1,
+          'num-uint': 4,
+        },
+        'local-state-schema': {
+          'num-uint': 1,
+        },
+        'application-args': ['K5iklw=='],
+      },
+      'first-valid': 1,
+      'last-valid': 1001,
+      'tx-type': 'appl',
+      fee: 1000,
+      sender: 'YKPOB2GX4UVLSNNHJQQUPQ7G3VB6XN4HC7N5HMGAN2N4XZ45AXRTJ5HRUA',
+      'confirmed-round': 2,
+      'round-time': 1724804397,
+      'intra-round-offset': 0,
+      'genesis-hash': 'OFOY5kr3N/IpXmQ3RPI/pfJjbdGhOVO2t5YHtC4npZ0=',
+      'genesis-id': 'dockernet-v1',
+      note: 'QUxHT0tJVF9ERVBMT1lFUjpqeyJuYW1lIjogIkF1Y3Rpb24iLCAidmVyc2lvbiI6ICJ2MS4wIiwgImRlbGV0YWJsZSI6IG51bGwsICJ1cGRhdGFibGUiOiBudWxsfQ==',
+      lease: '',
+      'created-application-index': 1002,
+      signature: {
+        sig: 'SWcc0w0p5fzxcx/Dd5PLEQuTQ4tsS97Li5TlusVaQlJIGzRH0qjojFpCEsVMAw98EejGokiH3ZPTdNjQSO5tDw==',
+      },
+      'global-state-delta': [
+        {
+          key: 'YXNh',
+          value: {
+            action: 2,
+          },
+        },
+        {
+          key: 'YXNhX2Ftb3VudA==',
+          value: {
+            action: 2,
+          },
+        },
+        {
+          key: 'YXVjdGlvbl9lbmQ=',
+          value: {
+            action: 2,
+          },
+        },
+        {
+          key: 'cHJldmlvdXNfYmlk',
+          value: {
+            action: 2,
+          },
+        },
+        {
+          key: 'cHJldmlvdXNfYmlkZGVy',
+          value: {
+            action: 1,
+            bytes: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+          },
+        },
+      ],
+    } as unknown as TransactionResult)
+  },
 }

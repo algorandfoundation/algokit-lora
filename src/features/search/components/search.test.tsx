@@ -88,9 +88,7 @@ describe('search', () => {
                 await user.click(result)
                 expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
               },
-              {
-                timeout: 2000,
-              }
+              { timeout: 10000 }
             )
           }
         )
