@@ -128,7 +128,7 @@ function FormInner({ helper }: FormInnerProps) {
         {deployToNetworkLabel}
       </Button>
     ),
-    [appId, hasValidAccount, onDeployButtonClick]
+    [deployButtonStatus.disabled, onDeployButtonClick]
   )
 
   return (
