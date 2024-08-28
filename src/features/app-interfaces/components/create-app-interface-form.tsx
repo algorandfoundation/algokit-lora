@@ -96,21 +96,21 @@ function FormInner({ helper }: FormInnerProps) {
     send({ type: 'deployAppRequested', name: values.name, applicationId: values.applicationId })
   }, [getValues, send])
 
-  const { deployButtonDisabled, reason } = useMemo(() => {
+  const deployButtonStatus = useMemo(() => {
     if (appId) {
       return {
-        deployButtonDisabled: true,
+        disabled: true,
         reason: 'The application ID field is already set',
       }
     }
     if (!hasValidAccount) {
       return {
-        deployButtonDisabled: true,
+        disabled: true,
         reason: 'Please connect a wallet with min 0.001 ALGO',
       }
     }
     return {
-      deployButtonDisabled: false,
+      disabled: false,
       reason: undefined,
     }
   }, [appId, hasValidAccount])
@@ -120,7 +120,7 @@ function FormInner({ helper }: FormInnerProps) {
       <Button
         type="button"
         variant="outline-secondary"
-        disabled={!hasValidAccount || Boolean(appId)}
+        disabled={deployButtonStatus.disabled}
         className="w-fit "
         aria-label={deployToNetworkLabel}
         onClick={onDeployButtonClick}
@@ -148,14 +148,14 @@ function FormInner({ helper }: FormInnerProps) {
         })}
         <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
         <div className="grid sm:mt-[1.375rem]">
-          {!deployButtonDisabled && deployButton}
-          {deployButtonDisabled && (
+          {!deployButtonStatus.disabled && deployButton}
+          {deployButtonStatus.disabled && (
             <Tooltip delayDuration={400}>
               <TooltipTrigger asChild>
                 <div tabIndex={0}>{deployButton}</div>
               </TooltipTrigger>
               <TooltipContent>
-                <span>{reason}</span>
+                <span>{deployButtonStatus.reason}</span>
               </TooltipContent>
             </Tooltip>
           )}
