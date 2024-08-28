@@ -15,6 +15,7 @@ import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { atom } from 'jotai/index'
+import { genesisHashAtom } from '@/features/blocks/data'
 
 const { myStore } = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -416,6 +417,18 @@ describe('resolving ABI method', () => {
           ],
         },
       ])
+    })
+  })
+
+  describe('for an create application transaction received from algod', () => {
+    const transaction = transactionResultMother['localnet-AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q']().build()
+
+    it('abiMethod should be undefined', async () => {
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(genesisHashAtom, 'some-hash')
+
+      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      expect(abiMethod).toBeUndefined()
     })
   })
 })
