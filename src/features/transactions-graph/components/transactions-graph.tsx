@@ -1,5 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { TransactionsGraphData } from '../models'
+import { Group } from '@/features/groups/models'
+import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { VerticalTitle } from '@/features/transactions-graph/components/vertical-title'
 import { Horizontal } from '@/features/transactions-graph/components/horizontal'
@@ -10,15 +12,16 @@ import { Download } from 'lucide-react'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
+  transaction?: Transaction | InnerTransaction
+  group?: Group
 }
-export function TransactionsGraph({ transactionsGraphData }: Props) {
+export function TransactionsGraph({ transactionsGraphData, transaction, group }: Props) {
   const { verticals, horizontals } = transactionsGraphData
   const horizontalsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
   const horizontalTitleWidth = graphConfig.defaultHorizontalTitleWidth + maxNestingLevel * graphConfig.indentationWidth
   const verticalsCount = verticals.length
   const gridTemplateColumns = `minmax(${horizontalTitleWidth}px, ${horizontalTitleWidth}px) repeat(${verticalsCount}, ${graphConfig.colWidth}px)`
-
   const visualRef = useRef<HTMLDivElement>(null)
 
   const downloadImage = useCallback(async () => {
@@ -54,6 +57,14 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
   return (
     <>
       <div className="w-min bg-card" ref={visualRef} aria-label="Visual representation of transactions">
+        {transaction && <div className="w-max">{`Transaction ID: ${transaction.id}`}</div>}
+        {group && (
+          <div>
+            Group ID: {group.id}
+            <br />
+            Round: {group.round}
+          </div>
+        )}
         <div
           className={cn('relative grid')}
           style={{
