@@ -1,24 +1,22 @@
-import { useCallback, useState } from 'react'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { SelectAppSpecForm } from '@/features/app-interfaces/components/select-app-spec-form'
 import { CreateAppInterfaceForm } from '@/features/app-interfaces/components/create-app-interface-form'
+import { DeployAppForm } from './deploy-app-form'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 
 type Props = {
   onSuccess: () => void
 }
 
 export function CreateAppInterfaceDialogBody({ onSuccess }: Props) {
-  const [appSpecFile, setAppSpecFile] = useState<File | undefined>()
-  const [appSpec, setAppSpec] = useState<Arc32AppSpec | undefined>()
+  const [snapshot] = useCreateAppInterfaceStateMachine()
 
-  const onFileSelected = useCallback((file: File, appSpec: Arc32AppSpec) => {
-    setAppSpecFile(file)
-    setAppSpec(appSpec)
-  }, [])
-
-  return !appSpec || !appSpecFile ? (
-    <SelectAppSpecForm onFileSelected={onFileSelected} />
-  ) : (
-    <CreateAppInterfaceForm appSpec={appSpec} appSpecFile={appSpecFile} onSuccess={onSuccess} />
+  return (
+    <>
+      {snapshot.value === 'selectAppSpec' && <SelectAppSpecForm />}
+      {snapshot.value === 'createAppInterface' && snapshot.context.appSpec && snapshot.context.file && (
+        <CreateAppInterfaceForm appSpec={snapshot.context.appSpec} appSpecFile={snapshot.context.file} onSuccess={onSuccess} />
+      )}
+      {snapshot.value === 'deployApp' && snapshot.context.appSpec && <DeployAppForm appSpec={snapshot.context.appSpec} />}
+    </>
   )
 }
