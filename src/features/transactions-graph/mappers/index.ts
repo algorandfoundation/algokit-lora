@@ -9,6 +9,12 @@ export const asTransactionsGraphData = (transactions: Transaction[]): Transactio
   const verticals: Vertical[] = [...getVerticalsForTransactions(flattenedTransactions.map((t) => t.transaction))]
   const horizontals = transactions.flatMap((txn) => getHorizontalsForTransaction(txn, verticals, [], false, 0))
 
+  const firstTransaction = transactions[0]
+  const filename =
+    firstTransaction.group && transactions.length > 1
+      ? `round-${firstTransaction.confirmedRound}-group-${firstTransaction.group}.png`
+      : `transaction-${firstTransaction.id}.png`
+
   if (horizontals.some((h) => h.representation.type === 'SelfLoop' && h.representation.fromVerticalIndex === verticals.length - 1)) {
     // If there is a self-loop at the end of the graph, we need to add a placeholder vertical
     verticals.push({
@@ -20,5 +26,6 @@ export const asTransactionsGraphData = (transactions: Transaction[]): Transactio
   return {
     horizontals: horizontals,
     verticals: verticals,
+    filename: filename,
   }
 }

@@ -9,6 +9,7 @@ import { AssetSummary } from '@/features/assets/models'
 export type TransactionsGraphData = {
   horizontals: Horizontal[]
   verticals: Vertical[]
+  filename: string
 }
 
 export type Horizontal = {

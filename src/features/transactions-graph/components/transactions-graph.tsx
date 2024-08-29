@@ -1,7 +1,5 @@
 import { cn } from '@/features/common/utils'
 import { TransactionsGraphData } from '../models'
-import { Group } from '@/features/groups/models'
-import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { VerticalTitle } from '@/features/transactions-graph/components/vertical-title'
 import { Horizontal } from '@/features/transactions-graph/components/horizontal'
@@ -12,10 +10,8 @@ import { Download } from 'lucide-react'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
-  transaction?: Transaction | InnerTransaction
-  group?: Group
 }
-export function TransactionsGraph({ transactionsGraphData, transaction, group }: Props) {
+export function TransactionsGraph({ transactionsGraphData }: Props) {
   const { verticals, horizontals } = transactionsGraphData
   const horizontalsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
@@ -31,20 +27,6 @@ export function TransactionsGraph({ transactionsGraphData, transaction, group }:
       scale: 2,
       onclone: (_, element) => {
         element.style.padding = '10px'
-
-        if (transaction) {
-          const transactionInfo = document.createElement('div')
-          transactionInfo.className = 'w-max'
-          transactionInfo.textContent = `Transaction ID: ${transaction.id}`
-          element.prepend(transactionInfo)
-        }
-
-        if (group) {
-          const groupInfo = document.createElement('div')
-          groupInfo.innerHTML = `Group ID: ${group.id}<br>Round: ${group.round}`
-          element.prepend(groupInfo)
-        }
-
         const ellipsisElements = element.querySelectorAll('[class*="ellipsis"]')
         ellipsisElements.forEach((ellipsisElement) => {
           if (ellipsisElement.textContent) {
@@ -63,7 +45,7 @@ export function TransactionsGraph({ transactionsGraphData, transaction, group }:
     const dataUrl = canvas.toDataURL()
     const link = document.createElement('a')
     link.href = dataUrl
-    link.setAttribute('download', 'transactions-visual.png')
+    link.setAttribute('download', transactionsGraphData.filename)
     // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
     link.click()
   }, [])

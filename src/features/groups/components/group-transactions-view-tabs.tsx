@@ -30,7 +30,7 @@ export function GroupTransactionsViewTabs({ group }: Props) {
         </TabsTrigger>
       </TabsList>
       <OverflowAutoTabsContent value={graphTabId}>
-        <TransactionsGraph transactionsGraphData={transactionsGraph} group={group} />
+        <TransactionsGraph transactionsGraphData={transactionsGraph} />
       </OverflowAutoTabsContent>
       <OverflowAutoTabsContent value={tableTabId}>
         <TransactionsTable transactions={group.transactions} columns={transactionsTableColumnsWithoutRound} subRowsExpanded={false} />
