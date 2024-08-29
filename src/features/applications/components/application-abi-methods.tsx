@@ -3,15 +3,23 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import algosdk from 'algosdk'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
+import { invariant } from '@/utils/invariant'
 
 type Props = {
   application: Application
 }
 
 export function ApplicationAbiMethods({ application }: Props) {
+  const abiMethods = useMemo(() => {
+    invariant(application.appSpec, 'application.appSpec is not set')
+    return application.appSpec.contract.methods.map((method) => new algosdk.ABIMethod(method))
+  }, [application.appSpec])
+
+  // application.appSpec?.hints[''].structs
+
   return (
     <Accordion type="multiple">
-      {application.abiMethods.map((abiMethod, index) => (
+      {abiMethods.map((abiMethod, index) => (
         <Method abiMethod={abiMethod} key={index} />
       ))}
     </Accordion>

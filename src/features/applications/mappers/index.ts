@@ -1,9 +1,10 @@
 import { Application, ApplicationGlobalStateType, ApplicationGlobalStateValue, ApplicationSummary } from '../models'
-import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
+import { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -11,11 +12,7 @@ export const asApplicationSummary = (application: ApplicationResult): Applicatio
   }
 }
 
-export const asApplication = (
-  application: ApplicationResult,
-  metadata: ApplicationMetadataResult,
-  abiMethods: algosdk.ABIMethod[]
-): Application => {
+export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult, appSpec?: Arc32AppSpec): Application => {
   return {
     id: application.id,
     name: metadata?.name,
@@ -38,7 +35,7 @@ export const asApplication = (
     globalState: asGlobalStateValue(application.params['global-state']),
     isDeleted: application.deleted ?? false,
     json: asJson(application),
-    abiMethods,
+    appSpec,
   }
 }
 

@@ -6,7 +6,7 @@ import { ApplicationId } from './types'
 import { applicationResultsAtom, getApplicationResultAtom } from './application-result'
 import { getApplicationMetadataResultAtom } from './application-metadata'
 import { atomEffect } from 'jotai-effect'
-import { createApplicationAbiMethodsAtom } from '@/features/applications/data/application-abi-methods'
+import { createApplicationAppSpecAtom } from '@/features/applications/data/application-app-spec'
 
 const createApplicationAtoms = (applicationId: ApplicationId) => {
   const isStaleAtom = atom(false)
@@ -22,7 +22,7 @@ const createApplicationAtoms = (applicationId: ApplicationId) => {
     atomWithRefresh(async (get) => {
       const applicationResult = await get(getApplicationResultAtom(applicationId))
       const applicationMetadata = await get(getApplicationMetadataResultAtom(applicationResult))
-      const abiMethods = await get(createApplicationAbiMethodsAtom(applicationId))
+      const abiMethods = await get(createApplicationAppSpecAtom(applicationId))
 
       get(detectIsStaleEffect)
       return asApplication(applicationResult, applicationMetadata, abiMethods)

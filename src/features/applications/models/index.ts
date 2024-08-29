@@ -1,5 +1,5 @@
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { ApplicationId } from '../data/types'
-import algosdk from 'algosdk'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -17,7 +17,7 @@ export type Application = {
   globalState?: Map<string, ApplicationGlobalStateValue>
   json: string
   isDeleted: boolean
-  abiMethods: algosdk.ABIMethod[]
+  appSpec?: Arc32AppSpec
 }
 
 export type ApplicationStateSchema = {
