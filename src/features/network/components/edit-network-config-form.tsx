@@ -28,10 +28,10 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     (values: z.infer<typeof editNetworkConfigFormSchema>) => {
       setCustomNetworkConfig(networkConfig.id, {
         name: networkConfig.name,
-        walletProviders: values.walletProviders,
+        walletProviders: values.walletProviders ?? [],
         indexer: asStorableServiceConfig(values.indexer),
         algod: asStorableServiceConfig(values.algod),
-        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
+        kmd: (values.walletProviders ?? []).includes(PROVIDER_ID.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
       })
 
       toast.success(`${networkConfig.name} has been updated`)

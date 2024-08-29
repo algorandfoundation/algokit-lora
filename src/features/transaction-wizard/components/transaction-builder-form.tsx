@@ -22,14 +22,14 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
   const { activeAddress, signer } = useWallet()
 
   const sendTransaction = useCallback(
-    async (values: z.infer<typeof buildableTransaction.schema>) => {
+    async (values: Parameters<typeof buildableTransaction.createTransaction>[0]) => {
       if (!activeAddress) {
         throw new Error(connectWalletMessage)
       }
 
       const transaction = await buildableTransaction.createTransaction(values)
 
-      // TODO: NC - Add support to util-ts AlgorandClient for sending a single transaction, then switch this code.
+      // This isn't amazing, we should add support to the util-ts AlgorandClient for sending a single transaction.
       const atc = new algosdk.AtomicTransactionComposer()
       atc.addTransaction({ txn: transaction, signer })
       await algorandClient.newGroup().addAtc(atc).execute()
@@ -39,33 +39,39 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
     [activeAddress, buildableTransaction, signer]
   )
 
-  // TODO: NC - Get rid of the default values cast
-
   return (
     <Form
       schema={buildableTransaction.schema}
       defaultValues={
         {
           sender: defaultSender,
-          fee: {
-            setAutomatically: true,
-          },
-          validRounds: {
-            setAutomatically: true,
-          },
-        } as z.infer<typeof buildableTransaction.schema>
+          ...buildableTransaction.defaultValues,
+        } as Parameters<typeof buildableTransaction.createTransaction>[0]
       }
       onSubmit={sendTransaction}
-      formAction={
-        <FormActions>
-          <Button type="button" variant="outline" onClick={() => {}}>
-            Reset fields
+      formAction={(ctx, resetLocalState) => (
+        <FormActions
+          key={buildableTransaction.label}
+          onInitialise={() => {
+            resetLocalState()
+            ctx.clearErrors()
+          }}
+        >
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              resetLocalState()
+              ctx.reset()
+            }}
+          >
+            Reset
           </Button>
           <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
             Send
           </SubmitButton>
         </FormActions>
-      }
+      )}
     >
       {(helper) => <TransactionBuilderFields helper={helper} transaction={buildableTransaction} />}
     </Form>

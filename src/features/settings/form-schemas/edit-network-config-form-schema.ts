@@ -7,5 +7,5 @@ export const editNetworkConfigFormSchema = zfd.formData({
   indexer: algoServiceSchema,
   algod: algoServiceSchema,
   kmd: algoServiceSchema.optional(),
-  walletProviders: z.array(z.nativeEnum(PROVIDER_ID)),
+  walletProviders: z.array(z.nativeEnum(PROVIDER_ID)).optional(),
 })

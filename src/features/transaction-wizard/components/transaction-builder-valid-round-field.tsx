@@ -8,16 +8,14 @@ type Props<TSchema extends z.ZodSchema> = {
   helper: FormFieldHelper<z.infer<TSchema>>
   path: Path<TSchema>
   field: BuildableTransactionFormField
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  schema: z.ZodEffects<any, z.infer<TSchema>, unknown>
 }
 
-export function TransactionBuilderValidRoundField<TSchema extends z.ZodSchema>({ helper, path, field, schema }: Props<TSchema>) {
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<typeof schema>>() // TODO: NC - We might be able to simplify
+export function TransactionBuilderValidRoundField<TSchema extends z.ZodSchema>({ helper, path, field }: Props<TSchema>) {
+  const { watch, clearErrors, resetField } = useFormContext<z.infer<TSchema>>()
 
-  const setAutomaticallyPath = `${path}.setAutomatically` as Path<z.infer<typeof schema>>
-  const firstValidPath = `${path}.firstValid` as Path<z.infer<typeof schema>>
-  const lastValidPath = `${path}.lastValid` as Path<z.infer<typeof schema>>
+  const setAutomaticallyPath = `${path}.setAutomatically` as typeof path
+  const firstValidPath = `${path}.firstValid` as typeof path
+  const lastValidPath = `${path}.lastValid` as typeof path
 
   const setAutomatically = watch(setAutomaticallyPath)
 

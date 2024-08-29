@@ -11,16 +11,15 @@ type Props<TSchema extends z.ZodSchema> = {
   transaction: BuildableTransaction<TSchema>
 }
 
-type Entries<T extends Record<string, unknown>> = { [K in keyof T]: [K, T[K]] }[keyof T][]
-function entries<T extends Record<string, unknown>>(obj: T): Entries<T> {
-  return Object.entries(obj) as Entries<T>
+type Fields<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = { [K in keyof TData]: [Path<TData>, TData[K]] }[keyof TData][]
+function fields<TSchema extends z.ZodSchema>(buildableTransaction: BuildableTransaction<TSchema>): Fields<TSchema> {
+  return Object.entries(buildableTransaction.fields) as Fields<TSchema>
 }
 
 export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, transaction }: Props<TSchema>) {
   return (
     <>
-      {entries(transaction.fields).map(([name, field], i) => {
-        const path = name as Path<TSchema> // TODO: NC - Can we get rid of this?
+      {fields(transaction).map(([path, field], i) => {
         const common = {
           key: i,
           label: field.label,
@@ -28,6 +27,7 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
           placeholder: field.placeholder,
           helpText: field.description,
         }
+
         switch (field.type) {
           case BuildableTransactionFormFieldType.Text:
             return helper.textField({
@@ -50,9 +50,9 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
               thousandSeparator: true,
             })
           case BuildableTransactionFormFieldType.Fee:
-            return <TransactionBuilderFeeField key={i} helper={helper} path={path} field={field} schema={transaction.schema} />
+            return <TransactionBuilderFeeField key={common.key} helper={helper} path={path} field={field} />
           case BuildableTransactionFormFieldType.ValidRounds:
-            return <TransactionBuilderValidRoundField key={i} helper={helper} path={path} field={field} schema={transaction.schema} />
+            return <TransactionBuilderValidRoundField key={common.key} helper={helper} path={path} field={field} />
           default:
             return undefined
         }

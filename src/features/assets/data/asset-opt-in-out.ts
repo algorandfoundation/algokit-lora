@@ -107,7 +107,6 @@ export const useAssetOptInOut = (asset: Asset) => {
             assetId: BigInt(asset.id),
             sender: activeAccount.address,
             signer,
-            validityWindow: transactionValidityWindow,
           })
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successful')

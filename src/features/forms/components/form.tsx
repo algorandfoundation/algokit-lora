@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
-import { DefaultValues, FormProvider, useForm } from 'react-hook-form'
+import { DefaultValues, FormProvider, useForm, UseFormReturn } from 'react-hook-form'
 import { ReactNode, useCallback, useMemo, useState } from 'react'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
@@ -14,7 +14,7 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   schema: z.ZodEffects<any, TSchema, unknown>
   defaultValues?: DefaultValues<TSchema>
   children: ReactNode | ((helper: FormFieldHelper<TSchema>, handleSubmit: () => Promise<void>) => ReactNode)
-  formAction: ReactNode
+  formAction: ReactNode | ((ctx: UseFormReturn<TSchema, any, undefined>, resetLocalState: () => void) => ReactNode)
   onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
 }
@@ -31,6 +31,11 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
 }: FormProps<TData, TSchema>) {
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [submitting, setSubmitting] = useState(false)
+
+  const resetLocalState = useCallback(() => {
+    setErrorMessage(undefined)
+    setSubmitting(false)
+  }, [])
 
   const formCtx = useForm<TSchema>({
     resolver: zodResolver(schema),
@@ -62,13 +67,14 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
       <FormStateContextProvider
         value={{
           submitting,
+          schema,
         }}
       >
         <FormProvider {...formCtx}>
           <form className={cn('grid gap-4', className)} onSubmit={handleSubmit}>
             {typeof children === 'function' ? children(new FormFieldHelper<TSchema>(), handleSubmit) : children}
             {errorMessage && <div className="text-error">{errorMessage}</div>}
-            {formAction}
+            {typeof formAction === 'function' ? formAction(formCtx, resetLocalState) : formAction}
           </form>
         </FormProvider>
       </FormStateContextProvider>

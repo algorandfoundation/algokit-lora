@@ -14,11 +14,12 @@ import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/dat
 import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
 import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
+import { numberSchema } from '@/features/forms/data/common'
 
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
   name: zfd.text(),
-  applicationId: zfd.numeric(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+  applicationId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
 })
 
 type Props = {

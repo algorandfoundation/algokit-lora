@@ -3,6 +3,7 @@ import { BuildableTransactionFormField, BuildableTransactionFormFieldType } from
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { isAddress } from '@/utils/is-address'
+import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 
 export const optionalAddressFieldSchema = zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) : true), {
   message: 'Invalid address',
@@ -44,7 +45,7 @@ export const feeFieldSchema = {
   fee: z
     .object({
       setAutomatically: z.boolean(),
-      value: zfd.numeric(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.001)).optional(),
+      value: numberSchema(z.number().min(0.001).optional()),
     })
     .superRefine((fee, ctx) => {
       if (!fee.setAutomatically && !fee.value) {
@@ -68,23 +69,31 @@ export const validRoundsFieldSchema = {
   validRounds: z
     .object({
       setAutomatically: z.boolean(),
-      firstValid: zfd.numeric(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)).optional(),
-      lastValid: zfd.numeric(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)).optional(),
+      firstValid: bigIntSchema(z.bigint().min(1n).optional()),
+      lastValid: bigIntSchema(z.bigint().min(1n).optional()),
     })
-    .superRefine((fee, ctx) => {
-      if (!fee.setAutomatically) {
-        if (!fee.firstValid) {
+    .superRefine((validRounds, ctx) => {
+      if (!validRounds.setAutomatically) {
+        if (!validRounds.firstValid) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'Required',
             path: ['firstValid'],
           })
         }
-        if (!fee.lastValid) {
+        if (!validRounds.lastValid) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: 'Required',
             path: ['lastValid'],
+          })
+        }
+
+        if (validRounds.firstValid && validRounds.lastValid && validRounds.firstValid > validRounds.lastValid) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'First valid round must be less than or equal to last valid round',
+            path: ['firstValid'],
           })
         }
       }

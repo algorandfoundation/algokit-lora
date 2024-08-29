@@ -18,8 +18,12 @@ import {
   validRoundsFieldSchema,
 } from './common'
 import { ZERO_ADDRESS } from '@/features/common/constants'
+import { numberSchema } from '@/features/forms/data/common'
 
-const amountFieldSchema = { amount: zfd.numeric(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)) }
+const amountFieldSchema = {
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
+}
+
 const amountField = {
   amount: {
     label: 'Amount',
@@ -89,20 +93,51 @@ export const paymentTransaction = {
     ...validRoundsField,
     ...noteField,
   },
+  defaultValues: {
+    amount: '' as unknown as undefined,
+    fee: {
+      setAutomatically: true,
+    },
+    validRounds: {
+      setAutomatically: true,
+    },
+  },
   schema: paymentSchema,
   createTransaction: createPayment,
 } satisfies BuildableTransaction<typeof paymentSchema>
 
-// TODO: NC - Receiver is required when amount is entered and vise versa
-const accountCloseSchema = zfd.formData({
-  ...senderFieldSchema,
-  closeRemainderTo: addressFieldSchema,
-  receiver: optionalAddressFieldSchema,
-  amount: amountFieldSchema.amount.optional(),
-  ...feeFieldSchema,
-  ...validRoundsFieldSchema,
-  ...noteFieldSchema,
-})
+const accountCloseSchema = zfd.formData(
+  z
+    .object({
+      ...senderFieldSchema,
+      closeRemainderTo: addressFieldSchema,
+      receiver: optionalAddressFieldSchema,
+      amount: numberSchema(z.number().min(0.000001).optional()),
+      ...feeFieldSchema,
+      ...validRoundsFieldSchema,
+      ...noteFieldSchema,
+    })
+    .superRefine((data, ctx) => {
+      if (data.amount && data.amount > 0 && !data.receiver) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Required',
+          path: ['receiver'],
+        })
+      }
+
+      if (data.receiver && !data.amount) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Required',
+          path: ['amount'],
+        })
+      }
+    })
+)
+
+// TODO: NC - Can we have a required override, so we can explicitly set, if it can't be inferred?
+
 export const accountCloseTransaction = {
   label: 'Account close (pay)',
   fields: {
@@ -118,6 +153,15 @@ export const accountCloseTransaction = {
     ...feeField,
     ...validRoundsField,
     ...noteField,
+  },
+  defaultValues: {
+    amount: '' as unknown as undefined, // TODO: NC - Need to ensure that everywhere we have a we have this
+    fee: {
+      setAutomatically: true,
+    },
+    validRounds: {
+      setAutomatically: true,
+    },
   },
   schema: accountCloseSchema,
   createTransaction: createAccountClose,

@@ -1,4 +1,4 @@
-import { ZodSchema, ZodEffects, infer as zodInfer } from 'zod'
+import { z, ZodEffects } from 'zod'
 import algosdk from 'algosdk'
 
 export enum BuildableTransactionFormFieldType {
@@ -16,12 +16,13 @@ export type BuildableTransactionFormField = {
   placeholder?: string
 }
 
-export type BuildableTransaction<T extends ZodSchema> = {
+export type BuildableTransaction<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = {
   label: string
   fields: {
-    [K in keyof zodInfer<T>]: BuildableTransactionFormField
+    [K in keyof TData]: BuildableTransactionFormField
   }
+  defaultValues: Partial<TData>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  schema: ZodEffects<any, zodInfer<T>, unknown>
-  createTransaction: (data: zodInfer<T>) => Promise<algosdk.Transaction>
+  schema: ZodEffects<any, TData, unknown>
+  createTransaction: (data: TData) => Promise<algosdk.Transaction>
 }

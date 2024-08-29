@@ -69,7 +69,7 @@
     "react-hook-form": "^7.52.1",
     "react-idle-timer": "^5.7.2",
     "react-json-view-lite": "^1.4.0",
-    "react-number-format": "^5.4.0",
+    "react-number-format": "^5.4.1",
     "react-router-dom": "6.24.0",
     "react-toastify": "^10.0.5",
     "tailwind-merge": "^2.2.1",

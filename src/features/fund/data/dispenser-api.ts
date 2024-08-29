@@ -180,7 +180,6 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
           receiver: dispenserAddress,
           amount,
           signer,
-          validityWindow: 30, // Gives approx 90 seconds to approve the transaction
         })
 
         if (!sendResult.confirmation.confirmedRound) {

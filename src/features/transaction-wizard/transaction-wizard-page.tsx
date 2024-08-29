@@ -16,7 +16,6 @@ export function TransactionWizardPage() {
   const [selectedBuildableTransactionIndex, setSelectedBuildableIndex] = useState(0)
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
-  // TODO: NC - We can probably get rid of this cast, but using a different input
   const buildableTransactions = [paymentTransaction, accountCloseTransaction]
   invariant(selectedBuildableTransactionIndex < buildableTransactions.length, 'Invalid transaction type index')
 
@@ -24,10 +23,8 @@ export function TransactionWizardPage() {
 
   const changeSelectedBuildableTransaction = useCallback(async (value: string) => {
     setSelectedBuildableIndex(Number(value))
-    // TODO: NC - Can we reset the error state here without re-rendering the whole thing?
   }, [])
 
-  // TODO: NC - Look at designs and work out what's missing. Add support for Clear (maybe we simple trigger a render of the component?).
   // TODO: NC - Render the transaction summary like we will do for the method call
 
   return (

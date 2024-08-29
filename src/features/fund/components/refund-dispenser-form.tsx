@@ -2,6 +2,7 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
+import { numberSchema } from '@/features/forms/data/common'
 import { algos } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { useCallback, useMemo } from 'react'
@@ -27,7 +28,7 @@ export function RefundDispenserForm({ onSubmit, limit }: Props) {
 
   const refundFormSchema = useMemo(() => {
     return zfd.formData({
-      amount: zfd.numeric(
+      amount: numberSchema(
         z
           .number({ required_error: 'Required', invalid_type_error: 'Required' })
           .min(0.1)
