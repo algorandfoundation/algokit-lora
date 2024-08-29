@@ -73,7 +73,7 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit, defaultRece
   return (
     <Form
       schema={fundFormSchema}
-      defaultValues={{ receiver: defaultReceiver }}
+      defaultValues={{ receiver: defaultReceiver, amount: '' as unknown as undefined }}
       onSubmit={fundAccount}
       formAction={
         <FormActions>

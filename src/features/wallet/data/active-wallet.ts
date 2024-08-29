@@ -35,10 +35,10 @@ const getActiveWalletAccount = async (address: string) => {
     // but in lora, we use number only
     assetHolding: new Map(assetHolding.map((asset) => [Number(asset.assetId), { amount: asset.amount }])),
     algoHolding: {
-      amount: accountInformation.amount,
+      amount: accountInformation.balance.microAlgo,
     },
-    minBalance: accountInformation.minBalance,
-    validAtRound: accountInformation.round,
+    minBalance: accountInformation.minBalance.microAlgo,
+    validAtRound: Number(accountInformation.validAsOfRound),
   } satisfies ActiveWalletAccount
 }
 

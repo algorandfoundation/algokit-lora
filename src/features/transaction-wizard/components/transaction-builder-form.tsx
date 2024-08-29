@@ -39,12 +39,22 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
     [activeAddress, buildableTransaction, signer]
   )
 
+  // NOTE: Number fields need the default value `'' as unknown as undefined` in order to be cleared.
   return (
     <Form
       schema={buildableTransaction.schema}
       defaultValues={
         {
           sender: defaultSender,
+          fee: {
+            setAutomatically: true,
+            value: '' as unknown as undefined,
+          },
+          validRounds: {
+            setAutomatically: true,
+            firstValid: '' as unknown as undefined,
+            lastValid: '' as unknown as undefined,
+          },
           ...buildableTransaction.defaultValues,
         } as Parameters<typeof buildableTransaction.createTransaction>[0]
       }

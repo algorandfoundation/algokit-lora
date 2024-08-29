@@ -15,6 +15,7 @@ export interface FormItemProps<TSchema extends Record<string, unknown> = Record<
   disabled?: boolean
   fullWidth?: boolean
   helpText?: string | ReactElement
+  required?: boolean
 }
 
 export function FormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
@@ -23,9 +24,11 @@ export function FormItem<TSchema extends Record<string, unknown> = Record<string
   field,
   helpText,
   children,
+  required: explicitRequired,
 }: FormItemProps<TSchema>) {
   const error = useFormFieldError(field)
-  const { required } = useFieldMetadata(field)
+  const { required: inferredRequired } = useFieldMetadata(field)
+  const required = explicitRequired ? explicitRequired : inferredRequired
 
   return (
     <div className={cn('grid', className)}>

@@ -1,17 +1,20 @@
-import { BuildableTransaction, BuildableTransactionFormFieldType } from '../models'
+import { BuildableTransaction, BuildableTransactionFormField, BuildableTransactionFormFieldType } from '../models'
 import { z } from 'zod'
 import { Path } from 'react-hook-form'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
+import { FormItemProps } from '@/features/forms/components/form-item'
 
 type Props<TSchema extends z.ZodSchema> = {
   helper: FormFieldHelper<z.infer<TSchema>>
   transaction: BuildableTransaction<TSchema>
 }
 
-type Fields<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = { [K in keyof TData]: [Path<TData>, TData[K]] }[keyof TData][]
+type Fields<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = {
+  [K in keyof TData]: [Path<TData>, BuildableTransactionFormField]
+}[keyof TData][]
 function fields<TSchema extends z.ZodSchema>(buildableTransaction: BuildableTransaction<TSchema>): Fields<TSchema> {
   return Object.entries(buildableTransaction.fields) as Fields<TSchema>
 }
@@ -26,7 +29,7 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
           field: path,
           placeholder: field.placeholder,
           helpText: field.description,
-        }
+        } satisfies Omit<FormItemProps<z.infer<TSchema>>, 'children'> & { placeholder?: string }
 
         switch (field.type) {
           case BuildableTransactionFormFieldType.Text:

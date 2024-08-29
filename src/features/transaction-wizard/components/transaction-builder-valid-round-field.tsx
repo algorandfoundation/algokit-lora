@@ -39,11 +39,13 @@ export function TransactionBuilderValidRoundField<TSchema extends z.ZodSchema>({
             label: 'First valid round',
             field: firstValidPath,
             helpText: 'The first round this transaction is valid',
+            required: true,
           })}
           {helper.numberField({
             label: 'Last valid round',
             field: lastValidPath,
             helpText: 'The last round this transaction is valid',
+            required: true,
           })}
         </div>
       )}

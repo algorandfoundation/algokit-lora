@@ -46,6 +46,7 @@ export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper
             helpText: 'Min 0.001 ALGO',
             decimalScale: 6,
             thousandSeparator: true,
+            required: true,
           })}
         </div>
       )}

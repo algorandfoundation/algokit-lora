@@ -5,11 +5,12 @@ import { z } from 'zod'
 import { isAddress } from '@/utils/is-address'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 
+const invalidAddressMessage = 'Invalid address'
 export const optionalAddressFieldSchema = zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) : true), {
-  message: 'Invalid address',
+  message: invalidAddressMessage,
 })
 export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) : true), {
-  message: 'Invalid address',
+  message: invalidAddressMessage,
 })
 
 export const senderFieldSchema = { sender: addressFieldSchema }
@@ -57,7 +58,6 @@ export const feeFieldSchema = {
       }
     }),
 }
-
 export const feeField = {
   fee: {
     label: 'Set fee automatically',
@@ -99,7 +99,6 @@ export const validRoundsFieldSchema = {
       }
     }),
 }
-
 export const validRoundsField = {
   validRounds: {
     label: 'Set valid rounds automatically',

@@ -20,10 +20,6 @@ import {
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { numberSchema } from '@/features/forms/data/common'
 
-const amountFieldSchema = {
-  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
-}
-
 const amountField = {
   amount: {
     label: 'Amount',
@@ -32,8 +28,6 @@ const amountField = {
     placeholder: '1',
   } satisfies BuildableTransactionFormField,
 }
-
-// TODO: NC - Can potentially get some re-use here. Could we setup common fields?
 
 const createPayment = async (data: z.infer<typeof paymentSchema>) => {
   const transaction = await algorandClient.transactions.payment({
@@ -48,13 +42,9 @@ const createPayment = async (data: z.infer<typeof paymentSchema>) => {
           lastValidRound: data.validRounds.lastValid,
         }
       : undefined),
-    signer: noOpSigner,
   })
   return transaction
 }
-
-// This is a temporary measure as there is a utils-ts issue which prevents creating a transaction without a singer
-const noOpSigner = () => Promise.resolve([])
 
 const createAccountClose = async (data: z.infer<typeof accountCloseSchema>) => {
   const transaction = await algorandClient.transactions.payment({
@@ -70,7 +60,6 @@ const createAccountClose = async (data: z.infer<typeof accountCloseSchema>) => {
           lastValidRound: data.validRounds.lastValid,
         }
       : undefined),
-    signer: noOpSigner,
   })
   return transaction
 }
@@ -78,7 +67,7 @@ const createAccountClose = async (data: z.infer<typeof accountCloseSchema>) => {
 const paymentSchema = zfd.formData({
   ...senderFieldSchema,
   ...receiverFieldSchema,
-  ...amountFieldSchema,
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
   ...noteFieldSchema,
@@ -95,12 +84,6 @@ export const paymentTransaction = {
   },
   defaultValues: {
     amount: '' as unknown as undefined,
-    fee: {
-      setAutomatically: true,
-    },
-    validRounds: {
-      setAutomatically: true,
-    },
   },
   schema: paymentSchema,
   createTransaction: createPayment,
@@ -136,8 +119,6 @@ const accountCloseSchema = zfd.formData(
     })
 )
 
-// TODO: NC - Can we have a required override, so we can explicitly set, if it can't be inferred?
-
 export const accountCloseTransaction = {
   label: 'Account close (pay)',
   fields: {
@@ -147,7 +128,7 @@ export const accountCloseTransaction = {
       description: 'Account to receive the balance when sender account is closed',
       type: BuildableTransactionFormFieldType.Account,
       placeholder: ZERO_ADDRESS,
-    } satisfies BuildableTransactionFormField,
+    },
     ...receiverField,
     ...amountField,
     ...feeField,
@@ -155,13 +136,7 @@ export const accountCloseTransaction = {
     ...noteField,
   },
   defaultValues: {
-    amount: '' as unknown as undefined, // TODO: NC - Need to ensure that everywhere we have a we have this
-    fee: {
-      setAutomatically: true,
-    },
-    validRounds: {
-      setAutomatically: true,
-    },
+    amount: '' as unknown as undefined,
   },
   schema: accountCloseSchema,
   createTransaction: createAccountClose,
