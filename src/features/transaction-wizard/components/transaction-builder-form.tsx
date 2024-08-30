@@ -98,10 +98,11 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
           } as Parameters<typeof buildableTransaction.createTransaction>[0]
         }
         onSubmit={sendTransaction}
+        resetOnSuccess={true}
         formAction={(ctx, resetLocalState) => (
           <FormActions
             key={buildableTransaction.label}
-            onInitialise={() => {
+            onInit={() => {
               resetLocalState()
               setSendTransactionResult(undefined)
               ctx.clearErrors()

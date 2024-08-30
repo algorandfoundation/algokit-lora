@@ -4,18 +4,18 @@ import { cn } from '@/features/common/utils'
 export interface FormActionsProps {
   className?: string
   children?: ReactNode
-  onInitialise?: () => void
+  onInit?: () => void
 }
 
-export function FormActions({ className, children, onInitialise }: FormActionsProps) {
+export function FormActions({ className, children, onInit }: FormActionsProps) {
   const [isInitialised, setIsInitialised] = useState(false)
 
   useEffect(() => {
     if (!isInitialised) {
-      onInitialise && onInitialise()
+      onInit?.()
       setIsInitialised(true)
     }
-  }, [isInitialised, onInitialise])
+  }, [isInitialised, onInit])
 
   return <div className={cn('mt-4 flex gap-2 justify-end', className)}>{children}</div>
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 import { DefaultValues, FormProvider, useForm, UseFormReturn } from 'react-hook-form'
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,6 +17,7 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   formAction: ReactNode | ((ctx: UseFormReturn<TSchema, any, undefined>, resetLocalState: () => void) => ReactNode)
   onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
+  resetOnSuccess?: boolean
 }
 
 export function Form<TData, TSchema extends Record<string, unknown>>({
@@ -28,6 +29,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
   defaultValues,
   onSubmit: _onSubmit,
   onSuccess,
+  resetOnSuccess,
 }: FormProps<TData, TSchema>) {
   const [errorMessage, setErrorMessage] = useState<string | undefined>()
   const [submitting, setSubmitting] = useState(false)
@@ -60,6 +62,13 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
   )
 
   const handleSubmit = useMemo(() => formCtx.handleSubmit(onSubmit), [formCtx, onSubmit])
+
+  useEffect(() => {
+    if (resetOnSuccess) {
+      formCtx.reset()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetOnSuccess, formCtx.formState.isSubmitSuccessful])
 
   return (
     <div className={'grid'}>
