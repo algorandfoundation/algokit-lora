@@ -25,8 +25,6 @@ export function TransactionWizardPage() {
     setSelectedBuildableIndex(Number(value))
   }, [])
 
-  // TODO: NC - Render the transaction summary like we will do for the method call
-
   return (
     <>
       <PageTitle title={transactionWizardPageTitle} />
