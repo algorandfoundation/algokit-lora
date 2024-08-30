@@ -178,6 +178,7 @@
     ]
   },
   "overrides": {
-    "ws@>7.0.0 <7.5.9": "7.5.10"
+    "ws@>7.0.0 <7.5.9": "7.5.10",
+    "@algorandfoundation/algokit-utils@<7.0.0": "^7.0.0-beta.1"
   }
 }

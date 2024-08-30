@@ -53,7 +53,7 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
     link.click()
   }, [])
 
-  const bgClassName = _bgClassName ? _bgClassName : 'bg-card'
+  const bgClassName = _bgClassName ?? 'bg-card'
 
   return (
     <>
