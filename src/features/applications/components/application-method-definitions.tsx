@@ -1,24 +1,24 @@
-import { Application, ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
+import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
 import { Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
 
 type Props = {
-  application: Application
+  abiMethodDefinitions: MethodDefinition[]
 }
 
-export function ApplicationAbiMethods({ application }: Props) {
+export function ApplicationMethodDefinitions({ abiMethodDefinitions }: Props) {
   return (
     <Accordion type="multiple">
-      {application.methods.map((method, index) => (
+      {abiMethodDefinitions.map((method, index) => (
         <Method method={method} key={index} />
       ))}
     </Accordion>
   )
 }
 
-export function Method({ method }: { method: MethodDefinition }) {
+function Method({ method }: { method: MethodDefinition }) {
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
@@ -39,7 +39,7 @@ export function Method({ method }: { method: MethodDefinition }) {
   )
 }
 
-export function Argument({ argument }: { argument: ArgumentDefinition }) {
+function Argument({ argument }: { argument: ArgumentDefinition }) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -74,7 +74,7 @@ export function Argument({ argument }: { argument: ArgumentDefinition }) {
   )
 }
 
-export function Returns({ returns }: { returns: ReturnsDefinition }) {
+function Returns({ returns }: { returns: ReturnsDefinition }) {
   const items = useMemo(
     () => [
       ...(returns.description
@@ -100,7 +100,7 @@ export function Returns({ returns }: { returns: ReturnsDefinition }) {
   )
 }
 
-export function Struct({ struct }: { struct: StructType }) {
+function Struct({ struct }: { struct: StructType }) {
   return (
     <div>
       <span>{struct.name}</span>

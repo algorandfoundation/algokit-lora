@@ -22,6 +22,7 @@ import {
   applicationBoxesTabId,
   applicationGlobalStateTabId,
   applicationGlobalStateLabel,
+  applicationAbiMethodDefinitionsLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationGlobalStateTable } from './application-global-state-table'
@@ -33,8 +34,10 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { ApplicationAbiMethods } from '@/features/applications/components/application-abi-methods'
 import { ApplicationProgramsButton } from './application-programs-button'
+import { useLoadableApplicationAbiMethodDefinitions } from '../data/application-method-definitions'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { ApplicationMethodDefinitions } from './application-method-definitions'
 
 type Props = {
   application: Application
@@ -44,8 +47,6 @@ const expandApplicationJsonLevel = (level: number) => {
   return level < 2
 }
 
-// TODO: move abi methods into another loader
-// TODO: cache the local app registry
 export function ApplicationDetails({ application }: Props) {
   const applicationItems = useMemo(
     () => [
@@ -121,6 +122,8 @@ export function ApplicationDetails({ application }: Props) {
     ]
   ).filter(isDefined)
 
+  const abiMethodDefinitions = useLoadableApplicationAbiMethodDefinitions(application)
+
   return (
     <div className="space-y-4">
       <Card aria-label={applicationDetailsLabel}>
@@ -134,14 +137,18 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
-      {application.methods.length > 0 && (
-        <Card aria-label="abi-methods">
-          <CardContent className="space-y-1">
-            <h2>ABI Methods</h2>
-            <ApplicationAbiMethods application={application} />
-          </CardContent>
-        </Card>
-      )}
+      <RenderLoadable loadable={abiMethodDefinitions}>
+        {(abiMethodDefinitions) =>
+          abiMethodDefinitions.length > 0 && (
+            <Card aria-label={applicationAbiMethodDefinitionsLabel}>
+              <CardContent className="space-y-1">
+                <h2>{applicationAbiMethodDefinitionsLabel}</h2>
+                <ApplicationMethodDefinitions abiMethodDefinitions={abiMethodDefinitions} />
+              </CardContent>
+            </Card>
+          )
+        }
+      </RenderLoadable>
       <Card aria-label={applicationStateLabel}>
         <CardContent className="space-y-1">
           <h2>{applicationStateLabel}</h2>

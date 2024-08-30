@@ -20,7 +20,7 @@ export const asApplicationSummary = (application: ApplicationResult): Applicatio
   }
 }
 
-export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult, appSpec?: Arc32AppSpec): Application => {
+export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult): Application => {
   return {
     id: application.id,
     name: metadata?.name,
@@ -43,7 +43,6 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
     globalState: asGlobalStateValue(application.params['global-state']),
     isDeleted: application.deleted ?? false,
     json: asJson(application),
-    methods: appSpec ? asMethodDefinitions(appSpec) : [],
   }
 }
 
@@ -100,7 +99,7 @@ const getValue = (bytes: string) => {
   }
 }
 
-const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] => {
+export const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] => {
   return appSpec.contract.methods.map((method) => {
     const abiMethod = new algosdk.ABIMethod({
       name: method.name,
