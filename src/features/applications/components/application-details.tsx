@@ -8,7 +8,7 @@ import {
   applicationCreatorAccountLabel,
   applicationDetailsLabel,
   applicationGlobalStateByteLabel,
-  applicationGlobalStateLabel,
+  applicationStateLabel,
   applicationGlobalStateUintLabel,
   applicationHistoricalTransactionsTabId,
   applicationHistoricalTransactionsTabLabel,
@@ -19,6 +19,9 @@ import {
   applicationLocalStateUintLabel,
   applicationTransactionsLabel,
   applicationNameLabel,
+  applicationBoxesTabId,
+  applicationGlobalStateTabId,
+  applicationGlobalStateLabel,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationGlobalStateTable } from './application-global-state-table'
@@ -41,6 +44,8 @@ const expandApplicationJsonLevel = (level: number) => {
   return level < 2
 }
 
+// TODO: move abi methods into another loader
+// TODO: cache the local app registry
 export function ApplicationDetails({ application }: Props) {
   const applicationItems = useMemo(
     () => [
@@ -137,16 +142,25 @@ export function ApplicationDetails({ application }: Props) {
           </CardContent>
         </Card>
       )}
-      <Card aria-label={applicationGlobalStateLabel}>
+      <Card aria-label={applicationStateLabel}>
         <CardContent className="space-y-1">
-          <h2>{applicationGlobalStateLabel}</h2>
-          <ApplicationGlobalStateTable application={application} />
-        </CardContent>
-      </Card>
-      <Card aria-label={applicationBoxesLabel}>
-        <CardContent className="space-y-1">
-          <h2>{applicationBoxesLabel}</h2>
-          <ApplicationBoxes applicationId={application.id} />
+          <h2>{applicationStateLabel}</h2>
+          <Tabs defaultValue={applicationGlobalStateTabId}>
+            <TabsList aria-label={applicationStateLabel}>
+              <TabsTrigger className="w-fit px-4" value={applicationGlobalStateTabId}>
+                {applicationGlobalStateLabel}
+              </TabsTrigger>
+              <TabsTrigger className="w-fit px-4" value={applicationBoxesTabId}>
+                {applicationBoxesLabel}
+              </TabsTrigger>
+            </TabsList>
+            <OverflowAutoTabsContent value={applicationGlobalStateTabId}>
+              <ApplicationGlobalStateTable application={application} />
+            </OverflowAutoTabsContent>
+            <OverflowAutoTabsContent value={applicationBoxesTabId}>
+              <ApplicationBoxes applicationId={application.id} />
+            </OverflowAutoTabsContent>
+          </Tabs>
         </CardContent>
       </Card>
       <Card aria-label={applicationTransactionsLabel}>
