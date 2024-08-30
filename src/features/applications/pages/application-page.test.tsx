@@ -1,5 +1,5 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { getByRole, render, waitFor } from '@/tests/testing-library'
+import { getByRole, render, waitFor, within } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import {
@@ -8,12 +8,13 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { createStore } from 'jotai'
 import { applicationResultsAtom } from '../data'
 import {
+  applicationAbiMethodDefinitionsLabel,
   applicationAccountLabel,
   applicationBoxesLabel,
   applicationCreatorAccountLabel,
@@ -34,6 +35,10 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
+import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
+import { writeAppInterface } from '@/features/app-interfaces/data'
+import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -313,6 +318,75 @@ describe('application-page', () => {
 
             const refreshButton = component.getByLabelText(refreshButtonLabel)
             expect(refreshButton).toBeTruthy()
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an application that is associated with an appspec', () => {
+    const applicationResult = applicationResultMother['testnet-718348254']().build()
+
+    it('should be rendered with the correct data', async () => {
+      vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+      )
+
+      const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationResult.id,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: SampleSevenAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          await waitFor(async () => {
+            const abiMethodsCard = component.getByLabelText(applicationAbiMethodDefinitionsLabel)
+            expect(abiMethodsCard).toBeTruthy()
+
+            const echoStructAccordionTrigger = component.getByRole('button', { name: 'echo_struct' })
+            await user.click(echoStructAccordionTrigger)
+
+            const echoStructAccordionPanel = component.getByRole('region', { name: 'echo_struct' })
+            expect(echoStructAccordionPanel).toBeTruthy()
+
+            const argumentsDiv = within(echoStructAccordionPanel).getByText('Arguments').parentElement
+            expect(argumentsDiv).toBeTruthy()
+
+            const argument1Div = within(argumentsDiv!).getByText('Argument 1').parentElement
+            descriptionListAssertion({
+              container: argument1Div!,
+              items: [
+                { term: 'Name', description: 'inputUser' },
+                { term: 'Type', description: 'UserStruct:name: stringid: uint64' },
+              ],
+            })
+
+            const returnDiv = within(echoStructAccordionPanel).getByText('Return').parentElement
+            expect(returnDiv).toBeTruthy()
+
+            const returnTypeDiv = within(returnDiv!).getByText('Type').parentElement
+            expect(returnTypeDiv).toBeTruthy()
+
+            descriptionListAssertion({
+              container: returnTypeDiv!,
+              items: [{ term: 'Type', description: 'UserStruct:name: stringid: uint64' }],
+            })
           })
         }
       )

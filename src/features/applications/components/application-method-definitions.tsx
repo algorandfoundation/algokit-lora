@@ -26,7 +26,7 @@ function Method({ method }: { method: MethodDefinition }) {
       </AccordionTrigger>
       <AccordionContent>
         {method.description && <p className="mb-4">{method.description}</p>}
-        <div className="space-y-2">
+        <div className="space-y-4">
           <h4 className="text-primary">Arguments</h4>
           {method.arguments.length > 0 && method.arguments.map((argument) => <Argument argument={argument} key={argument.index} />)}
           {method.arguments.length === 0 && <p>No arguments</p>}
@@ -67,10 +67,10 @@ function Argument({ argument }: { argument: ArgumentDefinition }) {
   )
 
   return (
-    <>
-      <h5 className="text-primary">Argument {argument.index}</h5>
+    <div className="space-y-2">
+      <h5 className="text-primary">{`Argument ${argument.index}`}</h5>
       <DescriptionList items={items} />
-    </>
+    </div>
   )
 }
 
@@ -103,7 +103,7 @@ function Returns({ returns }: { returns: ReturnsDefinition }) {
 function Struct({ struct }: { struct: StructType }) {
   return (
     <div>
-      <span>{struct.name}</span>
+      <span>{struct.name}:</span>
       <ul className="pl-4">
         {struct.elements.map((element, index) => (
           <li key={index}>

@@ -80,6 +80,24 @@ export const applicationResultMother = {
       },
     })
   },
+  'testnet-718348254': () => {
+    return new ApplicationResultBuilder({
+      id: 718348254,
+      params: {
+        'approval-program': 'CiABATEbQQAmgASlPlpBNhoAjgEAAQAxGRREMRhENhoBiAAVgAQVH3x1TFCwIkMxGRREMRgURCJDigEBi/+J',
+        'clear-state-program': 'CoEBQw==',
+        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+      },
+    })
+  },
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>
