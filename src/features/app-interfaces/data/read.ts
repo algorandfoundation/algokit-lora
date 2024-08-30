@@ -2,9 +2,10 @@ import { DbConnection, dbConnectionAtom } from '@/features/common/data/indexed-d
 import { ApplicationId } from '@/features/applications/data/types'
 import { useMemo } from 'react'
 import { atomWithRefresh, loadable } from 'jotai/utils'
-import { useAtomValue, useSetAtom } from 'jotai/index'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
 
 export const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
+  console.log('getAppInterface', applicationId)
   return await dbConnection.get('app-interfaces', applicationId)
 }
 export const getAppInterfaces = async (dbConnection: DbConnection) => {
@@ -21,4 +22,11 @@ export const useAppInterfaces = () => {
     })
   }, [])
   return [useAtomValue(loadable(appInterfacesAtom)), useSetAtom(appInterfacesAtom)] as const
+}
+
+export const createAppInterfaceAtom = (applicationId: ApplicationId) => {
+  return atom(async (get) => {
+    const dbConnection = await get(dbConnectionAtom)
+    return await getAppInterface(dbConnection, applicationId)
+  })
 }

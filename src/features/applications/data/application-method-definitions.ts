@@ -3,12 +3,11 @@ import { asMethodDefinitions } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { Application } from '../models'
-import { dbConnectionAtom } from '@/features/common/data/indexed-db'
+import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 
 const createApplicationMethodDefinitionsAtom = (application: Application) => {
   return atom(async (get) => {
-    const dbConnection = await get(dbConnectionAtom)
-    const appInterface = await dbConnection.get('app-interfaces', application.id)
+    const appInterface = await get(createAppInterfaceAtom(application.id))
 
     if (!appInterface) {
       return []

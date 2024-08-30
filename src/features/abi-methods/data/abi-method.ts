@@ -9,7 +9,7 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
-import { getAppInterfaceAtom } from '@/features/app-interfaces/data'
+import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
@@ -35,7 +35,7 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
 
-    const appInterface = await get(getAppInterfaceAtom(transaction['application-transaction']['application-id']))
+    const appInterface = await get(createAppInterfaceAtom(transaction['application-transaction']['application-id']))
     if (!appInterface) return undefined
 
     const appSpecVersion = appInterface.appSpecVersions.find((appSpecVersion) =>
