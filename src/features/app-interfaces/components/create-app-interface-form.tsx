@@ -40,7 +40,6 @@ export function isArc32AppSpec(appSpec: Arc32AppSpec | Arc4AppSpec): appSpec is 
 }
 
 export function isArc4AppSpec(appSpec: Arc32AppSpec | Arc4AppSpec): appSpec is Arc4AppSpec {
-  // Check for properties specific to Arc4AppSpec
   return (
     appSpec !== null &&
     typeof appSpec === 'object' &&
@@ -107,7 +106,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
           </FormActions>
         }
       >
-        {(helper) => <FormInner helper={helper} />}
+        {(helper) => <FormInner helper={helper} appSpec={appSpec} />}
       </Form>
     </div>
   )
@@ -115,9 +114,10 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
 
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof formSchema>>
+  appSpec: Arc32AppSpec | Arc4AppSpec
 }
 
-function FormInner({ helper }: FormInnerProps) {
+function FormInner({ helper, appSpec }: FormInnerProps) {
   const [_, send] = useCreateAppInterfaceStateMachine()
 
   const { getValues, control } = useFormContext<z.infer<typeof formSchema>>()
@@ -178,26 +178,36 @@ function FormInner({ helper }: FormInnerProps) {
         field: 'name',
         label: 'Name',
       })}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
-        {helper.numberField({
-          field: 'applicationId',
-          label: 'Application ID',
-        })}
-        <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
-        <div className="grid sm:mt-[1.375rem]">
-          {!deployButtonStatus.disabled && deployButton}
-          {deployButtonStatus.disabled && (
-            <Tooltip delayDuration={400}>
-              <TooltipTrigger asChild>
-                <div tabIndex={0}>{deployButton}</div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span>{deployButtonStatus.reason}</span>
-              </TooltipContent>
-            </Tooltip>
-          )}
+      {isArc4AppSpec(appSpec) && (
+        <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
+          {helper.numberField({
+            field: 'applicationId',
+            label: 'Application ID',
+          })}
         </div>
-      </div>
+      )}
+      {isArc32AppSpec(appSpec) && (
+        <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
+          {helper.numberField({
+            field: 'applicationId',
+            label: 'Application ID',
+          })}
+          <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
+          <div className="grid sm:mt-[1.375rem]">
+            {!deployButtonStatus.disabled && deployButton}
+            {deployButtonStatus.disabled && (
+              <Tooltip delayDuration={400}>
+                <TooltipTrigger asChild>
+                  <div tabIndex={0}>{deployButton}</div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span>{deployButtonStatus.reason}</span>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </div>
+      )}
     </>
   )
 }
