@@ -19,8 +19,6 @@ import {
   applicationLocalStateUintLabel,
   applicationTransactionsLabel,
   applicationNameLabel,
-  applicationBoxesTabId,
-  applicationGlobalStateTabId,
 } from './labels'
 import { isDefined } from '@/utils/is-defined'
 import { ApplicationGlobalStateTable } from './application-global-state-table'
@@ -129,24 +127,6 @@ export function ApplicationDetails({ application }: Props) {
               <OpenJsonViewDialogButton json={application.json} expandJsonLevel={expandApplicationJsonLevel} />
             </div>
           </div>
-          <div className="mt-4">
-            <Tabs defaultValue={applicationGlobalStateTabId}>
-              <TabsList aria-label={applicationGlobalStateLabel}>
-                <TabsTrigger className="w-fit px-4" value={applicationGlobalStateTabId}>
-                  {applicationGlobalStateLabel}
-                </TabsTrigger>
-                <TabsTrigger className="w-fit px-4" value={applicationBoxesTabId}>
-                  {applicationBoxesLabel}
-                </TabsTrigger>
-              </TabsList>
-              <OverflowAutoTabsContent value={applicationGlobalStateTabId}>
-                <ApplicationGlobalStateTable application={application} />
-              </OverflowAutoTabsContent>
-              <OverflowAutoTabsContent value={applicationBoxesTabId}>
-                <ApplicationBoxes applicationId={application.id} />
-              </OverflowAutoTabsContent>
-            </Tabs>
-          </div>
         </CardContent>
       </Card>
       {application.methods.length > 0 && (
@@ -157,6 +137,18 @@ export function ApplicationDetails({ application }: Props) {
           </CardContent>
         </Card>
       )}
+      <Card aria-label={applicationGlobalStateLabel}>
+        <CardContent className="space-y-1">
+          <h2>{applicationGlobalStateLabel}</h2>
+          <ApplicationGlobalStateTable application={application} />
+        </CardContent>
+      </Card>
+      <Card aria-label={applicationBoxesLabel}>
+        <CardContent className="space-y-1">
+          <h2>{applicationBoxesLabel}</h2>
+          <ApplicationBoxes applicationId={application.id} />
+        </CardContent>
+      </Card>
       <Card aria-label={applicationTransactionsLabel}>
         <CardContent className="space-y-1">
           <h2>{applicationTransactionsLabel}</h2>
