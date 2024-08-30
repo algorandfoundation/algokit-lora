@@ -1,98 +1,21 @@
-import { Application } from '@/features/applications/models'
+import { Application, ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
-import algosdk from 'algosdk'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
-import { invariant } from '@/utils/invariant'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
-import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
+import { Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
 
 type Props = {
   application: Application
 }
 
-type ArgumentHint = {
-  struct?: StructType
-  defaultValue?: DefaultArgument
-}
-
-type ArgumentDefinition = {
-  index: number
-  name?: string
-  description?: string
-  type: algosdk.ABIArgumentType
-  hint?: ArgumentHint
-}
-
-type ReturnsHint = {
-  struct: StructType
-}
-
-type ReturnsDefinition = {
-  description?: string
-  type: algosdk.ABIReturnType
-  hint?: ReturnsHint
-}
-
-// TODO: refactor out to a mapper, likely merge it into the application model
-type MethodDefinition = {
-  name: string
-  signature: string
-  description?: string
-  arguments: ArgumentDefinition[]
-  returns: ReturnsDefinition
-}
-
 export function ApplicationAbiMethods({ application }: Props) {
-  const methods = useMemo(() => {
-    invariant(application.appSpec, 'application.appSpec is not set')
-    return getMethodDefinitions(application.appSpec)
-  }, [application.appSpec])
-
   return (
     <Accordion type="multiple">
-      {methods.map((method, index) => (
+      {application.methods.map((method, index) => (
         <Method method={method} key={index} />
       ))}
     </Accordion>
   )
-}
-
-const getMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] => {
-  return appSpec.contract.methods.map((method) => {
-    // TODO: don't need to pass the entire method in
-    const abiMethod = new algosdk.ABIMethod(method)
-    const signature = abiMethod.getSignature()
-    const hint = appSpec.hints ? appSpec.hints[signature] : undefined
-
-    return {
-      name: abiMethod.name,
-      signature: signature,
-      description: abiMethod.description,
-      arguments: abiMethod.args.map((arg, index) => ({
-        index: index + 1,
-        name: arg.name,
-        description: arg.description,
-        type: arg.type,
-        hint:
-          hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
-            ? ({
-                struct: hint.structs?.[arg.name],
-                defaultValue: hint.default_arguments?.[arg.name],
-              } satisfies ArgumentHint)
-            : undefined,
-      })),
-      returns: {
-        ...abiMethod.returns,
-        hint:
-          hint && hint.structs?.['output']
-            ? {
-                struct: hint.structs?.['output'],
-              }
-            : undefined,
-      },
-    } satisfies MethodDefinition
-  })
 }
 
 export function Method({ method }: { method: MethodDefinition }) {

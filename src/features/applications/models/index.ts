@@ -1,5 +1,6 @@
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { ApplicationId } from '../data/types'
+import algosdk from 'algosdk'
+import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -17,7 +18,7 @@ export type Application = {
   globalState?: Map<string, ApplicationGlobalStateValue>
   json: string
   isDeleted: boolean
-  appSpec?: Arc32AppSpec
+  methods: MethodDefinition[]
 }
 
 export type ApplicationStateSchema = {
@@ -47,4 +48,35 @@ export type ApplicationBoxSummary = {
 export type ApplicationBox = {
   name: string
   value: string
+}
+
+export type ArgumentHint = {
+  struct?: StructType
+  defaultValue?: DefaultArgument
+}
+
+export type ArgumentDefinition = {
+  index: number
+  name?: string
+  description?: string
+  type: algosdk.ABIArgumentType
+  hint?: ArgumentHint
+}
+
+export type ReturnsHint = {
+  struct: StructType
+}
+
+export type ReturnsDefinition = {
+  description?: string
+  type: algosdk.ABIReturnType
+  hint?: ReturnsHint
+}
+
+export type MethodDefinition = {
+  name: string
+  signature: string
+  description?: string
+  arguments: ArgumentDefinition[]
+  returns: ReturnsDefinition
 }

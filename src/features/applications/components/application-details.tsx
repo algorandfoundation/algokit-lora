@@ -149,7 +149,7 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
-      {application.appSpec && (
+      {application.methods.length > 0 && (
         <Card aria-label="abi-methods">
           <CardContent className="space-y-1">
             <h2>ABI Methods</h2>
