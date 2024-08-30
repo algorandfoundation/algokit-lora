@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js'
 
 export const compactAmount = (amount: Decimal | number) => {
-  if (amount.toString().length < 8) {
+  if (amount.toString().length < 9) {
     return amount.toString()
   }
 
