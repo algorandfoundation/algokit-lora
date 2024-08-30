@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -13,12 +13,13 @@ import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { genesisHashAtom } from '@/features/blocks/data'
 import { writeAppInterface } from '@/features/app-interfaces/data'
+import { genesisHashAtom } from '@/features/blocks/data'
 
-const { myStore } = await vi.hoisted(async () => {
+const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
-  return { myStore: getDefaultStore() }
+  const myStore = getDefaultStore()
+  return myStore
 })
 
 vi.mock('@/features/common/data/data-store', async () => {
@@ -30,6 +31,10 @@ vi.mock('@/features/common/data/data-store', async () => {
 })
 
 describe('resolving ABI method', () => {
+  beforeEach(() => {
+    myStore.set(genesisHashAtom, 'some-hash')
+  })
+
   describe('for an app call with referenced asset', () => {
     const transaction = transactionResultMother['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']().build()
     const asset = assetResultMother['testnet-705457144']().build()
@@ -37,7 +42,6 @@ describe('resolving ABI method', () => {
     it('should resolve the correct data', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
-      myStore.set(genesisHashAtom, 'some-hash')
 
       const applicationId = transaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
@@ -397,7 +401,6 @@ describe('resolving ABI method', () => {
 
     it('abiMethod should be undefined', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
-      myStore.set(genesisHashAtom, 'some-hash')
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeUndefined()

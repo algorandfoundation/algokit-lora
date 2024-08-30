@@ -1,5 +1,5 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { render, waitFor } from '@/tests/testing-library'
+import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import {
@@ -25,6 +25,7 @@ import {
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
   applicationNameLabel,
+  applicationStateLabel,
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
@@ -135,7 +136,7 @@ describe('application-page', () => {
         () => {
           return render(<ApplicationPage />, undefined, myStore)
         },
-        async (component) => {
+        async (component, user) => {
           await waitFor(async () => {
             const detailsCard = component.getByLabelText(applicationDetailsLabel)
             descriptionListAssertion({
@@ -151,10 +152,13 @@ describe('application-page', () => {
               ],
             })
 
+            const applicationStateTabList = component.getByRole('tablist', { name: applicationStateLabel })
+            expect(applicationStateTabList).toBeTruthy()
+
             // Only test the first 10 rows, should be enough
-            const globalStateCard = component.getByLabelText(applicationGlobalStateLabel)
+            const globalStateTab = component.getByRole('tabpanel', { name: applicationGlobalStateLabel })
             tableAssertion({
-              container: globalStateCard,
+              container: globalStateTab,
               rows: [
                 { cells: ['Bids', 'Uint', '0'] },
                 { cells: ['Creator', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
@@ -169,9 +173,10 @@ describe('application-page', () => {
               ],
             })
 
-            const boxesCard = component.getByLabelText(applicationBoxesLabel)
+            await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
+            const boxesTab = component.getByRole('tabpanel', { name: applicationBoxesLabel })
             tableAssertion({
-              container: boxesCard,
+              container: boxesTab,
               rows: [
                 { cells: ['AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8='] },
                 { cells: ['AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4='] },

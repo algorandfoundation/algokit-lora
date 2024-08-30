@@ -1246,6 +1246,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
   it('should be rendered with the correct data', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
     const myStore = createStore()
+    myStore.set(genesisHashAtom, 'some-hash')
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
     const applicationId = transaction['application-transaction']!['application-id']!
