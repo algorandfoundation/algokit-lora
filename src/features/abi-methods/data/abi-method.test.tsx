@@ -7,15 +7,14 @@ import { assetResultsAtom } from '@/features/assets/data'
 import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
-import { appInterfacesAtom } from '@/features/app-interfaces/data'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { groupResultsAtom } from '@/features/groups/data'
-import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
-import { atom } from 'jotai/index'
+import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
+import { writeAppInterface } from '@/features/app-interfaces/data'
 
 const { myStore } = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -38,27 +37,21 @@ describe('resolving ABI method', () => {
     it('should resolve the correct data', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+      myStore.set(genesisHashAtom, 'some-hash')
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      myStore.set(
-        appInterfacesAtom,
-        new Map([
-          [
-            applicationId,
-            createAppInterfaceAtomAndTimestamp({
-              applicationId: applicationId,
-              name: 'test',
-              appSpecVersions: [
-                {
-                  standard: 'ARC-32',
-                  appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
-                },
-              ],
-              lastModified: createTimestamp(),
-            } satisfies AppInterfaceEntity),
-          ],
-        ])
-      )
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeDefined()
@@ -88,25 +81,18 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      myStore.set(
-        appInterfacesAtom,
-        new Map([
-          [
-            applicationId,
-            createAppInterfaceAtomAndTimestamp({
-              applicationId: applicationId,
-              name: 'test',
-              appSpecVersions: [
-                {
-                  standard: 'ARC-32',
-                  appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
-                },
-              ],
-              lastModified: createTimestamp(),
-            } satisfies AppInterfaceEntity),
-          ],
-        ])
-      )
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
       expect(abiMethod).toBeDefined()
@@ -145,25 +131,18 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
-      myStore.set(
-        appInterfacesAtom,
-        new Map([
-          [
-            applicationId,
-            createAppInterfaceAtomAndTimestamp({
-              applicationId: applicationId,
-              name: 'test',
-              appSpecVersions: [
-                {
-                  standard: 'ARC-32',
-                  appSpec: SampleThreeAppSpec as unknown as Arc32AppSpec,
-                },
-              ],
-              lastModified: createTimestamp(),
-            } satisfies AppInterfaceEntity),
-          ],
-        ])
-      )
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: SampleThreeAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
 
       const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
       expect(abiMethod).toBeDefined()
@@ -335,25 +314,18 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
-      myStore.set(
-        appInterfacesAtom,
-        new Map([
-          [
-            applicationId,
-            createAppInterfaceAtomAndTimestamp({
-              applicationId: applicationId,
-              name: 'test',
-              appSpecVersions: [
-                {
-                  standard: 'ARC-32',
-                  appSpec: SampleFourAppSpec as unknown as Arc32AppSpec,
-                },
-              ],
-              lastModified: createTimestamp(),
-            } satisfies AppInterfaceEntity),
-          ],
-        ])
-      )
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: 'ARC-32',
+            appSpec: SampleFourAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction))
       expect(abiMethod).toBeDefined()
@@ -432,15 +404,3 @@ describe('resolving ABI method', () => {
     })
   })
 })
-
-function createAppInterfaceAtomAndTimestamp(appInterface: AppInterfaceEntity) {
-  return [
-    atom(
-      () => appInterface,
-      () => {
-        return Promise.resolve()
-      }
-    ),
-    createTimestamp(),
-  ] as const
-}

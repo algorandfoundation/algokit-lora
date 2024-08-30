@@ -10,7 +10,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
@@ -81,11 +81,11 @@ import { transactionAmountLabel } from '../components/transactions-table-columns
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
-import { appInterfacesAtom } from '@/features/app-interfaces/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
-import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
+import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
+import { writeAppInterface } from '@/features/app-interfaces/data'
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -1249,25 +1249,18 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
     const applicationId = transaction['application-transaction']!['application-id']!
-    myStore.set(
-      appInterfacesAtom,
-      new Map([
-        [
-          applicationId,
-          createAppInterfaceAtomAndTimestamp({
-            applicationId: applicationId,
-            name: 'test',
-            appSpecVersions: [
-              {
-                standard: 'ARC-32',
-                appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
-              },
-            ],
-            lastModified: createTimestamp(),
-          }),
-        ],
-      ])
-    )
+    const dbConnection = await myStore.get(dbConnectionAtom)
+    await writeAppInterface(dbConnection, {
+      applicationId: applicationId,
+      name: 'test',
+      appSpecVersions: [
+        {
+          standard: 'ARC-32',
+          appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
+        },
+      ],
+      lastModified: createTimestamp(),
+    } satisfies AppInterfaceEntity)
 
     return executeComponentTest(
       () => {
@@ -1289,15 +1282,3 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
     )
   })
 })
-
-function createAppInterfaceAtomAndTimestamp(entity: AppInterfaceEntity) {
-  return [
-    atom(
-      () => entity,
-      () => {
-        return Promise.resolve()
-      }
-    ),
-    createTimestamp(),
-  ] as const
-}

@@ -5,7 +5,6 @@ import { atomWithRefresh, loadable } from 'jotai/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 
 export const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
-  console.log('getAppInterface', applicationId)
   return await dbConnection.get('app-interfaces', applicationId)
 }
 export const getAppInterfaces = async (dbConnection: DbConnection) => {
