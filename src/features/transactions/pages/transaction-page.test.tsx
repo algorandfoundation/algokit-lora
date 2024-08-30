@@ -83,7 +83,7 @@ import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
 import { appInterfacesAtom } from '@/features/app-interfaces/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
 
@@ -1259,7 +1259,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
             name: 'test',
             appSpecVersions: [
               {
-                standard: 'ARC-32',
+                standard: AppSpecStandard.ARC32,
                 appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
               },
             ],

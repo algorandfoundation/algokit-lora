@@ -8,7 +8,7 @@ import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
 import { appInterfacesAtom } from '@/features/app-interfaces/data'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
@@ -50,7 +50,7 @@ describe('resolving ABI method', () => {
               name: 'test',
               appSpecVersions: [
                 {
-                  standard: 'ARC-32',
+                  standard: AppSpecStandard.ARC32,
                   appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
                 },
               ],
@@ -98,7 +98,7 @@ describe('resolving ABI method', () => {
               name: 'test',
               appSpecVersions: [
                 {
-                  standard: 'ARC-32',
+                  standard: AppSpecStandard.ARC32,
                   appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
                 },
               ],
@@ -155,7 +155,7 @@ describe('resolving ABI method', () => {
               name: 'test',
               appSpecVersions: [
                 {
-                  standard: 'ARC-32',
+                  standard: AppSpecStandard.ARC32,
                   appSpec: SampleThreeAppSpec as unknown as Arc32AppSpec,
                 },
               ],
@@ -345,7 +345,7 @@ describe('resolving ABI method', () => {
               name: 'test',
               appSpecVersions: [
                 {
-                  standard: 'ARC-32',
+                  standard: AppSpecStandard.ARC32,
                   appSpec: SampleFourAppSpec as unknown as Arc32AppSpec,
                 },
               ],
