@@ -9,7 +9,6 @@ import { atomEffect } from 'jotai-effect'
 
 const createApplicationAtoms = (applicationId: ApplicationId) => {
   const isStaleAtom = atom(false)
-
   const detectIsStaleEffect = atomEffect((get, set) => {
     const applicationResults = get(applicationResultsAtom)
     const isStale = applicationResults.get(applicationId) === undefined
@@ -20,7 +19,6 @@ const createApplicationAtoms = (applicationId: ApplicationId) => {
     atomWithRefresh(async (get) => {
       const applicationResult = await get(getApplicationResultAtom(applicationId))
       const applicationMetadata = await get(getApplicationMetadataResultAtom(applicationResult))
-
       get(detectIsStaleEffect)
       return asApplication(applicationResult, applicationMetadata)
     }),

@@ -143,7 +143,7 @@ export function ApplicationDetails({ application }: Props) {
             <Card aria-label={applicationAbiMethodDefinitionsLabel}>
               <CardContent className="space-y-1">
                 <h2>{applicationAbiMethodDefinitionsLabel}</h2>
-                <ApplicationMethodDefinitions abiMethodDefinitions={abiMethodDefinitions} />
+                <ApplicationMethodDefinitions methods={abiMethodDefinitions} />
               </CardContent>
             </Card>
           )

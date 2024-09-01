@@ -8,5 +8,4 @@ export type AppSpecVersion = {
   appSpec: Arc32AppSpec
 }
 
-// TODO: replace this with algorandfoundation/algokit-utils/types/app-spec
 export type { Arc32AppSpec }

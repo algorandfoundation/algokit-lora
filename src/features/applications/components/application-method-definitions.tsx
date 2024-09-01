@@ -5,10 +5,10 @@ import { useMemo } from 'react'
 import { Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
 
 type Props = {
-  abiMethodDefinitions: MethodDefinition[]
+  methods: MethodDefinition[]
 }
 
-export function ApplicationMethodDefinitions({ abiMethodDefinitions }: Props) {
+export function ApplicationMethodDefinitions({ methods: abiMethodDefinitions }: Props) {
   return (
     <Accordion type="multiple">
       {abiMethodDefinitions.map((method, index) => (
@@ -28,8 +28,11 @@ function Method({ method }: { method: MethodDefinition }) {
         {method.description && <p className="mb-4">{method.description}</p>}
         <div className="space-y-4">
           <h4 className="text-primary">Arguments</h4>
-          {method.arguments.length > 0 && method.arguments.map((argument) => <Argument argument={argument} key={argument.index} />)}
-          {method.arguments.length === 0 && <p>No arguments</p>}
+          {method.arguments.length > 0 ? (
+            method.arguments.map((argument) => <Argument argument={argument} key={argument.index} />)
+          ) : (
+            <p>No arguments</p>
+          )}
         </div>
         <div className="mt-4">
           <Returns returns={method.returns} />

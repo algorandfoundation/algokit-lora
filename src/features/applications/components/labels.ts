@@ -14,7 +14,7 @@ export const applicationClearStateProgramLabel = 'Clear State Program'
 export const applicationApprovalProgramTabsListAriaLabel = 'View Application Approval Program Tabs'
 export const applicationClearStateProgramTabsListAriaLabel = 'View Application Clear State Program Tabs'
 
-export const applicationStateLabel = 'State'
+export const applicationStateLabel = 'States'
 export const applicationGlobalStateLabel = 'Global State'
 export const applicationGlobalStateTabId = 'global-state'
 export const applicationBoxesLabel = 'Boxes'
