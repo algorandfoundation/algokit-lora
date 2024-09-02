@@ -15,11 +15,12 @@ import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
 import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
+import { numberSchema } from '@/features/forms/data/common'
 
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
   name: zfd.text(),
-  applicationId: zfd.numeric(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+  applicationId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
 })
 
 type Props = {
@@ -66,11 +67,8 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   const defaultValues = useMemo(
     () => ({
       file: appSpecFile,
-      name: isArc32AppSpec(appSpec)
-        ? snapshot.context.name ?? appSpec.contract.name
-        : isArc4AppSpec(appSpec)
-          ? snapshot.context.name ?? appSpec.name
-          : '',
+      name: snapshot.context.name ?? (isArc32AppSpec(appSpec) ? appSpec.contract.name : isArc4AppSpec(appSpec) ? appSpec.name : ''),
+
       applicationId: snapshot.context.applicationId,
     }),
     [appSpec, appSpecFile, snapshot]
