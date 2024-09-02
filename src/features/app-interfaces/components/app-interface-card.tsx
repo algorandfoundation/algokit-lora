@@ -6,6 +6,7 @@ import { dateFormatter } from '@/utils/format'
 import { DeleteAppInterfaceButton } from '@/features/app-interfaces/components/delete-app-interface-button'
 import { appIdLabel, contractNameLabel, methodsLabel } from '@/features/app-interfaces/components/labels'
 import { ApplicationLink } from '@/features/applications/components/application-link'
+import { AppSpecStandard } from '../data/types'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -16,14 +17,17 @@ export function AppInterfaceCard({ appInterface, onDelete }: Props) {
   const items = useMemo(() => {
     // Pick the first item in the array because we don't support multiple versions yet
     const latestAppSpecVersion = appInterface.appSpecVersions[0]
+    const contract =
+      latestAppSpecVersion.standard === AppSpecStandard.ARC32 ? latestAppSpecVersion.appSpec.contract : latestAppSpecVersion.appSpec
+
     return [
       {
         dt: contractNameLabel,
-        dd: latestAppSpecVersion.appSpec.contract.name,
+        dd: contract.name,
       },
       {
         dt: methodsLabel,
-        dd: latestAppSpecVersion.appSpec.contract.methods.length,
+        dd: contract.methods.length,
       },
       {
         dt: appIdLabel,

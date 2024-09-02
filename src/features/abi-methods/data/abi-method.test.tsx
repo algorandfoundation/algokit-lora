@@ -4,10 +4,11 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
-import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
+import AuctionAppSpecArc32 from '@/tests/test-app-specs/auction.arc32.json'
+import AuctionAppSpecArc4 from '@/tests/test-app-specs/auction.arc4.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
@@ -39,7 +40,7 @@ describe('resolving ABI method', () => {
     const transaction = transactionResultMother['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']().build()
     const asset = assetResultMother['testnet-705457144']().build()
 
-    it('should resolve the correct data', async () => {
+    it('should resolve the correct data with arc32 appspec', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
@@ -50,8 +51,39 @@ describe('resolving ABI method', () => {
         name: 'test',
         appSpecVersions: [
           {
-            standard: 'ARC-32',
-            appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
+            standard: AppSpecStandard.ARC32,
+            appSpec: AuctionAppSpecArc32 as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+
+      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      expect(abiMethod).toBeDefined()
+      expect(abiMethod!.name).toBe('opt_into_asset')
+      expect(abiMethod!.arguments).toStrictEqual([
+        {
+          name: 'asset',
+          type: AbiType.Asset,
+          value: 705457144,
+        },
+      ])
+      expect(abiMethod!.return).toBe('void')
+    })
+
+    it('should resolve the correct data with arc4 appspec', async () => {
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+
+      const applicationId = transaction['application-transaction']!['application-id']!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC4,
+            appSpec: AuctionAppSpecArc4 as unknown as Arc4AppSpec,
           },
         ],
         lastModified: createTimestamp(),
@@ -80,7 +112,7 @@ describe('resolving ABI method', () => {
       .withRound(appCallTransaction['confirmed-round']!)
       .build()
 
-    it('should resolve the correct data', async () => {
+    it('should resolve the correct data with arc32 appspec', async () => {
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
@@ -91,8 +123,48 @@ describe('resolving ABI method', () => {
         name: 'test',
         appSpecVersions: [
           {
-            standard: 'ARC-32',
-            appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
+            standard: AppSpecStandard.ARC32,
+            appSpec: AuctionAppSpecArc32 as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+
+      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
+      expect(abiMethod).toBeDefined()
+      expect(abiMethod!.name).toBe('start_auction')
+      expect(abiMethod!.arguments).toStrictEqual([
+        {
+          name: 'starting_price',
+          type: AbiType.Number,
+          value: 10000,
+        },
+        {
+          name: 'length',
+          type: AbiType.Number,
+          value: 36000,
+        },
+        {
+          name: 'axfer',
+          type: AbiType.Transaction,
+          value: '5JZDTA4H7SMWADF4TNE447CNBEOJEBZ5ECKEPHH5LEWQ7DMBRGXQ',
+        },
+      ])
+    })
+
+    it('should resolve the correct data with arc4 appspec', async () => {
+      myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
+      myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
+
+      const applicationId = appCallTransaction['application-transaction']!['application-id']!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC4,
+            appSpec: AuctionAppSpecArc4 as unknown as Arc4AppSpec,
           },
         ],
         lastModified: createTimestamp(),
@@ -141,7 +213,7 @@ describe('resolving ABI method', () => {
         name: 'test',
         appSpecVersions: [
           {
-            standard: 'ARC-32',
+            standard: AppSpecStandard.ARC32,
             appSpec: SampleThreeAppSpec as unknown as Arc32AppSpec,
           },
         ],
@@ -324,7 +396,7 @@ describe('resolving ABI method', () => {
         name: 'test',
         appSpecVersions: [
           {
-            standard: 'ARC-32',
+            standard: AppSpecStandard.ARC32,
             appSpec: SampleFourAppSpec as unknown as Arc32AppSpec,
           },
         ],
