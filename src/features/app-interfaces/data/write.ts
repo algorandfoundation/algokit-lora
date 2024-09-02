@@ -10,42 +10,30 @@ import { invariant } from '@/utils/invariant'
 import { createTimestamp } from '@/features/common/data'
 import { getAppInterfaces } from '@/features/app-interfaces/data/index'
 
-export const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
-  await dbConnection.put('app-interfaces', appInterface)
-}
-
 export type AppSpecDetails = {
   applicationId: ApplicationId
   name: string
 } & AppSpecVersion
 
+export const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
+  await dbConnection.put('app-interfaces', appInterface)
+}
+
 export const useCreateAppInterface = () => {
   return useAtomCallback(
-    useCallback(
-      async (
-        get,
-        _,
-        {
-          applicationId,
-          name,
-          standard,
-          roundFirstValid,
-          roundLastValid,
-          appSpec,
-        }: {
-          applicationId: ApplicationId
-          name: string
-          standard: 'ARC-32'
-          appSpec: Arc32AppSpec
-          roundFirstValid?: number
-          roundLastValid?: number
-        }
-      ) => {
-        invariant(roundFirstValid === undefined || roundFirstValid >= 0, 'roundFirstValid must be greater than or equal to 0')
-        invariant(roundLastValid === undefined || roundLastValid >= 0, 'roundLastValid must be greater than or equal to 0')
-        if (roundFirstValid !== undefined && roundLastValid !== undefined) {
-          invariant(roundLastValid > roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
-        }
+    useCallback(async (get, _, appSpecDetails: AppSpecDetails) => {
+      const { applicationId, name, ...appSpecVersion } = appSpecDetails
+      invariant(
+        appSpecVersion.roundFirstValid === undefined || appSpecVersion.roundFirstValid >= 0,
+        'roundFirstValid must be greater than or equal to 0'
+      )
+      invariant(
+        appSpecVersion.roundLastValid === undefined || appSpecVersion.roundLastValid >= 0,
+        'roundLastValid must be greater than or equal to 0'
+      )
+      if (appSpecVersion.roundFirstValid !== undefined && appSpecVersion.roundLastValid !== undefined) {
+        invariant(appSpecVersion.roundLastValid > appSpecVersion.roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
+      }
 
       const dbConnection = await get(dbConnectionAtom)
       const existingAppInterfaces = await getAppInterfaces(dbConnection)
@@ -58,22 +46,13 @@ export const useCreateAppInterface = () => {
         `App interface "${name}" already exists, please choose a different name`
       )
 
-        await writeAppInterface(dbConnection, {
-          applicationId: applicationId,
-          name: name,
-          appSpecVersions: [
-            {
-              standard,
-              roundFirstValid,
-              roundLastValid,
-              appSpec,
-            },
-          ],
-          lastModified: createTimestamp(),
-        })
-      },
-      []
-    )
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: name,
+        appSpecVersions: [appSpecDetails],
+        lastModified: createTimestamp(),
+      })
+    }, [])
   )
 }
 

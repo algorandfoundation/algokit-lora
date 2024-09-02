@@ -11,16 +11,15 @@ import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
-import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
 import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
 import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
-import { numberSchema } from '@/features/forms/data/common'
+import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
 
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
   name: zfd.text(),
-  applicationId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+  applicationId: zfd.numeric(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
 })
 
 type Props = {
@@ -137,6 +136,22 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
     }
   }, [appId, hasValidAccount])
 
+  const deployButton = useMemo(
+    () => (
+      <Button
+        type="button"
+        variant="outline-secondary"
+        disabled={deployButtonStatus.disabled}
+        className="w-fit "
+        aria-label={deployToNetworkLabel}
+        onClick={onDeployButtonClick}
+      >
+        {deployToNetworkLabel}
+      </Button>
+    ),
+    [deployButtonStatus.disabled, onDeployButtonClick]
+  )
+
   return (
     <>
       {helper.readonlyFileField({
@@ -157,23 +172,25 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
       )}
       {isArc32AppSpec(appSpec) && (
         <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
-        {helper.numberField({
-          field: 'applicationId',
-          label: 'Application ID',
-        })}
-        <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
-        <div className="grid sm:mt-[1.375rem]">
-          <Button
-            type="button"
-            variant="outline-secondary"
-            disabled={deployButtonStatus.disabled}
-            disabledReason={deployButtonStatus.reason}
-            className="w-fit"
-            aria-label={deployToNetworkLabel}
-            onClick={onDeployButtonClick}
-          >
-            {deployToNetworkLabel}
-          </Button>
+          {helper.numberField({
+            field: 'applicationId',
+            label: 'Application ID',
+          })}
+          <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
+          <div className="grid sm:mt-[1.375rem]">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              disabled={deployButtonStatus.disabled}
+              disabledReason={deployButtonStatus.reason}
+              className="w-fit"
+              aria-label={deployToNetworkLabel}
+              onClick={onDeployButtonClick}
+            >
+              {deployToNetworkLabel}
+            </Button>
+          </div>
+        </div>
       )}
     </>
   )

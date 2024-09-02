@@ -12,8 +12,9 @@ import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import algosdk from 'algosdk'
+import { isArc32AppSpec } from '@/features/common/utils'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -100,8 +101,9 @@ const getValue = (bytes: string) => {
   }
 }
 
-export const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] => {
-  return appSpec.contract.methods.map((method) => {
+export const asMethodDefinitions = (appSpec: Arc32AppSpec | Arc4AppSpec): MethodDefinition[] => {
+  const contract = isArc32AppSpec(appSpec) ? appSpec.contract : appSpec
+  return contract.methods.map((method) => {
     const abiMethod = new algosdk.ABIMethod({
       name: method.name,
       desc: method.desc,
@@ -109,7 +111,7 @@ export const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] =
       returns: method.returns,
     })
     const signature = abiMethod.getSignature()
-    const hint = appSpec.hints ? appSpec.hints[signature] : undefined
+    const hint = isArc32AppSpec(appSpec) && appSpec.hints ? appSpec.hints[signature] : undefined
 
     return {
       name: abiMethod.name,
