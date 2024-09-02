@@ -5,6 +5,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { dateFormatter } from '@/utils/format'
 import { DeleteAppInterfaceButton } from '@/features/app-interfaces/components/delete-app-interface-button'
 import { appIdLabel, contractNameLabel, methodsLabel } from '@/features/app-interfaces/components/labels'
+import { ApplicationLink } from '@/features/applications/components/application-link'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -26,7 +27,7 @@ export function AppInterfaceCard({ appInterface, onDelete }: Props) {
       },
       {
         dt: appIdLabel,
-        dd: appInterface.applicationId,
+        dd: <ApplicationLink applicationId={appInterface.applicationId} />,
       },
     ]
   }, [appInterface])

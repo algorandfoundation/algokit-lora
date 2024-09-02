@@ -68,7 +68,7 @@ function Argument({ argument }: { argument: ArgumentDefinition }) {
       ...(argument.hint?.defaultArgument
         ? [
             {
-              dt: 'Default Values',
+              dt: 'Default Argument',
               dd: <DefaultArgument defaultArgument={argument.hint.defaultArgument} />,
             },
           ]
