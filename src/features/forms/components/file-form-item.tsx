@@ -8,14 +8,14 @@ export interface FileFormItemProps<TSchema extends Record<string, unknown>> exte
 }
 
 export function FileFormItem<TSchema extends Record<string, unknown>>({
-  label,
   field,
   disabled,
   accept,
   placeholder,
+  ...props
 }: FileFormItemProps<TSchema>) {
   return (
-    <FormItem label={label} field={field} disabled={disabled}>
+    <FormItem {...props} field={field} disabled={disabled}>
       <Controller
         name={field}
         render={({ field: { value, onChange } }) => (

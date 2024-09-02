@@ -2,7 +2,7 @@ import { Address } from '@/features/accounts/data/types'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { NetworkConfig } from '@/features/network/data/types'
 import { TransactionId } from '@/features/transactions/data/types'
-import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
@@ -180,7 +180,6 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
           receiver: dispenserAddress,
           amount,
           signer,
-          validityWindow: 30, // Gives approx 90 seconds to approve the transaction
         })
 
         if (!sendResult.confirmation.confirmedRound) {

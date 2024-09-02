@@ -10,8 +10,10 @@ import { Download } from 'lucide-react'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
+  downloadable: boolean
+  bgClassName?: string
 }
-export function TransactionsGraph({ transactionsGraphData }: Props) {
+export function TransactionsGraph({ transactionsGraphData, downloadable, bgClassName: _bgClassName }: Props) {
   const { verticals, horizontals } = transactionsGraphData
   const horizontalsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
@@ -50,9 +52,11 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
     link.click()
   }, [])
 
+  const bgClassName = _bgClassName ?? 'bg-card'
+
   return (
     <>
-      <div className="w-min bg-card" ref={visualRef} aria-label="Visual representation of transactions">
+      <div className={cn('w-min', bgClassName)} ref={visualRef} aria-label="Visual representation of transactions">
         <div
           className={cn('relative grid')}
           style={{
@@ -104,17 +108,19 @@ export function TransactionsGraph({ transactionsGraphData }: Props) {
             </div>
           </div>
           {horizontals.map((row, index) => (
-            <Horizontal key={index} verticals={verticals} horizontal={row} />
+            <Horizontal key={index} verticals={verticals} horizontal={row} bgClassName={bgClassName} />
           ))}
         </div>
       </div>
-      <div className="sticky bottom-0 left-full z-50 flex size-0 overflow-visible">
-        {/* Don't change this id value, it's used by a bot Alessandro is building. */}
-        <Button id="download-transactions-visual" className="absolute bottom-1 right-0 w-32" variant="outline" onClick={downloadImage}>
-          <Download className="mr-2 size-4" />
-          Download
-        </Button>
-      </div>
+      {downloadable && (
+        <div className="sticky bottom-0 left-full z-50 flex size-0 overflow-visible">
+          {/* Don't change this id value, it's used by a bot Alessandro is building. */}
+          <Button id="download-transactions-visual" className="absolute bottom-1 right-0 w-32" variant="outline" onClick={downloadImage}>
+            <Download className="mr-2 size-4" />
+            Download
+          </Button>
+        </div>
+      )}
     </>
   )
 }

@@ -19,7 +19,7 @@ export function MultiSelectFormItem<TSchema extends Record<string, unknown>>({
   ...props
 }: MultiSelectFormItemProps<TSchema>) {
   return (
-    <FormItem field={field} {...props} className={cn(className)}>
+    <FormItem {...props} field={field} className={cn(className)}>
       <Controller
         name={field}
         render={({ field: { value, onChange } }) => (

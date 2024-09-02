@@ -1,5 +1,5 @@
 import { Controller, FieldPath } from 'react-hook-form'
-import { forwardRef, ReactElement } from 'react'
+import { forwardRef } from 'react'
 import { NumericFormat } from 'react-number-format'
 import { cn } from '@/features/common/utils'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
@@ -20,6 +20,7 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
     return (
       <NumericFormat
         id={field}
+        name={field}
         className={cn(
           'border-input ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
           className
@@ -42,21 +43,30 @@ export interface NumberFormItemProps<TSchema extends Record<string, unknown> = R
   decimalScale?: number
   thousandSeparator?: boolean
   placeholder?: string
-  helpText?: string | ReactElement
 }
 
 export function NumberFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
   disabled,
-  helpText,
+  decimalScale,
+  thousandSeparator,
+  placeholder,
   ...props
 }: NumberFormItemProps<TSchema>) {
   return (
-    <FormItem {...props} field={field} disabled={disabled} helpText={helpText}>
+    <FormItem {...props} field={field} disabled={disabled}>
       <Controller
         name={field}
         render={({ field: controllerField }) => (
-          <NumericFormatWithRef field={field} {...controllerField} disabled={disabled} aria-label={field} {...props} />
+          <NumericFormatWithRef
+            field={field}
+            disabled={disabled}
+            aria-label={field}
+            decimalScale={decimalScale}
+            thousandSeparator={thousandSeparator}
+            placeholder={placeholder}
+            {...controllerField}
+          />
         )}
       />
     </FormItem>
