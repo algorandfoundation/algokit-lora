@@ -86,10 +86,14 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   const defaultValues = useMemo(
     () => ({
       file: appSpecFile,
-      name: isArc32AppSpec(appSpec) && snapshot.context.name ? appSpec.contract.name : isArc4AppSpec(appSpec) ? appSpec.name : '',
+      name: isArc32AppSpec(appSpec)
+        ? snapshot.context.name ?? appSpec.contract.name
+        : isArc4AppSpec(appSpec)
+          ? snapshot.context.name ?? appSpec.name
+          : '',
       applicationId: snapshot.context.applicationId,
     }),
-    [appSpec, appSpecFile, snapshot.context.applicationId, snapshot.context.name]
+    [appSpec, appSpecFile, snapshot]
   )
 
   return (
