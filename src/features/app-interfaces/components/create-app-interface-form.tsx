@@ -136,22 +136,6 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
     }
   }, [appId, hasValidAccount])
 
-  const deployButton = useMemo(
-    () => (
-      <Button
-        type="button"
-        variant="outline-secondary"
-        disabled={deployButtonStatus.disabled}
-        className="w-fit "
-        aria-label={deployToNetworkLabel}
-        onClick={onDeployButtonClick}
-      >
-        {deployToNetworkLabel}
-      </Button>
-    ),
-    [deployButtonStatus.disabled, onDeployButtonClick]
-  )
-
   return (
     <>
       {helper.readonlyFileField({
