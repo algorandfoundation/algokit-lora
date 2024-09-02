@@ -14,26 +14,25 @@ type Props = {
 
 export function AppInterfaceCard({ appInterface, onDelete }: Props) {
   const items = useMemo(() => {
-    return appInterface.appSpecVersions
-      .map((version, _) => {
-        const contract = version.standard === AppSpecStandard.ARC32 ? version.appSpec.contract : version.appSpec
+    // Pick the first item in the array because we don't support multiple versions yet
+    const latestAppSpecVersion = appInterface.appSpecVersions[0]
+    const contract =
+      latestAppSpecVersion.standard === AppSpecStandard.ARC32 ? latestAppSpecVersion.appSpec.contract : latestAppSpecVersion.appSpec
 
-        return [
-          {
-            dt: contractNameLabel,
-            dd: contract.name,
-          },
-          {
-            dt: methodsLabel,
-            dd: contract.methods.length,
-          },
-          {
-            dt: appIdLabel,
-            dd: appInterface.applicationId,
-          },
-        ]
-      })
-      .flat()
+    return [
+      {
+        dt: contractNameLabel,
+        dd: contract.name,
+      },
+      {
+        dt: methodsLabel,
+        dd: contract.methods.length,
+      },
+      {
+        dt: appIdLabel,
+        dd: appInterface.applicationId,
+      },
+    ]
   }, [appInterface])
 
   return (
