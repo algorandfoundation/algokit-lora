@@ -32,7 +32,7 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
   const walletProviders = watch('walletProviders')
   useEffect(() => {
-    const isKmdRequired = walletProviders.includes(PROVIDER_ID.KMD)
+    const isKmdRequired = (walletProviders ?? []).includes(PROVIDER_ID.KMD)
 
     setKmdRequired(isKmdRequired)
     if (!isKmdRequired) {

@@ -9,14 +9,15 @@ export interface PasswordFormItemProps<TSchema extends Record<string, unknown> =
 
 export function PasswordFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
+  disabled,
   placeholder,
   ...props
 }: PasswordFormItemProps<TSchema>) {
   const { register } = useFormContext<TSchema>()
 
   return (
-    <FormItem {...props} field={field}>
-      <Input id={field} autoComplete={'off'} type="password" {...register(field)} placeholder={placeholder} disabled={props.disabled} />
+    <FormItem {...props} field={field} disabled={disabled}>
+      <Input id={field} autoComplete={'off'} type="password" {...register(field)} placeholder={placeholder} disabled={disabled} />
     </FormItem>
   )
 }

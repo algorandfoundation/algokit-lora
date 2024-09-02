@@ -1,7 +1,7 @@
 import { kmd } from '@/features/common/data/algo-client'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithRefresh, loadable } from 'jotai/utils'
-import { KmdWalletResult } from './types'
+import { KmdWalletResult } from '../types/kmd'
 
 export const defaultKmdWallet = 'unencrypted-default-wallet'
 

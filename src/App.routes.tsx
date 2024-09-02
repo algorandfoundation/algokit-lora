@@ -20,6 +20,7 @@ import { FundPage } from './features/fund/fund-page'
 import { FundAuthCallbackPage } from './features/fund/fund-auth-callback-page'
 import { FundErrorPage } from './features/fund/fund-error-page'
 import { AppLab, appLabPageTitle } from './features/app-lab/pages/app-lab'
+import { TransactionWizardPage, transactionWizardPageTitle } from './features/transaction-wizard/transaction-wizard-page'
 
 export const routes = evalTemplates([
   {
@@ -124,6 +125,11 @@ export const routes = evalTemplates([
         template: Urls.FundAuthCallback,
         errorElement: <FundErrorPage />,
         element: <FundAuthCallbackPage />,
+      },
+      {
+        template: Urls.TransactionWizard,
+        errorElement: <ErrorPage title={transactionWizardPageTitle} />,
+        element: <TransactionWizardPage />,
       },
     ],
   },

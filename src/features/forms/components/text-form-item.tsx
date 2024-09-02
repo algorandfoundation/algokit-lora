@@ -9,20 +9,21 @@ export interface TextFormItemProps<TSchema extends Record<string, unknown> = Rec
 
 export function TextFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
+  disabled,
   placeholder,
   ...props
 }: TextFormItemProps<TSchema>) {
   const { register } = useFormContext<TSchema>()
 
   return (
-    <FormItem {...props} field={field}>
+    <FormItem {...props} field={field} disabled={disabled}>
       <Input
         id={field}
         autoComplete={'off'}
         type="text"
         {...register(field)}
         placeholder={placeholder}
-        disabled={props.disabled}
+        disabled={disabled}
         aria-label={field}
       />
     </FormItem>

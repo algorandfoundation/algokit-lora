@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { ReactElement, useCallback, useRef } from 'react'
 import { useFileDrop } from '@/features/forms/hooks/use-file-drop'
 import { cn } from '@/features/common/utils'
 import { UploadIcon } from 'lucide-react'
@@ -9,6 +9,7 @@ export type FileInputProps = {
   disabled?: boolean
   value?: File
   onChange: (value: File) => void
+  helpText?: string | ReactElement
 }
 
 export function FileInput({ accept, placeholder, value, disabled, onChange }: FileInputProps) {

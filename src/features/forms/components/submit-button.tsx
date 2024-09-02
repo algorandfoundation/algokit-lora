@@ -9,13 +9,22 @@ export interface SubmitButtonProps {
   className?: string
   icon?: ReactElement
   children?: React.ReactNode
+  disabled?: boolean
+  disabledReason?: string
 }
 
-export function SubmitButton({ className, children, icon }: SubmitButtonProps) {
+export function SubmitButton({ className, children, icon, disabled, disabledReason }: SubmitButtonProps) {
   const { isSubmitting } = useFormState()
 
   return (
-    <Button variant={'default'} type={'submit'} className={cn(className)} icon={icon}>
+    <Button
+      variant="default"
+      type="submit"
+      className={cn(className)}
+      icon={icon}
+      disabled={disabled}
+      disabledReason={!isSubmitting ? disabledReason : undefined}
+    >
       {isSubmitting && <Loader className="size-6 animate-spin" />}
       {!isSubmitting && icon && (
         <div className="flex items-center gap-2">

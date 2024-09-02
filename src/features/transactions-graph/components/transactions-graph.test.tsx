@@ -40,7 +40,7 @@ describe('payment-transaction-graph', () => {
       const model = asPaymentTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
-        () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+        () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-graph.${transactionResult.id}.html`
@@ -69,7 +69,7 @@ describe('asset-transfer-transaction-graph', () => {
         const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
         const graphData = asTransactionsGraphData([transaction])
         return executeComponentTest(
-          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
@@ -124,7 +124,7 @@ describe('application-call-graph', () => {
         const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults), createAbiMethodResolver())
         const graphData = asTransactionsGraphData([model])
         return executeComponentTest(
-          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
             // Sleep to make sure the ABI method is loaded
             await setTimeout(10)
@@ -150,7 +150,7 @@ describe('key-reg-graph', () => {
       const model = asKeyRegTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
-        () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+        () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/key-reg-graph.${transactionResult.id}.html`
@@ -228,7 +228,7 @@ describe('group-graph', () => {
         const graphData = asTransactionsGraphData(group.transactions)
 
         return executeComponentTest(
-          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
             // Sleep to make sure the ABI method is loaded
             await setTimeout(10)
