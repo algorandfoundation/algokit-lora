@@ -2,7 +2,7 @@ import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/featu
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useMemo } from 'react'
-import { Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
+import { Struct as StructType, DefaultArgument as DefaultArgumentType } from '@/features/app-interfaces/data/types/arc-32/application'
 
 type Props = {
   methods: MethodDefinition[]
@@ -65,6 +65,14 @@ function Argument({ argument }: { argument: ArgumentDefinition }) {
         dt: 'Type',
         dd: argument.hint?.struct ? <Struct struct={argument.hint.struct} /> : argument.type.toString(),
       },
+      ...(argument.hint?.defaultArgument
+        ? [
+            {
+              dt: 'Default Values',
+              dd: <DefaultArgument defaultArgument={argument.hint.defaultArgument} />,
+            },
+          ]
+        : []),
     ],
     [argument.description, argument.hint, argument.name, argument.type]
   )
@@ -115,5 +123,22 @@ function Struct({ struct }: { struct: StructType }) {
         ))}
       </ul>
     </div>
+  )
+}
+
+function DefaultArgument({ defaultArgument }: { defaultArgument: DefaultArgumentType }) {
+  return (
+    <DescriptionList
+      items={[
+        {
+          dt: 'Source',
+          dd: defaultArgument.source,
+        },
+        {
+          dt: 'Data',
+          dd: defaultArgument.source === 'abi-method' ? defaultArgument.data.name : defaultArgument.data,
+        },
+      ]}
+    />
   )
 }

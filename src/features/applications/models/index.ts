@@ -51,7 +51,7 @@ export type ApplicationBox = {
 
 export type ArgumentHint = {
   struct?: StructType
-  defaultValue?: DefaultArgument
+  defaultArgument?: DefaultArgument
 }
 
 export type ArgumentDefinition = {

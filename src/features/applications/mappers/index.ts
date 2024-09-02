@@ -123,7 +123,7 @@ export const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] =
           hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
             ? ({
                 struct: hint.structs?.[arg.name],
-                defaultValue: hint.default_arguments?.[arg.name],
+                defaultArgument: hint.default_arguments?.[arg.name],
               } satisfies ArgumentHint)
             : undefined,
       })),
