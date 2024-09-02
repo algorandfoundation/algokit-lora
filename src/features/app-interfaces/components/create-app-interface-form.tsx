@@ -147,12 +147,12 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
         label: 'Name',
       })}
       {isArc4AppSpec(appSpec) && (
-        <div className="flex">
+        <>
           {helper.numberField({
             field: 'applicationId',
             label: 'Application ID',
           })}
-        </div>
+        </>
       )}
       {isArc32AppSpec(appSpec) && (
         <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
