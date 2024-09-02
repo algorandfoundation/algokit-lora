@@ -15,6 +15,7 @@ import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wa
 import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
+import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 
 const formSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -28,50 +29,30 @@ type Props = {
   onSuccess: () => void
 }
 
-export function isArc32AppSpec(appSpec: Arc32AppSpec | Arc4AppSpec): appSpec is Arc32AppSpec {
-  return (
-    appSpec !== null &&
-    typeof appSpec === 'object' &&
-    'source' in appSpec &&
-    'contract' in appSpec &&
-    'schema' in appSpec &&
-    'state' in appSpec
-  )
-}
-
-export function isArc4AppSpec(appSpec: Arc32AppSpec | Arc4AppSpec): appSpec is Arc4AppSpec {
-  return (
-    appSpec !== null &&
-    typeof appSpec === 'object' &&
-    'methods' in appSpec &&
-    Array.isArray(appSpec.methods) &&
-    appSpec.methods.length > 0 &&
-    typeof appSpec.methods[0] === 'object'
-  )
-}
-
 export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Props) {
   const createAppInterface = useCreateAppInterface()
   const [snapshot] = useCreateAppInterfaceStateMachine()
 
   const save = useCallback(
     async (values: z.infer<typeof formSchema>) => {
+      const commonProps = {
+        applicationId: values.applicationId,
+        name: values.name,
+        appSpec,
+        roundFirstValid: undefined,
+        roundLastValid: undefined,
+      }
+
       if (isArc32AppSpec(appSpec)) {
         await createAppInterface({
-          applicationId: values.applicationId,
-          name: values.name,
+          ...commonProps,
           appSpec: appSpec as Arc32AppSpec,
-          roundFirstValid: undefined,
-          roundLastValid: undefined,
           standard: AppSpecStandard.ARC32,
         })
       } else if (isArc4AppSpec(appSpec)) {
         await createAppInterface({
-          applicationId: values.applicationId,
-          name: values.name,
+          ...commonProps,
           appSpec: appSpec as Arc4AppSpec,
-          roundFirstValid: undefined,
-          roundLastValid: undefined,
           standard: AppSpecStandard.ARC4,
         })
       } else {
@@ -183,7 +164,7 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
         label: 'Name',
       })}
       {isArc4AppSpec(appSpec) && (
-        <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
+        <div className="flex">
           {helper.numberField({
             field: 'applicationId',
             label: 'Application ID',

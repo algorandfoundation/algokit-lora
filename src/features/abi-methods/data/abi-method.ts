@@ -10,7 +10,7 @@ import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
 import { getAppInterfaceAtom } from '@/features/app-interfaces/data'
-import { isArc32AppSpec, isArc4AppSpec } from '@/features/app-interfaces/components/create-app-interface-form'
+import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {

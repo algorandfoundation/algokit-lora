@@ -1,7 +1,8 @@
 import { SelectAppSpecForm } from '@/features/app-interfaces/components/select-app-spec-form'
-import { CreateAppInterfaceForm, isArc32AppSpec } from '@/features/app-interfaces/components/create-app-interface-form'
+import { CreateAppInterfaceForm } from '@/features/app-interfaces/components/create-app-interface-form'
 import { DeployAppForm } from './deploy-app-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
+import { isArc32AppSpec } from '@/features/common/utils'
 
 type Props = {
   onSuccess: () => void

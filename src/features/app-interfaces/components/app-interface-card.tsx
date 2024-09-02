@@ -16,19 +16,16 @@ export function AppInterfaceCard({ appInterface, onDelete }: Props) {
   const items = useMemo(() => {
     return appInterface.appSpecVersions
       .map((version, _) => {
-        const contractName = version.standard === AppSpecStandard.ARC32 ? version.appSpec.contract.name : version.appSpec.name
-
-        const methodsCount =
-          version.standard === AppSpecStandard.ARC32 ? version.appSpec.contract.methods.length : version.appSpec.methods.length
+        const contract = version.standard === AppSpecStandard.ARC32 ? version.appSpec.contract : version.appSpec
 
         return [
           {
             dt: contractNameLabel,
-            dd: contractName,
+            dd: contract.name,
           },
           {
             dt: methodsLabel,
-            dd: methodsCount,
+            dd: contract.methods.length,
           },
           {
             dt: appIdLabel,
