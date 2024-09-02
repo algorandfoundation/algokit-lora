@@ -4,11 +4,12 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 import { assetResultsAtom } from '@/features/assets/data'
-import AuctionAppSpec from '@/tests/test-app-specs/auction.arc32.json'
+import AuctionAppSpecArc32 from '@/tests/test-app-specs/auction.arc32.json'
+import AuctionAppSpecArc4 from '@/tests/test-app-specs/auction.arc4.json'
 import SampleThreeAppSpec from '@/tests/test-app-specs/sample-three.arc32.json'
 import SampleFourAppSpec from '@/tests/test-app-specs/sample-four.arc32.json'
 import { appInterfacesAtom } from '@/features/app-interfaces/data'
-import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
@@ -35,7 +36,7 @@ describe('resolving ABI method', () => {
     const transaction = transactionResultMother['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']().build()
     const asset = assetResultMother['testnet-705457144']().build()
 
-    it('should resolve the correct data', async () => {
+    it('should resolve the correct data on arc32', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
@@ -51,7 +52,44 @@ describe('resolving ABI method', () => {
               appSpecVersions: [
                 {
                   standard: AppSpecStandard.ARC32,
-                  appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
+                  appSpec: AuctionAppSpecArc32 as unknown as Arc32AppSpec,
+                },
+              ],
+              lastModified: createTimestamp(),
+            } satisfies AppInterfaceEntity),
+          ],
+        ])
+      )
+
+      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      expect(abiMethod).toBeDefined()
+      expect(abiMethod!.name).toBe('opt_into_asset')
+      expect(abiMethod!.arguments).toStrictEqual([
+        {
+          name: 'asset',
+          type: AbiType.Asset,
+          value: 705457144,
+        },
+      ])
+      expect(abiMethod!.return).toBe('void')
+    })
+    it('should resolve the correct data on arc4', async () => {
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+
+      const applicationId = transaction['application-transaction']!['application-id']!
+      myStore.set(
+        appInterfacesAtom,
+        new Map([
+          [
+            applicationId,
+            createAppInterfaceAtomAndTimestamp({
+              applicationId: applicationId,
+              name: 'test',
+              appSpecVersions: [
+                {
+                  standard: AppSpecStandard.ARC4,
+                  appSpec: AuctionAppSpecArc4 as unknown as Arc4AppSpec,
                 },
               ],
               lastModified: createTimestamp(),
@@ -99,7 +137,7 @@ describe('resolving ABI method', () => {
               appSpecVersions: [
                 {
                   standard: AppSpecStandard.ARC32,
-                  appSpec: AuctionAppSpec as unknown as Arc32AppSpec,
+                  appSpec: AuctionAppSpecArc32 as unknown as Arc32AppSpec,
                 },
               ],
               lastModified: createTimestamp(),
