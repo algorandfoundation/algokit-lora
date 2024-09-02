@@ -8,7 +8,7 @@ import { useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp } from '@/features/common/data'
-import { getAppInterfaceAtom, getAppInterfaces } from '@/features/app-interfaces/data/index'
+import { getAppInterfaces } from '@/features/app-interfaces/data/index'
 
 export const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
   await dbConnection.put('app-interfaces', appInterface)
@@ -19,7 +19,7 @@ export const useCreateAppInterface = () => {
     useCallback(
       async (
         get,
-        set,
+        _,
         {
           applicationId,
           name,
@@ -53,7 +53,7 @@ export const useCreateAppInterface = () => {
           `App interface "${name}" already exists, please choose a different name`
         )
 
-        await set(getAppInterfaceAtom(applicationId), {
+        await writeAppInterface(dbConnection, {
           applicationId: applicationId,
           name: name,
           appSpecVersions: [

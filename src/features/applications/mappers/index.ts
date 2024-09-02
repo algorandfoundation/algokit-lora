@@ -1,9 +1,19 @@
-import { Application, ApplicationGlobalStateType, ApplicationGlobalStateValue, ApplicationSummary } from '../models'
-import { getApplicationAddress, modelsv2, encodeAddress } from 'algosdk'
+import {
+  Application,
+  ApplicationGlobalStateType,
+  ApplicationGlobalStateValue,
+  ApplicationSummary,
+  ArgumentDefinition,
+  ArgumentHint,
+  MethodDefinition,
+} from '../models'
+import { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import algosdk from 'algosdk'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -88,4 +98,48 @@ const getValue = (bytes: string) => {
       return buf.toString('base64')
     }
   }
+}
+
+export const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] => {
+  return appSpec.contract.methods.map((method) => {
+    const abiMethod = new algosdk.ABIMethod({
+      name: method.name,
+      desc: method.desc,
+      args: method.args,
+      returns: method.returns,
+    })
+    const signature = abiMethod.getSignature()
+    const hint = appSpec.hints ? appSpec.hints[signature] : undefined
+
+    return {
+      name: abiMethod.name,
+      signature: signature,
+      description: abiMethod.description,
+      arguments: abiMethod.args.map(
+        (arg, index) =>
+          ({
+            id: index + 1,
+            name: arg.name,
+            description: arg.description,
+            type: arg.type,
+            hint:
+              hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+                ? ({
+                    struct: hint.structs?.[arg.name],
+                    defaultArgument: hint.default_arguments?.[arg.name],
+                  } satisfies ArgumentHint)
+                : undefined,
+          }) satisfies ArgumentDefinition
+      ),
+      returns: {
+        ...abiMethod.returns,
+        hint:
+          hint && hint.structs?.['output']
+            ? {
+                struct: hint.structs?.['output'],
+              }
+            : undefined,
+      },
+    } satisfies MethodDefinition
+  })
 }
