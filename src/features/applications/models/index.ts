@@ -55,7 +55,7 @@ export type ArgumentHint = {
 }
 
 export type ArgumentDefinition = {
-  index: number
+  id: number
   name?: string
   description?: string
   type: algosdk.ABIArgumentType

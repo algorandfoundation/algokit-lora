@@ -24,7 +24,6 @@ import {
   applicationGlobalStateLabel,
   applicationAbiMethodDefinitionsLabel,
 } from './labels'
-import { isDefined } from '@/utils/is-defined'
 import { ApplicationGlobalStateTable } from './application-global-state-table'
 import { ApplicationBoxes } from './application-boxes'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
@@ -36,7 +35,6 @@ import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { ApplicationProgramsButton } from './application-programs-button'
 import { useLoadableApplicationAbiMethodDefinitions } from '../data/application-method-definitions'
-import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { ApplicationMethodDefinitions } from './application-method-definitions'
 
 type Props = {
@@ -120,9 +118,19 @@ export function ApplicationDetails({ application }: Props) {
       application.globalStateSchema,
       application.localStateSchema,
     ]
-  ).filter(isDefined)
+  )
 
   const abiMethodDefinitions = useLoadableApplicationAbiMethodDefinitions(application)
+  const abiMethodDefinitionsCard = useMemo(() => {
+    return abiMethodDefinitions.state === 'hasData' && abiMethodDefinitions.data.length > 0 ? (
+      <Card aria-label={applicationAbiMethodDefinitionsLabel}>
+        <CardContent className="space-y-1">
+          <h2>{applicationAbiMethodDefinitionsLabel}</h2>
+          <ApplicationMethodDefinitions methods={abiMethodDefinitions.data} />
+        </CardContent>
+      </Card>
+    ) : undefined
+  }, [abiMethodDefinitions])
 
   return (
     <div className="space-y-4">
@@ -137,18 +145,7 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
-      <RenderLoadable loadable={abiMethodDefinitions}>
-        {(abiMethodDefinitions) =>
-          abiMethodDefinitions.length > 0 && (
-            <Card aria-label={applicationAbiMethodDefinitionsLabel}>
-              <CardContent className="space-y-1">
-                <h2>{applicationAbiMethodDefinitionsLabel}</h2>
-                <ApplicationMethodDefinitions methods={abiMethodDefinitions} />
-              </CardContent>
-            </Card>
-          )
-        }
-      </RenderLoadable>
+      {abiMethodDefinitionsCard}
       <Card aria-label={applicationStateLabel}>
         <CardContent className="space-y-1">
           <h2>{applicationStateLabel}</h2>

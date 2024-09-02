@@ -3,6 +3,7 @@ import {
   ApplicationGlobalStateType,
   ApplicationGlobalStateValue,
   ApplicationSummary,
+  ArgumentDefinition,
   ArgumentHint,
   MethodDefinition,
 } from '../models'
@@ -114,19 +115,22 @@ export const asMethodDefinitions = (appSpec: Arc32AppSpec): MethodDefinition[] =
       name: abiMethod.name,
       signature: signature,
       description: abiMethod.description,
-      arguments: abiMethod.args.map((arg, index) => ({
-        index: index + 1,
-        name: arg.name,
-        description: arg.description,
-        type: arg.type,
-        hint:
-          hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
-            ? ({
-                struct: hint.structs?.[arg.name],
-                defaultArgument: hint.default_arguments?.[arg.name],
-              } satisfies ArgumentHint)
-            : undefined,
-      })),
+      arguments: abiMethod.args.map(
+        (arg, index) =>
+          ({
+            id: index + 1,
+            name: arg.name,
+            description: arg.description,
+            type: arg.type,
+            hint:
+              hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+                ? ({
+                    struct: hint.structs?.[arg.name],
+                    defaultArgument: hint.default_arguments?.[arg.name],
+                  } satisfies ArgumentHint)
+                : undefined,
+          }) satisfies ArgumentDefinition
+      ),
       returns: {
         ...abiMethod.returns,
         hint:

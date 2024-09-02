@@ -29,7 +29,7 @@ function Method({ method }: { method: MethodDefinition }) {
         <div className="space-y-4">
           <h4 className="text-primary">Arguments</h4>
           {method.arguments.length > 0 ? (
-            method.arguments.map((argument) => <Argument argument={argument} key={argument.index} />)
+            method.arguments.map((argument) => <Argument argument={argument} key={argument.id} />)
           ) : (
             <p>No arguments</p>
           )}
@@ -79,7 +79,7 @@ function Argument({ argument }: { argument: ArgumentDefinition }) {
 
   return (
     <div className="space-y-2">
-      <h5 className="text-primary">{`Argument ${argument.index}`}</h5>
+      <h5 className="text-primary">{`Argument ${argument.id}`}</h5>
       <DescriptionList items={items} />
     </div>
   )
