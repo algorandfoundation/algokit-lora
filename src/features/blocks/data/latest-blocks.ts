@@ -23,7 +23,7 @@ import { algod } from '@/features/common/data/algo-client'
 import { createTimestamp, maxBlocksToDisplay } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
-import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 
 const notStartedSubscriberStatus = { state: SubscriberState.NotStarted } satisfies SubscriberStatus
 const startedSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus

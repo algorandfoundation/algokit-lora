@@ -268,9 +268,16 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
   const config = networkConfigs[id]
 
   // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
-  if (selectedNetworkId === localnetId) {
+  if (config.walletProviders.includes(PROVIDER_ID.MNEMONIC)) {
     clearAccounts(PROVIDER_ID.MNEMONIC)
   }
+
+  // This clears a connected KMD wallet after a page reload, as the chosen wallet isn't stored in the wallet provider state.
+  // We can revisit if this is required in the future when upgrading to useWallet v3.
+  if (config.walletProviders.includes(PROVIDER_ID.KMD)) {
+    clearAccounts(PROVIDER_ID.KMD)
+  }
+
   // This clears accounts for all wallet providers that are not configured
   supportedWalletProviders.forEach((providerId) => {
     if (!config.walletProviders.includes(providerId)) {

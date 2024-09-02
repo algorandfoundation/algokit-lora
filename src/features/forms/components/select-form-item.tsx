@@ -15,17 +15,18 @@ export interface SelectFormItemProps<TSchema extends Record<string, unknown>> ex
 
 export function SelectFormItem<TSchema extends Record<string, unknown>>({
   field,
+  disabled,
   options,
   placeholder,
   className,
   ...props
 }: SelectFormItemProps<TSchema>) {
   return (
-    <FormItem field={field} {...props}>
+    <FormItem {...props} field={field} disabled={disabled}>
       <Controller
         name={field}
         render={({ field: { value, onChange } }) => (
-          <Select onValueChange={onChange} value={value} disabled={props.disabled}>
+          <Select onValueChange={onChange} value={value} disabled={disabled}>
             <SelectTrigger id={field}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>

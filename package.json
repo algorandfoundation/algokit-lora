@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^2.0.3",
-    "@algorandfoundation/algokit-utils": "^6.1.2",
+    "@algorandfoundation/algokit-utils": "^7.0.0-beta.1",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.1.6",
     "@daffiwallet/connect": "^1.0.3",
@@ -69,7 +69,7 @@
     "react-hook-form": "^7.52.1",
     "react-idle-timer": "^5.7.2",
     "react-json-view-lite": "^1.4.0",
-    "react-number-format": "^5.4.0",
+    "react-number-format": "^5.4.1",
     "react-router-dom": "6.24.0",
     "react-toastify": "^10.0.5",
     "tailwind-merge": "^2.2.1",
@@ -178,6 +178,7 @@
     ]
   },
   "overrides": {
-    "ws@>7.0.0 <7.5.9": "7.5.10"
+    "ws@>7.0.0 <7.5.9": "7.5.10",
+    "@algorandfoundation/algokit-utils@<7.0.0": "^7.0.0-beta.1"
   }
 }
