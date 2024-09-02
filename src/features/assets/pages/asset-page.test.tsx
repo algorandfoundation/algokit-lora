@@ -1,7 +1,7 @@
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
-import { describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { AssetPage, assetFailedToLoadMessage, assetInvalidIdMessage, assetNotFoundMessage } from './asset-page'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import {
@@ -32,6 +32,14 @@ import { ipfsGatewayUrl } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { assetResultsAtom } from '../data'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
+
+const server = setupServer()
+
+beforeAll(() => server.listen())
+afterAll(() => server.close())
+afterEach(() => server.resetHandlers())
 
 describe('asset-page', () => {
   describe('when rendering an asset using an invalid asset Id', () => {
@@ -85,24 +93,22 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() =>
-        Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              name: 'Orange',
-              decimals: 8,
-              description:
-                "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
-              image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
-              image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
-              image_mimetype: 'image/png',
-            }),
-        } as Response)
-      )
-
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu', () => {
+          return HttpResponse.json({
+            name: 'Orange',
+            decimals: 8,
+            description:
+              "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
+            image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
+            image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
+            image_mimetype: 'image/png',
+          })
+        })
+      )
 
       return executeComponentTest(
         () => {
@@ -172,31 +178,30 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() =>
-        Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              name: 'Zappy #1620',
-              standard: 'arc3',
-              decimals: 0,
-              image: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
-              image_mimetype: 'image/png',
-              properties: {
-                Background: 'Orange',
-                Body: 'Turtleneck Sweater',
-                Earring: 'Right Helix',
-                Eyes: 'Wet',
-                Eyewear: 'Nerd Glasses',
-                Head: 'Wrap',
-                Mouth: 'Party Horn',
-                Skin: 'Sienna',
-              },
-            }),
-        } as Response)
-      )
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/bafkreidt263gwlss4t5kdg6tekxhlxsedb42l5ntvt5mzbv5jywzrzk2ku', () => {
+          return HttpResponse.json({
+            name: 'Zappy #1620',
+            standard: 'arc3',
+            decimals: 0,
+            image: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74',
+            image_mimetype: 'image/png',
+            properties: {
+              Background: 'Orange',
+              Body: 'Turtleneck Sweater',
+              Earring: 'Right Helix',
+              Eyes: 'Wet',
+              Eyewear: 'Nerd Glasses',
+              Head: 'Wrap',
+              Mouth: 'Party Horn',
+              Skin: 'Sienna',
+            },
+          })
+        })
+      )
 
       return executeComponentTest(
         () => {
@@ -360,17 +365,16 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() =>
-        Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              image: 'ipfs://bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi',
-            }),
-        } as Response)
-      )
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi', () => {
+          return HttpResponse.json({
+            image: 'ipfs://bafkreifpfaqwwfyj2zcy76hr6eswkhbqak5bxjzhryeeg7tqnzjgmx5xfi',
+          })
+        })
+      )
 
       return executeComponentTest(
         () => {
@@ -446,39 +450,38 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() =>
-        Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              name: 'Coop #48',
-              standard: 'arc3',
-              image: 'ipfs://bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png',
-              image_mime_type: 'image/png',
-              description:
-                "A troop of 890 Coopers based on Cooper Daniels' DEV'N and his quest for CoopCoin Beach. Artwork by F.o.E. and inspired by the original work of Blockrunner for the ReCoop Show.",
-              properties: {
-                traits: {
-                  Background: 'Soft Cream',
-                  Base: 'Coop v1',
-                  Tat: 'Naked',
-                  'Chest Hair': 'Clean',
-                  Outfit: 'Coop Hoodie',
-                  'Face Tat': 'Clean',
-                  'Face Trait': 'Gold Grill',
-                  'Lower Face': 'Fresh Trim',
-                  'Upper Head': 'Scoopy',
-                  Eyes: 'Coop Brokelys',
-                  Ears: 'Hoop',
-                },
-                filters: {},
-              },
-              extra: {},
-            }),
-        } as Response)
-      )
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/bafkreihwm3mg4t4bgdvsf6j4epr4v7qwmuhbk6dv3qt3kmtmmm7uagrji4', () => {
+          return HttpResponse.json({
+            name: 'Coop #48',
+            standard: 'arc3',
+            image: 'ipfs://bafybeigx4jqvsvkxdflvwvr2bmurrlugv4ulbgw7juhkd3rz52w32enwoy/48.png',
+            image_mime_type: 'image/png',
+            description:
+              "A troop of 890 Coopers based on Cooper Daniels' DEV'N and his quest for CoopCoin Beach. Artwork by F.o.E. and inspired by the original work of Blockrunner for the ReCoop Show.",
+            properties: {
+              traits: {
+                Background: 'Soft Cream',
+                Base: 'Coop v1',
+                Tat: 'Naked',
+                'Chest Hair': 'Clean',
+                Outfit: 'Coop Hoodie',
+                'Face Tat': 'Clean',
+                'Face Trait': 'Gold Grill',
+                'Lower Face': 'Fresh Trim',
+                'Upper Head': 'Scoopy',
+                Eyes: 'Coop Brokelys',
+                Ears: 'Hoop',
+              },
+              filters: {},
+            },
+            extra: {},
+          })
+        })
+      )
 
       return executeComponentTest(
         () => {
@@ -564,46 +567,45 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() =>
-        Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              name: 'NK 0217',
-              decimals: 0,
-              description: 'Protecting decentralization since 2029. Join the rebellion!',
-              image: 'ipfs://QmSayaiy8H4UhYY5kbgZF5knYqtmfuZkaJ84fx5gpgPSKB',
-              image_integrity: 'sha256-9DLERd+0OFGoETUCebETjjaiPjn8OywsISozPuEgjaU=',
-              image_mimetype: 'image/png',
-              unitName: 'NK 0217',
-              assetName: 'NK 0217',
-              properties: {
-                creator: { name: 'Node Keepers', description: '', address: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4' },
-                royalties: [{ name: 'creator', addr: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4', share: 5 }],
-                collection: { name: 'NODE KEEPERS' },
-                keyWords: [],
-                publisher: 'dartroom.xyz',
-                itemListElement: 1,
-                numberOfItems: 1,
-                arc69: {
-                  standard: 'arc69',
-                  attributes: [
-                    { trait_type: 'backgrounds', value: 'blue' },
-                    { trait_type: 'equpiment', value: 'blank' },
-                    { trait_type: 'skintones', value: 'tanned skin' },
-                    { trait_type: 'neck', value: 'blank' },
-                    { trait_type: 'clothing', value: 'blue nks hoody with m vest' },
-                    { trait_type: 'hair', value: 'red long bob cut' },
-                    { trait_type: 'headsets', value: 'c link' },
-                    { trait_type: 'lips', value: 'normal lips smoking' },
-                  ],
-                },
-              },
-            }),
-        } as Response)
-      )
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/QmfYFvNon3vfxbwtcetjYc1uZZ1Faw7AsQtSzz45sxXnaj', () => {
+          return HttpResponse.json({
+            name: 'NK 0217',
+            decimals: 0,
+            description: 'Protecting decentralization since 2029. Join the rebellion!',
+            image: 'ipfs://QmSayaiy8H4UhYY5kbgZF5knYqtmfuZkaJ84fx5gpgPSKB',
+            image_integrity: 'sha256-9DLERd+0OFGoETUCebETjjaiPjn8OywsISozPuEgjaU=',
+            image_mimetype: 'image/png',
+            unitName: 'NK 0217',
+            assetName: 'NK 0217',
+            properties: {
+              creator: { name: 'Node Keepers', description: '', address: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4' },
+              royalties: [{ name: 'creator', addr: 'CB3KEWUQUTDHQ3TC4P65UQLHC3S7KNBWPTHOFAL7CV4QCDUPDNVY5J3BT4', share: 5 }],
+              collection: { name: 'NODE KEEPERS' },
+              keyWords: [],
+              publisher: 'dartroom.xyz',
+              itemListElement: 1,
+              numberOfItems: 1,
+              arc69: {
+                standard: 'arc69',
+                attributes: [
+                  { trait_type: 'backgrounds', value: 'blue' },
+                  { trait_type: 'equpiment', value: 'blank' },
+                  { trait_type: 'skintones', value: 'tanned skin' },
+                  { trait_type: 'neck', value: 'blank' },
+                  { trait_type: 'clothing', value: 'blue nks hoody with m vest' },
+                  { trait_type: 'hair', value: 'red long bob cut' },
+                  { trait_type: 'headsets', value: 'c link' },
+                  { trait_type: 'lips', value: 'normal lips smoking' },
+                ],
+              },
+            },
+          })
+        })
+      )
 
       return executeComponentTest(
         () => {
@@ -784,24 +786,22 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(fetch).mockImplementation(() =>
-        Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              name: 'Orange',
-              decimals: 8,
-              description:
-                "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
-              image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
-              image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
-              image_mimetype: 'image/png',
-            }),
-        } as Response)
-      )
-
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/QmUitxJuPJJrcuAdAiVdEEpuzGmsELGgAvhLd5FiXRShEu', () => {
+          return HttpResponse.json({
+            name: 'Orange',
+            decimals: 8,
+            description:
+              "John Alan Woods 01/Dec/2023 You know, I can pull metrics out of the air too, whatever, 8 million transactions over the last week, I don't know, my mom has four oranges.",
+            image: 'ipfs://QmaEGBYWLQWDqMMR9cwpX3t4xoRuJpz5kzCwwdQmWaxHXv',
+            image_integrity: 'sha256-hizgBlZvh1teH9kzMnkocf2q9L7zpjLQZghQfKThVRg=',
+            image_mimetype: 'image/png',
+          })
+        })
+      )
 
       return executeComponentTest(
         () => {
@@ -845,17 +845,17 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-
-      vi.mocked(fetch).mockImplementation((_, options) => {
-        if (options?.method === 'HEAD') {
-          return Promise.resolve(new Response(null, { headers: { 'Content-Type': 'image/png' } }))
-        }
-        return Promise.resolve(new Response('Invalid JSON string'))
-      })
-
       vi.mocked(
         indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
       ).mockReturnValue(Promise.resolve({ transactions: [transactionResult] }))
+      server.use(
+        http.head('https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd', () => {
+          return new Response(null, { status: 200, headers: { 'Content-Type': 'image/png' } })
+        }),
+        http.get('https://ipfs.algonode.xyz/ipfs/QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd', () => {
+          return HttpResponse.arrayBuffer(new ArrayBuffer(1), { status: 200, headers: { 'Content-Type': 'image/png' } })
+        })
+      )
 
       return executeComponentTest(
         () => {

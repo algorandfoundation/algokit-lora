@@ -27,6 +27,7 @@ type Props<TSchema extends z.ZodSchema> = {
 }
 
 const connectWalletMessage = 'Please connect a wallet'
+export const sendButtonLabel = 'Send'
 
 type SendTransactionResult = {
   transactionId: string
@@ -120,7 +121,7 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
               Reset
             </Button>
             <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
-              Send
+              {sendButtonLabel}
             </SubmitButton>
           </FormActions>
         )}

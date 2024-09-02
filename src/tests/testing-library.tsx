@@ -1,5 +1,5 @@
 import { TooltipProvider } from '@radix-ui/react-tooltip'
-import { queries, render, renderHook, screen, within } from '@testing-library/react'
+import { prettyDOM, queries, render, renderHook, RenderResult, screen, within } from '@testing-library/react'
 import type { createStore } from 'jotai'
 import type { PropsWithChildren } from 'react'
 import { ErrorBoundary } from './error-boundary'
@@ -56,3 +56,8 @@ const customRenderHook = (
 export * from '@testing-library/react'
 // override render method
 export { customRender as render, customRenderHook as renderHook, customScreen as screen }
+
+export const dump = (component: RenderResult<typeof queries, HTMLElement, HTMLElement>) => {
+  // eslint-disable-next-line no-console
+  console.log(prettyDOM(component.container, 1_000_000))
+}
