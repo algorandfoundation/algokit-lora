@@ -20,3 +20,7 @@ jobs:
       compile-script: npm run check-types
       test-script: npm run test
       run-build: false
+      pre-test-script: |
+        pipx install algokit
+        algokit localnet start
+        npx --yes wait-on tcp:4001 -t 30000

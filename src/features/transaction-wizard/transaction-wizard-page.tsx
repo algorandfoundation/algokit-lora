@@ -11,6 +11,8 @@ import { useLoadableActiveWalletAddressSnapshotAtom } from '../wallet/data/activ
 import { TransactionBuilderForm } from './components/transaction-builder-form'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
+export const transactionTypeLabel = 'Transaction type'
+export const sendButtonLabel = 'Send'
 
 export function TransactionWizardPage() {
   const [selectedBuildableTransactionIndex, setSelectedBuildableIndex] = useState(0)
@@ -33,7 +35,7 @@ export function TransactionWizardPage() {
           <div className="lg:w-1/2">
             <div className={cn('flex w-72 flex-col mb-4')}>
               <Label htmlFor="transaction-type" className={cn('ml-0.5 mb-2')}>
-                Transaction type
+                {transactionTypeLabel}
               </Label>
               <Select onValueChange={changeSelectedBuildableTransaction} value={selectedBuildableTransactionIndex.toString()}>
                 <SelectTrigger id="transaction-type">

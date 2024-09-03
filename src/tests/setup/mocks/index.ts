@@ -100,7 +100,6 @@ vi.mock('@/features/blocks/data', async () => {
   }
 })
 
-global.fetch = vi.fn()
 global.HTMLCanvasElement.prototype.getContext = () => {
   return {
     fillStyle: 'ok',
@@ -133,3 +132,5 @@ vi.mock('@auth0/auth0-react', async () => {
     }),
   }
 })
+
+window.HTMLElement.prototype.hasPointerCapture = vi.fn()
