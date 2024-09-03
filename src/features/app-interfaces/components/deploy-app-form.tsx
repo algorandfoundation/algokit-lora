@@ -28,7 +28,7 @@ type Props = {
 enum TemplateParamType {
   String = 'String',
   Number = 'Number',
-  UInt8Array = 'UInt8Array',
+  Uint8Array = 'Uint8Array',
 }
 
 const templateParam = z.object({
