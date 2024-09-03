@@ -1,5 +1,6 @@
 import {
   Application,
+  ApplicationAbiMethods,
   ApplicationGlobalStateType,
   ApplicationGlobalStateValue,
   ApplicationSummary,
@@ -101,9 +102,10 @@ const getValue = (bytes: string) => {
   }
 }
 
-export const asMethodDefinitions = (appSpec: Arc32AppSpec | Arc4AppSpec): MethodDefinition[] => {
-  const contract = isArc32AppSpec(appSpec) ? appSpec.contract : appSpec
-  return contract.methods.map((method) => {
+export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): ApplicationAbiMethods => {
+  const isArc32 = isArc32AppSpec(appSpec)
+  const contract = isArc32 ? appSpec.contract : appSpec
+  const methods = contract.methods.map((method) => {
     const abiMethod = new algosdk.ABIMethod({
       name: method.name,
       desc: method.desc,
@@ -118,9 +120,8 @@ export const asMethodDefinitions = (appSpec: Arc32AppSpec | Arc4AppSpec): Method
       signature: signature,
       description: abiMethod.description,
       arguments: abiMethod.args.map(
-        (arg, index) =>
+        (arg) =>
           ({
-            id: index + 1,
             name: arg.name,
             description: arg.description,
             type: arg.type,
@@ -144,4 +145,17 @@ export const asMethodDefinitions = (appSpec: Arc32AppSpec | Arc4AppSpec): Method
       },
     } satisfies MethodDefinition
   })
+
+  return {
+    ...(isArc32
+      ? {
+          type: 'arc32',
+          appSpec: appSpec,
+        }
+      : {
+          type: 'arc4',
+          appSpec: appSpec,
+        }),
+    methods,
+  }
 }

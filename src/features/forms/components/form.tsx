@@ -53,6 +53,8 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
         const data = await _onSubmit(values)
         onSuccess?.(data)
       } catch (error: unknown) {
+        // eslint-disable-next-line no-console
+        console.log(error)
         setErrorMessage(asError(error).message)
       } finally {
         setSubmitting(false)

@@ -1,5 +1,5 @@
 import { atom, useAtomValue } from 'jotai'
-import { asMethodDefinitions } from '../mappers'
+import { asApplicationAbiMethods } from '../mappers'
 import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { Application } from '../models'
@@ -10,17 +10,18 @@ const createApplicationMethodDefinitionsAtom = (application: Application) => {
     const appInterface = await get(createAppInterfaceAtom(application.id))
 
     if (!appInterface) {
-      return []
+      return undefined
     }
 
     const latestVersion =
       appInterface.appSpecVersions.find((appSpec) => appSpec.roundLastValid === undefined) ??
       appInterface.appSpecVersions.sort((a, b) => b.roundLastValid! - a.roundLastValid!)[0]
 
-    return asMethodDefinitions(latestVersion.appSpec)
+    return asApplicationAbiMethods(latestVersion.appSpec)
   })
 }
 
+// TODO: NC - Rename all this stuff
 export const useLoadableApplicationAbiMethodDefinitions = (application: Application) => {
   const applicationMethodDefinitionsAtom = useMemo(() => {
     return createApplicationMethodDefinitionsAtom(application)
