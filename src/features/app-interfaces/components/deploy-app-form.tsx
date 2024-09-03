@@ -78,6 +78,8 @@ const getTealTemplateParams = (names: string[], formData: DeployAppFormData) => 
   )
 }
 
+export const deployButtonLabel = 'Deploy'
+
 export function DeployAppForm({ className, appSpec }: Props) {
   const [_, send] = useCreateAppInterfaceStateMachine()
   const { signer, activeAccount } = useWallet()
@@ -169,7 +171,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
         formAction={
           <FormActions>
             <CancelButton onClick={onCancel} className="w-28" />
-            <SubmitButton className="w-28">Deploy</SubmitButton>
+            <SubmitButton className="w-28">{deployButtonLabel}</SubmitButton>
           </FormActions>
         }
         defaultValues={{
