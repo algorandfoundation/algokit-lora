@@ -34,6 +34,10 @@ jobs:
       audit-script: npm run audit
       compile-script: npm run check-types
       test-script: npm run test
+      pre-test-script: |
+        pipx install algokit
+        algokit localnet start
+        npx --yes wait-on tcp:4001 -t 30000
 
   build-website:
     name: Build Website
