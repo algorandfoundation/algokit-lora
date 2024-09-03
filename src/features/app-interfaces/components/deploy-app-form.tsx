@@ -69,7 +69,7 @@ const getTealTemplateParams = (names: string[], formData: DeployAppFormData) => 
       if (type === TemplateParamType.Number) {
         acc[name] = Number(value)
       }
-      if (type === TemplateParamType.UInt8Array) {
+      if (type === TemplateParamType.Uint8Array) {
         acc[name] = base64ToBytes(value)
       }
       return acc
@@ -245,7 +245,7 @@ export function TemplateParamForm({ className, name, index }: TemplateParamFormP
         return 'A string value'
       case TemplateParamType.Number:
         return 'A number value'
-      case TemplateParamType.UInt8Array:
+      case TemplateParamType.Uint8Array:
         return 'A Base64 encoded Uint8Array value'
     }
   }, [type])
@@ -261,7 +261,7 @@ export function TemplateParamForm({ className, name, index }: TemplateParamFormP
           options: [
             { value: TemplateParamType.String, label: 'String' },
             { value: TemplateParamType.Number, label: 'Number' },
-            { value: TemplateParamType.UInt8Array, label: 'Uint8Array' },
+            { value: TemplateParamType.Uint8Array, label: 'Uint8Array' },
           ],
         })}
         {helper.textField({
