@@ -13,7 +13,7 @@ import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
-import { Path, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { cn } from '@/features/common/utils'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Label } from '@/features/common/components/label'
@@ -218,7 +218,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
             })}
             <Fieldset legend="Template Params">
               {templateParamNames.map((name, index) => (
-                <TemplateParamFormItem key={index} field={`templateParams.${index}`} name={name} />
+                <TemplateParamForm key={index} name={name} index={index} />
               ))}
             </Fieldset>
           </>
@@ -228,17 +228,17 @@ export function DeployAppForm({ className, appSpec }: Props) {
   )
 }
 
-export type TemplateParamFormItemProps = {
+type TemplateParamFormProps = {
   className?: string
   name: string
-  field: string
+  index: number
 }
 
-export function TemplateParamFormItem({ className, name, field }: TemplateParamFormItemProps) {
+export function TemplateParamForm({ className, name, index }: TemplateParamFormProps) {
   const { watch } = useFormContext<DeployAppFormData>()
-  const helper = new FormFieldHelper<TemplateParamFields[number]>({ fieldPrefix: field })
+  const helper = new FormFieldHelper<TemplateParamFields[number]>({ fieldPrefix: `templateParams.${index}` })
 
-  const type = watch(`${field}.type` as Path<DeployAppFormData>)
+  const type = watch(`templateParams.${index}.type`)
   const helpText = useMemo(() => {
     switch (type) {
       case TemplateParamType.String:
