@@ -50,7 +50,7 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
     link.setAttribute('download', transactionsGraphData.filename)
     // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
     link.click()
-  }, [])
+  }, [transactionsGraphData.filename])
 
   const bgClassName = _bgClassName ?? 'bg-card'
 
