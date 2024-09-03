@@ -28,7 +28,7 @@ type Props = {
 enum TemplateParamType {
   String = 'String',
   Number = 'Number',
-  UInt8Array = 'UInt8Array',
+  Uint8Array = 'Uint8Array',
 }
 
 const templateParam = z.object({
@@ -69,7 +69,7 @@ const getTealTemplateParams = (names: string[], formData: DeployAppFormData) => 
       if (type === TemplateParamType.Number) {
         acc[name] = Number(value)
       }
-      if (type === TemplateParamType.UInt8Array) {
+      if (type === TemplateParamType.Uint8Array) {
         acc[name] = base64ToBytes(value)
       }
       return acc
@@ -77,8 +77,6 @@ const getTealTemplateParams = (names: string[], formData: DeployAppFormData) => 
     {} as Record<string, string | number | Uint8Array>
   )
 }
-
-export const deployButtonLabel = 'Deploy'
 
 export function DeployAppForm({ className, appSpec }: Props) {
   const [_, send] = useCreateAppInterfaceStateMachine()
@@ -171,7 +169,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
         formAction={
           <FormActions>
             <CancelButton onClick={onCancel} className="w-28" />
-            <SubmitButton className="w-28">{deployButtonLabel}</SubmitButton>
+            <SubmitButton className="w-28">Deploy</SubmitButton>
           </FormActions>
         }
         defaultValues={{
@@ -247,7 +245,7 @@ export function TemplateParamForm({ className, name, index }: TemplateParamFormP
         return 'A string value'
       case TemplateParamType.Number:
         return 'A number value'
-      case TemplateParamType.UInt8Array:
+      case TemplateParamType.Uint8Array:
         return 'A Base64 encoded Uint8Array value'
     }
   }, [type])
@@ -263,7 +261,7 @@ export function TemplateParamForm({ className, name, index }: TemplateParamFormP
           options: [
             { value: TemplateParamType.String, label: 'String' },
             { value: TemplateParamType.Number, label: 'Number' },
-            { value: TemplateParamType.UInt8Array, label: 'Uint8Array' },
+            { value: TemplateParamType.Uint8Array, label: 'Uint8Array' },
           ],
         })}
         {helper.textField({
