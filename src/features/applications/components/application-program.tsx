@@ -7,6 +7,7 @@ const tealProgramTabId = 'teal'
 export const base64ProgramTabLabel = 'Base64'
 export const tealProgramTabLabel = 'Teal'
 
+// TODO: don't need this
 type Props = {
   tabsListAriaLabel: string
   base64Program: string

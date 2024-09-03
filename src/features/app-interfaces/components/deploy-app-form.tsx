@@ -5,20 +5,36 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
-import { useCallback } from 'react'
-import { deployApp } from '@algorandfoundation/algokit-utils'
+import { useCallback, useMemo } from 'react'
+import { deployApp, stripTealComments } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { Arc32AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
+import { Path, useFormContext } from 'react-hook-form'
+import { cn } from '@/features/common/utils'
+import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
+import { Label } from '@/features/common/components/label'
+import { Fieldset } from '@/features/forms/components/fieldset'
 
 type Props = {
   className?: string
   appSpec: Arc32AppSpec
 }
 
+enum TemplateParamType {
+  String = 'String',
+  Number = 'Number',
+  UInt8Array = 'UInt8Array',
+}
+
+const templateParam = z.object({
+  name: zfd.text(),
+  type: z.nativeEnum(TemplateParamType),
+  value: zfd.text(),
+})
 const formSchema = zfd.formData({
   name: zfd.text(),
   version: zfd.text(),
@@ -26,11 +42,27 @@ const formSchema = zfd.formData({
   onSchemaBreak: zfd.text(z.union([z.literal('fail'), z.literal('replace'), z.literal('append')]).optional()),
   deletable: z.boolean().optional(),
   updatable: z.boolean().optional(),
+  templateParams: z.array(templateParam),
 })
+type DeployAppFormData = z.infer<typeof formSchema>
+type TemplateParamFields = DeployAppFormData['templateParams']
+
+const getTemplateParamNames = (appSpec: Arc32AppSpec) => {
+  if (!appSpec.source.approval) {
+    return []
+  }
+  let tealCode = base64ToUtf8(appSpec.source.approval)
+  tealCode = stripTealComments(tealCode)
+
+  const regex = /TMPL_[A-Z_]+/g
+  return [...tealCode.matchAll(regex)].flat()
+}
 
 export function DeployAppForm({ className, appSpec }: Props) {
   const [_, send] = useCreateAppInterfaceStateMachine()
   const { signer, activeAccount } = useWallet()
+
+  const templateParamNames = useMemo(() => getTemplateParamNames(appSpec), [appSpec])
 
   const save = useCallback(
     async (values: z.infer<typeof formSchema>) => {
@@ -116,6 +148,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
         }
         defaultValues={{
           name: appSpec.contract.name,
+          templateParams: templateParamNames.map((name) => ({ name, type: TemplateParamType.String, value: '' })),
         }}
         className={className}
       >
@@ -157,9 +190,57 @@ export function DeployAppForm({ className, appSpec }: Props) {
               field: 'updatable',
               label: 'Updatable',
             })}
+            <Fieldset legend="Template Params">
+              {templateParamNames.map((name, index) => (
+                <TemplateParamFormItem key={index} field={`templateParams.${index}`} name={name} />
+              ))}
+            </Fieldset>
           </>
         )}
       </Form>
+    </div>
+  )
+}
+
+export type TemplateParamFormItemProps = {
+  className?: string
+  name: string
+  field: string
+}
+
+export function TemplateParamFormItem({ className, name, field }: TemplateParamFormItemProps) {
+  const { watch } = useFormContext<DeployAppFormData>()
+  const helper = new FormFieldHelper<TemplateParamFields[number]>({ fieldPrefix: field })
+
+  const type = watch(`${field}.type` as Path<DeployAppFormData>)
+  const placeholder = useMemo(() => {
+    if (type === TemplateParamType.UInt8Array) {
+      return 'Base64 encoded of the UInt8 array'
+    }
+    return undefined
+  }, [type])
+
+  return (
+    <div className="space-y-2">
+      <Label>{name.substring(5)}</Label>
+      <div className={cn('grid gap-2 grid-cols-[200px_1fr]', className)}>
+        {helper.selectField({
+          field: 'type',
+          label: 'Type',
+          className: ' content-start',
+          options: [
+            { value: TemplateParamType.String, label: 'String' },
+            { value: TemplateParamType.Number, label: 'Number' },
+            { value: TemplateParamType.UInt8Array, label: 'UInt8Array' },
+          ],
+        })}
+        {helper.textField({
+          field: 'value',
+          label: 'Value',
+          className: ' content-start',
+          placeholder: placeholder,
+        })}
+      </div>
     </div>
   )
 }

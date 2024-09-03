@@ -1,5 +1,4 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
-import { cn } from '@/features/common/utils'
 import { Controller } from 'react-hook-form'
 import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
 
@@ -22,7 +21,7 @@ export function SelectFormItem<TSchema extends Record<string, unknown>>({
   ...props
 }: SelectFormItemProps<TSchema>) {
   return (
-    <FormItem {...props} field={field} disabled={disabled}>
+    <FormItem {...props} field={field} disabled={disabled} className={className}>
       <Controller
         name={field}
         render={({ field: { value, onChange } }) => (
@@ -30,7 +29,7 @@ export function SelectFormItem<TSchema extends Record<string, unknown>>({
             <SelectTrigger id={field}>
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
-            <SelectContent className={cn(className)}>
+            <SelectContent>
               {options.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
