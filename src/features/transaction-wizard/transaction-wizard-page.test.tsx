@@ -8,6 +8,8 @@ import { transactionIdLabel } from '../transactions/components/transaction-info'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { accountCloseTransaction } from './data/payment-transactions'
 import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
+import { renderHook } from '@testing-library/react'
+import { localnetId, useSetSelectedNetwork } from '@/features/network/data'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
