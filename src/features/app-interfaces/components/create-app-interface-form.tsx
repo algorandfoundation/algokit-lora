@@ -6,14 +6,15 @@ import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { toast } from 'react-toastify'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterface } from '@/features/app-interfaces/data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
-import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
 import { Button } from '@/features/common/components/button'
 import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
+import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
+import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
 import { numberSchema } from '@/features/forms/data/common'
 
 const formSchema = zfd.formData({
@@ -24,7 +25,7 @@ const formSchema = zfd.formData({
 
 type Props = {
   appSpecFile: File
-  appSpec: Arc32AppSpec
+  appSpec: Arc32AppSpec | Arc4AppSpec
   onSuccess: () => void
 }
 
@@ -34,14 +35,30 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
 
   const save = useCallback(
     async (values: z.infer<typeof formSchema>) => {
-      await createAppInterface({
+      const commonProps = {
+        applicationId: values.applicationId,
         name: values.name,
-        standard: 'ARC-32',
-        appSpec: appSpec,
+        appSpec,
         roundFirstValid: undefined,
         roundLastValid: undefined,
-        applicationId: values.applicationId,
-      })
+      }
+
+      if (isArc32AppSpec(appSpec)) {
+        await createAppInterface({
+          ...commonProps,
+          appSpec: appSpec as Arc32AppSpec,
+          standard: AppSpecStandard.ARC32,
+        })
+      } else if (isArc4AppSpec(appSpec)) {
+        await createAppInterface({
+          ...commonProps,
+          appSpec: appSpec as Arc4AppSpec,
+          standard: AppSpecStandard.ARC4,
+        })
+      } else {
+        throw new Error('Invalid appSpec type')
+      }
+
       toast.success(`App interface ${values.name} was saved successfully`)
     },
     [appSpec, createAppInterface]
@@ -50,10 +67,11 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   const defaultValues = useMemo(
     () => ({
       file: appSpecFile,
-      name: snapshot.context.name ?? appSpec.contract.name,
+      name: snapshot.context.name ?? (isArc32AppSpec(appSpec) ? appSpec.contract.name : isArc4AppSpec(appSpec) ? appSpec.name : ''),
+
       applicationId: snapshot.context.applicationId,
     }),
-    [appSpec.contract.name, appSpecFile, snapshot.context.applicationId, snapshot.context.name]
+    [appSpec, appSpecFile, snapshot]
   )
 
   return (
@@ -70,7 +88,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
           </FormActions>
         }
       >
-        {(helper) => <FormInner helper={helper} />}
+        {(helper) => <FormInner helper={helper} appSpec={appSpec} />}
       </Form>
     </div>
   )
@@ -78,9 +96,10 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
 
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof formSchema>>
+  appSpec: Arc32AppSpec | Arc4AppSpec
 }
 
-function FormInner({ helper }: FormInnerProps) {
+function FormInner({ helper, appSpec }: FormInnerProps) {
   const [_, send] = useCreateAppInterfaceStateMachine()
 
   const { getValues, control } = useFormContext<z.infer<typeof formSchema>>()
@@ -125,26 +144,36 @@ function FormInner({ helper }: FormInnerProps) {
         field: 'name',
         label: 'Name',
       })}
-      <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
-        {helper.numberField({
-          field: 'applicationId',
-          label: 'Application ID',
-        })}
-        <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
-        <div className="grid sm:mt-[1.375rem]">
-          <Button
-            type="button"
-            variant="outline-secondary"
-            disabled={deployButtonStatus.disabled}
-            disabledReason={deployButtonStatus.reason}
-            className="w-fit"
-            aria-label={deployToNetworkLabel}
-            onClick={onDeployButtonClick}
-          >
-            {deployToNetworkLabel}
-          </Button>
+      {isArc4AppSpec(appSpec) && (
+        <>
+          {helper.numberField({
+            field: 'applicationId',
+            label: 'Application ID',
+          })}
+        </>
+      )}
+      {isArc32AppSpec(appSpec) && (
+        <div className="flex flex-col sm:flex-row sm:items-start sm:gap-4">
+          {helper.numberField({
+            field: 'applicationId',
+            label: 'Application ID',
+          })}
+          <div className="h-10 content-center sm:mt-[1.375rem]">OR</div>
+          <div className="grid sm:mt-[1.375rem]">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              disabled={deployButtonStatus.disabled}
+              disabledReason={deployButtonStatus.reason}
+              className="w-fit"
+              aria-label={deployToNetworkLabel}
+              onClick={onDeployButtonClick}
+            >
+              {deployToNetworkLabel}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

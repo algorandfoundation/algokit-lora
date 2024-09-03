@@ -1,4 +1,6 @@
 import { ApplicationId } from '../data/types'
+import algosdk from 'algosdk'
+import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -45,4 +47,35 @@ export type ApplicationBoxSummary = {
 export type ApplicationBox = {
   name: string
   value: string
+}
+
+export type ArgumentHint = {
+  struct?: StructType
+  defaultArgument?: DefaultArgument
+}
+
+export type ArgumentDefinition = {
+  id: number
+  name?: string
+  description?: string
+  type: algosdk.ABIArgumentType
+  hint?: ArgumentHint
+}
+
+export type ReturnsHint = {
+  struct: StructType
+}
+
+export type ReturnsDefinition = {
+  description?: string
+  type: algosdk.ABIReturnType
+  hint?: ReturnsHint
+}
+
+export type MethodDefinition = {
+  name: string
+  signature: string
+  description?: string
+  arguments: ArgumentDefinition[]
+  returns: ReturnsDefinition
 }

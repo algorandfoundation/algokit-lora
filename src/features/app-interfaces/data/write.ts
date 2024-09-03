@@ -1,5 +1,5 @@
 import { assign, setup } from 'xstate'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecVersion, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types.ts'
 import { useAtom } from 'jotai'
 import { atomWithMachine } from 'jotai-xstate'
@@ -8,7 +8,12 @@ import { useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp } from '@/features/common/data'
-import { getAppInterfaceAtom, getAppInterfaces } from '@/features/app-interfaces/data/index'
+import { getAppInterfaces } from '@/features/app-interfaces/data/index'
+
+export type AppSpecDetails = {
+  applicationId: ApplicationId
+  name: string
+} & AppSpecVersion
 
 export const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
   await dbConnection.put('app-interfaces', appInterface)
@@ -16,59 +21,38 @@ export const writeAppInterface = async (dbConnection: DbConnection, appInterface
 
 export const useCreateAppInterface = () => {
   return useAtomCallback(
-    useCallback(
-      async (
-        get,
-        set,
-        {
-          applicationId,
-          name,
-          standard,
-          roundFirstValid,
-          roundLastValid,
-          appSpec,
-        }: {
-          applicationId: ApplicationId
-          name: string
-          standard: 'ARC-32'
-          appSpec: Arc32AppSpec
-          roundFirstValid?: number
-          roundLastValid?: number
-        }
-      ) => {
-        invariant(roundFirstValid === undefined || roundFirstValid >= 0, 'roundFirstValid must be greater than or equal to 0')
-        invariant(roundLastValid === undefined || roundLastValid >= 0, 'roundLastValid must be greater than or equal to 0')
-        if (roundFirstValid !== undefined && roundLastValid !== undefined) {
-          invariant(roundLastValid > roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
-        }
+    useCallback(async (get, _, appSpecDetails: AppSpecDetails) => {
+      const { applicationId, name, ...appSpecVersion } = appSpecDetails
+      invariant(
+        appSpecVersion.roundFirstValid === undefined || appSpecVersion.roundFirstValid >= 0,
+        'roundFirstValid must be greater than or equal to 0'
+      )
+      invariant(
+        appSpecVersion.roundLastValid === undefined || appSpecVersion.roundLastValid >= 0,
+        'roundLastValid must be greater than or equal to 0'
+      )
+      if (appSpecVersion.roundFirstValid !== undefined && appSpecVersion.roundLastValid !== undefined) {
+        invariant(appSpecVersion.roundLastValid > appSpecVersion.roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
+      }
 
-        const dbConnection = await get(dbConnectionAtom)
-        const existingAppInterfaces = await getAppInterfaces(dbConnection)
-        invariant(
-          existingAppInterfaces.find((e) => e.applicationId === applicationId) === undefined,
-          `Application ID "${applicationId}" is already associated with another app interface`
-        )
-        invariant(
-          existingAppInterfaces.find((e) => e.name.toLowerCase() === name.toLowerCase()) === undefined,
-          `App interface "${name}" already exists, please choose a different name`
-        )
+      const dbConnection = await get(dbConnectionAtom)
+      const existingAppInterfaces = await getAppInterfaces(dbConnection)
+      invariant(
+        existingAppInterfaces.find((e) => e.applicationId === applicationId) === undefined,
+        `Application ID "${applicationId}" is already associated with another app interface`
+      )
+      invariant(
+        existingAppInterfaces.find((e) => e.name.toLowerCase() === name.toLowerCase()) === undefined,
+        `App interface "${name}" already exists, please choose a different name`
+      )
 
-        await set(getAppInterfaceAtom(applicationId), {
-          applicationId: applicationId,
-          name: name,
-          appSpecVersions: [
-            {
-              standard,
-              roundFirstValid,
-              roundLastValid,
-              appSpec,
-            },
-          ],
-          lastModified: createTimestamp(),
-        })
-      },
-      []
-    )
+      await writeAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: name,
+        appSpecVersions: [appSpecDetails],
+        lastModified: createTimestamp(),
+      })
+    }, [])
   )
 }
 
@@ -77,14 +61,14 @@ const createMachine = () =>
     types: {
       context: {} as {
         file?: File
-        appSpec?: Arc32AppSpec
+        appSpec?: Arc32AppSpec | Arc4AppSpec
         name?: string
         applicationId?: ApplicationId
         roundFirstValid?: number
         roundLastValid?: number
       },
       events: {} as
-        | { type: 'fileSelected'; file: File; appSpec: Arc32AppSpec }
+        | { type: 'fileSelected'; file: File; appSpec: Arc32AppSpec | Arc4AppSpec }
         | { type: 'deployAppRequested'; name?: string; applicationId?: ApplicationId }
         | { type: 'deployAppCompleted'; applicationId: ApplicationId }
         | { type: 'deployAppCancelled' },

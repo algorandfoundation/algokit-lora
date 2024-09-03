@@ -1,0 +1,82 @@
+{
+    "hints": {
+        "echo_struct((string,uint64))(string,uint64)": {
+            "call_config": {
+                "no_op": "CALL"
+            },
+            "structs": {
+                "inputUser": {
+                    "name": "UserStruct",
+                    "elements": [
+                        [
+                            "name",
+                            "string"
+                        ],
+                        [
+                            "id",
+                            "uint64"
+                        ]
+                    ]
+                },
+                "output": {
+                    "name": "UserStruct",
+                    "elements": [
+                        [
+                            "name",
+                            "string"
+                        ],
+                        [
+                            "id",
+                            "uint64"
+                        ]
+                    ]
+                }
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuc2FtcGxlX3NldmVuLmNvbnRyYWN0LlNhbXBsZV9TZXZlbi5hcHByb3ZhbF9wcm9ncmFtOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9zZXZlbi9jb250cmFjdC5weToxMQogICAgLy8gY2xhc3MgU2FtcGxlX1NldmVuKEFSQzRDb250cmFjdCk6CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9iYXJlX3JvdXRpbmdANQogICAgbWV0aG9kICJlY2hvX3N0cnVjdCgoc3RyaW5nLHVpbnQ2NCkpKHN0cmluZyx1aW50NjQpIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9lY2hvX3N0cnVjdF9yb3V0ZUAyCiAgICBlcnIgLy8gcmVqZWN0IHRyYW5zYWN0aW9uCgptYWluX2VjaG9fc3RydWN0X3JvdXRlQDI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvc2FtcGxlX3NldmVuL2NvbnRyYWN0LnB5OjEyCiAgICAvLyBAYXJjNC5hYmltZXRob2QKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gaXMgTm9PcAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydCAvLyBpcyBub3QgY3JlYXRpbmcKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9zYW1wbGVfc2V2ZW4vY29udHJhY3QucHk6MTEKICAgIC8vIGNsYXNzIFNhbXBsZV9TZXZlbihBUkM0Q29udHJhY3QpOgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9zZXZlbi9jb250cmFjdC5weToxMgogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICBjYWxsc3ViIGVjaG9fc3RydWN0CiAgICBieXRlIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnQgMQogICAgcmV0dXJuCgptYWluX2JhcmVfcm91dGluZ0A1OgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9zZXZlbi9jb250cmFjdC5weToxMQogICAgLy8gY2xhc3MgU2FtcGxlX1NldmVuKEFSQzRDb250cmFjdCk6CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQgLy8gcmVqZWN0IHRyYW5zYWN0aW9uCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgYXNzZXJ0IC8vIGlzIGNyZWF0aW5nCiAgICBpbnQgMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzLnNhbXBsZV9zZXZlbi5jb250cmFjdC5TYW1wbGVfU2V2ZW4uZWNob19zdHJ1Y3QoaW5wdXRVc2VyOiBieXRlcykgLT4gYnl0ZXM6CmVjaG9fc3RydWN0OgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9zZXZlbi9jb250cmFjdC5weToxMi0xMwogICAgLy8gQGFyYzQuYWJpbWV0aG9kCiAgICAvLyBkZWYgZWNob19zdHJ1Y3Qoc2VsZiwgaW5wdXRVc2VyOiBVc2VyU3RydWN0KSAtPiBVc2VyU3RydWN0OgogICAgcHJvdG8gMSAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvc2FtcGxlX3NldmVuL2NvbnRyYWN0LnB5OjE0CiAgICAvLyByZXR1cm4gaW5wdXRVc2VyCiAgICBmcmFtZV9kaWcgLTEKICAgIHJldHN1Ygo=",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEwCgpzbWFydF9jb250cmFjdHMuc2FtcGxlX3NldmVuLmNvbnRyYWN0LlNhbXBsZV9TZXZlbi5jbGVhcl9zdGF0ZV9wcm9ncmFtOgogICAgLy8gc21hcnRfY29udHJhY3RzL3NhbXBsZV9zZXZlbi9jb250cmFjdC5weToxMQogICAgLy8gY2xhc3MgU2FtcGxlX1NldmVuKEFSQzRDb250cmFjdCk6CiAgICBpbnQgMQogICAgcmV0dXJuCg=="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {},
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "Sample_Seven",
+        "methods": [
+            {
+                "name": "echo_struct",
+                "args": [
+                    {
+                        "type": "(string,uint64)",
+                        "name": "inputUser"
+                    }
+                ],
+                "returns": {
+                    "type": "(string,uint64)"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

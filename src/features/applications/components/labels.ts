@@ -14,9 +14,11 @@ export const applicationClearStateProgramLabel = 'Clear State Program'
 export const applicationApprovalProgramTabsListAriaLabel = 'View Application Approval Program Tabs'
 export const applicationClearStateProgramTabsListAriaLabel = 'View Application Clear State Program Tabs'
 
-export const applicationGlobalStateLabel = 'Global State'
-
-export const applicationBoxesLabel = 'Boxes'
+export const applicationStateLabel = 'State'
+export const applicationGlobalStateLabel = 'Global'
+export const applicationGlobalStateTabId = 'global-state'
+export const applicationBoxesLabel = 'Box'
+export const applicationBoxesTabId = 'boxes'
 
 export const applicationBoxNameLabel = 'Box Name'
 export const applicationBoxValueLabel = 'Box Value'
@@ -26,3 +28,5 @@ export const applicationLiveTransactionsTabId = 'live-transactions'
 export const applicationLiveTransactionsTabLabel = 'Live Transactions'
 export const applicationHistoricalTransactionsTabId = 'historical-transactions'
 export const applicationHistoricalTransactionsTabLabel = 'Historical Transactions'
+
+export const applicationAbiMethodDefinitionsLabel = 'ABI Methods'
