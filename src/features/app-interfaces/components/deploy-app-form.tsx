@@ -174,7 +174,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
         }
         defaultValues={{
           name: appSpec.contract.name,
-          templateParams: templateParamNames.map(() => ({ type: TemplateParamType.String, value: '' })),
+          templateParams: templateParamNames.map(() => ({ type: TemplateParamType.String })),
         }}
         className={className}
       >
