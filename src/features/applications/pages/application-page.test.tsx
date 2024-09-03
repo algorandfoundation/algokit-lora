@@ -38,7 +38,7 @@ import { genesisHashAtom } from '@/features/blocks/data'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { writeAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -343,7 +343,7 @@ describe('application-page', () => {
         name: 'test',
         appSpecVersions: [
           {
-            standard: 'ARC-32',
+            standard: AppSpecStandard.ARC32,
             appSpec: SampleSevenAppSpec as unknown as Arc32AppSpec,
           },
         ],

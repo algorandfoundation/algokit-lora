@@ -20,7 +20,7 @@
       "$ref": "#/definitions/AppSources"
     },
     "contract": {
-      "$ref": "contract.schema.json"
+      "$ref": "arc4-contract.schema.json"
     },
     "schema": {
       "$ref": "#/definitions/SchemaSpec"
@@ -274,7 +274,7 @@
             },
             "data": {
               "description": "The contract of the ABI method to invoke.",
-              "$ref": "contract.schema.json#/definitions/ContractMethod"
+              "$ref": "arc4-contract.schema.json#/definitions/ContractMethod"
             }
           }
         },

@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "AbiContract",
+  "type": "object",
+  "required": [
+    "name",
+    "methods"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "desc": {
+      "type": "string"
+    },
+    "methods": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ContractMethod"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Event"
+      }
+    },
+    "networks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "appID"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "appID": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ContractMethod": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "name",
+        "args",
+        "returns"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContractMethodArg"
+          }
+        },
+        "desc": {
+          "type": "string"
+        },
+        "returns": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "desc": {
+              "type": "string"
+            },
+            "type": {
+              "$ref": "#/definitions/ABIType"
+            }
+          }
+        },
+        "readonly": {
+          "type": "boolean"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Event"
+          }
+        }
+      }
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "name",
+        "args"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContractMethodArg"
+          }
+        },
+        "desc": {
+          "type": "string"
+        }
+      }
+    },
+    "ContractMethodArg": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "name",
+        "type"
+      ],
+      "properties": {
+        "desc": {
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/definitions/ABIType"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "ABIType": {
+      "description": "Catch all for fixed length arrays and tuples",
+      "type": "string"
+    }
+  }
+}

@@ -82,7 +82,7 @@ import { transactionReceiverLabel, transactionSenderLabel } from '../components/
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { algod } from '@/features/common/data/algo-client'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { writeAppInterface } from '@/features/app-interfaces/data'
@@ -1256,8 +1256,52 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
       name: 'test',
       appSpecVersions: [
         {
-          standard: 'ARC-32',
+          standard: AppSpecStandard.ARC32,
           appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
+        },
+      ],
+      lastModified: createTimestamp(),
+    } satisfies AppInterfaceEntity)
+
+    return executeComponentTest(
+      () => {
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() => {
+          const tabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(tabList).toBeTruthy()
+
+          const decodedAbiMethodTab = component.getByRole('tabpanel', { name: decodedAbiMethodTabLabel })
+          expect(decodedAbiMethodTab.getAttribute('data-state'), 'Decoded ABI Method tab should be active').toBe('active')
+
+          expect(decodedAbiMethodTab.textContent).toBe(
+            'echo_address(address:  25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+          )
+        })
+      }
+    )
+  })
+})
+
+describe('when rendering an app call transaction with ARC-4 app spec loaded', () => {
+  const transaction = transactionResultMother['testnet-6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q']().build()
+
+  it('should be rendered with the correct data', async () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    const myStore = createStore()
+    myStore.set(genesisHashAtom, 'some-hash')
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+    const applicationId = transaction['application-transaction']!['application-id']!
+    const dbConnection = await myStore.get(dbConnectionAtom)
+    await writeAppInterface(dbConnection, {
+      applicationId: applicationId,
+      name: 'test',
+      appSpecVersions: [
+        {
+          standard: AppSpecStandard.ARC4,
+          appSpec: SampleFiveAppSpec as unknown as Arc4AppSpec,
         },
       ],
       lastModified: createTimestamp(),

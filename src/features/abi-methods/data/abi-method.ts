@@ -9,6 +9,7 @@ import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
+import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
@@ -43,13 +44,19 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
     )
     const transactionArgs = transaction['application-transaction']['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
-      const contractMethod = appSpecVersion.appSpec.contract.methods.find((m) => {
-        const abiMethod = new algosdk.ABIMethod(m)
-        return uint8ArrayToBase64(abiMethod.getSelector()) === transactionArgs[0]
-      })
-      if (contractMethod) return new algosdk.ABIMethod(contractMethod)
+      const methods = isArc32AppSpec(appSpecVersion.appSpec)
+        ? appSpecVersion.appSpec.contract.methods
+        : isArc4AppSpec(appSpecVersion.appSpec)
+          ? appSpecVersion.appSpec.methods
+          : undefined
+      if (methods) {
+        const contractMethod = methods.find((m) => {
+          const abiMethod = new algosdk.ABIMethod(m)
+          return uint8ArrayToBase64(abiMethod.getSelector()) === transactionArgs[0]
+        })
+        if (contractMethod) return new algosdk.ABIMethod(contractMethod)
+      }
     }
-
     return undefined
   })
 }
