@@ -9,6 +9,7 @@ import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { accountCloseTransaction } from './data/payment-transactions'
 import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
 import { selectOption } from '@/tests/utils/select-option'
+import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -47,18 +48,7 @@ describe('transaction-wizard-page', () => {
 
   describe('when a wallet is connected', () => {
     beforeEach(async () => {
-      const { testAccount } = localnet.context
-      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
-      vi.mocked(useWallet).mockImplementation(() => {
-        return {
-          ...original.useWallet(),
-          activeAddress: testAccount.addr,
-          signer: testAccount.signer,
-          status: 'active',
-          isActive: true,
-          isReady: true,
-        }
-      })
+      await setWalletAddressAndSigner(localnet)
     })
 
     describe('and a payment transaction is being sent', () => {

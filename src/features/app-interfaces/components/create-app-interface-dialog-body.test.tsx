@@ -1,6 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
-
-import { useWallet } from '@txnlab/use-wallet'
+import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import SampleSixAppSpec from '@/tests/test-app-specs/sample-six.arc32.json'
 import { fireEvent, getByLabelText, getByText, render, waitFor } from '@/tests/testing-library'
@@ -8,8 +6,8 @@ import { Arc32AppSpec } from '../data/types'
 import { deployAppLabel, deployButtonLabel } from '@/features/app-interfaces/components/labels'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { selectOption } from '@/tests/utils/select-option'
+import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 
 describe('create-app-interface-dialog-body', () => {
   const localnet = algorandFixture()
@@ -22,7 +20,7 @@ describe('create-app-interface-dialog-body', () => {
     const appSpec = SampleSixAppSpec as Arc32AppSpec
 
     beforeEach(async () => {
-      await setWalletAddress(localnet)
+      await setWalletAddressAndSigner(localnet)
     })
 
     it('succeeds when all fields have been correctly supplied', () => {
@@ -103,22 +101,6 @@ describe('create-app-interface-dialog-body', () => {
     })
   })
 })
-
-const setWalletAddress = async (localnet: AlgorandFixture) => {
-  const { testAccount } = localnet.context
-
-  const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
-  vi.mocked(useWallet).mockImplementation(() => {
-    return {
-      ...original.useWallet(),
-      activeAddress: testAccount.addr,
-      signer: testAccount.signer,
-      status: 'active',
-      isActive: true,
-      isReady: true,
-    }
-  })
-}
 
 const findParentDiv = async (component: HTMLElement, label: string) => {
   return await waitFor(() => {
