@@ -4,30 +4,27 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { useCallback, useMemo } from 'react'
 import { Struct as StructType, DefaultArgument as DefaultArgumentType } from '@/features/app-interfaces/data/types/arc-32/application'
 import { Form } from '@/features/forms/components/form'
-import { zfd } from 'zod-form-data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { Button } from '@/features/common/components/button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
-import algosdk from 'algosdk'
-import { Path } from 'react-hook-form'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet'
-import { numberSchema } from '@/features/forms/data/common'
 import { ApplicationId } from '../data/types'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { invariant } from '@/utils/invariant'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
+import { extractArgumentIndexFromFieldPath } from '../mappers'
 
-type Props = {
+type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
-  abiMethods: ApplicationAbiMethods // TODO: NC - Get the naming right
+  abiMethods: ApplicationAbiMethods<TSchema> // TODO: NC - Get the naming right
 }
 
 // TODO: NC - ABI Methods?
-export function ApplicationMethodDefinitions({ applicationId, abiMethods }: Props) {
+export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ applicationId, abiMethods }: Props<TSchema>) {
   return (
     <Accordion type="multiple">
       {abiMethods.methods.map((method, index) => (
@@ -42,47 +39,23 @@ export function ApplicationMethodDefinitions({ applicationId, abiMethods }: Prop
   )
 }
 
-const uintSchema = z.number().min(0).max(255)
-
-type MethodProps = {
+type MethodProps<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
-  method: MethodDefinition
+  method: MethodDefinition<TSchema>
   appSpec?: Arc32AppSpec // TODO: NC - We don't really need to support ARC4 here, so think about this, we need to support arc56 though
 }
 
-const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}-${argumentIndex}`
-const extractArgumentIndex = (path: string) => parseInt(path.split('-')[1])
-
-function Method({ applicationId, method, appSpec }: MethodProps) {
+function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }: MethodProps<TSchema>) {
   const { activeAddress, signer } = useWallet()
 
-  const schema = useMemo(() => {
-    return zfd.formData(
-      method.arguments.reduce(
-        (acc, arg, index) => {
-          let fieldSchema: z.ZodTypeAny = zfd.text()
-
-          // TODO: NC - Handle read-only methods
-          if (arg.type instanceof algosdk.ABIUintType) {
-            fieldSchema = numberSchema(arg.hint?.defaultArgument ? uintSchema.optional() : uintSchema)
-          }
-
-          return {
-            ...acc,
-            [argumentFieldPath(method.name, index)]: fieldSchema,
-          }
-        },
-        {} as Record<string, z.ZodTypeAny>
-      )
-    )
-  }, [method.arguments, method.name])
+  type TData = z.infer<typeof method.schema>
 
   const sendMethodCall = useCallback(
-    async (data: z.infer<typeof schema>) => {
+    async (data: TData) => {
       invariant(appSpec, 'An ARC-32 app spec is required when calling ABI methods')
 
-      const methodArgs = Object.entries(data).reduce((acc, [key, value]) => {
-        const index = extractArgumentIndex(key)
+      const methodArgs = Object.entries(data).reduce((acc, [path, value]) => {
+        const index = extractArgumentIndexFromFieldPath(path)
         acc[index] = value as ABIAppCallArg
         return acc
       }, [] as ABIAppCallArg[])
@@ -119,7 +92,7 @@ function Method({ applicationId, method, appSpec }: MethodProps) {
       <AccordionContent>
         {method.description && <p className="mb-4">{method.description}</p>}
         <Form
-          schema={schema}
+          schema={method.schema}
           onSubmit={sendMethodCall}
           formAction={(ctx, resetLocalState) => (
             <FormActions>
@@ -142,9 +115,7 @@ function Method({ applicationId, method, appSpec }: MethodProps) {
               <div className="space-y-4">
                 <h4 className="text-primary">Arguments</h4>
                 {method.arguments.length > 0 ? (
-                  method.arguments.map((argument, index) => (
-                    <Argument key={index} index={index} methodName={method.name} argument={argument} helper={helper} />
-                  ))
+                  method.arguments.map((argument, index) => <Argument key={index} index={index} argument={argument} helper={helper} />)
                 ) : (
                   <p>No arguments</p>
                 )}
@@ -162,12 +133,11 @@ function Method({ applicationId, method, appSpec }: MethodProps) {
 
 type ArgumentProps<TSchema extends z.ZodSchema> = {
   index: number
-  methodName: string
-  argument: ArgumentDefinition
+  argument: ArgumentDefinition<TSchema>
   helper: FormFieldHelper<z.infer<TSchema>>
 }
 
-function Argument<TSchema extends z.ZodSchema>({ index, methodName, argument, helper }: ArgumentProps<TSchema>) {
+function Argument<TSchema extends z.ZodSchema>({ index, argument, helper }: ArgumentProps<TSchema>) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -206,26 +176,9 @@ function Argument<TSchema extends z.ZodSchema>({ index, methodName, argument, he
     <div className="space-y-2">
       <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} />
-      <ArgumentField index={index} methodName={methodName} argument={argument} helper={helper} />
+      {argument.createField(helper)}
     </div>
   )
-}
-
-function ArgumentField<TSchema extends z.ZodSchema, TData = z.infer<TSchema>>({
-  index,
-  methodName,
-  argument,
-  helper,
-}: ArgumentProps<TSchema>) {
-  if (argument.type instanceof algosdk.ABIUintType) {
-    return helper.numberField({
-      label: 'Value',
-      field: argumentFieldPath(methodName, index) as Path<TData>,
-      placeholder: argument.description,
-    })
-  }
-
-  return undefined
 }
 
 function Returns({ returns }: { returns: ReturnsDefinition }) {

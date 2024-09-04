@@ -16,6 +16,11 @@ import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
+import { z } from 'zod'
+import { zfd } from 'zod-form-data'
+import { Path } from 'react-hook-form'
+import { numberSchema } from '@/features/forms/data/common'
+import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -102,7 +107,39 @@ const getValue = (bytes: string) => {
   }
 }
 
-export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): ApplicationAbiMethods => {
+const argumentPathSeperator = '-'
+const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeperator}${argumentIndex}`
+export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeperator)[1])
+
+const uintSchema = z.number().min(0).max(255)
+const asField = <TData extends Record<string, unknown>>(
+  methodName: string,
+  arg: algosdk.ABIMethod['args'][number],
+  argIndex: number,
+  isArgOptional: boolean
+): { createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined; fieldSchema: z.ZodTypeAny } => {
+  if (arg.type instanceof algosdk.ABIUintType) {
+    return {
+      createField: (helper) => {
+        return helper.numberField({
+          label: 'Value',
+          field: argumentFieldPath(methodName, argIndex) as Path<TData>,
+          placeholder: arg.description,
+        })
+      },
+      fieldSchema: numberSchema(isArgOptional ? uintSchema.optional() : uintSchema),
+    }
+  }
+
+  return {
+    createField: () => undefined,
+    fieldSchema: zfd.text(),
+  }
+}
+
+export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
+  appSpec: Arc32AppSpec | Arc4AppSpec
+): ApplicationAbiMethods<TSchema> => {
   const isArc32 = isArc32AppSpec(appSpec)
   const contract = isArc32 ? appSpec.contract : appSpec
   const methods = contract.methods.map((method) => {
@@ -115,25 +152,38 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
     const signature = abiMethod.getSignature()
     const hint = isArc32AppSpec(appSpec) && appSpec.hints ? appSpec.hints[signature] : undefined
 
+    const [methodArgs, schema] = abiMethod.args.reduce(
+      (acc, arg, i) => {
+        const { createField, fieldSchema } = asField(method.name, arg, i, !!(arg.name && hint?.default_arguments?.[arg.name]))
+
+        const argument = {
+          name: arg.name,
+          description: arg.description,
+          type: arg.type,
+          hint:
+            hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+              ? ({
+                  struct: hint.structs?.[arg.name],
+                  defaultArgument: hint.default_arguments?.[arg.name],
+                } satisfies ArgumentHint)
+              : undefined,
+          createField,
+        } satisfies ArgumentDefinition<TSchema>
+        acc[0].push(argument)
+        acc[1] = {
+          ...acc[1],
+          [argumentFieldPath(method.name, i)]: fieldSchema,
+        }
+        return acc
+      },
+      [[] as ArgumentDefinition<TSchema>[], {} as Record<string, z.ZodTypeAny>] as const
+    )
+
     return {
       name: abiMethod.name,
       signature: signature,
       description: abiMethod.description,
-      arguments: abiMethod.args.map(
-        (arg) =>
-          ({
-            name: arg.name,
-            description: arg.description,
-            type: arg.type,
-            hint:
-              hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
-                ? ({
-                    struct: hint.structs?.[arg.name],
-                    defaultArgument: hint.default_arguments?.[arg.name],
-                  } satisfies ArgumentHint)
-                : undefined,
-          }) satisfies ArgumentDefinition
-      ),
+      arguments: methodArgs,
       returns: {
         ...abiMethod.returns,
         hint:
@@ -143,7 +193,8 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
               }
             : undefined,
       },
-    } satisfies MethodDefinition
+      schema: zfd.formData(schema),
+    } satisfies MethodDefinition<TSchema>
   })
 
   return {
