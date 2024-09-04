@@ -35,7 +35,6 @@ export function FileInput({ accept, placeholder, value, disabled, onChange, name
     }
   }, [])
 
-  // TODO: check the id name name props
   return (
     <>
       <input
@@ -46,7 +45,6 @@ export function FileInput({ accept, placeholder, value, disabled, onChange, name
         onChange={(e) => onFilesAdded(Array.from(e.target.files ?? []))}
         disabled={disabled}
         accept={accept}
-        name={name}
       />
       <div className={cn('min-h-24 flex justify-center border rounded', dragging && 'bg-muted')} {...events} onClick={handleClick}>
         <div className="flex flex-col items-center justify-center gap-2">

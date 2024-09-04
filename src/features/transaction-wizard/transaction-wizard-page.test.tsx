@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, vitest, it, vi } from 'vitest'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { executeComponentTest } from '@/tests/test-component'
-import { fireEvent, render, waitFor, within } from '@/tests/testing-library'
+import { fireEvent, render, waitFor } from '@/tests/testing-library'
 import { useWallet } from '@txnlab/use-wallet'
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionIdLabel } from '../transactions/components/transaction-info'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { accountCloseTransaction } from './data/payment-transactions'
 import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
+import { selectOption } from '@/tests/utils/select-option'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -146,23 +147,7 @@ describe('transaction-wizard-page', () => {
             return render(<TransactionWizardPage />)
           },
           async (component, user) => {
-            const transactionTypeSelect = await waitFor(() => {
-              const transactionTypeSelect = component.getByRole('combobox', { name: transactionTypeLabel })
-              expect(transactionTypeSelect).toBeDefined()
-              return transactionTypeSelect!
-            })
-
-            await user.click(transactionTypeSelect)
-
-            const accountCloseOption = await waitFor(() => {
-              return component.getByRole('option', { name: accountCloseTransaction.label })
-            })
-
-            await user.click(accountCloseOption)
-
-            await waitFor(() => {
-              expect(within(transactionTypeSelect).getByText(accountCloseTransaction.label)).toBeInTheDocument()
-            })
+            await selectOption(component.container, user, transactionTypeLabel, accountCloseTransaction.label)
 
             const sendButton = await waitFor(() => {
               const sendButton = component.getByRole('button', { name: sendButtonLabel })
@@ -189,23 +174,7 @@ describe('transaction-wizard-page', () => {
             return render(<TransactionWizardPage />)
           },
           async (component, user) => {
-            const transactionTypeSelect = await waitFor(() => {
-              const transactionTypeSelect = component.getByRole('combobox', { name: transactionTypeLabel })
-              expect(transactionTypeSelect).toBeDefined()
-              return transactionTypeSelect!
-            })
-
-            await user.click(transactionTypeSelect)
-
-            const accountCloseOption = await waitFor(() => {
-              return component.getByRole('option', { name: accountCloseTransaction.label })
-            })
-
-            await user.click(accountCloseOption)
-
-            await waitFor(() => {
-              expect(within(transactionTypeSelect).getByText(accountCloseTransaction.label)).toBeInTheDocument()
-            })
+            await selectOption(component.container, user, transactionTypeLabel, accountCloseTransaction.label)
 
             const sendButton = await waitFor(() => {
               const sendButton = component.getByRole('button', { name: sendButtonLabel })

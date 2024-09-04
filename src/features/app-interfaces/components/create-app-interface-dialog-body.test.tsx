@@ -3,13 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
 import { useWallet } from '@txnlab/use-wallet'
 import { executeComponentTest } from '@/tests/test-component'
 import SampleSixAppSpec from '@/tests/test-app-specs/sample-six.arc32.json'
-import { fireEvent, getByLabelText, getByText, render, waitFor, screen, getByRole } from '@/tests/testing-library'
+import { fireEvent, getByLabelText, getByText, render, waitFor } from '@/tests/testing-library'
 import { Arc32AppSpec } from '../data/types'
-import { UserEvent } from '@testing-library/user-event'
 import { deployAppLabel, deployButtonLabel } from '@/features/app-interfaces/components/labels'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
+import { selectOption } from '@/tests/utils/select-option'
 
 describe('create-app-interface-dialog-body', () => {
   const localnet = algorandFixture()
@@ -120,24 +120,9 @@ const setWalletAddress = async (localnet: AlgorandFixture) => {
   })
 }
 
-// TODO: refactor this out
 const findParentDiv = async (component: HTMLElement, label: string) => {
   return await waitFor(() => {
     const div = getByText(component, label)
     return div.parentElement!
   })
-}
-
-const selectOption = async (parentComponent: HTMLElement, user: UserEvent, name: string | RegExp, value: string) => {
-  const select = await waitFor(() => {
-    const select = getByRole(parentComponent, 'combobox', { name: name })
-    expect(select).toBeDefined()
-    return select!
-  })
-  await user.click(select)
-
-  const option = await waitFor(() => {
-    return screen.getByRole('option', { name: value })
-  })
-  await user.click(option)
 }
