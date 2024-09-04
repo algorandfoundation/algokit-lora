@@ -5,16 +5,20 @@ import { TransactionLink } from '@/features/transactions/components/transaction-
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { asAbiMethodArgumentRender } from '@/features/abi-methods/mappers'
+import { sum } from '@/utils/sum'
 
 export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
+  const argumentsRender = useMemo(() => method.arguments.map((argument) => asAbiMethodArgumentRender(argument)), [method.arguments])
+
   const components = useMemo(
     () =>
-      method.arguments.map((argument) => {
+      argumentsRender.map((argument) => {
         if (argument.type === AbiType.Transaction) {
           return (
             <>
               <span>{argument.name}: </span>
-              <TransactionLink className="text-primary underline" transactionId={argument.value}>
+              <TransactionLink className={'text-primary underline'} transactionId={argument.value}>
                 {argument.value}
               </TransactionLink>
             </>
@@ -24,7 +28,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <AccountLink className="text-primary underline" address={argument.value}>
+              <AccountLink className={'text-primary underline'} address={argument.value}>
                 {argument.value}
               </AccountLink>
             </>
@@ -34,7 +38,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <ApplicationLink className="text-primary underline" applicationId={argument.value}>
+              <ApplicationLink className={'text-primary underline'} applicationId={argument.value}>
                 {argument.value}
               </ApplicationLink>
             </>
@@ -44,7 +48,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span>{argument.name}: </span>
-              <AssetIdLink className="text-primary underline" assetId={argument.value}>
+              <AssetIdLink className={'text-primary underline'} assetId={argument.value}>
                 {argument.value}
               </AssetIdLink>
             </>
@@ -56,17 +60,33 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           </>
         )
       }),
-    [method.arguments]
+    [argumentsRender]
   )
 
-  return (
-    <ul className="pl-4">
-      {components.map((component, index, arr) => (
-        <li key={index}>
-          {component}
-          {index < arr.length - 1 ? <span>{', '}</span> : null}
-        </li>
-      ))}
-    </ul>
-  )
+  const multiLine = argumentsRender.some((argument) => argument.multiLine) || sum(argumentsRender.map((argument) => argument.length)) > 20
+  if (multiLine) {
+    return (
+      <ul className={'pl-4'}>
+        {components.map((component, index, arr) => (
+          <li key={index}>
+            <>
+              {component}
+              {index < arr.length - 1 ? <span>{', '}</span> : null}
+            </>
+          </li>
+        ))}
+      </ul>
+    )
+  } else {
+    return (
+      <div className="inline">
+        {components.map((component, index, arr) => (
+          <>
+            {component}
+            {index < arr.length - 1 ? <span>{', '}</span> : null}
+          </>
+        ))}
+      </div>
+    )
+  }
 }

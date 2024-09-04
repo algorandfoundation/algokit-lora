@@ -1,9 +1,9 @@
 import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value'
 import { AbiTupleValue } from '@/features/abi-methods/components/abi-tuple-value'
-import { AbiValue as AbiValueModel, AbiType } from '@/features/abi-methods/models'
+import { AbiValueRender, AbiType } from '@/features/abi-methods/models'
 
 type Props = {
-  abiValue: AbiValueModel
+  abiValue: AbiValueRender
 }
 
 export function AbiValue({ abiValue }: Props) {
