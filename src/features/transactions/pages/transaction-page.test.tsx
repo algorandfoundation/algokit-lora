@@ -80,7 +80,6 @@ import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applicati
 import { transactionAmountLabel } from '../components/transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
-import { algod } from '@/features/common/data/algo-client'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'

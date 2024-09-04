@@ -4,7 +4,6 @@ import { JotaiStore } from '@/features/common/data/types'
 import { DataProvider } from '@/features/common/components/data-provider'
 import { TestWalletProvider } from './test-wallet-provider'
 import { useTheme } from '@/features/common/hooks/use-theme'
-import { useWallet } from '@txnlab/use-wallet'
 
 type Props = PropsWithChildren<{
   store?: JotaiStore
@@ -16,9 +15,6 @@ export function TestPlatformProvider({ children, store }: Props) {
     ...defaultNetworkConfigs.localnet,
   }
   useTheme()
-
-  const { activeAddress, isReady, providers } = useWallet()
-  const a = 5
 
   return (
     <DataProvider networkConfig={networkConfig} store={store}>
