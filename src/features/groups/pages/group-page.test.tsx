@@ -20,6 +20,18 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
 
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    indexer: {
+      lookupBlock: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
+
 describe('group-page', () => {
   describe('when rendering a group using an invalid round number', () => {
     it('should display invalid round message', () => {

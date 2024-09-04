@@ -19,6 +19,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Label } from '@/features/common/components/label'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { deployButtonLabel } from '@/features/app-interfaces/components/labels'
 
 type Props = {
   className?: string
@@ -80,7 +81,7 @@ const getTealTemplateParams = (names: string[], formData: DeployAppFormData) => 
 
 export function DeployAppForm({ className, appSpec }: Props) {
   const [_, send] = useCreateAppInterfaceStateMachine()
-  const { signer, activeAccount } = useWallet()
+  const { signer, activeAddress } = useWallet()
 
   const templateParamNames = useMemo(() => {
     const approvalTemplateParams = getTemplateParamNames(appSpec.source?.approval ?? '')
@@ -92,10 +93,10 @@ export function DeployAppForm({ className, appSpec }: Props) {
     async (values: DeployAppFormData) => {
       invariant(appSpec.source.approval, 'Approval program is not set')
       invariant(appSpec.source.clear, 'Clear program is not set')
-      invariant(activeAccount, 'No active wallet account is available')
+      invariant(activeAddress, 'No active wallet account is available')
 
       const signerAccount = {
-        addr: activeAccount.address,
+        addr: activeAddress,
         signer,
       }
 
@@ -126,7 +127,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
       return Number(deployAppResult.appId)
     },
     [
-      activeAccount,
+      activeAddress,
       appSpec.source.approval,
       appSpec.source.clear,
       appSpec.state.global.num_byte_slices,
@@ -169,7 +170,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
         formAction={
           <FormActions>
             <CancelButton onClick={onCancel} className="w-28" />
-            <SubmitButton className="w-28">Deploy</SubmitButton>
+            <SubmitButton className="w-28">{deployButtonLabel}</SubmitButton>
           </FormActions>
         }
         defaultValues={{
@@ -257,7 +258,7 @@ export function TemplateParamForm({ className, name, index }: TemplateParamFormP
         {helper.selectField({
           field: 'type',
           label: 'Type',
-          className: ' content-start',
+          className: 'content-start',
           options: [
             { value: TemplateParamType.String, label: 'String' },
             { value: TemplateParamType.Number, label: 'Number' },
@@ -267,7 +268,7 @@ export function TemplateParamForm({ className, name, index }: TemplateParamFormP
         {helper.textField({
           field: 'value',
           label: 'Value',
-          className: ' content-start',
+          className: 'content-start',
           helpText: helpText,
         })}
       </div>

@@ -19,6 +19,18 @@ import { descriptionListAssertion } from '@/tests/assertions/description-list-as
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    indexer: {
+      lookupBlock: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
+
 describe('block-page', () => {
   describe('when rendering a block using an invalid round number', () => {
     it('should display invalid round message', () => {

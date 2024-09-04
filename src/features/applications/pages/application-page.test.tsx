@@ -39,6 +39,34 @@ import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/ind
 import { writeAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { searchTransactionsMock } from '@/tests/setup/mocks'
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      getApplicationByID: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
+    },
+    indexer: {
+      lookupApplications: vi.fn().mockReturnValue({
+        includeAll: vi.fn().mockReturnValue({
+          do: vi.fn().mockReturnValue({ then: vi.fn() }),
+        }),
+      }),
+      searchForApplicationBoxes: vi.fn().mockReturnValue({
+        nextToken: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            do: vi.fn().mockReturnValue({ then: vi.fn() }),
+          }),
+        }),
+      }),
+      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+    },
+  }
+})
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
