@@ -1,5 +1,5 @@
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { PROVIDER_ID, useInitializeProviders } from '@txnlab/use-wallet'
+import { PROVIDER_ID, useInitializeProviders, useWallet } from '@txnlab/use-wallet'
 import { PropsWithChildren } from 'react'
 import algosdk from 'algosdk'
 import { WalletProviderInner } from '@/features/common/components/wallet-provider-inner'
@@ -18,6 +18,9 @@ export function TestWalletProvider({ networkConfig, children }: Props) {
     },
     algosdkStatic: algosdk,
   } as Parameters<typeof useInitializeProviders>[0]
+
+  const { activeAddress, isReady } = useWallet()
+  const a = 5
 
   return <WalletProviderInner initOptions={options}>{children}</WalletProviderInner>
 }

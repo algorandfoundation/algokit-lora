@@ -17,6 +17,7 @@ const shouldCreateKmdClient = (config: NetworkConfig) => {
 // Init the network config from local storage
 const networkConfig = settingsStore.get(networkConfigAtom)
 export let indexer = ClientManager.getIndexerClient(networkConfig.indexer)
+
 export let algod = ClientManager.getAlgodClient(networkConfig.algod)
 export let kmd: algosdk.Kmd | undefined = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
 export let algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })

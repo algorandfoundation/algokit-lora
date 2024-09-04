@@ -73,7 +73,7 @@ describe('asset-page', () => {
   describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
+      // vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<AssetPage />),

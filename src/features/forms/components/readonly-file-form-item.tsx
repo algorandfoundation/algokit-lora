@@ -2,7 +2,8 @@ import { Controller, FieldPath } from 'react-hook-form'
 import { FormItem } from '@/features/forms/components/form-item'
 import { FileInputProps } from '@/features/forms/components/file-input'
 
-export interface ReadonlyFileFormItemProps<TSchema extends Record<string, unknown>> extends Omit<FileInputProps, 'value' | 'onChange'> {
+export interface ReadonlyFileFormItemProps<TSchema extends Record<string, unknown>>
+  extends Omit<FileInputProps, 'value' | 'onChange' | 'name'> {
   label: string
   field: FieldPath<TSchema>
 }

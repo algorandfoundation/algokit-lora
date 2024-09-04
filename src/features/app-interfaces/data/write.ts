@@ -56,17 +56,19 @@ export const useCreateAppInterface = () => {
   )
 }
 
-const createMachine = () =>
+export type CreateAppInterfaceMachineContext = {
+  file?: File
+  appSpec?: Arc32AppSpec | Arc4AppSpec
+  name?: string
+  applicationId?: ApplicationId
+  roundFirstValid?: number
+  roundLastValid?: number
+}
+
+export const createMachine = () =>
   setup({
     types: {
-      context: {} as {
-        file?: File
-        appSpec?: Arc32AppSpec | Arc4AppSpec
-        name?: string
-        applicationId?: ApplicationId
-        roundFirstValid?: number
-        roundLastValid?: number
-      },
+      context: {} as CreateAppInterfaceMachineContext,
       events: {} as
         | { type: 'fileSelected'; file: File; appSpec: Arc32AppSpec | Arc4AppSpec }
         | { type: 'deployAppRequested'; name?: string; applicationId?: ApplicationId }

@@ -8,6 +8,7 @@ import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec, jsonAsArc4AppSpec } from '@/features/abi-methods/mappers'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
+import { appSpecFileInputLabel } from '@/features/app-interfaces/components/labels'
 
 const selectAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -53,7 +54,7 @@ function FormInner({ helper, handleSubmit }: FormInnerProps) {
 
   return helper.fileField({
     accept: 'application/json',
-    label: 'JSON app spec file',
+    label: appSpecFileInputLabel,
     field: 'file',
     placeholder: 'Select an ARC-32 or ARC-4 JSON app spec file',
   })
