@@ -10,10 +10,10 @@ export type FileInputProps = {
   value?: File
   onChange: (value: File) => void
   helpText?: string | ReactElement
-  name: string
+  fieldName: string
 }
 
-export function FileInput({ accept, placeholder, value, disabled, onChange, name }: FileInputProps) {
+export function FileInput({ accept, placeholder, value, disabled, onChange, fieldName }: FileInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const onFilesAdded = useCallback(
@@ -40,7 +40,7 @@ export function FileInput({ accept, placeholder, value, disabled, onChange, name
       <input
         ref={inputRef}
         type={'file'}
-        id={name}
+        id={fieldName}
         className="sr-only"
         onChange={(e) => onFilesAdded(Array.from(e.target.files ?? []))}
         disabled={disabled}

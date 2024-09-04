@@ -116,7 +116,7 @@ export const createMachine = () =>
     },
   })
 
-export const createAppInterfaceMachineAtom = atomWithMachine(() => createMachine())
+const createAppInterfaceMachineAtom = atomWithMachine(() => createMachine())
 
 export const useCreateAppInterfaceStateMachine = () => {
   return useAtom(createAppInterfaceMachineAtom)

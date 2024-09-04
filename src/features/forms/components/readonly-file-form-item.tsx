@@ -3,7 +3,7 @@ import { FormItem } from '@/features/forms/components/form-item'
 import { FileInputProps } from '@/features/forms/components/file-input'
 
 export interface ReadonlyFileFormItemProps<TSchema extends Record<string, unknown>>
-  extends Omit<FileInputProps, 'value' | 'onChange' | 'name'> {
+  extends Omit<FileInputProps, 'value' | 'onChange' | 'fieldName'> {
   label: string
   field: FieldPath<TSchema>
 }
