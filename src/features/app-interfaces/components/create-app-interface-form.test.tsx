@@ -51,7 +51,7 @@ describe('create-app-interface-form', () => {
       })
     })
 
-    it('the button to deploy the app is enabled', () => {
+    it('the button to deploy the app is disabled', () => {
       return executeComponentTest(
         () => {
           return render(<CreateAppInterfaceForm appSpec={appSpec} appSpecFile={new File([], 'app.json')} onSuccess={() => {}} />)
