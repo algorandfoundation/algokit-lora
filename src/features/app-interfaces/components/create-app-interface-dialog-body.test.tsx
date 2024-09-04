@@ -88,6 +88,11 @@ describe('create-app-interface-dialog-body', () => {
           })
 
           await waitFor(() => {
+            const errorMessage = component.queryByRole('alert', { name: 'error-message' })
+            expect(errorMessage).toBeNull()
+          })
+
+          await waitFor(() => {
             const input = component.getByLabelText(/Application ID/)
             expect(input).toBeDefined()
             expect(input).toHaveValue()

@@ -34,12 +34,33 @@ import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
+import { searchTransactionsMock } from '@/tests/setup/mocks'
 
 const server = setupServer()
 
 beforeAll(() => server.listen())
 afterAll(() => server.close())
 afterEach(() => server.resetHandlers())
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      getAssetByID: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
+    },
+    indexer: {
+      lookupAssetByID: vi.fn().mockReturnValue({
+        includeAll: vi.fn().mockReturnValue({
+          do: vi.fn().mockReturnValue({ then: vi.fn() }),
+        }),
+      }),
+      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+    },
+  }
+})
 
 describe('asset-page', () => {
   describe('when rendering an asset using an invalid asset Id', () => {
@@ -73,7 +94,7 @@ describe('asset-page', () => {
   describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      // vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<AssetPage />),

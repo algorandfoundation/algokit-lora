@@ -28,6 +28,18 @@ import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod } from '@/features/common/data/algo-client'
 
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      accountInformation: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
+    },
+  }
+})
+
 describe('account-page', () => {
   describe('when rendering an account using a invalid address', () => {
     it('should render an error message', () => {

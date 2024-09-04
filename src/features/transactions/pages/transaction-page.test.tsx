@@ -85,6 +85,19 @@ import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-inter
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { writeAppInterface } from '@/features/app-interfaces/data'
+import { algod } from '@/features/common/data/algo-client'
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -272,7 +285,7 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      // vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
+      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))

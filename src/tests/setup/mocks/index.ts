@@ -1,5 +1,4 @@
 import { vi } from 'vitest'
-import algosdk from 'algosdk'
 import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { SearchTransactionsMock } from '@/tests/setup/mocks/search-transactions'
 
@@ -17,61 +16,6 @@ vi.mock('@algorandfoundation/algokit-utils', async () => ({
   getAlgoClient: vi.fn(),
   lookupTransactionById: vi.fn(),
 }))
-
-// vi.mock('@/features/common/data/algo-client', async () => {
-//   const original = (await vi.importActual('@/features/common/data/algo-client')) satisfies {
-//     algod: algosdk.Algodv2
-//     indexer: algosdk.Indexer
-//   }
-//
-//   // if (!original.algod) {
-//   //   throw new Error('algod is undefined')
-//   // }
-//
-//   return {
-//     ...original,
-//     algod: {
-//       ...(original.algod as algosdk.Algodv2),
-//       disassemble: vi.fn().mockReturnValue({
-//         do: vi.fn(),
-//       }),
-//       getAssetByID: vi.fn().mockReturnValue({
-//         do: vi.fn().mockReturnValue({ then: vi.fn() }),
-//       }),
-//       accountInformation: vi.fn().mockReturnValue({
-//         do: vi.fn().mockReturnValue({ then: vi.fn() }),
-//       }),
-//       getApplicationByID: vi.fn().mockReturnValue({
-//         do: vi.fn().mockReturnValue({ then: vi.fn() }),
-//       }),
-//     },
-//     indexer: {
-//       ...(original.indexer as algosdk.Indexer),
-//       lookupBlock: vi.fn().mockReturnValue({
-//         do: vi.fn(),
-//       }),
-//       lookupAssetByID: vi.fn().mockReturnValue({
-//         includeAll: vi.fn().mockReturnValue({
-//           do: vi.fn().mockReturnValue({ then: vi.fn() }),
-//         }),
-//       }),
-//       searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
-//       lookupApplications: vi.fn().mockReturnValue({
-//         includeAll: vi.fn().mockReturnValue({
-//           do: vi.fn().mockReturnValue({ then: vi.fn() }),
-//         }),
-//       }),
-//       searchForApplicationBoxes: vi.fn().mockReturnValue({
-//         nextToken: vi.fn().mockReturnValue({
-//           limit: vi.fn().mockReturnValue({
-//             do: vi.fn().mockReturnValue({ then: vi.fn() }),
-//           }),
-//         }),
-//       }),
-//     },
-//     updateClientConfig: vi.fn(),
-//   }
-// })
 
 vi.mock('@txnlab/use-wallet', async () => {
   const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
