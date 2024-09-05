@@ -56,7 +56,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
 
       const methodArgs = Object.entries(data).reduce((acc, [path, value]) => {
         const index = extractArgumentIndexFromFieldPath(path)
-        acc[index] = value as ABIAppCallArg
+        acc[index] = method.arguments[index].getAppCallArg(value)
         return acc
       }, [] as ABIAppCallArg[])
 
@@ -81,7 +81,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
 
       // TODO: NC - Do we need to allow opt-in to the app? Only needed when the app uses local state. Probably a new story.
     },
-    [activeAddress, appSpec, applicationId, method.name, signer]
+    [activeAddress, appSpec, applicationId, method.arguments, method.name, signer]
   )
 
   return (

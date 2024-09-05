@@ -4,6 +4,7 @@ import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
+import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -63,6 +64,7 @@ export type ArgumentDefinition<TSchema extends z.ZodSchema> = {
   type: algosdk.ABIArgumentType
   hint?: ArgumentHint
   createField: (helper: FormFieldHelper<z.infer<TSchema>>) => JSX.Element | undefined
+  getAppCallArg: (arg: unknown) => ABIAppCallArg
 }
 
 export type ReturnsHint = {

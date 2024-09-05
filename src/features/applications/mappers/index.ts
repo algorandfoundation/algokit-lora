@@ -21,6 +21,8 @@ import { zfd } from 'zod-form-data'
 import { Path } from 'react-hook-form'
 import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
+import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -111,13 +113,18 @@ const argumentPathSeperator = '-'
 const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeperator}${argumentIndex}`
 export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeperator)[1])
 
+// TODO: we need to support different sizes of uint
 const uintSchema = z.number().min(0).max(255)
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],
   argIndex: number,
   isArgOptional: boolean
-): { createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined; fieldSchema: z.ZodTypeAny } => {
+): {
+  createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
+  fieldSchema: z.ZodTypeAny
+  getAppCallArg: (value: unknown) => ABIAppCallArg
+} => {
   if (arg.type instanceof algosdk.ABIUintType) {
     return {
       createField: (helper) => {
@@ -128,12 +135,28 @@ const asField = <TData extends Record<string, unknown>>(
         })
       },
       fieldSchema: numberSchema(isArgOptional ? uintSchema.optional() : uintSchema),
+      getAppCallArg: (value) => value as ABIAppCallArg,
+    }
+  }
+  if (arg.type instanceof algosdk.ABIArrayDynamicType && arg.type.childType instanceof algosdk.ABIByteType) {
+    return {
+      createField: (helper) => {
+        return helper.textField({
+          label: 'Value',
+          field: argumentFieldPath(methodName, argIndex) as Path<TData>,
+          placeholder: arg.description,
+          helpText: 'A Base64 encoded Bytes value',
+        })
+      },
+      fieldSchema: isArgOptional ? zfd.text().optional() : zfd.text(),
+      getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
     }
   }
 
   return {
     createField: () => undefined,
     fieldSchema: zfd.text(),
+    getAppCallArg: (value) => value as ABIAppCallArg,
   }
 }
 
@@ -154,7 +177,12 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
 
     const [methodArgs, schema] = abiMethod.args.reduce(
       (acc, arg, i) => {
-        const { createField, fieldSchema } = asField(method.name, arg, i, !!(arg.name && hint?.default_arguments?.[arg.name]))
+        const { createField, fieldSchema, getAppCallArg } = asField(
+          method.name,
+          arg,
+          i,
+          !!(arg.name && hint?.default_arguments?.[arg.name])
+        )
 
         const argument = {
           name: arg.name,
@@ -168,6 +196,7 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
                 } satisfies ArgumentHint)
               : undefined,
           createField,
+          getAppCallArg,
         } satisfies ArgumentDefinition<TSchema>
         acc[0].push(argument)
         acc[1] = {
