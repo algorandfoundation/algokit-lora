@@ -112,6 +112,8 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
     [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer]
   )
 
+  // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
+
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
