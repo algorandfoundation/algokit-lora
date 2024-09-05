@@ -114,7 +114,6 @@ const argumentFieldPath = (methodName: string, argumentIndex: number) => `${meth
 export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeperator)[1])
 
 // TODO: we need to support different sizes of uint
-const uintSchema = z.number().min(0).max(255)
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],
@@ -126,6 +125,9 @@ const asField = <TData extends Record<string, unknown>>(
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
   if (arg.type instanceof algosdk.ABIUintType) {
+    const max = Math.pow(2, arg.type.bitSize) - 1
+    const uintSchema = z.number().min(0).max(max)
+
     return {
       createField: (helper) => {
         return helper.numberField({
