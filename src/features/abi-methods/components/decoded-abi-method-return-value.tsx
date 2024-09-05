@@ -1,8 +1,7 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiMethod } from '@/features/abi-methods/models'
+import { AbiMethodReturn } from '../models'
 
-export function DecodedAbiMethodReturnValue({ method }: { method: AbiMethod }) {
-  const methodReturn = method.return
+export function DecodedAbiMethodReturnValue({ methodReturn }: { methodReturn: AbiMethodReturn }) {
   if (methodReturn === 'void') return 'void'
   return <AbiValue abiValue={methodReturn} />
 }

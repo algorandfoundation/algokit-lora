@@ -5,6 +5,7 @@ import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
+import { DefaultValues } from 'react-hook-form'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -97,5 +98,6 @@ export type MethodDefinition<TSchema extends z.ZodSchema, TData = z.infer<TSchem
   arguments: ArgumentDefinition<TSchema>[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: z.ZodEffects<any, TData, unknown>
+  defaultValues: DefaultValues<TData>
   returns: ReturnsDefinition
 }

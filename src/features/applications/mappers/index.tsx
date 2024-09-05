@@ -18,7 +18,7 @@ import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
-import { Path } from 'react-hook-form'
+import { DefaultValues, Path } from 'react-hook-form'
 import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
@@ -189,13 +189,16 @@ const asField = <TData extends Record<string, unknown>>(
 ): {
   createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
+  defaultValue?: unknown // TODO: NC - Can we do better here?
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
   // TODO: simplify this
+  // TODO: default value for the rest
   if (arg.type instanceof algosdk.ABIUintType) {
     return {
       createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}`),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      defaultValue: '' as unknown as undefined,
       getAppCallArg: (value) => value as ABIAppCallArg,
     }
   }
@@ -232,6 +235,7 @@ const asField = <TData extends Record<string, unknown>>(
 export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
   appSpec: Arc32AppSpec | Arc4AppSpec
 ): ApplicationAbiMethods<TSchema> => {
+  type TData = z.infer<TSchema>
   const isArc32 = isArc32AppSpec(appSpec)
   const contract = isArc32 ? appSpec.contract : appSpec
   const methods = contract.methods.map((method) => {
@@ -244,9 +248,9 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
     const signature = abiMethod.getSignature()
     const hint = isArc32AppSpec(appSpec) && appSpec.hints ? appSpec.hints[signature] : undefined
 
-    const [methodArgs, schema] = abiMethod.args.reduce(
+    const [methodArgs, schema, defaultValues] = abiMethod.args.reduce(
       (acc, arg, i) => {
-        const { createField, fieldSchema, getAppCallArg } = asField(
+        const { createField, fieldSchema, defaultValue, getAppCallArg } = asField(
           method.name,
           arg,
           i,
@@ -267,14 +271,22 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
           createField,
           getAppCallArg,
         } satisfies ArgumentDefinition<TSchema>
+
+        const fieldPath = argumentFieldPath(method.name, i)
         acc[0].push(argument)
         acc[1] = {
           ...acc[1],
-          [argumentFieldPath(method.name, i)]: fieldSchema,
+          [fieldPath]: fieldSchema,
+        }
+        if (defaultValue !== undefined) {
+          acc[2] = {
+            ...acc[2],
+            [fieldPath]: defaultValue,
+          }
         }
         return acc
       },
-      [[] as ArgumentDefinition<TSchema>[], {} as Record<string, z.ZodTypeAny>] as const
+      [[] as ArgumentDefinition<TSchema>[], {} as Record<string, z.ZodTypeAny>, {} as DefaultValues<TData>] as const
     )
 
     return {
@@ -292,6 +304,7 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
             : undefined,
       },
       schema: zfd.formData(schema),
+      defaultValues,
     } satisfies MethodDefinition<TSchema>
   })
 

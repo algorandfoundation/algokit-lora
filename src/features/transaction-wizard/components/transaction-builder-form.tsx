@@ -17,9 +17,9 @@ import { abiMethodResolver } from '@/features/abi-methods/data'
 import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
 import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { cn } from '@/features/common/utils'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
+import { invariant } from '@/utils/invariant'
 
 type Props<TSchema extends z.ZodSchema> = {
   buildableTransaction: BuildableTransaction<TSchema>
@@ -36,14 +36,11 @@ type SendTransactionResult = {
 
 export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableTransaction, defaultSender }: Props<TSchema>) {
   const { activeAddress, signer } = useWallet()
-
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
 
   const sendTransaction = useCallback(
     async (values: Parameters<typeof buildableTransaction.createTransaction>[0]) => {
-      if (!activeAddress) {
-        throw new Error(connectWalletMessage)
-      }
+      invariant(activeAddress, connectWalletMessage)
 
       const transaction = await buildableTransaction.createTransaction(values)
 
@@ -135,7 +132,7 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
               {
                 dt: transactionIdLabel,
                 dd: (
-                  <TransactionLink transactionId={sendTransactionResult.transactionId} className={cn('text-primary underline text-sm')}>
+                  <TransactionLink transactionId={sendTransactionResult.transactionId} className="text-sm text-primary underline">
                     {sendTransactionResult.transactionId}
                   </TransactionLink>
                 ),
