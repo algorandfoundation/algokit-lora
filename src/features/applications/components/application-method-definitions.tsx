@@ -20,19 +20,14 @@ import { extractArgumentIndexFromFieldPath } from '../mappers'
 import { toast } from 'react-toastify'
 import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { asTransaction } from '@/features/transactions/mappers'
-import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
-import { assetSummaryResolver } from '@/features/assets/data'
-import { abiMethodResolver } from '@/features/abi-methods/data'
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
-import { BlockInnerTransaction, BlockTransaction } from '@algorandfoundation/algokit-subscriber/types/block'
 import { TransactionType } from '@/features/transactions/models'
 import { Atom } from 'jotai'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
-import algosdk from 'algosdk'
+import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -101,43 +96,15 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
         },
       })
 
-      const transactionId = result.transaction.txID()
-      const confirmation = result.confirmation!
-
-      const mapBlockTransaction = (res: algosdk.modelsv2.PendingTransactionResponse): BlockTransaction | BlockInnerTransaction => {
-        return {
-          txn: res.txn.txn,
-          dt: {
-            // We don't use gd or ld in this context, so don't need to map.
-            gd: {},
-            ld: {},
-            lg: res.logs ?? [],
-            itx: res.innerTxns?.map((inner) => mapBlockTransaction(inner)),
-          },
-        }
-      }
-
-      // TODO: NC - Propagate any changes here into the other places
-      const transactionResult = getIndexerTransactionFromAlgodTransaction({
-        blockTransaction: mapBlockTransaction(confirmation),
-        roundOffset: 0,
-        roundIndex: 0,
-        genesisHash: confirmation.txn.txn.gh,
-        genesisId: confirmation.txn.txn.gen,
-        roundNumber: Number(confirmation.confirmedRound),
-        roundTimestamp: Math.floor(Date.now() / 1000),
-        transaction: result.transactions[0],
-        logs: confirmation.logs,
-      })
-
-      const transaction = asTransaction(transactionResult, assetSummaryResolver, abiMethodResolver)
-      invariant(transaction.type === TransactionType.AppCall, 'AppCall transaction expected')
-
-      const transactionsGraphData = asTransactionsGraphData([transaction])
+      const sentTxns = asTransactionFromSendResult(result)
+      const methodCallTransactionId = result.transaction.txID()
+      const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
+      invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
+      const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
       setSendMethodCallResult({
-        transactionId,
-        abiMethod: transaction.abiMethod,
+        transactionId: methodCallTransactionId,
+        abiMethod: methodCallTransaction.abiMethod,
         transactionsGraphData,
       })
 
