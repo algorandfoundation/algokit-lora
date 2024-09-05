@@ -45,8 +45,11 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     mode: 'onBlur',
   })
 
+  console.log('ff', formCtx.formState.errors)
+
   const onSubmit = useCallback(
     async (values: z.infer<z.ZodEffects<any, TSchema, any>>) => {
+      console.log('onSubmit', values)
       setSubmitting(true)
       setErrorMessage(undefined)
       try {
