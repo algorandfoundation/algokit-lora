@@ -39,15 +39,12 @@ export const sendButtonLabel = 'Send'
 
 // TODO: NC - ABI Methods?
 export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ applicationId, abiMethods }: Props<TSchema>) {
+  const readonly = !abiMethods.appSpec
+
   return (
     <Accordion type="multiple">
       {abiMethods.methods.map((method, index) => (
-        <Method
-          applicationId={applicationId}
-          method={method}
-          appSpec={abiMethods.type === 'arc32' ? abiMethods.appSpec : undefined}
-          key={index}
-        />
+        <Method applicationId={applicationId} method={method} appSpec={abiMethods.appSpec} key={index} readonly={readonly} />
       ))}
     </Accordion>
   )
@@ -56,7 +53,8 @@ export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ appl
 type MethodProps<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
   method: MethodDefinition<TSchema>
-  appSpec?: Arc32AppSpec // TODO: NC - We don't really need to support ARC4 here, so think about this, we need to support arc56 though
+  appSpec?: Arc32AppSpec
+  readonly: boolean
 }
 
 type SendMethodCallResult = {
@@ -65,14 +63,15 @@ type SendMethodCallResult = {
   transactionsGraphData: TransactionsGraphData
 }
 
-function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }: MethodProps<TSchema>) {
+function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, readonly }: MethodProps<TSchema>) {
   const { activeAddress, signer } = useWallet()
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
   type TData = z.infer<typeof method.schema>
 
   const sendMethodCall = useCallback(
     async (data: TData) => {
-      invariant(appSpec, 'An ARC-32 app spec is required when calling ABI methods')
+      invariant(!readonly, 'Component is in readonly mode')
+      invariant(appSpec, 'A compatible app spec is required when calling ABI methods')
       invariant(activeAddress, connectWalletMessage)
 
       const methodArgs = Object.entries(data).reduce((acc, [path, value]) => {
@@ -110,7 +109,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
 
       toast.success('Transaction sent successfully')
     },
-    [activeAddress, appSpec, applicationId, method.arguments, method.name, signer]
+    [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer]
   )
 
   return (
@@ -125,31 +124,35 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
           defaultValues={method.defaultValues}
           onSubmit={sendMethodCall}
           resetOnSuccess={true}
-          formAction={(ctx, resetLocalState) => (
-            <FormActions>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  resetLocalState()
-                  setSendMethodCallResult(undefined)
-                  ctx.reset()
-                }}
-              >
-                Reset
-              </Button>
-              <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
-                {sendButtonLabel}
-              </SubmitButton>
-            </FormActions>
-          )}
+          formAction={(ctx, resetLocalState) => {
+            return !readonly ? (
+              <FormActions>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    resetLocalState()
+                    setSendMethodCallResult(undefined)
+                    ctx.reset()
+                  }}
+                >
+                  Reset
+                </Button>
+                <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
+                  {sendButtonLabel}
+                </SubmitButton>
+              </FormActions>
+            ) : undefined
+          }}
         >
           {(helper) => (
             <>
               <div className="space-y-4">
                 <h4 className="text-primary">Arguments</h4>
                 {method.arguments.length > 0 ? (
-                  method.arguments.map((argument, index) => <Argument key={index} index={index} argument={argument} helper={helper} />)
+                  method.arguments.map((argument, index) => (
+                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} />
+                  ))
                 ) : (
                   <p>No arguments</p>
                 )}
@@ -160,7 +163,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
             </>
           )}
         </Form>
-        {sendMethodCallResult && (
+        {!readonly && sendMethodCallResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">
             <DescriptionList
               items={[
@@ -194,9 +197,10 @@ type ArgumentProps<TSchema extends z.ZodSchema> = {
   index: number
   argument: ArgumentDefinition<TSchema>
   helper: FormFieldHelper<z.infer<TSchema>>
+  readonly: boolean
 }
 
-function Argument<TSchema extends z.ZodSchema>({ index, argument, helper }: ArgumentProps<TSchema>) {
+function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly }: ArgumentProps<TSchema>) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -235,7 +239,7 @@ function Argument<TSchema extends z.ZodSchema>({ index, argument, helper }: Argu
     <div className="space-y-2">
       <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} />
-      {argument.createField(helper)}
+      {!readonly && argument.createField(helper)}
     </div>
   )
 }
