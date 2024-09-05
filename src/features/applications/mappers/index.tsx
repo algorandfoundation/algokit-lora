@@ -23,6 +23,8 @@ import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { DynamicArray } from '@/features/applications/components/dynamic-array'
+import { StaticArray } from '@/features/applications/components/static-array'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -109,11 +111,75 @@ const getValue = (bytes: string) => {
   }
 }
 
-const argumentPathSeperator = '-'
-const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeperator}${argumentIndex}`
-export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeperator)[1])
+const argumentPathSeparator = '-'
+const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeparator}${argumentIndex}`
+export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeparator)[1])
 
-// TODO: we need to support different sizes of uint
+const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOptional: boolean): z.ZodTypeAny => {
+  if (algosdk.abiTypeIsReference(type)) {
+    const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
+    return zfd.numeric(z.number().min(min).max(255))
+  }
+  if (type instanceof algosdk.ABIUintType) {
+    const max = Math.pow(2, type.bitSize) - 1
+    const uintSchema = z.number().min(0).max(max)
+    return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    return z.array(getFieldSchema(type.childType, isOptional))
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    return z.array(getFieldSchema(type.childType, isOptional))
+  }
+
+  return zfd.text()
+}
+
+const foo = <TData extends Record<string, unknown>>(
+  type: algosdk.ABIType | algosdk.ABIReferenceType,
+  prefix: string,
+  index: number
+): ((helper: FormFieldHelper<TData>) => JSX.Element | undefined) => {
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return (helper) =>
+        helper.textField({
+          label: 'Value',
+          field: `${prefix}-${index}` as Path<TData>,
+          placeholder: 'TODO:',
+          helpText: 'A Base64 encoded Bytes value',
+        })
+    } else {
+      return (helper) => {
+        return <DynamicArray helper={helper} createChildField={(childIndex) => foo(type.childType, `${prefix}-${index}`, childIndex)} />
+      }
+    }
+  }
+
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    return (helper) => {
+      return (
+        <StaticArray
+          helper={helper}
+          length={type.staticLength}
+          createChildField={(childIndex) => foo(type.childType, `${prefix}-${index}`, childIndex)}
+        />
+      )
+    }
+  }
+
+  if (type instanceof algosdk.ABIUintType) {
+    return (helper) =>
+      helper.numberField({
+        label: 'Value',
+        field: `${prefix}-${index}` as Path<TData>,
+        placeholder: 'TODO:',
+      })
+  }
+
+  return () => undefined
+}
+
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],
@@ -125,33 +191,32 @@ const asField = <TData extends Record<string, unknown>>(
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
   if (arg.type instanceof algosdk.ABIUintType) {
-    const max = Math.pow(2, arg.type.bitSize) - 1
-    const uintSchema = z.number().min(0).max(max)
-
     return {
-      createField: (helper) => {
-        return helper.numberField({
-          label: 'Value',
-          field: argumentFieldPath(methodName, argIndex) as Path<TData>,
-          placeholder: arg.description,
-        })
-      },
-      fieldSchema: numberSchema(isArgOptional ? uintSchema.optional() : uintSchema),
+      createField: foo(arg.type, `${methodName}`, argIndex),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
       getAppCallArg: (value) => value as ABIAppCallArg,
     }
   }
-  if (arg.type instanceof algosdk.ABIArrayDynamicType && arg.type.childType instanceof algosdk.ABIByteType) {
+  if (arg.type instanceof algosdk.ABIArrayDynamicType) {
+    if (arg.type.childType instanceof algosdk.ABIByteType) {
+      return {
+        createField: foo(arg.type, `${methodName}`, argIndex),
+        fieldSchema: getFieldSchema(arg.type, isArgOptional),
+        getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
+      }
+    } else {
+      return {
+        createField: foo(arg.type, `${methodName}`, argIndex),
+        fieldSchema: getFieldSchema(arg.type, isArgOptional),
+        getAppCallArg: (value) => value as ABIAppCallArg,
+      }
+    }
+  }
+  if (arg.type instanceof algosdk.ABIArrayStaticType) {
     return {
-      createField: (helper) => {
-        return helper.textField({
-          label: 'Value',
-          field: argumentFieldPath(methodName, argIndex) as Path<TData>,
-          placeholder: arg.description,
-          helpText: 'A Base64 encoded Bytes value',
-        })
-      },
-      fieldSchema: isArgOptional ? zfd.text().optional() : zfd.text(),
-      getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
+      createField: foo(arg.type, `${methodName}`, argIndex),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      getAppCallArg: (value) => value as ABIAppCallArg,
     }
   }
 

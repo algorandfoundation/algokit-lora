@@ -17,7 +17,7 @@ export default defineConfig({
   test: {
     testTimeout: 20_000,
     environment: 'happy-dom',
-    setupFiles: ['src/tests/setup/index.ts', 'src/tests/setup/mocks/index.ts', 'fake-indexeddb/auto'],
+    setupFiles: ['src/tests/setup/index.tsx', 'src/tests/setup/mocks/index.tsx', 'fake-indexeddb/auto'],
     globals: true,
     globalSetup: ['src/tests/setup/setup-timezone.ts'],
     env: {
