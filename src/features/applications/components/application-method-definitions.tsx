@@ -40,6 +40,7 @@ type Props<TSchema extends z.ZodSchema> = {
 }
 
 const connectWalletMessage = 'Please connect a wallet'
+export const sendButtonLabel = 'Send'
 
 // TODO: NC - ABI Methods?
 export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ applicationId, abiMethods }: Props<TSchema>) {
@@ -154,7 +155,9 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
         {method.description && <p className="mb-4">{method.description}</p>}
         <Form
           schema={method.schema}
+          defaultValues={method.defaultValues}
           onSubmit={sendMethodCall}
+          resetOnSuccess={true}
           formAction={(ctx, resetLocalState) => (
             <FormActions>
               <Button
@@ -162,12 +165,15 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec }:
                 variant="outline"
                 onClick={() => {
                   resetLocalState()
+                  setSendMethodCallResult(undefined)
                   ctx.reset()
                 }}
               >
                 Reset
               </Button>
-              <SubmitButton>Send</SubmitButton>
+              <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
+                {sendButtonLabel}
+              </SubmitButton>
             </FormActions>
           )}
         >
