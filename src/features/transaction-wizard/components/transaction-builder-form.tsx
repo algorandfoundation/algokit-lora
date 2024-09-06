@@ -11,15 +11,12 @@ import algosdk from 'algosdk'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { toast } from 'react-toastify'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { asTransaction } from '@/features/transactions/mappers'
-import { assetSummaryResolver } from '@/features/assets/data'
-import { abiMethodResolver } from '@/features/abi-methods/data'
-import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
 import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { invariant } from '@/utils/invariant'
+import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 
 type Props<TSchema extends z.ZodSchema> = {
   buildableTransaction: BuildableTransaction<TSchema>
@@ -49,21 +46,9 @@ export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableT
       atc.addTransaction({ txn: transaction, signer })
       const result = await algorandClient.newGroup().addAtc(atc).execute()
 
+      const sentTxns = asTransactionFromSendResult(result)
       const transactionId = result.txIds[0]
-      const confirmation = result.confirmations[0]
-      const transactionResult = getIndexerTransactionFromAlgodTransaction({
-        blockTransaction: {
-          txn: confirmation.txn.txn,
-        },
-        roundOffset: 0,
-        roundIndex: 0,
-        genesisHash: confirmation.txn.txn.gh,
-        genesisId: confirmation.txn.txn.gen,
-        roundNumber: Number(confirmation.confirmedRound),
-        roundTimestamp: Math.floor(Date.now() / 1000),
-        transaction: result.transactions[0],
-      })
-      const transactionsGraphData = asTransactionsGraphData([asTransaction(transactionResult, assetSummaryResolver, abiMethodResolver)])
+      const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
       setSendTransactionResult({
         transactionId,

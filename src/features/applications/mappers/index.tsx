@@ -193,7 +193,7 @@ const asField = <TData extends Record<string, unknown>>(
 ): {
   createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
-  defaultValue?: unknown // TODO: NC - Can we do better here?
+  defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
   // TODO: simplify this
@@ -313,15 +313,7 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
   })
 
   return {
-    ...(isArc32
-      ? {
-          type: 'arc32',
-          appSpec: appSpec,
-        }
-      : {
-          type: 'arc4',
-          appSpec: appSpec,
-        }),
+    appSpec: isArc32 ? appSpec : undefined,
     methods,
   }
 }

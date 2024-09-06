@@ -1,7 +1,7 @@
 import { ApplicationId } from '../data/types'
 import algosdk from 'algosdk'
 import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
-import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
@@ -78,16 +78,8 @@ export type ReturnsDefinition = {
   hint?: ReturnsHint
 }
 
-export type ApplicationAbiMethods<TSchema extends z.ZodSchema> = (
-  | {
-      type: 'arc32'
-      appSpec: Arc32AppSpec
-    }
-  | {
-      type: 'arc4'
-      appSpec: Arc4AppSpec
-    }
-) & {
+export type ApplicationAbiMethods<TSchema extends z.ZodSchema> = {
+  appSpec?: Arc32AppSpec
   methods: MethodDefinition<TSchema>[]
 }
 
