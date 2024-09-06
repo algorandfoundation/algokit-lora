@@ -126,10 +126,10 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
     return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
-    return z.array(getFieldSchema(type.childType, true))
+    return z.array(getFieldSchema(type.childType, false))
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return z.array(getFieldSchema(type.childType, true))
+    return z.array(getFieldSchema(type.childType, false))
   }
 
   return zfd.text()
@@ -137,15 +137,16 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
 
 const createFieldBuilder = <TData extends Record<string, unknown>>(
   type: algosdk.ABIType | algosdk.ABIReferenceType,
-  path: FieldPath<TData>
+  path: FieldPath<TData>,
+  options?: { label?: string; description?: string }
 ): ((helper: FormFieldHelper<TData>) => JSX.Element | undefined) => {
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
       return (helper) =>
         helper.textField({
-          label: 'Value',
+          label: options?.label ?? 'Value',
           field: `${path}` as Path<TData>,
-          placeholder: 'TODO:',
+          placeholder: options?.description,
           helpText: 'A Base64 encoded Bytes value',
         })
     } else {
@@ -154,7 +155,10 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
           <DynamicArray
             field={path}
             helper={helper}
-            createChildField={(childIndex) => createFieldBuilder(type.childType, `${path}.[${childIndex}]` as FieldPath<TData>)}
+            description={options?.description}
+            createChildField={(childIndex) =>
+              createFieldBuilder(type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
+            }
           />
         )
       }
@@ -167,7 +171,9 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
         <StaticArray
           helper={helper}
           length={type.staticLength}
-          createChildField={(childIndex) => createFieldBuilder(type.childType, `${path}.[${childIndex}]` as FieldPath<TData>)}
+          createChildField={(childIndex) =>
+            createFieldBuilder(type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
+          }
         />
       )
     }
@@ -176,9 +182,9 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
   if (type instanceof algosdk.ABIUintType) {
     return (helper) =>
       helper.numberField({
-        label: 'Value',
+        label: options?.label ?? 'Value',
         field: `${path}` as Path<TData>,
-        placeholder: 'TODO:',
+        placeholder: options?.description,
       })
   }
 
@@ -196,35 +202,24 @@ const asField = <TData extends Record<string, unknown>>(
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
-  // TODO: simplify this
-  // TODO: default value for the rest
-  if (arg.type instanceof algosdk.ABIUintType) {
+  if (arg.type instanceof algosdk.ABIArrayDynamicType && arg.type.childType instanceof algosdk.ABIByteType) {
     return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
+      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
+      defaultValue: '' as unknown as undefined,
+    }
+  }
+
+  if (
+    arg.type instanceof algosdk.ABIUintType ||
+    arg.type instanceof algosdk.ABIArrayDynamicType ||
+    arg.type instanceof algosdk.ABIArrayStaticType
+  ) {
+    return {
+      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
       defaultValue: '' as unknown as undefined,
-      getAppCallArg: (value) => value as ABIAppCallArg,
-    }
-  }
-  if (arg.type instanceof algosdk.ABIArrayDynamicType) {
-    if (arg.type.childType instanceof algosdk.ABIByteType) {
-      return {
-        createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
-        fieldSchema: getFieldSchema(arg.type, isArgOptional),
-        getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
-      }
-    } else {
-      return {
-        createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
-        fieldSchema: getFieldSchema(arg.type, isArgOptional),
-        getAppCallArg: (value) => value as ABIAppCallArg,
-      }
-    }
-  }
-  if (arg.type instanceof algosdk.ABIArrayStaticType) {
-    return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
-      fieldSchema: getFieldSchema(arg.type, isArgOptional),
       getAppCallArg: (value) => value as ABIAppCallArg,
     }
   }
