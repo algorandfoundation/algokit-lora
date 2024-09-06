@@ -63,7 +63,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
     [argumentsRender]
   )
 
-  const multiLine = argumentsRender.some((argument) => argument.multiLine) || sum(argumentsRender.map((argument) => argument.length)) > 20
+  const multiLine = argumentsRender.some((argument) => argument.multiLine) || sum(argumentsRender.map((argument) => argument.length)) > 2
   if (multiLine) {
     return (
       <ul className="pl-4">
