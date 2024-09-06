@@ -17,7 +17,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
         if (argument.type === AbiType.Transaction) {
           return (
             <>
-              <span>{argument.name}: </span>
+              <span className="text-abi-keys">{argument.name}: </span>
               <TransactionLink className={'text-primary underline'} transactionId={argument.value}>
                 {argument.value}
               </TransactionLink>
@@ -27,7 +27,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
         if (argument.type === AbiType.Account) {
           return (
             <>
-              <span>{argument.name}: </span>
+              <span className="text-abi-keys">{argument.name}: </span>
               <AccountLink className={'text-primary underline'} address={argument.value}>
                 {argument.value}
               </AccountLink>
@@ -37,7 +37,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
         if (argument.type === AbiType.Application) {
           return (
             <>
-              <span>{argument.name}: </span>
+              <span className="text-abi-keys">{argument.name}: </span>
               <ApplicationLink className={'text-primary underline'} applicationId={argument.value}>
                 {argument.value}
               </ApplicationLink>
@@ -47,7 +47,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
         if (argument.type === AbiType.Asset) {
           return (
             <>
-              <span>{argument.name}: </span>
+              <span className="text-abi-keys">{argument.name}: </span>
               <AssetIdLink className={'text-primary underline'} assetId={argument.value}>
                 {argument.value}
               </AssetIdLink>
@@ -56,7 +56,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
         }
         return (
           <>
-            <span>{argument.name}: </span> <AbiValue abiValue={argument} />
+            <span className="text-abi-keys">{argument.name}: </span> <AbiValue abiValue={argument} />
           </>
         )
       }),
