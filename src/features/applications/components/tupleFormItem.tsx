@@ -9,7 +9,7 @@ type Props<TData extends Record<string, unknown>> = {
   createChildField: (index: number) => (helper: FormFieldHelper<TData>) => JSX.Element | undefined
 }
 
-export function StaticArray<TData extends Record<string, unknown>>({ helper, description, length, createChildField }: Props<TData>) {
+export function TupleFormItem<TData extends Record<string, unknown>>({ helper, description, length, createChildField }: Props<TData>) {
   const items = useMemo(
     () => Array.from({ length: length }, (_, index) => createChildField(index)(helper)),
     [createChildField, helper, length]

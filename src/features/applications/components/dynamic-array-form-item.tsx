@@ -21,7 +21,12 @@ type Item = {
 // TODO: validations:
 // 1. Expected array, received string
 // TODO: work out why this is resetted after clicking "Send"
-export function DynamicArray<TData extends Record<string, unknown>>({ field, description, helper, createChildField }: Props<TData>) {
+export function DynamicArrayFormItem<TData extends Record<string, unknown>>({
+  field,
+  description,
+  helper,
+  createChildField,
+}: Props<TData>) {
   const { getValues, setValue, getFieldState } = useFormContext<TData>()
   const [items, setItems] = useState<Item[]>([
     {

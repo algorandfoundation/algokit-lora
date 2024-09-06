@@ -23,8 +23,9 @@ import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { DynamicArray } from '@/features/applications/components/dynamic-array'
-import { StaticArray } from '@/features/applications/components/static-array'
+import { DynamicArrayFormItem } from '@/features/applications/components/dynamic-array-form-item'
+import { StaticArrayFormItem } from '@/features/applications/components/static-array-form-item'
+import { TupleFormItem } from '@/features/applications/components/tupleFormItem'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -131,6 +132,13 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
   if (type instanceof algosdk.ABIArrayStaticType) {
     return z.array(getFieldSchema(type.childType, false))
   }
+  if (type instanceof algosdk.ABITupleType) {
+    const childTypes = type.childTypes.map((childType) => getFieldSchema(childType, false))
+    // TODO: another any :(
+    // Looks like it's related to this https://github.com/colinhacks/zod/issues/561
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return z.tuple(childTypes as any)
+  }
 
   return zfd.text()
 }
@@ -152,7 +160,7 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
     } else {
       return (helper) => {
         return (
-          <DynamicArray
+          <DynamicArrayFormItem
             field={path}
             helper={helper}
             description={options?.description}
@@ -168,7 +176,7 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
   if (type instanceof algosdk.ABIArrayStaticType) {
     return (helper) => {
       return (
-        <StaticArray
+        <StaticArrayFormItem
           helper={helper}
           length={type.staticLength}
           createChildField={(childIndex) =>
@@ -179,9 +187,35 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
     }
   }
 
+  if (type instanceof algosdk.ABITupleType) {
+    // TODO: review UI for tuples
+    return (helper) => {
+      return (
+        <TupleFormItem
+          helper={helper}
+          length={type.childTypes.length}
+          createChildField={(childIndex) =>
+            createFieldBuilder(type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
+              label: `Item ${childIndex + 1}`,
+            })
+          }
+        />
+      )
+    }
+  }
+
   if (type instanceof algosdk.ABIUintType) {
     return (helper) =>
       helper.numberField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+      })
+  }
+
+  if (type instanceof algosdk.ABIStringType) {
+    return (helper) =>
+      helper.textField({
         label: options?.label ?? 'Value',
         field: `${path}` as Path<TData>,
         placeholder: options?.description,
@@ -214,7 +248,8 @@ const asField = <TData extends Record<string, unknown>>(
   if (
     arg.type instanceof algosdk.ABIUintType ||
     arg.type instanceof algosdk.ABIArrayDynamicType ||
-    arg.type instanceof algosdk.ABIArrayStaticType
+    arg.type instanceof algosdk.ABIArrayStaticType ||
+    arg.type instanceof algosdk.ABITupleType
   ) {
     return {
       createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
