@@ -10,7 +10,7 @@ export function AbiArrayValue({ array }: Props) {
     return (
       <>
         <span>[</span>
-        <ul className={'pl-4'}>
+        <ul className="pl-4">
           {array.values.map((item, index, array) => (
             <li key={index}>
               <AbiValue abiValue={item} />

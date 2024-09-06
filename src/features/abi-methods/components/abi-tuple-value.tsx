@@ -10,7 +10,7 @@ export function AbiTupleValue({ tuple }: RenderABITupleValuesProps) {
     return (
       <>
         <span>(</span>
-        <ul className={'pl-4'}>
+        <ul className="pl-4">
           {tuple.values.map((item, index, array) => (
             <li key={index}>
               <AbiValue abiValue={item} />

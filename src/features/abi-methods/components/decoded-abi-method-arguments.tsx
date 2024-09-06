@@ -18,7 +18,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span className="text-abi-keys">{argument.name}: </span>
-              <TransactionLink className={'text-primary underline'} transactionId={argument.value}>
+              <TransactionLink className="text-primary underline" transactionId={argument.value}>
                 {argument.value}
               </TransactionLink>
             </>
@@ -28,7 +28,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span className="text-abi-keys">{argument.name}: </span>
-              <AccountLink className={'text-primary underline'} address={argument.value}>
+              <AccountLink className="text-primary underline" address={argument.value}>
                 {argument.value}
               </AccountLink>
             </>
@@ -38,7 +38,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span className="text-abi-keys">{argument.name}: </span>
-              <ApplicationLink className={'text-primary underline'} applicationId={argument.value}>
+              <ApplicationLink className="text-primary underline" applicationId={argument.value}>
                 {argument.value}
               </ApplicationLink>
             </>
@@ -48,7 +48,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
           return (
             <>
               <span className="text-abi-keys">{argument.name}: </span>
-              <AssetIdLink className={'text-primary underline'} assetId={argument.value}>
+              <AssetIdLink className="text-primary underline" assetId={argument.value}>
                 {argument.value}
               </AssetIdLink>
             </>
@@ -66,7 +66,7 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
   const multiLine = argumentsRender.some((argument) => argument.multiLine) || sum(argumentsRender.map((argument) => argument.length)) > 20
   if (multiLine) {
     return (
-      <ul className={'pl-4'}>
+      <ul className="pl-4">
         {components.map((component, index, arr) => (
           <li key={index}>
             <>
@@ -81,10 +81,10 @@ export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
     return (
       <div className="inline">
         {components.map((component, index, arr) => (
-          <>
+          <div key={index}>
             {component}
             {index < arr.length - 1 ? <span>{', '}</span> : null}
-          </>
+          </div>
         ))}
       </div>
     )

@@ -17,19 +17,17 @@ export function AbiValue({ abiValue }: Props) {
   if (abiValue.type === AbiType.String) {
     return <span className="text-abi-string">{`"${abiValue.value}"`}</span>
   }
-  if (abiValue.type === AbiType.Address) {
-    return (
-      <>
-        <AccountLink className={'text-primary underline'} address={abiValue.value}>
-          {abiValue.value}
-        </AccountLink>
-      </>
-    )
+  if (abiValue.type === AbiType.Number) {
+    return <span className="text-abi-number">{`${abiValue.value}`}</span>
   }
   if (abiValue.type === AbiType.Boolean) {
     return <span className="text-abi-bool">{`${abiValue.value}`}</span>
   }
-  if (abiValue.type === AbiType.Number) {
-    return <span className="text-abi-number">{`${abiValue.value}`}</span>
+  if (abiValue.type === AbiType.Address) {
+    return (
+      <AccountLink className="text-primary underline" address={abiValue.value}>
+        {abiValue.value}
+      </AccountLink>
+    )
   }
 }

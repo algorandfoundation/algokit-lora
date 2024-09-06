@@ -70,7 +70,7 @@ export const asAbiValueRender = (abiValue: AbiValue): AbiValueRender => {
 const asAbiTupleRender = (abiTuple: AbiTupleValue): AbiTupleRender => {
   const valuesRender = abiTuple.values.map((value) => asAbiValueRender(value))
   const length = sum(valuesRender.map((r) => r.length))
-  const multiLine = valuesRender.some((value) => value.multiLine)
+  const multiLine = valuesRender.some((value) => value.multiLine) || length > 90
   return {
     type: AbiType.Tuple,
     values: valuesRender,
@@ -82,7 +82,7 @@ const asAbiTupleRender = (abiTuple: AbiTupleValue): AbiTupleRender => {
 const asAbiArrayRender = (abiArray: AbiArrayValue): AbiArrayRender => {
   const valuesRender = abiArray.values.map((value) => asAbiValueRender(value))
   const length = sum(valuesRender.map((r) => r.length))
-  const multiLine = valuesRender.some((value) => value.multiLine)
+  const multiLine = valuesRender.some((value) => value.multiLine) || length > 90
   return {
     type: AbiType.Array,
     values: valuesRender,
