@@ -1,5 +1,5 @@
 import { Button } from '@/features/common/components/button'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FieldPath, Path, PathValue, useFormContext } from 'react-hook-form'
 import { Label } from '@/features/common/components/label'
@@ -23,7 +23,12 @@ type Item = {
 // TODO: work out why this is resetted after clicking "Send"
 export function DynamicArray<TData extends Record<string, unknown>>({ field, description, helper, createChildField }: Props<TData>) {
   const { getValues, setValue, getFieldState } = useFormContext<TData>()
-  const [items, setItems] = useState<Item[]>([])
+  const [items, setItems] = useState<Item[]>([
+    {
+      id: new Date().getTime(),
+      element: createChildField(0)(helper),
+    },
+  ])
 
   const append = useCallback(() => {
     setItems((prev) => [
@@ -46,8 +51,7 @@ export function DynamicArray<TData extends Record<string, unknown>>({ field, des
     [field, getValues, setValue]
   )
 
-  console.log(getValues(field))
-  const error = getFieldState(field).error
+  const error = useMemo(() => getFieldState(field).error, [getFieldState, field])
 
   return (
     <div>
@@ -72,7 +76,7 @@ export function DynamicArray<TData extends Record<string, unknown>>({ field, des
       <Button className="mt-4" type="button" onClick={() => append()}>
         Add
       </Button>
-      {getFieldState(field).error && (
+      {error && (
         <div className="mt-2">
           <HintText errorText={error?.message} />
         </div>
