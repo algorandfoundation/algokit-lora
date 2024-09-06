@@ -18,7 +18,7 @@ import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
-import { DefaultValues, Path } from 'react-hook-form'
+import { DefaultValues, FieldPath, Path } from 'react-hook-form'
 import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
@@ -126,10 +126,10 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
     return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
-    return z.array(getFieldSchema(type.childType, isOptional))
+    return z.array(getFieldSchema(type.childType, true))
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return z.array(getFieldSchema(type.childType, isOptional))
+    return z.array(getFieldSchema(type.childType, true))
   }
 
   return zfd.text()
@@ -137,7 +137,7 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
 
 const createFieldBuilder = <TData extends Record<string, unknown>>(
   type: algosdk.ABIType | algosdk.ABIReferenceType,
-  path: string
+  path: FieldPath<TData>
 ): ((helper: FormFieldHelper<TData>) => JSX.Element | undefined) => {
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
@@ -151,7 +151,11 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
     } else {
       return (helper) => {
         return (
-          <DynamicArray helper={helper} createChildField={(childIndex) => createFieldBuilder(type.childType, `${path}.[${childIndex}]`)} />
+          <DynamicArray
+            field={path}
+            helper={helper}
+            createChildField={(childIndex) => createFieldBuilder(type.childType, `${path}.[${childIndex}]` as FieldPath<TData>)}
+          />
         )
       }
     }
@@ -163,7 +167,7 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
         <StaticArray
           helper={helper}
           length={type.staticLength}
-          createChildField={(childIndex) => createFieldBuilder(type.childType, `${path}.[${childIndex}]`)}
+          createChildField={(childIndex) => createFieldBuilder(type.childType, `${path}.[${childIndex}]` as FieldPath<TData>)}
         />
       )
     }
@@ -196,7 +200,7 @@ const asField = <TData extends Record<string, unknown>>(
   // TODO: default value for the rest
   if (arg.type instanceof algosdk.ABIUintType) {
     return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}`),
+      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
       defaultValue: '' as unknown as undefined,
       getAppCallArg: (value) => value as ABIAppCallArg,
@@ -205,13 +209,13 @@ const asField = <TData extends Record<string, unknown>>(
   if (arg.type instanceof algosdk.ABIArrayDynamicType) {
     if (arg.type.childType instanceof algosdk.ABIByteType) {
       return {
-        createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}`),
+        createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
         fieldSchema: getFieldSchema(arg.type, isArgOptional),
         getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
       }
     } else {
       return {
-        createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}`),
+        createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
         fieldSchema: getFieldSchema(arg.type, isArgOptional),
         getAppCallArg: (value) => value as ABIAppCallArg,
       }
@@ -219,7 +223,7 @@ const asField = <TData extends Record<string, unknown>>(
   }
   if (arg.type instanceof algosdk.ABIArrayStaticType) {
     return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}`),
+      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
       getAppCallArg: (value) => value as ABIAppCallArg,
     }
