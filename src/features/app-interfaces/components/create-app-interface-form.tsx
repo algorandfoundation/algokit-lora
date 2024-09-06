@@ -12,7 +12,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
-import { deployToNetworkLabel } from '@/features/app-interfaces/components/labels'
+import { deployAppLabel } from '@/features/app-interfaces/components/labels'
 import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { useLoadableActiveWalletAccount } from '@/features/wallet/data/active-wallet'
 import { numberSchema } from '@/features/forms/data/common'
@@ -166,10 +166,10 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
               disabled={deployButtonStatus.disabled}
               disabledReason={deployButtonStatus.reason}
               className="w-fit"
-              aria-label={deployToNetworkLabel}
+              aria-label={deployAppLabel}
               onClick={onDeployButtonClick}
             >
-              {deployToNetworkLabel}
+              {deployAppLabel}
             </Button>
           </div>
         </div>

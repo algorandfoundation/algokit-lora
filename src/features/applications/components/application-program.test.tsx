@@ -4,6 +4,18 @@ import { ApplicationProgram, base64ProgramTabLabel, tealProgramTabLabel } from '
 import { executeComponentTest } from '@/tests/test-component'
 import { algod } from '@/features/common/data/algo-client'
 
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
+
 describe('application-program', () => {
   describe('when rendering an application program', () => {
     const tabListName = 'test'
