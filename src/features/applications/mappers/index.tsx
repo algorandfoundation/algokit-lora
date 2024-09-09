@@ -23,9 +23,6 @@ import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { DynamicArrayFormItem } from '@/features/applications/components/dynamic-array-form-item'
-import { StaticArrayFormItem } from '@/features/applications/components/static-array-form-item'
-import { TupleFormItem } from '@/features/applications/components/tupleFormItem'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -225,17 +222,15 @@ const getCreateField = <TData extends Record<string, unknown>>(
         helpText: 'A Base64 encoded Bytes value',
       })
     } else {
-      return (
-        <StaticArrayFormItem
-          field={path}
-          length={type.staticLength}
-          createChildField={(childIndex) =>
-            getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
-              label: `Item ${childIndex + 1}`,
-            })
-          }
-        />
-      )
+      return formFieldHelper.abiStaticArrayField({
+        field: `${path}` as Path<TData>,
+        length: type.staticLength,
+        description: options?.description,
+        createChildField: (childIndex) =>
+          getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
+            label: `Item ${childIndex + 1}`,
+          }),
+      })
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
@@ -254,17 +249,14 @@ const getCreateField = <TData extends Record<string, unknown>>(
         helpText: 'A Base64 encoded Bytes value',
       })
     } else {
-      return (
-        <DynamicArrayFormItem
-          field={path}
-          description={options?.description}
-          createChildField={(childIndex) =>
-            getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}.child` as FieldPath<TData>, {
-              label: `Item ${childIndex + 1}`,
-            })
-          }
-        />
-      )
+      return formFieldHelper.abiDynamicArrayField({
+        field: `${path}` as Path<TData>,
+        description: options?.description,
+        createChildField: (childIndex) =>
+          getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}.child` as FieldPath<TData>, {
+            label: `Item ${childIndex + 1}`,
+          }),
+      })
     }
   }
   if (type instanceof algosdk.ABIStringType) {
@@ -276,17 +268,15 @@ const getCreateField = <TData extends Record<string, unknown>>(
   }
   if (type instanceof algosdk.ABITupleType) {
     // TODO: review UI for tuples
-    return (
-      <TupleFormItem
-        field={path}
-        length={type.childTypes.length}
-        createChildField={(childIndex) =>
-          getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
-            label: `Item ${childIndex + 1}`,
-          })
-        }
-      />
-    )
+    return formFieldHelper.abiTupleField({
+      field: `${path}` as Path<TData>,
+      length: type.childTypes.length,
+      description: options?.description,
+      createChildField: (childIndex) =>
+        getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
+          label: `Item ${childIndex + 1}`,
+        }),
+    })
   }
   if (algosdk.abiTypeIsReference(type)) {
     return formFieldHelper.numberField({

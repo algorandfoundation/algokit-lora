@@ -2,14 +2,18 @@ import { useMemo } from 'react'
 import { Label } from '@/features/common/components/label'
 import { FieldPath } from 'react-hook-form'
 
-type Props<TData extends Record<string, unknown>> = {
+export type AbiTupleFormItemProps<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
   length: number
   description?: string
   createChildField: (index: number) => JSX.Element | undefined
 }
 
-export function TupleFormItem<TData extends Record<string, unknown>>({ description, length, createChildField }: Props<TData>) {
+export function AbiTupleFormItem<TData extends Record<string, unknown>>({
+  description,
+  length,
+  createChildField,
+}: AbiTupleFormItemProps<TData>) {
   const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, length])
 
   return (

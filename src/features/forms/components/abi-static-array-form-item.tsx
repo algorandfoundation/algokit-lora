@@ -1,15 +1,19 @@
 import { Fragment, useMemo } from 'react'
-import { FieldPath } from 'react-hook-form'
 import { Label } from '@/features/common/components/label'
+import { FieldPath } from 'react-hook-form'
 
-type Props<TData extends Record<string, unknown>> = {
+export type AbiStaticArrayFormItemProps<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
   length: number
   description?: string
   createChildField: (index: number) => JSX.Element | undefined
 }
 
-export function StaticArrayFormItem<TData extends Record<string, unknown>>({ description, length, createChildField }: Props<TData>) {
+export function AbiStaticArrayFormItem<TData extends Record<string, unknown>>({
+  description,
+  length,
+  createChildField,
+}: AbiStaticArrayFormItemProps<TData>) {
   const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, length])
 
   return (

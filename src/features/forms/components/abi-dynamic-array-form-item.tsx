@@ -3,14 +3,18 @@ import { FieldArray, FieldPath, FieldValues, Path, useFieldArray } from 'react-h
 import { TrashIcon } from 'lucide-react'
 import { Label } from '@/features/common/components/label'
 
-type Props<TData extends Record<string, unknown>> = {
+export type AbiDynamicArrayFormItemProps<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
   description?: string
   createChildField: (index: number) => JSX.Element | undefined
 }
 
 // TODO: style the remove button
-export function DynamicArrayFormItem<TData extends Record<string, unknown>>({ field, description, createChildField }: Props<TData>) {
+export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
+  field,
+  description,
+  createChildField,
+}: AbiDynamicArrayFormItemProps<TData>) {
   const { fields, append, remove } = useFieldArray({
     name: field,
   })
