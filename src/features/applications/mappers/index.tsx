@@ -114,8 +114,7 @@ const getValue = (bytes: string) => {
 
 const argumentPathSeparator = '-'
 const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeparator}${argumentIndex}`
-// TODO: this isn't right for arrays
-export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeparator)[1])
+export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeparator)[1].split('.')[0])
 
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   // TODO: confirm isOptional for arrays
@@ -357,6 +356,7 @@ const getDefaultValue = (type: algosdk.ABIArgumentType): unknown => {
   }
   return undefined
 }
+
 // TODO: fix the render for echo_decimal arg and return value
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
@@ -371,7 +371,9 @@ const asField = <TData extends Record<string, unknown>>(
 } => {
   return {
     createField: (helper) =>
-      getCreateField(helper, arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
+      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, {
+        description: arg.description,
+      }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
     defaultValue: getDefaultValue(arg.type),
     getAppCallArg: (value) => getAppCallArg(arg.type, value),
