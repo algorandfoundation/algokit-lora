@@ -121,6 +121,9 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
     const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
     return zfd.numeric(z.number().min(min).max(255))
   }
+  if (type instanceof algosdk.ABIByteType) {
+    return zfd.numeric(z.number().min(0).max(255))
+  }
   if (type instanceof algosdk.ABIUintType) {
     const max = Math.pow(2, type.bitSize) - 1
     const uintSchema = z.number().min(0).max(max)
@@ -139,7 +142,25 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return z.tuple(childTypes as any)
   }
-
+  if (type instanceof algosdk.ABIUfixedType) {
+    // TODO: review the max
+    const max = Math.pow(2, type.bitSize) - 1
+    const precision = type.precision
+    const uintfixedSchema = z
+      .number()
+      .min(0)
+      .max(max)
+      .refine((n) => n === undefined || n.toString().split('.').length === 1 || n.toString().split('.')[1].length <= precision, {
+        message: `Precision must be less than ${precision}`,
+      })
+    return numberSchema(isOptional ? uintfixedSchema.optional() : uintfixedSchema)
+  }
+  if (type instanceof algosdk.ABIBoolType) {
+    return isOptional ? z.boolean().optional() : z.boolean()
+  }
+  if (type instanceof algosdk.ABIAddressType) {
+    return isOptional ? zfd.text().optional() : zfd.text()
+  }
   return zfd.text()
 }
 
@@ -222,6 +243,44 @@ const createFieldBuilder = <TData extends Record<string, unknown>>(
       })
   }
 
+  if (type instanceof algosdk.ABIUfixedType) {
+    return (helper) =>
+      helper.numberField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+        decimalScale: type.precision,
+      })
+  }
+
+  // TODO: checkbox isn't great for undefined bool values
+  // TODO: description
+  if (type instanceof algosdk.ABIBoolType) {
+    return (helper) =>
+      helper.checkboxField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+      })
+  }
+
+  if (type instanceof algosdk.ABIAddressType) {
+    return (helper) =>
+      helper.textField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+      })
+  }
+
+  if (type instanceof algosdk.ABIByteType) {
+    return (helper) =>
+      helper.numberField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+      })
+  }
+
   return () => undefined
 }
 
@@ -244,13 +303,7 @@ const asField = <TData extends Record<string, unknown>>(
       defaultValue: '' as unknown as undefined,
     }
   }
-
-  if (
-    arg.type instanceof algosdk.ABIUintType ||
-    arg.type instanceof algosdk.ABIArrayDynamicType ||
-    arg.type instanceof algosdk.ABIArrayStaticType ||
-    arg.type instanceof algosdk.ABITupleType
-  ) {
+  if (arg.type instanceof algosdk.ABIUfixedType) {
     return {
       createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
@@ -259,6 +312,29 @@ const asField = <TData extends Record<string, unknown>>(
     }
   }
 
+  if (arg.type instanceof algosdk.ABIUintType) {
+    return {
+      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      defaultValue: '' as unknown as undefined,
+      getAppCallArg: (value) => value as ABIAppCallArg,
+    }
+  }
+
+  if (
+    arg.type instanceof algosdk.ABIArrayDynamicType ||
+    arg.type instanceof algosdk.ABIArrayStaticType ||
+    arg.type instanceof algosdk.ABITupleType ||
+    arg.type instanceof algosdk.ABIBoolType ||
+    arg.type instanceof algosdk.ABIAddressType ||
+    arg.type instanceof algosdk.ABIByteType
+  ) {
+    return {
+      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      getAppCallArg: (value) => value as ABIAppCallArg,
+    }
+  }
   return {
     createField: () => undefined,
     fieldSchema: zfd.text(),
