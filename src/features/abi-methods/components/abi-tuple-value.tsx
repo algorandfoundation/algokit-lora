@@ -1,8 +1,8 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiTupleRender } from '@/features/abi-methods/models'
+import { AbiTupleRepresentation } from '@/features/abi-methods/models'
 
 type RenderABITupleValuesProps = {
-  tuple: AbiTupleRender
+  tuple: AbiTupleRepresentation
 }
 
 export function AbiTupleValue({ tuple }: RenderABITupleValuesProps) {

@@ -1,8 +1,8 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiArrayRender } from '@/features/abi-methods/models'
+import { AbiArrayRepresentation } from '@/features/abi-methods/models'
 
 type Props = {
-  array: AbiArrayRender
+  array: AbiArrayRepresentation
 }
 
 export function AbiArrayValue({ array }: Props) {

@@ -3,15 +3,17 @@ import Arc4ContractSchema from '@/features/abi-methods/mappers/arc-4-json-schema
 import Arc32AppJsonSchema from '@/features/abi-methods/mappers/arc-32-json-schemas/arc32-application.schema.json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import {
-  AbiArrayRender,
+  AbiArrayRepresentation,
   AbiArrayValue,
+  AbiMethod,
   AbiMethodArgument,
-  AbiMethodArgumentRender,
-  AbiTupleRender,
+  AbiMethodArgumentRepresentation,
+  AbiMethodRepresentation,
+  AbiTupleRepresentation,
   AbiTupleValue,
   AbiType,
   AbiValue,
-  AbiValueRender,
+  AbiValueRepresentation,
 } from '@/features/abi-methods/models'
 import { sum } from '@/utils/sum'
 
@@ -33,7 +35,7 @@ export const jsonAsArc4AppSpec = (json: unknown): Arc4AppSpec => {
   return json as Arc4AppSpec
 }
 
-export const asAbiMethodArgumentRender = (abiMethodArgument: AbiMethodArgument): AbiMethodArgumentRender => {
+export const asAbiMethodArgumentRender = (abiMethodArgument: AbiMethodArgument): AbiMethodArgumentRepresentation => {
   if (
     abiMethodArgument.type === AbiType.Address ||
     abiMethodArgument.type === AbiType.Application ||
@@ -47,13 +49,29 @@ export const asAbiMethodArgumentRender = (abiMethodArgument: AbiMethodArgument):
       length: `${abiMethodArgument.value}`.length,
     }
   }
+  const renderedArgument = asAbiValueRender(abiMethodArgument)
+  const multiLine = sum([renderedArgument.length]) > 20
+
   return {
     ...abiMethodArgument,
-    ...asAbiValueRender(abiMethodArgument),
+    ...renderedArgument,
+    multiLine: multiLine,
   }
 }
 
-export const asAbiValueRender = (abiValue: AbiValue): AbiValueRender => {
+export function getAbiMethodRepresentation(method: AbiMethod): AbiMethodRepresentation {
+  const argumentsRepresentation = method.arguments.map((argument) => asAbiMethodArgumentRender(argument))
+  const multiLine =
+    argumentsRepresentation.some((argument) => argument.multiLine) || sum(argumentsRepresentation.map((arg) => arg.length)) > 20
+  return {
+    name: method.name,
+    arguments: argumentsRepresentation,
+    multiLine: multiLine,
+    return: method.return,
+  }
+}
+
+export const asAbiValueRender = (abiValue: AbiValue): AbiValueRepresentation => {
   if (abiValue.type === AbiType.Tuple) {
     return asAbiTupleRender(abiValue)
   }
@@ -67,7 +85,7 @@ export const asAbiValueRender = (abiValue: AbiValue): AbiValueRender => {
   }
 }
 
-const asAbiTupleRender = (abiTuple: AbiTupleValue): AbiTupleRender => {
+const asAbiTupleRender = (abiTuple: AbiTupleValue): AbiTupleRepresentation => {
   const valuesRender = abiTuple.values.map((value) => asAbiValueRender(value))
   const length = sum(valuesRender.map((r) => r.length))
   const multiLine = valuesRender.some((value) => value.multiLine) || length > 90
@@ -79,7 +97,7 @@ const asAbiTupleRender = (abiTuple: AbiTupleValue): AbiTupleRender => {
   }
 }
 
-const asAbiArrayRender = (abiArray: AbiArrayValue): AbiArrayRender => {
+const asAbiArrayRender = (abiArray: AbiArrayValue): AbiArrayRepresentation => {
   const valuesRender = abiArray.values.map((value) => asAbiValueRender(value))
   const length = sum(valuesRender.map((r) => r.length))
   const multiLine = valuesRender.some((value) => value.multiLine) || length > 90

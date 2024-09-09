@@ -1,10 +1,10 @@
 import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value'
 import { AbiTupleValue } from '@/features/abi-methods/components/abi-tuple-value'
-import { AbiValueRender, AbiType } from '@/features/abi-methods/models'
+import { AbiValueRepresentation, AbiType } from '@/features/abi-methods/models'
 import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
-  abiValue: AbiValueRender
+  abiValue: AbiValueRepresentation
 }
 
 export function AbiValue({ abiValue }: Props) {

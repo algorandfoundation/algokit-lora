@@ -47,25 +47,34 @@ export type AbiMethodArgument =
 
 export type AbiMethodReturn = AbiValue | 'void'
 
+export type AbiMethodReturnRepresentation = 'void' | AbiValueRepresentation
+
 export type AbiMethod = {
   name: string
   arguments: AbiMethodArgument[]
   return: AbiMethodReturn
 }
 
-export type AbiTupleRender = {
+export type AbiMethodRepresentation = {
+  name: string
+  arguments: AbiMethodArgumentRepresentation[]
+  multiLine: boolean
+  return: AbiMethodReturn
+}
+
+export type AbiTupleRepresentation = {
   type: AbiType.Tuple
-  values: AbiValueRender[]
+  values: AbiValueRepresentation[]
   multiLine: boolean
   length: number
 }
-export type AbiArrayRender = {
+export type AbiArrayRepresentation = {
   type: AbiType.Array
-  values: AbiValueRender[]
+  values: AbiValueRepresentation[]
   multiLine: boolean
   length: number
 }
-export type AbiValueRender =
+export type AbiValueRepresentation =
   | {
       type: AbiType.String
       value: string
@@ -90,9 +99,9 @@ export type AbiValueRender =
       length: number
       multiLine: boolean
     }
-  | AbiTupleRender
-  | AbiArrayRender
-export type AbiMethodArgumentRender =
-  | ({ name: string; multiLine: boolean; length: number } & AbiValueRender)
+  | AbiTupleRepresentation
+  | AbiArrayRepresentation
+export type AbiMethodArgumentRepresentation =
+  | ({ name: string; multiLine: boolean; length: number } & AbiValueRepresentation)
   | ({ name: string; multiLine: boolean; length: number } & AbiReferenceValue)
   | ({ name: string; multiLine: boolean; length: number } & AbiTransactionValue)
