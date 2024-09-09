@@ -72,7 +72,6 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetOnSuccess, formCtx.formState.isSubmitSuccessful])
 
-  console.log(formCtx.formState.errors)
   return (
     <div className={'grid'}>
       {header && <h2>{header}</h2>}
