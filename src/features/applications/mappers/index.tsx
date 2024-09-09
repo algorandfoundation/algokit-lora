@@ -352,6 +352,9 @@ const getDefaultValue = (type: algosdk.ABIArgumentType): unknown => {
   if (type instanceof algosdk.ABIArrayDynamicType && !(type.childType instanceof algosdk.ABIByteType)) {
     return []
   }
+  if (type instanceof algosdk.ABITupleType) {
+    return type.childTypes.map((childType) => getDefaultValue(childType))
+  }
   return undefined
 }
 // TODO: fix the render for echo_decimal arg and return value
