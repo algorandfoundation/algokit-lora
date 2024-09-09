@@ -6,14 +6,11 @@ type Props<TData extends Record<string, unknown>> = {
   helper: FormFieldHelper<TData>
   length: number
   description?: string
-  createChildField: (index: number) => (helper: FormFieldHelper<TData>) => JSX.Element | undefined
+  createChildField: (index: number) => JSX.Element | undefined
 }
 
 export function TupleFormItem<TData extends Record<string, unknown>>({ helper, description, length, createChildField }: Props<TData>) {
-  const items = useMemo(
-    () => Array.from({ length: length }, (_, index) => createChildField(index)(helper)),
-    [createChildField, helper, length]
-  )
+  const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, helper, length])
 
   return (
     <div>

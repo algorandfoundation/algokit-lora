@@ -10,7 +10,7 @@ type Props<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
   description?: string
   helper: FormFieldHelper<TData>
-  createChildField: (index: number) => (helper: FormFieldHelper<TData>) => JSX.Element | undefined
+  createChildField: (index: number) => JSX.Element | undefined
 }
 
 type Item = {
@@ -35,7 +35,7 @@ export function DynamicArrayFormItem<TData extends Record<string, unknown>>({
       ...prev,
       {
         id: new Date().getTime(),
-        element: createChildField(prev.length)(helper),
+        element: createChildField(prev.length),
       },
     ])
   }, [createChildField, helper])
@@ -64,7 +64,7 @@ export function DynamicArrayFormItem<TData extends Record<string, unknown>>({
               {items.map((item, index) => {
                 return (
                   <div key={item.id} className="flex w-full gap-4">
-                    <div className="grow">{createChildField(index)(helper)}</div>
+                    <div className="grow">{createChildField(index)}</div>
                     <Button
                       className="mt-[1.375rem]"
                       type="button"

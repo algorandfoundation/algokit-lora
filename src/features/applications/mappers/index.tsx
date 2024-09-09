@@ -117,31 +117,18 @@ const argumentFieldPath = (methodName: string, argumentIndex: number) => `${meth
 // TODO: this isn't right for arrays
 export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeparator)[1])
 
-const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOptional: boolean): z.ZodTypeAny => {
-  if (algosdk.abiTypeIsReference(type)) {
-    const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
-    return zfd.numeric(z.number().min(min).max(255))
-  }
-  if (type instanceof algosdk.ABIByteType) {
-    return zfd.numeric(z.number().min(0).max(255))
-  }
+const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
+  // TODO: confirm isOptional for arrays
   if (type instanceof algosdk.ABIUintType) {
     const max = Math.pow(2, type.bitSize) - 1
     const uintSchema = z.number().min(0).max(max)
     return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
-  if (type instanceof algosdk.ABIArrayDynamicType) {
-    return z.array(getFieldSchema(type.childType, false))
+  if (type instanceof algosdk.ABIByteType) {
+    return zfd.numeric(z.number().min(0).max(255))
   }
-  if (type instanceof algosdk.ABIArrayStaticType) {
-    return z.array(getFieldSchema(type.childType, false))
-  }
-  if (type instanceof algosdk.ABITupleType) {
-    const childTypes = type.childTypes.map((childType) => getFieldSchema(childType, false))
-    // TODO: another any :(
-    // Looks like it's related to this https://github.com/colinhacks/zod/issues/561
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return z.tuple(childTypes as any)
+  if (type instanceof algosdk.ABIBoolType) {
+    return isOptional ? z.boolean().optional() : z.boolean()
   }
   if (type instanceof algosdk.ABIUfixedType) {
     // TODO: review the max
@@ -156,133 +143,194 @@ const getFieldSchema = (type: algosdk.ABIType | algosdk.ABIReferenceType, isOpti
       })
     return numberSchema(isOptional ? uintfixedSchema.optional() : uintfixedSchema)
   }
-  if (type instanceof algosdk.ABIBoolType) {
-    return isOptional ? z.boolean().optional() : z.boolean()
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return isOptional ? zfd.text().optional() : zfd.text()
+    } else {
+      return z.array(getFieldSchema(type.childType, false))
+    }
   }
   if (type instanceof algosdk.ABIAddressType) {
     return isOptional ? zfd.text().optional() : zfd.text()
   }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return isOptional ? zfd.text().optional() : zfd.text()
+    } else {
+      return z.array(getFieldSchema(type.childType, false))
+    }
+  }
+  if (type instanceof algosdk.ABIStringType) {
+    return isOptional ? zfd.text().optional() : zfd.text()
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    const childTypes = type.childTypes.map((childType) => getFieldSchema(childType, false))
+    // TODO: another any :(
+    // Looks like it's related to this https://github.com/colinhacks/zod/issues/561
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return z.tuple(childTypes as any)
+  }
+  if (algosdk.abiTypeIsReference(type)) {
+    const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
+    return zfd.numeric(z.number().min(min).max(255))
+  }
   return zfd.text()
 }
 
-const createFieldBuilder = <TData extends Record<string, unknown>>(
-  type: algosdk.ABIType | algosdk.ABIReferenceType,
+const getCreateField = <TData extends Record<string, unknown>>(
+  helper: FormFieldHelper<TData>,
+  type: algosdk.ABIArgumentType,
   path: FieldPath<TData>,
   options?: { label?: string; description?: string }
-): ((helper: FormFieldHelper<TData>) => JSX.Element | undefined) => {
-  if (type instanceof algosdk.ABIArrayDynamicType) {
-    if (type.childType instanceof algosdk.ABIByteType) {
-      return (helper) =>
-        helper.textField({
-          label: options?.label ?? 'Value',
-          field: `${path}` as Path<TData>,
-          placeholder: options?.description,
-          helpText: 'A Base64 encoded Bytes value',
-        })
-    } else {
-      return (helper) => {
-        return (
-          <DynamicArrayFormItem
-            field={path}
-            helper={helper}
-            description={options?.description}
-            createChildField={(childIndex) =>
-              createFieldBuilder(type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
-            }
-          />
-        )
-      }
-    }
+): JSX.Element | undefined => {
+  if (type instanceof algosdk.ABIUintType) {
+    return helper.numberField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
   }
-
+  if (type instanceof algosdk.ABIByteType) {
+    return helper.numberField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  // TODO: checkbox isn't great for undefined bool values
+  if (type instanceof algosdk.ABIBoolType) {
+    return helper.checkboxField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+    })
+  }
+  if (type instanceof algosdk.ABIUfixedType) {
+    return helper.numberField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+      decimalScale: type.precision,
+    })
+  }
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return (helper) => {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return helper.textField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+        helpText: 'A Base64 encoded Bytes value',
+      })
+    } else {
       return (
         <StaticArrayFormItem
           helper={helper}
           length={type.staticLength}
           createChildField={(childIndex) =>
-            createFieldBuilder(type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
+            getCreateField(helper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
           }
         />
       )
     }
   }
-
+  if (type instanceof algosdk.ABIAddressType) {
+    return helper.textField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return helper.textField({
+        label: options?.label ?? 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+        helpText: 'A Base64 encoded Bytes value',
+      })
+    } else {
+      return (
+        <DynamicArrayFormItem
+          field={path}
+          helper={helper}
+          description={options?.description}
+          createChildField={(childIndex) =>
+            getCreateField(helper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
+          }
+        />
+      )
+    }
+  }
+  if (type instanceof algosdk.ABIStringType) {
+    return helper.textField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
   if (type instanceof algosdk.ABITupleType) {
     // TODO: review UI for tuples
-    return (helper) => {
-      return (
-        <TupleFormItem
-          helper={helper}
-          length={type.childTypes.length}
-          createChildField={(childIndex) =>
-            createFieldBuilder(type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
-              label: `Item ${childIndex + 1}`,
-            })
-          }
-        />
-      )
+    return (
+      <TupleFormItem
+        helper={helper}
+        length={type.childTypes.length}
+        createChildField={(childIndex) =>
+          getCreateField(helper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
+            label: `Item ${childIndex + 1}`,
+          })
+        }
+      />
+    )
+  }
+  if (algosdk.abiTypeIsReference(type)) {
+    return helper.numberField({
+      label: options?.label ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  return undefined
+}
+
+const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCallArg => {
+  if (type instanceof algosdk.ABIUintType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIByteType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIBoolType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIUfixedType) {
+    return BigInt((value as number) * Math.pow(10, (type as algosdk.ABIUfixedType).precision)) as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return base64ToBytes(value as string) as ABIAppCallArg
+    } else {
+      return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
     }
   }
-
-  if (type instanceof algosdk.ABIUintType) {
-    return (helper) =>
-      helper.numberField({
-        label: options?.label ?? 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-      })
-  }
-
-  if (type instanceof algosdk.ABIStringType) {
-    return (helper) =>
-      helper.textField({
-        label: options?.label ?? 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-      })
-  }
-
-  if (type instanceof algosdk.ABIUfixedType) {
-    return (helper) =>
-      helper.numberField({
-        label: options?.label ?? 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-        decimalScale: type.precision,
-      })
-  }
-
-  // TODO: checkbox isn't great for undefined bool values
-  // TODO: description
-  if (type instanceof algosdk.ABIBoolType) {
-    return (helper) =>
-      helper.checkboxField({
-        label: options?.label ?? 'Value',
-        field: `${path}` as Path<TData>,
-      })
-  }
-
   if (type instanceof algosdk.ABIAddressType) {
-    return (helper) =>
-      helper.textField({
-        label: options?.label ?? 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-      })
+    return value as ABIAppCallArg
   }
-
-  if (type instanceof algosdk.ABIByteType) {
-    return (helper) =>
-      helper.numberField({
-        label: options?.label ?? 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-      })
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return base64ToBytes(value as string) as ABIAppCallArg
+    } else {
+      return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
+    }
   }
-
-  return () => undefined
+  if (type instanceof algosdk.ABIStringType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    return (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)) as ABIAppCallArg
+  }
+  if (algosdk.abiTypeIsReference(type)) {
+    return value as ABIAppCallArg
+  }
+  return value as ABIAppCallArg
 }
 
 // TODO: fix the render for echo_decimal arg and return value
@@ -297,50 +345,12 @@ const asField = <TData extends Record<string, unknown>>(
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
-  if (arg.type instanceof algosdk.ABIArrayDynamicType && arg.type.childType instanceof algosdk.ABIByteType) {
-    return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
-      fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
-      defaultValue: '' as unknown as undefined,
-    }
-  }
-  if (arg.type instanceof algosdk.ABIUfixedType) {
-    return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
-      fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      defaultValue: '' as unknown as undefined,
-      getAppCallArg: (value) => BigInt((value as number) * Math.pow(10, (arg.type as algosdk.ABIUfixedType).precision)) as ABIAppCallArg,
-    }
-  }
-
-  if (arg.type instanceof algosdk.ABIUintType) {
-    return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
-      fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      defaultValue: '' as unknown as undefined,
-      getAppCallArg: (value) => value as ABIAppCallArg,
-    }
-  }
-
-  if (
-    arg.type instanceof algosdk.ABIArrayDynamicType ||
-    arg.type instanceof algosdk.ABIArrayStaticType ||
-    arg.type instanceof algosdk.ABITupleType ||
-    arg.type instanceof algosdk.ABIBoolType ||
-    arg.type instanceof algosdk.ABIAddressType ||
-    arg.type instanceof algosdk.ABIByteType
-  ) {
-    return {
-      createField: createFieldBuilder(arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
-      fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      getAppCallArg: (value) => value as ABIAppCallArg,
-    }
-  }
   return {
-    createField: () => undefined,
-    fieldSchema: zfd.text(),
-    getAppCallArg: (value) => value as ABIAppCallArg,
+    createField: (helper) =>
+      getCreateField(helper, arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
+    fieldSchema: getFieldSchema(arg.type, isArgOptional),
+    defaultValue: arg.type instanceof algosdk.ABIUintType ? ('' as unknown as undefined) : undefined,
+    getAppCallArg: (value) => getAppCallArg(arg.type, value),
   }
 }
 
