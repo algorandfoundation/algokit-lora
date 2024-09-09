@@ -157,7 +157,12 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     if (type.childType instanceof algosdk.ABIByteType) {
       return isOptional ? zfd.text().optional() : zfd.text()
     } else {
-      return z.array(getFieldSchema(type.childType, false))
+      return z.array(
+        z.object({
+          id: z.string(),
+          child: getFieldSchema(type.childType, false),
+        })
+      )
     }
   }
   if (type instanceof algosdk.ABIStringType) {
@@ -255,7 +260,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
           field={path}
           description={options?.description}
           createChildField={(childIndex) =>
-            getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
+            getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}.child` as FieldPath<TData>, {
               label: `Item ${childIndex + 1}`,
             })
           }
@@ -321,7 +326,8 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
     if (type.childType instanceof algosdk.ABIByteType) {
       return base64ToBytes(value as string) as ABIAppCallArg
     } else {
-      return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (value as any[]).map((item) => getAppCallArg(type.childType, item.child)) as ABIAppCallArg
     }
   }
   if (type instanceof algosdk.ABIStringType) {
@@ -340,8 +346,11 @@ const getDefaultValue = (type: algosdk.ABIArgumentType): unknown => {
   if (type instanceof algosdk.ABIUintType) {
     return ''
   }
-  if (type instanceof algosdk.ABIArrayStaticType) {
+  if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
     return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType))
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType && !(type.childType instanceof algosdk.ABIByteType)) {
+    return []
   }
   return undefined
 }
