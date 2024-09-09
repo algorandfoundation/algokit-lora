@@ -182,18 +182,18 @@ const getCreateField = <TData extends Record<string, unknown>>(
   formFieldHelper: FormFieldHelper<TData>,
   type: algosdk.ABIArgumentType,
   path: FieldPath<TData>,
-  options?: { label?: string; description?: string }
+  options?: { prefix?: string; description?: string }
 ): JSX.Element | undefined => {
   if (type instanceof algosdk.ABIUintType) {
     return formFieldHelper.numberField({
-      label: options?.label ?? 'Value',
+      label: 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
     })
   }
   if (type instanceof algosdk.ABIByteType) {
     return formFieldHelper.numberField({
-      label: options?.label ?? 'Value',
+      label: 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
     })
@@ -201,13 +201,13 @@ const getCreateField = <TData extends Record<string, unknown>>(
   // TODO: checkbox isn't great for undefined bool values
   if (type instanceof algosdk.ABIBoolType) {
     return formFieldHelper.checkboxField({
-      label: options?.label ?? 'Value',
+      label: 'Value',
       field: `${path}` as Path<TData>,
     })
   }
   if (type instanceof algosdk.ABIUfixedType) {
     return formFieldHelper.numberField({
-      label: options?.label ?? 'Value',
+      label: 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
       decimalScale: type.precision,
@@ -216,26 +216,28 @@ const getCreateField = <TData extends Record<string, unknown>>(
   if (type instanceof algosdk.ABIArrayStaticType) {
     if (type.childType instanceof algosdk.ABIByteType) {
       return formFieldHelper.textField({
-        label: options?.label ?? 'Value',
+        label: 'Value',
         field: `${path}` as Path<TData>,
         placeholder: options?.description,
         helpText: 'A Base64 encoded Bytes value',
       })
     } else {
+      const prefix = options?.prefix ?? 'Item'
       return formFieldHelper.abiStaticArrayField({
         field: `${path}` as Path<TData>,
+        prefix: prefix,
         length: type.staticLength,
         description: options?.description,
-        createChildField: (childIndex) =>
+        createChildField: (childPrefix, childIndex) =>
           getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
-            label: `Item ${childIndex + 1}`,
+            prefix: childPrefix,
           }),
       })
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
     return formFieldHelper.textField({
-      label: options?.label ?? 'Value',
+      label: 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
     })
@@ -243,44 +245,47 @@ const getCreateField = <TData extends Record<string, unknown>>(
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
       return formFieldHelper.textField({
-        label: options?.label ?? 'Value',
+        label: 'Value',
         field: `${path}` as Path<TData>,
         placeholder: options?.description,
         helpText: 'A Base64 encoded Bytes value',
       })
     } else {
+      const prefix = options?.prefix ?? 'Item'
       return formFieldHelper.abiDynamicArrayField({
         field: `${path}` as Path<TData>,
         description: options?.description,
-        createChildField: (childIndex) =>
+        prefix: prefix,
+        createChildField: (childPrefix, childIndex) =>
           getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}.child` as FieldPath<TData>, {
-            label: `Item ${childIndex + 1}`,
+            prefix: childPrefix,
           }),
       })
     }
   }
   if (type instanceof algosdk.ABIStringType) {
     return formFieldHelper.textField({
-      label: options?.label ?? 'Value',
+      label: 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
     })
   }
   if (type instanceof algosdk.ABITupleType) {
-    // TODO: review UI for tuples
+    const prefix = options?.prefix ?? 'Item'
     return formFieldHelper.abiTupleField({
       field: `${path}` as Path<TData>,
       length: type.childTypes.length,
+      prefix: prefix,
       description: options?.description,
-      createChildField: (childIndex) =>
+      createChildField: (childPrefix, childIndex) =>
         getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
-          label: `Item ${childIndex + 1}`,
+          prefix: childPrefix,
         }),
     })
   }
   if (algosdk.abiTypeIsReference(type)) {
     return formFieldHelper.numberField({
-      label: options?.label ?? 'Value',
+      label: options?.prefix ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
     })

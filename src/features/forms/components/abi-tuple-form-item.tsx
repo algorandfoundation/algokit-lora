@@ -4,25 +4,38 @@ import { FieldPath } from 'react-hook-form'
 
 export type AbiTupleFormItemProps<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
+  prefix: string
   length: number
   description?: string
-  createChildField: (index: number) => JSX.Element | undefined
+  createChildField: (label: string, index: number) => JSX.Element | undefined
 }
 
 export function AbiTupleFormItem<TData extends Record<string, unknown>>({
   description,
+  prefix,
   length,
   createChildField,
 }: AbiTupleFormItemProps<TData>) {
-  const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, length])
+  const items = useMemo(
+    () => Array.from({ length: length }, (_, index) => createChildField(`${prefix} - ${index + 1}`, index)),
+    [createChildField, prefix, length]
+  )
 
   return (
     <div>
-      <Label>Items</Label>
       <span className="mt-2 block">{description}</span>
-      <div className="ml-4 mt-4 space-y-2">
+      <div className="mt-2 space-y-2">
         {items.map((child, index) => {
-          return <div key={index}>{child}</div>
+          return (
+            <div key={index}>
+              <Label>
+                {prefix} - {index + 1}
+              </Label>
+              <div className="mt-2 w-full border-l-2 border-dashed pl-4">
+                <div className="grow">{child}</div>
+              </div>
+            </div>
+          )
         })}
       </div>
     </div>
