@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
-import { Label } from '@/features/common/components/label'
-import { FieldPath } from 'react-hook-form'
+import { Fragment, useMemo } from 'react'
+import { Controller, FieldPath } from 'react-hook-form'
+import { FormItem } from '@/features/forms/components/form-item'
 
 type Props<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
@@ -9,19 +9,24 @@ type Props<TData extends Record<string, unknown>> = {
   createChildField: (index: number) => JSX.Element | undefined
 }
 
-export function StaticArrayFormItem<TData extends Record<string, unknown>>({ description, length, createChildField }: Props<TData>) {
+export function StaticArrayFormItem<TData extends Record<string, unknown>>({ field, description, length, createChildField }: Props<TData>) {
   const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, length])
 
-  // TODO: form field, reset
   return (
-    <div>
-      <Label>Items</Label>
-      <span className="mt-2 block">{description}</span>
-      <div className="ml-4 mt-4 space-y-2">
-        {items.map((child, index) => {
-          return <div key={index}>{child}</div>
-        })}
-      </div>
-    </div>
+    <FormItem field={field} label="Items">
+      <Controller
+        name={field}
+        render={() => (
+          <div>
+            <span className="mt-2 block">{description}</span>
+            <div className="ml-4 mt-4 space-y-2">
+              {items.map((child, index) => {
+                return <Fragment key={index}>{child}</Fragment>
+              })}
+            </div>
+          </div>
+        )}
+      />
+    </FormItem>
   )
 }

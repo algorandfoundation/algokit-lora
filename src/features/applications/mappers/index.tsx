@@ -336,6 +336,15 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
   return value as ABIAppCallArg
 }
 
+const getDefaultValue = (type: algosdk.ABIArgumentType): unknown => {
+  if (type instanceof algosdk.ABIUintType) {
+    return ''
+  }
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType))
+  }
+  return undefined
+}
 // TODO: fix the render for echo_decimal arg and return value
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
@@ -352,7 +361,7 @@ const asField = <TData extends Record<string, unknown>>(
     createField: (helper) =>
       getCreateField(helper, arg.type, `${methodName}-${argIndex}` as FieldPath<TData>, { description: arg.description }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
-    defaultValue: arg.type instanceof algosdk.ABIUintType ? ('' as unknown as undefined) : undefined,
+    defaultValue: getDefaultValue(arg.type),
     getAppCallArg: (value) => getAppCallArg(arg.type, value),
   }
 }

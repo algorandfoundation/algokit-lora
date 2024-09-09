@@ -16,9 +16,9 @@ type Item = {
   element: JSX.Element | undefined
 }
 
-// TODO: validations:
-// 1. Expected array, received string
 // TODO: work out why this is resetted after clicking "Send"
+// TODO: style the remove button
+// TODO: check validation after removing an item
 export function DynamicArrayFormItem<TData extends Record<string, unknown>>({ field, description, createChildField }: Props<TData>) {
   const { getValues, setValue, getFieldState } = useFormContext<TData>()
   const [items, setItems] = useState<Item[]>([])
