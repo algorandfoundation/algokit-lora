@@ -1,22 +1,18 @@
 import { useMemo } from 'react'
-import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Label } from '@/features/common/components/label'
+import { FieldPath } from 'react-hook-form'
 
 type Props<TData extends Record<string, unknown>> = {
-  helper: FormFieldHelper<TData>
+  field: FieldPath<TData>
   length: number
   description?: string
   createChildField: (index: number) => JSX.Element | undefined
 }
 
-export function StaticArrayFormItem<TData extends Record<string, unknown>>({
-  helper,
-  description,
-  length,
-  createChildField,
-}: Props<TData>) {
-  const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, helper, length])
+export function StaticArrayFormItem<TData extends Record<string, unknown>>({ description, length, createChildField }: Props<TData>) {
+  const items = useMemo(() => Array.from({ length: length }, (_, index) => createChildField(index)), [createChildField, length])
 
+  // TODO: form field, reset
   return (
     <div>
       <Label>Items</Label>

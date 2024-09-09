@@ -1,6 +1,5 @@
 import { Button } from '@/features/common/components/button'
 import { useCallback, useMemo, useState } from 'react'
-import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Controller, FieldPath, Path, PathValue, useFormContext } from 'react-hook-form'
 import { TrashIcon } from 'lucide-react'
 import { HintText } from '@/features/forms/components/hint-text'
@@ -9,7 +8,6 @@ import { FormItem } from '@/features/forms/components/form-item'
 type Props<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
   description?: string
-  helper: FormFieldHelper<TData>
   createChildField: (index: number) => JSX.Element | undefined
 }
 
@@ -21,12 +19,7 @@ type Item = {
 // TODO: validations:
 // 1. Expected array, received string
 // TODO: work out why this is resetted after clicking "Send"
-export function DynamicArrayFormItem<TData extends Record<string, unknown>>({
-  field,
-  description,
-  helper,
-  createChildField,
-}: Props<TData>) {
+export function DynamicArrayFormItem<TData extends Record<string, unknown>>({ field, description, createChildField }: Props<TData>) {
   const { getValues, setValue, getFieldState } = useFormContext<TData>()
   const [items, setItems] = useState<Item[]>([])
 
@@ -38,7 +31,7 @@ export function DynamicArrayFormItem<TData extends Record<string, unknown>>({
         element: createChildField(prev.length),
       },
     ])
-  }, [createChildField, helper])
+  }, [createChildField])
 
   const remove = useCallback(
     (index: number) => {

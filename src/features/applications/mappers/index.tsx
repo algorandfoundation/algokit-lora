@@ -178,20 +178,20 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
 }
 
 const getCreateField = <TData extends Record<string, unknown>>(
-  helper: FormFieldHelper<TData>,
+  formFieldHelper: FormFieldHelper<TData>,
   type: algosdk.ABIArgumentType,
   path: FieldPath<TData>,
   options?: { label?: string; description?: string }
 ): JSX.Element | undefined => {
   if (type instanceof algosdk.ABIUintType) {
-    return helper.numberField({
+    return formFieldHelper.numberField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
     })
   }
   if (type instanceof algosdk.ABIByteType) {
-    return helper.numberField({
+    return formFieldHelper.numberField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
@@ -199,13 +199,13 @@ const getCreateField = <TData extends Record<string, unknown>>(
   }
   // TODO: checkbox isn't great for undefined bool values
   if (type instanceof algosdk.ABIBoolType) {
-    return helper.checkboxField({
+    return formFieldHelper.checkboxField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
     })
   }
   if (type instanceof algosdk.ABIUfixedType) {
-    return helper.numberField({
+    return formFieldHelper.numberField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
@@ -214,7 +214,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
     if (type.childType instanceof algosdk.ABIByteType) {
-      return helper.textField({
+      return formFieldHelper.textField({
         label: options?.label ?? 'Value',
         field: `${path}` as Path<TData>,
         placeholder: options?.description,
@@ -223,17 +223,19 @@ const getCreateField = <TData extends Record<string, unknown>>(
     } else {
       return (
         <StaticArrayFormItem
-          helper={helper}
+          field={path}
           length={type.staticLength}
           createChildField={(childIndex) =>
-            getCreateField(helper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
+            getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
+              label: `Item ${childIndex + 1}`,
+            })
           }
         />
       )
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
-    return helper.textField({
+    return formFieldHelper.textField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
@@ -241,7 +243,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
-      return helper.textField({
+      return formFieldHelper.textField({
         label: options?.label ?? 'Value',
         field: `${path}` as Path<TData>,
         placeholder: options?.description,
@@ -251,17 +253,18 @@ const getCreateField = <TData extends Record<string, unknown>>(
       return (
         <DynamicArrayFormItem
           field={path}
-          helper={helper}
           description={options?.description}
           createChildField={(childIndex) =>
-            getCreateField(helper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, { label: `Item ${childIndex + 1}` })
+            getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
+              label: `Item ${childIndex + 1}`,
+            })
           }
         />
       )
     }
   }
   if (type instanceof algosdk.ABIStringType) {
-    return helper.textField({
+    return formFieldHelper.textField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
@@ -271,10 +274,10 @@ const getCreateField = <TData extends Record<string, unknown>>(
     // TODO: review UI for tuples
     return (
       <TupleFormItem
-        helper={helper}
+        field={path}
         length={type.childTypes.length}
         createChildField={(childIndex) =>
-          getCreateField(helper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
+          getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
             label: `Item ${childIndex + 1}`,
           })
         }
@@ -282,7 +285,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
     )
   }
   if (algosdk.abiTypeIsReference(type)) {
-    return helper.numberField({
+    return formFieldHelper.numberField({
       label: options?.label ?? 'Value',
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
