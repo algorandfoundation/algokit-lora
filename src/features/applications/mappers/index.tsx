@@ -110,8 +110,10 @@ const getValue = (bytes: string) => {
 }
 
 const argumentPathSeparator = '-'
+const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
 const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeparator}${argumentIndex}`
-export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeparator)[1].split('.')[0])
+export const extractArgumentIndexFromFieldPath = (path: string) =>
+  parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   // TODO: confirm isOptional for arrays
@@ -229,7 +231,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
         length: type.staticLength,
         description: options?.description,
         createChildField: (childPrefix, childIndex) =>
-          getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}` as FieldPath<TData>, {
+          getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, {
             prefix: childPrefix,
           }),
       })
@@ -257,9 +259,14 @@ const getCreateField = <TData extends Record<string, unknown>>(
         description: options?.description,
         prefix: prefix,
         createChildField: (childPrefix, childIndex) =>
-          getCreateField(formFieldHelper, type.childType, `${path}.${childIndex}.child` as FieldPath<TData>, {
-            prefix: childPrefix,
-          }),
+          getCreateField(
+            formFieldHelper,
+            type.childType,
+            `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
+            {
+              prefix: childPrefix,
+            }
+          ),
       })
     }
   }
@@ -278,7 +285,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
       prefix: prefix,
       description: options?.description,
       createChildField: (childPrefix, childIndex) =>
-        getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}.${childIndex}` as FieldPath<TData>, {
+        getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, {
           prefix: childPrefix,
         }),
     })
