@@ -187,6 +187,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
   formFieldHelper: FormFieldHelper<TData>,
   type: algosdk.ABIArgumentType,
   path: FieldPath<TData>,
+  hint?: ArgumentHint,
   options?: { prefix?: string; description?: string }
 ): JSX.Element | undefined => {
   if (type instanceof algosdk.ABIUintType) {
@@ -243,7 +244,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
         length: type.staticLength,
         description: options?.description,
         createChildField: (childPrefix, childIndex) =>
-          getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, {
+          getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, undefined, {
             prefix: childPrefix,
           }),
       })
@@ -275,6 +276,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
             formFieldHelper,
             type.childType,
             `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
+            undefined,
             {
               prefix: childPrefix,
             }
@@ -297,9 +299,16 @@ const getCreateField = <TData extends Record<string, unknown>>(
       prefix: prefix,
       description: options?.description,
       createChildField: (childPrefix, childIndex) =>
-        getCreateField(formFieldHelper, type.childTypes[childIndex], `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, {
-          prefix: childPrefix,
-        }),
+        getCreateField(
+          formFieldHelper,
+          type.childTypes[childIndex],
+          `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>,
+          undefined,
+          {
+            prefix: childPrefix,
+          }
+        ),
+      struct: hint?.struct,
     })
   }
   if (algosdk.abiTypeIsReference(type)) {
@@ -376,16 +385,18 @@ const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],
   argIndex: number,
-  isArgOptional: boolean
+  hint?: ArgumentHint
 ): {
   createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
+  const isArgOptional = !!hint?.defaultArgument
+
   return {
     createField: (helper) =>
-      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, {
+      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
         description: arg.description,
       }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
@@ -412,24 +423,21 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
 
     const [methodArgs, schema, defaultValues] = abiMethod.args.reduce(
       (acc, arg, i) => {
-        const { createField, fieldSchema, defaultValue, getAppCallArg } = asField(
-          method.name,
-          arg,
-          i,
-          !!(arg.name && hint?.default_arguments?.[arg.name])
-        )
+        const argHint =
+          hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+            ? ({
+                struct: hint.structs?.[arg.name],
+                defaultArgument: hint.default_arguments?.[arg.name],
+              } satisfies ArgumentHint)
+            : undefined
+
+        const { createField, fieldSchema, defaultValue, getAppCallArg } = asField(method.name, arg, i, argHint)
 
         const argument = {
           name: arg.name,
           description: arg.description,
           type: arg.type,
-          hint:
-            hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
-              ? ({
-                  struct: hint.structs?.[arg.name],
-                  defaultArgument: hint.default_arguments?.[arg.name],
-                } satisfies ArgumentHint)
-              : undefined,
+          hint: argHint,
           createField,
           getAppCallArg,
         } satisfies ArgumentDefinition<TSchema>
