@@ -116,7 +116,6 @@ export const extractArgumentIndexFromFieldPath = (path: string) =>
   parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
-  // TODO: confirm isOptional for arrays
   if (type instanceof algosdk.ABIUintType) {
     const max = Math.pow(2, type.bitSize) - 1
     const uintSchema = z.number().min(0).max(max)
@@ -126,16 +125,20 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return zfd.numeric(z.number().min(0).max(255))
   }
   if (type instanceof algosdk.ABIBoolType) {
-    return isOptional ? z.boolean().optional() : z.boolean()
+    const boolSchema = z
+      .string()
+      .toLowerCase()
+      .transform((text) => JSON.parse(text))
+      .pipe(z.boolean())
+    return isOptional ? boolSchema.optional() : boolSchema
   }
   if (type instanceof algosdk.ABIUfixedType) {
-    // TODO: review the max
     const max = Math.pow(2, type.bitSize) - 1
     const precision = type.precision
     const uintfixedSchema = z
       .number()
       .min(0)
-      .max(max)
+      .lt(max)
       .refine((n) => n === undefined || n.toString().split('.').length === 1 || n.toString().split('.')[1].length <= precision, {
         message: `Precision must be less than ${precision}`,
       })
@@ -200,11 +203,20 @@ const getCreateField = <TData extends Record<string, unknown>>(
       placeholder: options?.description,
     })
   }
-  // TODO: checkbox isn't great for undefined bool values
   if (type instanceof algosdk.ABIBoolType) {
-    return formFieldHelper.checkboxField({
+    return formFieldHelper.selectField({
       label: 'Value',
       field: `${path}` as Path<TData>,
+      options: [
+        {
+          value: 'false',
+          label: 'False',
+        },
+        {
+          value: 'true',
+          label: 'True',
+        },
+      ],
     })
   }
   if (type instanceof algosdk.ABIUfixedType) {
@@ -343,18 +355,18 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
   return value as ABIAppCallArg
 }
 
-const getDefaultValue = (type: algosdk.ABIArgumentType): unknown => {
+const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
   if (type instanceof algosdk.ABIUintType) {
     return ''
   }
   if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
-    return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType))
+    return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType, false))
   }
   if (type instanceof algosdk.ABIArrayDynamicType && !(type.childType instanceof algosdk.ABIByteType)) {
-    return []
+    return isOptional ? undefined : []
   }
   if (type instanceof algosdk.ABITupleType) {
-    return type.childTypes.map((childType) => getDefaultValue(childType))
+    return type.childTypes.map((childType) => getDefaultValue(childType, false))
   }
   return undefined
 }
@@ -377,7 +389,7 @@ const asField = <TData extends Record<string, unknown>>(
         description: arg.description,
       }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
-    defaultValue: getDefaultValue(arg.type),
+    defaultValue: getDefaultValue(arg.type, isArgOptional),
     getAppCallArg: (value) => getAppCallArg(arg.type, value),
   }
 }
