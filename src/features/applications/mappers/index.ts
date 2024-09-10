@@ -122,7 +122,8 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
   if (type instanceof algosdk.ABIByteType) {
-    return zfd.numeric(z.number().min(0).max(255))
+    const uintSchema = z.number().min(0).max(255)
+    return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
   if (type instanceof algosdk.ABIBoolType) {
     const boolSchema = z
@@ -139,7 +140,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
       .number()
       .min(0)
       .lt(max)
-      .refine((n) => n === undefined || n.toString().split('.').length === 1 || n.toString().split('.')[1].length <= precision, {
+      .refine((n) => n === undefined || n.toString().replace('.', '').replace(',', '').length <= precision, {
         message: `Precision must be less than ${precision}`,
       })
     return numberSchema(isOptional ? uintfixedSchema.optional() : uintfixedSchema)
@@ -148,7 +149,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     if (type.childType instanceof algosdk.ABIByteType) {
       return isOptional ? zfd.text().optional() : zfd.text()
     } else {
-      return z.array(getFieldSchema(type.childType, false))
+      return z.array(getFieldSchema(type.childType, false)).min(type.staticLength).max(type.staticLength)
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
@@ -178,7 +179,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
   }
   if (algosdk.abiTypeIsReference(type)) {
     const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
-    return zfd.numeric(z.number().min(min).max(255))
+    return numberSchema(z.number().min(min).max(255))
   }
   return zfd.text()
 }
@@ -366,6 +367,9 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
 
 const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
   if (type instanceof algosdk.ABIUintType) {
+    return ''
+  }
+  if (type instanceof algosdk.ABIByteType) {
     return ''
   }
   if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
