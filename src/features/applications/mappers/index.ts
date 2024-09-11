@@ -135,13 +135,17 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
   }
   if (type instanceof algosdk.ABIUfixedType) {
     const max = Math.pow(2, type.bitSize) - 1
-    const precision = type.precision
     const uintfixedSchema = z
       .number()
       .min(0)
-      .lt(max)
-      .refine((n) => n === undefined || n.toString().replace('.', '').replace(',', '').length <= precision, {
-        message: `Precision must be less than ${precision}`,
+      .refine(
+        (n) => n === undefined || n.toString() === '' || n * Math.pow(10, type.precision) <= max,
+        (n) => ({
+          message: `The value ${n} is too big to fit in type ${type.toString()}`,
+        })
+      )
+      .refine((n) => n === undefined || n.toString().split('.').length === 1 || n.toString().split('.')[1].length <= type.precision, {
+        message: `Decimal precision must be less than ${type.precision}`,
       })
     return numberSchema(isOptional ? uintfixedSchema.optional() : uintfixedSchema)
   }
@@ -312,6 +316,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
       struct: hint?.struct,
     })
   }
+  // TODO: resource packing
   if (algosdk.abiTypeIsReference(type)) {
     return formFieldHelper.numberField({
       label: options?.prefix ?? 'Value',
