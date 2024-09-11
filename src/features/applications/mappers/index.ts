@@ -18,7 +18,7 @@ import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
-import { DefaultValues, Path } from 'react-hook-form'
+import { DefaultValues, FieldPath, Path } from 'react-hook-form'
 import { numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
@@ -109,58 +109,305 @@ const getValue = (bytes: string) => {
   }
 }
 
-const argumentPathSeperator = '-'
-const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeperator}${argumentIndex}`
-export const extractArgumentIndexFromFieldPath = (path: string) => parseInt(path.split(argumentPathSeperator)[1])
+const argumentPathSeparator = '-'
+const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
+const argumentFieldPath = (methodName: string, argumentIndex: number) => `${methodName}${argumentPathSeparator}${argumentIndex}`
+export const extractArgumentIndexFromFieldPath = (path: string) =>
+  parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
-// TODO: we need to support different sizes of uint
+const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
+  if (type instanceof algosdk.ABIUintType) {
+    const max = Math.pow(2, type.bitSize) - 1
+    const uintSchema = z.number().min(0).max(max)
+    return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
+  }
+  if (type instanceof algosdk.ABIByteType) {
+    const uintSchema = z.number().min(0).max(255)
+    return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
+  }
+  if (type instanceof algosdk.ABIBoolType) {
+    const boolSchema = z
+      .string()
+      .toLowerCase()
+      .transform((text) => JSON.parse(text))
+      .pipe(z.boolean())
+    return isOptional ? boolSchema.optional() : boolSchema
+  }
+  if (type instanceof algosdk.ABIUfixedType) {
+    const max = Math.pow(2, type.bitSize) - 1
+    const uintfixedSchema = z
+      .number()
+      .min(0)
+      .refine(
+        (n) => n === undefined || n.toString() === '' || n * Math.pow(10, type.precision) <= max,
+        (n) => ({
+          message: `The value ${n} is too big to fit in type ${type.toString()}`,
+        })
+      )
+      .refine((n) => n === undefined || n.toString().split('.').length === 1 || n.toString().split('.')[1].length <= type.precision, {
+        message: `Decimal precision must be less than ${type.precision}`,
+      })
+    return numberSchema(isOptional ? uintfixedSchema.optional() : uintfixedSchema)
+  }
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return isOptional ? zfd.text().optional() : zfd.text()
+    } else {
+      return z.array(getFieldSchema(type.childType, false)).min(type.staticLength).max(type.staticLength)
+    }
+  }
+  if (type instanceof algosdk.ABIAddressType) {
+    return isOptional ? zfd.text().optional() : zfd.text()
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return isOptional ? zfd.text().optional() : zfd.text()
+    } else {
+      return z.array(
+        z.object({
+          id: z.string(),
+          child: getFieldSchema(type.childType, false),
+        })
+      )
+    }
+  }
+  if (type instanceof algosdk.ABIStringType) {
+    return isOptional ? zfd.text().optional() : zfd.text()
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    const childTypes = type.childTypes.map((childType) => getFieldSchema(childType, false))
+    // TODO: another any :(
+    // Looks like it's related to this https://github.com/colinhacks/zod/issues/561
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return z.tuple(childTypes as any)
+  }
+  if (algosdk.abiTypeIsReference(type)) {
+    const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
+    return numberSchema(z.number().min(min).max(255))
+  }
+  return zfd.text()
+}
+
+const getCreateField = <TData extends Record<string, unknown>>(
+  formFieldHelper: FormFieldHelper<TData>,
+  type: algosdk.ABIArgumentType,
+  path: FieldPath<TData>,
+  hint?: ArgumentHint,
+  options?: { prefix?: string; description?: string }
+): JSX.Element | undefined => {
+  if (type instanceof algosdk.ABIUintType) {
+    return formFieldHelper.numberField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  if (type instanceof algosdk.ABIByteType) {
+    return formFieldHelper.numberField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  if (type instanceof algosdk.ABIBoolType) {
+    return formFieldHelper.selectField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      options: [
+        {
+          value: 'false',
+          label: 'False',
+        },
+        {
+          value: 'true',
+          label: 'True',
+        },
+      ],
+    })
+  }
+  if (type instanceof algosdk.ABIUfixedType) {
+    return formFieldHelper.numberField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+      decimalScale: type.precision,
+    })
+  }
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return formFieldHelper.textField({
+        label: 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+        helpText: 'A Base64 encoded Bytes value',
+      })
+    } else {
+      const prefix = options?.prefix ?? 'Item'
+      return formFieldHelper.abiStaticArrayField({
+        field: `${path}` as Path<TData>,
+        prefix: prefix,
+        length: type.staticLength,
+        description: options?.description,
+        createChildField: (childPrefix, childIndex) =>
+          getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, undefined, {
+            prefix: childPrefix,
+          }),
+      })
+    }
+  }
+  if (type instanceof algosdk.ABIAddressType) {
+    return formFieldHelper.textField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return formFieldHelper.textField({
+        label: 'Value',
+        field: `${path}` as Path<TData>,
+        placeholder: options?.description,
+        helpText: 'A Base64 encoded Bytes value',
+      })
+    } else {
+      const prefix = options?.prefix ?? 'Item'
+      return formFieldHelper.abiDynamicArrayField({
+        field: `${path}` as Path<TData>,
+        description: options?.description,
+        prefix: prefix,
+        createChildField: (childPrefix, childIndex) =>
+          getCreateField(
+            formFieldHelper,
+            type.childType,
+            `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
+            undefined,
+            {
+              prefix: childPrefix,
+            }
+          ),
+      })
+    }
+  }
+  if (type instanceof algosdk.ABIStringType) {
+    return formFieldHelper.textField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    const prefix = options?.prefix ?? 'Item'
+    return formFieldHelper.abiTupleField({
+      field: `${path}` as Path<TData>,
+      length: type.childTypes.length,
+      prefix: prefix,
+      description: options?.description,
+      createChildField: (childPrefix, childIndex) =>
+        getCreateField(
+          formFieldHelper,
+          type.childTypes[childIndex],
+          `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>,
+          undefined,
+          {
+            prefix: childPrefix,
+          }
+        ),
+      struct: hint?.struct,
+    })
+  }
+  // TODO: resource packing
+  if (algosdk.abiTypeIsReference(type)) {
+    return formFieldHelper.numberField({
+      label: options?.prefix ?? 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+    })
+  }
+  return undefined
+}
+
+const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCallArg => {
+  if (type instanceof algosdk.ABIUintType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIByteType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIBoolType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIUfixedType) {
+    return BigInt((value as number) * Math.pow(10, (type as algosdk.ABIUfixedType).precision)) as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return base64ToBytes(value as string) as ABIAppCallArg
+    } else {
+      return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
+    }
+  }
+  if (type instanceof algosdk.ABIAddressType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    if (type.childType instanceof algosdk.ABIByteType) {
+      return base64ToBytes(value as string) as ABIAppCallArg
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (value as any[]).map((item) => getAppCallArg(type.childType, item.child)) as ABIAppCallArg
+    }
+  }
+  if (type instanceof algosdk.ABIStringType) {
+    return value as ABIAppCallArg
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    return (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)) as ABIAppCallArg
+  }
+  if (algosdk.abiTypeIsReference(type)) {
+    return value as ABIAppCallArg
+  }
+  return value as ABIAppCallArg
+}
+
+const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
+  if (type instanceof algosdk.ABIUintType || type instanceof algosdk.ABIByteType || type instanceof algosdk.ABIUfixedType) {
+    return ''
+  }
+  if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
+    return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType, false))
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType && !(type.childType instanceof algosdk.ABIByteType)) {
+    return isOptional ? undefined : []
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    return type.childTypes.map((childType) => getDefaultValue(childType, false))
+  }
+  return undefined
+}
+
+// TODO: fix the render for echo_decimal arg and return value
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],
   argIndex: number,
-  isArgOptional: boolean
+  hint?: ArgumentHint
 ): {
   createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => ABIAppCallArg
 } => {
-  if (arg.type instanceof algosdk.ABIUintType) {
-    const max = Math.pow(2, arg.type.bitSize) - 1
-    const uintSchema = z.number().min(0).max(max)
-
-    return {
-      createField: (helper) => {
-        return helper.numberField({
-          label: 'Value',
-          field: argumentFieldPath(methodName, argIndex) as Path<TData>,
-          placeholder: arg.description,
-        })
-      },
-      fieldSchema: numberSchema(isArgOptional ? uintSchema.optional() : uintSchema),
-      defaultValue: '' as unknown as undefined,
-      getAppCallArg: (value) => value as ABIAppCallArg,
-    }
-  }
-  if (arg.type instanceof algosdk.ABIArrayDynamicType && arg.type.childType instanceof algosdk.ABIByteType) {
-    return {
-      createField: (helper) => {
-        return helper.textField({
-          label: 'Value',
-          field: argumentFieldPath(methodName, argIndex) as Path<TData>,
-          placeholder: arg.description,
-          helpText: 'A Base64 encoded Bytes value',
-        })
-      },
-      fieldSchema: isArgOptional ? zfd.text().optional() : zfd.text(),
-      getAppCallArg: (value) => base64ToBytes(value as string) as ABIAppCallArg,
-    }
-  }
+  const isArgOptional = !!hint?.defaultArgument
 
   return {
-    createField: () => undefined,
-    fieldSchema: zfd.text(),
-    getAppCallArg: (value) => value as ABIAppCallArg,
+    createField: (helper) =>
+      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
+        description: arg.description,
+      }),
+    fieldSchema: getFieldSchema(arg.type, isArgOptional),
+    defaultValue: getDefaultValue(arg.type, isArgOptional),
+    getAppCallArg: (value) => getAppCallArg(arg.type, value),
   }
 }
 
@@ -182,24 +429,21 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
 
     const [methodArgs, schema, defaultValues] = abiMethod.args.reduce(
       (acc, arg, i) => {
-        const { createField, fieldSchema, defaultValue, getAppCallArg } = asField(
-          method.name,
-          arg,
-          i,
-          !!(arg.name && hint?.default_arguments?.[arg.name])
-        )
+        const argHint =
+          hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+            ? ({
+                struct: hint.structs?.[arg.name],
+                defaultArgument: hint.default_arguments?.[arg.name],
+              } satisfies ArgumentHint)
+            : undefined
+
+        const { createField, fieldSchema, defaultValue, getAppCallArg } = asField(method.name, arg, i, argHint)
 
         const argument = {
           name: arg.name,
           description: arg.description,
           type: arg.type,
-          hint:
-            hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
-              ? ({
-                  struct: hint.structs?.[arg.name],
-                  defaultArgument: hint.default_arguments?.[arg.name],
-                } satisfies ArgumentHint)
-              : undefined,
+          hint: argHint,
           createField,
           getAppCallArg,
         } satisfies ArgumentDefinition<TSchema>

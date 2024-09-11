@@ -6,6 +6,9 @@ import { PasswordFormItem, PasswordFormItemProps } from '@/features/forms/compon
 import { MultiSelectFormItem, MultiSelectFormItemProps } from '@/features/forms/components/multi-select-form-item.tsx'
 import { FileFormItem, FileFormItemProps } from '@/features/forms/components/file-form-item'
 import { ReadonlyFileFormItem } from '@/features/forms/components/readonly-file-form-item'
+import { AbiDynamicArrayFormItem, AbiDynamicArrayFormItemProps } from '@/features/forms/components/abi-dynamic-array-form-item'
+import { AbiStaticArrayFormItem, AbiStaticArrayFormItemProps } from '@/features/forms/components/abi-static-array-form-item'
+import { AbiTupleFormItem, AbiTupleFormItemProps } from '@/features/forms/components/abi-tuple-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -51,5 +54,17 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   readonlyFileField(props: FileFormItemProps<TSchema>) {
     return <ReadonlyFileFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  abiDynamicArrayField(props: AbiDynamicArrayFormItemProps<TSchema>) {
+    return <AbiDynamicArrayFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  abiStaticArrayField(props: AbiStaticArrayFormItemProps<TSchema>) {
+    return <AbiStaticArrayFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  abiTupleField(props: AbiTupleFormItemProps<TSchema>) {
+    return <AbiTupleFormItem {...this.prefixFieldProp(props)} />
   }
 }
