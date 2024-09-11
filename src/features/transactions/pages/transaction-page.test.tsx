@@ -1288,7 +1288,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
           expect(decodedAbiMethodTab.getAttribute('data-state'), 'Decoded ABI Method tab should be active').toBe('active')
 
           expect(decodedAbiMethodTab.textContent).toBe(
-            'echo_address(address:  25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+            'echo_address(address: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
           )
         })
       }
@@ -1332,7 +1332,7 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
           expect(decodedAbiMethodTab.getAttribute('data-state'), 'Decoded ABI Method tab should be active').toBe('active')
 
           expect(decodedAbiMethodTab.textContent).toBe(
-            'echo_address(address:  25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+            'echo_address(address: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
           )
         })
       }
