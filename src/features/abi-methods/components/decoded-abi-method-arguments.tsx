@@ -6,13 +6,11 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { useMemo, useCallback } from 'react'
 
-export function DecodedAbiMethodArguments({
-  arguments: argumentsProp,
-  multiLine,
-}: {
+type Props = {
   arguments: AbiMethodArgumentRepresentation[]
   multiLine: boolean
-}) {
+}
+export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine }: Props) {
   const renderArgumentValue = useCallback((argument: AbiMethodArgumentRepresentation) => {
     if (argument.type === AbiType.Transaction) {
       return (
