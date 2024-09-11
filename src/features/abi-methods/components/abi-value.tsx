@@ -18,10 +18,10 @@ export function AbiValue({ abiValue }: Props) {
     return <span className="text-abi-string">{`"${abiValue.value}"`}</span>
   }
   if (abiValue.type === AbiType.Number) {
-    return <span className="text-abi-number">{`${abiValue.value}`}</span>
+    return <span className="text-abi-number">{abiValue.value}</span>
   }
   if (abiValue.type === AbiType.Boolean) {
-    return <span className="text-abi-bool">{`${abiValue.value}`}</span>
+    return <span className="text-abi-bool">{abiValue.value}</span>
   }
   if (abiValue.type === AbiType.Address) {
     return (

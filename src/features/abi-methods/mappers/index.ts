@@ -9,6 +9,7 @@ import {
   AbiMethodArgument,
   AbiMethodArgumentRepresentation,
   AbiMethodRepresentation,
+  AbiMethodReturnRepresentation,
   AbiTupleRepresentation,
   AbiTupleValue,
   AbiType,
@@ -17,7 +18,7 @@ import {
 } from '@/features/abi-methods/models'
 import { sum } from '@/utils/sum'
 
-const MAX_LENGTH = 20
+const MAX_LINE_LENGTH = 20
 
 export const jsonAsArc32AppSpec = (json: unknown): Arc32AppSpec => {
   const validator = new Validator()
@@ -52,7 +53,7 @@ export const asAbiMethodArgumentRepresentation = (abiMethodArgument: AbiMethodAr
     }
   }
   const resolvedArgument = asAbiValueRepresentation(abiMethodArgument)
-  const multiLine = sum([resolvedArgument.length]) > MAX_LENGTH
+  const multiLine = sum([resolvedArgument.length]) > MAX_LINE_LENGTH
 
   return {
     ...abiMethodArgument,
@@ -65,12 +66,16 @@ export function getAbiMethodRepresentation(method: AbiMethod): AbiMethodRepresen
   const argumentRepresentationList = method.arguments.map((argument) => asAbiMethodArgumentRepresentation(argument))
   const multiLine =
     argumentRepresentationList.some((argument) => argument.multiLine) ||
-    sum(argumentRepresentationList.map((arg) => arg.length)) > MAX_LENGTH
+    sum(argumentRepresentationList.map((arg) => arg.length)) > MAX_LINE_LENGTH
+
+  const methodReturnRepresentation: AbiMethodReturnRepresentation =
+    method.return === 'void' ? 'void' : asAbiValueRepresentation(method.return)
+
   return {
     name: method.name,
     arguments: argumentRepresentationList,
     multiLine: multiLine,
-    return: method.return,
+    return: methodReturnRepresentation,
   }
 }
 
@@ -91,7 +96,7 @@ export const asAbiValueRepresentation = (abiValue: AbiValue): AbiValueRepresenta
 const asAbiTupleRepresentation = (abiTuple: AbiTupleValue): AbiTupleRepresentation => {
   const valueRepresentation = abiTuple.values.map((value) => asAbiValueRepresentation(value))
   const length = sum(valueRepresentation.map((r) => r.length))
-  const multiLine = valueRepresentation.some((value) => value.multiLine) || length > MAX_LENGTH
+  const multiLine = valueRepresentation.some((value) => value.multiLine) || length > MAX_LINE_LENGTH
   return {
     type: AbiType.Tuple,
     values: valueRepresentation,
@@ -103,7 +108,7 @@ const asAbiTupleRepresentation = (abiTuple: AbiTupleValue): AbiTupleRepresentati
 const asAbiArrayRepresentation = (abiArray: AbiArrayValue): AbiArrayRepresentation => {
   const valueRepresentation = abiArray.values.map((value) => asAbiValueRepresentation(value))
   const length = sum(valueRepresentation.map((r) => r.length))
-  const multiLine = valueRepresentation.some((value) => value.multiLine) || length > MAX_LENGTH
+  const multiLine = valueRepresentation.some((value) => value.multiLine) || length > MAX_LINE_LENGTH
   return {
     type: AbiType.Array,
     values: valueRepresentation,
