@@ -366,10 +366,7 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
 }
 
 const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
-  if (type instanceof algosdk.ABIUintType) {
-    return ''
-  }
-  if (type instanceof algosdk.ABIByteType) {
+  if (type instanceof algosdk.ABIUintType || type instanceof algosdk.ABIByteType || type instanceof algosdk.ABIUfixedType) {
     return ''
   }
   if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
