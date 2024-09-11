@@ -11,6 +11,9 @@ import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from
 import { invariant } from '@/utils/invariant'
 import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
+import { sum } from '@/utils/sum'
+
+const MAX_LINE_LENGTH = 20
 
 export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
@@ -24,10 +27,14 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
     const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethod))
     const methodReturn = getMethodReturn(transaction, abiMethod)
 
+    const multiline =
+      methodArguments.some((argument) => argument.multiline) || sum(methodArguments.map((arg) => arg.length)) > MAX_LINE_LENGTH
+
     return {
       name: abiMethod.name,
       arguments: methodArguments,
       return: methodReturn,
+      multiline,
     } satisfies AbiMethod
   })
 }
@@ -73,10 +80,13 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
       const argName = argumentSpec.name ?? `arg${index}`
 
       if (algosdk.abiTypeIsTransaction(argumentSpec.type)) {
+        const transactionId = referencedTransactionIds.shift()!
         return {
           name: argName,
           type: AbiType.Transaction,
-          value: referencedTransactionIds.shift()!,
+          value: transactionId,
+          multiline: false,
+          length: transactionId.length,
         }
       }
 
@@ -84,11 +94,13 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
 
       if (argumentSpec.type === ABIReferenceType.asset) {
         invariant(transaction['application-transaction']?.['foreign-assets'], 'application-transaction foreign-assets is not set')
-
+        const assetId = transaction['application-transaction']['foreign-assets'][Number(abiValue)]
         return {
           name: argName,
           type: AbiType.Asset,
-          value: transaction['application-transaction']['foreign-assets'][Number(abiValue)],
+          value: assetId,
+          multiline: false,
+          length: assetId.toString().length,
         }
       }
       if (argumentSpec.type === ABIReferenceType.account) {
@@ -96,10 +108,14 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
 
         // Index 0 of application accounts is the sender
         const accountIndex = Number(abiValue)
+        const accountAddress =
+          accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex - 1]
         return {
           name: argName,
           type: AbiType.Account,
-          value: accountIndex === 0 ? transaction.sender : transaction['application-transaction']['accounts'][accountIndex - 1],
+          value: accountAddress,
+          multiline: false,
+          length: accountAddress.length,
         }
       }
       if (argumentSpec.type === ABIReferenceType.application) {
@@ -107,13 +123,14 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
 
         // Index 0 of foreign apps is the called app
         const applicationIndex = Number(abiValue)
+        const applicationId =
+          applicationIndex === 0 ? transaction.applicationId : transaction['application-transaction']['foreign-apps'][applicationIndex - 1]
         return {
           name: argName,
           type: AbiType.Application,
-          value:
-            applicationIndex === 0
-              ? transaction.applicationId
-              : transaction['application-transaction']['foreign-apps'][applicationIndex - 1],
+          value: applicationId,
+          multiline: false,
+          length: applicationId.toString().length,
         }
       }
 
@@ -139,57 +156,105 @@ const getMethodReturn = (transaction: TransactionResult, abiMethod: algosdk.ABIM
 }
 
 const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiValue => {
-  if (isTupleType(abiType)) {
-    const childTypes = (abiType as algosdk.ABITupleType).childTypes
+  if (abiType instanceof algosdk.ABITupleType) {
+    const childTypes = abiType.childTypes
     const abiValues = abiValue as algosdk.ABIValue[]
     if (childTypes.length !== abiValues.length) {
       throw new Error('Tuple type has different number of child types than abi values')
     }
 
+    const childrenValues = abiValues.map((abiValue, index) => getAbiValue(childTypes[index], abiValue))
+    const length = sum(childrenValues.map((v) => v.length))
+    const multiline = childrenValues.some((v) => v.multiline) || length > MAX_LINE_LENGTH
+
     return {
       type: AbiType.Tuple,
-      values: abiValues.map((abiValue, index) => getAbiValue(childTypes[index], abiValue)),
+      values: childrenValues,
+      multiline,
+      length,
     }
   }
-  if (isStaticArrayType(abiType)) {
-    const childType = (abiType as algosdk.ABIArrayStaticType).childType
-    const abiValues = abiValue as algosdk.ABIValue[]
-    return {
-      type: AbiType.Array,
-      values: abiValues.map((abiValue) => getAbiValue(childType, abiValue)),
+  if (abiType instanceof algosdk.ABIArrayStaticType || abiType instanceof algosdk.ABIArrayDynamicType) {
+    const childType = abiType.childType
+    if (childType instanceof algosdk.ABIByteType) {
+      // Treat bytes arrays as strings
+      const base64Value = uint8ArrayToBase64(abiValue as Uint8Array)
+      return {
+        type: AbiType.String,
+        value: base64Value,
+        multiline: false,
+        length: base64Value.length,
+      }
+    } else {
+      const abiValues = abiValue as algosdk.ABIValue[]
+      const childrenValues = abiValues.map((abiValue) => getAbiValue(childType, abiValue))
+      const length = sum(childrenValues.map((v) => v.length))
+      const multiline = childrenValues.some((v) => v.multiline) || length > MAX_LINE_LENGTH
+
+      return {
+        type: AbiType.Array,
+        values: childrenValues,
+        multiline,
+        length,
+      }
     }
   }
-  if (isDynamicArrayType(abiType)) {
-    const childType = (abiType as algosdk.ABIArrayDynamicType).childType
-    const abiValues = abiValue as algosdk.ABIValue[]
-    return {
-      type: AbiType.Array,
-      values: abiValues.map((abiValue) => getAbiValue(childType, abiValue)),
-    }
-  }
-  if (abiType.toString() === 'string') {
+  if (abiType instanceof algosdk.ABIStringType) {
+    const stringValue = abiValue as string
     return {
       type: AbiType.String,
-      value: abiValue as string,
+      value: stringValue,
+      length: stringValue.length,
+      multiline: false,
     }
   }
-  if (abiType.toString() === 'address') {
+  if (abiType instanceof algosdk.ABIAddressType) {
+    const stringValue = abiValue as string
     return {
       type: AbiType.Address,
-      value: abiValue as string,
+      value: stringValue,
+      length: stringValue.length,
+      multiline: false,
     }
   }
-  if (abiType.toString() === 'bool') {
+  if (abiType instanceof algosdk.ABIBoolType) {
+    const boolValue = abiValue as boolean
     return {
       type: AbiType.Boolean,
-      value: abiValue as boolean,
+      value: boolValue,
+      length: boolValue.toString().length,
+      multiline: false,
     }
   }
-  // For the rest, we treat as number
-  return {
-    type: AbiType.Number,
-    value: Number(abiValue),
+  if (abiType instanceof algosdk.ABIUintType) {
+    const bigintValue = abiValue as bigint
+    return {
+      type: AbiType.Uint,
+      value: bigintValue,
+      length: bigintValue.toString().length,
+      multiline: false,
+    }
   }
+  if (abiType instanceof algosdk.ABIUfixedType) {
+    const stringValue = bigintToString(abiValue as bigint, abiType.precision)
+    return {
+      type: AbiType.Ufixed,
+      value: stringValue,
+      length: stringValue.length,
+      multiline: false,
+    }
+  }
+  if (abiType instanceof algosdk.ABIByteType) {
+    const numberValue = abiValue as number
+    return {
+      type: AbiType.Byte,
+      value: numberValue,
+      length: numberValue.toString().length,
+      multiline: false,
+    }
+  }
+
+  throw new Error(`Unknown type ${abiType}`)
 }
 
 const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolean => {
@@ -264,7 +329,9 @@ const isValidAppSpecVersion = (appSpec: AppSpecVersion, round: Round) => {
   return roundFirstValid <= round && round <= roundLastValid
 }
 
-const isTupleType = (type: algosdk.ABIType) =>
-  type.toString().length > 2 && type.toString().startsWith('(') && type.toString().endsWith(')')
-const isStaticArrayType = (type: algosdk.ABIType) => type.toString().endsWith('[]')
-const isDynamicArrayType = (type: algosdk.ABIType) => type.toString().endsWith(']')
+const bigintToString = (value: bigint, decimalScale: number): string => {
+  const valueString = value.toString()
+  const numberString = valueString.slice(0, valueString.length - decimalScale)
+  const fractionString = valueString.slice(valueString.length - decimalScale)
+  return `${numberString}.${fractionString}`
+}

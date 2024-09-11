@@ -1,12 +1,12 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiArrayRepresentation } from '@/features/abi-methods/models'
+import { AbiArrayValue as AbiArrayModel } from '@/features/abi-methods/models'
 
 type Props = {
-  array: AbiArrayRepresentation
+  array: AbiArrayModel
 }
 
 export function AbiArrayValue({ array }: Props) {
-  if (array.multiLine) {
+  if (array.multiline) {
     return (
       <>
         <span>[</span>

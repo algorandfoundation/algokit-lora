@@ -181,7 +181,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                   dt: 'Return value',
                   dd: (
                     <RenderInlineAsyncAtom atom={sendMethodCallResult.abiMethod}>
-                      {(abiMethod) => (abiMethod ? <DecodedAbiMethodReturnValue methodReturn={abiMethod?.return} /> : 'void')}
+                      {(abiMethod) => (abiMethod ? <DecodedAbiMethodReturnValue return={abiMethod?.return} /> : 'void')}
                     </RenderInlineAsyncAtom>
                   ),
                 },
