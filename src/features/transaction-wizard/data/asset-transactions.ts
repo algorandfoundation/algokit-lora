@@ -13,6 +13,8 @@ import {
   feeField,
   validRoundsField,
   noteField,
+  addressFieldSchema,
+  optionalAddressFieldSchema,
 } from './common'
 import { amountField } from './payment-transactions'
 import { algorandClient } from '@/features/common/data/algo-client'
@@ -31,6 +33,15 @@ const assetnameField = {
     label: 'Asset Name',
     description: 'The name of the asset to be transferred.',
     type: BuildableTransactionFormFieldType.Text,
+    placeholder: '',
+  } satisfies BuildableTransactionFormField,
+}
+
+const closeToField = {
+  closeTo: {
+    label: 'Close To (optional)',
+    description: 'Account that receives any balance of the asset',
+    type: BuildableTransactionFormFieldType.Account,
     placeholder: '',
   } satisfies BuildableTransactionFormField,
 }
@@ -109,7 +120,7 @@ const assetOptInSchema = zfd.formData({
 })
 
 export const assetOptInTransaction = {
-  label: 'Asset OptIn (axfer)',
+  label: 'Asset opt in (axfer)',
   fields: {
     ...assetIdField,
     ...assetnameField,
@@ -118,9 +129,50 @@ export const assetOptInTransaction = {
     ...validRoundsField,
     ...noteField,
   },
-  defaultValues: {
-    assetId: 0 as unknown as undefined, // fix me!
-  },
+  defaultValues: {},
   schema: assetOptInSchema,
   createTransaction: createAssetOptIn,
 } satisfies BuildableTransaction<typeof assetOptInSchema>
+
+const createAssetOptOut = async (data: z.infer<typeof assetOptOutSchema>) => {
+  const transaction = await algorandClient.transactions.assetOptOut({
+    assetId: data.assetId,
+    sender: data.sender,
+    creator: data.closeTo ?? data.sender, // Are you sure about this?
+    note: data.note,
+    ...(!data.fee.setAutomatically && data.fee.value ? { staticFee: algos(data.fee.value) } : undefined),
+    ...(!data.validRounds.setAutomatically && data.validRounds.firstValid && data.validRounds.lastValid
+      ? {
+          firstValidRound: data.validRounds.firstValid,
+          lastValidRound: data.validRounds.lastValid,
+        }
+      : undefined),
+  })
+  return transaction
+}
+
+const assetOptOutSchema = zfd.formData({
+  assetId: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  assetname: zfd.text(z.string().optional()),
+  ...senderFieldSchema,
+  closeTo: optionalAddressFieldSchema,
+  ...feeFieldSchema,
+  ...validRoundsFieldSchema,
+  ...noteFieldSchema,
+})
+
+export const assetOptOutTransaction = {
+  label: 'Asset opt out (axfer)',
+  fields: {
+    ...assetIdField,
+    ...assetnameField,
+    ...senderField,
+    ...closeToField,
+    ...feeField,
+    ...validRoundsField,
+    ...noteField,
+  },
+  defaultValues: {},
+  schema: assetOptOutSchema,
+  createTransaction: createAssetOptOut,
+} satisfies BuildableTransaction<typeof assetOptOutSchema>

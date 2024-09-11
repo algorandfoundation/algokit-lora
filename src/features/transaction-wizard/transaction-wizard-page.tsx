@@ -9,7 +9,7 @@ import { RenderLoadable } from '../common/components/render-loadable'
 import { PageLoader } from '../common/components/page-loader'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '../wallet/data/active-wallet'
 import { TransactionBuilderForm } from './components/transaction-builder-form'
-import { assetOptInTransaction, assetTransferTransaction } from './data/asset-transactions'
+import { assetOptInTransaction, assetOptOutTransaction, assetTransferTransaction } from './data/asset-transactions'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
@@ -19,7 +19,13 @@ export function TransactionWizardPage() {
   const [selectedBuildableTransactionIndex, setSelectedBuildableIndex] = useState(0)
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
-  const buildableTransactions = [paymentTransaction, accountCloseTransaction, assetTransferTransaction, assetOptInTransaction]
+  const buildableTransactions = [
+    paymentTransaction,
+    accountCloseTransaction,
+    assetTransferTransaction,
+    assetOptInTransaction,
+    assetOptOutTransaction,
+  ]
   invariant(selectedBuildableTransactionIndex < buildableTransactions.length, 'Invalid transaction type index')
 
   const buildableTransaction = buildableTransactions[selectedBuildableTransactionIndex]
