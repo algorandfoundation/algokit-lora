@@ -80,12 +80,24 @@ import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applicati
 import { transactionAmountLabel } from '../components/transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
-import { algod } from '@/features/common/data/algo-client'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { writeAppInterface } from '@/features/app-interfaces/data'
+import { algod } from '@/features/common/data/algo-client'
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -1276,7 +1288,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
           expect(decodedAbiMethodTab.getAttribute('data-state'), 'Decoded ABI Method tab should be active').toBe('active')
 
           expect(decodedAbiMethodTab.textContent).toBe(
-            'echo_address(address:  25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+            'echo_address(address: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
           )
         })
       }
@@ -1320,7 +1332,7 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
           expect(decodedAbiMethodTab.getAttribute('data-state'), 'Decoded ABI Method tab should be active').toBe('active')
 
           expect(decodedAbiMethodTab.textContent).toBe(
-            'echo_address(address:  25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+            'echo_address(address: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
           )
         })
       }

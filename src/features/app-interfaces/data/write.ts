@@ -8,7 +8,7 @@ import { useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp } from '@/features/common/data'
-import { getAppInterfaces } from '@/features/app-interfaces/data/index'
+import { getAppInterfaces } from '@/features/app-interfaces/data'
 
 export type AppSpecDetails = {
   applicationId: ApplicationId
@@ -56,7 +56,7 @@ export const useCreateAppInterface = () => {
   )
 }
 
-const createMachine = () =>
+export const createMachine = () =>
   setup({
     types: {
       context: {} as {

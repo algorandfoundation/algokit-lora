@@ -385,6 +385,8 @@ const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): un
 }
 
 // TODO: fix the render for echo_decimal arg and return value
+// TODO: fix the render of uint arg and return value
+// http://localhost:1420/testnet/transaction/V7PQMUKE53ZWFUHCDZ3A6G4CSSFFKQM2DO55W7WAJMCRWLPFSQJQ
 const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],

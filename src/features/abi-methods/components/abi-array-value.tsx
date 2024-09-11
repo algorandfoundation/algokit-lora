@@ -1,23 +1,40 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiArrayValue as AbiArrayValueModel } from '@/features/abi-methods/models'
+import { AbiArrayRepresentation } from '@/features/abi-methods/models'
 
 type Props = {
-  array: AbiArrayValueModel
+  array: AbiArrayRepresentation
 }
 
 export function AbiArrayValue({ array }: Props) {
-  return (
-    <>
-      <span>[</span>
-      <ul className="pl-4">
-        {array.values.map((item, index, array) => (
-          <li key={index}>
-            <AbiValue abiValue={item} />
-            {index < array.length - 1 ? <span>{', '}</span> : null}
-          </li>
-        ))}
-      </ul>
-      <span>]</span>
-    </>
-  )
+  if (array.multiLine) {
+    return (
+      <>
+        <span>[</span>
+        <ul className="pl-4">
+          {array.values.map((item, index, array) => (
+            <li key={index}>
+              <AbiValue abiValue={item} />
+              {index < array.length - 1 ? <span>{', '}</span> : null}
+            </li>
+          ))}
+        </ul>
+        <span>]</span>
+      </>
+    )
+  } else {
+    return (
+      <>
+        <span>[</span>
+        <div className="inline">
+          {array.values.map((item, index, array) => (
+            <div className="inline" key={index}>
+              <AbiValue abiValue={item} />
+              {index < array.length - 1 ? <span>{', '}</span> : null}
+            </div>
+          ))}
+        </div>
+        <span>]</span>
+      </>
+    )
+  }
 }

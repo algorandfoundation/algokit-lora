@@ -84,7 +84,11 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
         <FormProvider {...formCtx}>
           <form className={cn('grid gap-4', className)} onSubmit={handleSubmit}>
             {typeof children === 'function' ? children(new FormFieldHelper<TSchema>(), handleSubmit) : children}
-            {errorMessage && <div className="text-error">{errorMessage}</div>}
+            {errorMessage && (
+              <div role="alert" aria-label="error-message" className="text-error">
+                {errorMessage}
+              </div>
+            )}
             {typeof formAction === 'function' ? formAction(formCtx, resetLocalState) : formAction}
           </form>
         </FormProvider>
