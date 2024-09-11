@@ -52,13 +52,11 @@ export const asAbiMethodArgumentRepresentation = (abiMethodArgument: AbiMethodAr
       length: `${abiMethodArgument.value}`.length,
     }
   }
-  const resolvedArgument = asAbiValueRepresentation(abiMethodArgument)
-  const multiLine = sum([resolvedArgument.length]) > MAX_LINE_LENGTH
+  const abiValueRepresentation = asAbiValueRepresentation(abiMethodArgument)
 
   return {
     ...abiMethodArgument,
-    ...resolvedArgument,
-    multiLine: multiLine,
+    ...abiValueRepresentation,
   }
 }
 
@@ -94,24 +92,24 @@ export const asAbiValueRepresentation = (abiValue: AbiValue): AbiValueRepresenta
 }
 
 const asAbiTupleRepresentation = (abiTuple: AbiTupleValue): AbiTupleRepresentation => {
-  const valueRepresentation = abiTuple.values.map((value) => asAbiValueRepresentation(value))
-  const length = sum(valueRepresentation.map((r) => r.length))
-  const multiLine = valueRepresentation.some((value) => value.multiLine) || length > MAX_LINE_LENGTH
+  const valueRepresentations = abiTuple.values.map((value) => asAbiValueRepresentation(value))
+  const length = sum(valueRepresentations.map((r) => r.length))
+  const multiLine = valueRepresentations.some((value) => value.multiLine) || length > MAX_LINE_LENGTH
   return {
     type: AbiType.Tuple,
-    values: valueRepresentation,
+    values: valueRepresentations,
     multiLine: multiLine,
     length: length,
   }
 }
 
 const asAbiArrayRepresentation = (abiArray: AbiArrayValue): AbiArrayRepresentation => {
-  const valueRepresentation = abiArray.values.map((value) => asAbiValueRepresentation(value))
-  const length = sum(valueRepresentation.map((r) => r.length))
-  const multiLine = valueRepresentation.some((value) => value.multiLine) || length > MAX_LINE_LENGTH
+  const valueRepresentations = abiArray.values.map((value) => asAbiValueRepresentation(value))
+  const length = sum(valueRepresentations.map((r) => r.length))
+  const multiLine = valueRepresentations.some((value) => value.multiLine) || length > MAX_LINE_LENGTH
   return {
     type: AbiType.Array,
-    values: valueRepresentation,
+    values: valueRepresentations,
     multiLine: multiLine,
     length: length,
   }
