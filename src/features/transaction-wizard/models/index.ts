@@ -7,6 +7,7 @@ export enum BuildableTransactionFormFieldType {
   AlgoAmount = 'AlgoAmount',
   Fee = 'Fee',
   ValidRounds = 'ValidRounds',
+  AssetId = 'assetId',
 }
 
 export type BuildableTransactionFormField = {

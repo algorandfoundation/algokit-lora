@@ -20,12 +20,12 @@ import {
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { numberSchema } from '@/features/forms/data/common'
 
-const amountField = {
+export const amountField = {
   amount: {
     label: 'Amount',
     description: 'Amount to pay',
     type: BuildableTransactionFormFieldType.AlgoAmount,
-    placeholder: '1',
+    placeholder: '0',
   } satisfies BuildableTransactionFormField,
 }
 

@@ -56,6 +56,13 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
             return <TransactionBuilderFeeField key={common.key} helper={helper} path={path} field={field} />
           case BuildableTransactionFormFieldType.ValidRounds:
             return <TransactionBuilderValidRoundField key={common.key} helper={helper} path={path} field={field} />
+          case BuildableTransactionFormFieldType.AssetId:
+            return helper.numberField({
+              ...common,
+              label: <span className="flex items-center gap-1.5">{field.label}</span>,
+              decimalScale: 6,
+              thousandSeparator: false,
+            })
           default:
             return undefined
         }
