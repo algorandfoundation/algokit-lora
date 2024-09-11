@@ -1,72 +1,80 @@
-import { useMemo } from 'react'
-import { AbiMethod, AbiType } from '@/features/abi-methods/models'
+import { AbiMethodArgumentRepresentation, AbiType } from '@/features/abi-methods/models'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { useMemo, useCallback } from 'react'
 
-export function DecodedAbiMethodArguments({ method }: { method: AbiMethod }) {
+type Props = {
+  arguments: AbiMethodArgumentRepresentation[]
+  multiLine: boolean
+}
+export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine }: Props) {
+  const renderArgumentValue = useCallback((argument: AbiMethodArgumentRepresentation) => {
+    if (argument.type === AbiType.Transaction) {
+      return (
+        <TransactionLink className="text-primary underline" transactionId={argument.value}>
+          {argument.value}
+        </TransactionLink>
+      )
+    } else if (argument.type === AbiType.Account) {
+      return (
+        <AccountLink className="text-primary underline" address={argument.value}>
+          {argument.value}
+        </AccountLink>
+      )
+    } else if (argument.type === AbiType.Application) {
+      return (
+        <ApplicationLink className="text-primary underline" applicationId={argument.value}>
+          {argument.value}
+        </ApplicationLink>
+      )
+    } else if (argument.type === AbiType.Asset) {
+      return (
+        <AssetIdLink className="text-primary underline" assetId={argument.value}>
+          {argument.value}
+        </AssetIdLink>
+      )
+    } else {
+      return <AbiValue abiValue={argument} />
+    }
+  }, [])
+
   const components = useMemo(
     () =>
-      method.arguments.map((argument) => {
-        if (argument.type === AbiType.Transaction) {
-          return (
-            <>
-              <span>{argument.name}: </span>
-              <TransactionLink className="text-primary underline" transactionId={argument.value}>
-                {argument.value}
-              </TransactionLink>
-            </>
-          )
-        }
-        if (argument.type === AbiType.Account) {
-          return (
-            <>
-              <span>{argument.name}: </span>
-              <AccountLink className="text-primary underline" address={argument.value}>
-                {argument.value}
-              </AccountLink>
-            </>
-          )
-        }
-        if (argument.type === AbiType.Application) {
-          return (
-            <>
-              <span>{argument.name}: </span>
-              <ApplicationLink className="text-primary underline" applicationId={argument.value}>
-                {argument.value}
-              </ApplicationLink>
-            </>
-          )
-        }
-        if (argument.type === AbiType.Asset) {
-          return (
-            <>
-              <span>{argument.name}: </span>
-              <AssetIdLink className="text-primary underline" assetId={argument.value}>
-                {argument.value}
-              </AssetIdLink>
-            </>
-          )
-        }
-        return (
-          <>
-            <span>{argument.name}: </span> <AbiValue abiValue={argument} />
-          </>
-        )
-      }),
-    [method.arguments]
+      argumentsProp.map((argument) => (
+        <>
+          <span className="text-abi-keys">{argument.name}: </span>
+          {renderArgumentValue(argument)}
+        </>
+      )),
+    [argumentsProp, renderArgumentValue]
   )
 
-  return (
-    <ul className="pl-4">
-      {components.map((component, index, arr) => (
-        <li key={index}>
-          {component}
-          {index < arr.length - 1 ? <span>{', '}</span> : null}
-        </li>
-      ))}
-    </ul>
-  )
+  if (multiLine) {
+    return (
+      <ul className="pl-4">
+        {components.map((component, index, array) => (
+          <li key={index}>
+            <>
+              {component}
+              {index < array.length - 1 ? <span>{', '}</span> : null}
+            </>
+          </li>
+        ))}
+      </ul>
+    )
+  } else {
+    return (
+      <div className="inline">
+        {components.map((component, index, array) => (
+          <div className="inline" key={index}>
+            {component}
+            {index < array.length - 1 ? <span>{', '}</span> : null}
+          </div>
+        ))}
+      </div>
+    )
+  }
 }

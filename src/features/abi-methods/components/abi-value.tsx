@@ -1,9 +1,10 @@
 import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value'
 import { AbiTupleValue } from '@/features/abi-methods/components/abi-tuple-value'
-import { AbiValue as AbiValueModel, AbiType } from '@/features/abi-methods/models'
+import { AbiValueRepresentation, AbiType } from '@/features/abi-methods/models'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
-  abiValue: AbiValueModel
+  abiValue: AbiValueRepresentation
 }
 
 export function AbiValue({ abiValue }: Props) {
@@ -14,7 +15,15 @@ export function AbiValue({ abiValue }: Props) {
     return <AbiArrayValue array={abiValue} />
   }
   if (abiValue.type === AbiType.String) {
-    return <span>{`"${abiValue.value}"`}</span>
+    return <span className="text-abi-string">{`"${abiValue.value}"`}</span>
   }
-  return <span>{`${abiValue.value}`}</span>
+  if (abiValue.type === AbiType.Number) {
+    return <span className="text-abi-number">{abiValue.value}</span>
+  }
+  if (abiValue.type === AbiType.Boolean) {
+    return <span className="text-abi-bool">{abiValue.value}</span>
+  }
+  if (abiValue.type === AbiType.Address) {
+    return <AccountLink address={abiValue.value}></AccountLink>
+  }
 }
