@@ -8,18 +8,17 @@ import {
   ArgumentHint,
   MethodDefinition,
 } from '../models'
-import { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
+import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
-import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { DefaultValues, FieldPath, Path } from 'react-hook-form'
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
@@ -117,9 +116,9 @@ export const extractArgumentIndexFromFieldPath = (path: string) =>
 
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   if (type instanceof algosdk.ABIUintType) {
-    const max = Math.pow(2, type.bitSize) - 1
-    const uintSchema = z.number().min(0).max(max)
-    return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
+    const max = BigInt(2 ** type.bitSize) - BigInt(1)
+    const uintSchema = z.bigint().min(BigInt(0)).max(max)
+    return bigIntSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
   if (type instanceof algosdk.ABIByteType) {
     const uintSchema = z.number().min(0).max(255)
@@ -134,20 +133,21 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return isOptional ? boolSchema.optional() : boolSchema
   }
   if (type instanceof algosdk.ABIUfixedType) {
-    const max = Math.pow(2, type.bitSize) - 1
-    const uintfixedSchema = z
-      .number()
-      .min(0)
-      .refine(
-        (n) => n === undefined || n.toString() === '' || n * Math.pow(10, type.precision) <= max,
-        (n) => ({
-          message: `The value ${n} is too big to fit in type ${type.toString()}`,
+    const max = BigInt(2 ** type.bitSize) - BigInt(1)
+    const stringSchema = isOptional ? z.string().optional() : z.string()
+
+    return zfd.text(
+      stringSchema
+        .refine((s) => s === undefined || s.split('.').length === 1 || s.split('.')[1].length <= type.precision, {
+          message: `Decimal precision must be less than ${type.precision}`,
         })
-      )
-      .refine((n) => n === undefined || n.toString().split('.').length === 1 || n.toString().split('.')[1].length <= type.precision, {
-        message: `Decimal precision must be less than ${type.precision}`,
-      })
-    return numberSchema(isOptional ? uintfixedSchema.optional() : uintfixedSchema)
+        .refine(
+          (s) => s === undefined || fixedPointDecimalStringToBigInt(s, type.precision) <= max,
+          (s) => ({
+            message: `The value ${s} is too big to fit in type ${type.toString()}`,
+          })
+        )
+    )
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
     if (type.childType instanceof algosdk.ABIByteType) {
@@ -231,6 +231,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
       field: `${path}` as Path<TData>,
       placeholder: options?.description,
       decimalScale: type.precision,
+      fixedDecimalScale: true,
     })
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
@@ -338,7 +339,7 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
     return value as ABIAppCallArg
   }
   if (type instanceof algosdk.ABIUfixedType) {
-    return BigInt((value as number) * Math.pow(10, (type as algosdk.ABIUfixedType).precision)) as ABIAppCallArg
+    return fixedPointDecimalStringToBigInt(value as string, type.precision) as ABIAppCallArg
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
     if (type.childType instanceof algosdk.ABIByteType) {
@@ -371,9 +372,6 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
 }
 
 const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
-  if (type instanceof algosdk.ABIUintType || type instanceof algosdk.ABIByteType || type instanceof algosdk.ABIUfixedType) {
-    return ''
-  }
   if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
     return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType, false))
   }
@@ -488,4 +486,11 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
     appSpec: isArc32 ? appSpec : undefined,
     methods,
   }
+}
+
+const fixedPointDecimalStringToBigInt = (s: string, decimalScale: number): bigint => {
+  const [int, frac] = s.split('.')
+  const intBigInt = BigInt(int.padEnd(int.length + decimalScale, '0'))
+  const fracBigInt = frac ? BigInt(frac.padEnd(decimalScale, '0')) : BigInt(0)
+  return intBigInt + fracBigInt
 }
