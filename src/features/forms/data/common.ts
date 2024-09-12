@@ -3,7 +3,7 @@ import { zfd } from 'zod-form-data'
 
 export const bigIntSchema = <TSchema extends z.ZodTypeAny>(schema: TSchema) => {
   return zfd.text(
-    z
+    z.coerce
       .string()
       .optional()
       .transform((val) => (val ? BigInt(val) : undefined))
@@ -13,7 +13,7 @@ export const bigIntSchema = <TSchema extends z.ZodTypeAny>(schema: TSchema) => {
 
 export const numberSchema = <TSchema extends z.ZodTypeAny>(schema: TSchema) =>
   zfd.text(
-    z
+    z.coerce
       .string()
       .optional()
       .transform((val) => (val ? Number(val) : undefined))
