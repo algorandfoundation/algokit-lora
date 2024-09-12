@@ -8,9 +8,9 @@ import { useMemo, useCallback } from 'react'
 
 type Props = {
   arguments: AbiMethodArgument[]
-  multiLine: boolean
+  multiline: boolean
 }
-export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine }: Props) {
+export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline }: Props) {
   const renderArgumentValue = useCallback((argument: AbiMethodArgument) => {
     if (argument.type === AbiType.Transaction) {
       return (
@@ -52,7 +52,7 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine 
     [argumentsProp, renderArgumentValue]
   )
 
-  if (multiLine) {
+  if (multiline) {
     return (
       <ul className="pl-4">
         {components.map((component, index, array) => (

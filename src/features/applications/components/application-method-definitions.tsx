@@ -93,6 +93,9 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
           addr: activeAddress,
           signer,
         },
+        sendParams: {
+          populateAppCallResources: true,
+        },
       })
 
       const sentTxns = asTransactionFromSendResult(result)
