@@ -181,6 +181,12 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return z.tuple(childTypes as any)
   }
+  if (type === algosdk.ABIReferenceType.asset || type === algosdk.ABIReferenceType.application) {
+    return numberSchema(z.number().min(0))
+  }
+  if (type === algosdk.ABIReferenceType.account) {
+    return zfd.text()
+  }
   if (algosdk.abiTypeIsReference(type)) {
     const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
     return numberSchema(z.number().min(min).max(255))
@@ -195,14 +201,12 @@ const getCreateField = <TData extends Record<string, unknown>>(
   hint?: ArgumentHint,
   options?: { prefix?: string; description?: string }
 ): JSX.Element | undefined => {
-  if (type instanceof algosdk.ABIUintType) {
-    return formFieldHelper.numberField({
-      label: 'Value',
-      field: `${path}` as Path<TData>,
-      placeholder: options?.description,
-    })
-  }
-  if (type instanceof algosdk.ABIByteType) {
+  if (
+    type instanceof algosdk.ABIUintType ||
+    type instanceof algosdk.ABIByteType ||
+    type === algosdk.ABIReferenceType.asset ||
+    type === algosdk.ABIReferenceType.application
+  ) {
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<TData>,
@@ -234,27 +238,29 @@ const getCreateField = <TData extends Record<string, unknown>>(
       fixedDecimalScale: true,
     })
   }
+  if (
+    (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
+    (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
+  ) {
+    return formFieldHelper.textField({
+      label: 'Value',
+      field: `${path}` as Path<TData>,
+      placeholder: options?.description,
+      helpText: 'A Base64 encoded Bytes value',
+    })
+  }
   if (type instanceof algosdk.ABIArrayStaticType) {
-    if (type.childType instanceof algosdk.ABIByteType) {
-      return formFieldHelper.textField({
-        label: 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-        helpText: 'A Base64 encoded Bytes value',
-      })
-    } else {
-      const prefix = options?.prefix ?? 'Item'
-      return formFieldHelper.abiStaticArrayField({
-        field: `${path}` as Path<TData>,
-        prefix: prefix,
-        length: type.staticLength,
-        description: options?.description,
-        createChildField: (childPrefix, childIndex) =>
-          getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, undefined, {
-            prefix: childPrefix,
-          }),
-      })
-    }
+    const prefix = options?.prefix ?? 'Item'
+    return formFieldHelper.abiStaticArrayField({
+      field: `${path}` as Path<TData>,
+      prefix: prefix,
+      length: type.staticLength,
+      description: options?.description,
+      createChildField: (childPrefix, childIndex) =>
+        getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, undefined, {
+          prefix: childPrefix,
+        }),
+    })
   }
   if (type instanceof algosdk.ABIAddressType) {
     return formFieldHelper.textField({
@@ -264,33 +270,24 @@ const getCreateField = <TData extends Record<string, unknown>>(
     })
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
-    if (type.childType instanceof algosdk.ABIByteType) {
-      return formFieldHelper.textField({
-        label: 'Value',
-        field: `${path}` as Path<TData>,
-        placeholder: options?.description,
-        helpText: 'A Base64 encoded Bytes value',
-      })
-    } else {
-      const prefix = options?.prefix ?? 'Item'
-      return formFieldHelper.abiDynamicArrayField({
-        field: `${path}` as Path<TData>,
-        description: options?.description,
-        prefix: prefix,
-        createChildField: (childPrefix, childIndex) =>
-          getCreateField(
-            formFieldHelper,
-            type.childType,
-            `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
-            undefined,
-            {
-              prefix: childPrefix,
-            }
-          ),
-      })
-    }
+    const prefix = options?.prefix ?? 'Item'
+    return formFieldHelper.abiDynamicArrayField({
+      field: `${path}` as Path<TData>,
+      description: options?.description,
+      prefix: prefix,
+      createChildField: (childPrefix, childIndex) =>
+        getCreateField(
+          formFieldHelper,
+          type.childType,
+          `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
+          undefined,
+          {
+            prefix: childPrefix,
+          }
+        ),
+    })
   }
-  if (type instanceof algosdk.ABIStringType) {
+  if (type instanceof algosdk.ABIStringType || type === algosdk.ABIReferenceType.account) {
     return formFieldHelper.textField({
       label: 'Value',
       field: `${path}` as Path<TData>,
@@ -317,56 +314,28 @@ const getCreateField = <TData extends Record<string, unknown>>(
       struct: hint?.struct,
     })
   }
-  // TODO: resource packing
-  if (algosdk.abiTypeIsReference(type)) {
-    return formFieldHelper.numberField({
-      label: options?.prefix ?? 'Value',
-      field: `${path}` as Path<TData>,
-      placeholder: options?.description,
-    })
-  }
   return undefined
 }
 
 const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCallArg => {
-  if (type instanceof algosdk.ABIUintType) {
-    return value as ABIAppCallArg
-  }
-  if (type instanceof algosdk.ABIByteType) {
-    return value as ABIAppCallArg
-  }
-  if (type instanceof algosdk.ABIBoolType) {
-    return value as ABIAppCallArg
-  }
   if (type instanceof algosdk.ABIUfixedType) {
     return fixedPointDecimalStringToBigInt(value as string, type.precision) as ABIAppCallArg
   }
-  if (type instanceof algosdk.ABIArrayStaticType) {
-    if (type.childType instanceof algosdk.ABIByteType) {
-      return base64ToBytes(value as string) as ABIAppCallArg
-    } else {
-      return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
-    }
+  if (
+    (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
+    (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
+  ) {
+    return base64ToBytes(value as string) as ABIAppCallArg
   }
-  if (type instanceof algosdk.ABIAddressType) {
-    return value as ABIAppCallArg
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
-    if (type.childType instanceof algosdk.ABIByteType) {
-      return base64ToBytes(value as string) as ABIAppCallArg
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (value as any[]).map((item) => getAppCallArg(type.childType, item.child)) as ABIAppCallArg
-    }
-  }
-  if (type instanceof algosdk.ABIStringType) {
-    return value as ABIAppCallArg
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (value as any[]).map((item) => getAppCallArg(type.childType, item.child)) as ABIAppCallArg
   }
   if (type instanceof algosdk.ABITupleType) {
     return (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)) as ABIAppCallArg
-  }
-  if (algosdk.abiTypeIsReference(type)) {
-    return value as ABIAppCallArg
   }
   return value as ABIAppCallArg
 }
