@@ -2,6 +2,7 @@ import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value
 import { AbiTupleValue } from '@/features/abi-methods/components/abi-tuple-value'
 import { AbiValue as AbiValueModel, AbiType } from '@/features/abi-methods/models'
 import { AccountLink } from '@/features/accounts/components/account-link'
+import { AbiStructValue } from '@/features/abi-methods/components/abi-struct-value'
 
 type Props = {
   abiValue: AbiValueModel
@@ -10,6 +11,9 @@ type Props = {
 export function AbiValue({ abiValue }: Props) {
   if (abiValue.type === AbiType.Tuple) {
     return <AbiTupleValue tuple={abiValue} />
+  }
+  if (abiValue.type === AbiType.Struct) {
+    return <AbiStructValue struct={abiValue} />
   }
   if (abiValue.type === AbiType.Array) {
     return <AbiArrayValue array={abiValue} />

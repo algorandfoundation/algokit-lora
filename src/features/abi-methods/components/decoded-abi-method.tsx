@@ -11,7 +11,7 @@ export function DecodedAbiMethod({ abiMethod }: Props) {
     <div className="max-h-[450px] overflow-x-auto">
       <div>
         <span>{abiMethod.name}(</span>
-        <DecodedAbiMethodArguments arguments={abiMethod.arguments} multiLine={abiMethod.multiline} />)
+        <DecodedAbiMethodArguments arguments={abiMethod.arguments} multiline={abiMethod.multiline} />)
       </div>
       <div className="mt-4">
         <span>Returns: </span>

@@ -11,6 +11,7 @@ export enum AbiType {
   Transaction = 'Transaction',
   Application = 'Application',
   Asset = 'Asset',
+  Struct = 'Struct',
 }
 
 type RepresentationProps = {
@@ -19,6 +20,11 @@ type RepresentationProps = {
 }
 export type AbiTupleValue = { type: AbiType.Tuple; values: AbiValue[] } & RepresentationProps
 export type AbiArrayValue = { type: AbiType.Array; values: AbiValue[] } & RepresentationProps
+export type AbiStructElementValue = {
+  name: string
+  value: AbiValue
+}
+export type AbiStructValue = { type: AbiType.Struct; values: AbiStructElementValue[] } & RepresentationProps
 export type AbiValue =
   | ({
       type: AbiType.String
@@ -46,6 +52,7 @@ export type AbiValue =
     } & RepresentationProps)
   | AbiArrayValue
   | AbiTupleValue
+  | AbiStructValue
 
 export type AbiReferenceValue =
   | ({ type: AbiType.Account; value: string } & RepresentationProps)

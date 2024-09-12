@@ -12,6 +12,7 @@ import { invariant } from '@/utils/invariant'
 import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 import { sum } from '@/utils/sum'
+import { DefaultArgument, Hint, Struct } from '@/features/app-interfaces/data/types/arc-32/application'
 
 const MAX_LINE_LENGTH = 20
 
@@ -21,10 +22,11 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
       return undefined
     }
 
-    const abiMethod = await get(createAbiMethodAtom(transaction))
-    if (!abiMethod) return undefined
+    const abiMethodWithHint = await get(createAbiMethodWithHintAtom(transaction))
+    if (!abiMethodWithHint) return undefined
+    const { abiMethod, hint } = abiMethodWithHint
 
-    const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethod))
+    const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethodWithHint))
     const methodReturn = getMethodReturn(transaction, abiMethod)
 
     const multiline =
@@ -39,7 +41,12 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
   })
 }
 
-const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algosdk.ABIMethod | undefined>> => {
+type AbiMethodWithHint = {
+  abiMethod: algosdk.ABIMethod
+  hint?: Hint
+}
+
+const createAbiMethodWithHintAtom = (transaction: TransactionResult): Atom<Promise<AbiMethodWithHint | undefined>> => {
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
 
@@ -56,28 +63,44 @@ const createAbiMethodAtom = (transaction: TransactionResult): Atom<Promise<algos
         : isArc4AppSpec(appSpecVersion.appSpec)
           ? appSpecVersion.appSpec.methods
           : undefined
+      const hints = isArc32AppSpec(appSpecVersion.appSpec) ? appSpecVersion.appSpec.hints : undefined
       if (methods) {
         const contractMethod = methods.find((m) => {
           const abiMethod = new algosdk.ABIMethod(m)
           return uint8ArrayToBase64(abiMethod.getSelector()) === transactionArgs[0]
         })
-        if (contractMethod) return new algosdk.ABIMethod(contractMethod)
+        if (contractMethod) {
+          const abiMethod = new algosdk.ABIMethod(contractMethod)
+          const hint = hints?.[abiMethod.getSignature()]
+          return { abiMethod, hint }
+        }
       }
     }
     return undefined
   })
 }
 
-const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): Atom<Promise<AbiMethodArgument[]>> => {
+const createMethodArgumentsAtom = (
+  transaction: TransactionResult,
+  abiMethodWithHint: AbiMethodWithHint
+): Atom<Promise<AbiMethodArgument[]>> => {
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
     invariant(transaction['application-transaction']?.['application-args'], 'application-transaction application-args is not set')
+    const { abiMethod, hint } = abiMethodWithHint
 
     const referencedTransactionIds = await get(getReferencedTransactionIdsAtom(transaction, abiMethod))
     const abiValues = getAbiValueArgs(transaction, abiMethod)
 
     const abiArguments: AbiMethodArgument[] = abiMethod.args.map((argumentSpec, index) => {
       const argName = argumentSpec.name ?? `arg${index}`
+      const argHint =
+        hint && argumentSpec.name && (hint.structs?.[argumentSpec.name] || hint.default_arguments?.[argumentSpec.name])
+          ? ({
+              struct: hint.structs?.[argumentSpec.name],
+              defaultArgument: hint.default_arguments?.[argumentSpec.name],
+            } satisfies ArgumentHint)
+          : undefined
 
       if (algosdk.abiTypeIsTransaction(argumentSpec.type)) {
         const transactionId = referencedTransactionIds.shift()!
@@ -136,7 +159,7 @@ const createMethodArgumentsAtom = (transaction: TransactionResult, abiMethod: al
 
       return {
         name: argName,
-        ...getAbiValue(argumentSpec.type, abiValue),
+        ...getAbiValue(argumentSpec.type, abiValue, argHint),
       }
     })
 
@@ -155,7 +178,11 @@ const getMethodReturn = (transaction: TransactionResult, abiMethod: algosdk.ABIM
   return getAbiValue(abiType, abiValue)
 }
 
-const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiValue => {
+type ArgumentHint = {
+  struct?: Struct
+  defaultArgument?: DefaultArgument
+}
+const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue, hint?: ArgumentHint): AbiValue => {
   if (abiType instanceof algosdk.ABITupleType) {
     const childTypes = abiType.childTypes
     const abiValues = abiValue as algosdk.ABIValue[]
@@ -164,14 +191,38 @@ const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue): AbiV
     }
 
     const childrenValues = abiValues.map((abiValue, index) => getAbiValue(childTypes[index], abiValue))
-    const length = sum(childrenValues.map((v) => v.length))
-    const multiline = childrenValues.some((v) => v.multiline) || length > MAX_LINE_LENGTH
 
-    return {
-      type: AbiType.Tuple,
-      values: childrenValues,
-      multiline,
-      length,
+    if (hint?.struct) {
+      const values = childTypes.map(
+        (_, index) => {
+          const value = childrenValues[index]
+          const name = hint.struct!.elements[index][0]
+          return {
+            name: name,
+            value: value,
+          }
+        },
+        [{} as Record<string, AbiValue>]
+      )
+      const length = sum(values.map((v) => `${v.name}: ${v.value}`.length))
+      const multiline = values.some((v) => v.value.multiline) || length > MAX_LINE_LENGTH
+
+      return {
+        type: AbiType.Struct,
+        values: values,
+        multiline: multiline,
+        length: length,
+      }
+    } else {
+      const length = sum(childrenValues.map((v) => v.length))
+      const multiline = childrenValues.some((v) => v.multiline) || length > MAX_LINE_LENGTH
+
+      return {
+        type: AbiType.Tuple,
+        values: childrenValues,
+        multiline,
+        length,
+      }
     }
   }
   if (abiType instanceof algosdk.ABIArrayStaticType || abiType instanceof algosdk.ABIArrayDynamicType) {
