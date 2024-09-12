@@ -9,7 +9,7 @@ export function AbiStructValue({ struct }: Props) {
   if (struct.multiline) {
     return (
       <>
-        <span>(</span>
+        <span>{'{'}</span>
         <ul className="pl-4">
           {struct.values.map((item, index, array) => (
             <li key={index}>
@@ -19,13 +19,13 @@ export function AbiStructValue({ struct }: Props) {
             </li>
           ))}
         </ul>
-        <span>)</span>
+        <span>{'}'}</span>
       </>
     )
   } else {
     return (
       <>
-        <span>(</span>
+        <span>{'{'}</span>
         <div className="inline">
           {struct.values.map((item, index, array) => (
             <div className="inline" key={index}>
@@ -35,7 +35,7 @@ export function AbiStructValue({ struct }: Props) {
             </div>
           ))}
         </div>
-        <span>)</span>
+        <span>{'}'}</span>
       </>
     )
   }

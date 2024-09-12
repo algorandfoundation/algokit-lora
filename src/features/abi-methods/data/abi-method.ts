@@ -12,7 +12,7 @@ import { invariant } from '@/utils/invariant'
 import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 import { sum } from '@/utils/sum'
-import { DefaultArgument, Hint, Struct } from '@/features/app-interfaces/data/types/arc-32/application'
+import { Hint, Struct } from '@/features/app-interfaces/data/types/arc-32/application'
 
 const MAX_LINE_LENGTH = 20
 
@@ -24,26 +24,20 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
 
     const abiMethodWithHint = await get(createAbiMethodWithHintAtom(transaction))
     if (!abiMethodWithHint) return undefined
-    const { abiMethod, hint } = abiMethodWithHint
 
     const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethodWithHint))
-    const methodReturn = getMethodReturn(transaction, abiMethod)
+    const methodReturn = getMethodReturn(transaction, abiMethodWithHint)
 
     const multiline =
       methodArguments.some((argument) => argument.multiline) || sum(methodArguments.map((arg) => arg.length)) > MAX_LINE_LENGTH
 
     return {
-      name: abiMethod.name,
+      name: abiMethodWithHint.abiMethod.name,
       arguments: methodArguments,
       return: methodReturn,
       multiline,
     } satisfies AbiMethod
   })
-}
-
-type AbiMethodWithHint = {
-  abiMethod: algosdk.ABIMethod
-  hint?: Hint
 }
 
 const createAbiMethodWithHintAtom = (transaction: TransactionResult): Atom<Promise<AbiMethodWithHint | undefined>> => {
@@ -98,8 +92,7 @@ const createMethodArgumentsAtom = (
         hint && argumentSpec.name && (hint.structs?.[argumentSpec.name] || hint.default_arguments?.[argumentSpec.name])
           ? ({
               struct: hint.structs?.[argumentSpec.name],
-              defaultArgument: hint.default_arguments?.[argumentSpec.name],
-            } satisfies ArgumentHint)
+            } satisfies AbiValueHint)
           : undefined
 
       if (algosdk.abiTypeIsTransaction(argumentSpec.type)) {
@@ -167,22 +160,27 @@ const createMethodArgumentsAtom = (
   })
 }
 
-const getMethodReturn = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): AbiMethodReturn => {
+const getMethodReturn = (transaction: TransactionResult, abiMethodWithHint: AbiMethodWithHint): AbiMethodReturn => {
+  const { abiMethod, hint } = abiMethodWithHint
+
   if (abiMethod.returns.type === 'void') return 'void'
   invariant(transaction.logs && transaction.logs.length > 0, 'transaction logs is not set')
+
+  const returnHint =
+    hint && hint.structs?.['output']
+      ? ({
+          struct: hint.structs?.['output'],
+        } satisfies AbiValueHint)
+      : undefined
 
   const abiType = algosdk.ABIType.from(abiMethod.returns.type.toString())
   // The first 4 bytes are SHA512_256 hash of the string "return"
   const bytes = base64ToBytes(transaction.logs.slice(-1)[0]).subarray(4)
   const abiValue = abiType.decode(bytes)
-  return getAbiValue(abiType, abiValue)
+  return getAbiValue(abiType, abiValue, returnHint)
 }
 
-type ArgumentHint = {
-  struct?: Struct
-  defaultArgument?: DefaultArgument
-}
-const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue, hint?: ArgumentHint): AbiValue => {
+const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue, hint?: AbiValueHint): AbiValue => {
   if (abiType instanceof algosdk.ABITupleType) {
     const childTypes = abiType.childTypes
     const abiValues = abiValue as algosdk.ABIValue[]
@@ -385,4 +383,13 @@ const bigintToString = (value: bigint, decimalScale: number): string => {
   const numberString = valueString.slice(0, valueString.length - decimalScale)
   const fractionString = valueString.slice(valueString.length - decimalScale)
   return `${numberString}.${fractionString}`
+}
+
+type AbiValueHint = {
+  struct?: Struct
+}
+
+type AbiMethodWithHint = {
+  abiMethod: algosdk.ABIMethod
+  hint?: Hint
 }
