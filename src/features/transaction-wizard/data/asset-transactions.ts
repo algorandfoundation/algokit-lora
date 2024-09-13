@@ -9,8 +9,6 @@ import {
   feeFieldSchema,
   validRoundsFieldSchema,
   noteFieldSchema,
-  senderField,
-  receiverField,
   feeField,
   validRoundsField,
   noteField,
@@ -21,14 +19,6 @@ import { amountField } from './payment-transactions'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { algos } from '@algorandfoundation/algokit-utils'
 
-const assetIdField = {
-  assetId: {
-    label: 'Asset ID',
-    description: 'The unique ID of the asset to be transferred.',
-    type: BuildableTransactionFormFieldType.AssetId,
-    placeholder: '',
-  } satisfies BuildableTransactionFormField,
-}
 const assetnameField = {
   assetname: {
     label: 'Asset Name',
@@ -42,8 +32,8 @@ const createAssetTransfer = async (data: z.infer<typeof assetTransferSchema>) =>
   const transaction = await algorandClient.transactions.assetTransfer({
     sender: data.sender,
     receiver: data.receiver,
-    amount: data.amount,
-    assetId: data.assetId,
+    amount: BigInt(data.amount),
+    assetId: BigInt(data.assetId),
     note: data.note,
     ...(!data.fee.setAutomatically && data.fee.value ? { staticFee: algos(data.fee.value) } : undefined),
     ...(!data.validRounds.setAutomatically && data.validRounds.firstValid && data.validRounds.lastValid
@@ -59,9 +49,9 @@ const createAssetTransfer = async (data: z.infer<typeof assetTransferSchema>) =>
 const assetTransferSchema = zfd.formData({
   ...senderFieldSchema,
   ...receiverFieldSchema,
-  assetId: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  assetId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   assetname: zfd.text(z.string().optional()),
-  amount: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(0n)),
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
   ...noteFieldSchema,
@@ -104,7 +94,7 @@ export const assetTransferTransaction = {
 const createAssetOptIn = async (data: z.infer<typeof assetOptInSchema>) => {
   const transaction = await algorandClient.transactions.assetOptIn({
     sender: data.sender,
-    assetId: data.assetId,
+    assetId: BigInt(data.assetId),
     note: data.note,
     ...(!data.fee.setAutomatically && data.fee.value ? { staticFee: algos(data.fee.value) } : undefined),
     ...(!data.validRounds.setAutomatically && data.validRounds.firstValid && data.validRounds.lastValid
@@ -118,7 +108,7 @@ const createAssetOptIn = async (data: z.infer<typeof assetOptInSchema>) => {
 }
 
 const assetOptInSchema = zfd.formData({
-  assetId: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  assetId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   assetname: zfd.text(z.string().optional()),
   ...senderFieldSchema,
   ...feeFieldSchema,
