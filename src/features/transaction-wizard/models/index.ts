@@ -16,7 +16,7 @@ export type BuildableTransactionFormField = {
   placeholder?: string
 }
 
-export type BuildableTransaction<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = {
+export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TData = z.infer<TSchema>> = {
   label: string
   fields: {
     [K in keyof TData]: BuildableTransactionFormField

@@ -22,6 +22,7 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { paymentTransaction } from '@/features/transaction-wizard/data/payment-transactions'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -191,11 +192,15 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     const min = type === algosdk.ABIReferenceType.asset ? 0 : 1
     return numberSchema(z.number().min(min).max(255))
   }
+  if (algosdk.abiTypeIsTransaction(type)) {
+    return isOptional ? zfd.text().optional() : zfd.text() // TODO: NC - Is this possible?
+  }
   return zfd.text()
 }
 
 const getCreateField = <TData extends Record<string, unknown>>(
   formFieldHelper: FormFieldHelper<TData>,
+  launchModal: (component: JSX.Element | undefined) => void,
   type: algosdk.ABIArgumentType,
   path: FieldPath<TData>,
   hint?: ArgumentHint,
@@ -257,9 +262,16 @@ const getCreateField = <TData extends Record<string, unknown>>(
       length: type.staticLength,
       description: options?.description,
       createChildField: (childPrefix, childIndex) =>
-        getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, undefined, {
-          prefix: childPrefix,
-        }),
+        getCreateField(
+          formFieldHelper,
+          launchModal,
+          type.childType,
+          `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>,
+          undefined,
+          {
+            prefix: childPrefix,
+          }
+        ),
     })
   }
   if (type instanceof algosdk.ABIAddressType) {
@@ -278,6 +290,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
       createChildField: (childPrefix, childIndex) =>
         getCreateField(
           formFieldHelper,
+          launchModal,
           type.childType,
           `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
           undefined,
@@ -304,6 +317,7 @@ const getCreateField = <TData extends Record<string, unknown>>(
       createChildField: (childPrefix, childIndex) =>
         getCreateField(
           formFieldHelper,
+          launchModal,
           type.childTypes[childIndex],
           `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>,
           undefined,
@@ -314,10 +328,23 @@ const getCreateField = <TData extends Record<string, unknown>>(
       struct: hint?.struct,
     })
   }
+  if (algosdk.abiTypeIsTransaction(type)) {
+    // TODO: NC - Check the transaction type and load the correct buildable transaction
+
+    // Pass in the type, so we can determine the transaction objects that are applicable
+
+    return formFieldHelper.transactionField({
+      label: 'Value',
+      field: path,
+      placeholder: options?.description,
+      transactionType: type,
+      launchModal,
+    })
+  }
   return undefined
 }
 
-const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCallArg => {
+const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<ABIAppCallArg> => {
   if (type instanceof algosdk.ABIUfixedType) {
     return fixedPointDecimalStringToBigInt(value as string, type.precision) as ABIAppCallArg
   }
@@ -327,15 +354,20 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): ABIAppCal
   ) {
     return base64ToBytes(value as string) as ABIAppCallArg
   }
+
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as ABIAppCallArg
+    return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as ABIAppCallArg
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (value as any[]).map((item) => getAppCallArg(type.childType, item.child)) as ABIAppCallArg
+    return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as ABIAppCallArg
   }
   if (type instanceof algosdk.ABITupleType) {
-    return (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)) as ABIAppCallArg
+    return (await Promise.all((value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)))) as ABIAppCallArg
+  }
+  if (algosdk.abiTypeIsTransaction(type)) {
+    // TODO: NC - Choose the correct transaction type
+    return await paymentTransaction.createTransaction(JSON.parse(value as string))
   }
   return value as ABIAppCallArg
 }
@@ -359,16 +391,16 @@ const asField = <TData extends Record<string, unknown>>(
   argIndex: number,
   hint?: ArgumentHint
 ): {
-  createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
+  createField: (helper: FormFieldHelper<TData>, launchModal: (component: JSX.Element | undefined) => void) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
-  getAppCallArg: (value: unknown) => ABIAppCallArg
+  getAppCallArg: (value: unknown) => Promise<ABIAppCallArg>
 } => {
   const isArgOptional = !!hint?.defaultArgument
 
   return {
-    createField: (helper) =>
-      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
+    createField: (helper, launchModal) =>
+      getCreateField(helper, launchModal, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
         description: arg.description,
       }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),

@@ -28,6 +28,7 @@ import { Atom } from 'jotai'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
+import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -74,11 +75,15 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
       invariant(appSpec, 'A compatible app spec is required when calling ABI methods')
       invariant(activeAddress, connectWalletMessage)
 
-      const methodArgs = Object.entries(data).reduce((acc, [path, value]) => {
-        const index = extractArgumentIndexFromFieldPath(path)
-        acc[index] = method.arguments[index].getAppCallArg(value)
-        return acc
-      }, [] as ABIAppCallArg[])
+      const methodArgs = await Object.entries(data).reduce(
+        async (asyncAcc, [path, value]) => {
+          const acc = await asyncAcc
+          const index = extractArgumentIndexFromFieldPath(path)
+          acc[index] = await method.arguments[index].getAppCallArg(value)
+          return acc
+        },
+        Promise.resolve([] as ABIAppCallArg[])
+      )
 
       const client = algorandClient.client.getAppClientById({
         id: applicationId,
@@ -114,6 +119,12 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
     },
     [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer]
   )
+
+  const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
+
+  const launchModal = useCallback((component: JSX.Element | undefined) => {
+    setModalComponent(component)
+  }, [])
 
   // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
 
@@ -156,7 +167,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                 <h4 className="text-primary">Arguments</h4>
                 {method.arguments.length > 0 ? (
                   method.arguments.map((argument, index) => (
-                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} />
+                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} launchModal={launchModal} />
                   ))
                 ) : (
                   <p>No arguments</p>
@@ -168,6 +179,16 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
             </>
           )}
         </Form>
+        <div className="flex justify-end">
+          <Dialog open={!!modalComponent} onOpenChange={(open) => !open && setModalComponent(undefined)} modal={true}>
+            <DialogContent className="bg-card">
+              <DialogHeader className="flex-row items-center space-y-0">
+                <h2 className="pb-0">Build Transaction</h2>
+              </DialogHeader>
+              <MediumSizeDialogBody>{modalComponent}</MediumSizeDialogBody>
+            </DialogContent>
+          </Dialog>
+        </div>
         {!readonly && sendMethodCallResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">
             <DescriptionList
@@ -203,9 +224,10 @@ type ArgumentProps<TSchema extends z.ZodSchema> = {
   argument: ArgumentDefinition<TSchema>
   helper: FormFieldHelper<z.infer<TSchema>>
   readonly: boolean
+  launchModal: (component: JSX.Element | undefined) => void
 }
 
-function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly }: ArgumentProps<TSchema>) {
+function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly, launchModal }: ArgumentProps<TSchema>) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -244,7 +266,7 @@ function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readon
     <div className="space-y-2">
       <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} />
-      {!readonly && argument.createField(helper)}
+      {!readonly && argument.createField(helper, launchModal)}
     </div>
   )
 }

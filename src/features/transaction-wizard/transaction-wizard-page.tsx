@@ -14,17 +14,18 @@ export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 
+const buildableTransactions = [paymentTransaction, accountCloseTransaction]
+
 export function TransactionWizardPage() {
-  const [selectedBuildableTransactionIndex, setSelectedBuildableIndex] = useState(0)
+  const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
-  const buildableTransactions = [paymentTransaction, accountCloseTransaction]
   invariant(selectedBuildableTransactionIndex < buildableTransactions.length, 'Invalid transaction type index')
 
   const buildableTransaction = buildableTransactions[selectedBuildableTransactionIndex]
 
   const changeSelectedBuildableTransaction = useCallback(async (value: string) => {
-    setSelectedBuildableIndex(Number(value))
+    setSelectedBuildableTransactionIndex(Number(value))
   }, [])
 
   return (

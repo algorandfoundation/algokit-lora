@@ -9,6 +9,7 @@ import { ReadonlyFileFormItem } from '@/features/forms/components/readonly-file-
 import { AbiDynamicArrayFormItem, AbiDynamicArrayFormItemProps } from '@/features/forms/components/abi-dynamic-array-form-item'
 import { AbiStaticArrayFormItem, AbiStaticArrayFormItemProps } from '@/features/forms/components/abi-static-array-form-item'
 import { AbiTupleFormItem, AbiTupleFormItemProps } from '@/features/forms/components/abi-tuple-form-item'
+import { TransactionFormItem, TransactionFormItemProps } from './transaction-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -66,5 +67,9 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   abiTupleField(props: AbiTupleFormItemProps<TSchema>) {
     return <AbiTupleFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  transactionField(props: TransactionFormItemProps<TSchema>) {
+    return <TransactionFormItem {...this.prefixFieldProp(props)} />
   }
 }
