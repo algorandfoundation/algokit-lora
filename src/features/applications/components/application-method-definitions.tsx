@@ -29,6 +29,9 @@ import { AbiMethod } from '@/features/abi-methods/models'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
+import { Checkbox } from '@/features/common/components/checkbox'
+import { Label } from '@/features/common/components/label'
+import { ConfirmResourcesDialog } from './confirm-resources-dialog'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -36,7 +39,6 @@ type Props<TSchema extends z.ZodSchema> = {
 }
 
 const connectWalletMessage = 'Please connect a wallet'
-export const sendButtonLabel = 'Send'
 
 // TODO: NC - ABI Methods?
 export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ applicationId, abiMethods }: Props<TSchema>) {
@@ -69,6 +71,9 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
   type TData = z.infer<typeof method.schema>
 
+  const [confirmResourcePacking, setConfirmResourcePacking] = useState(false)
+  const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
+
   const sendMethodCall = useCallback(
     async (data: TData) => {
       invariant(!readonly, 'Component is in readonly mode')
@@ -100,27 +105,30 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         },
         sendParams: {
           populateAppCallResources: true,
+          skipSending: confirmResourcePacking,
         },
       })
 
-      const sentTxns = asTransactionFromSendResult(result)
-      const methodCallTransactionId = result.transaction.txID()
-      const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
-      invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
-      const transactionsGraphData = asTransactionsGraphData(sentTxns)
+      if (confirmResourcePacking) {
+        setModalComponent(<ConfirmResourcesDialog transactions={result.transactions} />)
+      } else {
+        const sentTxns = asTransactionFromSendResult(result)
+        const methodCallTransactionId = result.transaction.txID()
+        const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
+        invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
+        const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
-      setSendMethodCallResult({
-        transactionId: methodCallTransactionId,
-        abiMethod: methodCallTransaction.abiMethod,
-        transactionsGraphData,
-      })
+        setSendMethodCallResult({
+          transactionId: methodCallTransactionId,
+          abiMethod: methodCallTransaction.abiMethod,
+          transactionsGraphData,
+        })
 
-      toast.success('Transaction sent successfully')
+        toast.success('Transaction sent successfully')
+      }
     },
-    [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer]
+    [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer, confirmResourcePacking]
   )
-
-  const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
 
   const launchModal = useCallback((component: JSX.Element | undefined) => {
     setModalComponent(component)
@@ -151,11 +159,12 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                     setSendMethodCallResult(undefined)
                     ctx.reset()
                   }}
+                  className="w-28"
                 >
                   Reset
                 </Button>
-                <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
-                  {sendButtonLabel}
+                <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage} className="w-28">
+                  {confirmResourcePacking ? 'Build' : 'Send'}
                 </SubmitButton>
               </FormActions>
             ) : undefined
@@ -175,6 +184,14 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
               </div>
               <div className="mt-4">
                 <Returns returns={method.returns} />
+              </div>
+              <div className="mt-4 flex items-center space-x-2">
+                <Checkbox
+                  checked={confirmResourcePacking}
+                  onCheckedChange={(checked) => setConfirmResourcePacking(checked === true)}
+                  id={`${method.name}-confirm-resource-packing`}
+                />
+                <Label htmlFor={`${method.name}-confirm-resource-packing`}>Confirm Resource Packing</Label>
               </div>
             </>
           )}

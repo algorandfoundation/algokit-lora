@@ -177,10 +177,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
   }
   if (type instanceof algosdk.ABITupleType) {
     const childTypes = type.childTypes.map((childType) => getFieldSchema(childType, false))
-    // TODO: another any :(
-    // Looks like it's related to this https://github.com/colinhacks/zod/issues/561
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return z.tuple(childTypes as any)
+    return z.tuple(childTypes as [z.ZodTypeAny, ...z.ZodTypeAny[]])
   }
   if (type === algosdk.ABIReferenceType.asset || type === algosdk.ABIReferenceType.application) {
     return numberSchema(z.number().min(0))
