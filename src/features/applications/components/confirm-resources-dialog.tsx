@@ -1,10 +1,9 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/features/common/components/dialog'
 import { Form } from '@/features/forms/components/form'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import { useMemo } from 'react'
-import { Field, FieldPath, Path, useFieldArray } from 'react-hook-form'
+import { FieldPath, useFieldArray, useForm, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
@@ -19,7 +18,7 @@ const transactionResourcesFormSchema = z.object({
   applications: z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })),
 })
 const formSchema = zfd.formData({
-  transactions: zfd.repeatableOfType(transactionResourcesFormSchema),
+  transactions: zfd.repeatable(z.array(transactionResourcesFormSchema)),
 })
 
 export function ConfirmResourcesDialog({ transactions }: Props) {
@@ -51,22 +50,17 @@ export function ConfirmResourcesDialog({ transactions }: Props) {
 }
 
 function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof formSchema>> }) {
+  const { control } = useFormContext<z.infer<typeof formSchema>>()
   const { fields } = useFieldArray({
+    control,
     name: 'transactions',
   })
 
-  return fields.map((field) => {
-    return <TransactionResourcesForm key={field.id} helper={helper} field={field} />
-  })
+  console.log('fields', fields)
+  return fields.map((field, index) => <TransactionResourcesForm key={field.id} helper={helper} field={`transactions.${index}`} />)
 }
 
-function TransactionResourcesForm({
-  helper,
-  field,
-}: {
-  helper: FormFieldHelper<z.infer<typeof formSchema>>
-  field: FieldPath<typeof formSchema>
-}) {
+function TransactionResourcesForm({ helper, field }: { helper: FormFieldHelper<z.infer<typeof formSchema>>; field: string }) {
   const {
     fields: accounts,
     // append: appendAccount,
@@ -74,6 +68,7 @@ function TransactionResourcesForm({
   } = useFieldArray({
     name: `${field}.accounts`,
   })
+
   const {
     fields: assets,
     // append: appendAsset,
@@ -81,6 +76,7 @@ function TransactionResourcesForm({
   } = useFieldArray({
     name: `${field}.assets`,
   })
+
   const {
     fields: applications,
     // append: appendApplication,
@@ -94,13 +90,19 @@ function TransactionResourcesForm({
       <div>
         <h3>Accounts</h3>
         {accounts.map((account, index) => {
-          return <div key={account.id}>{helper.textField({ label: 'Account', field: `${account}.address` })}</div>
+          return <div key={account.id}>{helper.textField({ label: 'Account', field: `${field}.accounts.${index}.address` })}</div>
         })}
+        <h3>Assets</h3>
         {assets.map((asset, index) => {
-          return <div key={asset.id}>{helper.numberField({ label: 'Asset', field: `${asset}.assetId` })}</div>
+          return <div key={asset.id}>{helper.numberField({ label: 'Asset', field: `${field}.assets.${index}.assetId` })}</div>
         })}
+        <h3>Applications</h3>
         {applications.map((application, index) => {
-          return <div key={application.id}>{helper.numberField({ label: 'Application', field: `${application}.applicationId` })}</div>
+          return (
+            <div key={application.id}>
+              {helper.numberField({ label: 'Application', field: `${field}.applications.${index}.applicationId` })}
+            </div>
+          )
         })}
       </div>
     </div>
