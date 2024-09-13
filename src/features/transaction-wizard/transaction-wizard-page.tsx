@@ -9,7 +9,7 @@ import { RenderLoadable } from '../common/components/render-loadable'
 import { PageLoader } from '../common/components/page-loader'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '../wallet/data/active-wallet'
 import { TransactionBuilderForm } from './components/transaction-builder-form'
-import { assetOptInTransaction, assetOptOutTransaction, assetTransferTransaction } from './data/asset-transactions'
+import { assetOptInTransaction, assetOptOutTransaction, assetRevokeTransaction, assetTransferTransaction } from './data/asset-transactions'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
@@ -25,6 +25,7 @@ export function TransactionWizardPage() {
     assetTransferTransaction,
     assetOptInTransaction,
     assetOptOutTransaction,
+    assetRevokeTransaction,
   ]
   invariant(selectedBuildableTransactionIndex < buildableTransactions.length, 'Invalid transaction type index')
 
