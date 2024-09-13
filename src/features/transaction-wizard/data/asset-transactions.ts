@@ -143,7 +143,7 @@ export const assetOptInTransaction = {
 
 const createAssetOptOut = async (data: z.infer<typeof assetOptOutSchema>) => {
   const transaction = await algorandClient.transactions.assetOptOut({
-    assetId: data.assetId,
+    assetId: BigInt(data.assetId),
     sender: data.sender,
     creator: data.closeTo ?? data.sender, // Are you sure about this?
     note: data.note,
@@ -159,7 +159,7 @@ const createAssetOptOut = async (data: z.infer<typeof assetOptOutSchema>) => {
 }
 
 const assetOptOutSchema = zfd.formData({
-  assetId: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  assetId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   assetname: zfd.text(z.string().optional()),
   ...senderFieldSchema,
   closeTo: optionalAddressFieldSchema,
@@ -205,7 +205,7 @@ const createAssetRevoke = async (data: z.infer<typeof assetRevokeSchema>) => {
     receiver: data.receiver,
     amount: data.amount,
     clawbackTarget: data.assetsender,
-    assetId: data.assetId,
+    assetId: BigInt(data.assetId),
     note: data.note,
     ...(!data.fee.setAutomatically && data.fee.value ? { staticFee: algos(data.fee.value) } : undefined),
     ...(!data.validRounds.setAutomatically && data.validRounds.firstValid && data.validRounds.lastValid
@@ -219,7 +219,7 @@ const createAssetRevoke = async (data: z.infer<typeof assetRevokeSchema>) => {
 }
 
 const assetRevokeSchema = zfd.formData({
-  assetId: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  assetId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   assetname: zfd.text(z.string().optional()),
   ...senderFieldSchema,
   ...receiverFieldSchema,
