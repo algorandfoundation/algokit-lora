@@ -1,11 +1,16 @@
+import { Button } from '@/features/common/components/button'
 import { Form } from '@/features/forms/components/form'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
+import { TrashIcon } from 'lucide-react'
 import { useMemo } from 'react'
-import { FieldPath, useFieldArray, useForm, useFormContext } from 'react-hook-form'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
+
+// TODO: validation for the numbder of accounts
+// TODO: validation for the number of total resources
 
 type Props = {
   transactions: algosdk.Transaction[]
@@ -13,7 +18,7 @@ type Props = {
 
 const transactionResourcesFormSchema = z.object({
   id: z.string(),
-  accounts: z.array(z.object({ id: z.string(), address: z.string() })),
+  accounts: z.array(z.object({ id: z.string(), address: zfd.text() })),
   assets: z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })),
   applications: z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })),
 })
@@ -56,54 +61,113 @@ function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof formSche
     name: 'transactions',
   })
 
-  console.log('fields', fields)
-  return fields.map((field, index) => <TransactionResourcesForm key={field.id} helper={helper} field={`transactions.${index}`} />)
+  return fields.map((field, index) => <TransactionResourcesForm key={field.id} helper={helper} index={index} />)
 }
 
-function TransactionResourcesForm({ helper, field }: { helper: FormFieldHelper<z.infer<typeof formSchema>>; field: string }) {
+// TODO: is there a way to make this not rely on `transaction`?
+function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z.infer<typeof formSchema>>; index: number }) {
+  const { control } = useFormContext<z.infer<typeof formSchema>>()
+
   const {
     fields: accounts,
-    // append: appendAccount,
-    // remove: removeAccount,
+    append: appendAccount,
+    remove: removeAccount,
   } = useFieldArray({
-    name: `${field}.accounts`,
+    control,
+    name: `transactions.${index}.accounts`,
   })
 
   const {
     fields: assets,
-    // append: appendAsset,
-    // remove: removeAsset,
+    append: appendAsset,
+    remove: removeAsset,
   } = useFieldArray({
-    name: `${field}.assets`,
+    control,
+    name: `transactions.${index}.assets`,
   })
 
   const {
     fields: applications,
-    // append: appendApplication,
-    // remove: removeApplication,
+    append: appendApplication,
+    remove: removeApplication,
   } = useFieldArray({
-    name: `${field}.applications`,
+    control,
+    name: `transactions.${index}.applications`,
   })
 
+  // TODO: the remove buttons aren't line-up right
   return (
-    <div>
-      <div>
+    <div className="space-y-4">
+      <div className="space-y-2">
         <h3>Accounts</h3>
         {accounts.map((account, index) => {
-          return <div key={account.id}>{helper.textField({ label: 'Account', field: `${field}.accounts.${index}.address` })}</div>
-        })}
-        <h3>Assets</h3>
-        {assets.map((asset, index) => {
-          return <div key={asset.id}>{helper.numberField({ label: 'Asset', field: `${field}.assets.${index}.assetId` })}</div>
-        })}
-        <h3>Applications</h3>
-        {applications.map((application, index) => {
           return (
-            <div key={application.id}>
-              {helper.numberField({ label: 'Application', field: `${field}.applications.${index}.applicationId` })}
+            <div key={account.id} className="flex gap-2">
+              <div className="grow">{helper.textField({ label: 'Account', field: `transactions.${index}.accounts.${index}.address` })}</div>
+              <Button
+                type="button"
+                className="mt-[1.375rem]"
+                variant="destructive"
+                size="sm"
+                onClick={() => removeAccount(index)}
+                icon={<TrashIcon size={16} />}
+              />
             </div>
           )
         })}
+        <Button type="button" className="mt-2" onClick={() => appendAccount({ id: new Date().getTime().toString(), address: '' })}>
+          Add Account
+        </Button>
+      </div>
+      <div className="space-y-2">
+        <h3>Assets</h3>
+        {assets.map((asset, index) => {
+          return (
+            <div key={asset.id} className="flex gap-2">
+              <div className="grow">{helper.numberField({ label: 'Asset', field: `transactions.${index}.assets.${index}.assetId` })}</div>
+              <Button
+                type="button"
+                className="mt-[1.375rem]"
+                variant="destructive"
+                size="sm"
+                onClick={() => removeAsset(index)}
+                icon={<TrashIcon size={16} />}
+              />
+            </div>
+          )
+        })}
+        <Button
+          type="button"
+          onClick={() => appendAsset({ id: new Date().getTime().toString(), assetId: undefined as unknown as number })}
+          className="mt-2"
+        >
+          Add Asset
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {applications.map((application, index) => {
+          return (
+            <div key={application.id} className="flex gap-2">
+              <div className="grow">
+                {helper.numberField({ label: 'Application', field: `transactions.${index}.applications.${index}.applicationId` })}
+              </div>
+              <Button
+                type="button"
+                className="mt-[1.375rem]"
+                variant="destructive"
+                size="sm"
+                onClick={() => removeApplication(index)}
+                icon={<TrashIcon size={16} />}
+              />
+            </div>
+          )
+        })}
+        <Button
+          type="button"
+          onClick={() => appendApplication({ id: new Date().getTime().toString(), applicationId: undefined as unknown as number })}
+        >
+          Add Application
+        </Button>
       </div>
     </div>
   )
