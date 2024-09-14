@@ -31,7 +31,7 @@ import { asTransactionFromSendResult } from '@/features/transactions/data/send-t
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { Label } from '@/features/common/components/label'
-import { ConfirmResourcesDialog } from './confirm-resources-dialog'
+import { ConfirmResourcesDialog, TransactionResources } from './confirm-resources-dialog'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -71,8 +71,111 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
   type TData = z.infer<typeof method.schema>
 
-  const [confirmResourcePacking, setConfirmResourcePacking] = useState(false)
   const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
+  const [transactionResources, setTransactionResources] = useState<TransactionResources[]>([])
+  const [confirmResourcePacking, setConfirmResourcePacking] = useState(false)
+  const [isConfirmingResources, setIsConfirmingResources] = useState(false)
+  const [methodArgs, setMethodArgs] = useState<ABIAppCallArg[]>([])
+
+  const openConfirmResourcesDialog = useCallback(
+    async (data: TData) => {
+      invariant(!readonly, 'Component is in readonly mode')
+      invariant(appSpec, 'A compatible app spec is required when calling ABI methods')
+      invariant(activeAddress, connectWalletMessage)
+
+      const methodArgs = await Object.entries(data).reduce(
+        async (asyncAcc, [path, value]) => {
+          const acc = await asyncAcc
+          const index = extractArgumentIndexFromFieldPath(path)
+          acc[index] = await method.arguments[index].getAppCallArg(value)
+          return acc
+        },
+        Promise.resolve([] as ABIAppCallArg[])
+      )
+
+      const client = algorandClient.client.getAppClientById({
+        id: applicationId,
+        app: appSpec as AppSpec,
+      })
+
+      // TODO: NC - Move to the new AlgorandClient approach when ready
+      const result = await client.call({
+        method: method.name,
+        methodArgs,
+        sender: {
+          addr: activeAddress,
+          signer,
+        },
+        sendParams: {
+          populateAppCallResources: true,
+          skipSending: confirmResourcePacking,
+        },
+      })
+
+      if (result.transactions.length > 0) {
+        setMethodArgs(methodArgs)
+        setTransactionResources(
+          result.transactions.map((transaction) => ({
+            id: transaction.txID(),
+            accounts: transaction.appAccounts ?? [],
+            assets: transaction.appForeignAssets ?? [],
+            applications: transaction.appForeignApps ?? [],
+          }))
+        )
+        setIsConfirmingResources(true)
+      }
+      // TODO: handle errors
+    },
+    [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer, confirmResourcePacking]
+  )
+
+  const handleResourcesConfirmation = useCallback(
+    async (transactions: TransactionResources[]) => {
+      setIsConfirmingResources(false)
+
+      invariant(!readonly, 'Component is in readonly mode')
+      invariant(appSpec, 'A compatible app spec is required when calling ABI methods')
+      invariant(activeAddress, connectWalletMessage)
+
+      const client = algorandClient.client.getAppClientById({
+        id: applicationId,
+        app: appSpec as AppSpec,
+      })
+
+      // TODO: NC - Move to the new AlgorandClient approach when ready
+      // TODO: how to handle multiple transactions?
+      const result = await client.call({
+        method: method.name,
+        methodArgs,
+        sender: {
+          addr: activeAddress,
+          signer,
+        },
+        accounts: transactions[0].accounts,
+        apps: transactions[0].applications,
+        assets: transactions[0].assets,
+        sendParams: {
+          populateAppCallResources: false,
+          skipSending: confirmResourcePacking,
+        },
+      })
+
+      const sentTxns = asTransactionFromSendResult(result)
+      const methodCallTransactionId = result.transaction.txID()
+      const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
+      invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
+      const transactionsGraphData = asTransactionsGraphData(sentTxns)
+
+      setSendMethodCallResult({
+        transactionId: methodCallTransactionId,
+        abiMethod: methodCallTransaction.abiMethod,
+        transactionsGraphData,
+      })
+
+      toast.success('Transaction sent successfully')
+    },
+    [activeAddress, appSpec, applicationId, method.name, readonly, signer, confirmResourcePacking, methodArgs]
+  )
 
   const sendMethodCall = useCallback(
     async (data: TData) => {
@@ -109,23 +212,19 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         },
       })
 
-      if (confirmResourcePacking) {
-        setModalComponent(<ConfirmResourcesDialog transactions={result.transactions} />)
-      } else {
-        const sentTxns = asTransactionFromSendResult(result)
-        const methodCallTransactionId = result.transaction.txID()
-        const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
-        invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
-        const transactionsGraphData = asTransactionsGraphData(sentTxns)
+      const sentTxns = asTransactionFromSendResult(result)
+      const methodCallTransactionId = result.transaction.txID()
+      const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
+      invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
+      const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
-        setSendMethodCallResult({
-          transactionId: methodCallTransactionId,
-          abiMethod: methodCallTransaction.abiMethod,
-          transactionsGraphData,
-        })
+      setSendMethodCallResult({
+        transactionId: methodCallTransactionId,
+        abiMethod: methodCallTransaction.abiMethod,
+        transactionsGraphData,
+      })
 
-        toast.success('Transaction sent successfully')
-      }
+      toast.success('Transaction sent successfully')
     },
     [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer, confirmResourcePacking]
   )
@@ -133,6 +232,17 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const launchModal = useCallback((component: JSX.Element | undefined) => {
     setModalComponent(component)
   }, [])
+
+  const handleFormSubmit = useCallback(
+    async (data: TData) => {
+      if (confirmResourcePacking) {
+        await openConfirmResourcesDialog(data)
+      } else {
+        await sendMethodCall(data)
+      }
+    },
+    [confirmResourcePacking, openConfirmResourcesDialog, sendMethodCall]
+  )
 
   // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
 
@@ -146,7 +256,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         <Form
           schema={method.schema}
           defaultValues={method.defaultValues}
-          onSubmit={sendMethodCall}
+          onSubmit={handleFormSubmit}
           resetOnSuccess={true}
           formAction={(ctx, resetLocalState) => {
             return !readonly ? (
@@ -206,6 +316,16 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
             </DialogContent>
           </Dialog>
         </div>
+        <Dialog open={isConfirmingResources} onOpenChange={(open) => !open && setIsConfirmingResources(false)} modal={true}>
+          <DialogContent className="bg-card">
+            <DialogHeader className="flex-row items-center space-y-0">
+              <h2 className="pb-0">Confirm Resources</h2>
+            </DialogHeader>
+            <MediumSizeDialogBody>
+              <ConfirmResourcesDialog transactions={transactionResources} onSubmit={handleResourcesConfirmation} />
+            </MediumSizeDialogBody>
+          </DialogContent>
+        </Dialog>
         {!readonly && sendMethodCallResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">
             <DescriptionList

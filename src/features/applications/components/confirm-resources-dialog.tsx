@@ -1,10 +1,13 @@
 import { Button } from '@/features/common/components/button'
+import { CancelButton } from '@/features/forms/components/cancel-button'
 import { Form } from '@/features/forms/components/form'
+import { FormActions } from '@/features/forms/components/form-actions'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
+import { SubmitButton } from '@/features/forms/components/submit-button'
 import { numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import { TrashIcon } from 'lucide-react'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -12,8 +15,16 @@ import { zfd } from 'zod-form-data'
 // TODO: validation for the numbder of accounts
 // TODO: validation for the number of total resources
 
+export type TransactionResources = {
+  id: string
+  accounts: algosdk.Address[]
+  assets: number[]
+  applications: number[]
+}
+
 type Props = {
-  transactions: algosdk.Transaction[]
+  transactions: TransactionResources[]
+  onSubmit: (transactions: TransactionResources[]) => void
 }
 
 const transactionResourcesFormSchema = z.object({
@@ -26,20 +37,20 @@ const formSchema = zfd.formData({
   transactions: zfd.repeatable(z.array(transactionResourcesFormSchema)),
 })
 
-export function ConfirmResourcesDialog({ transactions }: Props) {
+export function ConfirmResourcesDialog({ transactions, onSubmit }: Props) {
   const defaultValues = useMemo(() => {
     return {
       transactions: transactions.map((transaction) => ({
-        id: transaction.txID(),
-        accounts: (transaction.appAccounts ?? []).map((address) => ({
+        id: transaction.id,
+        accounts: (transaction.accounts ?? []).map((address) => ({
           id: address.toString(),
           address: address.toString(),
         })),
-        assets: (transaction.appForeignAssets ?? []).map((asset) => ({
+        assets: (transaction.assets ?? []).map((asset) => ({
           id: asset.toString(),
           assetId: asset,
         })),
-        applications: (transaction.appForeignApps ?? []).map((application) => ({
+        applications: (transaction.applications ?? []).map((application) => ({
           id: application.toString(),
           applicationId: application,
         })),
@@ -47,8 +58,33 @@ export function ConfirmResourcesDialog({ transactions }: Props) {
     }
   }, [transactions])
 
+  const submit = useCallback(
+    async (data: z.infer<typeof formSchema>) => {
+      onSubmit(
+        data.transactions.map((transaction) => ({
+          id: transaction.id,
+          accounts: transaction.accounts.map((account) => algosdk.decodeAddress(account.address)),
+          assets: transaction.assets.map((asset) => asset.assetId),
+          applications: transaction.applications.map((application) => application.applicationId),
+        }))
+      )
+    },
+    [onSubmit]
+  )
+
+  // TODO: consider reset?
   return (
-    <Form schema={formSchema} onSubmit={() => {}} defaultValues={defaultValues} formAction={<></>}>
+    <Form
+      schema={formSchema}
+      onSubmit={submit}
+      defaultValues={defaultValues}
+      formAction={
+        <FormActions>
+          <CancelButton className="w-28" onClick={() => {}} />
+          <SubmitButton className="w-28">Submit</SubmitButton>
+        </FormActions>
+      }
+    >
       {(helper) => <FormInner helper={helper} />}
     </Form>
   )
