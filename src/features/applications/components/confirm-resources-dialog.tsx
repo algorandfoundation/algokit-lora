@@ -25,6 +25,7 @@ export type TransactionResources = {
 type Props = {
   transactions: TransactionResources[]
   onSubmit: (transactions: TransactionResources[]) => void
+  onCancel: () => void
 }
 
 const transactionResourcesFormSchema = z.object({
@@ -37,7 +38,7 @@ const formSchema = zfd.formData({
   transactions: zfd.repeatable(z.array(transactionResourcesFormSchema)),
 })
 
-export function ConfirmResourcesDialog({ transactions, onSubmit }: Props) {
+export function ConfirmResourcesDialog({ transactions, onSubmit, onCancel }: Props) {
   const defaultValues = useMemo(() => {
     return {
       transactions: transactions.map((transaction) => ({
@@ -80,7 +81,7 @@ export function ConfirmResourcesDialog({ transactions, onSubmit }: Props) {
       defaultValues={defaultValues}
       formAction={
         <FormActions>
-          <CancelButton className="w-28" onClick={() => {}} />
+          <CancelButton className="w-28" onClick={onCancel} />
           <SubmitButton className="w-28">Submit</SubmitButton>
         </FormActions>
       }

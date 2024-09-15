@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/fea
 import { Checkbox } from '@/features/common/components/checkbox'
 import { Label } from '@/features/common/components/label'
 import { ConfirmResourcesDialog, TransactionResources } from './confirm-resources-dialog'
+import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -39,6 +40,7 @@ type Props<TSchema extends z.ZodSchema> = {
 }
 
 const connectWalletMessage = 'Please connect a wallet'
+export const sendButtonLabel = 'Send'
 
 // TODO: NC - ABI Methods?
 export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ applicationId, abiMethods }: Props<TSchema>) {
@@ -115,15 +117,23 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
 
       if (result.transactions.length > 0) {
         setMethodArgs(methodArgs)
-        setTransactionResources(
-          result.transactions.map((transaction) => ({
-            id: transaction.txID(),
-            accounts: transaction.appAccounts ?? [],
-            assets: transaction.appForeignAssets ?? [],
-            applications: transaction.appForeignApps ?? [],
-          }))
-        )
-        setIsConfirmingResources(true)
+        // setTransactionResources(
+        //   result.transactions.map((transaction) => ({
+        //     id: transaction.txID(),
+        //     accounts: transaction.appAccounts ?? [],
+        //     assets: transaction.appForeignAssets ?? [],
+        //     applications: transaction.appForeignApps ?? [],
+        //   }))
+        // )
+        // setIsConfirmingResources(true)
+        const dialogData = result.transactions.map((transaction) => ({
+          id: transaction.txID(),
+          accounts: transaction.appAccounts ?? [],
+          assets: transaction.appForeignAssets ?? [],
+          applications: transaction.appForeignApps ?? [],
+        }))
+        const transactionResources = await open(dialogData)
+        console.log('transactionResources', transactionResources)
       }
       // TODO: handle errors
     },
@@ -244,8 +254,14 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
     },
     [confirmResourcePacking, openConfirmResourcesDialog, sendMethodCall]
   )
-
   // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
+
+  const { open, close, dialog } = useDialogForm({
+    dialogHeader: 'Confirm Resouces',
+    dialogBody: (props: DialogBodyProps<TransactionResources[], TransactionResources[]>) => (
+      <ConfirmResourcesDialog transactions={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    ),
+  })
 
   return (
     <AccordionItem value={method.signature}>
@@ -317,7 +333,8 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
             </DialogContent>
           </Dialog>
         </div>
-        <Dialog open={isConfirmingResources} onOpenChange={(open) => !open && setIsConfirmingResources(false)} modal={true}>
+        {dialog}
+        {/* <Dialog open={isConfirmingResources} onOpenChange={(open) => !open && setIsConfirmingResources(false)} modal={true}>
           <DialogContent className="bg-card">
             <DialogHeader className="flex-row items-center space-y-0">
               <h2 className="pb-0">Confirm Resources</h2>
@@ -326,7 +343,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
               <ConfirmResourcesDialog transactions={transactionResources} onSubmit={handleResourcesConfirmation} />
             </MediumSizeDialogBody>
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
         {!readonly && sendMethodCallResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">
             <DescriptionList
