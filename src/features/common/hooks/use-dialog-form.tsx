@@ -7,7 +7,6 @@ export type DialogBodyProps<TDataIn, TDataOut> = {
   onCancel: () => void
 }
 
-// Update the Options type
 type Options<TDataIn, TDataOut> = {
   dialogHeader: string
   dialogBody: React.ComponentType<DialogBodyProps<TDataIn, TDataOut>>

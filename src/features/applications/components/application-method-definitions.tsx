@@ -31,7 +31,7 @@ import { asTransactionFromSendResult } from '@/features/transactions/data/send-t
 import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { Label } from '@/features/common/components/label'
-import { ConfirmResourcesDialog, TransactionResources } from './confirm-resources-dialog'
+import { ConfirmTransactionsResourcesForm, TransactionResources } from './confirm-transactions-resources-form'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 
 type Props<TSchema extends z.ZodSchema> = {
@@ -80,7 +80,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const { open: openConfirmResourcesDialog, dialog: confirmResourcesDialog } = useDialogForm({
     dialogHeader: 'Confirm Resouces',
     dialogBody: (props: DialogBodyProps<TransactionResources[], TransactionResources[]>) => (
-      <ConfirmResourcesDialog transactions={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
+      <ConfirmTransactionsResourcesForm transactions={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
     ),
   })
 

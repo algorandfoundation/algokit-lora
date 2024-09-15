@@ -12,9 +12,6 @@ import { useFieldArray, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
-// TODO: validation for the numbder of accounts
-// TODO: validation for the number of total resources
-
 export type TransactionResources = {
   id: string
   accounts: algosdk.Address[]
@@ -30,15 +27,15 @@ type Props = {
 
 const transactionResourcesFormSchema = z.object({
   id: z.string(),
-  accounts: z.array(z.object({ id: z.string(), address: zfd.text() })),
-  assets: z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })),
-  applications: z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })),
+  accounts: zfd.repeatable(z.array(z.object({ id: z.string(), address: zfd.text() })).max(4)),
+  assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })).max(8)),
+  applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })).max(8)),
 })
 const formSchema = zfd.formData({
   transactions: zfd.repeatable(z.array(transactionResourcesFormSchema)),
 })
 
-export function ConfirmResourcesDialog({ transactions, onSubmit, onCancel }: Props) {
+export function ConfirmTransactionsResourcesForm({ transactions, onSubmit, onCancel }: Props) {
   const defaultValues = useMemo(() => {
     return {
       transactions: transactions.map((transaction) => ({
@@ -62,12 +59,21 @@ export function ConfirmResourcesDialog({ transactions, onSubmit, onCancel }: Pro
   const submit = useCallback(
     async (data: z.infer<typeof formSchema>) => {
       onSubmit(
-        data.transactions.map((transaction) => ({
-          id: transaction.id,
-          accounts: transaction.accounts.map((account) => algosdk.decodeAddress(account.address)),
-          assets: transaction.assets.map((asset) => asset.assetId),
-          applications: transaction.applications.map((application) => application.applicationId),
-        }))
+        data.transactions.map((transaction) => {
+          const accounts = transaction.accounts.map((account) => algosdk.decodeAddress(account.address))
+          const assets = transaction.assets.map((asset) => asset.assetId)
+          const applications = transaction.applications.map((application) => application.applicationId)
+          if (accounts.length + assets.length + applications.length > 8) {
+            throw new Error('Total number of accounts, assets, and applications cannot exceed 8')
+          }
+
+          return {
+            id: transaction.id,
+            accounts,
+            assets,
+            applications,
+          }
+        })
       )
     },
     [onSubmit]
