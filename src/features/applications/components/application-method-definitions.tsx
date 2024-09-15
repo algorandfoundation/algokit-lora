@@ -66,6 +66,7 @@ type SendMethodCallResult = {
   transactionsGraphData: TransactionsGraphData
 }
 
+// TODO: double scroll bar
 function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, readonly }: MethodProps<TSchema>) {
   const { activeAddress, signer } = useWallet()
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)

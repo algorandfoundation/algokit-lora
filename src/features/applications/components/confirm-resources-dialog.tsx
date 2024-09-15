@@ -43,8 +43,8 @@ export function ConfirmResourcesDialog({ transactions, onSubmit }: Props) {
       transactions: transactions.map((transaction) => ({
         id: transaction.id,
         accounts: (transaction.accounts ?? []).map((address) => ({
-          id: address.toString(),
-          address: address.toString(),
+          id: algosdk.encodeAddress(address.publicKey),
+          address: algosdk.encodeAddress(address.publicKey),
         })),
         assets: (transaction.assets ?? []).map((asset) => ({
           id: asset.toString(),
@@ -97,11 +97,17 @@ function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof formSche
     name: 'transactions',
   })
 
-  return fields.map((field, index) => <TransactionResourcesForm key={field.id} helper={helper} index={index} />)
+  return fields.map((field, index) => <TransactionResourcesForm key={field.id} helper={helper} transactionIndex={index} />)
 }
 
 // TODO: is there a way to make this not rely on `transaction`?
-function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z.infer<typeof formSchema>>; index: number }) {
+function TransactionResourcesForm({
+  helper,
+  transactionIndex,
+}: {
+  helper: FormFieldHelper<z.infer<typeof formSchema>>
+  transactionIndex: number
+}) {
   const { control } = useFormContext<z.infer<typeof formSchema>>()
 
   const {
@@ -110,7 +116,7 @@ function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z
     remove: removeAccount,
   } = useFieldArray({
     control,
-    name: `transactions.${index}.accounts`,
+    name: `transactions.${transactionIndex}.accounts`,
   })
 
   const {
@@ -119,7 +125,7 @@ function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z
     remove: removeAsset,
   } = useFieldArray({
     control,
-    name: `transactions.${index}.assets`,
+    name: `transactions.${transactionIndex}.assets`,
   })
 
   const {
@@ -128,7 +134,7 @@ function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z
     remove: removeApplication,
   } = useFieldArray({
     control,
-    name: `transactions.${index}.applications`,
+    name: `transactions.${transactionIndex}.applications`,
   })
 
   // TODO: the remove buttons aren't line-up right
@@ -139,7 +145,9 @@ function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z
         {accounts.map((account, index) => {
           return (
             <div key={account.id} className="flex gap-2">
-              <div className="grow">{helper.textField({ label: 'Account', field: `transactions.${index}.accounts.${index}.address` })}</div>
+              <div className="grow">
+                {helper.textField({ label: 'Account', field: `transactions.${transactionIndex}.accounts.${index}.address` })}
+              </div>
               <Button
                 type="button"
                 className="mt-[1.375rem]"
@@ -160,7 +168,9 @@ function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z
         {assets.map((asset, index) => {
           return (
             <div key={asset.id} className="flex gap-2">
-              <div className="grow">{helper.numberField({ label: 'Asset', field: `transactions.${index}.assets.${index}.assetId` })}</div>
+              <div className="grow">
+                {helper.numberField({ label: 'Asset', field: `transactions.${transactionIndex}.assets.${index}.assetId` })}
+              </div>
               <Button
                 type="button"
                 className="mt-[1.375rem]"
@@ -181,11 +191,15 @@ function TransactionResourcesForm({ helper, index }: { helper: FormFieldHelper<z
         </Button>
       </div>
       <div className="space-y-2">
+        <h3>Applications</h3>
         {applications.map((application, index) => {
           return (
             <div key={application.id} className="flex gap-2">
               <div className="grow">
-                {helper.numberField({ label: 'Application', field: `transactions.${index}.applications.${index}.applicationId` })}
+                {helper.numberField({
+                  label: 'Application',
+                  field: `transactions.${transactionIndex}.applications.${index}.applicationId`,
+                })}
               </div>
               <Button
                 type="button"
