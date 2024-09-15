@@ -50,11 +50,8 @@ export function useDialogForm<TDataIn, TDataOut>({ dialogHeader, dialogBody: Dia
       setIsOpen(true)
       setDialogData(dialogData)
       return new Promise<TDataOut | undefined>((resolve) => {
-        setResolvePromise(resolve)
+        setResolvePromise(() => resolve)
       })
-    },
-    close: () => {
-      handleCancel()
     },
     dialog,
   }
