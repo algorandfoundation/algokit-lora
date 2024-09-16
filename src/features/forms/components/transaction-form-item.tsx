@@ -14,6 +14,7 @@ import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
 import { invariant } from '@/utils/invariant'
+import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -139,6 +140,7 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   launchModal,
   ...props
 }: TransactionFormItemProps<TSchema>) {
+  // TODO: parent form reset should reset this too
   const { register, setValue, getValues, trigger } = useFormContext<TSchema>()
 
   const setTransaction = useCallback(
@@ -159,28 +161,56 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   // TODO: NC - stringify is yuck
   const thign = savedValues ? Object.entries(savedValues).map(([key, value]) => ({ dt: key, dd: JSON.stringify(value) })) : []
 
-  const buildTransaction = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.preventDefault()
-      launchModal(
-        <TransactionBuilder
-          transactionType={transactionType}
-          savedValues={savedValues}
-          onComplete={closeModal}
-          onAddTransaction={setTransaction}
-        />
-      )
-    },
-    [closeModal, launchModal, savedValues, setTransaction, transactionType]
-  )
+  const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
+    dialogHeader: 'Build Transaction',
+    dialogBody: (props: DialogBodyProps<number, PathValue<TSchema, Path<TSchema>>>) => (
+      <TransactionBuilder
+        transactionType={transactionType}
+        savedValues={savedValues}
+        onComplete={props.onCancel}
+        onAddTransaction={props.onSubmit}
+      />
+    ),
+  })
+
+  // TODO: fix the "1" input
+  const openDialog = useCallback(async () => {
+    const transaction = await openTransactionBuilderDialog(1)
+    console.log('here')
+    if (transaction) {
+      await setTransaction(transaction)
+    }
+    console.log('here2', transaction)
+  }, [openTransactionBuilderDialog, setTransaction])
+
+  // const buildTransaction = useCallback(
+  //   (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  //     e.preventDefault()
+  //     launchModal(
+  //       <TransactionBuilder
+  //         transactionType={transactionType}
+  //         savedValues={savedValues}
+  //         onComplete={closeModal}
+  //         onAddTransaction={setTransaction}
+  //       />
+  //     )
+  //   },
+  //   [closeModal, launchModal, savedValues, setTransaction, transactionType]
+  // )
 
   return (
     <>
-      {!savedValues && <Button onClick={buildTransaction}>Create</Button>}
+      {!savedValues && (
+        <Button type="button" onClick={openDialog}>
+          Create
+        </Button>
+      )}
       {savedValues && (
         <>
           <DescriptionList items={thign} />
-          <Button onClick={buildTransaction}>Edit</Button>
+          <Button type="button" onClick={openDialog}>
+            Edit
+          </Button>
         </>
       )}
       <FormItem {...props} field={field} disabled={disabled}>
@@ -194,6 +224,7 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
           aria-label={field}
         />
       </FormItem>
+      {transactionBuilderDialog}
     </>
   )
 }

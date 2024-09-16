@@ -239,16 +239,6 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
             </>
           )}
         </Form>
-        <div className="flex justify-end">
-          <Dialog open={!!modalComponent} onOpenChange={(open) => !open && setModalComponent(undefined)} modal={true}>
-            <DialogContent className="bg-card">
-              <DialogHeader className="flex-row items-center space-y-0">
-                <h2 className="pb-0">Build Transaction</h2>
-              </DialogHeader>
-              <MediumSizeDialogBody>{modalComponent}</MediumSizeDialogBody>
-            </DialogContent>
-          </Dialog>
-        </div>
         {confirmResourcesDialog}
         {!readonly && sendMethodCallResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">

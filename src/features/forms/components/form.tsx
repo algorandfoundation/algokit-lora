@@ -13,7 +13,9 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   header?: string
   schema: z.ZodEffects<any, TSchema, unknown>
   defaultValues?: DefaultValues<TSchema>
-  children: ReactNode | ((helper: FormFieldHelper<TSchema>, handleSubmit: () => Promise<void>) => ReactNode)
+  children:
+    | ReactNode
+    | ((helper: FormFieldHelper<TSchema>, handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>) => ReactNode)
   formAction: ReactNode | ((ctx: UseFormReturn<TSchema, any, undefined>, resetLocalState: () => void) => ReactNode)
   onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
@@ -68,7 +70,14 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     [_onSubmit, onSuccess, resetOnSuccess, formCtx]
   )
 
-  const handleSubmit = useMemo(() => formCtx.handleSubmit(onSubmit), [formCtx, onSubmit])
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      return formCtx.handleSubmit(onSubmit)(e)
+    },
+    [formCtx, onSubmit]
+  )
 
   return (
     <div className={'grid'}>
@@ -80,7 +89,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
         }}
       >
         <FormProvider {...formCtx}>
-          <form className={cn('grid gap-4', className)} onSubmit={handleSubmit}>
+          <form className={cn('grid gap-4', className)} onSubmit={(e) => handleSubmit(e)}>
             {typeof children === 'function' ? children(new FormFieldHelper<TSchema>(), handleSubmit) : children}
             {errorMessage && (
               <div role="alert" aria-label="error-message" className="text-error">
