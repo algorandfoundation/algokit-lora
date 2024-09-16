@@ -79,8 +79,8 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const [confirmResourcePopulation, setConfirmResourcePopulation] = useState(false)
   const { open: openConfirmResourcesDialog, dialog: confirmResourcesDialog } = useDialogForm({
     dialogHeader: 'Confirm Resouces',
-    dialogBody: (props: DialogBodyProps<TransactionResources[], TransactionResources[]>) => (
-      <ConfirmTransactionsResourcesForm transactions={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    dialogBody: (props: DialogBodyProps<TransactionResources, TransactionResources>) => (
+      <ConfirmTransactionsResourcesForm resources={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
     ),
   })
 
@@ -120,20 +120,17 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
       })
 
       if (confirmResourcePopulation && result.transactions.length > 0) {
-        const dialogData = result.transactions.map((transaction) => ({
-          id: transaction.txID(),
-          accounts: transaction.appAccounts ?? [],
-          assets: transaction.appForeignAssets ?? [],
-          applications: transaction.appForeignApps ?? [],
-        }))
-        const transactionResources = await openConfirmResourcesDialog(dialogData)
+        const transactionResources = await openConfirmResourcesDialog({
+          accounts: result.transaction.appAccounts ?? [],
+          assets: result.transaction.appForeignAssets ?? [],
+          applications: result.transaction.appForeignApps ?? [],
+        })
 
         if (!transactionResources) {
           // Throw an empty error so that the form won't be reset
           throw new Error('')
         }
 
-        // TODO: handle multiple transactions
         result = await client.call({
           method: method.name,
           methodArgs,
@@ -141,9 +138,9 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
             addr: activeAddress,
             signer,
           },
-          accounts: transactionResources[0].accounts,
-          apps: transactionResources[0].applications,
-          assets: transactionResources[0].assets,
+          accounts: transactionResources.accounts,
+          apps: transactionResources.applications,
+          assets: transactionResources.assets,
           sendParams: {
             populateAppCallResources: false,
           },
