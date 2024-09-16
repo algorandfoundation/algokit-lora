@@ -68,7 +68,6 @@ type SendMethodCallResult = {
   transactionsGraphData: TransactionsGraphData
 }
 
-// TODO: double scroll bar
 function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, readonly }: MethodProps<TSchema>) {
   const { activeAddress, signer } = useWallet()
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
@@ -229,7 +228,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
               <div className="mt-4">
                 <Returns returns={method.returns} />
               </div>
-              <div className="mt-4 flex items-center space-x-2">
+              <div className="relative mt-4 flex items-center space-x-2">
                 <Checkbox
                   checked={confirmResourcePopulation}
                   onCheckedChange={(checked) => setConfirmResourcePopulation(checked === true)}
