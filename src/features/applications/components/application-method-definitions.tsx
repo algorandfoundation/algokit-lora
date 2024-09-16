@@ -28,7 +28,6 @@ import { Atom } from 'jotai'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
-import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { Label } from '@/features/common/components/label'
 import { ConfirmTransactionsResourcesForm, TransactionResources } from './confirm-transactions-resources-form'
@@ -72,8 +71,6 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const { activeAddress, signer } = useWallet()
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
   type TData = z.infer<typeof method.schema>
-
-  const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
 
   const [confirmResourcePopulation, setConfirmResourcePopulation] = useState(false)
   const { open: openConfirmResourcesDialog, dialog: confirmResourcesDialog } = useDialogForm({
@@ -173,12 +170,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
     ]
   )
 
-  const launchModal = useCallback((component: JSX.Element | undefined) => {
-    setModalComponent(component)
-  }, [])
-
   // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
-
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
@@ -219,7 +211,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                 <h4 className="text-primary">Arguments</h4>
                 {method.arguments.length > 0 ? (
                   method.arguments.map((argument, index) => (
-                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} launchModal={launchModal} />
+                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} />
                   ))
                 ) : (
                   <p>No arguments</p>
@@ -275,10 +267,9 @@ type ArgumentProps<TSchema extends z.ZodSchema> = {
   argument: ArgumentDefinition<TSchema>
   helper: FormFieldHelper<z.infer<TSchema>>
   readonly: boolean
-  launchModal: (component: JSX.Element | undefined) => void
 }
 
-function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly, launchModal }: ArgumentProps<TSchema>) {
+function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly }: ArgumentProps<TSchema>) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -317,7 +308,7 @@ function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readon
     <div className="space-y-2">
       <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} />
-      {!readonly && argument.createField(helper, launchModal)}
+      {!readonly && argument.createField(helper)}
     </div>
   )
 }

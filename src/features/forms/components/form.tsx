@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 import { DefaultValues, FormProvider, useForm, UseFormReturn } from 'react-hook-form'
-import { ReactNode, useCallback, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -70,6 +70,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     [_onSubmit, onSuccess, resetOnSuccess, formCtx]
   )
 
+  // TODO: understand why this only happens on edit
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()

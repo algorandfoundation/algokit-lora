@@ -22,7 +22,6 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   extends Omit<FormItemProps<TSchema>, 'children'> {
   placeholder?: string
   transactionType: algosdk.ABITransactionType
-  launchModal: (component: JSX.Element | undefined) => void
 }
 
 // TODO: NC - Show the enter values in a readonly mode
@@ -137,7 +136,6 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   disabled,
   placeholder,
   transactionType,
-  launchModal,
   ...props
 }: TransactionFormItemProps<TSchema>) {
   // TODO: parent form reset should reset this too
@@ -150,10 +148,6 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
     },
     [field, setValue, trigger]
   )
-
-  const closeModal = useCallback(() => {
-    launchModal(undefined)
-  }, [launchModal])
 
   const fieldValue = getValues(field)
   // TODO: NC - Make this better
@@ -176,27 +170,10 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   // TODO: fix the "1" input
   const openDialog = useCallback(async () => {
     const transaction = await openTransactionBuilderDialog(1)
-    console.log('here')
     if (transaction) {
       await setTransaction(transaction)
     }
-    console.log('here2', transaction)
   }, [openTransactionBuilderDialog, setTransaction])
-
-  // const buildTransaction = useCallback(
-  //   (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-  //     e.preventDefault()
-  //     launchModal(
-  //       <TransactionBuilder
-  //         transactionType={transactionType}
-  //         savedValues={savedValues}
-  //         onComplete={closeModal}
-  //         onAddTransaction={setTransaction}
-  //       />
-  //     )
-  //   },
-  //   [closeModal, launchModal, savedValues, setTransaction, transactionType]
-  // )
 
   return (
     <>

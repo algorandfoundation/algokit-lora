@@ -197,7 +197,6 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
 
 const getCreateField = <TData extends Record<string, unknown>>(
   formFieldHelper: FormFieldHelper<TData>,
-  launchModal: (component: JSX.Element | undefined) => void,
   type: algosdk.ABIArgumentType,
   path: FieldPath<TData>,
   hint?: ArgumentHint,
@@ -259,16 +258,9 @@ const getCreateField = <TData extends Record<string, unknown>>(
       length: type.staticLength,
       description: options?.description,
       createChildField: (childPrefix, childIndex) =>
-        getCreateField(
-          formFieldHelper,
-          launchModal,
-          type.childType,
-          `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>,
-          undefined,
-          {
-            prefix: childPrefix,
-          }
-        ),
+        getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>, undefined, {
+          prefix: childPrefix,
+        }),
     })
   }
   if (type instanceof algosdk.ABIAddressType) {
@@ -287,7 +279,6 @@ const getCreateField = <TData extends Record<string, unknown>>(
       createChildField: (childPrefix, childIndex) =>
         getCreateField(
           formFieldHelper,
-          launchModal,
           type.childType,
           `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<TData>,
           undefined,
@@ -314,7 +305,6 @@ const getCreateField = <TData extends Record<string, unknown>>(
       createChildField: (childPrefix, childIndex) =>
         getCreateField(
           formFieldHelper,
-          launchModal,
           type.childTypes[childIndex],
           `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<TData>,
           undefined,
@@ -335,7 +325,6 @@ const getCreateField = <TData extends Record<string, unknown>>(
       field: path,
       placeholder: options?.description,
       transactionType: type,
-      launchModal,
     })
   }
   return undefined
@@ -388,7 +377,7 @@ const asField = <TData extends Record<string, unknown>>(
   argIndex: number,
   hint?: ArgumentHint
 ): {
-  createField: (helper: FormFieldHelper<TData>, launchModal: (component: JSX.Element | undefined) => void) => JSX.Element | undefined
+  createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => Promise<ABIAppCallArg>
@@ -396,8 +385,8 @@ const asField = <TData extends Record<string, unknown>>(
   const isArgOptional = !!hint?.defaultArgument
 
   return {
-    createField: (helper, launchModal) =>
-      getCreateField(helper, launchModal, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
+    createField: (helper) =>
+      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
         description: arg.description,
       }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
