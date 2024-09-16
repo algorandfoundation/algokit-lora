@@ -76,7 +76,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
 
   const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
 
-  const [confirmResourcePacking, setConfirmResourcePacking] = useState(false)
+  const [confirmResourcePopulation, setConfirmResourcePopulation] = useState(false)
   const { open: openConfirmResourcesDialog, dialog: confirmResourcesDialog } = useDialogForm({
     dialogHeader: 'Confirm Resouces',
     dialogBody: (props: DialogBodyProps<TransactionResources[], TransactionResources[]>) => (
@@ -115,11 +115,11 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         },
         sendParams: {
           populateAppCallResources: true,
-          skipSending: confirmResourcePacking,
+          skipSending: confirmResourcePopulation,
         },
       })
 
-      if (confirmResourcePacking && result.transactions.length > 0) {
+      if (confirmResourcePopulation && result.transactions.length > 0) {
         const dialogData = result.transactions.map((transaction) => ({
           id: transaction.txID(),
           accounts: transaction.appAccounts ?? [],
@@ -172,7 +172,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
       method.name,
       method.arguments,
       signer,
-      confirmResourcePacking,
+      confirmResourcePopulation,
       openConfirmResourcesDialog,
     ]
   )
@@ -211,7 +211,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                   Reset
                 </Button>
                 <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage} className="w-28">
-                  {confirmResourcePacking ? 'Build' : 'Send'}
+                  {confirmResourcePopulation ? 'Build' : 'Send'}
                 </SubmitButton>
               </FormActions>
             ) : undefined
@@ -234,11 +234,11 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
               </div>
               <div className="mt-4 flex items-center space-x-2">
                 <Checkbox
-                  checked={confirmResourcePacking}
-                  onCheckedChange={(checked) => setConfirmResourcePacking(checked === true)}
-                  id={`${method.name}-confirm-resource-packing`}
+                  checked={confirmResourcePopulation}
+                  onCheckedChange={(checked) => setConfirmResourcePopulation(checked === true)}
+                  id={`${method.name}-confirm-resource-population`}
                 />
-                <Label htmlFor={`${method.name}-confirm-resource-packing`}>Confirm Resource Packing</Label>
+                <Label htmlFor={`${method.name}-confirm-resource-population`}>Confirm Resource Population</Label>
               </div>
             </>
           )}

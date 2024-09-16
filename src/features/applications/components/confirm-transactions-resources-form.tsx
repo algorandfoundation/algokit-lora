@@ -1,4 +1,3 @@
-import { Button } from '@/features/common/components/button'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
@@ -6,7 +5,6 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
-import { TrashIcon } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
 import { z } from 'zod'
@@ -79,7 +77,6 @@ export function ConfirmTransactionsResourcesForm({ transactions, onSubmit, onCan
     [onSubmit]
   )
 
-  // TODO: consider reset?
   return (
     <Form
       schema={formSchema}
@@ -107,7 +104,6 @@ function FormInner({ helper }: { helper: FormFieldHelper<z.infer<typeof formSche
   return fields.map((field, index) => <TransactionResourcesForm key={field.id} helper={helper} transactionIndex={index} />)
 }
 
-// TODO: is there a way to make this not rely on `transaction`?
 function TransactionResourcesForm({
   helper,
   transactionIndex,
@@ -115,117 +111,44 @@ function TransactionResourcesForm({
   helper: FormFieldHelper<z.infer<typeof formSchema>>
   transactionIndex: number
 }) {
-  const { control } = useFormContext<z.infer<typeof formSchema>>()
-
-  const {
-    fields: accounts,
-    append: appendAccount,
-    remove: removeAccount,
-  } = useFieldArray({
-    control,
-    name: `transactions.${transactionIndex}.accounts`,
-  })
-
-  const {
-    fields: assets,
-    append: appendAsset,
-    remove: removeAsset,
-  } = useFieldArray({
-    control,
-    name: `transactions.${transactionIndex}.assets`,
-  })
-
-  const {
-    fields: applications,
-    append: appendApplication,
-    remove: removeApplication,
-  } = useFieldArray({
-    control,
-    name: `transactions.${transactionIndex}.applications`,
-  })
-
-  // TODO: the remove buttons aren't line-up right
   return (
     <div className="space-y-4">
-      <div className="space-y-2">
-        <h3>Accounts</h3>
-        {accounts.map((account, index) => {
-          return (
-            <div key={account.id} className="flex gap-2">
-              <div className="grow">
-                {helper.textField({ label: 'Account', field: `transactions.${transactionIndex}.accounts.${index}.address` })}
-              </div>
-              <Button
-                type="button"
-                className="mt-[1.375rem]"
-                variant="destructive"
-                size="sm"
-                onClick={() => removeAccount(index)}
-                icon={<TrashIcon size={16} />}
-              />
-            </div>
-          )
-        })}
-        <Button type="button" className="mt-2" onClick={() => appendAccount({ id: new Date().getTime().toString(), address: '' })}>
-          Add Account
-        </Button>
-      </div>
-      <div className="space-y-2">
-        <h3>Assets</h3>
-        {assets.map((asset, index) => {
-          return (
-            <div key={asset.id} className="flex gap-2">
-              <div className="grow">
-                {helper.numberField({ label: 'Asset', field: `transactions.${transactionIndex}.assets.${index}.assetId` })}
-              </div>
-              <Button
-                type="button"
-                className="mt-[1.375rem]"
-                variant="destructive"
-                size="sm"
-                onClick={() => removeAsset(index)}
-                icon={<TrashIcon size={16} />}
-              />
-            </div>
-          )
-        })}
-        <Button
-          type="button"
-          onClick={() => appendAsset({ id: new Date().getTime().toString(), assetId: undefined as unknown as number })}
-          className="mt-2"
-        >
-          Add Asset
-        </Button>
-      </div>
-      <div className="space-y-2">
-        <h3>Applications</h3>
-        {applications.map((application, index) => {
-          return (
-            <div key={application.id} className="flex gap-2">
-              <div className="grow">
-                {helper.numberField({
-                  label: 'Application',
-                  field: `transactions.${transactionIndex}.applications.${index}.applicationId`,
-                })}
-              </div>
-              <Button
-                type="button"
-                className="mt-[1.375rem]"
-                variant="destructive"
-                size="sm"
-                onClick={() => removeApplication(index)}
-                icon={<TrashIcon size={16} />}
-              />
-            </div>
-          )
-        })}
-        <Button
-          type="button"
-          onClick={() => appendApplication({ id: new Date().getTime().toString(), applicationId: undefined as unknown as number })}
-        >
-          Add Application
-        </Button>
-      </div>
+      {helper.arrayField({
+        label: 'Accounts',
+        field: `transactions.${transactionIndex}.accounts`,
+        renderChildField: (_, index) =>
+          helper.textField({
+            label: `Account ${index + 1}`,
+            field: `transactions.${transactionIndex}.accounts.${index}.address`,
+          }),
+        newItem: () => ({ id: new Date().getTime().toString(), address: '' }),
+        max: 4,
+        addButtonLabel: 'Add Account',
+      })}
+      {helper.arrayField({
+        label: 'Assets',
+        field: `transactions.${transactionIndex}.assets`,
+        renderChildField: (_, index) =>
+          helper.numberField({
+            label: `Asset ${index + 1}`,
+            field: `transactions.${transactionIndex}.assets.${index}.assetId`,
+          }),
+        newItem: () => ({ id: new Date().getTime().toString(), assetId: undefined as unknown as number }),
+        max: 8,
+        addButtonLabel: 'Add Asset',
+      })}
+      {helper.arrayField({
+        label: 'Applications',
+        field: `transactions.${transactionIndex}.applications`,
+        renderChildField: (_, index) =>
+          helper.numberField({
+            label: `Application ${index + 1}`,
+            field: `transactions.${transactionIndex}.applications.${index}.applicationId`,
+          }),
+        newItem: () => ({ id: new Date().getTime().toString(), applicationId: undefined as unknown as number }),
+        max: 8,
+        addButtonLabel: 'Add Application',
+      })}
     </div>
   )
 }

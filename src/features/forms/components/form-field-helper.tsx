@@ -10,6 +10,7 @@ import { AbiDynamicArrayFormItem, AbiDynamicArrayFormItemProps } from '@/feature
 import { AbiStaticArrayFormItem, AbiStaticArrayFormItemProps } from '@/features/forms/components/abi-static-array-form-item'
 import { AbiTupleFormItem, AbiTupleFormItemProps } from '@/features/forms/components/abi-tuple-form-item'
 import { TransactionFormItem, TransactionFormItemProps } from './transaction-form-item'
+import { ArrayFormItem, ArrayFormItemProps } from './array-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -71,5 +72,9 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   transactionField(props: TransactionFormItemProps<TSchema>) {
     return <TransactionFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  arrayField(props: ArrayFormItemProps<TSchema>) {
+    return <ArrayFormItem {...this.prefixFieldProp(props)} />
   }
 }
