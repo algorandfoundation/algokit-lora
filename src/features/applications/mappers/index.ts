@@ -23,6 +23,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { paymentTransaction } from '@/features/transaction-wizard/data/payment-transactions'
+import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -158,7 +159,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
-    return isOptional ? zfd.text().optional() : zfd.text()
+    return isOptional ? addressFieldSchema.optional() : addressFieldSchema
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
@@ -183,7 +184,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return numberSchema(z.number().min(0))
   }
   if (type === algosdk.ABIReferenceType.account) {
-    return zfd.text()
+    return addressFieldSchema
   }
   if (algosdk.abiTypeIsReference(type)) {
     const min = type === algosdk.ABIReferenceType.asset ? 0 : 1

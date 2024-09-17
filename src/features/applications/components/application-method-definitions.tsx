@@ -32,13 +32,13 @@ import { Checkbox } from '@/features/common/components/checkbox'
 import { Label } from '@/features/common/components/label'
 import { ConfirmTransactionsResourcesForm, TransactionResources } from './confirm-transactions-resources-form'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
   abiMethods: ApplicationAbiMethods<TSchema> // TODO: NC - Get the naming right
 }
 
-// TODO: PD - use the address validation
 const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
@@ -121,6 +121,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
           accounts: result.transaction.appAccounts ?? [],
           assets: result.transaction.appForeignAssets ?? [],
           applications: result.transaction.appForeignApps ?? [],
+          boxes: result.transaction.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
         })
 
         if (!transactionResources) {
@@ -138,6 +139,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
           accounts: transactionResources.accounts,
           apps: transactionResources.applications,
           assets: transactionResources.assets,
+          boxes: transactionResources.boxes,
           sendParams: {
             populateAppCallResources: false,
           },

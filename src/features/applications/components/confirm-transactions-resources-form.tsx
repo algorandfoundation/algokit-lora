@@ -3,16 +3,18 @@ import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { numberSchema } from '@/features/forms/data/common'
+import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import algosdk from 'algosdk'
 import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
-// TODO: boxes
 export type TransactionResources = {
   accounts: algosdk.Address[]
   assets: number[]
   applications: number[]
+  boxes: string[]
 }
 
 type Props = {
@@ -22,9 +24,10 @@ type Props = {
 }
 
 const formSchema = zfd.formData({
-  accounts: zfd.repeatable(z.array(z.object({ id: z.string(), address: zfd.text() })).max(4)),
+  accounts: zfd.repeatable(z.array(z.object({ id: z.string(), address: addressFieldSchema })).max(4)),
   assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })).max(8)),
   applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })).max(8)),
+  boxes: zfd.repeatable(z.array(z.object({ id: z.string(), boxName: zfd.text() })).max(8)),
 })
 
 export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel }: Props) {
@@ -42,6 +45,10 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
         id: application.toString(),
         applicationId: application,
       })),
+      boxes: (resources.boxes ?? []).map((box) => ({
+        id: box,
+        boxName: box,
+      })),
     }
   }, [resources])
 
@@ -50,14 +57,16 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
       const accounts = data.accounts.map((account) => algosdk.decodeAddress(account.address))
       const assets = data.assets.map((asset) => asset.assetId)
       const applications = data.applications.map((application) => application.applicationId)
-      if (accounts.length + assets.length + applications.length > 8) {
-        throw new Error('Total number of accounts, assets, and applications cannot exceed 8')
+      const boxes = data.boxes.map((box) => box.boxName)
+      if (accounts.length + assets.length + applications.length + boxes.length > 8) {
+        throw new Error('Total number of references cannot exceed 8')
       }
 
       onSubmit({
         accounts,
         assets,
         applications,
+        boxes,
       })
     },
     [onSubmit]
@@ -112,6 +121,18 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
             newItem: () => ({ id: new Date().getTime().toString(), applicationId: undefined as unknown as number }),
             max: 8,
             addButtonLabel: 'Add Application',
+          })}
+          {helper.arrayField({
+            label: 'Boxes',
+            field: `boxes`,
+            renderChildField: (_, index) =>
+              helper.textField({
+                label: `Box ${index + 1}`,
+                field: `boxes.${index}.boxName`,
+              }),
+            newItem: () => ({ id: new Date().getTime().toString(), boxName: '' }),
+            max: 8,
+            addButtonLabel: 'Add Box',
           })}
         </div>
       )}
