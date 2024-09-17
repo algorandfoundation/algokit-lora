@@ -1,6 +1,5 @@
 import { Path, PathValue, useFormContext } from 'react-hook-form'
-import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
-import { Input } from '@/features/common/components/input'
+import { FormItemProps } from '@/features/forms/components/form-item'
 import { Button } from '@/features/common/components/button'
 import { useCallback, useMemo, useState } from 'react'
 import { Form } from './form'
@@ -33,18 +32,20 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
 // TODO: NC - Validation is incorrect for close account transaction building
 
 interface TransactionBuilderProps<TSchema extends Record<string, unknown>> {
-  transactionType: algosdk.ABITransactionType
-  savedValues: Record<string, unknown>
+  data: {
+    transactionType: algosdk.ABITransactionType
+    savedValues: Record<string, unknown>
+  }
   onAddTransaction: (value: PathValue<TSchema, Path<TSchema>>) => void
   onComplete: () => void
 }
 
 function TransactionBuilder<TSchema extends Record<string, unknown>>({
-  transactionType,
-  savedValues,
+  data,
   onComplete,
   onAddTransaction,
 }: TransactionBuilderProps<TSchema>) {
+  const { transactionType, savedValues } = data
   const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
 
   const buildableTransactions = useMemo(() => {
@@ -133,47 +134,43 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
 
 export function TransactionFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
-  disabled,
-  placeholder,
   transactionType,
-  ...props
 }: TransactionFormItemProps<TSchema>) {
-  // TODO: parent form reset should reset this too
-  const { register, setValue, getValues, trigger } = useFormContext<TSchema>()
+  const { setValue, watch, trigger } = useFormContext<TSchema>()
 
-  const setTransaction = useCallback(
-    async (value: PathValue<TSchema, Path<TSchema>>) => {
-      setValue(field, value)
-      trigger(field)
-    },
-    [field, setValue, trigger]
-  )
-
-  const fieldValue = getValues(field)
+  const fieldValue = watch(field)
   // TODO: NC - Make this better
-  const savedValues = fieldValue ? JSON.parse(fieldValue.toString()) : undefined
-  // TODO: NC - stringify is yuck
+  const savedValues = useMemo(() => (fieldValue ? JSON.parse(fieldValue.toString()) : undefined), [fieldValue])
+
+  // // TODO: NC - stringify is yuck
   const thign = savedValues ? Object.entries(savedValues).map(([key, value]) => ({ dt: key, dd: JSON.stringify(value) })) : []
 
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
     dialogHeader: 'Build Transaction',
-    dialogBody: (props: DialogBodyProps<number, PathValue<TSchema, Path<TSchema>>>) => (
+    dialogBody: (
+      props: DialogBodyProps<
+        { transactionType: algosdk.ABITransactionType; savedValues: Record<string, unknown> },
+        PathValue<TSchema, Path<TSchema>>
+      >
+    ) => (
       <TransactionBuilder
-        transactionType={transactionType}
-        savedValues={savedValues}
+        data={{ transactionType: props.data.transactionType, savedValues: props.data.savedValues }}
         onComplete={props.onCancel}
         onAddTransaction={props.onSubmit}
       />
     ),
   })
 
-  // TODO: fix the "1" input
   const openDialog = useCallback(async () => {
-    const transaction = await openTransactionBuilderDialog(1)
+    const transaction = await openTransactionBuilderDialog({
+      transactionType,
+      savedValues,
+    })
     if (transaction) {
-      await setTransaction(transaction)
+      setValue(field, transaction)
+      await trigger(field)
     }
-  }, [openTransactionBuilderDialog, setTransaction])
+  }, [openTransactionBuilderDialog, transactionType, savedValues, setValue, field, trigger])
 
   return (
     <>
@@ -190,17 +187,6 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
           </Button>
         </>
       )}
-      <FormItem {...props} field={field} disabled={disabled}>
-        <Input
-          id={field}
-          autoComplete={'off'}
-          type="hidden"
-          {...register(field)}
-          placeholder={placeholder}
-          disabled={disabled}
-          aria-label={field}
-        />
-      </FormItem>
       {transactionBuilderDialog}
     </>
   )

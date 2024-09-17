@@ -70,7 +70,6 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     [_onSubmit, onSuccess, resetOnSuccess, formCtx]
   )
 
-  // TODO: understand why this only happens on edit
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault()

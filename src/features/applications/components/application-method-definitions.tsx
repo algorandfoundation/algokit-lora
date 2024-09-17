@@ -38,6 +38,7 @@ type Props<TSchema extends z.ZodSchema> = {
   abiMethods: ApplicationAbiMethods<TSchema> // TODO: NC - Get the naming right
 }
 
+// TODO: PD - use the address validation
 const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
