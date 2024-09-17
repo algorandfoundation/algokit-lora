@@ -3,7 +3,7 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, render, waitFor } from '@/tests/testing-library'
 import { useWallet } from '@txnlab/use-wallet'
-import { algo, assetOptIn } from '@algorandfoundation/algokit-utils'
+import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionIdLabel } from '../transactions/components/transaction-info'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { accountCloseTransaction } from './data/payment-transactions'
@@ -317,10 +317,10 @@ describe('transaction-wizard-page', () => {
       })
 
       it('succeeds when all fields have been correctly supplied', async () => {
-        const { testAccount } = localnet.context
+        const { testAccount, algorand } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
         const dummyAssetId = await generateTestAsset(algod, testAccount, 1)
-        await assetOptIn({ account: testAccount, assetId: dummyAssetId }, algod)
+        await algorand.send.assetOptIn({ sender: testAccount.addr, assetId: dummyAssetId })
 
         await executeComponentTest(
           () => {
@@ -408,11 +408,10 @@ describe('transaction-wizard-page', () => {
       })
 
       it('succeeds when all fields have been correctly supplied', async () => {
-        const { testAccount } = localnet.context
-        const dummyAssetId = await generateTestAsset(algod, testAccount, 1)
-        const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(10) })
-        await assetOptIn({ account: testAccount2, assetId: dummyAssetId }, algod)
-
+        const { testAccount, algorand } = localnet.context
+        const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(1) })
+        const dummyAssetId = await generateTestAsset(algod, testAccount2, 1)
+        await algorand.send.assetOptIn({ sender: testAccount.addr, assetId: dummyAssetId })
         await executeComponentTest(
           () => {
             return render(<TransactionWizardPage />)
@@ -433,6 +432,10 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender address/)
             fireEvent.input(senderInput, {
+              target: { value: testAccount.addr },
+            })
+            const closeToInput = await component.findByLabelText(/Close To/)
+            fireEvent.input(closeToInput, {
               target: { value: testAccount2.addr },
             })
 
@@ -454,8 +457,8 @@ describe('transaction-wizard-page', () => {
               {
                 "amount": 0,
                 "asset-id": ${dummyAssetId},
-                "close-amount": 0,
-                "receiver": "${testAccount2.addr}",
+                "close-amount": "${testAccount2.addr}",
+                "receiver": "${testAccount.addr}",
               }
             `)
           }
@@ -489,10 +492,10 @@ describe('transaction-wizard-page', () => {
       })
 
       it('succeeds when all fields have been correctly supplied', async () => {
-        const { testAccount } = localnet.context
+        const { testAccount, algorand } = localnet.context
         const dummyAssetId = await generateTestAsset(algod, testAccount, 1)
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
-        await assetOptIn({ account: testAccount, assetId: dummyAssetId }, algod)
+        await algorand.send.assetOptIn({ sender: testAccount.addr, assetId: dummyAssetId })
 
         await executeComponentTest(
           () => {
