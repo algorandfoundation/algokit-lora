@@ -125,6 +125,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         })
 
         if (!transactionResources) {
+          // When the dialog is closed without submitting, the returned data is undefined
           // Throw an empty error so that the form won't be reset
           throw new Error('')
         }
