@@ -71,9 +71,11 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
   )
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault()
-      e.stopPropagation()
+    (e?: React.FormEvent<HTMLFormElement>) => {
+      if (e) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
       return formCtx.handleSubmit(onSubmit)(e)
     },
     [formCtx, onSubmit]

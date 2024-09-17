@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/features/common/utils'
 import { invariant } from '@/utils/invariant'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
+import { HintText } from './hint-text'
+import { useFormFieldError } from '../hooks/use-form-field-error'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -30,7 +32,8 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
 // TODO: NC - Make it look like the designs
 // TODO: NC - Animation is a bit funky when closing the modal
 // TODO: NC - Validation is incorrect for close account transaction building
-
+// TODO: PD - think about calling a raw app (but actually an ABI app that ref another transaction).
+//   In this case, we need the ability to construct the transaction group, add random transaction at random positions
 interface TransactionBuilderProps<TSchema extends Record<string, unknown>> {
   data: {
     transactionType: algosdk.ABITransactionType
@@ -135,8 +138,10 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
 export function TransactionFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
   transactionType,
+  helpText,
 }: TransactionFormItemProps<TSchema>) {
   const { setValue, watch, trigger } = useFormContext<TSchema>()
+  const error = useFormFieldError(field)
 
   const fieldValue = watch(field)
   // TODO: NC - Make this better
@@ -187,7 +192,8 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
           </Button>
         </>
       )}
-      {transactionBuilderDialog}
+      <div>{transactionBuilderDialog}</div>
+      <HintText errorText={error?.message} helpText={helpText} />
     </>
   )
 }
