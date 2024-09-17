@@ -145,7 +145,7 @@ const createAssetOptOut = async (data: z.infer<typeof assetOptOutSchema>) => {
   const transaction = await algorandClient.transactions.assetOptOut({
     assetId: BigInt(data.assetId),
     sender: data.sender,
-    creator: data.closeTo ?? data.sender, // Are you sure about this?
+    creator: data.closeTo ?? data.sender,
     note: data.note,
     ...(!data.fee.setAutomatically && data.fee.value ? { staticFee: algos(data.fee.value) } : undefined),
     ...(!data.validRounds.setAutomatically && data.validRounds.firstValid && data.validRounds.lastValid
@@ -203,7 +203,7 @@ const createAssetRevoke = async (data: z.infer<typeof assetRevokeSchema>) => {
   const transaction = await algorandClient.transactions.assetTransfer({
     sender: data.sender,
     receiver: data.receiver,
-    amount: data.amount,
+    amount: BigInt(data.amount),
     clawbackTarget: data.assetsender,
     assetId: BigInt(data.assetId),
     note: data.note,
@@ -224,7 +224,7 @@ const assetRevokeSchema = zfd.formData({
   ...senderFieldSchema,
   ...receiverFieldSchema,
   assetsender: addressFieldSchema,
-  amount: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(0n)),
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
   ...noteFieldSchema,
