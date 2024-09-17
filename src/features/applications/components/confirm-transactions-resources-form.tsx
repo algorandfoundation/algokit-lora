@@ -128,6 +128,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
               helper.textField({
                 label: `Box ${index + 1}`,
                 field: `boxes.${index}.boxName`,
+                helpText: 'A Base64 encoded box name',
               }),
             newItem: () => ({ id: new Date().getTime().toString(), boxName: '' }),
             max: 8,
