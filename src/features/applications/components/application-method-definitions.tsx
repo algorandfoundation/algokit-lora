@@ -28,7 +28,11 @@ import { Atom } from 'jotai'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
-import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
+import { Checkbox } from '@/features/common/components/checkbox'
+import { Label } from '@/features/common/components/label'
+import { ConfirmTransactionsResourcesForm, TransactionResources } from './confirm-transactions-resources-form'
+import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -69,6 +73,14 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
   const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
   type TData = z.infer<typeof method.schema>
 
+  const [confirmResourcePopulation, setConfirmResourcePopulation] = useState(false)
+  const { open: openConfirmResourcesDialog, dialog: confirmResourcesDialog } = useDialogForm({
+    dialogHeader: 'Confirm Resouces',
+    dialogBody: (props: DialogBodyProps<TransactionResources, TransactionResources>) => (
+      <ConfirmTransactionsResourcesForm resources={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    ),
+  })
+
   const sendMethodCall = useCallback(
     async (data: TData) => {
       invariant(!readonly, 'Component is in readonly mode')
@@ -91,7 +103,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
       })
 
       // TODO: NC - Move to the new AlgorandClient approach when ready
-      const result = await client.call({
+      let result = await client.call({
         method: method.name,
         methodArgs,
         sender: {
@@ -100,8 +112,40 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         },
         sendParams: {
           populateAppCallResources: true,
+          skipSending: confirmResourcePopulation,
         },
       })
+
+      if (confirmResourcePopulation && result.transactions.length > 0) {
+        const transactionResources = await openConfirmResourcesDialog({
+          accounts: result.transaction.appAccounts ?? [],
+          assets: result.transaction.appForeignAssets ?? [],
+          applications: result.transaction.appForeignApps ?? [],
+          boxes: result.transaction.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
+        })
+
+        if (!transactionResources) {
+          // When the dialog is closed without submitting, the returned data is undefined
+          // Throw an empty error so that the form won't be reset
+          throw new Error('')
+        }
+
+        result = await client.call({
+          method: method.name,
+          methodArgs,
+          sender: {
+            addr: activeAddress,
+            signer,
+          },
+          accounts: transactionResources.accounts,
+          apps: transactionResources.applications,
+          assets: transactionResources.assets,
+          boxes: transactionResources.boxes,
+          sendParams: {
+            populateAppCallResources: false,
+          },
+        })
+      }
 
       const sentTxns = asTransactionFromSendResult(result)
       const methodCallTransactionId = result.transaction.txID()
@@ -117,17 +161,20 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
 
       toast.success('Transaction sent successfully')
     },
-    [activeAddress, appSpec, applicationId, method.arguments, method.name, readonly, signer]
+    [
+      readonly,
+      appSpec,
+      activeAddress,
+      applicationId,
+      method.name,
+      method.arguments,
+      signer,
+      confirmResourcePopulation,
+      openConfirmResourcesDialog,
+    ]
   )
 
-  const [modalComponent, setModalComponent] = useState<JSX.Element | undefined>(undefined)
-
-  const launchModal = useCallback((component: JSX.Element | undefined) => {
-    setModalComponent(component)
-  }, [])
-
   // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
-
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
@@ -151,11 +198,12 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                     setSendMethodCallResult(undefined)
                     ctx.reset()
                   }}
+                  className="w-28"
                 >
                   Reset
                 </Button>
-                <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage}>
-                  {sendButtonLabel}
+                <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage} className="w-28">
+                  {confirmResourcePopulation ? 'Build' : 'Send'}
                 </SubmitButton>
               </FormActions>
             ) : undefined
@@ -167,7 +215,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
                 <h4 className="text-primary">Arguments</h4>
                 {method.arguments.length > 0 ? (
                   method.arguments.map((argument, index) => (
-                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} launchModal={launchModal} />
+                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} />
                   ))
                 ) : (
                   <p>No arguments</p>
@@ -176,19 +224,18 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
               <div className="mt-4">
                 <Returns returns={method.returns} />
               </div>
+              <div className="relative mt-4 flex items-center space-x-2">
+                <Checkbox
+                  checked={confirmResourcePopulation}
+                  onCheckedChange={(checked) => setConfirmResourcePopulation(checked === true)}
+                  id={`${method.name}-confirm-resource-population`}
+                />
+                <Label htmlFor={`${method.name}-confirm-resource-population`}>Confirm Resource Population</Label>
+              </div>
             </>
           )}
         </Form>
-        <div className="flex justify-end">
-          <Dialog open={!!modalComponent} onOpenChange={(open) => !open && setModalComponent(undefined)} modal={true}>
-            <DialogContent className="bg-card">
-              <DialogHeader className="flex-row items-center space-y-0">
-                <h2 className="pb-0">Build Transaction</h2>
-              </DialogHeader>
-              <MediumSizeDialogBody>{modalComponent}</MediumSizeDialogBody>
-            </DialogContent>
-          </Dialog>
-        </div>
+        {confirmResourcesDialog}
         {!readonly && sendMethodCallResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">
             <DescriptionList
@@ -224,10 +271,9 @@ type ArgumentProps<TSchema extends z.ZodSchema> = {
   argument: ArgumentDefinition<TSchema>
   helper: FormFieldHelper<z.infer<TSchema>>
   readonly: boolean
-  launchModal: (component: JSX.Element | undefined) => void
 }
 
-function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly, launchModal }: ArgumentProps<TSchema>) {
+function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly }: ArgumentProps<TSchema>) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -266,7 +312,7 @@ function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readon
     <div className="space-y-2">
       <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} />
-      {!readonly && argument.createField(helper, launchModal)}
+      {!readonly && argument.createField(helper)}
     </div>
   )
 }

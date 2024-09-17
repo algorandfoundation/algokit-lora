@@ -64,10 +64,7 @@ export type ArgumentDefinition<TSchema extends z.ZodSchema> = {
   description?: string
   type: algosdk.ABIArgumentType
   hint?: ArgumentHint
-  createField: (
-    helper: FormFieldHelper<z.infer<TSchema>>,
-    launchModal: (component: JSX.Element | undefined) => void
-  ) => JSX.Element | undefined
+  createField: (helper: FormFieldHelper<z.infer<TSchema>>) => JSX.Element | undefined
   getAppCallArg: (arg: unknown) => Promise<ABIAppCallArg>
 }
 

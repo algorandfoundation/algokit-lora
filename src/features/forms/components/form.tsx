@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 import { DefaultValues, FormProvider, useForm, UseFormReturn } from 'react-hook-form'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { ReactNode, useCallback, useState } from 'react'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FormStateContextProvider } from '@/features/forms/hooks/form-state-context'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,7 +13,9 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   header?: string
   schema: z.ZodEffects<any, TSchema, unknown>
   defaultValues?: DefaultValues<TSchema>
-  children: ReactNode | ((helper: FormFieldHelper<TSchema>, handleSubmit: () => Promise<void>) => ReactNode)
+  children:
+    | ReactNode
+    | ((helper: FormFieldHelper<TSchema>, handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>) => ReactNode)
   formAction: ReactNode | ((ctx: UseFormReturn<TSchema, any, undefined>, resetLocalState: () => void) => ReactNode)
   onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
@@ -51,6 +53,11 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
       setErrorMessage(undefined)
       try {
         const data = await _onSubmit(values)
+
+        if (resetOnSuccess) {
+          formCtx.reset()
+        }
+
         onSuccess?.(data)
       } catch (error: unknown) {
         // eslint-disable-next-line no-console
@@ -60,17 +67,17 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
         setSubmitting(false)
       }
     },
-    [_onSubmit, onSuccess]
+    [_onSubmit, onSuccess, resetOnSuccess, formCtx]
   )
 
-  const handleSubmit = useMemo(() => formCtx.handleSubmit(onSubmit), [formCtx, onSubmit])
-
-  useEffect(() => {
-    if (resetOnSuccess) {
-      formCtx.reset()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetOnSuccess, formCtx.formState.isSubmitSuccessful])
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      return formCtx.handleSubmit(onSubmit)(e)
+    },
+    [formCtx, onSubmit]
+  )
 
   return (
     <div className={'grid'}>
@@ -82,7 +89,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
         }}
       >
         <FormProvider {...formCtx}>
-          <form className={cn('grid gap-4', className)} onSubmit={handleSubmit}>
+          <form className={cn('grid gap-4', className)} onSubmit={(e) => handleSubmit(e)}>
             {typeof children === 'function' ? children(new FormFieldHelper<TSchema>(), handleSubmit) : children}
             {errorMessage && (
               <div role="alert" aria-label="error-message" className="text-error">

@@ -1,6 +1,5 @@
 import { Path, PathValue, useFormContext } from 'react-hook-form'
-import { FormItem, FormItemProps } from '@/features/forms/components/form-item'
-import { Input } from '@/features/common/components/input'
+import { FormItemProps } from '@/features/forms/components/form-item'
 import { Button } from '@/features/common/components/button'
 import { useCallback, useMemo, useState } from 'react'
 import { Form } from './form'
@@ -14,6 +13,7 @@ import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { cn } from '@/features/common/utils'
 import { invariant } from '@/utils/invariant'
+import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -21,7 +21,6 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   extends Omit<FormItemProps<TSchema>, 'children'> {
   placeholder?: string
   transactionType: algosdk.ABITransactionType
-  launchModal: (component: JSX.Element | undefined) => void
 }
 
 // TODO: NC - Show the enter values in a readonly mode
@@ -33,18 +32,20 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
 // TODO: NC - Validation is incorrect for close account transaction building
 
 interface TransactionBuilderProps<TSchema extends Record<string, unknown>> {
-  transactionType: algosdk.ABITransactionType
-  savedValues: Record<string, unknown>
+  data: {
+    transactionType: algosdk.ABITransactionType
+    savedValues: Record<string, unknown>
+  }
   onAddTransaction: (value: PathValue<TSchema, Path<TSchema>>) => void
   onComplete: () => void
 }
 
 function TransactionBuilder<TSchema extends Record<string, unknown>>({
-  transactionType,
-  savedValues,
+  data,
   onComplete,
   onAddTransaction,
 }: TransactionBuilderProps<TSchema>) {
+  const { transactionType, savedValues } = data
   const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
 
   const buildableTransactions = useMemo(() => {
@@ -133,67 +134,60 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
 
 export function TransactionFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   field,
-  disabled,
-  placeholder,
   transactionType,
-  launchModal,
-  ...props
 }: TransactionFormItemProps<TSchema>) {
-  const { register, setValue, getValues, trigger } = useFormContext<TSchema>()
+  const { setValue, watch, trigger } = useFormContext<TSchema>()
 
-  const setTransaction = useCallback(
-    async (value: PathValue<TSchema, Path<TSchema>>) => {
-      setValue(field, value)
-      trigger(field)
-    },
-    [field, setValue, trigger]
-  )
-
-  const closeModal = useCallback(() => {
-    launchModal(undefined)
-  }, [launchModal])
-
-  const fieldValue = getValues(field)
+  const fieldValue = watch(field)
   // TODO: NC - Make this better
-  const savedValues = fieldValue ? JSON.parse(fieldValue.toString()) : undefined
-  // TODO: NC - stringify is yuck
+  const savedValues = useMemo(() => (fieldValue ? JSON.parse(fieldValue.toString()) : undefined), [fieldValue])
+
+  // // TODO: NC - stringify is yuck
   const thign = savedValues ? Object.entries(savedValues).map(([key, value]) => ({ dt: key, dd: JSON.stringify(value) })) : []
 
-  const buildTransaction = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      e.preventDefault()
-      launchModal(
-        <TransactionBuilder
-          transactionType={transactionType}
-          savedValues={savedValues}
-          onComplete={closeModal}
-          onAddTransaction={setTransaction}
-        />
-      )
-    },
-    [closeModal, launchModal, savedValues, setTransaction, transactionType]
-  )
+  const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
+    dialogHeader: 'Build Transaction',
+    dialogBody: (
+      props: DialogBodyProps<
+        { transactionType: algosdk.ABITransactionType; savedValues: Record<string, unknown> },
+        PathValue<TSchema, Path<TSchema>>
+      >
+    ) => (
+      <TransactionBuilder
+        data={{ transactionType: props.data.transactionType, savedValues: props.data.savedValues }}
+        onComplete={props.onCancel}
+        onAddTransaction={props.onSubmit}
+      />
+    ),
+  })
+
+  const openDialog = useCallback(async () => {
+    const transaction = await openTransactionBuilderDialog({
+      transactionType,
+      savedValues,
+    })
+    if (transaction) {
+      setValue(field, transaction)
+      await trigger(field)
+    }
+  }, [openTransactionBuilderDialog, transactionType, savedValues, setValue, field, trigger])
 
   return (
     <>
-      {!savedValues && <Button onClick={buildTransaction}>Create</Button>}
+      {!savedValues && (
+        <Button type="button" onClick={openDialog}>
+          Create
+        </Button>
+      )}
       {savedValues && (
         <>
           <DescriptionList items={thign} />
-          <Button onClick={buildTransaction}>Edit</Button>
+          <Button type="button" onClick={openDialog}>
+            Edit
+          </Button>
         </>
       )}
-      <FormItem {...props} field={field} disabled={disabled}>
-        <Input
-          id={field}
-          autoComplete={'off'}
-          type="hidden"
-          {...register(field)}
-          placeholder={placeholder}
-          disabled={disabled}
-          aria-label={field}
-        />
-      </FormItem>
+      {transactionBuilderDialog}
     </>
   )
 }
