@@ -1,4 +1,4 @@
-import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { BuildableTransaction, BuildableTransactionFormField, BuildableTransactionFormFieldType } from '../models'
@@ -19,8 +19,7 @@ import { algos } from '@algorandfoundation/algokit-utils'
 const rawAppCallSchema = zfd.formData({
   ...senderFieldSchema,
   // TODO: PD - handle bigint
-  // appId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
-  appId: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+  appId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   // TODO: PD - JSON serialisation of app args should exclude the ids
   appArgs: zfd.repeatableOfType(
     z.object({
