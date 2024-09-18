@@ -7,14 +7,24 @@ export enum BuildableTransactionFormFieldType {
   AlgoAmount = 'AlgoAmount',
   Fee = 'Fee',
   ValidRounds = 'ValidRounds',
+  Number = 'Number',
+  Array = 'Array',
 }
 
-export type BuildableTransactionFormField = {
-  type: BuildableTransactionFormFieldType
-  label: string
-  description?: string
-  placeholder?: string
-}
+export type BuildableTransactionFormField =
+  | {
+      type: Exclude<BuildableTransactionFormFieldType, BuildableTransactionFormFieldType.Array>
+      label: string
+      description?: string
+      placeholder?: string
+    }
+  | {
+      type: BuildableTransactionFormFieldType.Array
+      childType: BuildableTransactionFormFieldType
+      label: string
+      description?: string
+      placeholder?: string
+    }
 
 export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TData = z.infer<TSchema>> = {
   label: string

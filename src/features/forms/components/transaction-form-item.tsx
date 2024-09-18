@@ -16,6 +16,7 @@ import { invariant } from '@/utils/invariant'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { HintText } from './hint-text'
 import { useFormFieldError } from '../hooks/use-form-field-error'
+import { rawAppCallTransaction } from '@/features/transaction-wizard/data/app-call-transactions'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -54,6 +55,9 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
   const buildableTransactions = useMemo(() => {
     if (transactionType === algosdk.ABITransactionType.pay) {
       return [paymentTransaction, accountCloseTransaction]
+    }
+    if (transactionType === algosdk.ABITransactionType.appl) {
+      return [rawAppCallTransaction]
     }
     return []
   }, [transactionType])

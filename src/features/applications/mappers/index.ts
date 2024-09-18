@@ -24,6 +24,7 @@ import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { paymentTransaction } from '@/features/transaction-wizard/data/payment-transactions'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { rawAppCallTransaction } from '@/features/transaction-wizard/data/app-call-transactions'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -354,7 +355,12 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
   }
   if (algosdk.abiTypeIsTransaction(type)) {
     // TODO: NC - Choose the correct transaction type
-    return await paymentTransaction.createTransaction(JSON.parse(value as string))
+    if (type === algosdk.ABITransactionType.pay) {
+      return await paymentTransaction.createTransaction(JSON.parse(value as string))
+    }
+    if (type === algosdk.ABITransactionType.appl) {
+      return await rawAppCallTransaction.createTransaction(JSON.parse(value as string))
+    }
   }
   return value as ABIAppCallArg
 }

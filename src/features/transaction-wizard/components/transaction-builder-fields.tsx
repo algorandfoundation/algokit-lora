@@ -1,6 +1,6 @@
 import { BuildableTransaction, BuildableTransactionFormField, BuildableTransactionFormFieldType } from '../models'
 import { z } from 'zod'
-import { Path } from 'react-hook-form'
+import { FieldArray, FieldValues, Path } from 'react-hook-form'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
@@ -36,6 +36,10 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
             return helper.textField({
               ...common,
             })
+          case BuildableTransactionFormFieldType.Number:
+            return helper.numberField({
+              ...common,
+            })
           case BuildableTransactionFormFieldType.Account:
             return helper.textField({
               ...common,
@@ -56,6 +60,15 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
             return <TransactionBuilderFeeField key={common.key} helper={helper} path={path} field={field} />
           case BuildableTransactionFormFieldType.ValidRounds:
             return <TransactionBuilderValidRoundField key={common.key} helper={helper} path={path} field={field} />
+          case BuildableTransactionFormFieldType.Array:
+            return helper.arrayField({
+              ...common,
+              renderChildField(_, index) {
+                return helper.textField({ ...common, field: `${path}.${index}.value` as Path<z.infer<TSchema>> })
+              },
+              // TODO: PD - can we fix this type?
+              newItem: () => ({ id: new Date().getTime().toString(), value: '' }) as FieldArray<FieldValues, Path<z.infer<TSchema>>>,
+            })
           default:
             return undefined
         }
