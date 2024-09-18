@@ -191,7 +191,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return numberSchema(z.number().min(min).max(255))
   }
   if (algosdk.abiTypeIsTransaction(type)) {
-    return isOptional ? z.object({}).optional() : z.object({}) // TODO: NC - Is this possible?
+    return isOptional ? z.any().optional() : z.any() // TODO: NC - Is this possible?
   }
   return zfd.text()
 }
@@ -354,7 +354,7 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
   }
   if (algosdk.abiTypeIsTransaction(type)) {
     // TODO: NC - Choose the correct transaction type
-    return await paymentTransaction.createTransaction(JSON.parse(value as string))
+    return await paymentTransaction.createTransaction(value as Parameters<typeof paymentTransaction.createTransaction>[0])
   }
   return value as ABIAppCallArg
 }
