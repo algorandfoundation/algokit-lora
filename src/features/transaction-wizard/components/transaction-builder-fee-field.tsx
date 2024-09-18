@@ -17,14 +17,14 @@ export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper
   const setAutomaticallyPath = `${path}.setAutomatically` as typeof path
   const feeValuePath = `${path}.value` as typeof path
 
-  const setFeeAutomatically = watch(setAutomaticallyPath)
+  const setAutomatically = watch(setAutomaticallyPath)
 
   useEffect(() => {
     clearErrors(feeValuePath)
-    if (setFeeAutomatically) {
+    if (setAutomatically) {
       resetField(feeValuePath)
     }
-  }, [clearErrors, resetField, feeValuePath, setFeeAutomatically])
+  }, [clearErrors, resetField, feeValuePath, setAutomatically])
 
   return (
     <div className="grid">
@@ -32,7 +32,7 @@ export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper
         label: field.label,
         field: setAutomaticallyPath,
       })}
-      {!setFeeAutomatically && (
+      {!setAutomatically && (
         <div className="ml-6 mt-3 grid gap-4">
           {helper.numberField({
             label: (

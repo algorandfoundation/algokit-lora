@@ -16,6 +16,7 @@ import { invariant } from '@/utils/invariant'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { HintText } from './hint-text'
 import { useFormFieldError } from '../hooks/use-form-field-error'
+import { asJson } from '@/utils/as-json'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -27,17 +28,16 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
 
 // TODO: NC - Show the enter values in a readonly mode
 // TODO: NC - Add the transaction type selector. Needs to be limited to the transactions that are available.
-// TODO: NC - Make sure the form reset button clears the hidden field state
 // TODO: NC - Properly handle decoding the value and sending the transaction
 // TODO: NC - Make it look like the designs
-// TODO: NC - Animation is a bit funky when closing the modal
 // TODO: NC - Validation is incorrect for close account transaction building
+// TODO: NC - Handle readonly ABI methods <-- not related to transactions
 // TODO: PD - think about calling a raw app (but actually an ABI app that ref another transaction).
 //   In this case, we need the ability to construct the transaction group, add random transaction at random positions
 interface TransactionBuilderProps<TSchema extends Record<string, unknown>> {
   data: {
     transactionType: algosdk.ABITransactionType
-    savedValues: Record<string, unknown>
+    fieldValue: PathValue<TSchema, Path<TSchema>>
   }
   onAddTransaction: (value: PathValue<TSchema, Path<TSchema>>) => void
   onComplete: () => void
@@ -48,7 +48,7 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
   onComplete,
   onAddTransaction,
 }: TransactionBuilderProps<TSchema>) {
-  const { transactionType, savedValues } = data
+  const { transactionType, fieldValue } = data
   const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
 
   const buildableTransactions = useMemo(() => {
@@ -64,7 +64,7 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
 
   const addTransaction = useCallback(
     async (values: Parameters<typeof buildableTransaction.createTransaction>[0]) => {
-      onAddTransaction(JSON.stringify(values) as PathValue<TSchema, Path<TSchema>>) // TODO: NC - Handle bigint in json stringify
+      onAddTransaction(values as PathValue<TSchema, Path<TSchema>>)
     },
     [buildableTransaction, onAddTransaction]
   )
@@ -104,11 +104,11 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
             },
             validRounds: {
               setAutomatically: true,
-              firstValid: '' as unknown as undefined,
+              firstValid: '' as unknown as undefined, // TODO: NC - Do we need this anymore.
               lastValid: '' as unknown as undefined,
             },
             ...buildableTransaction.defaultValues,
-            ...savedValues,
+            ...(fieldValue ?? undefined),
           } as Parameters<typeof buildableTransaction.createTransaction>[0]
         }
         onSubmit={addTransaction}
@@ -144,22 +144,17 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   const error = useFormFieldError(field)
 
   const fieldValue = watch(field)
-  // TODO: NC - Make this better
-  const savedValues = useMemo(() => (fieldValue ? JSON.parse(fieldValue.toString()) : undefined), [fieldValue])
-
-  // // TODO: NC - stringify is yuck
-  const thign = savedValues ? Object.entries(savedValues).map(([key, value]) => ({ dt: key, dd: JSON.stringify(value) })) : []
 
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
     dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
-        { transactionType: algosdk.ABITransactionType; savedValues: Record<string, unknown> },
+        { transactionType: algosdk.ABITransactionType; fieldValue: PathValue<TSchema, Path<TSchema>> },
         PathValue<TSchema, Path<TSchema>>
       >
     ) => (
       <TransactionBuilder
-        data={{ transactionType: props.data.transactionType, savedValues: props.data.savedValues }}
+        data={{ transactionType: props.data.transactionType, fieldValue: props.data.fieldValue }}
         onComplete={props.onCancel}
         onAddTransaction={props.onSubmit}
       />
@@ -167,26 +162,27 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   })
 
   const openDialog = useCallback(async () => {
-    const transaction = await openTransactionBuilderDialog({
+    const transactionParams = await openTransactionBuilderDialog({
       transactionType,
-      savedValues,
+      fieldValue,
     })
-    if (transaction) {
-      setValue(field, transaction)
+    if (transactionParams) {
+      setValue(field, transactionParams)
       await trigger(field)
     }
-  }, [openTransactionBuilderDialog, transactionType, savedValues, setValue, field, trigger])
+  }, [openTransactionBuilderDialog, transactionType, fieldValue, setValue, field, trigger])
 
   return (
     <>
-      {!savedValues && (
+      {!fieldValue && (
         <Button type="button" onClick={openDialog}>
           Create
         </Button>
       )}
-      {savedValues && (
+      {fieldValue && (
         <>
-          <DescriptionList items={thign} />
+          {/* TODO: NC - Remove asJson */}
+          <DescriptionList items={Object.entries(fieldValue).map(([key, value]) => ({ dt: key, dd: asJson(value) }))} />
           <Button type="button" onClick={openDialog}>
             Edit
           </Button>

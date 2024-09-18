@@ -12,7 +12,7 @@ type NumericFormatWithRefProps<TSchema extends Record<string, unknown> = Record<
   className?: string
   disabled?: boolean
   ['aria-label']?: string
-  value: string | undefined
+  value: string | number | bigint | undefined
   onChange: (value: string | undefined) => void
   fixedDecimalScale?: boolean
 }
@@ -28,7 +28,7 @@ const NumericFormatWithRef = forwardRef<HTMLInputElement, NumericFormatWithRefPr
         )}
         defaultValue=""
         getInputRef={ref}
-        value={value === undefined ? '' : value}
+        value={value === undefined ? '' : value.toString()}
         thousandSeparator={thousandSeparator}
         decimalScale={decimalScale ?? 0}
         onValueChange={(target) => {
