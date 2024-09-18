@@ -192,7 +192,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return numberSchema(z.number().min(min).max(255))
   }
   if (algosdk.abiTypeIsTransaction(type)) {
-    return isOptional ? zfd.text().optional() : zfd.text() // TODO: NC - Is this possible?
+    return isOptional ? z.object({}).optional() : z.object({}) // TODO: NC - Is this possible?
   }
   return zfd.text()
 }
