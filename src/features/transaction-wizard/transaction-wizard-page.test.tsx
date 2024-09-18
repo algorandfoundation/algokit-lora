@@ -457,7 +457,8 @@ describe('transaction-wizard-page', () => {
               {
                 "amount": 0,
                 "asset-id": ${dummyAssetId},
-                "close-amount": "${testAccount2.addr}",
+                "close-amount": 0,
+                "close-to": "${testAccount2.addr}",
                 "receiver": "${testAccount.addr}",
               }
             `)
