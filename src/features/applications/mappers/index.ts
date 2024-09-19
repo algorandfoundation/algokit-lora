@@ -11,7 +11,7 @@ import {
 import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
-import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
+import { AppClientMethodCallParamsArgs, ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec } from '@/features/common/utils'
@@ -20,7 +20,6 @@ import { zfd } from 'zod-form-data'
 import { DefaultValues, FieldPath, Path } from 'react-hook-form'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { BuildableTransactionType } from '@/features/transaction-wizard/models'
@@ -328,26 +327,28 @@ const getCreateField = <TData extends Record<string, unknown>>(
   return undefined
 }
 
-const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<ABIAppCallArg> => {
+const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<AppClientMethodCallParamsArgs> => {
   if (type instanceof algosdk.ABIUfixedType) {
-    return fixedPointDecimalStringToBigInt(value as string, type.precision) as ABIAppCallArg
+    return fixedPointDecimalStringToBigInt(value as string, type.precision) as AppClientMethodCallParamsArgs
   }
   if (
     (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
     (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
   ) {
-    return base64ToBytes(value as string) as ABIAppCallArg
+    return base64ToBytes(value as string) as AppClientMethodCallParamsArgs
   }
 
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as ABIAppCallArg
+    return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as AppClientMethodCallParamsArgs
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as ABIAppCallArg
+    return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as AppClientMethodCallParamsArgs
   }
   if (type instanceof algosdk.ABITupleType) {
-    return (await Promise.all((value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)))) as ABIAppCallArg
+    return (await Promise.all(
+      (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item))
+    )) as AppClientMethodCallParamsArgs
   }
   if (algosdk.abiTypeIsTransaction(type)) {
     if (value && typeof value === 'object' && 'type' in value) {
@@ -357,7 +358,7 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
       return transactionType.createTransaction(rest as any)
     }
   }
-  return value as ABIAppCallArg
+  return value as AppClientMethodCallParamsArgs
 }
 
 const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
@@ -382,7 +383,7 @@ const asField = <TData extends Record<string, unknown>>(
   createField: (helper: FormFieldHelper<TData>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
-  getAppCallArg: (value: unknown) => Promise<ABIAppCallArg>
+  getAppCallArg: (value: unknown) => Promise<AppClientMethodCallParamsArgs>
 } => {
   const isArgOptional = !!hint?.defaultArgument
 

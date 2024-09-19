@@ -37,7 +37,7 @@ const getActiveWalletAccount = async (address: string) => {
     algoHolding: {
       amount: accountInformation.balance.microAlgo,
     },
-    minBalance: accountInformation.minBalance.microAlgo,
+    minBalance: Number(accountInformation.minBalance.microAlgo),
     validAtRound: Number(accountInformation.validAsOfRound),
   } satisfies ActiveWalletAccount
 }

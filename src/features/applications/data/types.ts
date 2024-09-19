@@ -1,4 +1,7 @@
+import algosdk from 'algosdk'
 import { ApplicationResult as IndexerApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ABIStruct } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
 
 export type ApplicationId = number
 
@@ -11,3 +14,5 @@ export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round
     'global-state'?: IndexerApplicationResult['params']['global-state']
   }
 }
+
+export type AppClientMethodCallParamsArgs = algosdk.ABIValue | ABIStruct | AppMethodCallTransactionArgument | undefined

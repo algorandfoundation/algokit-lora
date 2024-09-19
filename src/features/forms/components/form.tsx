@@ -15,7 +15,7 @@ export interface FormProps<TData, TSchema extends Record<string, unknown>> {
   defaultValues?: DefaultValues<TSchema>
   children:
     | ReactNode
-    | ((helper: FormFieldHelper<TSchema>, handleSubmit: (e: React.FormEvent<HTMLFormElement>) => Promise<void>) => ReactNode)
+    | ((helper: FormFieldHelper<TSchema>, handleSubmit: (e?: React.FormEvent<HTMLFormElement>) => Promise<void>) => ReactNode)
   formAction: ReactNode | ((ctx: UseFormReturn<TSchema, any, undefined>, resetLocalState: () => void) => ReactNode)
   onSuccess?: (data: TData) => void
   onSubmit: (values: z.infer<z.ZodEffects<any, TSchema, unknown>>) => Promise<TData> | TData
