@@ -22,8 +22,9 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { paymentTransaction } from '@/features/transaction-wizard/data/payment-transactions'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { BuildableTransactionType } from '@/features/transaction-wizard/models'
+import { transactionTypes } from '@/features/transaction-wizard/data'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -317,10 +318,6 @@ const getCreateField = <TData extends Record<string, unknown>>(
     })
   }
   if (algosdk.abiTypeIsTransaction(type)) {
-    // TODO: NC - Check the transaction type and load the correct buildable transaction
-
-    // Pass in the type, so we can determine the transaction objects that are applicable
-
     return formFieldHelper.transactionField({
       label: 'Value',
       field: path,
@@ -353,8 +350,12 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
     return (await Promise.all((value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)))) as ABIAppCallArg
   }
   if (algosdk.abiTypeIsTransaction(type)) {
-    // TODO: NC - Choose the correct transaction type
-    return await paymentTransaction.createTransaction(value as Parameters<typeof paymentTransaction.createTransaction>[0])
+    if (value && typeof value === 'object' && 'type' in value) {
+      const { type, ...rest } = value
+      const transactionType = transactionTypes[value.type as BuildableTransactionType]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return transactionType.createTransaction(rest as any)
+    }
   }
   return value as ABIAppCallArg
 }
