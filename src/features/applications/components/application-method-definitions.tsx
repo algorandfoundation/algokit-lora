@@ -11,11 +11,10 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet'
-import { ApplicationId } from '../data/types'
+import { AppClientMethodCallParamsArgs, ApplicationId } from '../data/types'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { invariant } from '@/utils/invariant'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { ABIAppCallArg } from '@algorandfoundation/algokit-utils/types/app'
 import { extractArgumentIndexFromFieldPath } from '../mappers'
 import { toast } from 'react-toastify'
 import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
@@ -34,7 +33,6 @@ import { ConfirmTransactionsResourcesForm, TransactionResources } from './confir
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import algosdk from 'algosdk'
-import { AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -96,7 +94,7 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
           acc[index] = await method.arguments[index].getAppCallArg(value)
           return acc
         },
-        Promise.resolve([] as AppClientMethodCallParams['args'][])
+        Promise.resolve([] as AppClientMethodCallParamsArgs[])
       )
 
       const client = algorandClient.client.getAppClientById({
@@ -104,16 +102,13 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
         appSpec: appSpec as AppSpec,
       })
 
-      const params = client.params.call({
+      const params = {
         method: method.name,
         args: methodArgs,
         sender: activeAddress,
         signer,
-      })
-
-      let result = await (confirmResourcePopulation
-        ? client.transactions.call({ ...params, populateAppCallResources: true })
-        : client.send.call({ ...params, populateAppCallResources: true }))
+      }
+      let result = await (confirmResourcePopulation ? client.transactions.call({ ...params }) : client.send.call({ ...params }))
 
       if (confirmResourcePopulation && result.transactions.length > 0) {
         const appCall = result.transactions.at(-1)!
