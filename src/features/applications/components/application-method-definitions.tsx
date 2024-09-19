@@ -33,6 +33,8 @@ import { Label } from '@/features/common/components/label'
 import { ConfirmTransactionsResourcesForm, TransactionResources } from './confirm-transactions-resources-form'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import algosdk from 'algosdk'
+import { AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 
 type Props<TSchema extends z.ZodSchema> = {
   applicationId: ApplicationId
@@ -94,34 +96,32 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
           acc[index] = await method.arguments[index].getAppCallArg(value)
           return acc
         },
-        Promise.resolve([] as ABIAppCallArg[])
+        Promise.resolve([] as AppClientMethodCallParams['args'][])
       )
 
       const client = algorandClient.client.getAppClientById({
-        id: applicationId,
-        app: appSpec as AppSpec,
+        appId: BigInt(applicationId),
+        appSpec: appSpec as AppSpec,
       })
 
-      // TODO: NC - Move to the new AlgorandClient approach when ready
-      let result = await client.call({
+      const params = client.params.call({
         method: method.name,
-        methodArgs,
-        sender: {
-          addr: activeAddress,
-          signer,
-        },
-        sendParams: {
-          populateAppCallResources: true,
-          skipSending: confirmResourcePopulation,
-        },
+        args: methodArgs,
+        sender: activeAddress,
+        signer,
       })
+
+      let result = await (confirmResourcePopulation
+        ? client.transactions.call({ ...params, populateAppCallResources: true })
+        : client.send.call({ ...params, populateAppCallResources: true }))
 
       if (confirmResourcePopulation && result.transactions.length > 0) {
+        const appCall = result.transactions.at(-1)!
         const transactionResources = await openConfirmResourcesDialog({
-          accounts: result.transaction.appAccounts ?? [],
-          assets: result.transaction.appForeignAssets ?? [],
-          applications: result.transaction.appForeignApps ?? [],
-          boxes: result.transaction.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
+          accounts: appCall.appAccounts ?? [],
+          assets: appCall.appForeignAssets ?? [],
+          applications: appCall.appForeignApps ?? [],
+          boxes: appCall.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
         })
 
         if (!transactionResources) {
@@ -130,25 +130,21 @@ function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, r
           throw new Error('')
         }
 
-        result = await client.call({
+        result = await client.send.call({
           method: method.name,
-          methodArgs,
-          sender: {
-            addr: activeAddress,
-            signer,
-          },
-          accounts: transactionResources.accounts,
-          apps: transactionResources.applications,
-          assets: transactionResources.assets,
-          boxes: transactionResources.boxes,
-          sendParams: {
-            populateAppCallResources: false,
-          },
+          args: methodArgs,
+          sender: activeAddress,
+          signer,
+          accountReferences: transactionResources.accounts.map((a) => algosdk.encodeAddress(a.publicKey)),
+          appReferences: transactionResources.applications.map((a) => BigInt(a)),
+          assetReferences: transactionResources.assets.map((a) => BigInt(a)),
+          boxReferences: transactionResources.boxes,
+          populateAppCallResources: false,
         })
       }
 
       const sentTxns = asTransactionFromSendResult(result)
-      const methodCallTransactionId = result.transaction.txID()
+      const methodCallTransactionId = result.transactions.at(-1)!.txID()
       const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
       invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
       const transactionsGraphData = asTransactionsGraphData(sentTxns)
