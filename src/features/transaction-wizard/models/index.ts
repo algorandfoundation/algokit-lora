@@ -27,6 +27,7 @@ export type BuildableTransactionFormField =
     }
 
 export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TData = z.infer<TSchema>> = {
+  type: BuildableTransactionType
   label: string
   fields: {
     [K in keyof TData]: BuildableTransactionFormField
@@ -35,4 +36,10 @@ export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TDa
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: z.ZodEffects<any, TData, unknown>
   createTransaction: (data: TData) => Promise<algosdk.Transaction>
+}
+
+export enum BuildableTransactionType {
+  Payment,
+  AccountClose,
+  AppCall,
 }

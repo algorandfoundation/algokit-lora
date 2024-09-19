@@ -12,7 +12,7 @@ const reduceAllTransactions = (
   transaction: TransactionsSummaryInput
 ): [Map<TransactionType, number>, number, number] => {
   acc[0].set(transaction.type, (acc[0].get(transaction.type) ?? 0) + 1) // countByType accumulation
-  acc[1] = acc[1] + transaction.fee.microAlgos // feeTotal accumulation
+  acc[1] = acc[1] + Number(transaction.fee.microAlgos) // feeTotal accumulation
   acc[2] = acc[2] + 1 // transactionCount accumulation
   return (transaction.innerTransactions ?? []).reduce(reduceAllTransactions, acc)
 }

@@ -16,7 +16,9 @@ import { invariant } from '@/utils/invariant'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { HintText } from './hint-text'
 import { useFormFieldError } from '../hooks/use-form-field-error'
-import { asJson } from '@/utils/as-json'
+import { transactionTypes } from '@/features/transaction-wizard/data'
+import { BuildableTransactionType } from '@/features/transaction-wizard/models'
+import { feeField, validRoundsField } from '@/features/transaction-wizard/data/common'
 import { rawAppCallTransaction } from '@/features/transaction-wizard/data/app-call-transactions'
 
 export const transactionTypeLabel = 'Transaction type'
@@ -27,12 +29,12 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   transactionType: algosdk.ABITransactionType
 }
 
-// TODO: NC - Show the enter values in a readonly mode
 // TODO: NC - Add the transaction type selector. Needs to be limited to the transactions that are available.
 // TODO: NC - Properly handle decoding the value and sending the transaction
 // TODO: NC - Make it look like the designs
 // TODO: NC - Validation is incorrect for close account transaction building
 // TODO: NC - Handle readonly ABI methods <-- not related to transactions
+// TODO: NC - When setting a fee (or round range), then resetting it back the previously set fee is still set.
 // TODO: PD - think about calling a raw app (but actually an ABI app that ref another transaction).
 //   In this case, we need the ability to construct the transaction group, add random transaction at random positions
 interface TransactionBuilderProps<TSchema extends Record<string, unknown>> {
@@ -68,7 +70,7 @@ function TransactionBuilder<TSchema extends Record<string, unknown>>({
 
   const addTransaction = useCallback(
     async (values: Parameters<typeof buildableTransaction.createTransaction>[0]) => {
-      onAddTransaction(values as PathValue<TSchema, Path<TSchema>>)
+      onAddTransaction({ type: buildableTransaction.type, ...values } as PathValue<TSchema, Path<TSchema>>)
     },
     [buildableTransaction, onAddTransaction]
   )
@@ -166,27 +168,70 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   })
 
   const openDialog = useCallback(async () => {
-    const transactionParams = await openTransactionBuilderDialog({
+    const result = await openTransactionBuilderDialog({
       transactionType,
       fieldValue,
     })
-    if (transactionParams) {
-      setValue(field, transactionParams)
+    if (result) {
+      setValue(field, result)
       await trigger(field)
     }
   }, [openTransactionBuilderDialog, transactionType, fieldValue, setValue, field, trigger])
 
+  const transactionFields = useMemo(() => {
+    if (!fieldValue || typeof fieldValue !== 'object' || !('type' in fieldValue)) {
+      return []
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const temp = fieldValue as { type: BuildableTransactionType; [k: string]: any }
+
+    return Object.entries(transactionTypes[temp.type].fields).reduce(
+      (acc, [key, value]) => {
+        if (Object.keys(feeField).includes(key)) {
+          if (!temp[key].setAutomatically && temp[key].value) {
+            acc.push({
+              dt: 'Fee', // TODO: NC - Can we auto resolve this or use a constant?
+              dd: temp[key].value.toString(),
+            })
+          }
+        } else if (Object.keys(validRoundsField).includes(key)) {
+          if (!temp[key].setAutomatically && temp[key].firstValid && temp[key].lastValid) {
+            acc.push({
+              dt: 'Round from', // TODO: NC - Can we auto resolve this or use a constant?
+              dd: temp[key].firstValid.toString(),
+            })
+            acc.push({
+              dt: 'Round to', // TODO: NC - Can we auto resolve this or use a constant?
+              dd: temp[key].lastValid.toString(),
+            })
+          }
+        } else if (key in temp) {
+          const dd = temp[key]
+          if (dd) {
+            acc.push({
+              dt: value.label,
+              dd: dd.toString(),
+            })
+          }
+        }
+
+        return acc
+      },
+      [] as { dt: string; dd: string }[]
+    )
+  }, [fieldValue])
+
   return (
     <>
-      {!fieldValue && (
+      {transactionFields.length === 0 && (
         <Button type="button" onClick={openDialog}>
           Create
         </Button>
       )}
-      {fieldValue && (
+      {transactionFields.length > 0 && (
         <>
-          {/* TODO: NC - Remove asJson */}
-          <DescriptionList items={Object.entries(fieldValue).map(([key, value]) => ({ dt: key, dd: asJson(value) }))} />
+          <DescriptionList items={transactionFields} />
           <Button type="button" onClick={openDialog}>
             Edit
           </Button>

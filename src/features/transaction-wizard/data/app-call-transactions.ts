@@ -1,7 +1,7 @@
 import { bigIntSchema } from '@/features/forms/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
-import { BuildableTransaction, BuildableTransactionFormField, BuildableTransactionFormFieldType } from '../models'
+import { BuildableTransaction, BuildableTransactionFormField, BuildableTransactionFormFieldType, BuildableTransactionType } from '../models'
 import {
   feeField,
   feeFieldSchema,
@@ -71,4 +71,5 @@ export const rawAppCallTransaction = {
   defaultValues: {},
   schema: rawAppCallSchema,
   createTransaction: createRawAppCall,
+  type: BuildableTransactionType.AppCall,
 } satisfies BuildableTransaction<typeof rawAppCallSchema>

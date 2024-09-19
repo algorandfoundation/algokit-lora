@@ -1,4 +1,4 @@
-import { BuildableTransactionFormFieldType, BuildableTransaction, BuildableTransactionFormField } from '../models'
+import { BuildableTransactionFormFieldType, BuildableTransaction, BuildableTransactionFormField, BuildableTransactionType } from '../models'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { algorandClient } from '@/features/common/data/algo-client'
@@ -73,6 +73,7 @@ const paymentSchema = zfd.formData({
   ...noteFieldSchema,
 })
 export const paymentTransaction = {
+  type: BuildableTransactionType.Payment,
   label: 'Payment (pay)',
   fields: {
     ...senderField,
@@ -120,6 +121,7 @@ const accountCloseSchema = zfd.formData(
 )
 
 export const accountCloseTransaction = {
+  type: BuildableTransactionType.AccountClose,
   label: 'Account close (pay)',
   fields: {
     ...senderField,

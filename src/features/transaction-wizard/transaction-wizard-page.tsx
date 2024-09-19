@@ -1,5 +1,4 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { paymentTransaction, accountCloseTransaction } from './data/payment-transactions'
 import { useCallback, useState } from 'react'
 import { Label } from '../common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../common/components/select'
@@ -9,12 +8,13 @@ import { RenderLoadable } from '../common/components/render-loadable'
 import { PageLoader } from '../common/components/page-loader'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '../wallet/data/active-wallet'
 import { TransactionBuilderForm } from './components/transaction-builder-form'
+import { transactionTypes } from './data'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 
-const buildableTransactions = [paymentTransaction, accountCloseTransaction]
+const buildableTransactions = Object.values(transactionTypes)
 
 export function TransactionWizardPage() {
   const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
