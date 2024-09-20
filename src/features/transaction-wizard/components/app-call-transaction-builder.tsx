@@ -1,3 +1,4 @@
+import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { senderFieldSchema, commoSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
@@ -33,12 +34,12 @@ const appCallFormSchema = {
 }
 const baseFormData = zfd.formData(appCallFormSchema)
 
-type AppCallFormProps = {
-  onSubmit: (transaction: AppCallTransactionBuilderResult) => void
+type Props = {
+  onSubmit: (transaction: algosdk.Transaction) => void
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilderForm({ onSubmit, onCancel }: AppCallFormProps) {
+export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
 
@@ -68,7 +69,7 @@ export function AppCallTransactionBuilderForm({ onSubmit, onCancel }: AppCallFor
           return acc
         }, {})
 
-        onSubmit({ ...fields, methodArgs } as unknown as AppCallTransactionBuilderResult)
+        throw new Error('Not implemented')
       }
     },
     [methodForm, onSubmit]
@@ -108,19 +109,18 @@ export function AppCallTransactionBuilderForm({ onSubmit, onCancel }: AppCallFor
         </FormActions>
       }
     >
-      {(helper) => <AppCallFormInner helper={helper} methodForm={methodForm} onSetMethodForm={onSetMethodForm} />}
+      {(helper) => <FormInner helper={helper} methodForm={methodForm} onSetMethodForm={onSetMethodForm} />}
     </Form>
   )
 }
-function AppCallFormInner({
-  helper,
-  methodForm,
-  onSetMethodForm,
-}: {
+
+type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof baseFormData>>
   methodForm: MethodForm | undefined
   onSetMethodForm: (method: MethodForm | undefined) => void
-}) {
+}
+
+function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   const { watch } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('appId')
   const methodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))

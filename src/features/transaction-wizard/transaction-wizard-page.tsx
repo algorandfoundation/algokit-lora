@@ -1,60 +1,57 @@
-import { PageTitle } from '@/features/common/components/page-title'
+import algosdk from 'algosdk'
 import { useCallback, useState } from 'react'
-import { Label } from '../common/components/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../common/components/select'
-import { cn } from '../common/utils'
+import { DialogBodyProps, useDialogForm } from '../common/hooks/use-dialog-form'
+import { Button } from '../common/components/button'
+import { TransactionBuilder } from './components/transaction-builder'
+import { algorandClient } from '../common/data/algo-client'
+import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
-import { RenderLoadable } from '../common/components/render-loadable'
-import { PageLoader } from '../common/components/page-loader'
-import { useLoadableActiveWalletAddressSnapshotAtom } from '../wallet/data/active-wallet'
-import { TransactionBuilderForm } from './components/transaction-builder-form'
-import { transactionTypes } from './data'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 
-const buildableTransactions = Object.values(transactionTypes)
-
 export function TransactionWizardPage() {
-  const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
-  const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
+  const { activeAddress, signer } = useWallet()
+  const [transactions, setTransactions] = useState<algosdk.Transaction[]>([])
 
-  invariant(selectedBuildableTransactionIndex < buildableTransactions.length, 'Invalid transaction type index')
+  const { open, dialog } = useDialogForm({
+    dialogHeader: 'Transaction Builder',
+    dialogBody: (props: DialogBodyProps<number, algosdk.Transaction>) => (
+      <TransactionBuilder onCancel={props.onCancel} onSubmit={props.onSubmit} />
+    ),
+  })
 
-  const buildableTransaction = buildableTransactions[selectedBuildableTransactionIndex]
+  const openDialog = useCallback(async () => {
+    const transaction = await open(1)
+    if (transaction) {
+      setTransactions((prev) => [...prev, transaction])
+    }
+  }, [open])
 
-  const changeSelectedBuildableTransaction = useCallback(async (value: string) => {
-    setSelectedBuildableTransactionIndex(Number(value))
-  }, [])
+  const sendTransactions = useCallback(async () => {
+    invariant(activeAddress, 'Please connect your wallet')
+    console.log(transactions)
+
+    const atc = algorandClient.setSigner(activeAddress, signer).newGroup()
+    transactions.forEach((transaction) => {
+      atc.addTransaction(transaction)
+    })
+
+    const result = await atc.execute()
+    console.log(result)
+  }, [transactions])
 
   return (
-    <>
-      <PageTitle title={transactionWizardPageTitle} />
-      <RenderLoadable loadable={loadableActiveWalletAddressSnapshot} fallback={<PageLoader />}>
-        {(activeWalletAddressSnapshot) => (
-          <div className="lg:w-1/2">
-            <div className={cn('flex w-72 flex-col mb-4')}>
-              <Label htmlFor="transaction-type" className={cn('ml-0.5 mb-2')}>
-                {transactionTypeLabel}
-              </Label>
-              <Select onValueChange={changeSelectedBuildableTransaction} value={selectedBuildableTransactionIndex.toString()}>
-                <SelectTrigger id="transaction-type">
-                  <SelectValue placeholder="Select transaction type" />
-                </SelectTrigger>
-                <SelectContent className={cn('bg-card text-card-foreground')}>
-                  {buildableTransactions.map((transaction, i) => (
-                    <SelectItem key={i} value={i.toString()}>
-                      {transaction.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <TransactionBuilderForm buildableTransaction={buildableTransaction} defaultSender={activeWalletAddressSnapshot} />
-          </div>
-        )}
-      </RenderLoadable>
-    </>
+    <div>
+      {transactions.map((transaction, index) => (
+        <div key={index}>
+          <p>{transaction.type}</p>
+        </div>
+      ))}
+      <Button onClick={openDialog}>Create</Button>
+      <Button onClick={sendTransactions}>Send</Button>
+      {dialog}
+    </div>
   )
 }
