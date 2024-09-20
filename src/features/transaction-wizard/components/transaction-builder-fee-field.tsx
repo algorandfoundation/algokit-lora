@@ -1,22 +1,16 @@
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
-import { BuildableTransactionFormField } from '../models'
-import { Path, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
+import { commonFormData } from '../data/common'
 
-// TODO: PD - make a common form schema
-type Props<TSchema extends z.ZodSchema> = {
-  helper: FormFieldHelper<z.infer<TSchema>>
-  path: Path<TSchema>
-  field: BuildableTransactionFormField // TODO: PD - this can be a label
-}
+export function TransactionBuilderFeeField() {
+  const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, resetField } = useFormContext<z.infer<typeof commonFormData>>()
 
-export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper, path, field }: Props<TSchema>) {
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<TSchema>>()
-
-  const setAutomaticallyPath = `${path}.setAutomatically` as typeof path
-  const feeValuePath = `${path}.value` as typeof path
+  const setAutomaticallyPath = 'fee.setAutomatically'
+  const feeValuePath = 'fee.value'
 
   const setAutomatically = watch(setAutomaticallyPath)
 
@@ -25,12 +19,12 @@ export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper
     if (setAutomatically) {
       resetField(feeValuePath)
     }
-  }, [clearErrors, resetField, feeValuePath, setAutomatically])
+  }, [clearErrors, resetField, setAutomatically])
 
   return (
     <div className="grid">
       {helper.checkboxField({
-        label: field.label,
+        label: 'Set fee automatically',
         field: setAutomaticallyPath,
       })}
       {!setAutomatically && (

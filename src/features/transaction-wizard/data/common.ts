@@ -105,3 +105,11 @@ export const validRoundsField = {
     type: BuildableTransactionFormFieldType.ValidRounds,
   } satisfies BuildableTransactionFormField,
 }
+
+export const commoSchema = {
+  ...feeFieldSchema,
+  ...validRoundsFieldSchema,
+  ...noteFieldSchema,
+}
+
+export const commonFormData = zfd.formData(commoSchema)

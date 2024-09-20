@@ -1,21 +1,16 @@
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
-import { BuildableTransactionFormField } from '../models'
-import { Path, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
+import { commonFormData } from '../data/common'
 
-type Props<TSchema extends z.ZodSchema> = {
-  helper: FormFieldHelper<z.infer<TSchema>>
-  path: Path<TSchema>
-  field: BuildableTransactionFormField
-}
+export function TransactionBuilderValidRoundField() {
+  const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, resetField } = useFormContext<z.infer<typeof commonFormData>>()
 
-export function TransactionBuilderValidRoundField<TSchema extends z.ZodSchema>({ helper, path, field }: Props<TSchema>) {
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<TSchema>>()
-
-  const setAutomaticallyPath = `${path}.setAutomatically` as typeof path
-  const firstValidPath = `${path}.firstValid` as typeof path
-  const lastValidPath = `${path}.lastValid` as typeof path
+  const setAutomaticallyPath = 'validRounds.setAutomatically'
+  const firstValidPath = 'validRounds.firstValid'
+  const lastValidPath = 'validRounds.lastValid'
 
   const setAutomatically = watch(setAutomaticallyPath)
 
@@ -25,12 +20,12 @@ export function TransactionBuilderValidRoundField<TSchema extends z.ZodSchema>({
       resetField(firstValidPath)
       resetField(lastValidPath)
     }
-  }, [clearErrors, resetField, setAutomatically, firstValidPath, lastValidPath])
+  }, [clearErrors, resetField, setAutomatically])
 
   return (
     <div className="grid">
       {helper.checkboxField({
-        label: field.label,
+        label: 'Set valid rounds automatically',
         field: setAutomaticallyPath,
       })}
       {!setAutomatically && (

@@ -87,26 +87,3 @@ export type MethodDefinition = {
   arguments: ArgumentDefinition[]
   returns: ReturnsDefinition
 }
-
-// TODO: Name {X}FormDefinition ??
-export type MethodFormDefinition = {
-  name: string
-  signature: string
-  description?: string
-  arguments: ArgumentFormDefinition[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  schema: Record<string, z.ZodType<any>>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  defaultValues: DefaultValues<any>
-  returns: ReturnsDefinition
-}
-
-export type ArgumentFormDefinition = {
-  name?: string
-  description?: string
-  type: algosdk.ABIArgumentType
-  hint?: ArgumentHint
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
-  getAppCallArg: (arg: unknown) => Promise<AppClientMethodCallParamsArgs>
-}

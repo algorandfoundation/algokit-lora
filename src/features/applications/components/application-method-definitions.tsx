@@ -2,11 +2,13 @@ import { ApplicationAbiMethods, ArgumentDefinition, MethodDefinition, ReturnsDef
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useCallback, useMemo, useState } from 'react'
-import { Struct as StructType, DefaultArgument as DefaultArgumentType } from '@/features/app-interfaces/data/types/arc-32/application'
 import { ApplicationId } from '../data/types'
 import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import { AppCallTransaction, TransactionBuilderForm } from './transaction-builder-form'
+import { TransactionBuilderForm } from './transaction-builder-form'
+import { Struct } from '@/features/abi-methods/components/struct'
+import { DefaultArgument } from '@/features/abi-methods/components/default-value'
+import { AppCallTransactionBuilderResult } from '@/features/transaction-wizard/models'
 
 type Props = {
   applicationId: ApplicationId
@@ -29,23 +31,24 @@ type MethodProps = {
 }
 
 function Method({ method }: MethodProps) {
-  const [transactions, setTransactions] = useState<AppCallTransaction[]>([])
+  const [transactions, setTransactions] = useState<AppCallTransactionBuilderResult[]>([])
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
-    dialogBody: (props: DialogBodyProps<number, AppCallTransaction>) => (
+    dialogBody: (props: DialogBodyProps<number, AppCallTransactionBuilderResult>) => (
       <TransactionBuilderForm onCancel={props.onCancel} onSubmit={props.onSubmit} />
     ),
   })
 
   const openDialog = useCallback(async () => {
     const foo = await open(1)
+    console.log('foo', foo)
     if (foo) {
       setTransactions((prev) => [...prev, foo])
     }
   }, [open])
 
-  const send = useCallback(() => {}, [transactions])
+  const send = useCallback(() => {}, [])
 
   return (
     <AccordionItem value={method.signature}>
@@ -150,37 +153,5 @@ function Returns({ returns }: { returns: ReturnsDefinition }) {
       <h4 className="text-primary">Return</h4>
       <DescriptionList items={items} />
     </div>
-  )
-}
-
-function Struct({ struct }: { struct: StructType }) {
-  return (
-    <div>
-      <span>{struct.name}:</span>
-      <ul className="pl-4">
-        {struct.elements.map((element, index) => (
-          <li key={index}>
-            {element[0]}: {element[1]}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-function DefaultArgument({ defaultArgument }: { defaultArgument: DefaultArgumentType }) {
-  return (
-    <DescriptionList
-      items={[
-        {
-          dt: 'Source',
-          dd: defaultArgument.source,
-        },
-        {
-          dt: 'Data',
-          dd: defaultArgument.source === 'abi-method' ? defaultArgument.data.name : defaultArgument.data,
-        },
-      ]}
-    />
   )
 }

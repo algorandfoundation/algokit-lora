@@ -3,8 +3,6 @@ import { z } from 'zod'
 import { FieldArray, FieldValues, Path } from 'react-hook-form'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
-import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { FormItemProps } from '@/features/forms/components/form-item'
 
 type Props<TSchema extends z.ZodSchema> = {
@@ -56,10 +54,6 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
               decimalScale: 6,
               thousandSeparator: true,
             })
-          case BuildableTransactionFormFieldType.Fee:
-            return <TransactionBuilderFeeField key={common.key} helper={helper} path={path} field={field} />
-          case BuildableTransactionFormFieldType.ValidRounds:
-            return <TransactionBuilderValidRoundField key={common.key} helper={helper} path={path} field={field} />
           case BuildableTransactionFormFieldType.Array:
             return helper.arrayField({
               ...common,
