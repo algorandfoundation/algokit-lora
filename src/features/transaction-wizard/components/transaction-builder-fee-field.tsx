@@ -5,10 +5,11 @@ import { Path, useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 
+// TODO: PD - make a common form schema
 type Props<TSchema extends z.ZodSchema> = {
   helper: FormFieldHelper<z.infer<TSchema>>
   path: Path<TSchema>
-  field: BuildableTransactionFormField
+  field: BuildableTransactionFormField // TODO: PD - this can be a label
 }
 
 export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper, path, field }: Props<TSchema>) {

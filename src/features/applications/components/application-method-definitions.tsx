@@ -1,270 +1,74 @@
 import { ApplicationAbiMethods, ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { Struct as StructType, DefaultArgument as DefaultArgumentType } from '@/features/app-interfaces/data/types/arc-32/application'
-import { Form } from '@/features/forms/components/form'
-import { FormActions } from '@/features/forms/components/form-actions'
+import { ApplicationId } from '../data/types'
 import { Button } from '@/features/common/components/button'
-import { SubmitButton } from '@/features/forms/components/submit-button'
-import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { z } from 'zod'
-import { algorandClient } from '@/features/common/data/algo-client'
-import { useWallet } from '@txnlab/use-wallet'
-import { AppClientMethodCallParamsArgs, ApplicationId } from '../data/types'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
-import { invariant } from '@/utils/invariant'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { extractArgumentIndexFromFieldPath } from '../mappers'
-import { toast } from 'react-toastify'
-import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
-import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
-import { TransactionType } from '@/features/transactions/models'
-import { Atom } from 'jotai'
-import { AbiMethod } from '@/features/abi-methods/models'
-import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
-import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
-import { Checkbox } from '@/features/common/components/checkbox'
-import { Label } from '@/features/common/components/label'
-import { ConfirmTransactionsResourcesForm, TransactionResources } from './confirm-transactions-resources-form'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import algosdk from 'algosdk'
+import { TransactionBuilderForm } from './transaction-builder-form'
 
-type Props<TSchema extends z.ZodSchema> = {
+type Props = {
   applicationId: ApplicationId
-  abiMethods: ApplicationAbiMethods<TSchema> // TODO: NC - Get the naming right
+  abiMethods: ApplicationAbiMethods // TODO: NC - Get the naming right
 }
 
-const connectWalletMessage = 'Please connect a wallet'
-export const sendButtonLabel = 'Send'
-
 // TODO: NC - ABI Methods?
-export function ApplicationMethodDefinitions<TSchema extends z.ZodSchema>({ applicationId, abiMethods }: Props<TSchema>) {
-  const readonly = !abiMethods.appSpec
-
+export function ApplicationMethodDefinitions({ abiMethods }: Props) {
   return (
     <Accordion type="multiple">
       {abiMethods.methods.map((method, index) => (
-        <Method applicationId={applicationId} method={method} appSpec={abiMethods.appSpec} key={index} readonly={readonly} />
+        <Method method={method} key={index} />
       ))}
     </Accordion>
   )
 }
 
-type MethodProps<TSchema extends z.ZodSchema> = {
-  applicationId: ApplicationId
-  method: MethodDefinition<TSchema>
-  appSpec?: Arc32AppSpec
-  readonly: boolean
+type MethodProps = {
+  method: MethodDefinition
 }
 
-type SendMethodCallResult = {
-  transactionId: string
-  abiMethod: Atom<Promise<AbiMethod | undefined>>
-  transactionsGraphData: TransactionsGraphData
-}
-
-function Method<TSchema extends z.ZodSchema>({ applicationId, method, appSpec, readonly }: MethodProps<TSchema>) {
-  const { activeAddress, signer } = useWallet()
-  const [sendMethodCallResult, setSendMethodCallResult] = useState<SendMethodCallResult | undefined>(undefined)
-  type TData = z.infer<typeof method.schema>
-
-  const [confirmResourcePopulation, setConfirmResourcePopulation] = useState(false)
-  const { open: openConfirmResourcesDialog, dialog: confirmResourcesDialog } = useDialogForm({
-    dialogHeader: 'Confirm Resouces',
-    dialogBody: (props: DialogBodyProps<TransactionResources, TransactionResources>) => (
-      <ConfirmTransactionsResourcesForm resources={props.data} onSubmit={props.onSubmit} onCancel={props.onCancel} />
-    ),
+function Method({ method }: MethodProps) {
+  const { open, dialog } = useDialogForm({
+    dialogHeader: 'Transaction Builder',
+    dialogBody: (props: DialogBodyProps<number, number>) => <TransactionBuilderForm onCancel={props.onCancel} onSubmit={props.onSubmit} />,
   })
 
-  const sendMethodCall = useCallback(
-    async (data: TData) => {
-      invariant(!readonly, 'Component is in readonly mode')
-      invariant(appSpec, 'A compatible app spec is required when calling ABI methods')
-      invariant(activeAddress, connectWalletMessage)
+  const openDialog = useCallback(async () => {
+    const foo = await open(1)
+  }, [open])
 
-      const methodArgs = await Object.entries(data).reduce(
-        async (asyncAcc, [path, value]) => {
-          const acc = await asyncAcc
-          const index = extractArgumentIndexFromFieldPath(path)
-          acc[index] = await method.arguments[index].getAppCallArg(value)
-          return acc
-        },
-        Promise.resolve([] as AppClientMethodCallParamsArgs[])
-      )
-
-      const client = algorandClient.client.getAppClientById({
-        appId: BigInt(applicationId),
-        appSpec: appSpec as AppSpec,
-      })
-
-      const params = {
-        method: method.name,
-        args: methodArgs,
-        sender: activeAddress,
-        signer,
-      }
-      let result = await (confirmResourcePopulation ? client.transactions.call({ ...params }) : client.send.call({ ...params }))
-
-      if (confirmResourcePopulation && result.transactions.length > 0) {
-        const appCall = result.transactions.at(-1)!
-        const transactionResources = await openConfirmResourcesDialog({
-          accounts: appCall.appAccounts ?? [],
-          assets: appCall.appForeignAssets ?? [],
-          applications: appCall.appForeignApps ?? [],
-          boxes: appCall.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
-        })
-
-        if (!transactionResources) {
-          // When the dialog is closed without submitting, the returned data is undefined
-          // Throw an empty error so that the form won't be reset
-          throw new Error('')
-        }
-
-        result = await client.send.call({
-          method: method.name,
-          args: methodArgs,
-          sender: activeAddress,
-          signer,
-          accountReferences: transactionResources.accounts.map((a) => algosdk.encodeAddress(a.publicKey)),
-          appReferences: transactionResources.applications.map((a) => BigInt(a)),
-          assetReferences: transactionResources.assets.map((a) => BigInt(a)),
-          boxReferences: transactionResources.boxes,
-          populateAppCallResources: false,
-        })
-      }
-
-      const sentTxns = asTransactionFromSendResult(result)
-      const methodCallTransactionId = result.transactions.at(-1)!.txID()
-      const methodCallTransaction = sentTxns.find((txn) => txn.id === methodCallTransactionId)
-      invariant(methodCallTransaction && methodCallTransaction.type === TransactionType.AppCall, 'AppCall transaction is expected')
-      const transactionsGraphData = asTransactionsGraphData(sentTxns)
-
-      setSendMethodCallResult({
-        transactionId: methodCallTransactionId,
-        abiMethod: methodCallTransaction.abiMethod,
-        transactionsGraphData,
-      })
-
-      toast.success('Transaction sent successfully')
-    },
-    [
-      readonly,
-      appSpec,
-      activeAddress,
-      applicationId,
-      method.name,
-      method.arguments,
-      signer,
-      confirmResourcePopulation,
-      openConfirmResourcesDialog,
-    ]
-  )
-
-  // TODO: NC - Add the sender (to support rekeys), fee, and validRounds fields to the bottom of the form
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
         <h3>{method.name}</h3>
       </AccordionTrigger>
-      <AccordionContent>
+      <AccordionContent className="space-y-4">
         {method.description && <p className="mb-4">{method.description}</p>}
-        <Form
-          schema={method.schema}
-          defaultValues={method.defaultValues}
-          onSubmit={sendMethodCall}
-          resetOnSuccess={true}
-          formAction={(ctx, resetLocalState) => {
-            return !readonly ? (
-              <FormActions>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    resetLocalState()
-                    setSendMethodCallResult(undefined)
-                    ctx.reset()
-                  }}
-                  className="w-28"
-                >
-                  Reset
-                </Button>
-                <SubmitButton disabled={!activeAddress} disabledReason={connectWalletMessage} className="w-28">
-                  {confirmResourcePopulation ? 'Build' : 'Send'}
-                </SubmitButton>
-              </FormActions>
-            ) : undefined
-          }}
-        >
-          {(helper) => (
-            <>
-              <div className="space-y-4">
-                <h4 className="text-primary">Arguments</h4>
-                {method.arguments.length > 0 ? (
-                  method.arguments.map((argument, index) => (
-                    <Argument key={index} index={index} argument={argument} helper={helper} readonly={readonly} />
-                  ))
-                ) : (
-                  <p>No arguments</p>
-                )}
-              </div>
-              <div className="mt-4">
-                <Returns returns={method.returns} />
-              </div>
-              <div className="relative mt-4 flex items-center space-x-2">
-                <Checkbox
-                  checked={confirmResourcePopulation}
-                  onCheckedChange={(checked) => setConfirmResourcePopulation(checked === true)}
-                  id={`${method.name}-confirm-resource-population`}
-                />
-                <Label htmlFor={`${method.name}-confirm-resource-population`}>Confirm Resource Population</Label>
-              </div>
-            </>
-          )}
-        </Form>
-        {confirmResourcesDialog}
-        {!readonly && sendMethodCallResult && (
-          <div className="my-4 flex flex-col gap-4 text-sm">
-            <DescriptionList
-              items={[
-                {
-                  dt: transactionIdLabel,
-                  dd: (
-                    <TransactionLink transactionId={sendMethodCallResult.transactionId} className="text-sm text-primary underline">
-                      {sendMethodCallResult.transactionId}
-                    </TransactionLink>
-                  ),
-                },
-                {
-                  dt: 'Return value',
-                  dd: (
-                    <RenderInlineAsyncAtom atom={sendMethodCallResult.abiMethod}>
-                      {(abiMethod) => (abiMethod ? <DecodedAbiMethodReturnValue return={abiMethod?.return} /> : 'void')}
-                    </RenderInlineAsyncAtom>
-                  ),
-                },
-              ]}
-            />
-            <TransactionsGraph transactionsGraphData={sendMethodCallResult.transactionsGraphData} downloadable={false} />
-          </div>
-        )}
+        <div>
+          <h4 className="text-primary">Arguments</h4>
+          {method.arguments.map((argument, index) => (
+            <Argument key={index} index={index} argument={argument} />
+          ))}
+        </div>
+        <Returns returns={method.returns} />
+        <div className="flex justify-end">
+          <Button variant="default" onClick={openDialog}>
+            Call
+          </Button>
+        </div>
+        {dialog}
       </AccordionContent>
     </AccordionItem>
   )
 }
 
-type ArgumentProps<TSchema extends z.ZodSchema> = {
+type ArgumentProps = {
   index: number
-  argument: ArgumentDefinition<TSchema>
-  helper: FormFieldHelper<z.infer<TSchema>>
-  readonly: boolean
+  argument: ArgumentDefinition
 }
 
-function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readonly }: ArgumentProps<TSchema>) {
+function Argument({ index, argument }: ArgumentProps) {
   const items = useMemo(
     () => [
       ...(argument.name
@@ -303,7 +107,6 @@ function Argument<TSchema extends z.ZodSchema>({ index, argument, helper, readon
     <div className="space-y-2">
       <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} />
-      {!readonly && argument.createField(helper)}
     </div>
   )
 }
@@ -327,10 +130,10 @@ function Returns({ returns }: { returns: ReturnsDefinition }) {
     [returns.description, returns.hint, returns.type]
   )
   return (
-    <>
+    <div>
       <h4 className="text-primary">Return</h4>
       <DescriptionList items={items} />
-    </>
+    </div>
   )
 }
 

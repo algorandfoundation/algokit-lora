@@ -1,10 +1,10 @@
 import { cn } from '../utils'
 
-type Props = {
+export type DescriptionListProps = {
   items: { dt: string; dd: string | number | JSX.Element[] | JSX.Element | undefined }[]
 }
 
-export function DescriptionList({ items }: Props) {
+export function DescriptionList({ items }: DescriptionListProps) {
   return (
     <div className={cn('grid grid-cols-[minmax(min-content,auto)_1fr] gap-x-4 gap-y-1.5')}>
       {items.map((item, index) => (

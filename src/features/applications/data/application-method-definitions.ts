@@ -4,10 +4,11 @@ import { useMemo } from 'react'
 import { loadable } from 'jotai/utils'
 import { Application } from '../models'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
+import { ApplicationId } from './types'
 
-const createApplicationMethodDefinitionsAtom = (application: Application) => {
+const createApplicationMethodDefinitionsAtom = (applicationId: ApplicationId) => {
   return atom(async (get) => {
-    const appInterface = await get(createAppInterfaceAtom(application.id))
+    const appInterface = await get(createAppInterfaceAtom(applicationId))
 
     if (!appInterface) {
       return undefined
@@ -24,7 +25,15 @@ const createApplicationMethodDefinitionsAtom = (application: Application) => {
 // TODO: NC - Rename all this stuff
 export const useLoadableApplicationAbiMethodDefinitions = (application: Application) => {
   const applicationMethodDefinitionsAtom = useMemo(() => {
-    return createApplicationMethodDefinitionsAtom(application)
-  }, [application])
+    return createApplicationMethodDefinitionsAtom(application.id)
+  }, [application.id])
+  return useAtomValue(loadable(applicationMethodDefinitionsAtom))
+}
+
+// TODO: convert ApplicationId to bigint
+export const useLoadableAbiMethodDefinitions = (applicationId: ApplicationId) => {
+  const applicationMethodDefinitionsAtom = useMemo(() => {
+    return createApplicationMethodDefinitionsAtom(applicationId)
+  }, [applicationId])
   return useAtomValue(loadable(applicationMethodDefinitionsAtom))
 }

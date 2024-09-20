@@ -374,7 +374,7 @@ const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): un
   return undefined
 }
 
-const asField = <TData extends Record<string, unknown>>(
+export const asField = <TData extends Record<string, unknown>>(
   methodName: string,
   arg: algosdk.ABIMethod['args'][number],
   argIndex: number,
@@ -389,7 +389,7 @@ const asField = <TData extends Record<string, unknown>>(
 
   return {
     createField: (helper) =>
-      getCreateField(helper, arg.type, argumentFieldPath(methodName, argIndex) as FieldPath<TData>, hint, {
+      getCreateField(helper, arg.type, argumentFieldPath('field', argIndex) as FieldPath<TData>, hint, {
         description: arg.description,
       }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
@@ -398,10 +398,7 @@ const asField = <TData extends Record<string, unknown>>(
   }
 }
 
-export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
-  appSpec: Arc32AppSpec | Arc4AppSpec
-): ApplicationAbiMethods<TSchema> => {
-  type TData = z.infer<TSchema>
+export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): ApplicationAbiMethods => {
   const isArc32 = isArc32AppSpec(appSpec)
   const contract = isArc32 ? appSpec.contract : appSpec
   const methods = contract.methods.map((method) => {
@@ -414,43 +411,24 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
     const signature = abiMethod.getSignature()
     const hint = isArc32AppSpec(appSpec) && appSpec.hints ? appSpec.hints[signature] : undefined
 
-    const [methodArgs, schema, defaultValues] = abiMethod.args.reduce(
-      (acc, arg, i) => {
-        const argHint =
-          hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
-            ? ({
-                struct: hint.structs?.[arg.name],
-                defaultArgument: hint.default_arguments?.[arg.name],
-              } satisfies ArgumentHint)
-            : undefined
+    const methodArgs = abiMethod.args.map((arg) => {
+      const argHint =
+        hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+          ? ({
+              struct: hint.structs?.[arg.name],
+              defaultArgument: hint.default_arguments?.[arg.name],
+            } satisfies ArgumentHint)
+          : undefined
 
-        const { createField, fieldSchema, defaultValue, getAppCallArg } = asField(method.name, arg, i, argHint)
+      const argument = {
+        name: arg.name,
+        description: arg.description,
+        type: arg.type,
+        hint: argHint,
+      } satisfies ArgumentDefinition
 
-        const argument = {
-          name: arg.name,
-          description: arg.description,
-          type: arg.type,
-          hint: argHint,
-          createField,
-          getAppCallArg,
-        } satisfies ArgumentDefinition<TSchema>
-
-        const fieldPath = argumentFieldPath(method.name, i)
-        acc[0].push(argument)
-        acc[1] = {
-          ...acc[1],
-          [fieldPath]: fieldSchema,
-        }
-        if (defaultValue !== undefined) {
-          acc[2] = {
-            ...acc[2],
-            [fieldPath]: defaultValue,
-          }
-        }
-        return acc
-      },
-      [[] as ArgumentDefinition<TSchema>[], {} as Record<string, z.ZodTypeAny>, {} as DefaultValues<TData>] as const
-    )
+      return argument
+    })
 
     return {
       name: abiMethod.name,
@@ -466,9 +444,7 @@ export const asApplicationAbiMethods = <TSchema extends z.ZodSchema>(
               }
             : undefined,
       },
-      schema: zfd.formData(schema),
-      defaultValues,
-    } satisfies MethodDefinition<TSchema>
+    } satisfies MethodDefinition
   })
 
   return {

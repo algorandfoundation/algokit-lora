@@ -58,13 +58,11 @@ export type ArgumentHint = {
   defaultArgument?: DefaultArgument
 }
 
-export type ArgumentDefinition<TSchema extends z.ZodSchema> = {
+export type ArgumentDefinition = {
   name?: string
   description?: string
   type: algosdk.ABIArgumentType
   hint?: ArgumentHint
-  createField: (helper: FormFieldHelper<z.infer<TSchema>>) => JSX.Element | undefined
-  getAppCallArg: (arg: unknown) => Promise<AppClientMethodCallParamsArgs>
 }
 
 export type ReturnsHint = {
@@ -77,18 +75,36 @@ export type ReturnsDefinition = {
   hint?: ReturnsHint
 }
 
-export type ApplicationAbiMethods<TSchema extends z.ZodSchema> = {
+export type ApplicationAbiMethods = {
   appSpec?: Arc32AppSpec
-  methods: MethodDefinition<TSchema>[]
+  methods: MethodDefinition[]
 }
 
-export type MethodDefinition<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = {
+export type MethodDefinition = {
   name: string
   signature: string
   description?: string
-  arguments: ArgumentDefinition<TSchema>[]
+  arguments: ArgumentDefinition[]
+  returns: ReturnsDefinition
+}
+
+// TODO: Name {X}FormDefinition ??
+export type MethodFormDefinition<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = {
+  name: string
+  signature: string
+  description?: string
+  arguments: ArgumentFormDefinition<TSchema>[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema: z.ZodEffects<any, TData, unknown>
   defaultValues: DefaultValues<TData>
   returns: ReturnsDefinition
+}
+
+export type ArgumentFormDefinition<TSchema extends z.ZodSchema> = {
+  name?: string
+  description?: string
+  type: algosdk.ABIArgumentType
+  hint?: ArgumentHint
+  createField: (helper: FormFieldHelper<z.infer<TSchema>>) => JSX.Element | undefined
+  getAppCallArg: (arg: unknown) => Promise<AppClientMethodCallParamsArgs>
 }
