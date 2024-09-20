@@ -89,22 +89,24 @@ export type MethodDefinition = {
 }
 
 // TODO: Name {X}FormDefinition ??
-export type MethodFormDefinition<TSchema extends z.ZodSchema, TData = z.infer<TSchema>> = {
+export type MethodFormDefinition = {
   name: string
   signature: string
   description?: string
-  arguments: ArgumentFormDefinition<TSchema>[]
+  arguments: ArgumentFormDefinition[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  schema: z.ZodEffects<any, TData, unknown>
-  defaultValues: DefaultValues<TData>
+  schema: Record<string, z.ZodType<any>>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  defaultValues: DefaultValues<any>
   returns: ReturnsDefinition
 }
 
-export type ArgumentFormDefinition<TSchema extends z.ZodSchema> = {
+export type ArgumentFormDefinition = {
   name?: string
   description?: string
   type: algosdk.ABIArgumentType
   hint?: ArgumentHint
-  createField: (helper: FormFieldHelper<z.infer<TSchema>>) => JSX.Element | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
   getAppCallArg: (arg: unknown) => Promise<AppClientMethodCallParamsArgs>
 }

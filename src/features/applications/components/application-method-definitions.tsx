@@ -1,12 +1,12 @@
 import { ApplicationAbiMethods, ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { Struct as StructType, DefaultArgument as DefaultArgumentType } from '@/features/app-interfaces/data/types/arc-32/application'
 import { ApplicationId } from '../data/types'
 import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import { TransactionBuilderForm } from './transaction-builder-form'
+import { AppCallTransaction, TransactionBuilderForm } from './transaction-builder-form'
 
 type Props = {
   applicationId: ApplicationId
@@ -29,14 +29,23 @@ type MethodProps = {
 }
 
 function Method({ method }: MethodProps) {
+  const [transactions, setTransactions] = useState<AppCallTransaction[]>([])
+
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
-    dialogBody: (props: DialogBodyProps<number, number>) => <TransactionBuilderForm onCancel={props.onCancel} onSubmit={props.onSubmit} />,
+    dialogBody: (props: DialogBodyProps<number, AppCallTransaction>) => (
+      <TransactionBuilderForm onCancel={props.onCancel} onSubmit={props.onSubmit} />
+    ),
   })
 
   const openDialog = useCallback(async () => {
     const foo = await open(1)
+    if (foo) {
+      setTransactions((prev) => [...prev, foo])
+    }
   }, [open])
+
+  const send = useCallback(() => {}, [transactions])
 
   return (
     <AccordionItem value={method.signature}>
@@ -53,9 +62,16 @@ function Method({ method }: MethodProps) {
         </div>
         <Returns returns={method.returns} />
         <div className="flex justify-end">
-          <Button variant="default" onClick={openDialog}>
-            Call
-          </Button>
+          {transactions.length === 0 && (
+            <Button variant="default" onClick={openDialog}>
+              Call
+            </Button>
+          )}
+          {transactions.length > 0 && (
+            <Button variant="default" onClick={send}>
+              Send
+            </Button>
+          )}
         </div>
         {dialog}
       </AccordionContent>
