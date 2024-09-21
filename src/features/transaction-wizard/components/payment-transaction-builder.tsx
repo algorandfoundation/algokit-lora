@@ -22,7 +22,7 @@ const formSchema = {
 const formData = zfd.formData(formSchema)
 
 type Props = {
-  onSubmit: (transaction: algosdk.Transaction) => void
+  onSubmit: (transactions: algosdk.Transaction[]) => void
   onCancel: () => void
 }
 
@@ -42,7 +42,7 @@ export function PaymentTransactionBuilder({ onSubmit, onCancel }: Props) {
             }
           : undefined),
       })
-      onSubmit(transaction)
+      onSubmit([transaction])
     },
     [onSubmit]
   )

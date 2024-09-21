@@ -1,8 +1,8 @@
 import { AppCallTransactionBuilder } from '@/features/transaction-wizard/components/app-call-transaction-builder'
-import { AppCallTransactionBuilderResult } from '@/features/transaction-wizard/models'
+import algosdk from 'algosdk'
 
 type Props = {
-  onSubmit: (transaction: AppCallTransactionBuilderResult) => void
+  onSubmit: (transactions: algosdk.Transaction[]) => void
   onCancel: () => void
 }
 

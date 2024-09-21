@@ -29,15 +29,15 @@ export function TransactionWizardPage() {
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
-    dialogBody: (props: DialogBodyProps<number, algosdk.Transaction>) => (
+    dialogBody: (props: DialogBodyProps<number, algosdk.Transaction[]>) => (
       <TransactionBuilder onCancel={props.onCancel} onSubmit={props.onSubmit} />
     ),
   })
 
   const openDialog = useCallback(async () => {
-    const transaction = await open(1)
-    if (transaction) {
-      setTransactions((prev) => [...prev, transaction])
+    const transactions = await open(1)
+    if (transactions) {
+      setTransactions((prev) => [...prev, ...transactions])
     }
   }, [open])
 

@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
-import { AppCallTransactionBuilderResult, BuildableTransactionType } from '../models'
+import { BuildableTransactionType } from '../models'
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
@@ -8,13 +8,12 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
-import { TransactionBuilderForm } from './transaction-builder-form'
 import { PaymentTransactionBuilder } from './payment-transaction-builder'
 
 type Props = {
   type?: BuildableTransactionType
   defaultSender?: string
-  onSubmit: (transaction: algosdk.Transaction) => void
+  onSubmit: (transactions: algosdk.Transaction[]) => void
   onCancel: () => void
 }
 
@@ -24,7 +23,7 @@ const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
 export type TransactionBuilderFormProps = {
-  onSubmit: (transaction: algosdk.Transaction) => void
+  onSubmit: (transactions: algosdk.Transaction[]) => void
   onCancel: () => void
 }
 

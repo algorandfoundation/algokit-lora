@@ -328,6 +328,7 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
 
   return {
     name: method.name,
+    abiMethod: method.abiMethod,
     signature: method.signature,
     description: method.description,
     arguments: argFields,

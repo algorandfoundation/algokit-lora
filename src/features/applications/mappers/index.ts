@@ -138,6 +138,7 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
       signature: signature,
       description: abiMethod.description,
       arguments: methodArgs,
+      abiMethod: abiMethod,
       returns: {
         ...abiMethod.returns,
         hint:

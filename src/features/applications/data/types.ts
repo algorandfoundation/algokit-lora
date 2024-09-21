@@ -1,7 +1,5 @@
-import algosdk from 'algosdk'
 import { ApplicationResult as IndexerApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
-import { ABIStruct } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { AppMethodCallTransactionArgument } from '@algorandfoundation/algokit-utils/types/composer'
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 
 export type ApplicationId = number
 
@@ -15,4 +13,4 @@ export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round
   }
 }
 
-export type AppClientMethodCallParamsArgs = algosdk.ABIValue | ABIStruct | AppMethodCallTransactionArgument | undefined
+export type AppClientMethodCallParamsArgs = NonNullable<AppCallMethodCall['args']>[number]

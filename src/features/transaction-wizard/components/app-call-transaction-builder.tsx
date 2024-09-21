@@ -14,16 +14,19 @@ import { useLoadableAbiMethodDefinitions } from '@/features/applications/data/ap
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { AppCallTransactionBuilderResult, MethodForm } from '../models'
+import { MethodForm } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
 import { AppClientMethodCallParamsArgs } from '@/features/applications/data/types'
+import { algorandClient } from '@/features/common/data/algo-client'
+import { algos } from '@algorandfoundation/algokit-utils'
 
 const appCallFormSchema = {
   ...commoSchema,
   ...senderFieldSchema,
   appId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  // method: zfd.text(),
   // TODO: PD - JSON serialisation of app args should exclude the ids
   appArgs: zfd.repeatableOfType(
     z.object({
@@ -35,7 +38,7 @@ const appCallFormSchema = {
 const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {
-  onSubmit: (transaction: algosdk.Transaction) => void
+  onSubmit: (transactions: algosdk.Transaction[]) => void
   onCancel: () => void
 }
 
@@ -62,14 +65,21 @@ export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
           },
           Promise.resolve([] as AppClientMethodCallParamsArgs[])
         )
-        const fields = Object.entries(values).reduce((acc, [path, value]) => {
-          if (!path.startsWith(`${methodArgPrefix}-`)) {
-            return { ...acc, [path]: value }
-          }
-          return acc
-        }, {})
 
-        throw new Error('Not implemented')
+        const result = await algorandClient.transactions.appCallMethodCall({
+          sender: values.sender,
+          appId: values.appId,
+          method: methodForm.abiMethod,
+          args: methodArgs,
+          ...(!values.fee.setAutomatically && values.fee.value ? { staticFee: algos(values.fee.value) } : undefined),
+          ...(!values.validRounds.setAutomatically && values.validRounds.firstValid && values.validRounds.lastValid
+            ? {
+                firstValidRound: values.validRounds.firstValid,
+                lastValidRound: values.validRounds.lastValid,
+              }
+            : undefined),
+        })
+        onSubmit(result.transactions)
       }
     },
     [methodForm, onSubmit]
