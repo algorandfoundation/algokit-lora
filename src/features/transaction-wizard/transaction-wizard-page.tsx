@@ -1,4 +1,3 @@
-import algosdk from 'algosdk'
 import { useCallback, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '../common/hooks/use-dialog-form'
 import { Button } from '../common/components/button'
@@ -12,22 +11,12 @@ import { transactionIdLabel } from '../transactions/components/transaction-info'
 import { TransactionLink } from '../transactions/components/transaction-link'
 import { asTransactionsGraphData } from '../transactions-graph/mappers'
 import { asTransactionFromSendResult } from '../transactions/data/send-transaction-result'
-import {
-  AppCallTransactionBuilderResult,
-  BuildableTransactionType,
-  PaymentTransactionBuilderResult,
-  TransactionBuilderResult,
-} from './models'
-import { algos } from '@algorandfoundation/algokit-utils'
+import { SendTransactionResult, TransactionBuilderResult } from './models'
+import { asAlgosdkTransactions } from './mappers'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
-
-type SendTransactionResult = {
-  transactionId: string
-  transactionsGraphData: TransactionsGraphData
-}
 
 export function TransactionWizardPage() {
   const { activeAddress, signer } = useWallet()
@@ -100,60 +89,4 @@ export function TransactionWizardPage() {
       )}
     </div>
   )
-}
-
-const asAlgosdkTransactions = async (transaction: TransactionBuilderResult): Promise<algosdk.Transaction[]> => {
-  if (transaction.type === BuildableTransactionType.Payment) {
-    return [await asPaymentTransaction(transaction)]
-  }
-  if (transaction.type === BuildableTransactionType.AppCall && transaction.method) {
-    return await asMethodCallTransaction(transaction)
-  }
-  throw new Error('Unsupported transaction type')
-}
-
-const asPaymentTransaction = async (transaction: PaymentTransactionBuilderResult): Promise<algosdk.Transaction> => {
-  return await algorandClient.transactions.payment({
-    sender: transaction.sender,
-    receiver: transaction.receiver,
-    amount: algos(transaction.amount),
-    note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
-  })
-}
-
-const asMethodCallTransaction = async (transaction: AppCallTransactionBuilderResult): Promise<algosdk.Transaction[]> => {
-  invariant(transaction.method, 'Method is required')
-  invariant(transaction.methodArgs, 'Method args are required')
-
-  const args = await Promise.all(
-    transaction.methodArgs.map(async (arg) => {
-      if (typeof arg === 'object') {
-        return (await asAlgosdkTransactions(arg as TransactionBuilderResult))[0]
-      }
-      return arg
-    })
-  )
-  const result = await algorandClient.transactions.appCallMethodCall({
-    sender: transaction.sender,
-    appId: BigInt(transaction.applicationId), // TODO: PD - handle bigint
-    method: transaction.method,
-    args: args,
-    note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
-  })
-
-  return result.transactions
 }

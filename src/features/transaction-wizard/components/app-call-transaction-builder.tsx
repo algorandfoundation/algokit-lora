@@ -34,7 +34,7 @@ const appCallFormSchema = {
 const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {
-  transaction?: AppCallTransactionBuilderResult
+  transaction?: Partial<AppCallTransactionBuilderResult>
   onSubmit: (transaction: AppCallTransactionBuilderResult) => void
   onCancel: () => void
 }
@@ -113,7 +113,7 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
       {} as Record<string, unknown>
     )
     return {
-      appId: BigInt(transaction.applicationId), // TODO: PD - handle bigint
+      appId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
       sender: transaction.sender,
       fee: transaction.fee,
       validRounds: transaction.validRounds,

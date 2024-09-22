@@ -13,7 +13,7 @@ import { PaymentTransactionBuilder } from './payment-transaction-builder'
 type Props = {
   type?: algosdk.TransactionType
   defaultSender?: string // TODO: PD - default sender?
-  transaction?: TransactionBuilderResult
+  transaction?: Partial<TransactionBuilderResult>
   onSubmit: (transaction: TransactionBuilderResult) => void
   onCancel: () => void
 }
@@ -24,7 +24,7 @@ const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
 export type TransactionBuilderFormProps<T extends TransactionBuilderResult> = {
-  transaction?: T
+  transaction?: Partial<T>
   onSubmit: (transaction: T) => void
   onCancel: () => void
 }

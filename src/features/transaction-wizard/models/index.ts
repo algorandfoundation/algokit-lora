@@ -6,6 +6,7 @@ import { MethodDefinition, ArgumentDefinition } from '@/features/applications/mo
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { DefaultValues } from 'react-hook-form'
 import { Address } from '@/features/accounts/data/types'
+import { TransactionsGraphData } from '@/features/transactions-graph'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -103,3 +104,8 @@ export type PaymentTransactionBuilderResult = {
 }
 
 export type TransactionBuilderResult = PaymentTransactionBuilderResult | AppCallTransactionBuilderResult
+
+export type SendTransactionResult = {
+  transactionId: string
+  transactionsGraphData: TransactionsGraphData
+}
