@@ -78,6 +78,7 @@ export type AppCallTransactionBuilderResult = {
   }
   note?: string
   method?: algosdk.ABIMethod
+  methodName?: string
   methodArgs?: MethodCallTransactionArg[]
   rawArgs?: string[]
 }

@@ -22,7 +22,7 @@ const appCallFormSchema = {
   ...commoSchema,
   ...senderFieldSchema,
   appId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
-  method: zfd.text().optional(),
+  methodName: zfd.text().optional(),
   // TODO: PD - JSON serialisation of app args should exclude the ids
   appArgs: zfd.repeatableOfType(
     z.object({
@@ -39,7 +39,7 @@ type Props = {
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
+export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
 
@@ -71,6 +71,7 @@ export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
           fee: values.fee,
           validRounds: values.validRounds,
           method: methodForm.abiMethod,
+          methodName: methodForm.name,
           methodArgs: methodArgs,
         })
       }
@@ -93,18 +94,39 @@ export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
     }
   }, [])
 
-  return (
-    <Form
-      schema={formData}
-      onSubmit={submit}
-      defaultValues={{
+  const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {
+    if (!transaction) {
+      return {
         fee: {
           setAutomatically: true,
         },
         validRounds: {
           setAutomatically: true,
         },
-      }}
+      }
+    }
+    const methodArgs = transaction.methodArgs?.reduce(
+      (acc, arg, index) => {
+        acc[`${methodArgPrefix}-${index}`] = arg
+        return acc
+      },
+      {} as Record<string, unknown>
+    )
+    return {
+      appId: BigInt(transaction.applicationId), // TODO: PD - handle bigint
+      sender: transaction.sender,
+      fee: transaction.fee,
+      validRounds: transaction.validRounds,
+      methodName: transaction.methodName,
+      ...methodArgs,
+    }
+  }, [transaction])
+
+  return (
+    <Form
+      schema={formData}
+      onSubmit={submit}
+      defaultValues={defaultValues}
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
@@ -126,7 +148,7 @@ type FormInnerProps = {
 function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   const { watch } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('appId')
-  const methodName = watch('method')
+  const methodName = watch('methodName')
 
   const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
   const methodDefinitions = useMemo(() => {
@@ -137,7 +159,7 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   }, [loadableMethodDefinitions])
 
   useEffect(() => {
-    if (!methodName) {
+    if (!methodName || methodDefinitions.length === 0) {
       onSetMethodForm(undefined)
       return
     }
@@ -190,7 +212,7 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
         label: 'Application ID',
       })}
       {helper.selectField({
-        field: 'method',
+        field: 'methodName',
         label: 'Method',
         options: methodDefinitions?.map((method) => ({
           label: method.name,
