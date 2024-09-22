@@ -22,7 +22,7 @@ const appCallFormSchema = {
   ...commoSchema,
   ...senderFieldSchema,
   appId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
-  // method: zfd.text(),
+  method: zfd.text().optional(),
   // TODO: PD - JSON serialisation of app args should exclude the ids
   appArgs: zfd.repeatableOfType(
     z.object({
@@ -126,23 +126,24 @@ type FormInnerProps = {
 function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   const { watch } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('appId')
-  const methodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
+  const methodName = watch('method')
 
-  const method = useMemo(() => {
-    if (methodDefinitions.state !== 'hasData' || !methodDefinitions.data) {
-      return undefined
+  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
+  const methodDefinitions = useMemo(() => {
+    if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
+      return []
     }
-    return methodDefinitions.data.methods[0]
-  }, [methodDefinitions])
+    return loadableMethodDefinitions.data.methods
+  }, [loadableMethodDefinitions])
 
   useEffect(() => {
-    if (!method) {
+    if (!methodName) {
       onSetMethodForm(undefined)
       return
     }
 
-    onSetMethodForm(asMethodForm(method))
-  }, [method, onSetMethodForm])
+    onSetMethodForm(asMethodForm(methodDefinitions.find((method) => method.name === methodName)!))
+  }, [methodDefinitions, methodName, onSetMethodForm])
 
   const abiMethodArgs = useMemo(() => {
     return (
@@ -187,6 +188,14 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
       {helper.numberField({
         field: 'appId',
         label: 'Application ID',
+      })}
+      {helper.selectField({
+        field: 'method',
+        label: 'Method',
+        options: methodDefinitions?.map((method) => ({
+          label: method.name,
+          value: method.name,
+        })),
       })}
       {helper.textField({
         field: 'sender',

@@ -52,11 +52,10 @@ export function TransactionWizardPage() {
     invariant(activeAddress, 'Please connect your wallet')
 
     const atc = algorandClient.setSigner(activeAddress, signer).newGroup()
-    transactions.forEach(async (transaction) => {
+    for (const transaction of transactions) {
       const txns = await asAlgosdkTransactions(transaction)
       txns.forEach((txn) => atc.addTransaction(txn))
-    })
-
+    }
     const result = await atc.execute()
     const sentTxns = asTransactionFromSendResult(result)
     const transactionId = result.txIds[0]

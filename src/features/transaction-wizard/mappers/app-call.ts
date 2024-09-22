@@ -256,7 +256,7 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
       return value as unknown as TransactionBuilderResult
     }
   }
-  throw new Error('Unsupported type')
+  return value as algosdk.ABIValue
 }
 
 const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
