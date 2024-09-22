@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
-import { BuildableTransactionType } from '../models'
+import { BuildableTransactionType, TransactionBuilderResult } from '../models'
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
@@ -11,9 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { PaymentTransactionBuilder } from './payment-transaction-builder'
 
 type Props = {
-  type?: BuildableTransactionType
-  defaultSender?: string
-  onSubmit: (transactions: algosdk.Transaction[]) => void
+  type?: algosdk.TransactionType
+  defaultSender?: string // TODO: PD - default sender?
+  transaction?: TransactionBuilderResult
+  onSubmit: (transaction: TransactionBuilderResult) => void
   onCancel: () => void
 }
 
@@ -22,47 +23,53 @@ export const transactionTypeLabel = 'Transaction type'
 const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
-export type TransactionBuilderFormProps = {
-  onSubmit: (transactions: algosdk.Transaction[]) => void
+export type TransactionBuilderFormProps<T extends TransactionBuilderResult> = {
+  transaction?: T
+  onSubmit: (transaction: T) => void
   onCancel: () => void
 }
 
-const transactionTypes: Record<
-  BuildableTransactionType,
-  {
-    label: string
-    component: React.ComponentType<TransactionBuilderFormProps>
-  }
-> = {
+const transactionTypes = {
   [BuildableTransactionType.Payment]: {
+    transactionType: algosdk.TransactionType.pay,
     label: 'Payment',
     component: PaymentTransactionBuilder,
   },
   [BuildableTransactionType.AccountClose]: {
+    transactionType: algosdk.TransactionType.pay,
     label: 'Account Close',
     component: AppCallTransactionBuilder,
   },
   [BuildableTransactionType.AppCall]: {
+    transactionType: algosdk.TransactionType.appl,
     label: 'App Call',
     component: AppCallTransactionBuilder,
   },
 }
 
-const buildableTransactions = Object.values(transactionTypes)
-
-export function TransactionBuilder({ type, defaultSender, onSubmit, onCancel }: Props) {
+export function TransactionBuilder({ type, transaction, onSubmit, onCancel }: Props) {
   const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
-  invariant(selectedBuildableTransactionIndex < buildableTransactions.length, 'Invalid transaction type index')
+  const buildableTransactions = useMemo(() => {
+    if (type !== undefined) {
+      return Object.values(transactionTypes).filter((transaction) => transaction.transactionType === type)
+    }
+    return Object.values(transactionTypes)
+  }, [type])
 
-  const changeSelectedBuildableTransaction = useCallback(async (value: string) => {
-    setSelectedBuildableTransactionIndex(Number(value))
-  }, [])
+  const changeSelectedBuildableTransaction = useCallback(
+    (value: string) => {
+      const index = Number(value)
+      invariant(index < buildableTransactions.length, 'Invalid transaction type index')
+      setSelectedBuildableTransactionIndex(index)
+    },
+    [buildableTransactions]
+  )
 
   const FormComponent = useMemo(
     () => buildableTransactions[selectedBuildableTransactionIndex].component,
-    [selectedBuildableTransactionIndex]
+    [buildableTransactions, selectedBuildableTransactionIndex]
   )
 
   return (
@@ -86,7 +93,9 @@ export function TransactionBuilder({ type, defaultSender, onSubmit, onCancel }: 
               </SelectContent>
             </Select>
           </div>
-          <FormComponent onSubmit={onSubmit} onCancel={onCancel} />
+          {/* TODO: PD - fix transaction as any */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+          <FormComponent transaction={transaction as any} onSubmit={onSubmit} onCancel={onCancel} />
         </div>
       )}
     </RenderLoadable>

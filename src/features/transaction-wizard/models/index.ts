@@ -1,5 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from 'zod'
 import algosdk from 'algosdk'
+import { ApplicationId } from '@/features/applications/data/types'
+import { MethodDefinition, ArgumentDefinition } from '@/features/applications/models'
+import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
+import { DefaultValues } from 'react-hook-form'
+import { Address } from '@/features/accounts/data/types'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -44,4 +50,55 @@ export enum BuildableTransactionType {
   AppCall,
 }
 
-export * from './app-call'
+export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
+  abiMethod: algosdk.ABIMethod
+  arguments: ArgumentField[]
+  schema: Record<string, z.ZodType<any>>
+  defaultValues: DefaultValues<any> // TODO: PD - default values?
+}
+
+export type ArgumentField = ArgumentDefinition & {
+  createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
+  getAppCallArg: (arg: unknown) => Promise<MethodCallTransactionArg>
+}
+
+// TODO: PD - extract the common fields into a base type
+export type AppCallTransactionBuilderResult = {
+  type: BuildableTransactionType.AppCall
+  applicationId: ApplicationId
+  sender: Address
+  fee: {
+    setAutomatically: boolean
+    value?: number
+  }
+  validRounds: {
+    setAutomatically: boolean
+    firstValid?: bigint
+    lastValid?: bigint
+  }
+  note?: string
+  method?: algosdk.ABIMethod
+  methodArgs?: MethodCallTransactionArg[]
+  rawArgs?: string[]
+}
+
+export type MethodCallTransactionArg = algosdk.ABIValue | TransactionBuilderResult
+
+export type PaymentTransactionBuilderResult = {
+  type: BuildableTransactionType.Payment
+  sender: Address
+  receiver: Address
+  amount: number
+  note?: string
+  fee: {
+    setAutomatically: boolean
+    value?: number
+  }
+  validRounds: {
+    setAutomatically: boolean
+    firstValid?: bigint
+    lastValid?: bigint
+  }
+}
+
+export type TransactionBuilderResult = PaymentTransactionBuilderResult | AppCallTransactionBuilderResult

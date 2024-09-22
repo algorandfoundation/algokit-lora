@@ -1,10 +1,9 @@
-import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { senderFieldSchema, commoSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -14,13 +13,10 @@ import { useLoadableAbiMethodDefinitions } from '@/features/applications/data/ap
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { MethodForm } from '../models'
+import { AppCallTransactionBuilderResult, BuildableTransactionType, MethodCallTransactionArg, MethodForm } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
-import { AppClientMethodCallParamsArgs } from '@/features/applications/data/types'
-import { algorandClient } from '@/features/common/data/algo-client'
-import { algos } from '@algorandfoundation/algokit-utils'
 
 const appCallFormSchema = {
   ...commoSchema,
@@ -38,7 +34,8 @@ const appCallFormSchema = {
 const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {
-  onSubmit: (transactions: algosdk.Transaction[]) => void
+  transaction?: AppCallTransactionBuilderResult
+  onSubmit: (transaction: AppCallTransactionBuilderResult) => void
   onCancel: () => void
 }
 
@@ -53,6 +50,7 @@ export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       if (methodForm) {
+        // TODO: PD - maybe we can use map here
         const methodArgs = await Object.entries(values).reduce(
           async (asyncAcc, [path, value]) => {
             if (!path.startsWith(`${methodArgPrefix}-`)) {
@@ -63,23 +61,18 @@ export function AppCallTransactionBuilder({ onSubmit, onCancel }: Props) {
             acc[index] = await methodForm.arguments[index].getAppCallArg(value)
             return acc
           },
-          Promise.resolve([] as AppClientMethodCallParamsArgs[])
+          Promise.resolve([] as MethodCallTransactionArg[])
         )
 
-        const result = await algorandClient.transactions.appCallMethodCall({
+        onSubmit({
+          type: BuildableTransactionType.AppCall,
+          applicationId: Number(values.appId), // TODO: PD - handle bigint
           sender: values.sender,
-          appId: values.appId,
+          fee: values.fee,
+          validRounds: values.validRounds,
           method: methodForm.abiMethod,
-          args: methodArgs,
-          ...(!values.fee.setAutomatically && values.fee.value ? { staticFee: algos(values.fee.value) } : undefined),
-          ...(!values.validRounds.setAutomatically && values.validRounds.firstValid && values.validRounds.lastValid
-            ? {
-                firstValidRound: values.validRounds.firstValid,
-                lastValidRound: values.validRounds.lastValid,
-              }
-            : undefined),
+          methodArgs: methodArgs,
         })
-        onSubmit(result.transactions)
       }
     },
     [methodForm, onSubmit]
@@ -203,7 +196,7 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
         <div key={index}>
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
           <DescriptionList items={arg.descriptions} />
-          <Fragment>{arg.field}</Fragment>
+          <>{arg.field}</>
         </div>
       ))}
       <TransactionBuilderFeeField />

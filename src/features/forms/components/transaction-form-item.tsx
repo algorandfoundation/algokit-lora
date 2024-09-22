@@ -17,9 +17,10 @@ import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dial
 import { HintText } from './hint-text'
 import { useFormFieldError } from '../hooks/use-form-field-error'
 import { transactionTypes } from '@/features/transaction-wizard/data'
-import { BuildableTransactionType } from '@/features/transaction-wizard/models'
+import { BuildableTransactionType, TransactionBuilderResult } from '@/features/transaction-wizard/models'
 import { feeField, validRoundsField } from '@/features/transaction-wizard/data/common'
 import { rawAppCallTransaction } from '@/features/transaction-wizard/data/app-call-transactions'
+import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -46,7 +47,7 @@ interface TransactionBuilderProps<TSchema extends Record<string, unknown>> {
   onComplete: () => void
 }
 
-function TransactionBuilder<TSchema extends Record<string, unknown>>({
+function TransactionBuilderOld<TSchema extends Record<string, unknown>>({
   data,
   onComplete,
   onAddTransaction,
@@ -148,21 +149,22 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
 }: TransactionFormItemProps<TSchema>) {
   const { setValue, watch, trigger } = useFormContext<TSchema>()
   const error = useFormFieldError(field)
+  const fieldValue = watch(field) as TransactionBuilderResult | undefined
 
-  const fieldValue = watch(field)
-
+  // TODO: PD - cast transaction type to algosdk.TransactionType
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
-    dialogHeader: 'Build Transaction',
+    dialogHeader: 'Transaction Builder',
     dialogBody: (
       props: DialogBodyProps<
-        { transactionType: algosdk.ABITransactionType; fieldValue: PathValue<TSchema, Path<TSchema>> },
-        PathValue<TSchema, Path<TSchema>>
+        { transactionType: algosdk.ABITransactionType; transaction?: TransactionBuilderResult },
+        TransactionBuilderResult
       >
     ) => (
       <TransactionBuilder
-        data={{ transactionType: props.data.transactionType, fieldValue: props.data.fieldValue }}
-        onComplete={props.onCancel}
-        onAddTransaction={props.onSubmit}
+        type={props.data.transactionType as unknown as algosdk.TransactionType}
+        transaction={props.data.transaction}
+        onCancel={props.onCancel}
+        onSubmit={props.onSubmit}
       />
     ),
   })
@@ -170,56 +172,20 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   const openDialog = useCallback(async () => {
     const result = await openTransactionBuilderDialog({
       transactionType,
-      fieldValue,
+      transaction: fieldValue,
     })
     if (result) {
-      setValue(field, result)
+      setValue(field, result as PathValue<TSchema, Path<TSchema>>)
       await trigger(field)
     }
   }, [openTransactionBuilderDialog, transactionType, fieldValue, setValue, field, trigger])
 
   const transactionFields = useMemo(() => {
-    if (!fieldValue || typeof fieldValue !== 'object' || !('type' in fieldValue)) {
+    if (fieldValue) {
+      return asDescriptionList(fieldValue)
+    } else {
       return []
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const temp = fieldValue as { type: BuildableTransactionType; [k: string]: any }
-
-    return Object.entries(transactionTypes[temp.type].fields).reduce(
-      (acc, [key, value]) => {
-        if (Object.keys(feeField).includes(key)) {
-          if (!temp[key].setAutomatically && temp[key].value) {
-            acc.push({
-              dt: 'Fee', // TODO: NC - Can we auto resolve this or use a constant?
-              dd: temp[key].value.toString(),
-            })
-          }
-        } else if (Object.keys(validRoundsField).includes(key)) {
-          if (!temp[key].setAutomatically && temp[key].firstValid && temp[key].lastValid) {
-            acc.push({
-              dt: 'Round from', // TODO: NC - Can we auto resolve this or use a constant?
-              dd: temp[key].firstValid.toString(),
-            })
-            acc.push({
-              dt: 'Round to', // TODO: NC - Can we auto resolve this or use a constant?
-              dd: temp[key].lastValid.toString(),
-            })
-          }
-        } else if (key in temp) {
-          const dd = temp[key]
-          if (dd) {
-            acc.push({
-              dt: value.label,
-              dd: dd.toString(),
-            })
-          }
-        }
-
-        return acc
-      },
-      [] as { dt: string; dd: string }[]
-    )
   }, [fieldValue])
 
   return (
@@ -241,4 +207,13 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
       <HintText errorText={error?.message} helpText={helpText} />
     </>
   )
+}
+
+const asDescriptionList = (transaction: TransactionBuilderResult) => {
+  return [
+    {
+      dt: 'Transaction type',
+      dd: transaction.type,
+    },
+  ]
 }

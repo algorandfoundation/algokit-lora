@@ -7,8 +7,7 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import { ArgumentField, BuildableTransactionType, MethodForm } from '@/features/transaction-wizard/models'
-import { transactionTypes } from '@/features/transaction-wizard/data'
+import { ArgumentField, MethodCallTransactionArg, MethodForm, TransactionBuilderResult } from '@/features/transaction-wizard/models'
 import { ArgumentHint, MethodDefinition } from '@/features/applications/models'
 import { AppClientMethodCallParamsArgs } from '@/features/applications/data/types'
 
@@ -231,38 +230,33 @@ const getCreateField = (
   return undefined
 }
 
-const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<AppClientMethodCallParamsArgs> => {
+const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<MethodCallTransactionArg> => {
   if (type instanceof algosdk.ABIUfixedType) {
-    return fixedPointDecimalStringToBigInt(value as string, type.precision) as AppClientMethodCallParamsArgs
+    return fixedPointDecimalStringToBigInt(value as string, type.precision) as algosdk.ABIValue
   }
   if (
     (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
     (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
   ) {
-    return base64ToBytes(value as string) as AppClientMethodCallParamsArgs
+    return base64ToBytes(value as string) as algosdk.ABIValue
   }
 
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as AppClientMethodCallParamsArgs
+    return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as algosdk.ABIValue
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as AppClientMethodCallParamsArgs
+    return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as algosdk.ABIValue
   }
   if (type instanceof algosdk.ABITupleType) {
-    return (await Promise.all(
-      (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item))
-    )) as AppClientMethodCallParamsArgs
+    return (await Promise.all((value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)))) as algosdk.ABIValue
   }
   if (algosdk.abiTypeIsTransaction(type)) {
     if (value && typeof value === 'object' && 'type' in value) {
-      const { type, ...rest } = value
-      const transactionType = transactionTypes[value.type as BuildableTransactionType]
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return transactionType.createTransaction(rest as any)
+      return value as unknown as TransactionBuilderResult
     }
   }
-  return value as AppClientMethodCallParamsArgs
+  throw new Error('Unsupported type')
 }
 
 const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
@@ -286,7 +280,7 @@ const asField = (
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
-  getAppCallArg: (value: unknown) => Promise<AppClientMethodCallParamsArgs>
+  getAppCallArg: (value: unknown) => Promise<MethodCallTransactionArg>
 } => {
   const isArgOptional = !!hint?.defaultArgument
 

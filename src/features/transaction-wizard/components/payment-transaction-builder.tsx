@@ -1,17 +1,15 @@
-import algosdk from 'algosdk'
 import { numberSchema } from '@/features/forms/data/common'
 import { commoSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
-import { algorandClient } from '@/features/common/data/algo-client'
-import { algos } from '@algorandfoundation/algokit-utils'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
+import { BuildableTransactionType, PaymentTransactionBuilderResult } from '../models'
 
 const formSchema = {
   ...commoSchema,
@@ -22,43 +20,66 @@ const formSchema = {
 const formData = zfd.formData(formSchema)
 
 type Props = {
-  onSubmit: (transactions: algosdk.Transaction[]) => void
+  transaction?: PaymentTransactionBuilderResult
+  onSubmit: (transaction: PaymentTransactionBuilderResult) => void
   onCancel: () => void
 }
 
-export function PaymentTransactionBuilder({ onSubmit, onCancel }: Props) {
+export function PaymentTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
-      const transaction = await algorandClient.transactions.payment({
+      onSubmit({
+        type: BuildableTransactionType.Payment,
         sender: data.sender,
         receiver: data.receiver,
-        amount: algos(data.amount),
+        amount: data.amount,
         note: data.note,
-        ...(!data.fee.setAutomatically && data.fee.value ? { staticFee: algos(data.fee.value) } : undefined),
-        ...(!data.validRounds.setAutomatically && data.validRounds.firstValid && data.validRounds.lastValid
-          ? {
-              firstValidRound: data.validRounds.firstValid,
-              lastValidRound: data.validRounds.lastValid,
-            }
-          : undefined),
+        fee: {
+          setAutomatically: data.fee.setAutomatically,
+          value: data.fee.value,
+        },
+        validRounds: {
+          setAutomatically: data.validRounds.setAutomatically,
+          firstValid: data.validRounds.firstValid,
+          lastValid: data.validRounds.lastValid,
+        },
       })
-      onSubmit([transaction])
     },
     [onSubmit]
   )
-
-  return (
-    <Form
-      schema={formData}
-      onSubmit={submit}
-      defaultValues={{
+  const defaultValues = useMemo(() => {
+    if (!transaction) {
+      return {
         fee: {
           setAutomatically: true,
         },
         validRounds: {
           setAutomatically: true,
         },
-      }}
+      } satisfies Partial<z.infer<typeof formData>>
+    }
+    return {
+      sender: transaction.sender,
+      receiver: transaction.receiver,
+      amount: transaction.amount,
+      fee: {
+        setAutomatically: transaction.fee.setAutomatically,
+        value: transaction.fee.value,
+      },
+      validRounds: {
+        setAutomatically: transaction.validRounds.setAutomatically,
+        firstValid: transaction.validRounds.firstValid,
+        lastValid: transaction.validRounds.lastValid,
+      },
+      note: transaction.note,
+    } satisfies Partial<z.infer<typeof formData>>
+  }, [transaction])
+
+  return (
+    <Form
+      schema={formData}
+      onSubmit={submit}
+      defaultValues={defaultValues}
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
