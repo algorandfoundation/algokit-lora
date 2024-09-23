@@ -180,7 +180,7 @@ const getMethodReturn = (transaction: TransactionResult, abiMethodWithHint: AbiM
   return getAbiValue(abiType, abiValue, returnHint)
 }
 
-const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue, hint?: AbiValueHint): AbiValue => {
+export const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue, hint?: AbiValueHint): AbiValue => {
   if (abiType instanceof algosdk.ABITupleType) {
     const childTypes = abiType.childTypes
     const abiValues = abiValue as algosdk.ABIValue[]
