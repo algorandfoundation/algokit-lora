@@ -13,15 +13,20 @@ import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import { SendTransactionResult, BuildTransactionResult, BuildableTransactionType } from '../models'
 import { asAlgosdkTransactions, asDescriptionListItems } from '../mappers'
-import { DataTable } from '@/features/common/components/data-table'
+import { DataTable, RowDragHandleCell } from '@/features/common/components/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 
-export function TransactionsBuilder() {
+type Props = {
+  // TODO: PD - transactions from props can't be removed
+  transactions?: BuildTransactionResult[]
+}
+
+export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   const { activeAddress, signer } = useWallet()
-  const [transactions, setTransactions] = useState<BuildTransactionResult[]>([])
+  const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
@@ -32,9 +37,10 @@ export function TransactionsBuilder() {
   })
 
   const openDialog = useCallback(async () => {
-    const transactions = await open(1)
-    if (transactions) {
-      setTransactions((prev) => [...prev, transactions])
+    // TODO: PD - 1??
+    const transaction = await open(1)
+    if (transaction) {
+      setTransactions((prev) => [...prev, transaction])
     }
   }, [open])
 
@@ -65,7 +71,13 @@ export function TransactionsBuilder() {
         <div className="flex justify-end">
           <Button onClick={openDialog}>Create</Button>
         </div>
-        <DataTable columns={tableColumns} data={expandedTransactions} />
+        <DataTable
+          columns={tableColumns}
+          data={expandedTransactions}
+          sortable={true}
+          getId={(transaction) => transaction.id}
+          setData={setTransactions}
+        />
         <Button onClick={sendTransactions}>Send</Button>
       </div>
       {dialog}
@@ -95,6 +107,12 @@ export function TransactionsBuilder() {
 }
 
 const tableColumns: ColumnDef<BuildTransactionResult>[] = [
+  {
+    id: 'drag-handle',
+    header: 'Move',
+    cell: ({ row }) => <RowDragHandleCell rowId={row.id} />,
+    size: 60,
+  },
   {
     header: 'Type',
     accessorFn: (item) => item.type,

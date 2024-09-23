@@ -78,6 +78,7 @@ type CommonBuildTransactionResult = {
 }
 
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
+  id: string
   type: BuildableTransactionType.AppCall
   applicationId: ApplicationId
   method?: algosdk.ABIMethod
@@ -89,6 +90,7 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
+  id: string
   type: BuildableTransactionType.Payment
   receiver: Address
   amount: number

@@ -10,6 +10,7 @@ import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
 import { BuildableTransactionType, BuildPaymentTransactionResult } from '../models'
+import { randomGuid } from '@/utils/random-guid'
 
 const formSchema = {
   ...commoSchema,
@@ -29,6 +30,7 @@ export function PaymentTransactionBuilder({ transaction, onSubmit, onCancel }: P
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
+        id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
         sender: data.sender,
         receiver: data.receiver,
@@ -45,7 +47,7 @@ export function PaymentTransactionBuilder({ transaction, onSubmit, onCancel }: P
         },
       })
     },
-    [onSubmit]
+    [onSubmit, transaction?.id]
   )
   const defaultValues = useMemo(() => {
     if (!transaction) {

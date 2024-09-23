@@ -17,6 +17,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType, MethodCallArg,
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
+import { randomGuid } from '@/utils/random-guid'
 
 const appCallFormSchema = {
   ...commoSchema,
@@ -65,6 +66,7 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
         )
 
         onSubmit({
+          id: transaction?.id ?? randomGuid(),
           type: BuildableTransactionType.AppCall,
           applicationId: Number(values.appId), // TODO: PD - handle bigint
           sender: values.sender,
@@ -76,7 +78,7 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
         })
       }
     },
-    [methodForm, onSubmit]
+    [methodForm, onSubmit, transaction?.id]
   )
 
   const onSetMethodForm = useCallback((method: MethodForm | undefined) => {
