@@ -42,8 +42,8 @@ const asPaymentTransaction = (transaction: BuildPaymentTransactionResult): Descr
 
 const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
   if (algosdk.abiTypeIsTransaction(type)) {
-    const items = asDescriptionListItems(arg as BuildTransactionResult)
-    return <DescriptionList items={items} />
+    // Transaction type args are shown in the table
+    return undefined
   }
   if (algosdk.abiTypeIsReference(type)) {
     return arg.toString() // TODO: PD - check reference types

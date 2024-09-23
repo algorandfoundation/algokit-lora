@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
@@ -11,7 +11,7 @@ import { transactionIdLabel } from '@/features/transactions/components/transacti
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
-import { SendTransactionResult, BuildTransactionResult } from '../models'
+import { SendTransactionResult, BuildTransactionResult, BuildableTransactionType } from '../models'
 import { asAlgosdkTransactions, asDescriptionListItems } from '../mappers'
 import { DataTable } from '@/features/common/components/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -57,13 +57,15 @@ export function TransactionsBuilder() {
     })
   }, [activeAddress, signer, transactions])
 
+  const expandedTransactions = useMemo(() => expandTransactions(transactions), [transactions])
+
   return (
     <div>
       <div className="space-y-4">
         <div className="flex justify-end">
           <Button onClick={openDialog}>Create</Button>
         </div>
-        <DataTable columns={tableColumns} data={transactions} />
+        <DataTable columns={tableColumns} data={expandedTransactions} />
         <Button onClick={sendTransactions}>Send</Button>
       </div>
       {dialog}
@@ -105,3 +107,22 @@ const tableColumns: ColumnDef<BuildTransactionResult>[] = [
     },
   },
 ]
+
+const expandTransactions = (transactions: BuildTransactionResult[]): BuildTransactionResult[] => {
+  const results: BuildTransactionResult[] = []
+
+  for (const transaction of transactions) {
+    if (transaction.type !== BuildableTransactionType.AppCall) {
+      results.push(transaction)
+    } else {
+      const transactionTypeArgs = transaction.methodArgs?.filter((arg): arg is BuildTransactionResult => typeof arg === 'object') ?? []
+      // TODO: PD - handle nested transaction type args
+      for (const transactionTypeArg of transactionTypeArgs) {
+        results.push(transactionTypeArg)
+      }
+      results.push(transaction)
+    }
+  }
+
+  return results
+}
