@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, PaymentTransactionBuilderResult } from '../models'
+import { BuildableTransactionType, BuildPaymentTransactionResult } from '../models'
 
 const formSchema = {
   ...commoSchema,
@@ -20,8 +20,8 @@ const formSchema = {
 const formData = zfd.formData(formSchema)
 
 type Props = {
-  transaction?: PaymentTransactionBuilderResult
-  onSubmit: (transaction: PaymentTransactionBuilderResult) => void
+  transaction?: BuildPaymentTransactionResult
+  onSubmit: (transaction: BuildPaymentTransactionResult) => void
   onCancel: () => void
 }
 

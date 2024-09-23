@@ -13,7 +13,7 @@ import { useLoadableAbiMethodDefinitions } from '@/features/applications/data/ap
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { AppCallTransactionBuilderResult, BuildableTransactionType, MethodCallTransactionArg, MethodForm } from '../models'
+import { BuildAppCallTransactionResult, BuildableTransactionType, MethodCallArg, MethodForm } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
@@ -34,8 +34,8 @@ const appCallFormSchema = {
 const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {
-  transaction?: Partial<AppCallTransactionBuilderResult>
-  onSubmit: (transaction: AppCallTransactionBuilderResult) => void
+  transaction?: Partial<BuildAppCallTransactionResult>
+  onSubmit: (transaction: BuildAppCallTransactionResult) => void
   onCancel: () => void
 }
 
@@ -61,7 +61,7 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
             acc[index] = await methodForm.arguments[index].getAppCallArg(value)
             return acc
           },
-          Promise.resolve([] as MethodCallTransactionArg[])
+          Promise.resolve([] as MethodCallArg[])
         )
 
         onSubmit({

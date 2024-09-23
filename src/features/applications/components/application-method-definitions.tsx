@@ -8,7 +8,7 @@ import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { SendTransactionResult, TransactionBuilderResult } from '@/features/transaction-wizard/models'
+import { SendTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { invariant } from '@/utils/invariant'
 import { useWallet } from '@txnlab/use-wallet'
@@ -43,15 +43,15 @@ type MethodProps = {
 
 function Method({ method, applicationId }: MethodProps) {
   const { activeAddress, signer } = useWallet()
-  const [transactions, setTransactions] = useState<TransactionBuilderResult[]>([])
+  const [transactions, setTransactions] = useState<BuildTransactionResult[]>([])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
     dialogBody: (
       props: DialogBodyProps<
-        { transactionType: algosdk.ABITransactionType; transaction?: Partial<TransactionBuilderResult> } | undefined,
-        TransactionBuilderResult
+        { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
+        BuildTransactionResult
       >
     ) => (
       <TransactionBuilder

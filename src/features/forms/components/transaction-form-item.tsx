@@ -16,7 +16,7 @@ import { invariant } from '@/utils/invariant'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { HintText } from './hint-text'
 import { useFormFieldError } from '../hooks/use-form-field-error'
-import { TransactionBuilderResult } from '@/features/transaction-wizard/models'
+import { BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { rawAppCallTransaction } from '@/features/transaction-wizard/data/app-call-transactions'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 
@@ -147,16 +147,13 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
 }: TransactionFormItemProps<TSchema>) {
   const { setValue, watch, trigger } = useFormContext<TSchema>()
   const error = useFormFieldError(field)
-  const fieldValue = watch(field) as TransactionBuilderResult | undefined
+  const fieldValue = watch(field) as BuildTransactionResult | undefined
 
   // TODO: PD - cast transaction type to algosdk.TransactionType
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
     dialogBody: (
-      props: DialogBodyProps<
-        { transactionType: algosdk.ABITransactionType; transaction?: TransactionBuilderResult },
-        TransactionBuilderResult
-      >
+      props: DialogBodyProps<{ transactionType: algosdk.ABITransactionType; transaction?: BuildTransactionResult }, BuildTransactionResult>
     ) => (
       <TransactionBuilder
         type={props.data.transactionType as unknown as algosdk.TransactionType}
@@ -207,7 +204,7 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   )
 }
 
-const asDescriptionList = (transaction: TransactionBuilderResult) => {
+const asDescriptionList = (transaction: BuildTransactionResult) => {
   return [
     {
       dt: 'Transaction type',

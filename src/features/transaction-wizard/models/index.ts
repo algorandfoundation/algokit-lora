@@ -46,9 +46,9 @@ export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TDa
 }
 
 export enum BuildableTransactionType {
-  Payment,
-  AccountClose,
-  AppCall,
+  Payment = 'Payment',
+  AccountClose = 'AccountClose',
+  AppCall = 'AppCall',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -60,13 +60,10 @@ export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
 
 export type ArgumentField = ArgumentDefinition & {
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
-  getAppCallArg: (arg: unknown) => Promise<MethodCallTransactionArg>
+  getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
 }
 
-// TODO: PD - extract the common fields into a base type
-export type AppCallTransactionBuilderResult = {
-  type: BuildableTransactionType.AppCall
-  applicationId: ApplicationId
+type CommonBuildTransactionResult = {
   sender: Address
   fee: {
     setAutomatically: boolean
@@ -78,32 +75,26 @@ export type AppCallTransactionBuilderResult = {
     lastValid?: bigint
   }
   note?: string
+}
+
+export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
+  type: BuildableTransactionType.AppCall
+  applicationId: ApplicationId
   method?: algosdk.ABIMethod
   methodName?: string
-  methodArgs?: MethodCallTransactionArg[]
+  methodArgs?: MethodCallArg[]
   rawArgs?: string[]
 }
 
-export type MethodCallTransactionArg = algosdk.ABIValue | TransactionBuilderResult
+export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult
 
-export type PaymentTransactionBuilderResult = {
+export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
-  sender: Address
   receiver: Address
   amount: number
-  note?: string
-  fee: {
-    setAutomatically: boolean
-    value?: number
-  }
-  validRounds: {
-    setAutomatically: boolean
-    firstValid?: bigint
-    lastValid?: bigint
-  }
 }
 
-export type TransactionBuilderResult = PaymentTransactionBuilderResult | AppCallTransactionBuilderResult
+export type BuildTransactionResult = BuildPaymentTransactionResult | BuildAppCallTransactionResult
 
 export type SendTransactionResult = {
   transactionId: string

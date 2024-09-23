@@ -7,19 +7,8 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import {
-  ArgumentField,
-  MethodCallTransactionArg,
-  MethodForm,
-  TransactionBuilderResult,
-  AppCallTransactionBuilderResult,
-  BuildableTransactionType,
-  PaymentTransactionBuilderResult,
-} from '@/features/transaction-wizard/models'
+import { ArgumentField, MethodCallArg, MethodForm, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { ArgumentHint, MethodDefinition } from '@/features/applications/models'
-import { invariant } from '@/utils/invariant'
-import { algos } from '@algorandfoundation/algokit-utils'
-import { algorandClient } from '@/features/common/data/algo-client'
 
 const argumentPathSeparator = '-'
 const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
@@ -240,7 +229,7 @@ const getCreateField = (
   return undefined
 }
 
-const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<MethodCallTransactionArg> => {
+const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<MethodCallArg> => {
   if (type instanceof algosdk.ABIUfixedType) {
     return fixedPointDecimalStringToBigInt(value as string, type.precision) as algosdk.ABIValue
   }
@@ -263,7 +252,7 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
   }
   if (algosdk.abiTypeIsTransaction(type)) {
     if (value && typeof value === 'object' && 'type' in value) {
-      return value as unknown as TransactionBuilderResult
+      return value as unknown as BuildTransactionResult
     }
   }
   return value as algosdk.ABIValue
@@ -290,7 +279,7 @@ const asField = (
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
-  getAppCallArg: (value: unknown) => Promise<MethodCallTransactionArg>
+  getAppCallArg: (value: unknown) => Promise<MethodCallArg>
 } => {
   const isArgOptional = !!hint?.defaultArgument
 
@@ -340,60 +329,4 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
     defaultValues: {}, // TODO: PD - default values??
     returns: method.returns,
   } satisfies MethodForm
-}
-
-export const asAlgosdkTransactions = async (transaction: TransactionBuilderResult): Promise<algosdk.Transaction[]> => {
-  if (transaction.type === BuildableTransactionType.Payment) {
-    return [await asPaymentTransaction(transaction)]
-  }
-  if (transaction.type === BuildableTransactionType.AppCall && transaction.method) {
-    return await asMethodCallTransaction(transaction)
-  }
-  throw new Error('Unsupported transaction type')
-}
-
-const asPaymentTransaction = async (transaction: PaymentTransactionBuilderResult): Promise<algosdk.Transaction> => {
-  return await algorandClient.transactions.payment({
-    sender: transaction.sender,
-    receiver: transaction.receiver,
-    amount: algos(transaction.amount),
-    note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
-  })
-}
-
-const asMethodCallTransaction = async (transaction: AppCallTransactionBuilderResult): Promise<algosdk.Transaction[]> => {
-  invariant(transaction.method, 'Method is required')
-  invariant(transaction.methodArgs, 'Method args are required')
-
-  const args = await Promise.all(
-    transaction.methodArgs.map(async (arg) => {
-      if (typeof arg === 'object') {
-        return (await asAlgosdkTransactions(arg as TransactionBuilderResult))[0]
-      }
-      return arg
-    })
-  )
-  const result = await algorandClient.transactions.appCallMethodCall({
-    sender: transaction.sender,
-    appId: BigInt(transaction.applicationId), // TODO: PD - handle bigint
-    method: transaction.method,
-    args: args,
-    note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
-  })
-
-  return result.transactions
 }

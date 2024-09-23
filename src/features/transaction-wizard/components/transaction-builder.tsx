@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
-import { BuildableTransactionType, TransactionBuilderResult } from '../models'
+import { BuildableTransactionType, BuildTransactionResult } from '../models'
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
@@ -13,8 +13,8 @@ import { PaymentTransactionBuilder } from './payment-transaction-builder'
 type Props = {
   type?: algosdk.TransactionType
   defaultSender?: string // TODO: PD - default sender?
-  transaction?: Partial<TransactionBuilderResult>
-  onSubmit: (transaction: TransactionBuilderResult) => void
+  transaction?: Partial<BuildTransactionResult>
+  onSubmit: (transaction: BuildTransactionResult) => void
   onCancel: () => void
 }
 
@@ -23,7 +23,7 @@ export const transactionTypeLabel = 'Transaction type'
 const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
-export type TransactionBuilderFormProps<T extends TransactionBuilderResult> = {
+export type TransactionBuilderFormProps<T extends BuildTransactionResult> = {
   transaction?: Partial<T>
   onSubmit: (transaction: T) => void
   onCancel: () => void
@@ -75,8 +75,8 @@ export function TransactionBuilder({ type, transaction, onSubmit, onCancel }: Pr
   return (
     <RenderLoadable loadable={loadableActiveWalletAddressSnapshot}>
       {(activeWalletAddressSnapshot) => (
-        <div className="lg:w-1/2">
-          <div className={cn('flex w-72 flex-col mb-4')}>
+        <div>
+          <div className={cn('flex flex-col mb-4')}>
             <Label htmlFor="transaction-type" className={cn('ml-0.5 mb-2')}>
               {transactionTypeLabel}
             </Label>
