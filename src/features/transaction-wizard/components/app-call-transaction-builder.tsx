@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commoSchema } from '@/features/transaction-wizard/data/common'
+import { senderFieldSchema, commonSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -22,7 +22,7 @@ import { TransactionBuilderMode } from '../data'
 import { invariant } from '@/utils/invariant'
 
 const appCallFormSchema = {
-  ...commoSchema,
+  ...commonSchema,
   ...senderFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text().optional(),

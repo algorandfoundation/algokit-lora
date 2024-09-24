@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commoSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -15,7 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { invariant } from '@/utils/invariant'
 
 const formSchema = {
-  ...commoSchema,
+  ...commonSchema,
   ...senderFieldSchema,
   ...receiverFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),

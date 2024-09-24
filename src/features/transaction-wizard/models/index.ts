@@ -7,6 +7,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { DefaultValues } from 'react-hook-form'
 import { Address } from '@/features/accounts/data/types'
 import { TransactionsGraphData } from '@/features/transactions-graph'
+import { AssetId } from '@/features/assets/data/types'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -49,6 +50,10 @@ export enum BuildableTransactionType {
   Payment = 'Payment',
   AccountClose = 'AccountClose',
   AppCall = 'AppCall',
+  AssetOptIn = 'AssetOptIn',
+  AssetOptOut = 'AssetOptOut',
+  AssetTransfer = 'AssetTransfer',
+  AssetRevoke = 'AssetRevoke',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -96,7 +101,55 @@ export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   amount: number
 }
 
-export type BuildTransactionResult = BuildPaymentTransactionResult | BuildAppCallTransactionResult
+export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult & {
+  id: string // TODO: NC - Feels like this is meant to be common?
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetTransfer
+  receiver: Address
+  amount: number
+}
+
+export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetOptIn
+}
+
+export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetOptOut
+  closeRemainderTo?: Address
+}
+
+export type BuildAssetRevokeTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetRevoke
+  receiver: Address
+  assetSender: Address
+  amount: number
+}
+
+export type BuildTransactionResult =
+  | BuildPaymentTransactionResult
+  | BuildAppCallTransactionResult
+  | BuildAssetTransferTransactionResult
+  | BuildAssetOptInTransactionResult
+  | BuildAssetOptOutTransactionResult
+  | BuildAssetRevokeTransactionResult
 
 export type SendTransactionResult = {
   transactionId: string
