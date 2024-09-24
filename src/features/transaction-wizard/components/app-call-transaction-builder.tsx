@@ -217,7 +217,7 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   }, [methodForm?.arguments, helper])
 
   return (
-    <div>
+    <div className="space-y-4">
       {helper.numberField({
         field: 'appId',
         label: 'Application ID',
@@ -235,7 +235,7 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
         label: 'Sender',
       })}
       {abiMethodArgs.map((arg, index) => (
-        <div key={index}>
+        <div key={index} className="space-y-1.5 text-sm">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
           <DescriptionList items={arg.descriptions} />
           <>{arg.field}</>

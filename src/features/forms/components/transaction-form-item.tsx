@@ -19,6 +19,8 @@ import { useFormFieldError } from '../hooks/use-form-field-error'
 import { BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { rawAppCallTransaction } from '@/features/transaction-wizard/data/app-call-transactions'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
+import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
+import { asDescriptionListItems } from '@/features/transaction-wizard/mappers'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -153,9 +155,13 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
     dialogBody: (
-      props: DialogBodyProps<{ transactionType: algosdk.ABITransactionType; transaction?: BuildTransactionResult }, BuildTransactionResult>
+      props: DialogBodyProps<
+        { mode: TransactionBuilderMode; transactionType: algosdk.ABITransactionType; transaction?: BuildTransactionResult },
+        BuildTransactionResult
+      >
     ) => (
       <TransactionBuilder
+        mode={props.data.mode}
         type={props.data.transactionType as unknown as algosdk.TransactionType}
         transaction={props.data.transaction}
         onCancel={props.onCancel}
@@ -164,20 +170,24 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
     ),
   })
 
-  const openDialog = useCallback(async () => {
-    const result = await openTransactionBuilderDialog({
-      transactionType,
-      transaction: fieldValue,
-    })
-    if (result) {
-      setValue(field, result as PathValue<TSchema, Path<TSchema>>)
-      await trigger(field)
-    }
-  }, [openTransactionBuilderDialog, transactionType, fieldValue, setValue, field, trigger])
+  const openDialog = useCallback(
+    async (mode: TransactionBuilderMode) => {
+      const result = await openTransactionBuilderDialog({
+        mode,
+        transactionType,
+        transaction: fieldValue,
+      })
+      if (result) {
+        setValue(field, result as PathValue<TSchema, Path<TSchema>>)
+        await trigger(field)
+      }
+    },
+    [openTransactionBuilderDialog, transactionType, fieldValue, setValue, field, trigger]
+  )
 
   const transactionFields = useMemo(() => {
     if (fieldValue) {
-      return asDescriptionList(fieldValue)
+      return asDescriptionListItems(fieldValue)
     } else {
       return []
     }
@@ -186,14 +196,14 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   return (
     <>
       {transactionFields.length === 0 && (
-        <Button type="button" onClick={openDialog}>
+        <Button type="button" onClick={() => openDialog(TransactionBuilderMode.Create)}>
           Create
         </Button>
       )}
       {transactionFields.length > 0 && (
         <>
           <DescriptionList items={transactionFields} />
-          <Button type="button" onClick={openDialog}>
+          <Button type="button" onClick={() => openDialog(TransactionBuilderMode.Edit)}>
             Edit
           </Button>
         </>
@@ -202,13 +212,4 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
       <HintText errorText={error?.message} helpText={helpText} />
     </>
   )
-}
-
-const asDescriptionList = (transaction: BuildTransactionResult) => {
-  return [
-    {
-      dt: 'Transaction type',
-      dd: transaction.type,
-    },
-  ]
 }
