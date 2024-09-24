@@ -92,13 +92,16 @@ const getValue = (bytes: string) => {
   const buf = Buffer.from(bytes, 'base64')
   if (buf.length === 32) {
     return encodeAddress(new Uint8Array(buf))
-  } else {
-    if (isUtf8(buf)) {
-      return buf.toString('utf8')
-    } else {
-      return buf.toString('base64')
+  }
+
+  if (isUtf8(buf)) {
+    const utf8Decoded = buf.toString('utf8')
+    // Check if the string contains any unprintable characters
+    if (!utf8Decoded.match(/[\p{Cc}\p{Cn}\p{Cs}]+/gu)) {
+      return utf8Decoded
     }
   }
+  return buf.toString('base64')
 }
 
 export const asMethodDefinitions = (appSpec: Arc32AppSpec | Arc4AppSpec): MethodDefinition[] => {
