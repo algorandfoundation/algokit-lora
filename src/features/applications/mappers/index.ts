@@ -92,16 +92,14 @@ const getGlobalStateValue = (tealValue: modelsv2.TealValue): ApplicationGlobalSt
 const getValue = (bytes: string) => {
   const buf = Buffer.from(bytes, 'base64')
   if (buf.length === 32) {
-    const encodedAddress = encodeAddress(new Uint8Array(buf))
-    if (isAddress(encodedAddress)) {
-      return encodedAddress
-    }
+    return encodeAddress(new Uint8Array(buf))
   }
+
   if (isUtf8(buf)) {
-    const utf8 = buf.toString('utf8')
-    const printableUtf8Regex = /^[ -~]+$/
-    if (printableUtf8Regex.test(utf8)) {
-      return utf8
+    const utf8Decoded = buf.toString('utf8')
+    // Check if the string contains any unprintable characters
+    if (!utf8Decoded.match(/[\p{Cc}\p{Cn}\p{Cs}]+/gu)) {
+      return utf8Decoded
     }
   }
   return buf.toString('base64')
