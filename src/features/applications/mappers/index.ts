@@ -15,7 +15,6 @@ import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
-import { isAddress } from '@/utils/is-address'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
