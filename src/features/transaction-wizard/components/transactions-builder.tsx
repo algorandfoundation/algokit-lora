@@ -103,6 +103,7 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   }, [])
 
   // TODO: PD - spining Send button
+  // TODO: PD - show the result of app call transactions
   return (
     <div>
       <div className="space-y-4">

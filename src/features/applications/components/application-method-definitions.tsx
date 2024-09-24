@@ -8,17 +8,8 @@ import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { SendTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
+import { BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
-import { invariant } from '@/utils/invariant'
-import { useWallet } from '@txnlab/use-wallet'
-import { algorandClient } from '@/features/common/data/algo-client'
-import { asAlgosdkTransactions } from '@/features/transaction-wizard/mappers'
-import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
-import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { TransactionsGraph } from '@/features/transactions-graph'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
 
@@ -44,9 +35,7 @@ type MethodProps = {
 }
 
 function Method({ method, applicationId }: MethodProps) {
-  const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>([])
-  const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
@@ -79,26 +68,6 @@ function Method({ method, applicationId }: MethodProps) {
     }
   }, [applicationId, method.name, open])
 
-  // TODO: PD - refactor, this is the same as in transaction-wizard
-  const send = useCallback(async () => {
-    invariant(activeAddress, 'Please connect your wallet')
-
-    const atc = algorandClient.setSigner(activeAddress, signer).newGroup()
-    for (const transaction of transactions) {
-      const txns = await asAlgosdkTransactions(transaction)
-      txns.forEach((txn) => atc.addTransaction(txn))
-    }
-    const result = await atc.execute()
-    const sentTxns = asTransactionFromSendResult(result)
-    const transactionId = result.txIds[0]
-    const transactionsGraphData = asTransactionsGraphData(sentTxns)
-
-    setSendTransactionResult({
-      transactionId,
-      transactionsGraphData,
-    })
-  }, [activeAddress, signer, transactions])
-
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
@@ -122,27 +91,6 @@ function Method({ method, applicationId }: MethodProps) {
         </div>
         {transactions.length > 0 && <TransactionsBuilder transactions={transactions} />}
         {dialog}
-        {sendTransactionResult && (
-          <div className="my-4 flex flex-col gap-4 text-sm">
-            <DescriptionList
-              items={[
-                {
-                  dt: transactionIdLabel,
-                  dd: (
-                    <TransactionLink transactionId={sendTransactionResult.transactionId} className="text-sm text-primary underline">
-                      {sendTransactionResult.transactionId}
-                    </TransactionLink>
-                  ),
-                },
-              ]}
-            />
-            <TransactionsGraph
-              transactionsGraphData={sendTransactionResult.transactionsGraphData}
-              bgClassName="bg-background"
-              downloadable={false}
-            />
-          </div>
-        )}
       </AccordionContent>
     </AccordionItem>
   )
