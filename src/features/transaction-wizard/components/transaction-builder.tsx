@@ -9,6 +9,7 @@ import { cn } from '@/features/common/utils'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { PaymentTransactionBuilder } from './payment-transaction-builder'
+import { AssetTransferTransactionBuilder } from './asset-transfer-transaction-builder'
 import { TransactionBuilderMode } from '../data'
 
 export const transactionTypeLabel = 'Transaction type'
@@ -19,13 +20,13 @@ const builderConfigs = [
   {
     transactionType: algosdk.TransactionType.pay,
     type: BuildableTransactionType.Payment,
-    label: 'Payment',
+    label: 'Payment (pay)',
     component: PaymentTransactionBuilder,
   },
   {
     transactionType: algosdk.TransactionType.pay,
     type: BuildableTransactionType.AccountClose,
-    label: 'Account Close',
+    label: 'Account Close (pay)',
     component: PaymentTransactionBuilder,
   },
   {
@@ -33,6 +34,12 @@ const builderConfigs = [
     type: BuildableTransactionType.AppCall,
     label: 'App Call',
     component: AppCallTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.axfer,
+    type: BuildableTransactionType.AssetTransfer,
+    label: 'Asset Transfer (axfer)',
+    component: AssetTransferTransactionBuilder,
   },
 ]
 
