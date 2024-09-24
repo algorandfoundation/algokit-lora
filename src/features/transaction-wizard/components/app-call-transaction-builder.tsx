@@ -24,7 +24,7 @@ import { invariant } from '@/utils/invariant'
 const appCallFormSchema = {
   ...commoSchema,
   ...senderFieldSchema,
-  appId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text().optional(),
   // TODO: PD - JSON serialisation of app args should exclude the ids
   appArgs: zfd.repeatableOfType(
@@ -44,6 +44,7 @@ type Props = {
   onCancel: () => void
 }
 
+// TODO: PD - support raw args
 export function AppCallTransactionBuilder({ mode, transaction, defaultValues: defaultValuesProps, onSubmit, onCancel }: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
@@ -72,7 +73,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
         onSubmit({
           id: transaction?.id ?? randomGuid(),
           type: BuildableTransactionType.AppCall,
-          applicationId: Number(values.appId), // TODO: PD - handle bigint
+          applicationId: Number(values.applicationId), // TODO: PD - handle bigint
           sender: values.sender,
           fee: values.fee,
           validRounds: values.validRounds,
@@ -122,7 +123,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
         {} as Record<string, unknown>
       )
       return {
-        appId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
+        applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
         sender: transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -158,7 +159,7 @@ type FormInnerProps = {
 
 function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   const { watch } = useFormContext<z.infer<typeof baseFormData>>()
-  const appId = watch('appId')
+  const appId = watch('applicationId')
   const methodName = watch('methodName')
 
   const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
@@ -219,7 +220,7 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
   return (
     <div className="space-y-4">
       {helper.numberField({
-        field: 'appId',
+        field: 'applicationId',
         label: 'Application ID',
       })}
       {helper.selectField({

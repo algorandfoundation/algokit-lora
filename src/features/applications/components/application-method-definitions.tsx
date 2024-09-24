@@ -19,6 +19,8 @@ import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { TransactionsGraph } from '@/features/transactions-graph'
+import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
+import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
 
 type Props = {
   applicationId: ApplicationId
@@ -55,8 +57,9 @@ function Method({ method, applicationId }: MethodProps) {
       >
     ) => (
       <TransactionBuilder
+        mode={TransactionBuilderMode.Create}
         type={props.data?.transactionType as unknown as algosdk.TransactionType}
-        transaction={props.data?.transaction}
+        defaultValues={props.data?.transaction}
         onCancel={props.onCancel}
         onSubmit={props.onSubmit}
       />
@@ -69,8 +72,6 @@ function Method({ method, applicationId }: MethodProps) {
       transaction: {
         applicationId: applicationId,
         methodName: method.name,
-        fee: { setAutomatically: true },
-        validRounds: { setAutomatically: true },
       },
     })
     if (transaction) {
@@ -118,12 +119,8 @@ function Method({ method, applicationId }: MethodProps) {
               Call
             </Button>
           )}
-          {transactions.length > 0 && (
-            <Button variant="default" onClick={send}>
-              Send
-            </Button>
-          )}
         </div>
+        {transactions.length > 0 && <TransactionsBuilder transactions={transactions} />}
         {dialog}
         {sendTransactionResult && (
           <div className="my-4 flex flex-col gap-4 text-sm">

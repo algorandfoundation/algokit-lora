@@ -75,10 +75,11 @@ type Props = {
   ariaLabel?: string
   onEdit: (transaction: BuildTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
+  nonDeletableTransactionIds: string[]
 }
 
-export function TransactionsTable({ data, setData, ariaLabel, onEdit, onDelete }: Props) {
-  const columns = getTableColumns({ onEdit, onDelete })
+export function TransactionsTable({ data, setData, ariaLabel, onEdit, onDelete, nonDeletableTransactionIds }: Props) {
+  const columns = getTableColumns({ onEdit, onDelete, nonDeletableTransactionIds })
   const table = useReactTable({
     data,
     columns,
@@ -139,9 +140,11 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onDelete }
 }
 
 const getTableColumns = ({
+  nonDeletableTransactionIds,
   onEdit,
   onDelete,
 }: {
+  nonDeletableTransactionIds: string[]
   onEdit: (transaction: BuildTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
@@ -168,7 +171,11 @@ const getTableColumns = ({
           <DropdownMenuItem className="justify-center" onClick={() => onEdit(row.original)}>
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem className="justify-center" onClick={() => onDelete(row.original)}>
+          <DropdownMenuItem
+            className="justify-center"
+            onClick={() => onDelete(row.original)}
+            disabled={nonDeletableTransactionIds.includes(row.original.id)}
+          >
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>

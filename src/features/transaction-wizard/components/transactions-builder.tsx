@@ -1,5 +1,5 @@
 import algosdk from 'algosdk'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
@@ -29,6 +29,10 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
+
+  const nonDeletableTransactionIds = useMemo(() => {
+    return transactionsProp?.map((t) => t.id) ?? []
+  }, [transactionsProp])
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Transaction Builder',
@@ -98,14 +102,23 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     setTransactions((prev) => prev.filter((t) => t.id !== transaction.id))
   }, [])
 
+  // TODO: PD - spining Send button
   return (
     <div>
       <div className="space-y-4">
         <div className="flex justify-end">
           <Button onClick={createTransaction}>Create</Button>
         </div>
-        <TransactionsTable data={transactions} setData={setTransactions} onEdit={editTransaction} onDelete={deleteTransaction} />
-        <Button onClick={sendTransactions}>Send</Button>
+        <TransactionsTable
+          data={transactions}
+          setData={setTransactions}
+          nonDeletableTransactionIds={nonDeletableTransactionIds}
+          onEdit={editTransaction}
+          onDelete={deleteTransaction}
+        />
+        <div className="flex justify-end">
+          <Button onClick={sendTransactions}>Send</Button>
+        </div>
       </div>
       {dialog}
       {sendTransactionResult && (
