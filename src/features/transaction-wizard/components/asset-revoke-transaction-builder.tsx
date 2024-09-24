@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, BuildAssetTransferTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAssetRevokeTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { AssetSummary } from '@/features/assets/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -24,10 +24,12 @@ const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
   ...receiverFieldSchema,
+  assetSender: addressFieldSchema,
   asset: z
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
+      clawback: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -54,7 +56,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.textField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to transfer from. Sends the transaction and pays the fee',
+        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.textField({
@@ -63,15 +65,21 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         helpText: 'Account that receives the asset',
         placeholder: ZERO_ADDRESS,
       })}
+      {helper.textField({
+        field: 'assetSender',
+        label: 'Asset sender',
+        helpText: 'Account the asset will be revoked from',
+        placeholder: ZERO_ADDRESS,
+      })}
       {helper.numberField({
         field: 'asset.id',
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be transfered',
+        helpText: 'The asset to be revoked',
       })}
       {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,
-        helpText: 'Amount to transfer',
+        helpText: 'Amount to revoke',
         decimalScale: asset && asset.decimals ? asset.decimals : 0,
       })}
       <TransactionBuilderFeeField />
@@ -115,6 +123,9 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
       setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
+      // TODO: NC - Support additional clawback validation scenarios
+      // TODO: NC - Add clawback address mapping to all asset transfer transactions
+      setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
       trigger('asset')
     }
 
@@ -135,20 +146,21 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
-  transaction?: BuildAssetTransferTransactionResult
-  onSubmit: (transaction: BuildAssetTransferTransactionResult) => void
+  transaction?: BuildAssetRevokeTransactionResult
+  onSubmit: (transaction: BuildAssetRevokeTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetTransferTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetRevokeTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(), // TODO: NC - Why the random uuid?
         asset: data.asset,
-        type: BuildableTransactionType.AssetTransfer,
+        type: BuildableTransactionType.AssetRevoke,
         sender: data.sender,
         receiver: data.receiver,
+        assetSender: data.assetSender,
         amount: data.amount,
         note: data.note,
         fee: {
@@ -178,6 +190,7 @@ export function AssetTransferTransactionBuilder({ transaction, onSubmit, onCance
     return {
       sender: transaction.sender,
       receiver: transaction.receiver,
+      assetSender: transaction.assetSender,
       asset: transaction.asset,
       amount: transaction.amount,
       fee: {

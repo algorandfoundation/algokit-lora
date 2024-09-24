@@ -5,6 +5,9 @@ import {
   BuildableTransactionType,
   BuildPaymentTransactionResult,
   BuildAssetTransferTransactionResult,
+  BuildAssetOptInTransactionResult,
+  BuildAssetOptOutTransactionResult,
+  BuildAssetRevokeTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -18,7 +21,12 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   if (transaction.type === BuildableTransactionType.AppCall && transaction.method) {
     return await asMethodCallTransaction(transaction)
   }
-  if (transaction.type === BuildableTransactionType.AssetTransfer) {
+  if (
+    transaction.type === BuildableTransactionType.AssetTransfer ||
+    transaction.type === BuildableTransactionType.AssetOptIn ||
+    transaction.type === BuildableTransactionType.AssetOptOut ||
+    transaction.type === BuildableTransactionType.AssetRevoke
+  ) {
     return [await asAssetTransferTransaction(transaction)]
   }
 
@@ -71,14 +79,24 @@ const asMethodCallTransaction = async (transaction: BuildAppCallTransactionResul
   return result.transactions
 }
 
-const asAssetTransferTransaction = async (transaction: BuildAssetTransferTransactionResult): Promise<algosdk.Transaction> => {
+const asAssetTransferTransaction = async (
+  transaction:
+    | BuildAssetTransferTransactionResult
+    | BuildAssetOptInTransactionResult
+    | BuildAssetOptOutTransactionResult
+    | BuildAssetRevokeTransactionResult
+): Promise<algosdk.Transaction> => {
   invariant(transaction.asset.decimals, 'Asset decimals is required')
-  const amount = new Decimal(transaction.amount).mul(new Decimal(10).pow(transaction.asset.decimals))
+  // TODO: NC - Confirm the clawback info before sending the transaction
+  // TODO: NC - Check the conversion from decimal to number to bigint, can we simplify?
+  const amount =
+    'amount' in transaction ? BigInt(new Decimal(transaction.amount).mul(new Decimal(10).pow(transaction.asset.decimals)).toNumber()) : 0n
   return await algorandClient.transactions.assetTransfer({
     sender: transaction.sender,
-    receiver: transaction.receiver,
+    receiver: 'receiver' in transaction ? transaction.receiver : transaction.sender,
+    clawbackTarget: 'assetSender' in transaction ? transaction.assetSender : undefined,
     assetId: BigInt(transaction.asset.id),
-    amount: BigInt(amount.toNumber()), // TODO: NC - Check this
+    amount,
     note: transaction.note,
     ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
     ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid

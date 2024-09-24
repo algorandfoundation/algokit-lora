@@ -10,6 +10,7 @@ import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { PaymentTransactionBuilder } from './payment-transaction-builder'
 import { AssetTransferTransactionBuilder } from './asset-transfer-transaction-builder'
+import { AssetOptInTransactionBuilder } from './asset-opt-in-transaction-builder'
 import { TransactionBuilderMode } from '../data'
 
 export const transactionTypeLabel = 'Transaction type'
@@ -39,6 +40,24 @@ const builderConfigs = [
     transactionType: algosdk.TransactionType.axfer,
     type: BuildableTransactionType.AssetTransfer,
     label: 'Asset Transfer (axfer)',
+    component: AssetTransferTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.axfer,
+    type: BuildableTransactionType.AssetOptIn,
+    label: 'Asset opt-in (axfer)',
+    component: AssetOptInTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.axfer,
+    type: BuildableTransactionType.AssetOptOut,
+    label: 'Asset opt-out (axfer)',
+    component: AssetTransferTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.axfer,
+    type: BuildableTransactionType.AssetRevoke,
+    label: 'Asset revoke (axfer)',
     component: AssetTransferTransactionBuilder,
   },
 ]

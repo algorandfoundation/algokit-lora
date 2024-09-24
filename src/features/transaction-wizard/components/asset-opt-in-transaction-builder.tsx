@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, BuildAssetTransferTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAssetOptInTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { AssetSummary } from '@/features/assets/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -23,7 +23,6 @@ import { useDebounce } from 'use-debounce'
 const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
-  ...receiverFieldSchema,
   asset: z
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
@@ -38,7 +37,6 @@ const formSchema = {
         })
       }
     }),
-  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
 }
 
 const formData = zfd.formData(formSchema)
@@ -54,25 +52,13 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.textField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to transfer from. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'receiver',
-        label: 'Receiver',
-        helpText: 'Account that receives the asset',
+        helpText: 'Account to opt in to the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.numberField({
         field: 'asset.id',
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be transfered',
-      })}
-      {helper.numberField({
-        field: 'amount',
-        label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,
-        helpText: 'Amount to transfer',
-        decimalScale: asset && asset.decimals ? asset.decimals : 0,
+        helpText: 'The asset to be opted in to',
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
@@ -135,21 +121,19 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
-  transaction?: BuildAssetTransferTransactionResult
-  onSubmit: (transaction: BuildAssetTransferTransactionResult) => void
+  transaction?: BuildAssetOptInTransactionResult
+  onSubmit: (transaction: BuildAssetOptInTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetTransferTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetOptInTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(), // TODO: NC - Why the random uuid?
         asset: data.asset,
-        type: BuildableTransactionType.AssetTransfer,
+        type: BuildableTransactionType.AssetOptIn,
         sender: data.sender,
-        receiver: data.receiver,
-        amount: data.amount,
         note: data.note,
         fee: {
           setAutomatically: data.fee.setAutomatically,
@@ -177,9 +161,7 @@ export function AssetTransferTransactionBuilder({ transaction, onSubmit, onCance
     }
     return {
       sender: transaction.sender,
-      receiver: transaction.receiver,
       asset: transaction.asset,
-      amount: transaction.amount,
       fee: {
         setAutomatically: transaction.fee.setAutomatically,
         value: transaction.fee.value,

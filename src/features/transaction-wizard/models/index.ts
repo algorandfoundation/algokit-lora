@@ -112,7 +112,44 @@ export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult &
   amount: number
 }
 
-export type BuildTransactionResult = BuildPaymentTransactionResult | BuildAppCallTransactionResult | BuildAssetTransferTransactionResult
+export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetOptIn
+}
+
+export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetOptOut
+  closeRemainderTo?: Address
+}
+
+export type BuildAssetRevokeTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  asset: {
+    id: AssetId
+    decimals?: number
+  }
+  type: BuildableTransactionType.AssetRevoke
+  receiver: Address
+  assetSender: Address
+  amount: number
+}
+
+export type BuildTransactionResult =
+  | BuildPaymentTransactionResult
+  | BuildAppCallTransactionResult
+  | BuildAssetTransferTransactionResult
+  | BuildAssetOptInTransactionResult
+  | BuildAssetOptOutTransactionResult
+  | BuildAssetRevokeTransactionResult
 
 export type SendTransactionResult = {
   transactionId: string
