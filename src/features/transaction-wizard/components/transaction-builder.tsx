@@ -38,7 +38,7 @@ const transactionTypes = {
   [BuildableTransactionType.AccountClose]: {
     transactionType: algosdk.TransactionType.pay,
     label: 'Account Close',
-    component: AppCallTransactionBuilder,
+    component: PaymentTransactionBuilder,
   },
   [BuildableTransactionType.AppCall]: {
     transactionType: algosdk.TransactionType.appl,

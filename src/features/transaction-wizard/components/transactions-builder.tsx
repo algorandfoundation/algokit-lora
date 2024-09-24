@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
@@ -13,8 +13,10 @@ import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import { SendTransactionResult, BuildTransactionResult, BuildableTransactionType } from '../models'
 import { asAlgosdkTransactions, asDescriptionListItems } from '../mappers'
-import { DataTable, RowDragHandleCell } from '@/features/common/components/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table'
+import { SortableDataTable, RowDragHandleCell } from '@/features/common/components/sortable-data-table'
+import { Table, TableBody, TableCell, TableRow } from '@/features/common/components/table'
+import { cn } from '@/features/common/utils'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -63,20 +65,18 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     })
   }, [activeAddress, signer, transactions])
 
-  const expandedTransactions = useMemo(() => expandTransactions(transactions), [transactions])
-
   return (
     <div>
       <div className="space-y-4">
         <div className="flex justify-end">
           <Button onClick={openDialog}>Create</Button>
         </div>
-        <DataTable
+        <SortableDataTable
           columns={tableColumns}
-          data={expandedTransactions}
-          sortable={true}
-          getId={(transaction) => transaction.id}
+          data={transactions}
           setData={setTransactions}
+          renderRow={renderTransaction}
+          subRowsExpanded={true}
         />
         <Button onClick={sendTransactions}>Send</Button>
       </div>
@@ -106,16 +106,18 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   )
 }
 
+// TODO: PD - fixed width all the columns
 const tableColumns: ColumnDef<BuildTransactionResult>[] = [
   {
     id: 'drag-handle',
-    header: 'Move',
+    header: '',
     cell: ({ row }) => <RowDragHandleCell rowId={row.id} />,
-    size: 60,
+    meta: { className: 'w-8' },
   },
   {
     header: 'Type',
     accessorFn: (item) => item.type,
+    meta: { className: 'w-24' },
   },
   {
     header: 'Description',
@@ -126,21 +128,65 @@ const tableColumns: ColumnDef<BuildTransactionResult>[] = [
   },
 ]
 
-const expandTransactions = (transactions: BuildTransactionResult[]): BuildTransactionResult[] => {
-  const results: BuildTransactionResult[] = []
+const renderTransaction = (row: Row<BuildTransactionResult>): React.ReactNode => {
+  const transaction = row.original
+  const subTransactionsTable = renderSubTransactions(transaction)
 
-  for (const transaction of transactions) {
-    if (transaction.type !== BuildableTransactionType.AppCall) {
-      results.push(transaction)
-    } else {
-      const transactionTypeArgs = transaction.methodArgs?.filter((arg): arg is BuildTransactionResult => typeof arg === 'object') ?? []
-      // TODO: PD - handle nested transaction type args
-      for (const transactionTypeArg of transactionTypeArgs) {
-        results.push(transactionTypeArg)
-      }
-      results.push(transaction)
-    }
+  return (
+    <>
+      {subTransactionsTable && (
+        <TableRow className="border-t">
+          <TableCell></TableCell>
+          <TableCell className="p-0" colSpan={row.getVisibleCells().length - 1}>
+            {subTransactionsTable}
+          </TableCell>
+        </TableRow>
+      )}
+      <TableRow data-state={row.getIsSelected() && 'selected'}>
+        {row.getVisibleCells().map((cell) => (
+          <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </TableCell>
+        ))}
+      </TableRow>
+    </>
+  )
+}
+
+const renderSubTransactions = (transaction: BuildTransactionResult): React.ReactNode => {
+  if (transaction.type !== BuildableTransactionType.AppCall) {
+    return undefined
   }
+  const subTransactions = transaction.methodArgs?.filter((arg): arg is BuildTransactionResult => typeof arg === 'object') ?? []
+  return <SubTransactionsTable subTransactions={subTransactions} />
+}
 
-  return results
+function SubTransactionsTable({ subTransactions }: { subTransactions: BuildTransactionResult[] }) {
+  const table = useReactTable({
+    data: subTransactions,
+    columns: tableColumns.slice(1),
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  return (
+    <div className="grid">
+      <Table>
+        <TableBody>
+          {table.getRowModel().rows.map((row) => (
+            <TableRow
+              key={row.id}
+              data-state={row.getIsSelected() && 'selected'}
+              {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
+            >
+              {row.getVisibleCells().map((cell) => (
+                <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
 }
