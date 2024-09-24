@@ -18,6 +18,8 @@ import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
+import { TransactionBuilderMode } from '../data'
+import { invariant } from '@/utils/invariant'
 
 const appCallFormSchema = {
   ...commoSchema,
@@ -35,12 +37,14 @@ const appCallFormSchema = {
 const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {
-  transaction?: Partial<BuildAppCallTransactionResult>
+  mode: TransactionBuilderMode
+  transaction?: BuildAppCallTransactionResult
+  defaultValues?: Partial<BuildAppCallTransactionResult>
   onSubmit: (transaction: BuildAppCallTransactionResult) => void
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AppCallTransactionBuilder({ mode, transaction, defaultValues: defaultValuesProps, onSubmit, onCancel }: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
 
@@ -97,7 +101,7 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
   }, [])
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {
-    if (!transaction) {
+    if (mode === TransactionBuilderMode.Create) {
       return {
         fee: {
           setAutomatically: true,
@@ -105,24 +109,29 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
         validRounds: {
           setAutomatically: true,
         },
+        ...defaultValuesProps,
+      }
+    } else if (mode === TransactionBuilderMode.Edit) {
+      invariant(transaction, 'Transaction is required in edit mode')
+
+      const methodArgs = transaction.methodArgs?.reduce(
+        (acc, arg, index) => {
+          acc[`${methodArgPrefix}-${index}`] = arg
+          return acc
+        },
+        {} as Record<string, unknown>
+      )
+      return {
+        appId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
+        sender: transaction.sender,
+        fee: transaction.fee,
+        validRounds: transaction.validRounds,
+        methodName: transaction.methodName,
+        ...methodArgs,
       }
     }
-    const methodArgs = transaction.methodArgs?.reduce(
-      (acc, arg, index) => {
-        acc[`${methodArgPrefix}-${index}`] = arg
-        return acc
-      },
-      {} as Record<string, unknown>
-    )
-    return {
-      appId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
-      sender: transaction.sender,
-      fee: transaction.fee,
-      validRounds: transaction.validRounds,
-      methodName: transaction.methodName,
-      ...methodArgs,
-    }
-  }, [transaction])
+    return {}
+  }, [transaction, mode, defaultValuesProps])
 
   return (
     <Form
@@ -132,7 +141,7 @@ export function AppCallTransactionBuilder({ transaction, onSubmit, onCancel }: P
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Create</SubmitButton>
+          <SubmitButton className="w-28">Save</SubmitButton>
         </FormActions>
       }
     >

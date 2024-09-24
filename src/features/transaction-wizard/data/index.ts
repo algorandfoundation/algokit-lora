@@ -7,3 +7,8 @@ export const transactionTypes = {
   [accountCloseTransaction.type]: accountCloseTransaction,
   [rawAppCallTransaction.type]: rawAppCallTransaction,
 }
+
+export enum TransactionBuilderMode {
+  Create,
+  Edit,
+}

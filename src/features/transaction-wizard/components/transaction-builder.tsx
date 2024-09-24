@@ -1,5 +1,5 @@
 import algosdk from 'algosdk'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { BuildableTransactionType, BuildTransactionResult } from '../models'
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
@@ -9,68 +9,59 @@ import { cn } from '@/features/common/utils'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { PaymentTransactionBuilder } from './payment-transaction-builder'
+import { TransactionBuilderMode } from '../data'
 
-type Props = {
-  type?: algosdk.TransactionType
-  defaultSender?: string // TODO: PD - default sender?
-  transaction?: Partial<BuildTransactionResult>
-  onSubmit: (transaction: BuildTransactionResult) => void
-  onCancel: () => void
-}
-
-export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 const connectWalletMessage = 'Please connect a wallet'
 export const sendButtonLabel = 'Send'
 
-export type TransactionBuilderFormProps<T extends BuildTransactionResult> = {
-  transaction?: Partial<T>
-  onSubmit: (transaction: T) => void
-  onCancel: () => void
-}
-
-const transactionTypes = {
-  [BuildableTransactionType.Payment]: {
+const builderConfigs = [
+  {
     transactionType: algosdk.TransactionType.pay,
+    type: BuildableTransactionType.Payment,
     label: 'Payment',
     component: PaymentTransactionBuilder,
   },
-  [BuildableTransactionType.AccountClose]: {
+  {
     transactionType: algosdk.TransactionType.pay,
+    type: BuildableTransactionType.AccountClose,
     label: 'Account Close',
     component: PaymentTransactionBuilder,
   },
-  [BuildableTransactionType.AppCall]: {
+  {
     transactionType: algosdk.TransactionType.appl,
+    type: BuildableTransactionType.AppCall,
     label: 'App Call',
     component: AppCallTransactionBuilder,
   },
+]
+
+type Props = {
+  type?: algosdk.TransactionType
+  defaultSender?: string // TODO: PD - default sender?
+  mode: TransactionBuilderMode
+  defaultValues?: Partial<BuildTransactionResult>
+  transaction?: BuildTransactionResult
+  onSubmit: (transaction: BuildTransactionResult) => void
+  onCancel: () => void
 }
 
-export function TransactionBuilder({ type, transaction, onSubmit, onCancel }: Props) {
-  const [selectedBuildableTransactionIndex, setSelectedBuildableTransactionIndex] = useState(0)
+export function TransactionBuilder({ mode, type, transaction, defaultValues, onSubmit, onCancel }: Props) {
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
-  const buildableTransactions = useMemo(() => {
+  const validBuilderConfigs = useMemo(() => {
     if (type !== undefined) {
-      return Object.values(transactionTypes).filter((transaction) => transaction.transactionType === type)
+      return builderConfigs.filter((builderConfig) => builderConfig.transactionType === type)
     }
-    return Object.values(transactionTypes)
+    return builderConfigs
   }, [type])
+  const [selectedBuilderType, setSelectedBuilderType] = useState<BuildableTransactionType>(transaction?.type ?? validBuilderConfigs[0].type)
 
-  const changeSelectedBuildableTransaction = useCallback(
-    (value: string) => {
-      const index = Number(value)
-      invariant(index < buildableTransactions.length, 'Invalid transaction type index')
-      setSelectedBuildableTransactionIndex(index)
-    },
-    [buildableTransactions]
-  )
-
-  const FormComponent = useMemo(
-    () => buildableTransactions[selectedBuildableTransactionIndex].component,
-    [buildableTransactions, selectedBuildableTransactionIndex]
-  )
+  const FormComponent = useMemo(() => {
+    const component = validBuilderConfigs.find((builderConfig) => builderConfig.type === selectedBuilderType)?.component
+    invariant(component, 'Component not found')
+    return component
+  }, [selectedBuilderType, validBuilderConfigs])
 
   return (
     <RenderLoadable loadable={loadableActiveWalletAddressSnapshot}>
@@ -80,22 +71,30 @@ export function TransactionBuilder({ type, transaction, onSubmit, onCancel }: Pr
             <Label htmlFor="transaction-type" className={cn('ml-0.5 mb-2')}>
               {transactionTypeLabel}
             </Label>
-            <Select onValueChange={changeSelectedBuildableTransaction} value={selectedBuildableTransactionIndex.toString()}>
+            <Select onValueChange={(value) => setSelectedBuilderType(value as BuildableTransactionType)} value={selectedBuilderType}>
               <SelectTrigger id="transaction-type">
                 <SelectValue placeholder="Select transaction type" />
               </SelectTrigger>
               <SelectContent className={cn('bg-card text-card-foreground')}>
-                {buildableTransactions.map((transaction, i) => (
-                  <SelectItem key={i} value={i.toString()}>
-                    {transaction.label}
+                {validBuilderConfigs.map((config) => (
+                  <SelectItem key={config.type} value={config.type}>
+                    {config.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
           {/* TODO: PD - fix transaction as any */}
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <FormComponent transaction={transaction as any} onSubmit={onSubmit} onCancel={onCancel} />
+          <FormComponent
+            mode={mode}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            defaultValues={defaultValues as any}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            transaction={transaction as any}
+            onSubmit={onSubmit}
+            onCancel={onCancel}
+          />
         </div>
       )}
     </RenderLoadable>
