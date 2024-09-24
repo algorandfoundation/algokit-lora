@@ -15,6 +15,7 @@ import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import algosdk from 'algosdk'
 import { isArc32AppSpec } from '@/features/common/utils'
+import { isAddress } from '@/utils/is-address'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -91,14 +92,19 @@ const getGlobalStateValue = (tealValue: modelsv2.TealValue): ApplicationGlobalSt
 const getValue = (bytes: string) => {
   const buf = Buffer.from(bytes, 'base64')
   if (buf.length === 32) {
-    return encodeAddress(new Uint8Array(buf))
-  } else {
-    if (isUtf8(buf)) {
-      return buf.toString('utf8')
-    } else {
-      return buf.toString('base64')
+    const encodedAddress = encodeAddress(new Uint8Array(buf))
+    if (isAddress(encodedAddress)) {
+      return encodedAddress
     }
   }
+  if (isUtf8(buf)) {
+    const utf8 = buf.toString('utf8')
+    const printableUtf8Regex = /^[ -~]+$/
+    if (printableUtf8Regex.test(utf8)) {
+      return utf8
+    }
+  }
+  return buf.toString('base64')
 }
 
 export const asMethodDefinitions = (appSpec: Arc32AppSpec | Arc4AppSpec): MethodDefinition[] => {
