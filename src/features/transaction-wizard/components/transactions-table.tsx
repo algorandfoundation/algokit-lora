@@ -17,7 +17,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { EllipsisVertical, GripVertical } from 'lucide-react'
-import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult, MethodCallArg } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
@@ -51,12 +51,13 @@ function TransactionRow({ row }: { row: Row<BuildTransactionResult> }) {
     <TableBody ref={setNodeRef} style={style} className="border-y">
       {subTransactionsTable && (
         <TableRow data-state={row.getIsSelected() && 'selected'}>
-          <TableCell></TableCell>
-          <TableCell colSpan={2}>{subTransactionsTable}</TableCell>
+          <TableCell colSpan={row.getVisibleCells().length + 1} className="p-0">
+            {subTransactionsTable}
+          </TableCell>
         </TableRow>
       )}
       <TableRow data-state={row.getIsSelected() && 'selected'}>
-        <TableCell>
+        <TableCell className="w-10">
           <RowDragHandleCell rowId={row.id} />
         </TableCell>
         {row.getVisibleCells().map((cell) => (
@@ -165,6 +166,7 @@ const getTableColumns = ({
   },
   {
     id: 'actions',
+    meta: { className: 'w-10' },
     cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger>
@@ -186,11 +188,30 @@ const getTableColumns = ({
   },
 ]
 
+const isBuildTransactionResult = (arg: MethodCallArg): arg is BuildTransactionResult => {
+  return typeof arg === 'object' && 'type' in arg && 'id' in arg
+}
+
+const getSubTransactions = (transaction: BuildTransactionResult): BuildTransactionResult[] => {
+  if (transaction.type !== BuildableTransactionType.AppCall) {
+    return []
+  }
+  if (!transaction.methodArgs) {
+    return []
+  }
+  return transaction.methodArgs.reduce((acc, arg) => {
+    if (isBuildTransactionResult(arg)) {
+      acc.push(...[...getSubTransactions(arg), arg])
+    }
+    return acc
+  }, [] as BuildTransactionResult[])
+}
+
 const renderSubTransactions = (transaction: BuildTransactionResult): React.ReactNode => {
   if (transaction.type !== BuildableTransactionType.AppCall) {
     return undefined
   }
-  const subTransactions = transaction.methodArgs?.filter((arg): arg is BuildTransactionResult => typeof arg === 'object') ?? []
+  const subTransactions = getSubTransactions(transaction)
   if (subTransactions.length === 0) {
     return undefined
   }
@@ -199,6 +220,10 @@ const renderSubTransactions = (transaction: BuildTransactionResult): React.React
 }
 
 const subTransactionsTableColumns: ColumnDef<BuildTransactionResult>[] = [
+  {
+    id: 'empty',
+    meta: { className: 'w-10' },
+  },
   {
     header: 'Type',
     accessorFn: (item) => item.type,
@@ -210,6 +235,10 @@ const subTransactionsTableColumns: ColumnDef<BuildTransactionResult>[] = [
       const transaction = c.row.original
       return <DescriptionList items={asDescriptionListItems(transaction)} />
     },
+  },
+  {
+    id: 'actions',
+    meta: { className: 'w-10' },
   },
 ]
 function SubTransactionsTable({ subTransactions }: { subTransactions: BuildTransactionResult[] }) {

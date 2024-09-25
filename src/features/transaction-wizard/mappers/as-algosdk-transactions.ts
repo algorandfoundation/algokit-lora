@@ -13,6 +13,7 @@ import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
 import { algorandClient } from '@/features/common/data/algo-client'
 import Decimal from 'decimal.js'
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment) {
@@ -49,19 +50,25 @@ const asPaymentTransaction = async (transaction: BuildPaymentTransactionResult):
   })
 }
 
-const asMethodCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction[]> => {
+const asAppCallMethodCall = async (transaction: BuildAppCallTransactionResult): Promise<AppCallMethodCall> => {
   invariant(transaction.method, 'Method is required')
   invariant(transaction.methodArgs, 'Method args are required')
 
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
-      if (typeof arg === 'object') {
-        return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
+      if (typeof arg === 'object' && 'type' in arg) {
+        if (arg.type !== BuildableTransactionType.AppCall) {
+          // Other transaction types only return 1 transaction
+          return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
+        } else {
+          return asAppCallMethodCall(arg as BuildAppCallTransactionResult)
+        }
       }
       return arg
     })
   )
-  const result = await algorandClient.transactions.appCallMethodCall({
+
+  return {
     sender: transaction.sender,
     appId: BigInt(transaction.applicationId), // TODO: PD - handle bigint
     method: transaction.method,
@@ -78,10 +85,12 @@ const asMethodCallTransaction = async (transaction: BuildAppCallTransactionResul
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
     boxReferences: transaction.boxes ?? [],
-  })
+  }
+}
 
-  result.transactions[0].txID()
-
+const asMethodCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction[]> => {
+  const params = await asAppCallMethodCall(transaction)
+  const result = await algorandClient.transactions.appCallMethodCall(params)
   return result.transactions
 }
 

@@ -35,19 +35,72 @@ const testTransactions: BuildTransactionResult[] = [
   //   fee: { setAutomatically: true },
   //   validRounds: { setAutomatically: true },
   // },
+  // {
+  //   id: randomGuid(),
+  //   type: BuildableTransactionType.AppCall,
+  //   sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //   applicationId: 2792,
+  //   methodName: 'get_pay_txn_amount',
+  //   methodArgs: [
+  //     {
+  //       id: randomGuid(),
+  //       type: BuildableTransactionType.Payment,
+  //       sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //       receiver: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //       amount: 3,
+  //       fee: { setAutomatically: true },
+  //       validRounds: { setAutomatically: true },
+  //     },
+  //   ],
+  //   fee: { setAutomatically: true },
+  //   validRounds: { setAutomatically: true },
+  // },
+  //
+  // {
+  //   id: randomGuid(),
+  //   type: BuildableTransactionType.AppCall,
+  //   sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //   applicationId: 2792,
+  //   methodName: 'get_returned_value_of_app_call_txn',
+  //   methodArgs: [
+  //     {
+  //       id: randomGuid(),
+  //       type: BuildableTransactionType.AppCall,
+  //       sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //       applicationId: 2792,
+  //       methodName: 'get_pay_txn_amount',
+  //       methodArgs: [
+  //         {
+  //           id: randomGuid(),
+  //           type: BuildableTransactionType.Payment,
+  //           sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //           receiver: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
+  //           amount: 3,
+  //           fee: { setAutomatically: true },
+  //           validRounds: { setAutomatically: true },
+  //         },
+  //       ],
+  //       fee: { setAutomatically: true },
+  //       validRounds: { setAutomatically: true },
+  //     },
+  //   ],
+  //   fee: { setAutomatically: true },
+  //   validRounds: { setAutomatically: true },
+  // },
   {
     id: randomGuid(),
     type: BuildableTransactionType.AppCall,
     sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
     applicationId: 2792,
-    methodName: 'get_pay_txn_amount',
+    methodName: 'get_returned_value_of_app_call_txn',
     methodArgs: [
       {
         id: randomGuid(),
-        type: BuildableTransactionType.Payment,
+        type: BuildableTransactionType.AppCall,
         sender: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
-        receiver: 'NKF2NBOYFUVTDIPRMNAQEE6DW4RCJPH6G576IJB3Y7FWLXAS5EKPJQ7RFQ',
-        amount: 3,
+        applicationId: 2793,
+        methodName: 'add',
+        methodArgs: [1, 2],
         fee: { setAutomatically: true },
         validRounds: { setAutomatically: true },
       },
@@ -56,3 +109,4 @@ const testTransactions: BuildTransactionResult[] = [
     validRounds: { setAutomatically: true },
   },
 ]
+//get_returned_value_of_app_call_txn
