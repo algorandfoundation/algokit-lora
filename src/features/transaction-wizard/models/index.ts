@@ -90,6 +90,10 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   methodName?: string
   methodArgs?: MethodCallArg[]
   rawArgs?: string[]
+  accounts?: Address[]
+  foreignAssets?: AssetId[]
+  foreignApps?: ApplicationId[]
+  boxes?: string[]
 }
 
 export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult

@@ -1,16 +1,16 @@
+import { Address } from '@/features/accounts/data/types'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { numberSchema } from '@/features/forms/data/common'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import algosdk from 'algosdk'
 import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 
 export type TransactionResources = {
-  accounts: algosdk.Address[]
+  accounts: Address[]
   assets: number[]
   applications: number[]
   boxes: string[]
@@ -33,8 +33,8 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
   const defaultValues = useMemo(() => {
     return {
       accounts: (resources.accounts ?? []).map((address) => ({
-        id: algosdk.encodeAddress(address.publicKey),
-        address: algosdk.encodeAddress(address.publicKey),
+        id: address,
+        address: address,
       })),
       assets: (resources.assets ?? []).map((asset) => ({
         id: asset.toString(),
@@ -53,7 +53,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
 
   const submit = useCallback(
     async (data: z.infer<typeof formSchema>) => {
-      const accounts = data.accounts.map((account) => algosdk.decodeAddress(account.address))
+      const accounts = data.accounts.map((account) => account.address)
       const assets = data.assets.map((asset) => asset.assetId)
       const applications = data.applications.map((application) => application.applicationId)
       const boxes = data.boxes.map((box) => box.boxName)

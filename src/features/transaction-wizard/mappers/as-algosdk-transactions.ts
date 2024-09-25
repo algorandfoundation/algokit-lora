@@ -74,7 +74,13 @@ const asMethodCallTransaction = async (transaction: BuildAppCallTransactionResul
           lastValidRound: transaction.validRounds.lastValid,
         }
       : undefined),
+    accountReferences: transaction.accounts ?? [],
+    appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
+    assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
+    boxReferences: transaction.boxes ?? [],
   })
+
+  result.transactions[0].txID()
 
   return result.transactions
 }

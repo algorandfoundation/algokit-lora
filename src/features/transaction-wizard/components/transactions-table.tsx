@@ -17,7 +17,7 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { EllipsisVertical, GripVertical } from 'lucide-react'
-import { BuildableTransactionType, BuildTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
@@ -74,12 +74,13 @@ type Props = {
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
   onEdit: (transaction: BuildTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
 }
 
-export function TransactionsTable({ data, setData, ariaLabel, onEdit, onDelete, nonDeletableTransactionIds }: Props) {
-  const columns = getTableColumns({ onEdit, onDelete, nonDeletableTransactionIds })
+export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditResources, onDelete, nonDeletableTransactionIds }: Props) {
+  const columns = getTableColumns({ onEdit, onEditResources, onDelete, nonDeletableTransactionIds })
   const table = useReactTable({
     data,
     columns,
@@ -142,10 +143,12 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onDelete, 
 const getTableColumns = ({
   nonDeletableTransactionIds,
   onEdit,
+  onEditResources,
   onDelete,
 }: {
   nonDeletableTransactionIds: string[]
   onEdit: (transaction: BuildTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
   {
@@ -168,14 +171,13 @@ const getTableColumns = ({
           <EllipsisVertical size={16} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem className="justify-center" onClick={() => onEdit(row.original)}>
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="justify-center"
-            onClick={() => onDelete(row.original)}
-            disabled={nonDeletableTransactionIds.includes(row.original.id)}
-          >
+          <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+          {row.original.type === BuildableTransactionType.AppCall && (
+            <DropdownMenuItem onClick={() => onEditResources(row.original as BuildAppCallTransactionResult)}>
+              Edit Resources
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={() => onDelete(row.original)} disabled={nonDeletableTransactionIds.includes(row.original.id)}>
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
