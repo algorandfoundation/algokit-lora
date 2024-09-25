@@ -33,7 +33,7 @@ const formSchema = {
       if (asset.decimals === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'This asset does not exist',
+          message: 'Asset does not exist',
           path: ['id'],
         })
       }

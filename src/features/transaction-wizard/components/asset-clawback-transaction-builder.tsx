@@ -36,18 +36,18 @@ const formSchema = z
         if (asset.decimals === undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: 'This asset does not exist',
+            message: 'Asset does not exist',
             path: ['id'],
           })
         } else if (asset.clawback === undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: 'This asset cannot be clawed back',
+            message: 'Asset cannot be clawed back',
             path: ['id'],
           })
         }
       }),
-    amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
+    amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   })
   .superRefine((data, ctx) => {
     if (data.asset.clawback && data.sender && data.sender !== data.asset.clawback) {

@@ -1,7 +1,7 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, BuildAssetOptOutTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAssetReconfigureTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { AssetSummary } from '@/features/assets/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -23,12 +23,11 @@ import { useDebounce } from 'use-debounce'
 const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
-  closeRemainderTo: addressFieldSchema,
   asset: z
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
-      clawback: z.string().optional(),
+      manager: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -37,8 +36,18 @@ const formSchema = {
           message: 'Asset does not exist',
           path: ['id'],
         })
+      } else if (asset.id && asset.decimals !== undefined && !asset.manager) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Asset cannot be reconfigured',
+          path: ['id'],
+        })
       }
     }),
+  manager: optionalAddressFieldSchema,
+  reserve: optionalAddressFieldSchema,
+  freeze: optionalAddressFieldSchema,
+  clawback: optionalAddressFieldSchema,
 }
 
 const formData = zfd.formData(formSchema)
@@ -49,24 +58,45 @@ type FormFieldsProps = {
 }
 
 function FormFields({ helper, asset }: FormFieldsProps) {
+  // TODO: NC - Confirm all the handling of the asset re-configure, to prevent asset's being bricked.
+
   return (
     <>
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'Account to opt out of the asset. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'closeRemainderTo',
-        label: 'Close remainder to',
-        helpText: 'Account to receive the remaining balance of the asset',
-        placeholder: ZERO_ADDRESS,
-      })}
       {helper.numberField({
         field: 'asset.id',
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be opted out of',
+        helpText: 'The asset to be reconfigured',
+      })}
+      {helper.textField({
+        field: 'sender',
+        label: 'Sender',
+        helpText: 'The current asset manager address. Sends the transaction and pays the fee',
+        placeholder: ZERO_ADDRESS,
+        disabled: true,
+      })}
+      {helper.textField({
+        field: 'manager',
+        label: 'Manager',
+        helpText: "Account that can re-configure and destroy the asset. If empty, the asset can't be re-configured",
+        placeholder: ZERO_ADDRESS,
+      })}
+      {helper.textField({
+        field: 'reserve',
+        label: 'Reserve',
+        helpText: "Account that holds the reserve units of the asset. If empty, this address can't be changed",
+        placeholder: ZERO_ADDRESS,
+      })}
+      {helper.textField({
+        field: 'freeze',
+        label: 'Freeze',
+        helpText: "Account that can freeze the asset. If empty, assets can't be frozen and this address can't be changed",
+        placeholder: ZERO_ADDRESS,
+      })}
+      {helper.textField({
+        field: 'clawback',
+        label: 'Clawback',
+        helpText: "Account that can claw back the asset. If empty, assets can't be clawed back and this address can't be changed",
+        placeholder: ZERO_ADDRESS,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
@@ -103,14 +133,21 @@ type FieldsWithAssetInfoProps = {
 }
 
 function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetInfoProps) {
+  // TODO: NC - This resets the fields when editing
   const loadableAssetSummary = useLoadableAssetSummaryAtom(assetId)
   const { setValue, trigger } = formCtx
 
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
       setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-      setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
-      trigger('asset')
+
+      setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
+      setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
+      setValue('manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
+      setValue('reserve', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.reserve : undefined)
+      setValue('freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
+      setValue('clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
+      trigger()
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,20 +167,23 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
-  transaction?: BuildAssetOptOutTransactionResult
-  onSubmit: (transaction: BuildAssetOptOutTransactionResult) => void
+  transaction?: BuildAssetReconfigureTransactionResult
+  onSubmit: (transaction: BuildAssetReconfigureTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetOptOutTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetReconfigureTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         asset: data.asset,
-        type: BuildableTransactionType.AssetOptOut,
+        type: BuildableTransactionType.AssetReconfigure,
         sender: data.sender,
-        closeRemainderTo: data.closeRemainderTo,
+        manager: data.manager,
+        reserve: data.reserve,
+        freeze: data.freeze,
+        clawback: data.clawback,
         note: data.note,
         fee: {
           setAutomatically: data.fee.setAutomatically,
@@ -169,10 +209,14 @@ export function AssetOptOutTransactionBuilder({ transaction, onSubmit, onCancel 
         },
       } satisfies Partial<z.infer<typeof formData>>
     }
+
     return {
       sender: transaction.sender,
-      closeRemainderTo: transaction.closeRemainderTo,
       asset: transaction.asset,
+      manager: transaction.manager,
+      reserve: transaction.reserve,
+      freeze: transaction.freeze,
+      clawback: transaction.clawback,
       fee: {
         setAutomatically: transaction.fee.setAutomatically,
         value: transaction.fee.value,

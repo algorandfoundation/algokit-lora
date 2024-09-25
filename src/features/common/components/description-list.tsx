@@ -1,6 +1,6 @@
 import { cn } from '../utils'
 
-export type DescriptionListItems = { dt: string; dd: string | number | JSX.Element[] | JSX.Element | undefined }[]
+export type DescriptionListItems = { dt: string; dd: string | number | bigint | boolean | JSX.Element[] | JSX.Element | undefined }[]
 
 type Props = {
   items: DescriptionListItems
@@ -12,7 +12,9 @@ export function DescriptionList({ items }: Props) {
       {items.map((item, index) => (
         <dl key={index} className={cn('grid grid-cols-subgrid col-span-2')}>
           <dt>{item.dt}</dt>
-          <dd className={cn('overflow-ellipsis whitespace-normal overflow-hidden')}>{item.dd}</dd>
+          <dd className={cn('overflow-ellipsis whitespace-normal overflow-hidden')}>
+            {typeof item.dd === 'bigint' ? item.dd.toString() : item.dd}
+          </dd>
         </dl>
       ))}
     </div>

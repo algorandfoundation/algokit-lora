@@ -4,8 +4,11 @@ import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
   BuildAssetClawbackTransactionResult,
+  BuildAssetCreateTransactionResult,
+  BuildAssetDestroyTransactionResult,
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
+  BuildAssetReconfigureTransactionResult,
   BuildAssetTransferTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
@@ -28,6 +31,13 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
     transaction.type === BuildableTransactionType.AssetClawback
   ) {
     return asAssetTransferTransaction(transaction)
+  }
+  if (
+    transaction.type === BuildableTransactionType.AssetCreate ||
+    transaction.type === BuildableTransactionType.AssetReconfigure ||
+    transaction.type === BuildableTransactionType.AssetDestroy
+  ) {
+    return asAssetConfigTransaction(transaction)
   }
   throw new Error('Unsupported transaction type')
 }
@@ -72,6 +82,33 @@ const asAssetTransferTransaction = (
       dd: transaction.asset.id,
     },
     ...('amount' in transaction ? [{ dt: 'Amount', dd: transaction.amount }] : []),
+    ...asNoteItem(transaction.note),
+    ...asFeeItem(transaction.fee),
+    ...asValidRoundsItem(transaction.validRounds),
+  ]
+}
+
+const asAssetConfigTransaction = (
+  transaction: BuildAssetCreateTransactionResult | BuildAssetReconfigureTransactionResult | BuildAssetDestroyTransactionResult
+): DescriptionListItems => {
+  return [
+    ...('asset' in transaction && transaction.asset.id ? [{ dt: 'Asset id', dd: transaction.asset.id }] : []),
+    ...('assetName' in transaction ? [{ dt: 'Asset name', dd: transaction.assetName }] : []),
+    ...('unitName' in transaction ? [{ dt: 'Unit name', dd: transaction.unitName }] : []),
+    ...('total' in transaction ? [{ dt: 'Total', dd: transaction.total }] : []),
+    ...('decimals' in transaction ? [{ dt: 'Decimals', dd: transaction.decimals }] : []),
+    ...('sender' in transaction
+      ? [{ dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender', dd: transaction.sender }]
+      : []),
+    ...('manager' in transaction ? [{ dt: 'Manager', dd: transaction.manager }] : []),
+    ...('reserve' in transaction ? [{ dt: 'Reserve', dd: transaction.reserve }] : []),
+    ...('freeze' in transaction ? [{ dt: 'Freeze', dd: transaction.freeze }] : []),
+    ...('clawback' in transaction ? [{ dt: 'Clawback', dd: transaction.clawback }] : []),
+    ...('defaultFrozen' in transaction
+      ? [{ dt: 'Freeze holdings of this asset by default', dd: transaction.defaultFrozen.toString() }]
+      : []),
+    ...('url' in transaction ? [{ dt: 'URL', dd: transaction.url }] : []),
+    ...('metadataHash' in transaction ? [{ dt: 'Metadata hash', dd: transaction.metadataHash }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),

@@ -14,6 +14,9 @@ import { AssetOptInTransactionBuilder } from './asset-opt-in-transaction-builder
 import { TransactionBuilderMode } from '../data'
 import { AssetOptOutTransactionBuilder } from './asset-opt-out-transaction-builder'
 import { AssetClawbackTransactionBuilder } from './asset-clawback-transaction-builder'
+import { AssetCreateTransactionBuilder } from './asset-create-transaction-builder'
+import { AssetReconfigureTransactionBuilder } from './asset-reconfigure-transaction-builder'
+import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 const connectWalletMessage = 'Please connect a wallet'
@@ -35,7 +38,7 @@ const builderConfigs = [
   {
     transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.AppCall,
-    label: 'App Call',
+    label: 'App Call (appl)',
     component: AppCallTransactionBuilder,
   },
   {
@@ -61,6 +64,24 @@ const builderConfigs = [
     type: BuildableTransactionType.AssetClawback,
     label: 'Asset clawback (axfer)',
     component: AssetClawbackTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.acfg,
+    type: BuildableTransactionType.AssetCreate,
+    label: 'Asset create (acfg)',
+    component: AssetCreateTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.acfg,
+    type: BuildableTransactionType.AssetReconfigure,
+    label: 'Asset reconfigure (acfg)',
+    component: AssetReconfigureTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.acfg,
+    type: BuildableTransactionType.AssetDestroy,
+    label: 'Asset destroy (acfg)',
+    component: AssetDestroyTransactionBuilder,
   },
 ]
 

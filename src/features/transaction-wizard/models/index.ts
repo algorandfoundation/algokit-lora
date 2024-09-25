@@ -47,13 +47,20 @@ export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TDa
 }
 
 export enum BuildableTransactionType {
+  // pay
   Payment = 'Payment',
   AccountClose = 'AccountClose',
+  // appl
   AppCall = 'AppCall',
+  // axfer
   AssetOptIn = 'AssetOptIn',
   AssetOptOut = 'AssetOptOut',
   AssetTransfer = 'AssetTransfer',
   AssetClawback = 'AssetClawback',
+  // acfg
+  AssetCreate = 'AssetCreate',
+  AssetReconfigure = 'AssetReconfigure',
+  AssetDestroy = 'AssetDestroy',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -151,6 +158,44 @@ export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult &
   amount: number
 }
 
+export type BuildAssetCreateTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  type: BuildableTransactionType.AssetCreate
+  total: bigint
+  decimals: number
+  assetName?: string
+  unitName?: string
+  url?: string
+  metadataHash?: string
+  defaultFrozen: boolean
+  manager?: Address
+  reserve?: Address
+  freeze?: Address
+  clawback?: Address
+}
+
+export type BuildAssetReconfigureTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  type: BuildableTransactionType.AssetReconfigure
+  asset: {
+    id: AssetId
+    decimals?: number
+    manager?: Address
+  }
+  manager?: Address
+  reserve?: Address
+  freeze?: Address
+  clawback?: Address
+}
+
+export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  type: BuildableTransactionType.AssetDestroy
+  asset: {
+    id: AssetId
+  }
+}
+
 export type BuildTransactionResult =
   | BuildPaymentTransactionResult
   | BuildAppCallTransactionResult
@@ -158,6 +203,9 @@ export type BuildTransactionResult =
   | BuildAssetOptInTransactionResult
   | BuildAssetOptOutTransactionResult
   | BuildAssetClawbackTransactionResult
+  | BuildAssetCreateTransactionResult
+  | BuildAssetReconfigureTransactionResult
+  | BuildAssetDestroyTransactionResult
 
 export type SendTransactionResult = {
   transactionId: string

@@ -34,12 +34,12 @@ const formSchema = {
       if (asset.decimals === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'This asset does not exist',
+          message: 'Asset does not exist',
           path: ['id'],
         })
       }
     }),
-  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
 }
 
 const formData = zfd.formData(formSchema)

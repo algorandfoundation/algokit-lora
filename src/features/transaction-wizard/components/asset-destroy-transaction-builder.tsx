@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, BuildAssetOptOutTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAssetDestroyTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { AssetSummary } from '@/features/assets/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -19,22 +19,30 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { ellipseAddress } from '@/utils/ellipse-address'
+import { cn } from '@/features/common/utils'
 
 const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
-  closeRemainderTo: addressFieldSchema,
   asset: z
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
-      clawback: z.string().optional(),
+      manager: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Asset does not exist',
+          path: ['id'],
+        })
+      } else if (asset.id && asset.decimals !== undefined && !asset.manager) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Asset cannot be destroyed',
           path: ['id'],
         })
       }
@@ -51,22 +59,28 @@ type FormFieldsProps = {
 function FormFields({ helper, asset }: FormFieldsProps) {
   return (
     <>
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'Account to opt out of the asset. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'closeRemainderTo',
-        label: 'Close remainder to',
-        helpText: 'Account to receive the remaining balance of the asset',
-        placeholder: ZERO_ADDRESS,
-      })}
       {helper.numberField({
         field: 'asset.id',
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be opted out of',
+        helpText: 'The asset to be destroyed',
+      })}
+      {asset && asset.manager && asset.creator && (
+        <small>
+          To destroy this asset, the creator account&nbsp;
+          <AccountLink address={asset.creator} className={cn('text-primary underline text-sm')}>
+            <abbr className="tracking-wide" title={asset.creator}>
+              {ellipseAddress(asset.creator)}
+            </abbr>
+          </AccountLink>
+          &nbsp;must hold all units
+        </small>
+      )}
+      {helper.textField({
+        field: 'sender',
+        label: 'Sender',
+        helpText: 'The current asset manager address. Sends the transaction and pays the fee',
+        placeholder: ZERO_ADDRESS,
+        disabled: true,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
@@ -103,14 +117,16 @@ type FieldsWithAssetInfoProps = {
 }
 
 function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetInfoProps) {
+  // TODO: NC - This resets the fields when editing
   const loadableAssetSummary = useLoadableAssetSummaryAtom(assetId)
   const { setValue, trigger } = formCtx
 
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
       setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-      setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
-      trigger('asset')
+      setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
+      setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
+      trigger()
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,20 +146,19 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
-  transaction?: BuildAssetOptOutTransactionResult
-  onSubmit: (transaction: BuildAssetOptOutTransactionResult) => void
+  transaction?: BuildAssetDestroyTransactionResult
+  onSubmit: (transaction: BuildAssetDestroyTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetOptOutTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetDestroyTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         asset: data.asset,
-        type: BuildableTransactionType.AssetOptOut,
+        type: BuildableTransactionType.AssetDestroy,
         sender: data.sender,
-        closeRemainderTo: data.closeRemainderTo,
         note: data.note,
         fee: {
           setAutomatically: data.fee.setAutomatically,
@@ -169,9 +184,9 @@ export function AssetOptOutTransactionBuilder({ transaction, onSubmit, onCancel 
         },
       } satisfies Partial<z.infer<typeof formData>>
     }
+
     return {
       sender: transaction.sender,
-      closeRemainderTo: transaction.closeRemainderTo,
       asset: transaction.asset,
       fee: {
         setAutomatically: transaction.fee.setAutomatically,

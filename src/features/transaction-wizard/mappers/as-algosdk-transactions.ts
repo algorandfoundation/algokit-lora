@@ -8,6 +8,9 @@ import {
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
   BuildAssetClawbackTransactionResult,
+  BuildAssetCreateTransactionResult,
+  BuildAssetReconfigureTransactionResult,
+  BuildAssetDestroyTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -29,6 +32,17 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
     transaction.type === BuildableTransactionType.AssetClawback
   ) {
     return [await asAssetTransferTransaction(transaction)]
+  }
+  if (transaction.type === BuildableTransactionType.AssetCreate) {
+    return [await asAssetCreateTransaction(transaction)]
+  }
+
+  if (transaction.type === BuildableTransactionType.AssetReconfigure) {
+    return [await asAssetReconfigureTransaction(transaction)]
+  }
+
+  if (transaction.type === BuildableTransactionType.AssetDestroy) {
+    return [await asAssetDestroyTransaction(transaction)]
   }
 
   throw new Error('Unsupported transaction type')
@@ -129,5 +143,45 @@ const asAssetTransferTransaction = async (
           lastValidRound: transaction.validRounds.lastValid,
         }
       : undefined),
+  })
+}
+
+const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
+  return await algorandClient.transactions.assetCreate({
+    sender: transaction.sender,
+    total: transaction.total,
+    decimals: transaction.decimals,
+    assetName: transaction.assetName,
+    unitName: transaction.unitName,
+    url: transaction.url,
+    metadataHash: transaction.metadataHash,
+    defaultFrozen: transaction.defaultFrozen,
+    manager: transaction.manager,
+    reserve: transaction.reserve,
+    freeze: transaction.freeze,
+    clawback: transaction.clawback,
+    note: transaction.note,
+    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
+    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
+      ? {
+          firstValidRound: transaction.validRounds.firstValid,
+          lastValidRound: transaction.validRounds.lastValid,
+        }
+      : undefined),
+  })
+}
+
+const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<algosdk.Transaction> => {
+  return algorandClient.transactions.assetConfig({
+    sender: transaction.sender,
+    assetId: BigInt(transaction.asset.id),
+    manager: transaction.sender,
+  })
+}
+
+const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
+  return algorandClient.transactions.assetDestroy({
+    sender: transaction.sender,
+    assetId: BigInt(transaction.asset.id),
   })
 }
