@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, BuildAssetRevokeTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAssetClawbackTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { AssetSummary } from '@/features/assets/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -20,28 +20,44 @@ import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 
-const formSchema = {
-  ...commonSchema,
-  ...senderFieldSchema,
-  ...receiverFieldSchema,
-  assetSender: addressFieldSchema,
-  asset: z
-    .object({
-      id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
-      decimals: z.number().optional(),
-      clawback: z.string().optional(),
-    })
-    .superRefine((asset, ctx) => {
-      if (asset.decimals === undefined) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'This asset does not exist',
-          path: ['id'],
-        })
-      }
-    }),
-  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
-}
+const formSchema = z
+  .object({
+    ...commonSchema,
+    ...senderFieldSchema,
+    ...receiverFieldSchema,
+    clawbackTarget: addressFieldSchema,
+    asset: z
+      .object({
+        id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
+        decimals: z.number().optional(),
+        clawback: z.string().optional(),
+      })
+      .superRefine((asset, ctx) => {
+        if (asset.decimals === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'This asset does not exist',
+            path: ['id'],
+          })
+        } else if (asset.clawback === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'This asset cannot be clawed back',
+            path: ['id'],
+          })
+        }
+      }),
+    amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
+  })
+  .superRefine((data, ctx) => {
+    if (data.asset.clawback && data.sender && data.sender !== data.asset.clawback) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Must be the clawback account of the asset',
+        path: ['sender'],
+      })
+    }
+  })
 
 const formData = zfd.formData(formSchema)
 
@@ -66,20 +82,20 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         placeholder: ZERO_ADDRESS,
       })}
       {helper.textField({
-        field: 'assetSender',
-        label: 'Asset sender',
-        helpText: 'Account the asset will be revoked from',
+        field: 'clawbackTarget',
+        label: 'Clawback target',
+        helpText: 'Account the asset will be clawed back from',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.numberField({
         field: 'asset.id',
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be revoked',
+        helpText: 'The asset to be clawed back',
       })}
       {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,
-        helpText: 'Amount to revoke',
+        helpText: 'Amount to claw back',
         decimalScale: asset && asset.decimals ? asset.decimals : 0,
       })}
       <TransactionBuilderFeeField />
@@ -123,8 +139,6 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
       setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-      // TODO: NC - Support additional clawback validation scenarios
-      // TODO: NC - Add clawback address mapping to all asset transfer transactions
       setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
       trigger('asset')
     }
@@ -146,21 +160,21 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
-  transaction?: BuildAssetRevokeTransactionResult
-  onSubmit: (transaction: BuildAssetRevokeTransactionResult) => void
+  transaction?: BuildAssetClawbackTransactionResult
+  onSubmit: (transaction: BuildAssetClawbackTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetRevokeTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetClawbackTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
-        id: transaction?.id ?? randomGuid(), // TODO: NC - Why the random uuid?
+        id: transaction?.id ?? randomGuid(),
         asset: data.asset,
-        type: BuildableTransactionType.AssetRevoke,
+        type: BuildableTransactionType.AssetClawback,
         sender: data.sender,
         receiver: data.receiver,
-        assetSender: data.assetSender,
+        clawbackTarget: data.clawbackTarget,
         amount: data.amount,
         note: data.note,
         fee: {
@@ -190,7 +204,7 @@ export function AssetRevokeTransactionBuilder({ transaction, onSubmit, onCancel 
     return {
       sender: transaction.sender,
       receiver: transaction.receiver,
-      assetSender: transaction.assetSender,
+      clawbackTarget: transaction.clawbackTarget,
       asset: transaction.asset,
       amount: transaction.amount,
       fee: {

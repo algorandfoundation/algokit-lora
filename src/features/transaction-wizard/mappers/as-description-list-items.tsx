@@ -3,6 +3,10 @@ import { DescriptionList, DescriptionListItems } from '@/features/common/compone
 import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
+  BuildAssetClawbackTransactionResult,
+  BuildAssetOptInTransactionResult,
+  BuildAssetOptOutTransactionResult,
+  BuildAssetTransferTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   MethodCallArg,
@@ -16,6 +20,14 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
   }
   if (transaction.type === BuildableTransactionType.AppCall) {
     return asAppCallTransaction(transaction)
+  }
+  if (
+    transaction.type === BuildableTransactionType.AssetTransfer ||
+    transaction.type === BuildableTransactionType.AssetOptIn ||
+    transaction.type === BuildableTransactionType.AssetOptOut ||
+    transaction.type === BuildableTransactionType.AssetClawback
+  ) {
+    return asAssetTransferTransaction(transaction)
   }
   throw new Error('Unsupported transaction type')
 }
@@ -34,6 +46,32 @@ const asPaymentTransaction = (transaction: BuildPaymentTransactionResult): Descr
       dt: 'Amount',
       dd: transaction.amount,
     },
+    ...asNoteItem(transaction.note),
+    ...asFeeItem(transaction.fee),
+    ...asValidRoundsItem(transaction.validRounds),
+  ]
+}
+
+const asAssetTransferTransaction = (
+  transaction:
+    | BuildAssetTransferTransactionResult
+    | BuildAssetOptInTransactionResult
+    | BuildAssetOptOutTransactionResult
+    | BuildAssetClawbackTransactionResult
+): DescriptionListItems => {
+  return [
+    {
+      dt: 'Sender',
+      dd: transaction.sender,
+    },
+    ...('receiver' in transaction ? [{ dt: 'Receiver', dd: transaction.receiver }] : []),
+    ...('clawbackTarget' in transaction ? [{ dt: 'Clawback target', dd: transaction.clawbackTarget }] : []),
+    ...('closeRemainderTo' in transaction ? [{ dt: 'Close remainder to', dd: transaction.closeRemainderTo }] : []),
+    {
+      dt: 'Asset id',
+      dd: transaction.asset.id,
+    },
+    ...('amount' in transaction ? [{ dt: 'Amount', dd: transaction.amount }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),

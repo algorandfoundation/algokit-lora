@@ -53,7 +53,7 @@ export enum BuildableTransactionType {
   AssetOptIn = 'AssetOptIn',
   AssetOptOut = 'AssetOptOut',
   AssetTransfer = 'AssetTransfer',
-  AssetRevoke = 'AssetRevoke',
+  AssetClawback = 'AssetClawback',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -110,6 +110,7 @@ export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult &
   asset: {
     id: AssetId
     decimals?: number
+    clawback?: Address
   }
   type: BuildableTransactionType.AssetTransfer
   receiver: Address
@@ -121,6 +122,7 @@ export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
   asset: {
     id: AssetId
     decimals?: number
+    clawback?: Address
   }
   type: BuildableTransactionType.AssetOptIn
 }
@@ -130,20 +132,22 @@ export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
   asset: {
     id: AssetId
     decimals?: number
+    clawback?: Address
   }
   type: BuildableTransactionType.AssetOptOut
-  closeRemainderTo?: Address
+  closeRemainderTo: Address
 }
 
-export type BuildAssetRevokeTransactionResult = CommonBuildTransactionResult & {
+export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult & {
   id: string
   asset: {
     id: AssetId
     decimals?: number
+    clawback?: Address
   }
-  type: BuildableTransactionType.AssetRevoke
+  type: BuildableTransactionType.AssetClawback
   receiver: Address
-  assetSender: Address
+  clawbackTarget: Address
   amount: number
 }
 
@@ -153,7 +157,7 @@ export type BuildTransactionResult =
   | BuildAssetTransferTransactionResult
   | BuildAssetOptInTransactionResult
   | BuildAssetOptOutTransactionResult
-  | BuildAssetRevokeTransactionResult
+  | BuildAssetClawbackTransactionResult
 
 export type SendTransactionResult = {
   transactionId: string
