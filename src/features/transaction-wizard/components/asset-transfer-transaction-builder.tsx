@@ -28,6 +28,7 @@ const formSchema = {
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
+      clawback: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -115,6 +116,7 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
       setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
+      setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
       trigger('asset')
     }
 
@@ -144,7 +146,7 @@ export function AssetTransferTransactionBuilder({ transaction, onSubmit, onCance
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
-        id: transaction?.id ?? randomGuid(), // TODO: NC - Why the random uuid?
+        id: transaction?.id ?? randomGuid(),
         asset: data.asset,
         type: BuildableTransactionType.AssetTransfer,
         sender: data.sender,

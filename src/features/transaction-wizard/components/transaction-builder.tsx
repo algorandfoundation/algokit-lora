@@ -12,6 +12,8 @@ import { PaymentTransactionBuilder } from './payment-transaction-builder'
 import { AssetTransferTransactionBuilder } from './asset-transfer-transaction-builder'
 import { AssetOptInTransactionBuilder } from './asset-opt-in-transaction-builder'
 import { TransactionBuilderMode } from '../data'
+import { AssetOptOutTransactionBuilder } from './asset-opt-out-transaction-builder'
+import { AssetClawbackTransactionBuilder } from './asset-clawback-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 const connectWalletMessage = 'Please connect a wallet'
@@ -52,13 +54,13 @@ const builderConfigs = [
     transactionType: algosdk.TransactionType.axfer,
     type: BuildableTransactionType.AssetOptOut,
     label: 'Asset opt-out (axfer)',
-    component: AssetTransferTransactionBuilder,
+    component: AssetOptOutTransactionBuilder,
   },
   {
     transactionType: algosdk.TransactionType.axfer,
-    type: BuildableTransactionType.AssetRevoke,
-    label: 'Asset revoke (axfer)',
-    component: AssetTransferTransactionBuilder,
+    type: BuildableTransactionType.AssetClawback,
+    label: 'Asset clawback (axfer)',
+    component: AssetClawbackTransactionBuilder,
   },
 ]
 

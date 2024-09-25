@@ -7,7 +7,7 @@ import {
   BuildAssetTransferTransactionResult,
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
-  BuildAssetRevokeTransactionResult,
+  BuildAssetClawbackTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -25,7 +25,7 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
     transaction.type === BuildableTransactionType.AssetTransfer ||
     transaction.type === BuildableTransactionType.AssetOptIn ||
     transaction.type === BuildableTransactionType.AssetOptOut ||
-    transaction.type === BuildableTransactionType.AssetRevoke
+    transaction.type === BuildableTransactionType.AssetClawback
   ) {
     return [await asAssetTransferTransaction(transaction)]
   }
@@ -84,17 +84,26 @@ const asAssetTransferTransaction = async (
     | BuildAssetTransferTransactionResult
     | BuildAssetOptInTransactionResult
     | BuildAssetOptOutTransactionResult
-    | BuildAssetRevokeTransactionResult
+    | BuildAssetClawbackTransactionResult
 ): Promise<algosdk.Transaction> => {
   invariant(transaction.asset.decimals, 'Asset decimals is required')
-  // TODO: NC - Confirm the clawback info before sending the transaction
   // TODO: NC - Check the conversion from decimal to number to bigint, can we simplify?
+
+  if (
+    transaction.type === BuildableTransactionType.AssetClawback &&
+    (!transaction.asset.clawback || transaction.sender !== transaction.asset.clawback)
+  ) {
+    throw new Error('Invalid clawback transaction')
+  }
+
   const amount =
     'amount' in transaction ? BigInt(new Decimal(transaction.amount).mul(new Decimal(10).pow(transaction.asset.decimals)).toNumber()) : 0n
+
   return await algorandClient.transactions.assetTransfer({
     sender: transaction.sender,
     receiver: 'receiver' in transaction ? transaction.receiver : transaction.sender,
-    clawbackTarget: 'assetSender' in transaction ? transaction.assetSender : undefined,
+    clawbackTarget: 'clawbackTarget' in transaction ? transaction.clawbackTarget : undefined,
+    closeAssetTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo : undefined,
     assetId: BigInt(transaction.asset.id),
     amount,
     note: transaction.note,
