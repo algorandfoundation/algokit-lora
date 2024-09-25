@@ -119,7 +119,6 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     invariant(activeAddress, 'Please connect your wallet')
 
     const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
-    // TODO: PD - do we need `methodCall`?
     for (const transaction of transactions) {
       const txns = await asAlgosdkTransactions(transaction)
       txns.forEach((txn) => algokitComposer.addTransaction(txn))
@@ -129,22 +128,27 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     const populatedAtc = await populateAppCallResources(atc, algod)
     const transactionsWithResources = populatedAtc.buildGroup()
 
-    // console.log('raw', transactions)
-    // console.log('algokitComposer', transactionsWithSigner[0].txn)
-    // console.log('populated', transactionsWithResources)
-
     // HACK: Assume that the order of transactions is the same
-    const flattenedTransactions = flattenTransactions(transactions)
-    for (let i = 0; i < flattenedTransactions.length; i++) {
-      const transaction = flattenedTransactions[i]
-      const transactionWithResources = transactionsWithResources[i]
-      if (transaction.type === BuildableTransactionType.AppCall) {
-        transaction.accounts = (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey))
-        transaction.foreignAssets = transactionWithResources.txn.appForeignAssets ?? []
-        transaction.foreignApps = transactionWithResources.txn.appForeignApps ?? []
-        transaction.boxes = transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? []
+    setTransactions((prev) => {
+      const newTransactions = [...prev]
+
+      const flattenedTransactions = flattenTransactions(transactions)
+      for (let i = 0; i < flattenedTransactions.length; i++) {
+        const transaction = flattenedTransactions[i]
+        const transactionWithResources = transactionsWithResources[i]
+        if (transaction.type === BuildableTransactionType.AppCall) {
+          const resources = {
+            accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
+            assets: transactionWithResources.txn.appForeignAssets ?? [],
+            applications: transactionWithResources.txn.appForeignApps ?? [],
+            boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
+          }
+          setTransactionResouces(newTransactions, transaction.id, resources)
+        }
       }
-    }
+
+      return newTransactions
+    })
   }, [transactions, activeAddress, signer])
 
   const editTransaction = useCallback(
@@ -231,8 +235,8 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
 const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTransactionResult[] => {
   return transactions.reduce((acc, transaction) => {
     if (transaction.type === BuildableTransactionType.AppCall) {
-      const methodCallArgs = transaction.methodArgs?.filter((arg) => typeof arg === 'object')
-      return [...acc, ...flattenTransactions(methodCallArgs as BuildTransactionResult[])]
+      const methodCallArgs = transaction.methodArgs?.filter((arg) => isBuildTransactionResult(arg))
+      return [...acc, ...flattenTransactions(methodCallArgs as BuildTransactionResult[]), transaction]
     }
     return [...acc, transaction]
   }, [] as BuildTransactionResult[])

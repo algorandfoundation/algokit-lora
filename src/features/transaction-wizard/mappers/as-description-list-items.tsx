@@ -125,22 +125,62 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
-    {
-      dt: 'Accounts',
-      dd: <ul>{transaction.accounts?.map((account) => <li key={account}>{account}</li>)}</ul>,
-    },
-    {
-      dt: 'Assets',
-      dd: <ul>{transaction.foreignAssets?.map((asset) => <li key={asset}>{asset}</li>)}</ul>,
-    },
-    {
-      dt: 'Applications',
-      dd: <ul>{transaction.foreignApps?.map((app) => <li key={app}>{app}</li>)}</ul>,
-    },
-    {
-      dt: 'Boxes',
-      dd: <ul>{transaction.boxes?.map((box) => <li key={box}>{box}</li>)}</ul>,
-    },
+    ...(transaction.accounts
+      ? [
+          {
+            dt: 'Accounts',
+            dd: (
+              <ul>
+                {transaction.accounts.map((account) => (
+                  <li key={account}>{account}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.foreignAssets
+      ? [
+          {
+            dt: 'Assets',
+            dd: (
+              <ul>
+                {transaction.foreignAssets.map((asset) => (
+                  <li key={asset}>{asset}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.foreignApps
+      ? [
+          {
+            dt: 'Applications',
+            dd: (
+              <ul>
+                {transaction.foreignApps.map((app) => (
+                  <li key={app}>{app}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.boxes
+      ? [
+          {
+            dt: 'Boxes',
+            dd: (
+              <ul>
+                {transaction.boxes.map((box) => (
+                  <li key={box}>{box}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
   ]
 }
 
