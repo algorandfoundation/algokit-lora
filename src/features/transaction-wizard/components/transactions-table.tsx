@@ -17,10 +17,11 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { EllipsisVertical, GripVertical } from 'lucide-react'
-import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult, MethodCallArg } from '../models'
+import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
+import { isBuildTransactionResult } from '../utis/is-build-transaction-result'
 
 export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   const { attributes, listeners } = useSortable({
@@ -33,7 +34,13 @@ export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   )
 }
 
-function TransactionRow({ row }: { row: Row<BuildTransactionResult> }) {
+function TransactionRow({
+  row,
+  onEditResources,
+}: {
+  row: Row<BuildTransactionResult>
+  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+}) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.id,
   })
@@ -46,7 +53,7 @@ function TransactionRow({ row }: { row: Row<BuildTransactionResult> }) {
     position: 'relative',
   }
 
-  const subTransactionsTable = renderSubTransactions(row.original)
+  const subTransactionsTable = renderSubTransactions(row.original, onEditResources)
   return (
     <TableBody ref={setNodeRef} style={style} className="border-y">
       {subTransactionsTable && (
@@ -124,7 +131,7 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
           </TableHeader>
           <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => <TransactionRow key={row.id} row={row} />)
+              table.getRowModel().rows.map((row) => <TransactionRow key={row.id} row={row} onEditResources={onEditResources} />)
             ) : (
               <TableBody>
                 <TableRow>
@@ -188,10 +195,6 @@ const getTableColumns = ({
   },
 ]
 
-const isBuildTransactionResult = (arg: MethodCallArg): arg is BuildTransactionResult => {
-  return typeof arg === 'object' && 'type' in arg && 'id' in arg
-}
-
 const getSubTransactions = (transaction: BuildTransactionResult): BuildTransactionResult[] => {
   if (transaction.type !== BuildableTransactionType.AppCall) {
     return []
@@ -207,7 +210,10 @@ const getSubTransactions = (transaction: BuildTransactionResult): BuildTransacti
   }, [] as BuildTransactionResult[])
 }
 
-const renderSubTransactions = (transaction: BuildTransactionResult): React.ReactNode => {
+const renderSubTransactions = (
+  transaction: BuildTransactionResult,
+  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+): React.ReactNode => {
   if (transaction.type !== BuildableTransactionType.AppCall) {
     return undefined
   }
@@ -216,10 +222,14 @@ const renderSubTransactions = (transaction: BuildTransactionResult): React.React
     return undefined
   }
 
-  return <SubTransactionsTable subTransactions={subTransactions} />
+  return <SubTransactionsTable subTransactions={subTransactions} onEditResources={onEditResources} />
 }
 
-const subTransactionsTableColumns: ColumnDef<BuildTransactionResult>[] = [
+const getSubTransactionsTableColumns = ({
+  onEditResources,
+}: {
+  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+}): ColumnDef<BuildTransactionResult>[] => [
   {
     id: 'empty',
     meta: { className: 'w-10' },
@@ -239,12 +249,31 @@ const subTransactionsTableColumns: ColumnDef<BuildTransactionResult>[] = [
   {
     id: 'actions',
     meta: { className: 'w-10' },
+    cell: ({ row }) =>
+      row.original.type === BuildableTransactionType.AppCall ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <EllipsisVertical size={16} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="right">
+            <DropdownMenuItem onClick={() => onEditResources(row.original as BuildAppCallTransactionResult)}>
+              Edit Resources
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : undefined,
   },
 ]
-function SubTransactionsTable({ subTransactions }: { subTransactions: BuildTransactionResult[] }) {
+function SubTransactionsTable({
+  subTransactions,
+  onEditResources,
+}: {
+  subTransactions: BuildTransactionResult[]
+  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+}) {
   const table = useReactTable({
     data: subTransactions,
-    columns: subTransactionsTableColumns,
+    columns: getSubTransactionsTableColumns({ onEditResources }),
     getCoreRowModel: getCoreRowModel(),
   })
 

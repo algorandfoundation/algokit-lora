@@ -22,6 +22,7 @@ import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
+import { isBuildTransactionResult } from '../utis/is-build-transaction-result'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -90,6 +91,7 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     }
   }, [openTransactionBuilderDialog])
 
+  // TODO: add TODO about AppCall -> AppCall -> Payment
   const sendTransactions = useCallback(async () => {
     invariant(activeAddress, 'Please connect your wallet')
 
@@ -166,19 +168,11 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     async (transaction: BuildAppCallTransactionResult) => {
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
-        setTransactions((prev) =>
-          prev.map((t) =>
-            t.id === transaction.id
-              ? {
-                  ...t,
-                  accounts: resources.accounts,
-                  foreignAssets: resources.assets,
-                  foreignApps: resources.applications,
-                  boxes: resources.boxes,
-                }
-              : t
-          )
-        )
+        setTransactions((prev) => {
+          const newTransactions = [...prev]
+          setTransactionResouces(newTransactions, transaction.id, resources)
+          return newTransactions
+        })
       }
     },
     [openEditResourcesDialog]
@@ -242,4 +236,27 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
     }
     return [...acc, transaction]
   }, [] as BuildTransactionResult[])
+}
+
+// This is an inplace mutation of the transactions
+const setTransactionResouces = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
+  const set = (transactions: BuildTransactionResult[]) => {
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i]
+
+      if (transaction.id === transactionId && transaction.type === BuildableTransactionType.AppCall) {
+        transaction.accounts = resources.accounts
+        transaction.foreignAssets = resources.assets
+        transaction.foreignApps = resources.applications
+        transaction.boxes = resources.boxes
+      }
+
+      if (transaction.type === BuildableTransactionType.AppCall) {
+        const txns = transaction.methodArgs?.filter((arg) => isBuildTransactionResult(arg)) ?? []
+        set(txns)
+      }
+    }
+  }
+
+  set(transactions)
 }

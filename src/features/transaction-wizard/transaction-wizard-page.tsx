@@ -87,6 +87,7 @@ const testTransactions: BuildTransactionResult[] = [
   //   fee: { setAutomatically: true },
   //   validRounds: { setAutomatically: true },
   // },
+  //
   {
     id: randomGuid(),
     type: BuildableTransactionType.AppCall,
