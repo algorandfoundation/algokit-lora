@@ -8,7 +8,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { ArgumentField, MethodCallArg, MethodForm, BuildTransactionResult } from '@/features/transaction-wizard/models'
-import { ArgumentHint, MethodDefinition } from '@/features/applications/models'
+import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
 
 const argumentPathSeparator = '-'
 const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
@@ -272,20 +272,18 @@ const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): un
 }
 
 const asField = (
-  arg: algosdk.ABIMethod['args'][number],
-  argIndex: number,
-  hint?: ArgumentHint
+  arg: ArgumentDefinition,
+  argIndex: number
 ): {
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
   defaultValue?: unknown // TODO: NC - Can we do better with the type here?
   getAppCallArg: (value: unknown) => Promise<MethodCallArg>
 } => {
-  const isArgOptional = !!hint?.defaultArgument
-
+  const isArgOptional = !!arg.hint?.defaultArgument
   return {
     createField: (helper) =>
-      getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, hint, {
+      getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
         description: arg.description,
       }),
     fieldSchema: getFieldSchema(arg.type, isArgOptional),
@@ -326,7 +324,6 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
     description: method.description,
     arguments: argFields,
     schema: methodSchema,
-    defaultValues: {}, // TODO: PD - default values??
     returns: method.returns,
   } satisfies MethodForm
 }

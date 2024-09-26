@@ -127,7 +127,9 @@ const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
   if (algosdk.abiTypeIsReference(type)) {
     return arg.toString() // TODO: PD - check reference types
   }
-  // TODO: PD - handle structs
+  if (!arg) {
+    return 'Not Set'
+  }
   const abiValue = getAbiValue(type, arg as algosdk.ABIValue)
   return <AbiValue abiValue={abiValue} />
 }
