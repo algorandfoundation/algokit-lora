@@ -17,6 +17,7 @@ function fields<TSchema extends z.ZodSchema>(buildableTransaction: BuildableTran
   return Object.entries(buildableTransaction.fields) as Fields<TSchema>
 }
 
+// TODO: maybe we should remove this?
 export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, transaction }: Props<TSchema>) {
   return (
     <>
@@ -60,7 +61,6 @@ export function TransactionBuilderFields<TSchema extends z.ZodSchema>({ helper, 
               renderChildField(_, index) {
                 return helper.textField({ ...common, field: `${path}.${index}.value` as Path<z.infer<TSchema>> })
               },
-              // TODO: PD - can we fix this type?
               newItem: () => ({ id: new Date().getTime().toString(), value: '' }) as FieldArray<FieldValues, Path<z.infer<TSchema>>>,
             })
           default:

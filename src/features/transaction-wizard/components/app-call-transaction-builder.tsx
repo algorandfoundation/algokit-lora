@@ -40,7 +40,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
-        applicationId: Number(values.applicationId), // TODO: PD - handle bigint
+        applicationId: Number(values.applicationId),
         sender: values.sender,
         fee: values.fee,
         validRounds: values.validRounds,
@@ -59,12 +59,12 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
         validRounds: {
           setAutomatically: true,
         },
-        applicationId: defaultValuesProps?.applicationId ? BigInt(defaultValuesProps.applicationId) : undefined, // TODO: PD - handle bigint
+        applicationId: defaultValuesProps?.applicationId ? BigInt(defaultValuesProps.applicationId) : undefined,
       }
     } else if (mode === TransactionBuilderMode.Edit) {
       invariant(transaction, 'Transaction is required in edit mode')
       return {
-        applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
+        applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,

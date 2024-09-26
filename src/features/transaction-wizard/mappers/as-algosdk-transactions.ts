@@ -90,7 +90,7 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
 
   return {
     sender: transaction.sender,
-    appId: BigInt(transaction.applicationId), // TODO: PD - handle bigint
+    appId: BigInt(transaction.applicationId),
     method: transaction.method,
     args: args,
     note: transaction.note,

@@ -1,15 +1,12 @@
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import { Button } from '@/features/common/components/button'
+import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
 import { algod, algorandClient } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import { TransactionsGraph } from '@/features/transactions-graph'
-import { DescriptionList } from '@/features/common/components/description-list'
-import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import {
@@ -31,16 +28,20 @@ import {
 import { isBuildTransactionResult } from '../utis/is-build-transaction-result'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
+import { ConfirmButton } from '@/features/common/components/confirm-button'
+import { Transaction } from '@/features/transactions/models'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
+const connectWalletMessage = 'Please connect a wallet'
 
 type Props = {
-  // TODO: PD - transactions from props can't be removed
   transactions?: BuildTransactionResult[]
+  onReset?: () => void
+  onTransactionSent?: (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => void
 }
 
-export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
+export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent }: Props) {
   const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
@@ -103,26 +104,31 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   // TODO: add TODO about AppCall -> AppCall -> Payment
   const sendTransactions = useCallback(async () => {
     try {
+      setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
+
+      const buildTransactionResultToAlgosdkTransactionMap = new Map<string, string>()
 
       const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
       for (const transaction of transactions) {
         const txns = await asAlgosdkTransactions(transaction)
+        buildTransactionResultToAlgosdkTransactionMap.set(transaction.id, txns[txns.length - 1].txID())
         txns.forEach((txn) => algokitComposer.addTransaction(txn))
       }
       const result = await algokitComposer.execute()
       const sentTxns = asTransactionFromSendResult(result)
-      const transactionId = result.txIds[0]
       const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
       setSendTransactionResult({
-        transactionId,
+        transactions: sentTxns,
         transactionsGraphData,
       })
+
+      onTransactionSent?.(buildTransactionResultToAlgosdkTransactionMap, sentTxns)
     } catch (error) {
       setErrorMessage(asError(error).message)
     }
-  }, [activeAddress, signer, transactions])
+  }, [activeAddress, signer, transactions, onTransactionSent])
 
   // TODO: PD - currently edit the app call will reset the resources
   const populateResources = useCallback(async () => {
@@ -196,13 +202,16 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     [openEditResourcesDialog]
   )
 
-  // TODO: PD - spining Send button
-  // TODO: PD - show the result of app call transactions
+  const resetTransactions = useCallback(() => {
+    setTransactions([])
+    onReset?.()
+  }, [onReset])
+
   return (
     <div>
       <div className="space-y-4">
         <div className="flex justify-end">
-          <Button onClick={createTransaction}>Create</Button>
+          <Button onClick={createTransaction}>{transactions.length === 0 ? 'Create' : 'Add Transaction'}</Button>
         </div>
         <TransactionsTable
           data={transactions}
@@ -218,31 +227,37 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
           </div>
         )}
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={populateResources}>
+          <ConfirmButton
+            onConfirm={resetTransactions}
+            dialogHeaderText="Reset"
+            dialogContent="Are you sure? All transactions will be removed."
+            variant="destructive"
+          >
+            Reset
+          </ConfirmButton>
+          <AsyncActionButton
+            className="w-40"
+            variant="outline"
+            onClick={populateResources}
+            disabled={!activeAddress}
+            disabledReason={connectWalletMessage}
+          >
             Populate Resouces
-          </Button>
-          <Button onClick={sendTransactions}>Send</Button>
+          </AsyncActionButton>
+          <AsyncActionButton className="w-28" onClick={sendTransactions} disabled={!activeAddress} disabledReason={connectWalletMessage}>
+            Send
+          </AsyncActionButton>
         </div>
       </div>
       {transactionBuilderDialog}
       {editResourcesDialog}
       {sendTransactionResult && (
-        <div className="my-4 flex flex-col gap-4 text-sm">
-          <DescriptionList
-            items={[
-              {
-                dt: transactionIdLabel,
-                dd: (
-                  <TransactionLink transactionId={sendTransactionResult.transactionId} className="text-sm text-primary underline">
-                    {sendTransactionResult.transactionId}
-                  </TransactionLink>
-                ),
-              },
-            ]}
-          />
+        <div className="my-4 flex flex-col gap-2 text-sm">
+          <h3>Results</h3>
+          <h4>Transactions Graph</h4>
           <TransactionsGraph
             transactionsGraphData={sendTransactionResult.transactionsGraphData}
-            bgClassName="bg-background"
+            bgClassName="bg-card"
             downloadable={false}
           />
         </div>

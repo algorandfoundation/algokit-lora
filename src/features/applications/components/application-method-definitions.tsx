@@ -8,10 +8,16 @@ import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { BuildableTransactionType, BuildTransactionResult } from '@/features/transaction-wizard/models'
+import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
+import { AppCallTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import { invariant } from '@/utils/invariant'
+import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
+import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
 
 type Props = {
   applicationId: ApplicationId
@@ -35,10 +41,11 @@ type MethodProps = {
 }
 
 function Method({ method, applicationId }: MethodProps) {
-  const [transactions, setTransactions] = useState<BuildTransactionResult[]>([])
+  const [transaction, setTransaction] = useState<BuildMethodCallTransactionResult | undefined>(undefined)
+  const [sentTransaction, setSentTransaction] = useState<AppCallTransaction | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
-    dialogHeader: 'Transaction Builder',
+    dialogHeader: 'Call ABI Method',
     dialogBody: (
       props: DialogBodyProps<
         { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
@@ -64,10 +71,24 @@ function Method({ method, applicationId }: MethodProps) {
         methodName: method.name,
       },
     })
-    if (transaction) {
-      setTransactions((prev) => [...prev, transaction])
+    if (transaction && transaction.type === BuildableTransactionType.MethodCall) {
+      setTransaction(transaction)
     }
   }, [applicationId, method.name, open])
+
+  const handleTransactionSent = useCallback(
+    (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => {
+      invariant(transaction, 'Transaction is undefined')
+
+      const algosdkTxId = buildTransactionResultToAlgosdkTransactionMap.get(transaction.id)
+      const algosdkTransaction = transactions.find((tx) => tx.id === algosdkTxId)
+      invariant(algosdkTransaction, 'Algosdk transaction not found')
+      invariant(algosdkTransaction.type === TransactionType.AppCall, 'Algosdk transaction is not an AppCall')
+
+      setSentTransaction(algosdkTransaction)
+    },
+    [transaction]
+  )
 
   return (
     <AccordionItem value={method.signature}>
@@ -84,13 +105,46 @@ function Method({ method, applicationId }: MethodProps) {
         </div>
         <Returns returns={method.returns} />
         <div className="flex justify-end">
-          {transactions.length === 0 && (
+          {!transaction && (
             <Button variant="default" onClick={openDialog}>
               Call
             </Button>
           )}
         </div>
-        {transactions.length > 0 && <TransactionsBuilder transactions={transactions} />}
+        {transaction && (
+          <TransactionsBuilder
+            transactions={[transaction]}
+            onReset={() => setTransaction(undefined)}
+            onTransactionSent={(map, txns) => handleTransactionSent(map, txns)}
+          />
+        )}
+        {sentTransaction && (
+          <div className="mt-2 space-y-2">
+            <h4>Method Call Result</h4>
+            <div>
+              <DescriptionList
+                items={[
+                  {
+                    dt: transactionIdLabel,
+                    dd: (
+                      <TransactionLink transactionId={sentTransaction.id} className="text-sm text-primary underline">
+                        {sentTransaction.id}
+                      </TransactionLink>
+                    ),
+                  },
+                  {
+                    dt: 'Return value',
+                    dd: (
+                      <RenderInlineAsyncAtom atom={sentTransaction.abiMethod}>
+                        {(abiMethod) => (abiMethod ? <DecodedAbiMethodReturnValue return={abiMethod?.return} /> : 'void')}
+                      </RenderInlineAsyncAtom>
+                    ),
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        )}
         {dialog}
       </AccordionContent>
     </AccordionItem>

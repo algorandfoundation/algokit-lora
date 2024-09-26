@@ -31,6 +31,7 @@ type SendTransactionResult = {
   transactionsGraphData: TransactionsGraphData
 }
 
+// TODO: maybe we should remove this?
 export function TransactionBuilderForm<TSchema extends z.ZodSchema>({ buildableTransaction, defaultSender }: Props<TSchema>) {
   const { activeAddress, signer } = useWallet()
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)

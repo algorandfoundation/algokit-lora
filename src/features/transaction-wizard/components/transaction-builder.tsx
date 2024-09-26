@@ -20,8 +20,6 @@ import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-buil
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
-const connectWalletMessage = 'Please connect a wallet'
-export const sendButtonLabel = 'Send'
 
 const builderConfigs = [
   {
@@ -126,29 +124,31 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
     <RenderLoadable loadable={loadableActiveWalletAddressSnapshot}>
       {(activeWalletAddressSnapshot) => (
         <div>
-          <div className={cn('flex flex-col mb-4')}>
-            <Label htmlFor="transaction-type" className={cn('ml-0.5 mb-2')}>
-              {transactionTypeLabel}
-            </Label>
-            <Select onValueChange={(value) => setSelectedBuilderType(value as BuildableTransactionType)} value={selectedBuilderType}>
-              <SelectTrigger id="transaction-type">
-                <SelectValue placeholder="Select transaction type" />
-              </SelectTrigger>
-              <SelectContent className={cn('bg-card text-card-foreground')}>
-                {validBuilderConfigs.map((config) => (
-                  <SelectItem key={config.type} value={config.type}>
-                    {config.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {!type && (
+            <div className={cn('flex flex-col mb-4')}>
+              <Label htmlFor="transaction-type" className={cn('ml-0.5 mb-2')}>
+                {transactionTypeLabel}
+              </Label>
+              <Select onValueChange={(value) => setSelectedBuilderType(value as BuildableTransactionType)} value={selectedBuilderType}>
+                <SelectTrigger id="transaction-type">
+                  <SelectValue placeholder="Select transaction type" />
+                </SelectTrigger>
+                <SelectContent className={cn('bg-card text-card-foreground')}>
+                  {validBuilderConfigs.map((config) => (
+                    <SelectItem key={config.type} value={config.type}>
+                      {config.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* TODO: PD - fix transaction as any */}
           <FormComponent
             mode={mode}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            defaultValues={defaultValues as any}
+            defaultValues={defaultValues}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             transaction={transaction as any}
             onSubmit={onSubmit}

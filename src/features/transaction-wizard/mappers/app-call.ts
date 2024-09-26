@@ -313,7 +313,7 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
     (acc, arg, index) => {
       return {
         ...acc,
-        [argumentFieldPath(index)]: arg.fieldSchema, // TODO: PD - fix field- hardcode
+        [argumentFieldPath(index)]: arg.fieldSchema,
       }
     },
     {} as Record<string, z.ZodTypeAny>

@@ -4,10 +4,10 @@ import algosdk from 'algosdk'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition, ArgumentDefinition } from '@/features/applications/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { DefaultValues } from 'react-hook-form'
 import { Address } from '@/features/accounts/data/types'
 import { TransactionsGraphData } from '@/features/transactions-graph'
 import { AssetId } from '@/features/assets/data/types'
+import { Transaction } from '@/features/transactions/models'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -68,7 +68,6 @@ export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
   abiMethod: algosdk.ABIMethod
   arguments: ArgumentField[]
   schema: Record<string, z.ZodType<any>>
-  defaultValues: DefaultValues<any> // TODO: PD - default values?
 }
 
 export type ArgumentField = ArgumentDefinition & {
@@ -220,6 +219,6 @@ export type BuildTransactionResult =
   | BuildMethodCallTransactionResult
 
 export type SendTransactionResult = {
-  transactionId: string
+  transactions: Transaction[]
   transactionsGraphData: TransactionsGraphData
 }

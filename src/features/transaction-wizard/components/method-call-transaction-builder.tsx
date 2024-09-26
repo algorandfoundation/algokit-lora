@@ -64,7 +64,7 @@ export function MethodCallTransactionBuilder({ mode, transaction, defaultValues:
         onSubmit({
           id: transaction?.id ?? randomGuid(),
           type: BuildableTransactionType.MethodCall,
-          applicationId: Number(values.applicationId), // TODO: PD - handle bigint
+          applicationId: Number(values.applicationId),
           sender: values.sender,
           fee: values.fee,
           validRounds: values.validRounds,
@@ -114,7 +114,7 @@ export function MethodCallTransactionBuilder({ mode, transaction, defaultValues:
         {} as Record<string, unknown>
       )
       return {
-        applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined, // TODO: PD - handle bigint
+        applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
