@@ -10,6 +10,7 @@ import {
   BuildAssetOptOutTransactionResult,
   BuildAssetReconfigureTransactionResult,
   BuildAssetTransferTransactionResult,
+  BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   MethodCallArg,
@@ -23,6 +24,9 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
   }
   if (transaction.type === BuildableTransactionType.AppCall) {
     return asAppCallTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.MethodCall) {
+    return asMethodCallTransaction(transaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -129,22 +133,82 @@ const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
 }
 
 const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): DescriptionListItems => {
-  let args: JSX.Element = <></>
-  if (transaction.rawArgs) {
-    args = <DescriptionList items={transaction.rawArgs.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />
-  } else if (transaction.method && transaction.methodArgs && transaction.methodArgs.length > 0) {
-    args = (
-      <DescriptionList
-        items={transaction.method.args.map((arg, index) => {
-          return {
-            dt: arg.name ? arg.name : `Arg ${index}`,
-            dd: asMethodArg(arg.type, transaction.methodArgs![index]),
-          }
-        })}
-      />
-    )
-  }
+  return [
+    {
+      dt: 'Sender',
+      dd: transaction.sender,
+    },
+    {
+      dt: 'Application ID',
+      dd: transaction.applicationId,
+    },
+    {
+      dt: 'Arguments',
+      dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
+    },
+    ...asNoteItem(transaction.note),
+    ...asFeeItem(transaction.fee),
+    ...asValidRoundsItem(transaction.validRounds),
+    ...(transaction.accounts
+      ? [
+          {
+            dt: 'Accounts',
+            dd: (
+              <ul>
+                {transaction.accounts.map((account) => (
+                  <li key={account}>{account}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.foreignAssets
+      ? [
+          {
+            dt: 'Assets',
+            dd: (
+              <ul>
+                {transaction.foreignAssets.map((asset) => (
+                  <li key={asset}>{asset}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.foreignApps
+      ? [
+          {
+            dt: 'Applications',
+            dd: (
+              <ul>
+                {transaction.foreignApps.map((app) => (
+                  <li key={app}>{app}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.boxes
+      ? [
+          {
+            dt: 'Boxes',
+            dd: (
+              <ul>
+                {transaction.boxes.map((box) => (
+                  <li key={box}>{box}</li>
+                ))}
+              </ul>
+            ),
+          },
+        ]
+      : []),
+  ]
+}
 
+const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult): DescriptionListItems => {
   return [
     {
       dt: 'Sender',
@@ -157,7 +221,16 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     ...(transaction.methodName ? [{ dt: 'Method name', dd: transaction.methodName }] : []),
     {
       dt: 'Arguments',
-      dd: args,
+      dd: (
+        <DescriptionList
+          items={transaction.method.args.map((arg, index) => {
+            return {
+              dt: arg.name ? arg.name : `Arg ${index}`,
+              dd: asMethodArg(arg.type, transaction.methodArgs![index]),
+            }
+          })}
+        />
+      ),
     },
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),

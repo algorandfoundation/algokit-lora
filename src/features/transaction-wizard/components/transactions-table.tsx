@@ -17,7 +17,12 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { EllipsisVertical, GripVertical } from 'lucide-react'
-import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult } from '../models'
+import {
+  BuildableTransactionType,
+  BuildAppCallTransactionResult,
+  BuildMethodCallTransactionResult,
+  BuildTransactionResult,
+} from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
@@ -39,7 +44,7 @@ function TransactionRow({
   onEditResources,
 }: {
   row: Row<BuildTransactionResult>
-  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.id,
@@ -82,7 +87,7 @@ type Props = {
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
   onEdit: (transaction: BuildTransactionResult) => Promise<void>
-  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
 }
@@ -156,7 +161,7 @@ const getTableColumns = ({
 }: {
   nonDeletableTransactionIds: string[]
   onEdit: (transaction: BuildTransactionResult) => Promise<void>
-  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
   {
@@ -181,8 +186,10 @@ const getTableColumns = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
           <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
-          {row.original.type === BuildableTransactionType.AppCall && (
-            <DropdownMenuItem onClick={() => onEditResources(row.original as BuildAppCallTransactionResult)}>
+          {(row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall) && (
+            <DropdownMenuItem
+              onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
+            >
               Edit Resources
             </DropdownMenuItem>
           )}
@@ -196,7 +203,7 @@ const getTableColumns = ({
 ]
 
 const getSubTransactions = (transaction: BuildTransactionResult): BuildTransactionResult[] => {
-  if (transaction.type !== BuildableTransactionType.AppCall) {
+  if (transaction.type !== BuildableTransactionType.MethodCall) {
     return []
   }
   if (!transaction.methodArgs) {
@@ -212,9 +219,9 @@ const getSubTransactions = (transaction: BuildTransactionResult): BuildTransacti
 
 const renderSubTransactions = (
   transaction: BuildTransactionResult,
-  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 ): React.ReactNode => {
-  if (transaction.type !== BuildableTransactionType.AppCall) {
+  if (transaction.type !== BuildableTransactionType.MethodCall) {
     return undefined
   }
   const subTransactions = getSubTransactions(transaction)
@@ -228,7 +235,7 @@ const renderSubTransactions = (
 const getSubTransactionsTableColumns = ({
   onEditResources,
 }: {
-  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }): ColumnDef<BuildTransactionResult>[] => [
   {
     id: 'empty',
@@ -250,13 +257,15 @@ const getSubTransactionsTableColumns = ({
     id: 'actions',
     meta: { className: 'w-10' },
     cell: ({ row }) =>
-      row.original.type === BuildableTransactionType.AppCall ? (
+      row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall ? (
         <DropdownMenu>
           <DropdownMenuTrigger>
             <EllipsisVertical size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="right">
-            <DropdownMenuItem onClick={() => onEditResources(row.original as BuildAppCallTransactionResult)}>
+            <DropdownMenuItem
+              onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
+            >
               Edit Resources
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -269,7 +278,7 @@ function SubTransactionsTable({
   onEditResources,
 }: {
   subTransactions: BuildTransactionResult[]
-  onEditResources: (transaction: BuildAppCallTransactionResult) => Promise<void>
+  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const table = useReactTable({
     data: subTransactions,

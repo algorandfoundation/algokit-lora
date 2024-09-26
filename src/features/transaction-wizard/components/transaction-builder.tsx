@@ -1,7 +1,7 @@
 import algosdk from 'algosdk'
 import { useMemo, useState } from 'react'
 import { BuildableTransactionType, BuildTransactionResult } from '../models'
-import { AppCallTransactionBuilder } from './app-call-transaction-builder'
+import { MethodCallTransactionBuilder } from './method-call-transaction-builder'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -17,6 +17,7 @@ import { AssetClawbackTransactionBuilder } from './asset-clawback-transaction-bu
 import { AssetCreateTransactionBuilder } from './asset-create-transaction-builder'
 import { AssetReconfigureTransactionBuilder } from './asset-reconfigure-transaction-builder'
 import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-builder'
+import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 const connectWalletMessage = 'Please connect a wallet'
@@ -40,6 +41,12 @@ const builderConfigs = [
     type: BuildableTransactionType.AppCall,
     label: 'App Call (appl)',
     component: AppCallTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.appl,
+    type: BuildableTransactionType.MethodCall,
+    label: 'Method Call (appl)',
+    component: MethodCallTransactionBuilder,
   },
   {
     transactionType: algosdk.TransactionType.axfer,
@@ -86,7 +93,8 @@ const builderConfigs = [
 ]
 
 type Props = {
-  type?: algosdk.TransactionType
+  transactionType?: algosdk.TransactionType
+  type?: BuildableTransactionType
   defaultSender?: string // TODO: PD - default sender?
   mode: TransactionBuilderMode
   defaultValues?: Partial<BuildTransactionResult>
@@ -95,16 +103,18 @@ type Props = {
   onCancel: () => void
 }
 
-export function TransactionBuilder({ mode, type, transaction, defaultValues, onSubmit, onCancel }: Props) {
+export function TransactionBuilder({ mode, transactionType, type, transaction, defaultValues, onSubmit, onCancel }: Props) {
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
   const validBuilderConfigs = useMemo(() => {
-    if (type !== undefined) {
-      return builderConfigs.filter((builderConfig) => builderConfig.transactionType === type)
+    if (transactionType !== undefined) {
+      return builderConfigs.filter((builderConfig) => builderConfig.transactionType === transactionType)
     }
     return builderConfigs
-  }, [type])
-  const [selectedBuilderType, setSelectedBuilderType] = useState<BuildableTransactionType>(transaction?.type ?? validBuilderConfigs[0].type)
+  }, [transactionType])
+  const [selectedBuilderType, setSelectedBuilderType] = useState<BuildableTransactionType>(
+    transaction?.type ?? type ?? validBuilderConfigs[0].type
+  )
 
   const FormComponent = useMemo(() => {
     const component = validBuilderConfigs.find((builderConfig) => builderConfig.type === selectedBuilderType)?.component

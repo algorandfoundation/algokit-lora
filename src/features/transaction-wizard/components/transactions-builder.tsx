@@ -12,7 +12,13 @@ import { transactionIdLabel } from '@/features/transactions/components/transacti
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
-import { SendTransactionResult, BuildTransactionResult, BuildableTransactionType, BuildAppCallTransactionResult } from '../models'
+import {
+  SendTransactionResult,
+  BuildTransactionResult,
+  BuildableTransactionType,
+  BuildAppCallTransactionResult,
+  BuildMethodCallTransactionResult,
+} from '../models'
 import { asAlgosdkTransactions } from '../mappers'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
@@ -55,7 +61,7 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
       >
     ) => (
       <TransactionBuilder
-        type={props.data.type}
+        transactionType={props.data.type}
         mode={props.data.mode}
         defaultValues={props.data.defaultValues}
         transaction={props.data.transaction}
@@ -70,7 +76,7 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
     dialogBody: (
       props: DialogBodyProps<
         {
-          transaction: BuildAppCallTransactionResult
+          transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult
         },
         TransactionResources
       >
@@ -169,7 +175,7 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   }, [])
 
   const editResources = useCallback(
-    async (transaction: BuildAppCallTransactionResult) => {
+    async (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
         setTransactions((prev) => {
@@ -234,8 +240,8 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
 
 const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTransactionResult[] => {
   return transactions.reduce((acc, transaction) => {
-    if (transaction.type === BuildableTransactionType.AppCall) {
-      const methodCallArgs = transaction.methodArgs?.filter((arg) => isBuildTransactionResult(arg))
+    if (transaction.type === BuildableTransactionType.MethodCall) {
+      const methodCallArgs = transaction.methodArgs.filter((arg) => isBuildTransactionResult(arg))
       return [...acc, ...flattenTransactions(methodCallArgs as BuildTransactionResult[]), transaction]
     }
     return [...acc, transaction]
@@ -248,15 +254,18 @@ const setTransactionResouces = (transactions: BuildTransactionResult[], transact
     for (let i = 0; i < transactions.length; i++) {
       const transaction = transactions[i]
 
-      if (transaction.id === transactionId && transaction.type === BuildableTransactionType.AppCall) {
+      if (
+        transaction.id === transactionId &&
+        (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall)
+      ) {
         transaction.accounts = resources.accounts
         transaction.foreignAssets = resources.assets
         transaction.foreignApps = resources.applications
         transaction.boxes = resources.boxes
       }
 
-      if (transaction.type === BuildableTransactionType.AppCall) {
-        const txns = transaction.methodArgs?.filter((arg) => isBuildTransactionResult(arg)) ?? []
+      if (transaction.type === BuildableTransactionType.MethodCall) {
+        const txns = transaction.methodArgs.filter((arg) => isBuildTransactionResult(arg))
         set(txns)
       }
     }

@@ -8,7 +8,7 @@ import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { BuildTransactionResult } from '@/features/transaction-wizard/models'
+import { BuildableTransactionType, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
@@ -47,7 +47,8 @@ function Method({ method, applicationId }: MethodProps) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        type={props.data?.transactionType as unknown as algosdk.TransactionType}
+        transactionType={props.data?.transactionType as unknown as algosdk.TransactionType}
+        type={BuildableTransactionType.MethodCall}
         defaultValues={props.data?.transaction}
         onCancel={props.onCancel}
         onSubmit={props.onSubmit}

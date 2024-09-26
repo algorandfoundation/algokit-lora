@@ -52,6 +52,7 @@ export enum BuildableTransactionType {
   AccountClose = 'AccountClose',
   // appl
   AppCall = 'AppCall',
+  MethodCall = 'MethodCall',
   // axfer
   AssetOptIn = 'AssetOptIn',
   AssetOptOut = 'AssetOptOut',
@@ -93,10 +94,20 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   id: string
   type: BuildableTransactionType.AppCall
   applicationId: ApplicationId
-  method?: algosdk.ABIMethod
-  methodName?: string
-  methodArgs?: MethodCallArg[]
-  rawArgs?: string[]
+  args: string[]
+  accounts?: Address[]
+  foreignAssets?: AssetId[]
+  foreignApps?: ApplicationId[]
+  boxes?: string[]
+}
+
+export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  type: BuildableTransactionType.MethodCall
+  applicationId: ApplicationId
+  method: algosdk.ABIMethod
+  methodName: string
+  methodArgs: MethodCallArg[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]
@@ -206,6 +217,7 @@ export type BuildTransactionResult =
   | BuildAssetCreateTransactionResult
   | BuildAssetReconfigureTransactionResult
   | BuildAssetDestroyTransactionResult
+  | BuildMethodCallTransactionResult
 
 export type SendTransactionResult = {
   transactionId: string

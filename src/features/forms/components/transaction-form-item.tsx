@@ -162,7 +162,7 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
     ) => (
       <TransactionBuilder
         mode={props.data.mode}
-        type={props.data.transactionType as unknown as algosdk.TransactionType}
+        transactionType={props.data.transactionType as unknown as algosdk.TransactionType}
         transaction={props.data.transaction}
         onCancel={props.onCancel}
         onSubmit={props.onSubmit}
