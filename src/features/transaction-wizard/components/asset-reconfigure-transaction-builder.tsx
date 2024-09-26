@@ -26,7 +26,7 @@ const formSchema = {
   asset: z
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
-      decimals: z.number().optional(),
+      decimals: z.number().optional(), // This field is used to determine if an asset has been resolved
       manager: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
@@ -133,23 +133,27 @@ type FieldsWithAssetInfoProps = {
 }
 
 function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetInfoProps) {
-  // TODO: NC - This resets the fields when editing
   const loadableAssetSummary = useLoadableAssetSummaryAtom(assetId)
-  const { setValue, trigger } = formCtx
+  const { setValue, trigger, getValues } = formCtx
+  const [initialAssetLoad, setInitialAssetLoad] = useState(true)
 
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
-      setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-
-      setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
-      setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-      setValue('manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-      setValue('reserve', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.reserve : undefined)
-      setValue('freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
-      setValue('clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
-      trigger()
+      // This logic prevents any default values being overridden on load when a transaction is edited
+      if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
+        setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
+        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
+        setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
+        setValue('manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
+        setValue('reserve', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.reserve : undefined)
+        setValue('freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
+        setValue('clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
+        trigger()
+      }
+      if (initialAssetLoad) {
+        setInitialAssetLoad(false)
+      }
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadableAssetSummary])
 
