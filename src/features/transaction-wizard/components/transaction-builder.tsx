@@ -148,7 +148,7 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
           <FormComponent
             mode={mode}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            defaultValues={defaultValues}
+            defaultValues={defaultValues as any}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             transaction={transaction as any}
             onSubmit={onSubmit}
