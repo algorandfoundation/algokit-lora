@@ -29,6 +29,8 @@ import {
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
 import { isBuildTransactionResult } from '../utis/is-build-transaction-result'
+import { HintText } from '@/features/forms/components/hint-text'
+import { asError } from '@/utils/error'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -42,6 +44,7 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
   const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return transactionsProp?.map((t) => t.id) ?? []
@@ -99,62 +102,67 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
 
   // TODO: add TODO about AppCall -> AppCall -> Payment
   const sendTransactions = useCallback(async () => {
-    invariant(activeAddress, 'Please connect your wallet')
+    try {
+      invariant(activeAddress, 'Please connect your wallet')
 
-    const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
-    for (const transaction of transactions) {
-      const txns = await asAlgosdkTransactions(transaction)
-      txns.forEach((txn) => algokitComposer.addTransaction(txn))
+      const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
+      for (const transaction of transactions) {
+        const txns = await asAlgosdkTransactions(transaction)
+        txns.forEach((txn) => algokitComposer.addTransaction(txn))
+      }
+      const result = await algokitComposer.execute()
+      const sentTxns = asTransactionFromSendResult(result)
+      const transactionId = result.txIds[0]
+      const transactionsGraphData = asTransactionsGraphData(sentTxns)
+
+      setSendTransactionResult({
+        transactionId,
+        transactionsGraphData,
+      })
+    } catch (error) {
+      setErrorMessage(asError(error).message)
     }
-    const result = await algokitComposer.execute({
-      populateAppCallResources: false,
-    })
-    const sentTxns = asTransactionFromSendResult(result)
-    const transactionId = result.txIds[0]
-    const transactionsGraphData = asTransactionsGraphData(sentTxns)
-
-    setSendTransactionResult({
-      transactionId,
-      transactionsGraphData,
-    })
   }, [activeAddress, signer, transactions])
 
   // TODO: PD - currently edit the app call will reset the resources
   const populateResources = useCallback(async () => {
-    // TODO: PD - do we need a connected wallet here?
-    invariant(activeAddress, 'Please connect your wallet')
+    try {
+      invariant(activeAddress, 'Please connect your wallet')
 
-    const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
-    for (const transaction of transactions) {
-      const txns = await asAlgosdkTransactions(transaction)
-      txns.forEach((txn) => algokitComposer.addTransaction(txn))
-    }
-
-    const { atc } = await algokitComposer.build()
-    const populatedAtc = await populateAppCallResources(atc, algod)
-    const transactionsWithResources = populatedAtc.buildGroup()
-
-    // HACK: Assume that the order of transactions is the same
-    setTransactions((prev) => {
-      const newTransactions = [...prev]
-
-      const flattenedTransactions = flattenTransactions(transactions)
-      for (let i = 0; i < flattenedTransactions.length; i++) {
-        const transaction = flattenedTransactions[i]
-        const transactionWithResources = transactionsWithResources[i]
-        if (transaction.type === BuildableTransactionType.AppCall) {
-          const resources = {
-            accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
-            assets: transactionWithResources.txn.appForeignAssets ?? [],
-            applications: transactionWithResources.txn.appForeignApps ?? [],
-            boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
-          }
-          setTransactionResouces(newTransactions, transaction.id, resources)
-        }
+      const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
+      for (const transaction of transactions) {
+        const txns = await asAlgosdkTransactions(transaction)
+        txns.forEach((txn) => algokitComposer.addTransaction(txn))
       }
 
-      return newTransactions
-    })
+      const { atc } = await algokitComposer.build()
+      const populatedAtc = await populateAppCallResources(atc, algod)
+      const transactionsWithResources = populatedAtc.buildGroup()
+
+      // HACK: Assume that the order of transactions is the same
+      setTransactions((prev) => {
+        const newTransactions = [...prev]
+
+        const flattenedTransactions = flattenTransactions(transactions)
+        for (let i = 0; i < flattenedTransactions.length; i++) {
+          const transaction = flattenedTransactions[i]
+          const transactionWithResources = transactionsWithResources[i]
+          if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
+            const resources = {
+              accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
+              assets: transactionWithResources.txn.appForeignAssets ?? [],
+              applications: transactionWithResources.txn.appForeignApps ?? [],
+              boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
+            }
+            setTransactionResouces(newTransactions, transaction.id, resources)
+          }
+        }
+
+        return newTransactions
+      })
+    } catch (error) {
+      setErrorMessage(asError(error).message)
+    }
   }, [transactions, activeAddress, signer])
 
   const editTransaction = useCallback(
@@ -204,6 +212,11 @@ export function TransactionsBuilder({ transactions: transactionsProp }: Props) {
           onEditResources={editResources}
           onDelete={deleteTransaction}
         />
+        {errorMessage && (
+          <div>
+            <HintText errorText={errorMessage} />
+          </div>
+        )}
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={populateResources}>
             Populate Resouces
