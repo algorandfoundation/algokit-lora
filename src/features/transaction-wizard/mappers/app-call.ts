@@ -218,14 +218,6 @@ const getCreateField = (
       struct: hint?.struct,
     })
   }
-  if (algosdk.abiTypeIsTransaction(type)) {
-    return formFieldHelper.transactionField({
-      label: 'Value',
-      field: path,
-      placeholder: options?.description,
-      transactionType: type,
-    })
-  }
   return undefined
 }
 
@@ -273,7 +265,10 @@ const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): un
 
 const asField = (
   arg: ArgumentDefinition,
-  argIndex: number
+  argIndex: number,
+  onShowForm: (form: React.ReactNode) => void,
+  onCancel: () => void,
+  onSubmit: (field: Path<any>, data: BuildTransactionResult) => void
 ): {
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
   fieldSchema: z.ZodTypeAny
@@ -281,14 +276,32 @@ const asField = (
   getAppCallArg: (value: unknown) => Promise<MethodCallArg>
 } => {
   const isArgOptional = !!arg.hint?.defaultArgument
-  return {
-    createField: (helper) =>
-      getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
-        description: arg.description,
-      }),
-    fieldSchema: getFieldSchema(arg.type, isArgOptional),
-    defaultValue: getDefaultValue(arg.type, isArgOptional),
-    getAppCallArg: (value) => getAppCallArg(arg.type, value),
+  if (!algosdk.abiTypeIsTransaction(arg.type)) {
+    return {
+      createField: (helper) =>
+        getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
+          description: arg.description,
+        }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      defaultValue: getDefaultValue(arg.type, isArgOptional),
+      getAppCallArg: (value) => getAppCallArg(arg.type, value),
+    }
+  } else {
+    return {
+      createField: (helper) =>
+        helper.transactionField({
+          label: 'Value',
+          field: argumentFieldPath(argIndex) as FieldPath<any>,
+          placeholder: arg.description,
+          transactionType: arg.type as algosdk.ABITransactionType,
+          onShowForm,
+          onCancel,
+          onSubmit,
+        }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      defaultValue: getDefaultValue(arg.type, isArgOptional),
+      getAppCallArg: (value) => getAppCallArg(arg.type, value),
+    }
   }
 }
 
@@ -299,9 +312,19 @@ const fixedPointDecimalStringToBigInt = (s: string, decimalScale: number): bigin
   return intBigInt + fracBigInt
 }
 
-export const asMethodForm = (method: MethodDefinition): MethodForm => {
+export const asMethodForm = ({
+  method,
+  onShowForm,
+  onCancel,
+  onSubmit,
+}: {
+  method: MethodDefinition
+  onShowForm: (form: React.ReactNode) => void
+  onCancel: () => void
+  onSubmit: (field: Path<any>, data: BuildTransactionResult) => void
+}): MethodForm => {
   const argFields = method.arguments.map((arg, index) => {
-    const field = asField(arg, index)
+    const field = asField(arg, index, onShowForm, onCancel, onSubmit)
     return {
       ...arg,
       ...field,

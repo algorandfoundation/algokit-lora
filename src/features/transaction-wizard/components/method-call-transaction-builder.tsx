@@ -8,18 +8,19 @@ import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { SubmitButton } from '@/features/forms/components/submit-button'
-import { useFormContext } from 'react-hook-form'
+import { FieldPath, Path, useFormContext } from 'react-hook-form'
 import { useLoadableAbiMethodDefinitions } from '@/features/applications/data/application-method-definitions'
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { BuildMethodCallTransactionResult, BuildableTransactionType, MethodCallArg, MethodForm } from '../models'
+import { BuildMethodCallTransactionResult, BuildTransactionResult, BuildableTransactionType, MethodCallArg, MethodForm } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { invariant } from '@/utils/invariant'
+import { cn } from '@/features/common/utils'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -40,6 +41,7 @@ type Props = {
 export function MethodCallTransactionBuilder({ mode, transaction, defaultValues: defaultValuesProps, onSubmit, onCancel }: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
+  const [childForm, setChildForm] = useState<React.ReactNode | undefined>(undefined)
 
   const formData = useMemo(() => {
     return zfd.formData(formSchema)
@@ -125,20 +127,43 @@ export function MethodCallTransactionBuilder({ mode, transaction, defaultValues:
     return {}
   }, [transaction, mode, defaultValuesProps])
 
+  const onChildFormCancel = useCallback(() => {
+    setChildForm(undefined)
+  }, [])
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onChildFormSubmit = useCallback(() => {
+    setChildForm(undefined)
+  }, [])
+
   return (
-    <Form
-      schema={formData}
-      onSubmit={submit}
-      defaultValues={defaultValues}
-      formAction={
-        <FormActions>
-          <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Save</SubmitButton>
-        </FormActions>
-      }
-    >
-      {(helper) => <FormInner helper={helper} methodForm={methodForm} onSetMethodForm={onSetMethodForm} />}
-    </Form>
+    <>
+      <div className={cn(childForm ? 'hidden' : 'block')}>
+        <Form
+          schema={formData}
+          onSubmit={submit}
+          defaultValues={defaultValues}
+          formAction={
+            <FormActions>
+              <CancelButton onClick={onCancel} className="w-28" />
+              <SubmitButton className="w-28">Save</SubmitButton>
+            </FormActions>
+          }
+        >
+          {(helper) => (
+            <FormInner
+              helper={helper}
+              methodForm={methodForm}
+              onSetMethodForm={onSetMethodForm}
+              onShowForm={setChildForm}
+              onCancel={onChildFormCancel}
+              onSubmit={onChildFormSubmit}
+            />
+          )}
+        </Form>
+      </div>
+      <div className={cn(childForm ? 'block' : 'hidden')}>{childForm}</div>
+    </>
   )
 }
 
@@ -146,10 +171,13 @@ type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof baseFormData>>
   methodForm: MethodForm | undefined
   onSetMethodForm: (method: MethodForm | undefined) => void
+  onShowForm: (form: React.ReactNode) => void
+  onCancel: () => void
+  onSubmit: () => void
 }
 
-function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
-  const { watch } = useFormContext<z.infer<typeof baseFormData>>()
+function FormInner({ helper, methodForm, onSetMethodForm, onShowForm, onCancel, onSubmit }: FormInnerProps) {
+  const { watch, setValue, trigger } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('applicationId')
   const methodName = watch('methodName')
 
@@ -161,14 +189,31 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
     return loadableMethodDefinitions.data.methods
   }, [loadableMethodDefinitions])
 
+  const onTransactionFormSubmit = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (field: Path<any>, data: BuildTransactionResult) => {
+      setValue(field, data)
+      trigger(field)
+      onSubmit()
+    },
+    [onSubmit, setValue, trigger]
+  )
+
   useEffect(() => {
     if (!methodName || methodDefinitions.length === 0) {
       onSetMethodForm(undefined)
       return
     }
 
-    onSetMethodForm(asMethodForm(methodDefinitions.find((method) => method.name === methodName)!))
-  }, [methodDefinitions, methodName, onSetMethodForm])
+    onSetMethodForm(
+      asMethodForm({
+        method: methodDefinitions.find((method) => method.name === methodName)!,
+        onShowForm,
+        onCancel,
+        onSubmit: onTransactionFormSubmit,
+      })
+    )
+  }, [methodDefinitions, methodName, onCancel, onSetMethodForm, onShowForm, onSubmit, onTransactionFormSubmit])
 
   const abiMethodArgs = useMemo(() => {
     return (
@@ -203,10 +248,10 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
               ]
             : []),
         ],
-        field: arg.createField(helper),
+        field: 'foo' in arg ? arg.createField(helper, onShowForm, onSubmit, onCancel) : arg.createField(helper),
       })) ?? []
     )
-  }, [methodForm?.arguments, helper])
+  }, [methodForm?.arguments, helper, onShowForm, onSubmit, onCancel])
 
   return (
     <div className="space-y-4">

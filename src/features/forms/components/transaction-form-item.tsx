@@ -1,7 +1,7 @@
 import { Path, PathValue, useFormContext } from 'react-hook-form'
 import { FormItemProps } from '@/features/forms/components/form-item'
 import { Button } from '@/features/common/components/button'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { DescriptionList } from '@/features/common/components/description-list'
 import algosdk from 'algosdk'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
@@ -18,6 +18,9 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   extends Omit<FormItemProps<TSchema>, 'children'> {
   placeholder?: string
   transactionType: algosdk.ABITransactionType
+  onShowForm: (form: React.ReactNode) => void
+  onCancel: () => void
+  onSubmit: (field: Path<TSchema>, data: BuildTransactionResult) => void
 }
 
 // TODO: NC - Add the transaction type selector. Needs to be limited to the transactions that are available.
@@ -30,6 +33,9 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
   field,
   transactionType,
   helpText,
+  onShowForm,
+  onCancel,
+  onSubmit,
 }: TransactionFormItemProps<TSchema>) {
   const { setValue, watch, trigger } = useFormContext<TSchema>()
   const error = useFormFieldError(field)
@@ -53,19 +59,32 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
     ),
   })
 
+  // const onChildFormCancel = useCallback(() => {
+  //   setTransactionFormComponent(undefined)
+  // }, [])
+
+  // const onChildFormSubmit = useCallback(
+  //   async (data: BuildTransactionResult) => {
+  //     setValue(field, data as PathValue<TSchema, Path<TSchema>>)
+  //     await trigger(field)
+  //     setTransactionFormComponent(undefined)
+  //   },
+  //   [setValue, trigger, field]
+  // )
+
   const openDialog = useCallback(
-    async (mode: TransactionBuilderMode) => {
-      const result = await openTransactionBuilderDialog({
-        mode,
-        transactionType,
-        transaction: fieldValue,
-      })
-      if (result) {
-        setValue(field, result as PathValue<TSchema, Path<TSchema>>)
-        await trigger(field)
-      }
+    (mode: TransactionBuilderMode) => {
+      onShowForm(
+        <TransactionBuilder
+          mode={mode}
+          transactionType={mapToTransactionType(transactionType)}
+          transaction={fieldValue}
+          onCancel={onCancel}
+          onSubmit={(txn) => onSubmit(field, txn)}
+        />
+      )
     },
-    [openTransactionBuilderDialog, transactionType, fieldValue, setValue, field, trigger]
+    [onShowForm, transactionType, fieldValue, onCancel, onSubmit, field]
   )
 
   const transactionFields = useMemo(() => {

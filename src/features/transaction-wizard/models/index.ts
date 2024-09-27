@@ -8,6 +8,7 @@ import { Address } from '@/features/accounts/data/types'
 import { TransactionsGraphData } from '@/features/transactions-graph'
 import { AssetId } from '@/features/assets/data/types'
 import { Transaction } from '@/features/transactions/models'
+import { Path } from 'react-hook-form'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -66,13 +67,24 @@ export enum BuildableTransactionType {
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
   abiMethod: algosdk.ABIMethod
-  arguments: ArgumentField[]
+  arguments: (ArgumentField | TransactionArgumentField)[]
   schema: Record<string, z.ZodType<any>>
 }
 
 export type ArgumentField = ArgumentDefinition & {
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
   getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
+}
+
+export type TransactionArgumentField = ArgumentDefinition & {
+  createField: (
+    helper: FormFieldHelper<any>,
+    showForm: (childForm: React.ReactNode) => void,
+    onSubmit: (field: Path<any>, data: BuildTransactionResult) => void,
+    onCancel: () => void
+  ) => JSX.Element | undefined
+  getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
+  foo: 'bar'
 }
 
 type CommonBuildTransactionResult = {
