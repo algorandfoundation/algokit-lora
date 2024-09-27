@@ -125,7 +125,7 @@ const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
     return undefined
   }
   if (algosdk.abiTypeIsReference(type)) {
-    return arg.toString() // TODO: PD - check reference types
+    return arg.toString()
   }
   if (!arg) {
     return 'Not Set'

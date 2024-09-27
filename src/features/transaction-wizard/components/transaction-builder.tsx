@@ -144,7 +144,6 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
             </div>
           )}
 
-          {/* TODO: PD - fix transaction as any */}
           <FormComponent
             mode={mode}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -41,7 +41,6 @@ type Props = {
   onTransactionSent?: (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => void
 }
 
-// TODO: PD - SampleReferenceTransaction_old
 // TODO: PD - on complete
 export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent }: Props) {
   const { activeAddress, signer } = useWallet()
