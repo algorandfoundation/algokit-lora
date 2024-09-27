@@ -1,3 +1,4 @@
+import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { senderFieldSchema, commonSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
@@ -24,6 +25,13 @@ const formData = zfd.formData({
       value: zfd.text(),
     })
   ),
+  onComplete: z.union([
+    z.literal(algosdk.OnApplicationComplete.NoOpOC.toString()),
+    z.literal(algosdk.OnApplicationComplete.OptInOC.toString()),
+    z.literal(algosdk.OnApplicationComplete.ClearStateOC.toString()),
+    z.literal(algosdk.OnApplicationComplete.CloseOutOC.toString()),
+    z.literal(algosdk.OnApplicationComplete.DeleteApplicationOC.toString()),
+  ]),
 })
 
 type Props = {
@@ -45,6 +53,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),
+        onComplete: Number(values.onComplete),
       })
     },
     [onSubmit, transaction?.id]
@@ -72,6 +81,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
           id: randomGuid(),
           value: arg,
         })),
+        onComplete: transaction.onComplete.toString(),
       }
     }
     return {}
@@ -115,6 +125,17 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
                 label: `Argument ${index + 1}`,
               })
             },
+          })}
+          {helper.selectField({
+            field: 'onComplete',
+            label: 'On Complete',
+            options: [
+              { label: 'NoOp', value: algosdk.OnApplicationComplete.NoOpOC.toString() },
+              { label: 'Opt In', value: algosdk.OnApplicationComplete.OptInOC.toString() },
+              { label: 'Clear State', value: algosdk.OnApplicationComplete.ClearStateOC.toString() },
+              { label: 'Close Out', value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
+              { label: 'Delete Application', value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString() },
+            ],
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />

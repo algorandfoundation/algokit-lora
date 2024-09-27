@@ -148,65 +148,14 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       dt: 'Arguments',
       dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
     },
+    {
+      dt: 'On Complete',
+      dd: asString(transaction.onComplete),
+    },
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
-    ...(transaction.accounts
-      ? [
-          {
-            dt: 'Accounts',
-            dd: (
-              <ul>
-                {transaction.accounts.map((account) => (
-                  <li key={account}>{account}</li>
-                ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
-    ...(transaction.foreignAssets
-      ? [
-          {
-            dt: 'Assets',
-            dd: (
-              <ul>
-                {transaction.foreignAssets.map((asset) => (
-                  <li key={asset}>{asset}</li>
-                ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
-    ...(transaction.foreignApps
-      ? [
-          {
-            dt: 'Applications',
-            dd: (
-              <ul>
-                {transaction.foreignApps.map((app) => (
-                  <li key={app}>{app}</li>
-                ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
-    ...(transaction.boxes
-      ? [
-          {
-            dt: 'Boxes',
-            dd: (
-              <ul>
-                {transaction.boxes.map((box) => (
-                  <li key={box}>{box}</li>
-                ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
+    ...asReferenceItems(transaction),
   ]
 }
 
@@ -237,6 +186,34 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
+    ...asReferenceItems(transaction),
+  ]
+}
+
+const asNoteItem = (note?: string) =>
+  note
+    ? [
+        {
+          dt: 'Note',
+          dd: note,
+        },
+      ]
+    : []
+
+const asFeeItem = (fee: { setAutomatically: boolean; value?: number }) => (fee.setAutomatically ? [] : [{ dt: 'Fee', dd: fee.value }])
+
+const asValidRoundsItem = (validRounds: { setAutomatically: boolean; firstValid?: bigint; lastValid?: bigint }) =>
+  validRounds.setAutomatically
+    ? []
+    : [
+        {
+          dt: 'Valid rounds',
+          dd: `${validRounds.firstValid} - ${validRounds.lastValid}`,
+        },
+      ]
+
+const asReferenceItems = (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
+  return [
     ...(transaction.accounts
       ? [
           {
@@ -296,24 +273,19 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
   ]
 }
 
-const asNoteItem = (note?: string) =>
-  note
-    ? [
-        {
-          dt: 'Note',
-          dd: note,
-        },
-      ]
-    : []
-
-const asFeeItem = (fee: { setAutomatically: boolean; value?: number }) => (fee.setAutomatically ? [] : [{ dt: 'Fee', dd: fee.value }])
-
-const asValidRoundsItem = (validRounds: { setAutomatically: boolean; firstValid?: bigint; lastValid?: bigint }) =>
-  validRounds.setAutomatically
-    ? []
-    : [
-        {
-          dt: 'Valid rounds',
-          dd: `${validRounds.firstValid} - ${validRounds.lastValid}`,
-        },
-      ]
+const asString = (onComplete: algosdk.OnApplicationComplete) => {
+  switch (onComplete) {
+    case algosdk.OnApplicationComplete.NoOpOC:
+      return 'NoOp'
+    case algosdk.OnApplicationComplete.OptInOC:
+      return 'Opt in'
+    case algosdk.OnApplicationComplete.CloseOutOC:
+      return 'Close out'
+    case algosdk.OnApplicationComplete.ClearStateOC:
+      return 'Clear state'
+    case algosdk.OnApplicationComplete.UpdateApplicationOC:
+      return 'Update'
+    case algosdk.OnApplicationComplete.DeleteApplicationOC:
+      return 'Delete'
+  }
+}

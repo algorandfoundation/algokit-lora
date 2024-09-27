@@ -98,6 +98,12 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]
   boxes?: string[]
+  onComplete:
+    | algosdk.OnApplicationComplete.NoOpOC
+    | algosdk.OnApplicationComplete.OptInOC
+    | algosdk.OnApplicationComplete.ClearStateOC
+    | algosdk.OnApplicationComplete.CloseOutOC
+    | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {

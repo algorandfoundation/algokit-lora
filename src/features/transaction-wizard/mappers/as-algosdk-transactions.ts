@@ -127,6 +127,7 @@ const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult):
           lastValidRound: transaction.validRounds.lastValid,
         }
       : undefined),
+    onComplete: transaction.onComplete,
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
