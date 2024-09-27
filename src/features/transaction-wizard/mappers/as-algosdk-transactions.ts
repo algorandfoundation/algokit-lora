@@ -12,6 +12,7 @@ import {
   BuildAssetReconfigureTransactionResult,
   BuildAssetDestroyTransactionResult,
   BuildMethodCallTransactionResult,
+  BuildAccountCloseTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -21,7 +22,7 @@ import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/compo
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
-  if (transaction.type === BuildableTransactionType.Payment) {
+  if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return [await asPaymentTransaction(transaction)]
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
@@ -54,11 +55,14 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   throw new Error('Unsupported transaction type')
 }
 
-const asPaymentTransaction = async (transaction: BuildPaymentTransactionResult): Promise<algosdk.Transaction> => {
+const asPaymentTransaction = async (
+  transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
+): Promise<algosdk.Transaction> => {
   return await algorandClient.transactions.payment({
     sender: transaction.sender,
-    receiver: transaction.receiver,
-    amount: algos(transaction.amount),
+    receiver: transaction.receiver ?? transaction.sender,
+    closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo : undefined,
+    amount: algos(transaction.amount ?? 0),
     note: transaction.note,
     ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
     ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid

@@ -128,6 +128,14 @@ export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   amount: number
 }
 
+export type BuildAccountCloseTransactionResult = CommonBuildTransactionResult & {
+  id: string
+  type: BuildableTransactionType.AccountClose
+  closeRemainderTo: Address
+  receiver?: Address
+  amount?: number
+}
+
 export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult & {
   id: string // TODO: NC - Feels like this is meant to be common?
   asset: {
@@ -214,6 +222,7 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
 
 export type BuildTransactionResult =
   | BuildPaymentTransactionResult
+  | BuildAccountCloseTransactionResult
   | BuildAppCallTransactionResult
   | BuildAssetTransferTransactionResult
   | BuildAssetOptInTransactionResult

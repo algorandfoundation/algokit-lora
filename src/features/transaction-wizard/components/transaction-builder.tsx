@@ -18,6 +18,7 @@ import { AssetCreateTransactionBuilder } from './asset-create-transaction-builde
 import { AssetReconfigureTransactionBuilder } from './asset-reconfigure-transaction-builder'
 import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-builder'
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
+import { AccountCloseTransactionBuilder } from './account-close-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -32,7 +33,7 @@ const builderConfigs = [
     transactionType: algosdk.TransactionType.pay,
     type: BuildableTransactionType.AccountClose,
     label: 'Account Close (pay)',
-    component: PaymentTransactionBuilder,
+    component: AccountCloseTransactionBuilder,
   },
   {
     transactionType: algosdk.TransactionType.appl,

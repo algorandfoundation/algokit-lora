@@ -2,6 +2,7 @@ import algosdk from 'algosdk'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
   BuildableTransactionType,
+  BuildAccountCloseTransactionResult,
   BuildAppCallTransactionResult,
   BuildAssetClawbackTransactionResult,
   BuildAssetCreateTransactionResult,
@@ -19,7 +20,7 @@ import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
-  if (transaction.type === BuildableTransactionType.Payment) {
+  if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return asPaymentTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.AppCall) {
@@ -46,20 +47,17 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
   throw new Error('Unsupported transaction type')
 }
 
-const asPaymentTransaction = (transaction: BuildPaymentTransactionResult): DescriptionListItems => {
+const asPaymentTransaction = (transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {
   return [
     {
       dt: 'Sender',
       dd: transaction.sender,
     },
-    {
-      dt: 'Receiver',
-      dd: transaction.receiver,
-    },
-    {
-      dt: 'Amount',
-      dd: transaction.amount,
-    },
+    ...(transaction.receiver ? [{ dt: 'Receiver', dd: transaction.receiver }] : []),
+    ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
+      ? [{ dt: 'Close remainder to', dd: transaction.closeRemainderTo }]
+      : []),
+    ...(transaction.amount ? [{ dt: 'Amount', dd: transaction.amount }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
@@ -78,14 +76,16 @@ const asAssetTransferTransaction = (
       dt: 'Sender',
       dd: transaction.sender,
     },
-    ...('receiver' in transaction ? [{ dt: 'Receiver', dd: transaction.receiver }] : []),
-    ...('clawbackTarget' in transaction ? [{ dt: 'Clawback target', dd: transaction.clawbackTarget }] : []),
-    ...('closeRemainderTo' in transaction ? [{ dt: 'Close remainder to', dd: transaction.closeRemainderTo }] : []),
+    ...('receiver' in transaction && transaction.receiver ? [{ dt: 'Receiver', dd: transaction.receiver }] : []),
+    ...('clawbackTarget' in transaction && transaction.clawbackTarget ? [{ dt: 'Clawback target', dd: transaction.clawbackTarget }] : []),
+    ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
+      ? [{ dt: 'Close remainder to', dd: transaction.closeRemainderTo }]
+      : []),
     {
       dt: 'Asset id',
       dd: transaction.asset.id,
     },
-    ...('amount' in transaction ? [{ dt: 'Amount', dd: transaction.amount }] : []),
+    ...('amount' in transaction && transaction.amount ? [{ dt: 'Amount', dd: transaction.amount }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
@@ -97,22 +97,22 @@ const asAssetConfigTransaction = (
 ): DescriptionListItems => {
   return [
     ...('asset' in transaction && transaction.asset.id ? [{ dt: 'Asset id', dd: transaction.asset.id }] : []),
-    ...('assetName' in transaction ? [{ dt: 'Asset name', dd: transaction.assetName }] : []),
-    ...('unitName' in transaction ? [{ dt: 'Unit name', dd: transaction.unitName }] : []),
-    ...('total' in transaction ? [{ dt: 'Total', dd: transaction.total }] : []),
-    ...('decimals' in transaction ? [{ dt: 'Decimals', dd: transaction.decimals }] : []),
-    ...('sender' in transaction
+    ...('assetName' in transaction && transaction.assetName ? [{ dt: 'Asset name', dd: transaction.assetName }] : []),
+    ...('unitName' in transaction && transaction.unitName ? [{ dt: 'Unit name', dd: transaction.unitName }] : []),
+    ...('total' in transaction && transaction.total ? [{ dt: 'Total', dd: transaction.total }] : []),
+    ...('decimals' in transaction && transaction.decimals ? [{ dt: 'Decimals', dd: transaction.decimals }] : []),
+    ...('sender' in transaction && transaction.sender
       ? [{ dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender', dd: transaction.sender }]
       : []),
-    ...('manager' in transaction ? [{ dt: 'Manager', dd: transaction.manager }] : []),
-    ...('reserve' in transaction ? [{ dt: 'Reserve', dd: transaction.reserve }] : []),
-    ...('freeze' in transaction ? [{ dt: 'Freeze', dd: transaction.freeze }] : []),
-    ...('clawback' in transaction ? [{ dt: 'Clawback', dd: transaction.clawback }] : []),
-    ...('defaultFrozen' in transaction
+    ...('manager' in transaction && transaction.manager ? [{ dt: 'Manager', dd: transaction.manager }] : []),
+    ...('reserve' in transaction && transaction.reserve ? [{ dt: 'Reserve', dd: transaction.reserve }] : []),
+    ...('freeze' in transaction && transaction.freeze ? [{ dt: 'Freeze', dd: transaction.freeze }] : []),
+    ...('clawback' in transaction && transaction.clawback ? [{ dt: 'Clawback', dd: transaction.clawback }] : []),
+    ...('defaultFrozen' in transaction && transaction.defaultFrozen
       ? [{ dt: 'Freeze holdings of this asset by default', dd: transaction.defaultFrozen.toString() }]
       : []),
-    ...('url' in transaction ? [{ dt: 'URL', dd: transaction.url }] : []),
-    ...('metadataHash' in transaction ? [{ dt: 'Metadata hash', dd: transaction.metadataHash }] : []),
+    ...('url' in transaction && transaction.url ? [{ dt: 'URL', dd: transaction.url }] : []),
+    ...('metadataHash' in transaction && transaction.metadataHash ? [{ dt: 'Metadata hash', dd: transaction.metadataHash }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
