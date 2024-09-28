@@ -1,5 +1,5 @@
 import { Button } from '@/features/common/components/button'
-import { TrashIcon } from 'lucide-react'
+import { Plus, TrashIcon } from 'lucide-react'
 import React, { useCallback } from 'react'
 import { FieldArray, FieldArrayWithId, FieldPath, FieldValues, Path, useFieldArray } from 'react-hook-form'
 import { FormItemProps } from './form-item'
@@ -11,6 +11,7 @@ export interface ArrayFormItemProps<TSchema extends Record<string, unknown> = Re
   newItem: () => FieldArray<FieldValues, Path<TSchema>>
   max?: number
   addButtonLabel?: string
+  noItemsLabel?: string
 }
 
 export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
@@ -20,6 +21,7 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
   newItem,
   max,
   addButtonLabel = 'Add',
+  noItemsLabel = 'No items.',
 }: ArrayFormItemProps<TSchema>) {
   const { fields, append, remove } = useFieldArray({
     name: field,
@@ -34,8 +36,21 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
   }, [append, isAtMax, newItem])
 
   return (
-    <div className="space-y-2">
-      <h4 className="text-primary">{label}</h4>
+    <div className="space-y-4">
+      <div className="mb-4 flex items-center gap-2">
+        <h4 className="text-primary">{label}</h4>
+        <Button
+          variant="outline-secondary"
+          disabled={isAtMax}
+          disabledReason="Resources are at capacity"
+          onClick={appendItem}
+          className={'ml-auto'}
+          icon={<Plus size={16} />}
+        >
+          {addButtonLabel}
+        </Button>
+      </div>
+
       {fields.map((childField, index) => (
         <div key={childField.id} className="flex gap-2">
           <div className="grow">{renderChildField(childField, index)}</div>
@@ -49,9 +64,7 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
           />
         </div>
       ))}
-      <Button type="button" className="mt-2" disabled={isAtMax} onClick={appendItem}>
-        {addButtonLabel}
-      </Button>
+      {fields.length === 0 && <span className="relative ml-auto items-center">{noItemsLabel}</span>}
     </div>
   )
 }

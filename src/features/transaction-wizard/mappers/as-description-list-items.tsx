@@ -18,6 +18,24 @@ import {
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
+import { AccountLink } from '@/features/accounts/components/account-link'
+import { AssetIdLink } from '@/features/assets/components/asset-link'
+import { ApplicationLink } from '@/features/applications/components/application-link'
+import { DisplayAlgo } from '@/features/common/components/display-algo'
+import { algo } from '@algorandfoundation/algokit-utils'
+import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value'
+import { AbiType } from '@/features/abi-methods/models'
+
+// TODO: NC - UX TODOs
+// - Resources
+// - Automatic sender population
+// - Disable populate resources button if no app calls
+// - Disable send if there are no transactions
+// - Transaction type labels (+ align the move icon, make the target bigger)
+// - Adjust UI for tweaking the populated resources
+// - re-order does weird things with the row borders
+// - resource populate dialog, do asset/application look to ensure valid
+// - lookup application to ensure valid when calling a method or making an app call.
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -51,13 +69,37 @@ const asPaymentTransaction = (transaction: BuildPaymentTransactionResult | Build
   return [
     {
       dt: 'Sender',
-      dd: transaction.sender,
+      dd: (
+        <AccountLink className="text-primary underline" address={transaction.sender}>
+          {transaction.sender}
+        </AccountLink>
+      ),
     },
-    ...(transaction.receiver ? [{ dt: 'Receiver', dd: transaction.receiver }] : []),
-    ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
-      ? [{ dt: 'Close remainder to', dd: transaction.closeRemainderTo }]
+    ...(transaction.receiver
+      ? [
+          {
+            dt: 'Receiver',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.receiver}>
+                {transaction.receiver}
+              </AccountLink>
+            ),
+          },
+        ]
       : []),
-    ...(transaction.amount ? [{ dt: 'Amount', dd: transaction.amount }] : []),
+    ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
+      ? [
+          {
+            dt: 'Close remainder to',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.closeRemainderTo}>
+                {transaction.closeRemainderTo}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.amount ? [{ dt: 'Amount', dd: <DisplayAlgo amount={algo(transaction.amount)} /> }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
@@ -74,18 +116,59 @@ const asAssetTransferTransaction = (
   return [
     {
       dt: 'Sender',
-      dd: transaction.sender,
+      dd: (
+        <AccountLink className="text-primary underline" address={transaction.sender}>
+          {transaction.sender}
+        </AccountLink>
+      ),
     },
-    ...('receiver' in transaction && transaction.receiver ? [{ dt: 'Receiver', dd: transaction.receiver }] : []),
-    ...('clawbackTarget' in transaction && transaction.clawbackTarget ? [{ dt: 'Clawback target', dd: transaction.clawbackTarget }] : []),
+    ...('receiver' in transaction && transaction.receiver
+      ? [
+          {
+            dt: 'Receiver',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.receiver}>
+                {transaction.receiver}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    ...('clawbackTarget' in transaction && transaction.clawbackTarget
+      ? [
+          {
+            dt: 'Clawback target',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.clawbackTarget}>
+                {transaction.clawbackTarget}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
     ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
-      ? [{ dt: 'Close remainder to', dd: transaction.closeRemainderTo }]
+      ? [
+          {
+            dt: 'Close remainder to',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.closeRemainderTo}>
+                {transaction.closeRemainderTo}
+              </AccountLink>
+            ),
+          },
+        ]
       : []),
     {
-      dt: 'Asset id',
-      dd: transaction.asset.id,
+      dt: 'Asset ID',
+      dd: (
+        <AssetIdLink className="text-primary underline" assetId={transaction.asset.id}>
+          {transaction.asset.id}
+        </AssetIdLink>
+      ),
     },
-    ...('amount' in transaction && transaction.amount ? [{ dt: 'Amount', dd: transaction.amount }] : []),
+    ...('amount' in transaction && transaction.amount
+      ? [{ dt: 'Amount', dd: `${transaction.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}` }]
+      : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
@@ -96,18 +179,82 @@ const asAssetConfigTransaction = (
   transaction: BuildAssetCreateTransactionResult | BuildAssetReconfigureTransactionResult | BuildAssetDestroyTransactionResult
 ): DescriptionListItems => {
   return [
-    ...('asset' in transaction && transaction.asset.id ? [{ dt: 'Asset id', dd: transaction.asset.id }] : []),
+    ...('asset' in transaction && transaction.asset.id
+      ? [
+          {
+            dt: 'Asset ID',
+            dd: (
+              <AssetIdLink className="text-primary underline" assetId={transaction.asset.id}>
+                {transaction.asset.id}
+              </AssetIdLink>
+            ),
+          },
+        ]
+      : []),
     ...('assetName' in transaction && transaction.assetName ? [{ dt: 'Asset name', dd: transaction.assetName }] : []),
     ...('unitName' in transaction && transaction.unitName ? [{ dt: 'Unit name', dd: transaction.unitName }] : []),
     ...('total' in transaction && transaction.total ? [{ dt: 'Total', dd: transaction.total }] : []),
     ...('decimals' in transaction && transaction.decimals ? [{ dt: 'Decimals', dd: transaction.decimals }] : []),
     ...('sender' in transaction && transaction.sender
-      ? [{ dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender', dd: transaction.sender }]
+      ? [
+          {
+            dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.sender}>
+                {transaction.sender}
+              </AccountLink>
+            ),
+          },
+        ]
       : []),
-    ...('manager' in transaction && transaction.manager ? [{ dt: 'Manager', dd: transaction.manager }] : []),
-    ...('reserve' in transaction && transaction.reserve ? [{ dt: 'Reserve', dd: transaction.reserve }] : []),
-    ...('freeze' in transaction && transaction.freeze ? [{ dt: 'Freeze', dd: transaction.freeze }] : []),
-    ...('clawback' in transaction && transaction.clawback ? [{ dt: 'Clawback', dd: transaction.clawback }] : []),
+    ...('manager' in transaction && transaction.manager
+      ? [
+          {
+            dt: 'Manager',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.manager}>
+                {transaction.manager}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    ...('reserve' in transaction && transaction.reserve
+      ? [
+          {
+            dt: 'Reserve',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.reserve}>
+                {transaction.reserve}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    ...('freeze' in transaction && transaction.freeze
+      ? [
+          {
+            dt: 'Freeze',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.freeze}>
+                {transaction.freeze}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    ...('clawback' in transaction && transaction.clawback
+      ? [
+          {
+            dt: 'Clawback',
+            dd: (
+              <AccountLink className="text-primary underline" address={transaction.clawback}>
+                {transaction.clawback}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
     ...('defaultFrozen' in transaction && transaction.defaultFrozen
       ? [{ dt: 'Freeze holdings of this asset by default', dd: transaction.defaultFrozen.toString() }]
       : []),
@@ -122,13 +269,36 @@ const asAssetConfigTransaction = (
 const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
   if (algosdk.abiTypeIsTransaction(type)) {
     // Transaction type args are shown in the table
-    return undefined
+    return 'Transaction in group'
   }
   if (algosdk.abiTypeIsReference(type)) {
+    if (type === algosdk.ABIReferenceType.account) {
+      return (
+        <AccountLink className="text-primary underline" address={arg.toString()}>
+          {arg.toString()}
+        </AccountLink>
+      )
+    }
+    if (type === algosdk.ABIReferenceType.asset) {
+      const assetId = Number(arg)
+      return (
+        <AssetIdLink className="text-primary underline" assetId={assetId}>
+          {assetId}
+        </AssetIdLink>
+      )
+    }
+    if (type === algosdk.ABIReferenceType.application) {
+      const applicationId = Number(arg)
+      return (
+        <ApplicationLink className="text-primary underline" applicationId={applicationId}>
+          {applicationId}
+        </ApplicationLink>
+      )
+    }
     return arg.toString()
   }
   if (!arg) {
-    return 'Not Set'
+    return 'Not set'
   }
   const abiValue = getAbiValue(type, arg as algosdk.ABIValue)
   return <AbiValue abiValue={abiValue} />
@@ -138,11 +308,19 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
   return [
     {
       dt: 'Sender',
-      dd: transaction.sender,
+      dd: (
+        <AccountLink className="text-primary underline" address={transaction.sender}>
+          {transaction.sender}
+        </AccountLink>
+      ),
     },
     {
       dt: 'Application ID',
-      dd: transaction.applicationId,
+      dd: (
+        <ApplicationLink className="text-primary underline" applicationId={transaction.applicationId}>
+          {transaction.applicationId}
+        </ApplicationLink>
+      ),
     },
     {
       dt: 'Arguments',
@@ -155,7 +333,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
-    ...asReferenceItems(transaction),
+    ...asResourcesItem(transaction),
   ]
 }
 
@@ -163,30 +341,49 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
   return [
     {
       dt: 'Sender',
-      dd: transaction.sender,
+      dd: (
+        <AccountLink className="text-primary underline" address={transaction.sender}>
+          {transaction.sender}
+        </AccountLink>
+      ),
     },
     {
       dt: 'Application ID',
-      dd: transaction.applicationId,
+      dd: (
+        <ApplicationLink className="text-primary underline" applicationId={transaction.applicationId}>
+          {transaction.applicationId}
+        </ApplicationLink>
+      ),
     },
     ...(transaction.methodName ? [{ dt: 'Method name', dd: transaction.methodName }] : []),
     {
       dt: 'Arguments',
       dd: (
-        <DescriptionList
-          items={transaction.method.args.map((arg, index) => {
-            return {
-              dt: arg.name ? arg.name : `Arg ${index}`,
-              dd: asMethodArg(arg.type, transaction.methodArgs![index]),
-            }
-          })}
-        />
+        <ol>
+          {transaction.method.args.map((arg, index) => (
+            <li className="truncate">
+              {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
+            </li>
+          ))}
+        </ol>
       ),
+
+      // (
+      //   <span>a1: 1</span>
+      //   <DescriptionList
+      //     items={transaction.method.args.map((arg, index) => {
+      //       return {
+      //         dt: arg.name ? arg.name : `Arg ${index}`,
+      //         dd: asMethodArg(arg.type, transaction.methodArgs![index]),
+      //       }
+      //     })}
+      //   />
+      // ),
     },
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
-    ...asReferenceItems(transaction),
+    ...asResourcesItem(transaction),
   ]
 }
 
@@ -200,7 +397,8 @@ const asNoteItem = (note?: string) =>
       ]
     : []
 
-const asFeeItem = (fee: { setAutomatically: boolean; value?: number }) => (fee.setAutomatically ? [] : [{ dt: 'Fee', dd: fee.value }])
+const asFeeItem = (fee: { setAutomatically: boolean; value?: number }) =>
+  fee.setAutomatically === false && fee.value ? [{ dt: 'Fee', dd: <DisplayAlgo amount={algo(fee.value)} /> }] : []
 
 const asValidRoundsItem = (validRounds: { setAutomatically: boolean; firstValid?: bigint; lastValid?: bigint }) =>
   validRounds.setAutomatically
@@ -212,7 +410,7 @@ const asValidRoundsItem = (validRounds: { setAutomatically: boolean; firstValid?
         },
       ]
 
-const asReferenceItems = (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
+const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
   return [
     ...(transaction.accounts
       ? [

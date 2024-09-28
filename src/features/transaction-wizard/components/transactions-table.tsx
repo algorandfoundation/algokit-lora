@@ -26,14 +26,14 @@ import {
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
-import { isBuildTransactionResult } from '../utis/is-build-transaction-result'
+import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 
 export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   const { attributes, listeners } = useSortable({
     id: rowId,
   })
   return (
-    <button {...attributes} {...listeners}>
+    <button {...attributes} {...listeners} className="cursor-move">
       <GripVertical size={16} />
     </button>
   )
@@ -58,16 +58,10 @@ function TransactionRow({
     position: 'relative',
   }
 
-  const subTransactionsTable = renderSubTransactions(row.original, onEditResources)
+  const subTransactionsRows = renderSubTransactions(row.original, onEditResources)
   return (
     <TableBody ref={setNodeRef} style={style} className="border-y">
-      {subTransactionsTable && (
-        <TableRow data-state={row.getIsSelected() && 'selected'}>
-          <TableCell colSpan={row.getVisibleCells().length + 1} className="p-0">
-            {subTransactionsTable}
-          </TableCell>
-        </TableRow>
-      )}
+      {subTransactionsRows}
       <TableRow data-state={row.getIsSelected() && 'selected'}>
         <TableCell className="w-10">
           <RowDragHandleCell rowId={row.id} />
@@ -119,7 +113,7 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
   return (
     <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="grid">
-        <Table aria-label={ariaLabel}>
+        <Table aria-label={ariaLabel} className="overflow-hidden">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="border-t bg-muted/50">
@@ -141,7 +135,7 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
               <TableBody>
                 <TableRow>
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
+                    No transactions.
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -173,7 +167,7 @@ const getTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return <DescriptionList items={asDescriptionListItems(transaction)} />
+      return <DescriptionList items={asDescriptionListItems(transaction)} dtClassName="w-32 truncate" />
     },
   },
   {
@@ -229,7 +223,7 @@ const renderSubTransactions = (
     return undefined
   }
 
-  return <SubTransactionsTable subTransactions={subTransactions} onEditResources={onEditResources} />
+  return <SubTransactionsRows subTransactions={subTransactions} onEditResources={onEditResources} />
 }
 
 const getSubTransactionsTableColumns = ({
@@ -250,7 +244,7 @@ const getSubTransactionsTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return <DescriptionList items={asDescriptionListItems(transaction)} />
+      return <DescriptionList items={asDescriptionListItems(transaction)} dtClassName="w-32 truncate" />
     },
   },
   {
@@ -273,7 +267,7 @@ const getSubTransactionsTableColumns = ({
       ) : undefined,
   },
 ]
-function SubTransactionsTable({
+function SubTransactionsRows({
   subTransactions,
   onEditResources,
 }: {
@@ -287,24 +281,20 @@ function SubTransactionsTable({
   })
 
   return (
-    <div className="grid">
-      <Table>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && 'selected'}
-              {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
+    <>
+      {table.getRowModel().rows.map((row) => (
+        <TableRow
+          key={row.id}
+          data-state={row.getIsSelected() && 'selected'}
+          {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
+        >
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
           ))}
-        </TableBody>
-      </Table>
-    </div>
+        </TableRow>
+      ))}
+    </>
   )
 }

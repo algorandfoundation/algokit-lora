@@ -44,7 +44,7 @@ const builderConfigs = [
   {
     transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.MethodCall,
-    label: 'Method Call (appl)',
+    label: 'ABI Method Call (appl)',
     component: MethodCallTransactionBuilder,
   },
   {

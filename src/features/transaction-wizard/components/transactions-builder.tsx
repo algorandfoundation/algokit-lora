@@ -25,11 +25,11 @@ import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult } from '../utis/is-build-transaction-result'
+import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
-import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { Transaction } from '@/features/transactions/models'
+import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -39,10 +39,11 @@ type Props = {
   transactions?: BuildTransactionResult[]
   onReset?: () => void
   onTransactionSent?: (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => void
+  title: JSX.Element
 }
 
 // TODO: PD - on complete
-export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent }: Props) {
+export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, title }: Props) {
   const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
@@ -53,7 +54,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   }, [transactionsProp])
 
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
-    dialogHeader: 'Transaction Builder',
+    dialogHeader: 'Create Transaction',
     dialogBody: (
       props: DialogBodyProps<
         {
@@ -211,8 +212,11 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   return (
     <div>
       <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button onClick={createTransaction}>{transactions.length === 0 ? 'Create' : 'Add Transaction'}</Button>
+        <div className="mb-4 flex items-center gap-2">
+          {title}
+          <Button variant="outline-secondary" onClick={createTransaction} className={'ml-auto'} icon={<Plus size={16} />}>
+            Add Transaction
+          </Button>
         </div>
         <TransactionsTable
           data={transactions}
@@ -227,25 +231,28 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
             <HintText errorText={errorMessage} />
           </div>
         )}
-        <div className="flex justify-end gap-2">
-          <ConfirmButton
-            onConfirm={resetTransactions}
-            dialogHeaderText="Reset"
-            dialogContent="Are you sure? All transactions will be removed."
-            variant="destructive"
-          >
-            Reset
-          </ConfirmButton>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex gap-2">
+            <Button onClick={resetTransactions} variant="outline" icon={<Eraser size={16} />}>
+              Clear
+            </Button>
+            <AsyncActionButton
+              variant="outline"
+              onClick={populateResources}
+              disabled={!activeAddress}
+              disabledReason={connectWalletMessage}
+              icon={<HardDriveDownload size={16} />}
+            >
+              Populate Resources
+            </AsyncActionButton>
+          </div>
           <AsyncActionButton
-            className="w-40"
-            variant="outline"
-            onClick={populateResources}
+            className="w-28"
+            onClick={sendTransactions}
             disabled={!activeAddress}
             disabledReason={connectWalletMessage}
+            icon={<Send size={16} />}
           >
-            Populate Resouces
-          </AsyncActionButton>
-          <AsyncActionButton className="w-28" onClick={sendTransactions} disabled={!activeAddress} disabledReason={connectWalletMessage}>
             Send
           </AsyncActionButton>
         </div>

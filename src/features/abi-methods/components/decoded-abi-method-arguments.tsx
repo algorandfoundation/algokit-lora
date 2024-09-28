@@ -54,7 +54,7 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
 
   if (multiline) {
     return (
-      <ul className="pl-4">
+      <ol className="pl-4">
         {components.map((component, index, array) => (
           <li key={index}>
             <>
@@ -63,7 +63,7 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
             </>
           </li>
         ))}
-      </ul>
+      </ol>
     )
   } else {
     return (

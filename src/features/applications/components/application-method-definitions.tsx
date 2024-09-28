@@ -45,7 +45,7 @@ function Method({ method, applicationId }: MethodProps) {
   const [sentTransaction, setSentTransaction] = useState<AppCallTransaction | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
-    dialogHeader: 'Call ABI Method',
+    dialogHeader: 'Create ABI Method Call Transaction',
     dialogBody: (
       props: DialogBodyProps<
         { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
@@ -107,7 +107,7 @@ function Method({ method, applicationId }: MethodProps) {
         <div className="flex justify-end">
           {!transaction && (
             <Button variant="default" onClick={openDialog}>
-              Call
+              Create Call
             </Button>
           )}
         </div>
@@ -116,6 +116,7 @@ function Method({ method, applicationId }: MethodProps) {
             transactions={[transaction]}
             onReset={() => setTransaction(undefined)}
             onTransactionSent={(map, txns) => handleTransactionSent(map, txns)}
+            title={<h4 className="pb-0 text-primary">Transaction Group</h4>}
           />
         )}
         {sentTransaction && (

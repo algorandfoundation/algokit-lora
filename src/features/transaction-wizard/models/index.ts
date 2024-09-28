@@ -141,6 +141,7 @@ export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult &
   asset: {
     id: AssetId
     decimals?: number
+    unitName?: string
     clawback?: Address
   }
   type: BuildableTransactionType.AssetTransfer
@@ -153,6 +154,7 @@ export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
   asset: {
     id: AssetId
     decimals?: number
+    unitName?: string
     clawback?: Address
   }
   type: BuildableTransactionType.AssetOptIn
@@ -163,6 +165,7 @@ export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
   asset: {
     id: AssetId
     decimals?: number
+    unitName?: string
     clawback?: Address
   }
   type: BuildableTransactionType.AssetOptOut
@@ -174,6 +177,7 @@ export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult &
   asset: {
     id: AssetId
     decimals?: number
+    unitName?: string
     clawback?: Address
   }
   type: BuildableTransactionType.AssetClawback
@@ -204,6 +208,7 @@ export type BuildAssetReconfigureTransactionResult = CommonBuildTransactionResul
   asset: {
     id: AssetId
     decimals?: number
+    unitName?: string
     manager?: Address
   }
   manager?: Address

@@ -93,7 +93,7 @@ export function PaymentTransactionBuilder({ mode, transaction, onSubmit, onCance
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Save</SubmitButton>
+          <SubmitButton className="w-28">Add</SubmitButton>
         </FormActions>
       }
     >

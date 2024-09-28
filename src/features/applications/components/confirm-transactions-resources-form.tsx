@@ -79,7 +79,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
       formAction={
         <FormActions>
           <CancelButton className="w-28" onClick={onCancel} />
-          <SubmitButton className="w-28">Submit</SubmitButton>
+          <SubmitButton className="w-28">Save</SubmitButton>
         </FormActions>
       }
     >
@@ -96,7 +96,9 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
             newItem: () => ({ id: new Date().getTime().toString(), address: '' }),
             max: 4,
             addButtonLabel: 'Add Account',
+            noItemsLabel: 'No accounts.',
           })}
+          <hr />
           {helper.arrayField({
             label: 'Assets',
             field: `assets`,
@@ -108,7 +110,9 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
             newItem: () => ({ id: new Date().getTime().toString(), assetId: undefined as unknown as number }),
             max: 8,
             addButtonLabel: 'Add Asset',
+            noItemsLabel: 'No assets.',
           })}
+          <hr />
           {helper.arrayField({
             label: 'Applications',
             field: `applications`,
@@ -120,7 +124,9 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
             newItem: () => ({ id: new Date().getTime().toString(), applicationId: undefined as unknown as number }),
             max: 8,
             addButtonLabel: 'Add Application',
+            noItemsLabel: 'No Applications.',
           })}
+          <hr />
           {helper.arrayField({
             label: 'Boxes',
             field: `boxes`,
@@ -133,6 +139,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
             newItem: () => ({ id: new Date().getTime().toString(), boxName: '' }),
             max: 8,
             addButtonLabel: 'Add Box',
+            noItemsLabel: 'No Boxes.',
           })}
         </div>
       )}
