@@ -10,14 +10,14 @@ export function AbiArrayValue({ array }: Props) {
     return (
       <>
         <span>[</span>
-        <ul className="pl-4">
+        <ol className="pl-4">
           {array.values.map((item, index, array) => (
             <li key={index}>
               <AbiValue abiValue={item} />
               {index < array.length - 1 ? <span>{', '}</span> : null}
             </li>
           ))}
-        </ul>
+        </ol>
         <span>]</span>
       </>
     )

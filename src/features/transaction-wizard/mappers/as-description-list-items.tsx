@@ -23,11 +23,8 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { algo } from '@algorandfoundation/algokit-utils'
-import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value'
-import { AbiType } from '@/features/abi-methods/models'
 
 // TODO: NC - UX TODOs
-// - Resources
 // - Automatic sender population
 // - Disable populate resources button if no app calls
 // - Disable send if there are no transactions
@@ -367,18 +364,6 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
           ))}
         </ol>
       ),
-
-      // (
-      //   <span>a1: 1</span>
-      //   <DescriptionList
-      //     items={transaction.method.args.map((arg, index) => {
-      //       return {
-      //         dt: arg.name ? arg.name : `Arg ${index}`,
-      //         dd: asMethodArg(arg.type, transaction.methodArgs![index]),
-      //       }
-      //     })}
-      //   />
-      // ),
     },
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
@@ -412,62 +397,75 @@ const asValidRoundsItem = (validRounds: { setAutomatically: boolean; firstValid?
 
 const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
   return [
-    ...(transaction.accounts
-      ? [
-          {
-            dt: 'Accounts',
-            dd: (
-              <ul>
-                {transaction.accounts.map((account) => (
-                  <li key={account}>{account}</li>
+    {
+      dt: 'Resources',
+      dd: (
+        <ul>
+          <li>
+            accounts:&nbsp;
+            <>
+              <span>[</span>
+              <ol className="pl-4">
+                {transaction.accounts?.map((address, i) => (
+                  <li key={i} className="truncate">
+                    <AccountLink className="text-primary underline" address={address}>
+                      {address}
+                    </AccountLink>
+                  </li>
                 ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
-    ...(transaction.foreignAssets
-      ? [
-          {
-            dt: 'Assets',
-            dd: (
-              <ul>
-                {transaction.foreignAssets.map((asset) => (
-                  <li key={asset}>{asset}</li>
+              </ol>
+              <span>]</span>
+            </>
+          </li>
+          <li>
+            assets:&nbsp;
+            <>
+              <span>[</span>
+              <ol className="pl-4">
+                {transaction.foreignAssets?.map((assetId, i) => (
+                  <li key={i} className="truncate">
+                    <AssetIdLink className="text-primary underline" assetId={assetId}>
+                      {assetId}
+                    </AssetIdLink>
+                  </li>
                 ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
-    ...(transaction.foreignApps
-      ? [
-          {
-            dt: 'Applications',
-            dd: (
-              <ul>
-                {transaction.foreignApps.map((app) => (
-                  <li key={app}>{app}</li>
+              </ol>
+              <span>]</span>
+            </>
+          </li>
+          <li>
+            applications:&nbsp;
+            <>
+              <span>[</span>
+              <ol className="pl-4">
+                {transaction.foreignApps?.map((appId, i) => (
+                  <li key={i} className="truncate">
+                    <ApplicationLink className="text-primary underline" applicationId={appId}>
+                      {appId}
+                    </ApplicationLink>
+                  </li>
                 ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
-    ...(transaction.boxes
-      ? [
-          {
-            dt: 'Boxes',
-            dd: (
-              <ul>
-                {transaction.boxes.map((box) => (
-                  <li key={box}>{box}</li>
+              </ol>
+              <span>]</span>
+            </>
+          </li>
+          <li>
+            boxes:&nbsp;
+            <>
+              <span>[</span>
+              <ol className="pl-4">
+                {transaction.boxes?.map((boxKey, i) => (
+                  <li key={i} className="truncate">
+                    {boxKey}
+                  </li>
                 ))}
-              </ul>
-            ),
-          },
-        ]
-      : []),
+              </ol>
+              <span>]</span>
+            </>
+          </li>
+        </ul>
+      ),
+    },
   ]
 }
 
