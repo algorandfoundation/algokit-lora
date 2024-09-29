@@ -64,7 +64,7 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
           />
         </div>
       ))}
-      {fields.length === 0 && <span className="relative ml-auto items-center">{noItemsLabel}</span>}
+      {fields.length === 0 && <p className="relative ml-auto items-center pb-2 text-sm">{noItemsLabel}</p>}
     </div>
   )
 }

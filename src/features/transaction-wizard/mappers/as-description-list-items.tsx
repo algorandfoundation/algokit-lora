@@ -23,15 +23,18 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { algo } from '@algorandfoundation/algokit-utils'
+import { TransactionType } from '@/features/transactions/models'
 
 // TODO: NC - UX TODOs
 // - Disable populate resources button if no app calls
 // - Disable send if there are no transactions
-// - Transaction type labels (+ align the move icon, make the target bigger)
-// - Adjust UI for tweaking the populated resources
 // - re-order does weird things with the row borders
 // - resource populate dialog, do asset/application look to ensure valid
 // - lookup application to ensure valid when calling a method or making an app call.
+// - clear button should clear and transaction result
+// - check the error handling
+// - check the success handling
+// - simulate
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -324,7 +327,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     },
     {
       dt: 'On Complete',
-      dd: asString(transaction.onComplete),
+      dd: asOnCompleteLabel(transaction.onComplete),
     },
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
@@ -480,19 +483,41 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
   ]
 }
 
-const asString = (onComplete: algosdk.OnApplicationComplete) => {
+export const asOnCompleteLabel = (onComplete: algosdk.OnApplicationComplete) => {
   switch (onComplete) {
     case algosdk.OnApplicationComplete.NoOpOC:
-      return 'NoOp'
+      return 'Call (NoOp)'
     case algosdk.OnApplicationComplete.OptInOC:
-      return 'Opt in'
+      return 'Opt-in'
     case algosdk.OnApplicationComplete.CloseOutOC:
-      return 'Close out'
+      return 'Close-out'
     case algosdk.OnApplicationComplete.ClearStateOC:
       return 'Clear state'
     case algosdk.OnApplicationComplete.UpdateApplicationOC:
       return 'Update'
     case algosdk.OnApplicationComplete.DeleteApplicationOC:
       return 'Delete'
+  }
+}
+
+export const asTransactionLabel = (type: BuildableTransactionType) => {
+  switch (type) {
+    case BuildableTransactionType.Payment:
+    case BuildableTransactionType.AccountClose:
+      return TransactionType.Payment
+    case BuildableTransactionType.AppCall:
+    case BuildableTransactionType.MethodCall:
+      return TransactionType.AppCall
+    case BuildableTransactionType.AssetOptIn:
+    case BuildableTransactionType.AssetOptOut:
+    case BuildableTransactionType.AssetTransfer:
+    case BuildableTransactionType.AssetClawback:
+      return TransactionType.AssetTransfer
+    case BuildableTransactionType.AssetCreate:
+    case BuildableTransactionType.AssetReconfigure:
+    case BuildableTransactionType.AssetDestroy:
+      return TransactionType.AssetConfig
+    default:
+      throw new Error(`Unknown type ${type}`)
   }
 }

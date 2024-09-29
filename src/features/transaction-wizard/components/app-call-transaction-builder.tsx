@@ -13,6 +13,7 @@ import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard
 import { BuildAppCallTransactionResult, BuildableTransactionType } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
+import { asOnCompleteLabel } from '../mappers'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -41,6 +42,17 @@ type Props = {
   onSubmit: (transaction: BuildAppCallTransactionResult) => void
   onCancel: () => void
 }
+
+const onCompleteOptions = [
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.NoOpOC), value: algosdk.OnApplicationComplete.NoOpOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.ClearStateOC), value: algosdk.OnApplicationComplete.ClearStateOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.CloseOutOC), value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
+  {
+    label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
+    value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
+  },
+]
 
 export function AppCallTransactionBuilder({ mode, transaction, activeAddress, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
@@ -111,6 +123,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
             field: 'args',
             label: 'Arguments',
             addButtonLabel: 'Add Argument',
+            noItemsLabel: 'No arguments.',
             newItem: () => {
               return {
                 id: randomGuid(),
@@ -127,13 +140,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
           {helper.selectField({
             field: 'onComplete',
             label: 'On Complete',
-            options: [
-              { label: 'NoOp', value: algosdk.OnApplicationComplete.NoOpOC.toString() },
-              { label: 'Opt In', value: algosdk.OnApplicationComplete.OptInOC.toString() },
-              { label: 'Clear State', value: algosdk.OnApplicationComplete.ClearStateOC.toString() },
-              { label: 'Close Out', value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
-              { label: 'Delete Application', value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString() },
-            ],
+            options: onCompleteOptions,
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />

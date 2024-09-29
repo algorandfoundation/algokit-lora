@@ -24,7 +24,7 @@ import {
   BuildTransactionResult,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { asDescriptionListItems } from '../mappers'
+import { asDescriptionListItems, asTransactionLabel } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 
@@ -33,7 +33,7 @@ export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
     id: rowId,
   })
   return (
-    <button {...attributes} {...listeners} className="cursor-move">
+    <button className="flex w-full cursor-move items-center justify-center py-4" {...attributes} {...listeners}>
       <GripVertical size={16} />
     </button>
   )
@@ -160,8 +160,8 @@ const getTableColumns = ({
 }): ColumnDef<BuildTransactionResult>[] => [
   {
     header: 'Type',
-    accessorFn: (item) => item.type,
-    meta: { className: 'w-24' },
+    accessorFn: (item) => asTransactionLabel(item.type),
+    meta: { className: 'w-40' },
   },
   {
     header: 'Description',
@@ -175,7 +175,7 @@ const getTableColumns = ({
     meta: { className: 'w-10' },
     cell: ({ row }) => (
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
           <EllipsisVertical size={16} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
@@ -237,8 +237,8 @@ const getSubTransactionsTableColumns = ({
   },
   {
     header: 'Type',
-    accessorFn: (item) => item.type,
-    meta: { className: 'w-24' },
+    accessorFn: (item) => asTransactionLabel(item.type),
+    meta: { className: 'w-40' },
   },
   {
     header: 'Description',
@@ -253,7 +253,7 @@ const getSubTransactionsTableColumns = ({
     cell: ({ row }) =>
       row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall ? (
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
             <EllipsisVertical size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="right">
