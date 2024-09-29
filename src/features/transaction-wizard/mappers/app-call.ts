@@ -244,7 +244,6 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
     return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as algosdk.ABIValue
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as algosdk.ABIValue
   }
   if (type instanceof algosdk.ABITupleType) {

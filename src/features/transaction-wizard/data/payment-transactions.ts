@@ -30,7 +30,7 @@ const amountField = {
 }
 
 const createPayment = async (data: z.infer<typeof paymentSchema>) => {
-  const transaction = await algorandClient.transactions.payment({
+  const transaction = await algorandClient.createTransaction.payment({
     sender: data.sender,
     receiver: data.receiver,
     amount: algos(data.amount),
@@ -47,7 +47,7 @@ const createPayment = async (data: z.infer<typeof paymentSchema>) => {
 }
 
 const createAccountClose = async (data: z.infer<typeof accountCloseSchema>) => {
-  const transaction = await algorandClient.transactions.payment({
+  const transaction = await algorandClient.createTransaction.payment({
     sender: data.sender,
     receiver: data.receiver ?? data.sender,
     closeRemainderTo: data.closeRemainderTo,

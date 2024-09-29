@@ -35,6 +35,7 @@ import { TransactionType } from '@/features/transactions/models'
 // - check the error handling
 // - check the success handling
 // - simulate
+// - Ensure the transaction group limit is enforced
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {

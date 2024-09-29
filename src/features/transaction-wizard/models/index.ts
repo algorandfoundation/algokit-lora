@@ -41,7 +41,7 @@ export type BuildableTransaction<TSchema extends z.ZodSchema = z.ZodTypeAny, TDa
     [K in keyof TData]: BuildableTransactionFormField
   }
   defaultValues: Partial<TData>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   schema: z.ZodEffects<any, TData, unknown>
   createTransaction: (data: TData) => Promise<algosdk.Transaction>
 }

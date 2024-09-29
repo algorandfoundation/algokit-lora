@@ -58,7 +58,7 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
 const asPaymentTransaction = async (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
 ): Promise<algosdk.Transaction> => {
-  return await algorandClient.transactions.payment({
+  return await algorandClient.createTransaction.payment({
     sender: transaction.sender,
     receiver: transaction.receiver ?? transaction.sender,
     closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo : undefined,
@@ -114,12 +114,12 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
 
 const asMethodCallTransaction = async (transaction: BuildMethodCallTransactionResult): Promise<algosdk.Transaction[]> => {
   const params = await asMethodCallParams(transaction)
-  const result = await algorandClient.transactions.appCallMethodCall(params)
+  const result = await algorandClient.createTransaction.appCallMethodCall(params)
   return result.transactions
 }
 
 const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
-  return await algorandClient.transactions.appCall({
+  return await algorandClient.createTransaction.appCall({
     sender: transaction.sender,
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
@@ -159,7 +159,7 @@ const asAssetTransferTransaction = async (
   const amount =
     'amount' in transaction ? BigInt(new Decimal(transaction.amount).mul(new Decimal(10).pow(transaction.asset.decimals)).toNumber()) : 0n
 
-  return await algorandClient.transactions.assetTransfer({
+  return await algorandClient.createTransaction.assetTransfer({
     sender: transaction.sender,
     receiver: 'receiver' in transaction ? transaction.receiver : transaction.sender,
     clawbackTarget: 'clawbackTarget' in transaction ? transaction.clawbackTarget : undefined,
@@ -178,7 +178,7 @@ const asAssetTransferTransaction = async (
 }
 
 const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
-  return await algorandClient.transactions.assetCreate({
+  return await algorandClient.createTransaction.assetCreate({
     sender: transaction.sender,
     total: transaction.total,
     decimals: transaction.decimals,
@@ -203,7 +203,7 @@ const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransaction
 }
 
 const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<algosdk.Transaction> => {
-  return algorandClient.transactions.assetConfig({
+  return algorandClient.createTransaction.assetConfig({
     sender: transaction.sender,
     assetId: BigInt(transaction.asset.id),
     manager: transaction.sender,
@@ -211,7 +211,7 @@ const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureT
 }
 
 const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
-  return algorandClient.transactions.assetDestroy({
+  return algorandClient.createTransaction.assetDestroy({
     sender: transaction.sender,
     assetId: BigInt(transaction.asset.id),
   })
