@@ -79,7 +79,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
       formAction={
         <FormActions>
           <CancelButton className="w-28" onClick={onCancel} />
-          <SubmitButton className="w-28">Save</SubmitButton>
+          <SubmitButton className="w-28">Update</SubmitButton>
         </FormActions>
       }
     >

@@ -19,7 +19,6 @@ import { DefaultArgument } from '@/features/abi-methods/components/default-value
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { invariant } from '@/utils/invariant'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -32,12 +31,20 @@ const baseFormData = zfd.formData(appCallFormSchema)
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildMethodCallTransactionResult
+  activeAddress?: string
   defaultValues?: Partial<BuildMethodCallTransactionResult>
   onSubmit: (transaction: BuildMethodCallTransactionResult) => void
   onCancel: () => void
 }
 
-export function MethodCallTransactionBuilder({ mode, transaction, defaultValues: defaultValuesProps, onSubmit, onCancel }: Props) {
+export function MethodCallTransactionBuilder({
+  mode,
+  transaction,
+  activeAddress,
+  defaultValues: _defaultValues,
+  onSubmit,
+  onCancel,
+}: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
 
@@ -93,19 +100,7 @@ export function MethodCallTransactionBuilder({ mode, transaction, defaultValues:
   }, [])
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {
-    if (mode === TransactionBuilderMode.Create) {
-      return {
-        fee: {
-          setAutomatically: true,
-        },
-        validRounds: {
-          setAutomatically: true,
-        },
-        ...defaultValuesProps,
-      }
-    } else if (mode === TransactionBuilderMode.Edit) {
-      invariant(transaction, 'Transaction is required in edit mode')
-
+    if (mode === TransactionBuilderMode.Edit && transaction) {
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           acc[`${methodArgPrefix}-${index}`] = arg
@@ -122,8 +117,18 @@ export function MethodCallTransactionBuilder({ mode, transaction, defaultValues:
         ...methodArgs,
       }
     }
-    return {}
-  }, [transaction, mode, defaultValuesProps])
+    return {
+      sender: activeAddress,
+      fee: {
+        setAutomatically: true,
+      },
+      validRounds: {
+        setAutomatically: true,
+      },
+      ..._defaultValues,
+      applicationId: _defaultValues?.applicationId ? BigInt(_defaultValues.applicationId) : undefined,
+    }
+  }, [mode, transaction, activeAddress, _defaultValues])
 
   return (
     <Form
@@ -133,7 +138,7 @@ export function MethodCallTransactionBuilder({ mode, transaction, defaultValues:
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Add</SubmitButton>
+          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
         </FormActions>
       }
     >

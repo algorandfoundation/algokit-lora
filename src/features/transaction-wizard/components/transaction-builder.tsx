@@ -94,7 +94,6 @@ const builderConfigs = [
 type Props = {
   transactionType?: algosdk.TransactionType
   type?: BuildableTransactionType
-  defaultSender?: string // TODO: PD - default sender?
   mode: TransactionBuilderMode
   defaultValues?: Partial<BuildTransactionResult>
   transaction?: BuildTransactionResult
@@ -153,6 +152,7 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
             transaction={transaction as any}
             onSubmit={onSubmit}
             onCancel={onCancel}
+            activeAddress={activeWalletAddressSnapshot}
           />
         </div>
       )}

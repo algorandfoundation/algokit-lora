@@ -1,7 +1,7 @@
 import { numberSchema } from '@/features/forms/data/common'
 import { commonSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -22,6 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
+import { TransactionBuilderMode } from '../data'
 
 const formSchema = {
   ...commonSchema,
@@ -80,7 +81,6 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: 'Sender',
         helpText: 'The current asset manager address. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
-        disabled: true,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
@@ -117,16 +117,21 @@ type FieldsWithAssetInfoProps = {
 }
 
 function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetInfoProps) {
-  // TODO: NC - This resets the fields when editing
   const loadableAssetSummary = useLoadableAssetSummaryAtom(assetId)
-  const { setValue, trigger } = formCtx
+  const { setValue, trigger, getValues } = formCtx
+  const [initialAssetLoad, setInitialAssetLoad] = useState(true)
 
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
-      setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-      setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
-      setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-      trigger()
+      if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
+        setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
+        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
+        setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
+        trigger()
+      }
+      if (initialAssetLoad) {
+        setInitialAssetLoad(false)
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -146,12 +151,13 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
+  mode: TransactionBuilderMode
   transaction?: BuildAssetDestroyTransactionResult
   onSubmit: (transaction: BuildAssetDestroyTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetDestroyTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -173,33 +179,27 @@ export function AssetDestroyTransactionBuilder({ transaction, onSubmit, onCancel
     },
     [onSubmit, transaction?.id]
   )
-  const defaultValues = useMemo(() => {
-    if (!transaction) {
+  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+    if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        fee: {
-          setAutomatically: true,
-        },
-        validRounds: {
-          setAutomatically: true,
-        },
-      } satisfies Partial<z.infer<typeof formData>>
+        sender: transaction.sender,
+        asset: transaction.asset,
+        fee: transaction.fee,
+        validRounds: transaction.validRounds,
+        note: transaction.note,
+      }
     }
 
     return {
-      sender: transaction.sender,
-      asset: transaction.asset,
+      // We don't want to populate activeAddress as the sender, as the asset manager address is what's needed
       fee: {
-        setAutomatically: transaction.fee.setAutomatically,
-        value: transaction.fee.value,
+        setAutomatically: true,
       },
       validRounds: {
-        setAutomatically: transaction.validRounds.setAutomatically,
-        firstValid: transaction.validRounds.firstValid,
-        lastValid: transaction.validRounds.lastValid,
+        setAutomatically: true,
       },
-      note: transaction.note,
-    } satisfies Partial<z.infer<typeof formData>>
-  }, [transaction])
+    }
+  }, [mode, transaction])
 
   return (
     <Form
@@ -209,7 +209,7 @@ export function AssetDestroyTransactionBuilder({ transaction, onSubmit, onCancel
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Create</SubmitButton>
+          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
         </FormActions>
       }
     >

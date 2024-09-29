@@ -25,7 +25,6 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { algo } from '@algorandfoundation/algokit-utils'
 
 // TODO: NC - UX TODOs
-// - Automatic sender population
 // - Disable populate resources button if no app calls
 // - Disable send if there are no transactions
 // - Transaction type labels (+ align the move icon, make the target bigger)
@@ -405,15 +404,18 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             accounts:&nbsp;
             <>
               <span>[</span>
-              <ol className="pl-4">
-                {transaction.accounts?.map((address, i) => (
-                  <li key={i} className="truncate">
-                    <AccountLink className="text-primary underline" address={address}>
-                      {address}
-                    </AccountLink>
-                  </li>
-                ))}
-              </ol>
+              {transaction.accounts && transaction.accounts.length > 0 && (
+                <ol className="pl-4">
+                  {transaction.accounts?.map((address, index, array) => (
+                    <li key={index} className="truncate">
+                      <AccountLink className="text-primary underline" address={address}>
+                        {address}
+                      </AccountLink>
+                      {index < array.length - 1 ? <span>{', '}</span> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
               <span>]</span>
             </>
           </li>
@@ -421,15 +423,18 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             assets:&nbsp;
             <>
               <span>[</span>
-              <ol className="pl-4">
-                {transaction.foreignAssets?.map((assetId, i) => (
-                  <li key={i} className="truncate">
-                    <AssetIdLink className="text-primary underline" assetId={assetId}>
-                      {assetId}
-                    </AssetIdLink>
-                  </li>
-                ))}
-              </ol>
+              {transaction.foreignAssets && transaction.foreignAssets.length > 0 && (
+                <ol className="pl-4">
+                  {transaction.foreignAssets.map((assetId, index, array) => (
+                    <li key={index} className="truncate">
+                      <AssetIdLink className="text-primary underline" assetId={assetId}>
+                        {assetId}
+                      </AssetIdLink>
+                      {index < array.length - 1 ? <span>{', '}</span> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
               <span>]</span>
             </>
           </li>
@@ -437,15 +442,18 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             applications:&nbsp;
             <>
               <span>[</span>
-              <ol className="pl-4">
-                {transaction.foreignApps?.map((appId, i) => (
-                  <li key={i} className="truncate">
-                    <ApplicationLink className="text-primary underline" applicationId={appId}>
-                      {appId}
-                    </ApplicationLink>
-                  </li>
-                ))}
-              </ol>
+              {transaction.foreignApps && transaction.foreignApps.length > 0 && (
+                <ol className="pl-4">
+                  {transaction.foreignApps?.map((appId, index, array) => (
+                    <li key={index} className="truncate">
+                      <ApplicationLink className="text-primary underline" applicationId={appId}>
+                        {appId}
+                      </ApplicationLink>
+                      {index < array.length - 1 ? <span>{', '}</span> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
               <span>]</span>
             </>
           </li>
@@ -453,13 +461,16 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             boxes:&nbsp;
             <>
               <span>[</span>
-              <ol className="pl-4">
-                {transaction.boxes?.map((boxKey, i) => (
-                  <li key={i} className="truncate">
-                    {boxKey}
-                  </li>
-                ))}
-              </ol>
+              {transaction.boxes && transaction.boxes.length > 0 && (
+                <ol className="pl-4">
+                  {transaction.boxes?.map((boxKey, index, array) => (
+                    <li key={index} className="truncate">
+                      {boxKey}
+                      {index < array.length - 1 ? <span>{', '}</span> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
               <span>]</span>
             </>
           </li>

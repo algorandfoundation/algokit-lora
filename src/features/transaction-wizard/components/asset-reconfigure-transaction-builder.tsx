@@ -19,6 +19,7 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
+import { TransactionBuilderMode } from '../data'
 
 const formSchema = {
   ...commonSchema,
@@ -73,7 +74,6 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: 'Sender',
         helpText: 'The current asset manager address. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
-        disabled: true,
       })}
       {helper.textField({
         field: 'manager',
@@ -173,12 +173,13 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
+  mode: TransactionBuilderMode
   transaction?: BuildAssetReconfigureTransactionResult
   onSubmit: (transaction: BuildAssetReconfigureTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetReconfigureTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -204,37 +205,30 @@ export function AssetReconfigureTransactionBuilder({ transaction, onSubmit, onCa
     },
     [onSubmit, transaction?.id]
   )
-  const defaultValues = useMemo(() => {
-    if (!transaction) {
+  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+    if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        fee: {
-          setAutomatically: true,
-        },
-        validRounds: {
-          setAutomatically: true,
-        },
-      } satisfies Partial<z.infer<typeof formData>>
+        sender: transaction.sender,
+        asset: transaction.asset,
+        manager: transaction.manager,
+        reserve: transaction.reserve,
+        freeze: transaction.freeze,
+        clawback: transaction.clawback,
+        fee: transaction.fee,
+        validRounds: transaction.validRounds,
+        note: transaction.note,
+      }
     }
-
     return {
-      sender: transaction.sender,
-      asset: transaction.asset,
-      manager: transaction.manager,
-      reserve: transaction.reserve,
-      freeze: transaction.freeze,
-      clawback: transaction.clawback,
+      // We don't want to populate activeAddress as the sender, as the asset manager address is what's needed
       fee: {
-        setAutomatically: transaction.fee.setAutomatically,
-        value: transaction.fee.value,
+        setAutomatically: true,
       },
       validRounds: {
-        setAutomatically: transaction.validRounds.setAutomatically,
-        firstValid: transaction.validRounds.firstValid,
-        lastValid: transaction.validRounds.lastValid,
+        setAutomatically: true,
       },
-      note: transaction.note,
-    } satisfies Partial<z.infer<typeof formData>>
-  }, [transaction])
+    }
+  }, [mode, transaction])
 
   return (
     <Form
@@ -244,7 +238,7 @@ export function AssetReconfigureTransactionBuilder({ transaction, onSubmit, onCa
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Create</SubmitButton>
+          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
         </FormActions>
       }
     >

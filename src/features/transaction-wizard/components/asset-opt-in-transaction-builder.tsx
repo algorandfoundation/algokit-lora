@@ -19,6 +19,7 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
+import { TransactionBuilderMode } from '../data'
 
 const formSchema = {
   ...commonSchema,
@@ -125,12 +126,14 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 }
 
 type Props = {
+  mode: TransactionBuilderMode
   transaction?: BuildAssetOptInTransactionResult
+  activeAddress?: string
   onSubmit: (transaction: BuildAssetOptInTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetOptInTransactionBuilder({ transaction, onSubmit, onCancel }: Props) {
+export function AssetOptInTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -152,32 +155,27 @@ export function AssetOptInTransactionBuilder({ transaction, onSubmit, onCancel }
     },
     [onSubmit, transaction?.id]
   )
-  const defaultValues = useMemo(() => {
-    if (!transaction) {
+  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+    if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        fee: {
-          setAutomatically: true,
-        },
-        validRounds: {
-          setAutomatically: true,
-        },
-      } satisfies Partial<z.infer<typeof formData>>
+        sender: transaction.sender,
+        asset: transaction.asset,
+        fee: transaction.fee,
+        validRounds: transaction.validRounds,
+        note: transaction.note,
+      }
     }
+
     return {
-      sender: transaction.sender,
-      asset: transaction.asset,
+      sender: activeAddress,
       fee: {
-        setAutomatically: transaction.fee.setAutomatically,
-        value: transaction.fee.value,
+        setAutomatically: true,
       },
       validRounds: {
-        setAutomatically: transaction.validRounds.setAutomatically,
-        firstValid: transaction.validRounds.firstValid,
-        lastValid: transaction.validRounds.lastValid,
+        setAutomatically: true,
       },
-      note: transaction.note,
-    } satisfies Partial<z.infer<typeof formData>>
-  }, [transaction])
+    }
+  }, [activeAddress, mode, transaction])
 
   return (
     <Form
@@ -187,7 +185,7 @@ export function AssetOptInTransactionBuilder({ transaction, onSubmit, onCancel }
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Create</SubmitButton>
+          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
         </FormActions>
       }
     >

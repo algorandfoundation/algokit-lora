@@ -12,7 +12,6 @@ import { Form } from '@/features/forms/components/form'
 import { BuildableTransactionType, BuildPaymentTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { invariant } from '@/utils/invariant'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 
@@ -27,11 +26,12 @@ const formData = zfd.formData(formSchema)
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildPaymentTransactionResult
+  activeAddress?: string
   onSubmit: (transaction: BuildPaymentTransactionResult) => void
   onCancel: () => void
 }
 
-export function PaymentTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
+export function PaymentTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -54,36 +54,28 @@ export function PaymentTransactionBuilder({ mode, transaction, onSubmit, onCance
     },
     [onSubmit, transaction?.id]
   )
-  const defaultValues = useMemo(() => {
-    if (mode === TransactionBuilderMode.Create) {
-      return {
-        fee: {
-          setAutomatically: true,
-        },
-        validRounds: {
-          setAutomatically: true,
-        },
-      } satisfies Partial<z.infer<typeof formData>>
-    } else if (mode === TransactionBuilderMode.Edit) {
-      invariant(transaction, 'Transaction is required in edit mode')
+  const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
+    if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         sender: transaction.sender,
         receiver: transaction.receiver,
         amount: transaction.amount,
-        fee: {
-          setAutomatically: transaction.fee.setAutomatically,
-          value: transaction.fee.value,
-        },
-        validRounds: {
-          setAutomatically: transaction.validRounds.setAutomatically,
-          firstValid: transaction.validRounds.firstValid,
-          lastValid: transaction.validRounds.lastValid,
-        },
+        fee: transaction.fee,
+        validRounds: transaction.validRounds,
         note: transaction.note,
-      } satisfies Partial<z.infer<typeof formData>>
+      }
     }
-    return {}
-  }, [mode, transaction])
+
+    return {
+      sender: activeAddress,
+      fee: {
+        setAutomatically: true,
+      },
+      validRounds: {
+        setAutomatically: true,
+      },
+    }
+  }, [activeAddress, mode, transaction])
 
   return (
     <Form
@@ -93,7 +85,7 @@ export function PaymentTransactionBuilder({ mode, transaction, onSubmit, onCance
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Add</SubmitButton>
+          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
         </FormActions>
       }
     >

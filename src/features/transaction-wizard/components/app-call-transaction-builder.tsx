@@ -13,7 +13,6 @@ import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard
 import { BuildAppCallTransactionResult, BuildableTransactionType } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { invariant } from '@/utils/invariant'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -37,12 +36,13 @@ const formData = zfd.formData({
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAppCallTransactionResult
+  activeAddress?: string
   defaultValues?: Partial<BuildAppCallTransactionResult>
   onSubmit: (transaction: BuildAppCallTransactionResult) => void
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilder({ mode, transaction, defaultValues: defaultValuesProps, onSubmit, onCancel }: Props) {
+export function AppCallTransactionBuilder({ mode, transaction, activeAddress, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
@@ -60,18 +60,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
-    if (mode === TransactionBuilderMode.Create) {
-      return {
-        fee: {
-          setAutomatically: true,
-        },
-        validRounds: {
-          setAutomatically: true,
-        },
-        applicationId: defaultValuesProps?.applicationId ? BigInt(defaultValuesProps.applicationId) : undefined,
-      }
-    } else if (mode === TransactionBuilderMode.Edit) {
-      invariant(transaction, 'Transaction is required in edit mode')
+    if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
@@ -84,8 +73,17 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
         onComplete: transaction.onComplete.toString(),
       }
     }
-    return {}
-  }, [mode, defaultValuesProps, transaction])
+    return {
+      sender: activeAddress,
+      fee: {
+        setAutomatically: true,
+      },
+      validRounds: {
+        setAutomatically: true,
+      },
+      applicationId: _defaultValues?.applicationId ? BigInt(_defaultValues.applicationId) : undefined,
+    }
+  }, [mode, activeAddress, _defaultValues?.applicationId, transaction])
 
   return (
     <Form
@@ -95,7 +93,7 @@ export function AppCallTransactionBuilder({ mode, transaction, defaultValues: de
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Save</SubmitButton>
+          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
         </FormActions>
       }
     >
