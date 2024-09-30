@@ -285,7 +285,7 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
         helper.transactionField({
           label: 'Value',
           field: argumentFieldPath(argIndex) as FieldPath<any>,
-          placeholder: arg.description,
+          placeholder: arg.description, // TODO: NC - This will never render, what to do?
           onEdit: onEdit,
           transactionType: transactionType,
         }),

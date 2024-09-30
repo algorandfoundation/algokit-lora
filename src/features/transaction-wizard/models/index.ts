@@ -86,6 +86,7 @@ export type TransactionArgumentField = ArgumentDefinition & {
 }
 
 type CommonBuildTransactionResult = {
+  id: string
   sender: Address
   fee: {
     setAutomatically: boolean
@@ -100,7 +101,6 @@ type CommonBuildTransactionResult = {
 }
 
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.AppCall
   applicationId: ApplicationId
   args: string[]
@@ -117,7 +117,6 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 }
 
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.MethodCall
   applicationId: ApplicationId
   method: algosdk.ABIMethod
@@ -132,14 +131,12 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
 export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.Payment
   receiver: Address
   amount: number
 }
 
 export type BuildAccountCloseTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.AccountClose
   closeRemainderTo: Address
   receiver?: Address
@@ -147,7 +144,6 @@ export type BuildAccountCloseTransactionResult = CommonBuildTransactionResult & 
 }
 
 export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult & {
-  id: string // TODO: NC - Feels like this is meant to be common?
   asset: {
     id: AssetId
     decimals?: number
@@ -160,7 +156,6 @@ export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult &
 }
 
 export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
-  id: string
   asset: {
     id: AssetId
     decimals?: number
@@ -171,7 +166,6 @@ export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
 }
 
 export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
-  id: string
   asset: {
     id: AssetId
     decimals?: number
@@ -183,7 +177,6 @@ export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
 }
 
 export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult & {
-  id: string
   asset: {
     id: AssetId
     decimals?: number
@@ -197,7 +190,6 @@ export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult &
 }
 
 export type BuildAssetCreateTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.AssetCreate
   total: bigint
   decimals: number
@@ -213,7 +205,6 @@ export type BuildAssetCreateTransactionResult = CommonBuildTransactionResult & {
 }
 
 export type BuildAssetReconfigureTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.AssetReconfigure
   asset: {
     id: AssetId
@@ -228,7 +219,6 @@ export type BuildAssetReconfigureTransactionResult = CommonBuildTransactionResul
 }
 
 export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & {
-  id: string
   type: BuildableTransactionType.AssetDestroy
   asset: {
     id: AssetId

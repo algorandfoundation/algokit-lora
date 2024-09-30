@@ -18,6 +18,7 @@ import { transactionIdLabel } from '@/features/transactions/components/transacti
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
+import { Parentheses } from 'lucide-react'
 
 type Props = {
   applicationId: ApplicationId
@@ -106,8 +107,8 @@ function Method({ method, applicationId }: MethodProps) {
         <Returns returns={method.returns} />
         <div className="flex justify-end">
           {!transaction && (
-            <Button variant="default" onClick={openDialog}>
-              Create Call
+            <Button variant="default" className="w-28" onClick={openDialog} icon={<Parentheses size={16} />}>
+              Call
             </Button>
           )}
         </div>

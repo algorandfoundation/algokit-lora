@@ -32,7 +32,6 @@ import { TransactionType } from '@/features/transactions/models'
 // - clear button should clear and transaction result
 // - check the error handling
 // - check the success handling
-// - simulate
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -59,7 +58,8 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
   ) {
     return asAssetConfigTransaction(transaction)
   }
-  throw new Error('Unsupported transaction type')
+
+  throw new Error(`Unsupported transaction type`)
 }
 
 const asPaymentTransaction = (transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {

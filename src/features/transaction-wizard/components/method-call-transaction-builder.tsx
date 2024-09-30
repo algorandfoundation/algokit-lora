@@ -283,7 +283,7 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
         label: 'Sender',
       })}
       {abiMethodArgs.map((arg, index) => (
-        <div key={index} className="space-y-1.5 text-sm">
+        <div key={index} className="relative space-y-1.5 text-sm">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
           <DescriptionList items={arg.descriptions} />
           <>{arg.field}</>

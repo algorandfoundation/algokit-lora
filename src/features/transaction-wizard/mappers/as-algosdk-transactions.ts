@@ -17,7 +17,6 @@ import {
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
 import { algorandClient } from '@/features/common/data/algo-client'
-import Decimal from 'decimal.js'
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
@@ -148,8 +147,6 @@ const asAssetTransferTransaction = async (
     | BuildAssetClawbackTransactionResult
 ): Promise<algosdk.Transaction> => {
   invariant(transaction.asset.decimals, 'Asset decimals is required')
-  // TODO: NC - Check the conversion from decimal to number to bigint, can we simplify?
-
   if (
     transaction.type === BuildableTransactionType.AssetClawback &&
     (!transaction.asset.clawback || transaction.sender !== transaction.asset.clawback)
@@ -157,8 +154,7 @@ const asAssetTransferTransaction = async (
     throw new Error('Invalid clawback transaction')
   }
 
-  const amount =
-    'amount' in transaction ? BigInt(new Decimal(transaction.amount).mul(new Decimal(10).pow(transaction.asset.decimals)).toNumber()) : 0n
+  const amount = 'amount' in transaction && transaction.amount > 0 ? BigInt(transaction.amount * 10 ** transaction.asset.decimals) : 0n
 
   return await algorandClient.createTransaction.assetTransfer({
     sender: transaction.sender,

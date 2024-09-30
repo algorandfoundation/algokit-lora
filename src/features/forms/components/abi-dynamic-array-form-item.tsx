@@ -10,6 +10,8 @@ export type AbiDynamicArrayFormItemProps<TData extends Record<string, unknown>> 
   createChildField: (label: string, index: number) => JSX.Element | undefined
 }
 
+// TODO: NC - This should use the array items component?
+
 export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
   field,
   prefix,
