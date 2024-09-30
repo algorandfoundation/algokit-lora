@@ -133,9 +133,9 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   }, [activeAddress, signer, transactions, onTransactionSent])
 
   // TODO: PD - check why sender and called app aren't populated into the resources
-  // TODO: PD - test resource population, what if the foreign app is added, then the user clicks populate resources again
   const populateResources = useCallback(async () => {
     try {
+      setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
 
       const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
