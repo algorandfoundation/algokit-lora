@@ -34,6 +34,7 @@ import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
+export const addTransactionLabel = 'Add Transaction'
 
 type Props = {
   transactions?: BuildTransactionResult[]
@@ -149,7 +150,6 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       const populatedAtc = await populateAppCallResources(atc, algod)
       const transactionsWithResources = populatedAtc.buildGroup()
 
-      // HACK: Assume that the order of transactions is the same
       setTransactions((prev) => {
         const newTransactions = [...prev]
 
@@ -265,7 +265,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
         <div className="mb-4 flex items-center gap-2">
           {title}
           <Button variant="outline-secondary" onClick={createTransaction} className={'ml-auto'} icon={<Plus size={16} />}>
-            Add Transaction
+            {addTransactionLabel}
           </Button>
         </div>
         <TransactionsTable
@@ -344,7 +344,7 @@ const setTransactionResouces = (transactions: BuildTransactionResult[], transact
       }
 
       if (transaction.type === BuildableTransactionType.MethodCall) {
-        const txns = transaction.methodArgs.filter((arg) => isBuildTransactionResult(arg))
+        const txns = transaction.methodArgs.filter((arg): arg is BuildTransactionResult => isBuildTransactionResult(arg))
         set(txns)
       }
     }
