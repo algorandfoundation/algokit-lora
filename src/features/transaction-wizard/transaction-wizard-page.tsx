@@ -11,7 +11,7 @@ export function TransactionWizardPage() {
       <PageTitle title={transactionWizardPageTitle} />
       <div className="space-y-6">
         <p>Create and send transactions to the selected network using a connected wallet.</p>
-        <TransactionsBuilder title={<h2 className="pb-0">Transaction Group</h2>} />
+        <TransactionsBuilder renderContext="transaction-wizard" />
       </div>
     </div>
   )

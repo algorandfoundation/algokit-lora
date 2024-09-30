@@ -54,7 +54,6 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   throw new Error('Unsupported transaction type')
 }
 
-// TODO: move transaction.fee.setAutomatically to common code
 const asPaymentTransaction = async (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
 ): Promise<algosdk.Transaction> => {
@@ -64,13 +63,8 @@ const asPaymentTransaction = async (
     closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo : undefined,
     amount: algos(transaction.amount ?? 0),
     note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
   })
 }
 
@@ -98,13 +92,8 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
     method: transaction.method,
     args: args,
     note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
@@ -124,13 +113,8 @@ const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult):
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
     note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
     onComplete: transaction.onComplete,
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
@@ -165,13 +149,8 @@ const asAssetTransferTransaction = async (
     assetId: BigInt(transaction.asset.id),
     amount,
     note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
   })
 }
 
@@ -190,13 +169,8 @@ const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransaction
     freeze: transaction.freeze,
     clawback: transaction.clawback,
     note: transaction.note,
-    ...(!transaction.fee.setAutomatically && transaction.fee.value ? { staticFee: algos(transaction.fee.value) } : undefined),
-    ...(!transaction.validRounds.setAutomatically && transaction.validRounds.firstValid && transaction.validRounds.lastValid
-      ? {
-          firstValidRound: transaction.validRounds.firstValid,
-          lastValidRound: transaction.validRounds.lastValid,
-        }
-      : undefined),
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
   })
 }
 
@@ -214,3 +188,14 @@ const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransacti
     assetId: BigInt(transaction.asset.id),
   })
 }
+
+const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
+  !fee.setAutomatically && fee.value ? { staticFee: algos(fee.value) } : undefined
+
+const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
+  !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid
+    ? {
+        firstValidRound: validRounds.firstValid,
+        lastValidRound: validRounds.lastValid,
+      }
+    : undefined

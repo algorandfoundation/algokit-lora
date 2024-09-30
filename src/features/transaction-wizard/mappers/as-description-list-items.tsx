@@ -383,18 +383,18 @@ const asNoteItem = (note?: string) =>
       ]
     : []
 
-const asFeeItem = (fee: { setAutomatically: boolean; value?: number }) =>
-  fee.setAutomatically === false && fee.value ? [{ dt: 'Fee', dd: <DisplayAlgo amount={algo(fee.value)} /> }] : []
+const asFeeItem = (fee: BuildTransactionResult['fee']) =>
+  !fee.setAutomatically && fee.value ? [{ dt: 'Fee', dd: <DisplayAlgo amount={algo(fee.value)} /> }] : []
 
-const asValidRoundsItem = (validRounds: { setAutomatically: boolean; firstValid?: bigint; lastValid?: bigint }) =>
-  validRounds.setAutomatically
-    ? []
-    : [
+const asValidRoundsItem = (validRounds: BuildTransactionResult['validRounds']) =>
+  !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid
+    ? [
         {
           dt: 'Valid rounds',
           dd: `${validRounds.firstValid} - ${validRounds.lastValid}`,
         },
       ]
+    : []
 
 const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
   return [

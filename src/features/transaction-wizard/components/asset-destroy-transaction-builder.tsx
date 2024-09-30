@@ -166,15 +166,8 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         type: BuildableTransactionType.AssetDestroy,
         sender: data.sender,
         note: data.note,
-        fee: {
-          setAutomatically: data.fee.setAutomatically,
-          value: data.fee.value,
-        },
-        validRounds: {
-          setAutomatically: data.validRounds.setAutomatically,
-          firstValid: data.validRounds.firstValid,
-          lastValid: data.validRounds.lastValid,
-        },
+        fee: data.fee,
+        validRounds: data.validRounds,
       })
     },
     [onSubmit, transaction?.id]

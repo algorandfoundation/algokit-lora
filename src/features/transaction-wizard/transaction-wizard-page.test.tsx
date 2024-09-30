@@ -127,7 +127,7 @@ describe('transaction-wizard-page', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Results').parentElement!
+                return component.getByText('Result').parentElement!
               },
               { timeout: 10_000 }
             )
@@ -232,7 +232,7 @@ describe('transaction-wizard-page', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Results').parentElement!
+                return component.getByText('Result').parentElement!
               },
               { timeout: 10_000 }
             )

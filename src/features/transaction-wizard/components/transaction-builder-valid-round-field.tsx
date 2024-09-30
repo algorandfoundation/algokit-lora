@@ -6,7 +6,7 @@ import { commonFormData } from '../data/common'
 
 export function TransactionBuilderValidRoundField() {
   const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, setValue } = useFormContext<z.infer<typeof commonFormData>>()
 
   const setAutomaticallyPath = 'validRounds.setAutomatically'
   const firstValidPath = 'validRounds.firstValid'
@@ -15,12 +15,12 @@ export function TransactionBuilderValidRoundField() {
   const setAutomatically = watch(setAutomaticallyPath)
 
   useEffect(() => {
-    clearErrors(firstValidPath)
     if (setAutomatically) {
-      resetField(firstValidPath)
-      resetField(lastValidPath)
+      setValue(firstValidPath, undefined)
+      setValue(lastValidPath, undefined)
     }
-  }, [clearErrors, resetField, setAutomatically])
+    clearErrors(firstValidPath)
+  }, [clearErrors, setValue, setAutomatically])
 
   return (
     <div className="grid">

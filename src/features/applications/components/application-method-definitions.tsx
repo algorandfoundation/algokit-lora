@@ -128,7 +128,7 @@ function Method({ method, applicationId }: MethodProps) {
             transactions={[transaction]}
             onReset={reset}
             onTransactionSent={(map, txns) => handleTransactionSent(map, txns)}
-            title={<h4 className="pb-0 text-primary">Transaction Group</h4>}
+            renderContext="app-lab"
           />
         )}
         {sentTransaction && (

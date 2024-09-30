@@ -143,15 +143,8 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
         freeze: data.freeze,
         clawback: data.clawback,
         note: data.note,
-        fee: {
-          setAutomatically: data.fee.setAutomatically,
-          value: data.fee.value,
-        },
-        validRounds: {
-          setAutomatically: data.validRounds.setAutomatically,
-          firstValid: data.validRounds.firstValid,
-          lastValid: data.validRounds.lastValid,
-        },
+        fee: data.fee,
+        validRounds: data.validRounds,
       })
     },
     [onSubmit, transaction?.id]

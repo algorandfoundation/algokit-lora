@@ -41,7 +41,6 @@ export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
         })}
         <Button
           variant="outline-secondary"
-          // className="mt-4"
           type="button"
           onClick={() =>
             append({

@@ -7,7 +7,7 @@ import { commonFormData } from '../data/common'
 
 export function TransactionBuilderFeeField() {
   const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, setValue } = useFormContext<z.infer<typeof commonFormData>>()
 
   const setAutomaticallyPath = 'fee.setAutomatically'
   const feeValuePath = 'fee.value'
@@ -15,11 +15,11 @@ export function TransactionBuilderFeeField() {
   const setAutomatically = watch(setAutomaticallyPath)
 
   useEffect(() => {
-    clearErrors(feeValuePath)
     if (setAutomatically) {
-      resetField(feeValuePath)
+      setValue(feeValuePath, undefined)
     }
-  }, [clearErrors, resetField, setAutomatically])
+    clearErrors(feeValuePath)
+  }, [clearErrors, setValue, setAutomatically])
 
   return (
     <div className="grid">

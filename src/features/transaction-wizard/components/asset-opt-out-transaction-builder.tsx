@@ -150,15 +150,8 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
         sender: data.sender,
         closeRemainderTo: data.closeRemainderTo,
         note: data.note,
-        fee: {
-          setAutomatically: data.fee.setAutomatically,
-          value: data.fee.value,
-        },
-        validRounds: {
-          setAutomatically: data.validRounds.setAutomatically,
-          firstValid: data.validRounds.firstValid,
-          lastValid: data.validRounds.lastValid,
-        },
+        fee: data.fee,
+        validRounds: data.validRounds,
       })
     },
     [onSubmit, transaction?.id]

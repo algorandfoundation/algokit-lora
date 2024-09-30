@@ -40,10 +40,12 @@ type Props = {
   transactions?: BuildTransactionResult[]
   onReset?: () => void
   onTransactionSent?: (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => void
-  title: JSX.Element
+  renderContext: 'transaction-wizard' | 'app-lab'
 }
 
-export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, title }: Props) {
+const transactionGroupLabel = 'Transaction Group'
+
+export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, renderContext }: Props) {
   const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
@@ -111,13 +113,14 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 
       const buildTransactionResultToAlgosdkTransactionMap = new Map<string, string>()
 
+      // TODO: NC - Need to add signer not just against the active address to handle rekeys. Can we set a shared default signer?
       const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
       for (const transaction of transactions) {
         const txns = await asAlgosdkTransactions(transaction)
         buildTransactionResultToAlgosdkTransactionMap.set(transaction.id, txns[txns.length - 1].txID())
         txns.forEach((txn) => algokitComposer.addTransaction(txn))
       }
-      const result = await algokitComposer.execute()
+      const result = await algokitComposer.send()
       const sentTxns = asTransactionFromSendResult(result)
       const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
@@ -204,8 +207,10 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     [openEditResourcesDialog]
   )
 
-  const resetTransactions = useCallback(() => {
+  const reset = useCallback(() => {
     setTransactions([])
+    setErrorMessage(undefined)
+    setSendTransactionResult(undefined)
     onReset?.()
   }, [onReset])
 
@@ -261,7 +266,11 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     <div>
       <div className="space-y-4">
         <div className="mb-4 flex items-center gap-2">
-          {title}
+          {renderContext === 'transaction-wizard' ? (
+            <h2 className="pb-0">{transactionGroupLabel}</h2>
+          ) : (
+            <h4 className="pb-0 text-primary">{transactionGroupLabel}</h4>
+          )}
           <Button variant="outline-secondary" onClick={createTransaction} className={'ml-auto'} icon={<Plus size={16} />}>
             {addTransactionLabel}
           </Button>
@@ -281,7 +290,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
         )}
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-2">
-            <Button onClick={resetTransactions} variant="outline" icon={<Eraser size={16} />}>
+            <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>
               Clear
             </Button>
             <AsyncActionButton
@@ -302,11 +311,11 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       {editResourcesDialog}
       {sendTransactionResult && (
         <div className="my-4 flex flex-col gap-2 text-sm">
-          <h3>Results</h3>
-          <h4>Transactions Graph</h4>
+          <h3>Result</h3>
+          <h4>Transaction Visual</h4>
           <TransactionsGraph
             transactionsGraphData={sendTransactionResult.transactionsGraphData}
-            bgClassName="bg-card"
+            bgClassName={renderContext === 'transaction-wizard' ? 'bg-background' : 'bg-card'}
             downloadable={false}
           />
         </div>
