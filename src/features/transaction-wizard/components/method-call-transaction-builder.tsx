@@ -1,3 +1,4 @@
+import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { senderFieldSchema, commonSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
@@ -8,17 +9,26 @@ import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { SubmitButton } from '@/features/forms/components/submit-button'
-import { useFormContext } from 'react-hook-form'
+import { Path, useFormContext } from 'react-hook-form'
 import { useLoadableAbiMethodDefinitions } from '@/features/applications/data/application-method-definitions'
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { BuildMethodCallTransactionResult, BuildableTransactionType, MethodCallArg, MethodForm } from '../models'
+import {
+  BuildMethodCallTransactionResult,
+  BuildTransactionResult,
+  BuildableTransactionType,
+  MethodCallArg,
+  MethodForm,
+  TransactionArgumentField,
+} from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
+import { cn } from '@/features/common/utils'
+import { TransactionBuilder } from './transaction-builder'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -47,6 +57,7 @@ export function MethodCallTransactionBuilder({
 }: Props) {
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
+  const [transactionArgForm, setTransactionArgForm] = useState<React.ReactNode | undefined>(undefined)
 
   const formData = useMemo(() => {
     return zfd.formData(formSchema)
@@ -131,19 +142,31 @@ export function MethodCallTransactionBuilder({
   }, [mode, transaction, activeAddress, _defaultValues])
 
   return (
-    <Form
-      schema={formData}
-      onSubmit={submit}
-      defaultValues={defaultValues}
-      formAction={
-        <FormActions>
-          <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
-        </FormActions>
-      }
-    >
-      {(helper) => <FormInner helper={helper} methodForm={methodForm} onSetMethodForm={onSetMethodForm} />}
-    </Form>
+    <>
+      <div className={cn(transactionArgForm ? 'hidden' : 'block')}>
+        <Form
+          schema={formData}
+          onSubmit={submit}
+          defaultValues={defaultValues}
+          formAction={
+            <FormActions>
+              <CancelButton onClick={onCancel} className="w-28" />
+              <SubmitButton className="w-28">{mode === TransactionBuilderMode.Edit ? 'Update' : 'Add'}</SubmitButton>
+            </FormActions>
+          }
+        >
+          {(helper) => (
+            <FormInner
+              helper={helper}
+              methodForm={methodForm}
+              onSetMethodForm={onSetMethodForm}
+              onSetTransactionArgForm={setTransactionArgForm}
+            />
+          )}
+        </Form>
+      </div>
+      <div className={cn(transactionArgForm ? 'block' : 'hidden')}>{transactionArgForm}</div>
+    </>
   )
 }
 
@@ -151,10 +174,11 @@ type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof baseFormData>>
   methodForm: MethodForm | undefined
   onSetMethodForm: (method: MethodForm | undefined) => void
+  onSetTransactionArgForm: (form: React.ReactNode) => void
 }
 
-function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
-  const { watch } = useFormContext<z.infer<typeof baseFormData>>()
+function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgForm }: FormInnerProps) {
+  const { watch, setValue, trigger, getValues } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('applicationId')
   const methodName = watch('methodName')
 
@@ -165,6 +189,33 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
     }
     return loadableMethodDefinitions.data.methods
   }, [loadableMethodDefinitions])
+
+  const setTransactionArg = useCallback(
+    (field: Path<z.infer<typeof baseFormData>>, data: BuildTransactionResult) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setValue(field, data as any)
+      trigger(field)
+      onSetTransactionArgForm(undefined)
+    },
+    [setValue, trigger, onSetTransactionArgForm]
+  )
+
+  const editTransactionArg = useCallback(
+    (arg: TransactionArgumentField) => {
+      const fieldValue = getValues(arg.path as Path<z.infer<typeof baseFormData>>)
+      const builder = (
+        <TransactionBuilder
+          mode={fieldValue ? TransactionBuilderMode.Edit : TransactionBuilderMode.Create}
+          transactionType={mapToTransactionType(arg.transactionType)}
+          transaction={fieldValue as unknown as BuildTransactionResult}
+          onCancel={() => onSetTransactionArgForm(undefined)}
+          onSubmit={(txn) => setTransactionArg(arg.path as Path<z.infer<typeof baseFormData>>, txn)}
+        />
+      )
+      onSetTransactionArgForm(builder)
+    },
+    [getValues, onSetTransactionArgForm, setTransactionArg]
+  )
 
   useEffect(() => {
     if (!methodName || methodDefinitions.length === 0) {
@@ -208,10 +259,10 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
               ]
             : []),
         ],
-        field: arg.createField(helper),
+        field: 'transactionType' in arg ? arg.createField(helper, () => editTransactionArg(arg)) : arg.createField(helper),
       })) ?? []
     )
-  }, [methodForm?.arguments, helper])
+  }, [methodForm?.arguments, helper, editTransactionArg])
 
   return (
     <div className="space-y-4">
@@ -242,4 +293,23 @@ function FormInner({ helper, methodForm, onSetMethodForm }: FormInnerProps) {
       <TransactionBuilderValidRoundField />
     </div>
   )
+}
+
+function mapToTransactionType(type: algosdk.ABITransactionType): algosdk.TransactionType | undefined {
+  switch (type) {
+    case algosdk.ABITransactionType.pay:
+      return algosdk.TransactionType.pay
+    case algosdk.ABITransactionType.keyreg:
+      return algosdk.TransactionType.keyreg
+    case algosdk.ABITransactionType.acfg:
+      return algosdk.TransactionType.acfg
+    case algosdk.ABITransactionType.axfer:
+      return algosdk.TransactionType.axfer
+    case algosdk.ABITransactionType.afrz:
+      return algosdk.TransactionType.afrz
+    case algosdk.ABITransactionType.appl:
+      return algosdk.TransactionType.appl
+    default:
+      return undefined
+  }
 }

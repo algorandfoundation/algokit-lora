@@ -7,7 +7,13 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import { ArgumentField, MethodCallArg, MethodForm, BuildTransactionResult } from '@/features/transaction-wizard/models'
+import {
+  ArgumentField,
+  MethodCallArg,
+  MethodForm,
+  BuildTransactionResult,
+  TransactionArgumentField,
+} from '@/features/transaction-wizard/models'
 import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
 
 const argumentPathSeparator = '-'
@@ -218,14 +224,6 @@ const getCreateField = (
       struct: hint?.struct,
     })
   }
-  if (algosdk.abiTypeIsTransaction(type)) {
-    return formFieldHelper.transactionField({
-      label: 'Value',
-      field: path,
-      placeholder: options?.description,
-      transactionType: type,
-    })
-  }
   return undefined
 }
 
@@ -257,37 +255,36 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
   return value as algosdk.ABIValue
 }
 
-const getDefaultValue = (type: algosdk.ABIArgumentType, isOptional: boolean): unknown => {
-  if (type instanceof algosdk.ABIArrayStaticType && !(type.childType instanceof algosdk.ABIByteType)) {
-    return Array.from({ length: type.staticLength }, () => getDefaultValue(type.childType, false))
-  }
-  if (type instanceof algosdk.ABIArrayDynamicType && !(type.childType instanceof algosdk.ABIByteType)) {
-    return isOptional ? undefined : []
-  }
-  if (type instanceof algosdk.ABITupleType) {
-    return type.childTypes.map((childType) => getDefaultValue(childType, false))
-  }
-  return undefined
-}
-
-const asField = (
-  arg: ArgumentDefinition,
-  argIndex: number
-): {
-  createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
-  fieldSchema: z.ZodTypeAny
-  defaultValue?: unknown // TODO: NC - Can we do better with the type here?
-  getAppCallArg: (value: unknown) => Promise<MethodCallArg>
-} => {
+const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | TransactionArgumentField => {
   const isArgOptional = !!arg.hint?.defaultArgument
-  return {
-    createField: (helper) =>
-      getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
-        description: arg.description,
-      }),
-    fieldSchema: getFieldSchema(arg.type, isArgOptional),
-    defaultValue: getDefaultValue(arg.type, isArgOptional),
-    getAppCallArg: (value) => getAppCallArg(arg.type, value),
+  if (!algosdk.abiTypeIsTransaction(arg.type)) {
+    return {
+      ...arg,
+      path: argumentFieldPath(argIndex),
+      createField: (helper: FormFieldHelper<any>) =>
+        getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
+          description: arg.description,
+        }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      getAppCallArg: (value) => getAppCallArg(arg.type, value),
+    }
+  } else {
+    const transactionType = arg.type
+    return {
+      ...arg,
+      transactionType: transactionType,
+      path: argumentFieldPath(argIndex),
+      createField: (helper: FormFieldHelper<any>, onEdit: () => void) =>
+        helper.transactionField({
+          label: 'Value',
+          field: argumentFieldPath(argIndex) as FieldPath<any>,
+          placeholder: arg.description,
+          onEdit: onEdit,
+          transactionType: transactionType,
+        }),
+      fieldSchema: getFieldSchema(arg.type, isArgOptional),
+      getAppCallArg: (value) => getAppCallArg(arg.type, value),
+    }
   }
 }
 
@@ -300,11 +297,7 @@ const fixedPointDecimalStringToBigInt = (s: string, decimalScale: number): bigin
 
 export const asMethodForm = (method: MethodDefinition): MethodForm => {
   const argFields = method.arguments.map((arg, index) => {
-    const field = asField(arg, index)
-    return {
-      ...arg,
-      ...field,
-    } satisfies ArgumentField
+    return asField(arg, index)
   })
   const methodSchema = argFields.reduce(
     (acc, arg, index) => {

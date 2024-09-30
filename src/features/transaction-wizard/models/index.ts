@@ -66,12 +66,22 @@ export enum BuildableTransactionType {
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
   abiMethod: algosdk.ABIMethod
-  arguments: ArgumentField[]
+  arguments: (ArgumentField | TransactionArgumentField)[]
   schema: Record<string, z.ZodType<any>>
 }
 
 export type ArgumentField = ArgumentDefinition & {
+  path: string
+  fieldSchema: z.ZodTypeAny
   createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
+  getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
+}
+
+export type TransactionArgumentField = ArgumentDefinition & {
+  path: string
+  fieldSchema: z.ZodTypeAny
+  transactionType: algosdk.ABITransactionType
+  createField: (helper: FormFieldHelper<any>, onEdit: () => void) => JSX.Element | undefined
   getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
 }
 
