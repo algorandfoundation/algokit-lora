@@ -40,6 +40,7 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
       <div className="mb-4 flex items-center gap-2">
         <h4 className="text-primary">{label}</h4>
         <Button
+          type="button"
           variant="outline-secondary"
           disabled={isAtMax}
           disabledReason="Resources are at capacity"
