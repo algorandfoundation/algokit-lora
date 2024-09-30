@@ -361,7 +361,7 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
       dd: (
         <ol>
           {transaction.method.args.map((arg, index) => (
-            <li className="truncate">
+            <li className="truncate" key={index}>
               {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
             </li>
           ))}
