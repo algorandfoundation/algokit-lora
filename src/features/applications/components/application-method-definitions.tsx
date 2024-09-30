@@ -91,6 +91,10 @@ function Method({ method, applicationId }: MethodProps) {
     [transaction]
   )
 
+  const reset = useCallback(() => {
+    setTransaction(undefined)
+    setSentTransaction(undefined)
+  }, [])
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
@@ -115,7 +119,7 @@ function Method({ method, applicationId }: MethodProps) {
         {transaction && (
           <TransactionsBuilder
             transactions={[transaction]}
-            onReset={() => setTransaction(undefined)}
+            onReset={reset}
             onTransactionSent={(map, txns) => handleTransactionSent(map, txns)}
             title={<h4 className="pb-0 text-primary">Transaction Group</h4>}
           />

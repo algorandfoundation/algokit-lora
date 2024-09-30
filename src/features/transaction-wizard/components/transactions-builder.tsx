@@ -133,8 +133,6 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   }, [activeAddress, signer, transactions, onTransactionSent])
 
   // TODO: PD - check why sender and called app aren't populated into the resources
-  // TODO: PD - reset the arg value if method name is changed
-  // TODO: PD - fix changing method names
   // TODO: PD - test resource population, what if the foreign app is added, then the user clicks populate resources again
   const populateResources = useCallback(async () => {
     try {

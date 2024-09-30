@@ -100,9 +100,9 @@ export function MethodCallTransactionBuilder({
       setFormSchema(appCallFormSchema)
       setMethodForm(undefined)
     } else {
-      setFormSchema((prev) => {
+      setFormSchema(() => {
         return {
-          ...prev,
+          ...appCallFormSchema,
           ...method.schema,
         }
       })
@@ -223,8 +223,13 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
       return
     }
 
+    const values = getValues()
+    for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
+      setValue(key as Path<z.infer<typeof baseFormData>>, undefined)
+    }
+
     onSetMethodForm(asMethodForm(methodDefinitions.find((method) => method.name === methodName)!))
-  }, [methodDefinitions, methodName, onSetMethodForm])
+  }, [getValues, methodDefinitions, methodName, onSetMethodForm, setValue])
 
   const abiMethodArgs = useMemo(() => {
     return (
