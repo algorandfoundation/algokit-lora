@@ -209,6 +209,54 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     onReset?.()
   }, [onReset])
 
+  const populateResourcesButtonDisabledProps = useMemo(() => {
+    if (!activeAddress) {
+      return {
+        disabled: true,
+        disabledReason: connectWalletMessage,
+      }
+    }
+
+    if (!transactions.find((t) => t.type === BuildableTransactionType.AppCall || t.type === BuildableTransactionType.MethodCall)) {
+      return {
+        disabled: true,
+        disabledReason: 'No application call transactions',
+      }
+    }
+
+    return {
+      disabled: false,
+    }
+  }, [activeAddress, transactions])
+
+  const sendButtonDisabledProps = useMemo(() => {
+    if (!activeAddress) {
+      return {
+        disabled: true,
+        disabledReason: connectWalletMessage,
+      }
+    }
+
+    const groupTransactionCount = flattenTransactions(transactions).length
+    if (groupTransactionCount > 16) {
+      return {
+        disabled: true,
+        disabledReason: 'A group can have a max of 16 transactions',
+      }
+    }
+
+    if (transactions.length === 0) {
+      return {
+        disabled: true,
+        disabledReason: 'No transactions to send',
+      }
+    }
+
+    return {
+      disabled: false,
+    }
+  }, [activeAddress, transactions])
+
   return (
     <div>
       <div className="space-y-4">
@@ -239,20 +287,13 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
             <AsyncActionButton
               variant="outline"
               onClick={populateResources}
-              disabled={!activeAddress}
-              disabledReason={connectWalletMessage}
               icon={<HardDriveDownload size={16} />}
+              {...populateResourcesButtonDisabledProps}
             >
               Populate Resources
             </AsyncActionButton>
           </div>
-          <AsyncActionButton
-            className="w-28"
-            onClick={sendTransactions}
-            disabled={!activeAddress}
-            disabledReason={connectWalletMessage}
-            icon={<Send size={16} />}
-          >
+          <AsyncActionButton className="w-28" onClick={sendTransactions} icon={<Send size={16} />} {...sendButtonDisabledProps}>
             Send
           </AsyncActionButton>
         </div>

@@ -26,8 +26,6 @@ import { algo } from '@algorandfoundation/algokit-utils'
 import { TransactionType } from '@/features/transactions/models'
 
 // TODO: NC - UX TODOs
-// - Disable populate resources button if no app calls
-// - Disable send if there are no transactions
 // - re-order does weird things with the row borders
 // - resource populate dialog, do asset/application look to ensure valid
 // - lookup application to ensure valid when calling a method or making an app call.
@@ -35,7 +33,6 @@ import { TransactionType } from '@/features/transactions/models'
 // - check the error handling
 // - check the success handling
 // - simulate
-// - Ensure the transaction group limit is enforced
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -361,7 +358,7 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
       dd: (
         <ol>
           {transaction.method.args.map((arg, index) => (
-            <li className="truncate" key={index}>
+            <li key={index} className="truncate">
               {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
             </li>
           ))}

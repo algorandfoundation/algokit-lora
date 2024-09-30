@@ -38,7 +38,7 @@ const builderConfigs = [
   {
     transactionType: algosdk.TransactionType.appl,
     type: BuildableTransactionType.AppCall,
-    label: 'App Call (appl)',
+    label: 'Application Call (appl)',
     component: AppCallTransactionBuilder,
   },
   {
