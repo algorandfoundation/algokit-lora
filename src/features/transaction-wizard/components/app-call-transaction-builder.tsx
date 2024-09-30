@@ -87,6 +87,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
     }
     return {
       sender: activeAddress,
+      onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
       fee: {
         setAutomatically: true,
       },

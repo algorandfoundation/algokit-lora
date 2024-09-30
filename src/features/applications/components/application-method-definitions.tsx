@@ -101,13 +101,20 @@ function Method({ method, applicationId }: MethodProps) {
         <h3>{method.name}</h3>
       </AccordionTrigger>
       <AccordionContent className="space-y-4">
-        {method.description && <p className="mb-4">{method.description}</p>}
-        <div>
+        {method.description && <span className="flex">{method.description}</span>}
+        <div className="space-y-2">
           <h4 className="text-primary">Arguments</h4>
-          {method.arguments.map((argument, index) => (
-            <Argument key={index} index={index} argument={argument} />
-          ))}
+          {method.arguments.length > 0 ? (
+            <div className="space-y-5">
+              {method.arguments.map((argument, index) => (
+                <Argument key={index} index={index} argument={argument} />
+              ))}
+            </div>
+          ) : (
+            <span className="flex">No arguments.</span>
+          )}
         </div>
+
         <Returns returns={method.returns} />
         <div className="flex justify-end">
           {!transaction && (
@@ -188,7 +195,7 @@ function Argument({ index, argument }: ArgumentProps) {
       ...(argument.hint?.defaultArgument
         ? [
             {
-              dt: 'Default Argument',
+              dt: 'Default',
               dd: <DefaultArgument defaultArgument={argument.hint.defaultArgument} />,
             },
           ]
@@ -198,9 +205,9 @@ function Argument({ index, argument }: ArgumentProps) {
   )
 
   return (
-    <div className="space-y-2">
-      <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
-      <DescriptionList items={items} />
+    <div>
+      <h5 className="mb-1.5 text-primary">{`Argument ${index + 1}`}</h5>
+      <DescriptionList items={items} dtClassName="w-24 truncate" />
     </div>
   )
 }
@@ -224,7 +231,7 @@ function Returns({ returns }: { returns: ReturnsDefinition }) {
     [returns.description, returns.hint, returns.type]
   )
   return (
-    <div>
+    <div className="space-y-2">
       <h4 className="text-primary">Return</h4>
       <DescriptionList items={items} />
     </div>

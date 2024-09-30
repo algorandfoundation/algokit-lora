@@ -258,7 +258,7 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
           ...(arg.hint?.defaultArgument
             ? [
                 {
-                  dt: 'Default Argument',
+                  dt: 'Default',
                   dd: <DefaultArgument defaultArgument={arg.hint.defaultArgument} />,
                 },
               ]
@@ -288,10 +288,10 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
         label: 'Sender',
       })}
       {abiMethodArgs.map((arg, index) => (
-        <div key={index} className="relative space-y-1.5 text-sm">
+        <div key={index} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
-          <DescriptionList items={arg.descriptions} />
-          <>{arg.field}</>
+          <DescriptionList items={arg.descriptions} dtClassName="w-24 truncate" />
+          {arg.field}
         </div>
       ))}
       <TransactionBuilderFeeField />

@@ -1,6 +1,6 @@
 import { Button } from '@/features/common/components/button'
 import { FieldArray, FieldPath, FieldValues, Path, useFieldArray } from 'react-hook-form'
-import { TrashIcon } from 'lucide-react'
+import { Plus, TrashIcon } from 'lucide-react'
 import { Label } from '@/features/common/components/label'
 
 export type AbiDynamicArrayFormItemProps<TData extends Record<string, unknown>> = {
@@ -9,8 +9,6 @@ export type AbiDynamicArrayFormItemProps<TData extends Record<string, unknown>> 
   description?: string
   createChildField: (label: string, index: number) => JSX.Element | undefined
 }
-
-// TODO: NC - This should use the array items component?
 
 export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
   field,
@@ -30,29 +28,31 @@ export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
           return (
             <div key={field.id}>
               <div className="flex items-center gap-2">
-                <Label>
-                  {prefix} - {index + 1}
+                <Label className="!mt-0">
+                  {prefix} {index + 1}
                 </Label>
                 <Button type="button" variant="destructive" size="xs" onClick={() => remove(index)} icon={<TrashIcon size={16} />}></Button>
               </div>
               <div className="mt-2 w-full border-l-2 border-dashed pl-4">
-                <div className="grow">{createChildField(`${prefix} - ${index + 1}`, index)}</div>
+                <div className="grow">{createChildField(`${prefix} ${index + 1}`, index)}</div>
               </div>
             </div>
           )
         })}
+        <Button
+          variant="outline-secondary"
+          // className="mt-4"
+          type="button"
+          onClick={() =>
+            append({
+              id: new Date().getTime().toString(),
+            } as FieldArray<FieldValues, Path<TData>>)
+          }
+          icon={<Plus size={16} />}
+        >
+          Add item
+        </Button>
       </div>
-      <Button
-        className="mt-4"
-        type="button"
-        onClick={() =>
-          append({
-            id: new Date().getTime().toString(),
-          } as FieldArray<FieldValues, Path<TData>>)
-        }
-      >
-        Add
-      </Button>
     </div>
   )
 }

@@ -146,7 +146,8 @@ const asAssetTransferTransaction = async (
     | BuildAssetOptOutTransactionResult
     | BuildAssetClawbackTransactionResult
 ): Promise<algosdk.Transaction> => {
-  invariant(transaction.asset.decimals, 'Asset decimals is required')
+  invariant(transaction.asset.decimals !== undefined, 'Asset decimals is required')
+
   if (
     transaction.type === BuildableTransactionType.AssetClawback &&
     (!transaction.asset.clawback || transaction.sender !== transaction.asset.clawback)

@@ -24,6 +24,8 @@ const argumentFieldPath = (argumentIndex: number) => `${methodArgPrefix}${argume
 export const extractArgumentIndexFromFieldPath = (path: string) =>
   parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
+// TODO: NC - Check this approach to ensure it still makes sense
+
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   if (type instanceof algosdk.ABIUintType) {
     const max = BigInt(2 ** type.bitSize) - BigInt(1)
@@ -127,7 +129,6 @@ const getCreateField = (
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<any>,
-      placeholder: options?.description,
     })
   }
   if (type instanceof algosdk.ABIBoolType) {
@@ -150,7 +151,6 @@ const getCreateField = (
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<any>,
-      placeholder: options?.description,
       decimalScale: type.precision,
       fixedDecimalScale: true,
     })
@@ -162,8 +162,7 @@ const getCreateField = (
     return formFieldHelper.textField({
       label: 'Value',
       field: `${path}` as Path<any>,
-      placeholder: options?.description,
-      helpText: 'A Base64 encoded Bytes value',
+      helpText: 'A base64 encoded bytes value',
     })
   }
   if (type instanceof algosdk.ABIArrayStaticType) {
@@ -175,7 +174,7 @@ const getCreateField = (
       description: options?.description,
       createChildField: (childPrefix, childIndex) =>
         getCreateField(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<any>, undefined, {
-          prefix: childPrefix,
+          prefix: `${childPrefix} -`,
         }),
     })
   }
@@ -183,7 +182,6 @@ const getCreateField = (
     return formFieldHelper.textField({
       label: 'Value',
       field: `${path}` as Path<any>,
-      placeholder: options?.description,
     })
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
@@ -199,7 +197,7 @@ const getCreateField = (
           `${path}${arrayItemPathSeparator}${childIndex}${arrayItemPathSeparator}child` as FieldPath<any>,
           undefined,
           {
-            prefix: childPrefix,
+            prefix: `${childPrefix} -`,
           }
         ),
     })
@@ -208,7 +206,6 @@ const getCreateField = (
     return formFieldHelper.textField({
       label: 'Value',
       field: `${path}` as Path<any>,
-      placeholder: options?.description,
     })
   }
   if (type instanceof algosdk.ABITupleType) {
@@ -225,7 +222,7 @@ const getCreateField = (
           `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<any>,
           undefined,
           {
-            prefix: childPrefix,
+            prefix: `${childPrefix} -`,
           }
         ),
       struct: hint?.struct,
@@ -285,7 +282,6 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
         helper.transactionField({
           label: 'Value',
           field: argumentFieldPath(argIndex) as FieldPath<any>,
-          placeholder: arg.description, // TODO: NC - This will never render, what to do?
           onEdit: onEdit,
           transactionType: transactionType,
         }),

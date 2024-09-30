@@ -17,7 +17,7 @@ export function AbiStaticArrayFormItem<TData extends Record<string, unknown>>({
   createChildField,
 }: AbiStaticArrayFormItemProps<TData>) {
   const items = useMemo(
-    () => Array.from({ length: length }, (_, index) => createChildField(`${prefix} - ${index + 1}`, index)),
+    () => Array.from({ length: length }, (_, index) => createChildField(`${prefix} ${index + 1}`, index)),
     [createChildField, prefix, length]
   )
 
@@ -29,7 +29,7 @@ export function AbiStaticArrayFormItem<TData extends Record<string, unknown>>({
           return (
             <div key={index}>
               <Label>
-                {prefix} - {index + 1}
+                {prefix} {index + 1}
               </Label>
               <div className="mt-2 w-full border-l-2 border-dashed pl-4">
                 <div className="grow">{child}</div>

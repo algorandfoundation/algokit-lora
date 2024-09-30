@@ -78,6 +78,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         sender: transaction.sender,
+        closeRemainderTo: transaction.closeRemainderTo,
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,

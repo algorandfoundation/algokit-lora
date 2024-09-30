@@ -22,7 +22,7 @@ export function AbiTupleFormItem<TData extends Record<string, unknown>>({
   const getLabel = useCallback(
     (index: number) => {
       if (!struct) {
-        return `${prefix} - ${index + 1}`
+        return `${prefix} ${index + 1}`
       } else {
         return struct.elements[index][0]
       }

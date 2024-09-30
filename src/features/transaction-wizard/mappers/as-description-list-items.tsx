@@ -28,10 +28,11 @@ import { TransactionType } from '@/features/transactions/models'
 // TODO: NC - UX TODOs
 // - re-order does weird things with the row borders
 // - resource populate dialog, do asset/application look to ensure valid
-// - lookup application to ensure valid when calling a method or making an app call.
+// - lookup application to ensure valid when calling a method or making an app call
 // - clear button should clear and transaction result
 // - check the error handling
 // - check the success handling
+// - lock the abi method selector when initiating via app lab
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {

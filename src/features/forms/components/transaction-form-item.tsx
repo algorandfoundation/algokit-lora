@@ -20,7 +20,6 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   onEdit: () => void
 }
 
-// TODO: NC - Make it look like the designs
 // TODO: NC - When setting a fee (or round range), then resetting it back the previously set fee is still set.
 export function TransactionFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   transactionType,
@@ -44,7 +43,7 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
     <>
       {transactionFields.length > 0 && (
         <div className="relative">
-          <DescriptionList items={transactionFields} />
+          <DescriptionList items={transactionFields} dtClassName="w-24 truncate" />
           <div className="absolute right-0 top-0 w-8">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
