@@ -1,6 +1,9 @@
 import { cn } from '../utils'
 
-export type DescriptionListItems = { dt: string; dd: string | number | bigint | boolean | JSX.Element[] | JSX.Element | undefined }[]
+export type DescriptionListItems = {
+  dt: string
+  dd: string | number | bigint | boolean | React.JSX.Element[] | React.JSX.Element | undefined
+}[]
 
 type Props = {
   items: DescriptionListItems

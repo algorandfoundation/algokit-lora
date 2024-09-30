@@ -6,7 +6,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
-import { deployApp, stripTealComments } from '@algorandfoundation/algokit-utils'
+import { deployApp } from '@algorandfoundation/algokit-utils'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { Arc32AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
@@ -20,6 +20,7 @@ import { Label } from '@/features/common/components/label'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { deployButtonLabel } from '@/features/app-interfaces/components/labels'
+import { AppManager } from '@algorandfoundation/algokit-utils/types/app-manager'
 
 type Props = {
   className?: string
@@ -53,7 +54,7 @@ const getTemplateParamNames = (base64Program: string): string[] => {
     return []
   }
   let tealCode = base64ToUtf8(base64Program)
-  tealCode = stripTealComments(tealCode)
+  tealCode = AppManager.stripTealComments(tealCode)
 
   const regex = /TMPL_[A-Z_]+/g
   return Array.from(new Set([...tealCode.matchAll(regex)].flat().map((str) => str.substring(5))))
@@ -218,9 +219,9 @@ export function DeployAppForm({ className, appSpec }: Props) {
               label: 'Updatable',
             })}
             <Fieldset legend="Template Params">
-              {templateParamNames.map((name, index) => (
-                <TemplateParamForm key={index} name={name} index={index} />
-              ))}
+              {templateParamNames.length === 0 && <span className="text-small">No template params.</span>}
+              {templateParamNames.length > 0 &&
+                templateParamNames.map((name, index) => <TemplateParamForm key={index} name={name} index={index} />)}
             </Fieldset>
           </>
         )}

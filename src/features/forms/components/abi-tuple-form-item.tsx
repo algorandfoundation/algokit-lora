@@ -8,7 +8,7 @@ export type AbiTupleFormItemProps<TData extends Record<string, unknown>> = {
   prefix: string
   length: number
   description?: string
-  createChildField: (label: string, index: number) => JSX.Element | undefined
+  createChildField: (label: string, index: number) => React.JSX.Element | undefined
   struct?: Struct
 }
 

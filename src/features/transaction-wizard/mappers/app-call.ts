@@ -119,7 +119,7 @@ const getCreateField = (
   path: FieldPath<any>,
   hint?: ArgumentHint,
   options?: { prefix?: string; description?: string }
-): JSX.Element | undefined => {
+): React.JSX.Element | undefined => {
   if (
     type instanceof algosdk.ABIUintType ||
     type instanceof algosdk.ABIByteType ||

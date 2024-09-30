@@ -8,6 +8,7 @@ import { Address } from '@/features/accounts/data/types'
 import { TransactionsGraphData } from '@/features/transactions-graph'
 import { AssetId } from '@/features/assets/data/types'
 import { Transaction } from '@/features/transactions/models'
+import React from 'react'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -73,7 +74,7 @@ export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
 export type ArgumentField = ArgumentDefinition & {
   path: string
   fieldSchema: z.ZodTypeAny
-  createField: (helper: FormFieldHelper<any>) => JSX.Element | undefined
+  createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
   getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
 }
 
@@ -81,7 +82,7 @@ export type TransactionArgumentField = ArgumentDefinition & {
   path: string
   fieldSchema: z.ZodTypeAny
   transactionType: algosdk.ABITransactionType
-  createField: (helper: FormFieldHelper<any>, onEdit: () => void) => JSX.Element | undefined
+  createField: (helper: FormFieldHelper<any>, onEdit: () => void) => React.JSX.Element | undefined
   getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
 }
 
