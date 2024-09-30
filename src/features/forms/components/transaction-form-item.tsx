@@ -18,11 +18,7 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   onEdit: () => void
 }
 
-// TODO: NC - Add the transaction type selector. Needs to be limited to the transactions that are available.
-// TODO: NC - Properly handle decoding the value and sending the transaction
 // TODO: NC - Make it look like the designs
-// TODO: NC - Validation is incorrect for close account transaction building
-// TODO: NC - Handle readonly ABI methods <-- not related to transactions
 // TODO: NC - When setting a fee (or round range), then resetting it back the previously set fee is still set.
 export function TransactionFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   transactionType,
@@ -52,7 +48,7 @@ export function TransactionFormItem<TSchema extends Record<string, unknown> = Re
           disabled={transactionType === algosdk.ABITransactionType.appl}
           disabledReason="Nested app call is not supported yet."
         >
-          {transactionFields.length === 0 ? 'Create' : 'Edit'}
+          {transactionFields.length === 0 ? 'Add' : 'Edit'}
         </Button>
       </div>
       <HintText errorText={error?.message} helpText={helpText} />

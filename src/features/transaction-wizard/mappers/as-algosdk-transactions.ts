@@ -55,6 +55,7 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   throw new Error('Unsupported transaction type')
 }
 
+// TODO: move transaction.fee.setAutomatically to common code
 const asPaymentTransaction = async (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
 ): Promise<algosdk.Transaction> => {

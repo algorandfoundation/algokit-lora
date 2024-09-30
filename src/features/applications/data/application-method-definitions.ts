@@ -30,7 +30,6 @@ export const useLoadableApplicationAbiMethodDefinitions = (application: Applicat
   return useAtomValue(loadable(applicationMethodDefinitionsAtom))
 }
 
-// TODO: convert ApplicationId to bigint
 export const useLoadableAbiMethodDefinitions = (applicationId: ApplicationId) => {
   const applicationMethodDefinitionsAtom = useMemo(() => {
     return createApplicationMethodDefinitionsAtom(applicationId)

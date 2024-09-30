@@ -42,7 +42,6 @@ type Props = {
   title: JSX.Element
 }
 
-// TODO: PD - on complete
 export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, title }: Props) {
   const { activeAddress, signer } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
@@ -103,7 +102,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     }
   }, [openTransactionBuilderDialog])
 
-  // TODO: add TODO about AppCall -> AppCall -> Payment
+  // TODO: Support nested app calls
   const sendTransactions = useCallback(async () => {
     try {
       setErrorMessage(undefined)
@@ -132,7 +131,10 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     }
   }, [activeAddress, signer, transactions, onTransactionSent])
 
-  // TODO: PD - currently edit the app call will reset the resources
+  // TODO: PD - check why sender and called app aren't populated into the resources
+  // TODO: PD - reset the arg value if method name is changed
+  // TODO: PD - fix changing method names
+  // TODO: PD - test resource population, what if the foreign app is added, then the user clicks populate resources again
   const populateResources = useCallback(async () => {
     try {
       invariant(activeAddress, 'Please connect your wallet')
