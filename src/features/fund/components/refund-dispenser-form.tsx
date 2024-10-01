@@ -44,7 +44,6 @@ export function RefundDispenserForm({ onSubmit, limit }: Props) {
       schema={refundFormSchema}
       defaultValues={{ amount: '' as unknown as undefined }}
       onSubmit={refundDispenserAccount}
-      resetOnSuccess={true}
       formAction={
         <FormActions>
           <SubmitButton>Refund</SubmitButton>

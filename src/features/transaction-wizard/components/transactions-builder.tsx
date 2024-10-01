@@ -46,7 +46,7 @@ type Props = {
 const transactionGroupLabel = 'Transaction Group'
 
 export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, renderContext }: Props) {
-  const { activeAddress, signer } = useWallet()
+  const { activeAddress } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
   const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
@@ -113,8 +113,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 
       const buildTransactionResultToAlgosdkTransactionMap = new Map<string, string>()
 
-      // TODO: NC - Need to add signer not just against the active address to handle rekeys. Can we set a shared default signer?
-      const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
+      const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
         const txns = await asAlgosdkTransactions(transaction)
         buildTransactionResultToAlgosdkTransactionMap.set(transaction.id, txns[txns.length - 1].txID())
@@ -133,7 +132,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     } catch (error) {
       setErrorMessage(asError(error).message)
     }
-  }, [activeAddress, signer, transactions, onTransactionSent])
+  }, [activeAddress, transactions, onTransactionSent])
 
   // TODO: PD - check why sender and called app aren't populated into the resources
   const populateResources = useCallback(async () => {
@@ -141,7 +140,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
 
-      const algokitComposer = algorandClient.setSigner(activeAddress, signer).newGroup()
+      const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
         const txns = await asAlgosdkTransactions(transaction)
         txns.forEach((txn) => algokitComposer.addTransaction(txn))
@@ -174,7 +173,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     } catch (error) {
       setErrorMessage(asError(error).message)
     }
-  }, [transactions, activeAddress, signer])
+  }, [transactions, activeAddress])
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult) => {
