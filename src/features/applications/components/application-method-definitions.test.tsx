@@ -17,6 +17,7 @@ import { UserEvent } from '@testing-library/user-event'
 import { sendButtonLabel } from '@/features/transaction-wizard/components/transactions-builder'
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
+import { selectOption } from '@/tests/utils/select-option'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -120,7 +121,7 @@ describe('application-method-definitions', () => {
             })
 
             const addButton = await waitFor(() => {
-              const addButton = component.getByRole('button', { name: 'Add' })
+              const addButton = within(formDialog).getByRole('button', { name: 'Add' })
               expect(addButton).not.toBeDisabled()
               return addButton!
             })
@@ -302,11 +303,9 @@ describe('application-method-definitions', () => {
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
             // Click the edit button on the transaction group
-            const transactionGroupTable = await waitFor(() => component.getByLabelText(transactionGroupTableLabel))
-            const actionButton = within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })
-            await user.click(actionButton)
-            const editMenuItem = component.getByRole('menuitem', { name: 'Edit' })
-            await user.click(editMenuItem)
+            const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
+            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(component.getByRole('menuitem', { name: 'Edit' }))
 
             formDialog = component.getByRole('dialog')
             await openEditTransactionTypeArgDialog(formDialog, user, 'Argument 1')
@@ -379,8 +378,283 @@ describe('application-method-definitions', () => {
         )
       })
     })
+
+    describe('when calling echo_bytes method', () => {
+      it('succeeds when a byte array is supplied', async () => {
+        const { testAccount } = localnet.context
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const echoBytesPanel = await expandMethodAccordion(component, user, 'echo_bytes')
+
+            // Call the method
+            const callButton = await waitFor(() => {
+              const callButton = within(echoBytesPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            const formDialog = component.getByRole('dialog')
+
+            // Input the byte array in base64
+            const argInput = await getArgInput(formDialog, 'Argument 1')
+            fireEvent.input(argInput, {
+              target: { value: 'AQ==' },
+            })
+
+            // Save the transaction
+            const addButton = await waitFor(() => {
+              const addButton = within(formDialog).getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+              [
+                "FR98dQABAQ==",
+              ]
+            `)
+          }
+        )
+      })
+
+      it('allows the user to edit the input, save and send again', async () => {
+        const { testAccount } = localnet.context
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const echoBytePanel = await expandMethodAccordion(component, user, 'echo_bytes')
+
+            // Call the method
+            const callButton = await waitFor(() => {
+              const callButton = within(echoBytePanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            let formDialog = component.getByRole('dialog')
+
+            // Input the initial byte array in base64
+            const argInput = await getArgInput(formDialog, 'Argument 1')
+            fireEvent.input(argInput, {
+              target: { value: 'AQ==' },
+            })
+
+            // Save the transaction, make sure that there is no validation error
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+            await waitFor(() => {
+              const requiredValidationMessages = component.queryAllByText('Required')
+              expect(requiredValidationMessages.length).toBe(0)
+            })
+
+            // Edit the transaction
+            const transactionGroupTable = await waitFor(() => within(echoBytePanel).getByLabelText(transactionGroupTableLabel))
+            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
+            formDialog = component.getByRole('dialog')
+
+            // Input the new byte array in base64
+            const editedArgInput = await getArgInput(formDialog, 'Argument 1')
+            expect(editedArgInput).toHaveValue('AQ==')
+            fireEvent.input(editedArgInput, {
+              target: { value: 'AgI=' },
+            })
+
+            // Save the edited transaction
+            await user.click(within(formDialog).getByRole('button', { name: 'Update' }))
+
+            // Send the transaction
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+              [
+                "FR98dQACAgI=",
+              ]
+            `)
+          }
+        )
+      })
+
+      it('fails when no byte array is supplied', async () => {
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const echoBytePanel = await expandMethodAccordion(component, user, 'echo_bytes')
+
+            // Call the method
+            const callButton = await waitFor(() => {
+              const callButton = within(echoBytePanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            const formDialog = component.getByRole('dialog')
+
+            // Try to add without input
+            const addButton = await waitFor(() => within(formDialog).getByRole('button', { name: 'Add' }))
+            await user.click(addButton)
+
+            await waitFor(() => {
+              const requiredValidationMessages = component.getAllByText('Required')
+              expect(requiredValidationMessages.length).toBeGreaterThan(0)
+            })
+          }
+        )
+      })
+    })
+
+    describe('when calling add method', () => {
+      it('allows the users to switch to echo_bytes method and send the transaction', async () => {
+        const { testAccount } = localnet.context
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            // Start with add method
+            const addMethodPanel = await expandMethodAccordion(component, user, 'add')
+
+            // Call the add method
+            const callButton = await waitFor(() => {
+              const callButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            let formDialog = component.getByRole('dialog')
+
+            // Input values for add method
+            fireEvent.input(await getArgInput(formDialog, 'Argument 1'), { target: { value: '1' } })
+            fireEvent.input(await getArgInput(formDialog, 'Argument 2'), { target: { value: '2' } })
+
+            // Save the transaction
+            const addButton = await waitFor(() => component.getByRole('button', { name: 'Add' }))
+            await user.click(addButton)
+
+            // Edit the transaction
+            const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
+            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
+            formDialog = component.getByRole('dialog')
+
+            // Switch to echo_bytes method and save
+            await selectOption(formDialog.parentElement!, user, /Method/, 'echo_bytes')
+            const arg1Input = await getArgInput(formDialog, 'Argument 1')
+            expect(arg1Input).toHaveValue('')
+            fireEvent.input(arg1Input, { target: { value: 'AgI=' } })
+            await user.click(within(formDialog).getByRole('button', { name: 'Update' }))
+
+            // Send the transaction
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            // Verify the result
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+              [
+                "FR98dQACAgI=",
+              ]
+            `)
+          }
+        )
+      })
+    })
   })
 })
+
+// TODO: PD to test
+// - switch, reset arrays
+// - open/edit byte arrays
 
 const getArgInput = async (parentComponent: HTMLElement, argName: string) => {
   const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)

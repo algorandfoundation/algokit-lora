@@ -2,6 +2,7 @@ from algopy import (
     ARC4Contract,
     arc4,
     gtxn,
+    Bytes,
 )
 
 
@@ -13,3 +14,7 @@ class TestContract(ARC4Contract):
     @arc4.abimethod
     def get_pay_txn_amount(self, pay_txn: gtxn.PaymentTransaction) -> arc4.UInt64:
         return arc4.UInt64(pay_txn.amount)
+
+    @arc4.abimethod
+    def echo_bytes(self, a: Bytes) -> Bytes:
+        return a
