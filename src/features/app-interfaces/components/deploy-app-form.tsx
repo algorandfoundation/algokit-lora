@@ -219,7 +219,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
               label: 'Updatable',
             })}
             <Fieldset legend="Template Params">
-              {templateParamNames.length === 0 && <span className="text-small">No template params.</span>}
+              {templateParamNames.length === 0 && <span className="text-sm">No template params.</span>}
               {templateParamNames.length > 0 &&
                 templateParamNames.map((name, index) => <TemplateParamForm key={index} name={name} index={index} />)}
             </Fieldset>

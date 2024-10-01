@@ -9,6 +9,7 @@ import { TransactionsGraphData } from '@/features/transactions-graph'
 import { AssetId } from '@/features/assets/data/types'
 import { Transaction } from '@/features/transactions/models'
 import React from 'react'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
@@ -120,6 +121,7 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.MethodCall
   applicationId: ApplicationId
+  appSpec: AppSpec
   method: algosdk.ABIMethod
   methodName: string
   methodArgs: MethodCallArg[]

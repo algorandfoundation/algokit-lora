@@ -103,7 +103,15 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
 
 const asMethodCallTransaction = async (transaction: BuildMethodCallTransactionResult): Promise<algosdk.Transaction[]> => {
   const params = await asMethodCallParams(transaction)
-  const result = await algorandClient.createTransaction.appCallMethodCall(params)
+  const result = await algorandClient.client
+    .getAppClientById({
+      appId: BigInt(transaction.applicationId),
+      appSpec: transaction.appSpec,
+    })
+    .createTransaction.call({
+      ...params,
+      method: transaction.methodName,
+    })
   return result.transactions
 }
 

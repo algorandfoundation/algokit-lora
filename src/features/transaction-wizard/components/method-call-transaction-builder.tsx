@@ -30,6 +30,8 @@ import { TransactionBuilderMode } from '../data'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilder } from './transaction-builder'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -56,6 +58,7 @@ export function MethodCallTransactionBuilder({
   onSubmit,
   onCancel,
 }: Props) {
+  const [appSpec, setAppSpec] = useState<Arc32AppSpec | undefined>(undefined)
   const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
   const [formSchema, setFormSchema] = useState(appCallFormSchema)
   const [transactionArgForm, setTransactionArgForm] = useState<React.ReactNode | undefined>(undefined)
@@ -87,13 +90,14 @@ export function MethodCallTransactionBuilder({
           sender: values.sender,
           fee: values.fee,
           validRounds: values.validRounds,
+          appSpec: appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
           method: methodForm.abiMethod,
           methodName: methodForm.name,
           methodArgs: methodArgs,
         })
       }
     },
-    [methodForm, onSubmit, transaction?.id]
+    [methodForm, onSubmit, transaction?.id, appSpec]
   )
 
   const onSetMethodForm = useCallback((method: MethodForm | undefined) => {
@@ -168,6 +172,7 @@ export function MethodCallTransactionBuilder({
             <FormInner
               helper={helper}
               methodForm={methodForm}
+              onSetAppSpec={setAppSpec}
               onSetMethodForm={onSetMethodForm}
               onSetTransactionArgForm={setTransactionArgForm}
             />
@@ -182,21 +187,29 @@ export function MethodCallTransactionBuilder({
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof baseFormData>>
   methodForm: MethodForm | undefined
+  onSetAppSpec: (appSpec: Arc32AppSpec) => void
   onSetMethodForm: (method: MethodForm | undefined) => void
   onSetTransactionArgForm: (form: React.ReactNode) => void
 }
 
-function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgForm }: FormInnerProps) {
+function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTransactionArgForm }: FormInnerProps) {
   const { watch, setValue, trigger, getValues } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('applicationId')
   const methodName = watch('methodName')
 
   const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
-  const methodDefinitions = useMemo(() => {
+
+  const { appSpec, methodDefinitions } = useMemo(() => {
     if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
-      return []
+      return {
+        appSpec: undefined,
+        methodDefinitions: [],
+      }
     }
-    return loadableMethodDefinitions.data.methods
+    return {
+      appSpec: loadableMethodDefinitions.data.appSpec,
+      methodDefinitions: loadableMethodDefinitions.data.methods,
+    }
   }, [loadableMethodDefinitions])
 
   const setTransactionArg = useCallback(
@@ -227,7 +240,7 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
   )
 
   useEffect(() => {
-    if (!methodName || methodDefinitions.length === 0) {
+    if (!methodName || methodDefinitions.length === 0 || !appSpec) {
       onSetMethodForm(undefined)
       return
     }
@@ -242,8 +255,9 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
       }
     }
 
+    onSetAppSpec(appSpec)
     onSetMethodForm(asMethodForm(methodDefinitions.find((method) => method.name === methodName)!))
-  }, [getValues, methodDefinitions, methodForm?.name, methodName, onSetMethodForm, setValue])
+  }, [getValues, methodDefinitions, methodForm?.name, methodName, onSetMethodForm, setValue, onSetAppSpec, appSpec])
 
   const abiMethodArgs = useMemo(() => {
     return (
