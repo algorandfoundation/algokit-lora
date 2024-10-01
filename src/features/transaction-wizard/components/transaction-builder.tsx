@@ -108,7 +108,8 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
     if (transactionType !== undefined) {
       return builderConfigs.filter((builderConfig) => builderConfig.transactionType === transactionType)
     }
-    return builderConfigs
+    // TODO: NC - Temporarily filter application transactions. Remove this filter once we support this
+    return builderConfigs.filter((builderConfig) => builderConfig.transactionType !== algosdk.TransactionType.appl)
   }, [transactionType])
   const [selectedBuilderType, setSelectedBuilderType] = useState<BuildableTransactionType>(
     transaction?.type ?? type ?? validBuilderConfigs[0].type
