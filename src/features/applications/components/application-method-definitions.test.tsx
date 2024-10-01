@@ -15,6 +15,7 @@ import { useParams } from 'react-router-dom'
 import { fireEvent, getByText, render, RenderResult, waitFor, within } from '@/tests/testing-library'
 import { UserEvent } from '@testing-library/user-event'
 import { sendButtonLabel } from '@/features/transaction-wizard/components/transactions-builder'
+import { algo } from '@algorandfoundation/algokit-utils'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -55,111 +56,203 @@ describe('application-method-definitions', () => {
       await setWalletAddressAndSigner(localnet)
     })
 
-    describe('when calling an ABI method', () => {
-      describe('when calling calculator add method', () => {
-        it('reports validation errors when required fields have not been supplied', () => {
-          vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+    describe('when calling calculator add method', () => {
+      it('reports validation errors when required fields have not been supplied', () => {
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
-          return executeComponentTest(
-            () => {
-              return render(<ApplicationPage />, undefined, myStore)
-            },
-            async (component, user) => {
-              const addMethodPanel = await expandMethodAccordion(component, user, 'add')
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const addMethodPanel = await expandMethodAccordion(component, user, 'add')
 
-              const addTransactionButton = await waitFor(() => {
-                const addTransactionButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
-                expect(addTransactionButton).not.toBeDisabled()
-                return addTransactionButton!
-              })
-              await user.click(addTransactionButton)
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
 
-              const addButton = await waitFor(() => {
-                const addButton = component.getByRole('button', { name: 'Add' })
-                expect(addButton).not.toBeDisabled()
-                return addButton!
-              })
-              await user.click(addButton)
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
 
-              await waitFor(() => {
-                const requiredValidationMessages = component.getAllByText('Required')
-                expect(requiredValidationMessages.length).toBeGreaterThan(0)
-              })
-            }
-          )
-        })
-        it('succeeds when all fields have been correctly supplied', () => {
-          const { testAccount } = localnet.context
-          vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+            await waitFor(() => {
+              const requiredValidationMessages = component.getAllByText('Required')
+              expect(requiredValidationMessages.length).toBeGreaterThan(0)
+            })
+          }
+        )
+      })
+      it('succeeds when all fields have been correctly supplied', () => {
+        const { testAccount } = localnet.context
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
-          return executeComponentTest(
-            () => {
-              return render(<ApplicationPage />)
-            },
-            async (component, user) => {
-              const addMethodPanel = await expandMethodAccordion(component, user, 'add')
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />)
+          },
+          async (component, user) => {
+            const addMethodPanel = await expandMethodAccordion(component, user, 'add')
 
-              const addTransactionButton = await waitFor(() => {
-                const addTransactionButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
-                expect(addTransactionButton).not.toBeDisabled()
-                return addTransactionButton!
-              })
-              await user.click(addTransactionButton)
+            const callButton = await waitFor(() => {
+              const callButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
 
-              const formDialog = component.getByRole('dialog')
+            const formDialog = component.getByRole('dialog')
 
-              const arg1Input = await getArgInput(formDialog, 'Argument 1')
-              fireEvent.input(arg1Input, {
-                target: { value: '1' },
-              })
+            const arg1Input = await getArgInput(formDialog, 'Argument 1')
+            fireEvent.input(arg1Input, {
+              target: { value: '1' },
+            })
 
-              const arg2Input = await getArgInput(formDialog, 'Argument 2')
-              fireEvent.input(arg2Input, {
-                target: { value: '2' },
-              })
+            const arg2Input = await getArgInput(formDialog, 'Argument 2')
+            fireEvent.input(arg2Input, {
+              target: { value: '2' },
+            })
 
-              const addButton = await waitFor(() => {
-                const addButton = component.getByRole('button', { name: 'Add' })
-                expect(addButton).not.toBeDisabled()
-                return addButton!
-              })
-              await user.click(addButton)
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
 
-              const sendButton = await waitFor(() => {
-                const sendButton = component.getByRole('button', { name: sendButtonLabel })
-                expect(sendButton).not.toBeDisabled()
-                return sendButton!
-              })
-              await user.click(sendButton)
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
 
-              const resultsDiv = await waitFor(
-                () => {
-                  expect(component.queryByText('Required')).not.toBeInTheDocument()
-                  return component.getByText('Result').parentElement!
-                },
-                { timeout: 10_000 }
-              )
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
 
-              const transactionId = await waitFor(
-                () => {
-                  const transactionLink = within(resultsDiv)
-                    .getAllByRole('link')
-                    .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
-                  return transactionLink.getAttribute('href')!.split('/').pop()!
-                },
-                { timeout: 10_000 }
-              )
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
 
-              const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction['logs']!).toMatchInlineSnapshot(`
               [
                 "FR98dQAAAAAAAAAD",
               ]
             `)
-            }
-          )
-        })
+          }
+        )
+      })
+    })
+
+    describe('when calling get_pay_txn_amount method', () => {
+      it('succeeds when all fields have been correctly supplied', async () => {
+        const { testAccount } = localnet.context
+        const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const addMethodPanel = await expandMethodAccordion(component, user, 'get_pay_txn_amount')
+
+            const callButton = await waitFor(() => {
+              const callButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+
+            const formDialog = component.getByRole('dialog')
+
+            await user.click(await waitFor(() => within(formDialog).getByRole('button', { name: 'Add Transaction' })))
+
+            const receiverInput = await within(formDialog).findByLabelText(/Receiver/)
+            fireEvent.input(receiverInput, {
+              target: { value: testAccount2.addr },
+            })
+
+            const amountInput = await within(formDialog).findByLabelText(/Amount/)
+            fireEvent.input(amountInput, {
+              target: { value: '0.5' },
+            })
+
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const paymentTransactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+            const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
+            expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
+            expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+                {
+                  "amount": 500000,
+                  "close-amount": 0,
+                  "receiver": "${testAccount2.addr}",
+                }
+              `)
+
+            const appCallTransactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .filter((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))![1]
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
+            expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
+            expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
+                [
+                  "FR98dQAAAAAAB6Eg",
+                ]
+              `)
+          }
+        )
       })
     })
   })

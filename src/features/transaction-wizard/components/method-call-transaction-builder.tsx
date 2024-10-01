@@ -27,7 +27,6 @@ import { DefaultArgument } from '@/features/abi-methods/components/default-value
 import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { cn } from '@/features/common/utils'
 import { TransactionBuilder } from './transaction-builder'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
@@ -156,7 +155,7 @@ export function MethodCallTransactionBuilder({
 
   return (
     <>
-      <div className={cn(transactionArgForm ? 'hidden' : 'block')}>
+      <div style={{ display: transactionArgForm ? 'none' : 'block' }}>
         <Form
           schema={formData}
           onSubmit={submit}
@@ -179,7 +178,7 @@ export function MethodCallTransactionBuilder({
           )}
         </Form>
       </div>
-      <div className={cn(transactionArgForm ? 'block' : 'hidden')}>{transactionArgForm}</div>
+      <div style={{ display: transactionArgForm ? 'block' : 'none' }}>{transactionArgForm}</div>
     </>
   )
 }
