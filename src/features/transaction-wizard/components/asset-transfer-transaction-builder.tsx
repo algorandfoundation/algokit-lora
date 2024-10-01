@@ -1,7 +1,7 @@
 import { numberSchema } from '@/features/forms/data/common'
 import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { CancelButton } from '@/features/forms/components/cancel-button'
@@ -113,14 +113,20 @@ type FieldsWithAssetInfoProps = {
 
 function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetInfoProps) {
   const loadableAssetSummary = useLoadableAssetSummaryAtom(assetId)
-  const { setValue, trigger } = formCtx
+  const { setValue, trigger, getValues } = formCtx
+  const [initialAssetLoad, setInitialAssetLoad] = useState(true)
 
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
-      setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-      setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-      setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
-      trigger('asset')
+      if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
+        setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
+        setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
+        setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
+        trigger('asset')
+      }
+      if (initialAssetLoad) {
+        setInitialAssetLoad(false)
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
