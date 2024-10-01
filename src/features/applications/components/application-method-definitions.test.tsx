@@ -16,6 +16,7 @@ import { fireEvent, getByText, render, RenderResult, waitFor, within } from '@/t
 import { UserEvent } from '@testing-library/user-event'
 import { sendButtonLabel } from '@/features/transaction-wizard/components/transactions-builder'
 import { algo } from '@algorandfoundation/algokit-utils'
+import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -175,15 +176,16 @@ describe('application-method-definitions', () => {
           async (component, user) => {
             const addMethodPanel = await expandMethodAccordion(component, user, 'get_pay_txn_amount')
 
+            // Call the method
             const callButton = await waitFor(() => {
               const callButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
               expect(callButton).not.toBeDisabled()
               return callButton!
             })
             await user.click(callButton)
-
             const formDialog = component.getByRole('dialog')
 
+            // Add the payment transaction
             await user.click(await waitFor(() => within(formDialog).getByRole('button', { name: 'Add Transaction' })))
 
             const receiverInput = await within(formDialog).findByLabelText(/Receiver/)
@@ -196,10 +198,13 @@ describe('application-method-definitions', () => {
               target: { value: '0.5' },
             })
 
+            // Save the payment transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
+            // Save the app call transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
+            // Send the transactions
             const sendButton = await waitFor(() => {
               const sendButton = component.getByRole('button', { name: sendButtonLabel })
               expect(sendButton).not.toBeDisabled()
@@ -215,6 +220,7 @@ describe('application-method-definitions', () => {
               { timeout: 10_000 }
             )
 
+            // Check the payment transaction
             const paymentTransactionId = await waitFor(
               () => {
                 const transactionLink = within(resultsDiv)
@@ -234,6 +240,7 @@ describe('application-method-definitions', () => {
                 }
               `)
 
+            // Check the app call transaction
             const appCallTransactionId = await waitFor(
               () => {
                 const transactionLink = within(resultsDiv)
@@ -249,6 +256,123 @@ describe('application-method-definitions', () => {
             expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
                 [
                   "FR98dQAAAAAAB6Eg",
+                ]
+              `)
+          }
+        )
+      })
+
+      it('allows the user to edit the payment amount', async () => {
+        const { testAccount } = localnet.context
+        const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const addMethodPanel = await expandMethodAccordion(component, user, 'get_pay_txn_amount')
+
+            // Call the method
+            const callButton = await waitFor(() => {
+              const callButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            let formDialog = component.getByRole('dialog')
+
+            // Add the payment transaction
+            await openAddTransactionTypeArgDialog(formDialog, user, 'Argument 1')
+            const receiverInput = await within(formDialog).findByLabelText(/Receiver/)
+            fireEvent.input(receiverInput, {
+              target: { value: testAccount2.addr },
+            })
+
+            let amountInput = await within(formDialog).findByLabelText(/Amount/)
+            fireEvent.input(amountInput, {
+              target: { value: '0.5' },
+            })
+
+            // Click add to add the payment transaction as param
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+
+            // Click add to add the app call transaction into the transaction group
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+
+            // Click the edit button on the transaction group
+            const transactionGroupTable = await waitFor(() => component.getByLabelText(transactionGroupTableLabel))
+            const actionButton = within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })
+            await user.click(actionButton)
+            const editMenuItem = component.getByRole('menuitem', { name: 'Edit' })
+            await user.click(editMenuItem)
+
+            formDialog = component.getByRole('dialog')
+            await openEditTransactionTypeArgDialog(formDialog, user, 'Argument 1')
+            amountInput = await within(formDialog).findByLabelText(/Amount/)
+            fireEvent.input(amountInput, {
+              target: { value: '0.6' },
+            })
+
+            // Save the payment transaction
+            await user.click(within(formDialog).getByRole('button', { name: 'Update' }))
+
+            // Save the app call transaction
+            await user.click(within(formDialog).getByRole('button', { name: 'Update' }))
+
+            // Send the transactions
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            // Check the payment transaction
+            const paymentTransactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+            const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
+            expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
+            expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+                {
+                  "amount": 600000,
+                  "close-amount": 0,
+                  "receiver": "${testAccount2.addr}",
+                }
+              `)
+
+            // Check the app call transaction
+            const appCallTransactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .filter((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))![1]
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
+            expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
+            expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
+                [
+                  "FR98dQAAAAAACSfA",
                 ]
               `)
           }
@@ -271,4 +395,17 @@ const expandMethodAccordion = async (component: RenderResult, user: UserEvent, m
     const accordionPanel = component.getByRole('region', { name: methodName })
     return accordionPanel
   })
+}
+
+const openAddTransactionTypeArgDialog = async (parentComponent: HTMLElement, user: UserEvent, argName: string) => {
+  const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)
+  await user.click(await waitFor(() => within(wrapperDiv).getByRole('button', { name: 'Add Transaction' })))
+}
+
+const openEditTransactionTypeArgDialog = async (parentComponent: HTMLElement, user: UserEvent, argName: string) => {
+  const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)
+  const actionButton = within(wrapperDiv).getByRole('button')
+  await user.click(actionButton)
+  await user.keyboard('[ArrowDown]')
+  await user.keyboard('[Enter]')
 }

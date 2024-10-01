@@ -27,6 +27,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabel } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
+import { transactionActionsLabel } from './labels'
 
 export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   const { attributes, listeners } = useSortable({
@@ -175,7 +176,7 @@ const getTableColumns = ({
     meta: { className: 'w-10' },
     cell: ({ row }) => (
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
+        <DropdownMenuTrigger className="flex w-full items-center justify-center py-4" aria-label={transactionActionsLabel}>
           <EllipsisVertical size={16} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">

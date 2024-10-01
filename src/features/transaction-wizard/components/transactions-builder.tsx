@@ -30,6 +30,7 @@ import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Transaction } from '@/features/transactions/models'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
+import { transactionGroupTableLabel } from './labels'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -276,6 +277,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           </Button>
         </div>
         <TransactionsTable
+          ariaLabel={transactionGroupTableLabel}
           data={transactions}
           setData={setTransactions}
           nonDeletableTransactionIds={nonDeletableTransactionIds}
