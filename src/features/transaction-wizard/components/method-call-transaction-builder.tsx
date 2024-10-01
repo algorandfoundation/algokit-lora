@@ -29,6 +29,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilder } from './transaction-builder'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -114,7 +115,15 @@ export function MethodCallTransactionBuilder({
     if (mode === TransactionBuilderMode.Edit && transaction) {
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
-          acc[`${methodArgPrefix}-${index}`] = arg
+          const { type } = transaction.method.args[index]
+          if (
+            (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
+            (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
+          ) {
+            acc[`${methodArgPrefix}-${index}`] = uint8ArrayToBase64(arg as Uint8Array)
+          } else {
+            acc[`${methodArgPrefix}-${index}`] = arg
+          }
           return acc
         },
         {} as Record<string, unknown>
@@ -223,13 +232,18 @@ function FormInner({ helper, methodForm, onSetMethodForm, onSetTransactionArgFor
       return
     }
 
-    const values = getValues()
-    for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
-      setValue(key as Path<z.infer<typeof baseFormData>>, undefined)
+    if (methodForm?.name !== undefined && methodName !== methodForm.name) {
+      const values = getValues()
+      for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
+        const value = values[key as keyof typeof values]
+        // for number and bigint, set to empty string so that the input is reset
+        const defaultValue = typeof value === 'number' || typeof value === 'bigint' ? '' : undefined
+        setValue(key as Path<z.infer<typeof baseFormData>>, defaultValue)
+      }
     }
 
     onSetMethodForm(asMethodForm(methodDefinitions.find((method) => method.name === methodName)!))
-  }, [getValues, methodDefinitions, methodName, onSetMethodForm, setValue])
+  }, [getValues, methodDefinitions, methodForm?.name, methodName, onSetMethodForm, setValue])
 
   const abiMethodArgs = useMemo(() => {
     return (
