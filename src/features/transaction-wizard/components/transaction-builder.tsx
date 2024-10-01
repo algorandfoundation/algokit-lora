@@ -116,10 +116,10 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
   )
 
   const FormComponent = useMemo(() => {
-    const component = validBuilderConfigs.find((builderConfig) => builderConfig.type === selectedBuilderType)?.component
+    const component = builderConfigs.find((builderConfig) => builderConfig.type === selectedBuilderType)?.component
     invariant(component, 'Component not found')
     return component
-  }, [selectedBuilderType, validBuilderConfigs])
+  }, [selectedBuilderType])
 
   return (
     <RenderLoadable loadable={loadableActiveWalletAddressSnapshot}>

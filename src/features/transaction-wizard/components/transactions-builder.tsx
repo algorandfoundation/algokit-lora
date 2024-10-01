@@ -56,7 +56,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   }, [transactionsProp])
 
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
-    dialogHeader: 'Create Transaction',
+    dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
         {
@@ -71,6 +71,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       <TransactionBuilder
         transactionType={props.data.type}
         mode={props.data.mode}
+        type={props.data.transaction?.type}
         defaultValues={props.data.defaultValues}
         transaction={props.data.transaction}
         onCancel={props.onCancel}
