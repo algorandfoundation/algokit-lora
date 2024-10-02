@@ -4,9 +4,12 @@ export type Nfd = string
 
 export type NfdResult = {
   name: Nfd
-  address: Address
+  depositAccount: Address
+  owner: Address
+  caAlgo: Address
 }
 
 export type NfdSummary = {
+  name: Nfd
   address: Address
 }

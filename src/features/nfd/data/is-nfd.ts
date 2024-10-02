@@ -1,1 +1,1 @@
-export const isNFD = (name: string) => /^[a-zA-Z0-9]+\.algo$/.test(name)
+export const isNFD = (name: string) => /^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*\.algo$/.test(name)

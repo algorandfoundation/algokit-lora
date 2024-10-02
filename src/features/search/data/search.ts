@@ -18,7 +18,7 @@ import { createApplicationSummaryAtom } from '@/features/applications/data/appli
 import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
 import { isNFD } from '@/features/nfd/data/is-nfd'
-import { createNfdSummaryAtom } from '@/features/nfd/data/nfd-summary'
+import { createNfdSummaryAtom, createReverseNfdSummaryAtom } from '@/features/nfd/data/nfd-summary'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -43,10 +43,12 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
     const results: SearchResult[] = []
 
     if (isAddress(term)) {
+      const nfdAtom = createReverseNfdSummaryAtom(term)
+      const nfd = await handleErrorInAsyncMaybeAtom(get(nfdAtom), handle404)
       results.push({
         type: SearchResultType.Account,
         id: term,
-        label: ellipseAddress(term),
+        label: nfd ? `${ellipseAddress(term)} (${nfd.name})` : ellipseAddress(term),
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isNFD(term)) {
@@ -56,7 +58,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         results.push({
           type: SearchResultType.Account,
           id: nfd.address,
-          label: ellipseAddress(nfd.address),
+          label: `${ellipseAddress(nfd.address)} (${nfd.name})`,
           url: Urls.Explore.Account.ByAddress.build({ address: nfd.address, networkId: selectedNetwork }),
         })
       }
