@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { getNfdResultAtom, getReverseNfdResultAtom } from './nfd-result'
+import { getForwardNfdResultAtom, getReverseNfdResultAtom } from './nfd-result'
 import { Nfd } from './types'
 import { asNfdSummary } from '../mappers/nfd-summary'
 import { Address } from '@/features/accounts/data/types'
@@ -10,7 +10,7 @@ export const nfdSummaryResolver = (nfd: Nfd) => {
 
 export const createNfdSummaryAtom = (nfd: Nfd) => {
   return atom(async (get) => {
-    const nfdResult = await get(getNfdResultAtom(nfd))
+    const nfdResult = await get(getForwardNfdResultAtom(nfd))
     return asNfdSummary(nfdResult)
   })
 }

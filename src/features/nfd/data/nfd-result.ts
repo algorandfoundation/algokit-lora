@@ -1,9 +1,9 @@
 import { readOnlyAtomCache } from '@/features/common/data'
 import { Getter, Setter } from 'jotai'
-import { Nfd, NfdResult } from './types'
+import { Nfd, NfdLookup, NfdResult } from './types'
 import { Address } from '@/features/accounts/data/types'
 
-const getReverseNfdResult = async (_: Getter, __: Setter, address: Address) => {
+const getReverseLookupNfdResult = async (_: Getter, __: Setter, address: Address) => {
   try {
     const response = await fetch(`https://api.nf.domains/nfd/lookup?address=${address}`, {
       method: 'GET',
@@ -16,12 +16,14 @@ const getReverseNfdResult = async (_: Getter, __: Setter, address: Address) => {
       caAlgo: data[address].caAlgo[0],
       owner: data[address].owner,
     } as NfdResult
-  } catch (e) {
-    throw new Error('Nfd is not found')
+  } catch (e: unknown) {
+    const error = new Error('Response not found') as Error & { status: number }
+    error.status = 404
+    throw error
   }
 }
 
-const getNfdResult = async (_: Getter, __: Setter, nfd: Nfd) => {
+const getForwardLookupNfdResult = async (_: Getter, __: Setter, nfd: Nfd) => {
   try {
     const response = await fetch(`https://api.nf.domains/nfd/${nfd}`, {
       method: 'GET',
@@ -35,10 +37,15 @@ const getNfdResult = async (_: Getter, __: Setter, nfd: Nfd) => {
       owner: data.owner,
     } as NfdResult
   } catch (e: unknown) {
-    throw new Error('NFD not found')
+    throw e as 404
   }
 }
 
-export const [nfdResultsAtom, getNfdResultAtom] = readOnlyAtomCache(getNfdResult, (nfd) => nfd)
+export const getNfdResult = async (getter: Getter, setter: Setter, nfdLookup: NfdLookup) =>
+  'address' in nfdLookup
+    ? getReverseLookupNfdResult(getter, setter, nfdLookup.address)
+    : getForwardLookupNfdResult(getter, setter, nfdLookup.nfd)
 
-export const [reverseNfdResultsAtom, getReverseNfdResultAtom] = readOnlyAtomCache(getReverseNfdResult, (address) => address)
+export const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache(getForwardLookupNfdResult, (nfd) => nfd)
+
+export const [reverseNfdResultsAtom, getReverseNfdResultAtom] = readOnlyAtomCache(getReverseLookupNfdResult, (address) => address)
