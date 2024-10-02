@@ -96,7 +96,7 @@ const asPaymentTransaction = (transaction: BuildPaymentTransactionResult | Build
           },
         ]
       : []),
-    ...(transaction.amount ? [{ dt: 'Amount', dd: <DisplayAlgo amount={algo(transaction.amount)} /> }] : []),
+    ...(transaction.amount !== undefined ? [{ dt: 'Amount', dd: <DisplayAlgo amount={algo(transaction.amount)} /> }] : []),
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
     ...asValidRoundsItem(transaction.validRounds),
@@ -163,7 +163,7 @@ const asAssetTransferTransaction = (
         </AssetIdLink>
       ),
     },
-    ...('amount' in transaction && transaction.amount
+    ...('amount' in transaction && transaction.amount !== undefined
       ? [{ dt: 'Amount', dd: `${transaction.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}` }]
       : []),
     ...asNoteItem(transaction.note),
