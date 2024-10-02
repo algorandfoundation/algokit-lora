@@ -3,7 +3,7 @@ import { bigIntSchema } from '@/features/forms/data/common'
 import {
   senderFieldSchema,
   commonSchema,
-  onCompleteField,
+  onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
@@ -39,7 +39,7 @@ import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 const appCallFormSchema = {
   ...commonSchema,
   ...senderFieldSchema,
-  ...onCompleteField,
+  ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
 }

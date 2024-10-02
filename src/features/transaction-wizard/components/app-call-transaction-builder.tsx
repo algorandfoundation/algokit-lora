@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commonSchema, onCompleteField, onCompleteOptions } from '@/features/transaction-wizard/data/common'
+import { senderFieldSchema, commonSchema, onCompleteFieldSchema, onCompleteOptions } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -17,7 +17,7 @@ import { TransactionBuilderMode } from '../data'
 const formData = zfd.formData({
   ...commonSchema,
   ...senderFieldSchema,
-  ...onCompleteField,
+  ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   args: zfd.repeatableOfType(
     z.object({

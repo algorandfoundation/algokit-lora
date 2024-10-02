@@ -1,5 +1,3 @@
-import { ZERO_ADDRESS } from '@/features/common/constants'
-import { BuildableTransactionFormField, BuildableTransactionFormFieldType } from '../models'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { isAddress } from '@/utils/is-address'
@@ -18,33 +16,10 @@ export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddres
 })
 
 export const senderFieldSchema = { sender: addressFieldSchema }
-export const senderField = {
-  sender: {
-    label: 'Sender address',
-    description: 'Account to pay from. Sends the transaction and pays the fee',
-    type: BuildableTransactionFormFieldType.Account,
-    placeholder: ZERO_ADDRESS,
-  } satisfies BuildableTransactionFormField,
-}
 
 export const receiverFieldSchema = { receiver: addressFieldSchema }
-export const receiverField = {
-  receiver: {
-    label: 'Receiver address',
-    description: 'Account to pay to',
-    type: BuildableTransactionFormFieldType.Account,
-    placeholder: ZERO_ADDRESS,
-  } satisfies BuildableTransactionFormField,
-}
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }
-export const noteField = {
-  note: {
-    label: 'Note',
-    description: 'A note for the transaction',
-    type: BuildableTransactionFormFieldType.Text,
-  } satisfies BuildableTransactionFormField,
-}
 
 export const feeFieldSchema = {
   fee: z
@@ -61,12 +36,6 @@ export const feeFieldSchema = {
         })
       }
     }),
-}
-export const feeField = {
-  fee: {
-    label: 'Set fee automatically',
-    type: BuildableTransactionFormFieldType.Fee,
-  } satisfies BuildableTransactionFormField,
 }
 
 export const validRoundsFieldSchema = {
@@ -104,14 +73,7 @@ export const validRoundsFieldSchema = {
     }),
 }
 
-export const validRoundsField = {
-  validRounds: {
-    label: 'Set valid rounds automatically',
-    type: BuildableTransactionFormFieldType.ValidRounds,
-  } satisfies BuildableTransactionFormField,
-}
-
-export const onCompleteField = {
+export const onCompleteFieldSchema = {
   onComplete: z.union([
     z.literal(algosdk.OnApplicationComplete.NoOpOC.toString(), { required_error: requiredMessage }),
     z.literal(algosdk.OnApplicationComplete.OptInOC.toString(), { required_error: requiredMessage }),
