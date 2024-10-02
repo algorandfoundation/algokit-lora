@@ -1241,8 +1241,171 @@ describe('application-method-definitions', () => {
         )
       })
     })
+
+    describe('when calling echo_boolean method', () => {
+      it('succeeds when the input is supplied', async () => {
+        const { testAccount } = localnet.context
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const methodPanel = await expandMethodAccordion(component, user, 'echo_boolean')
+
+            // Call the method
+            const callButton = await waitFor(() => {
+              const callButton = within(methodPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            const formDialog = component.getByRole('dialog')
+
+            // Input
+            await setArgSelect(formDialog, user, 'Argument 1', 'True')
+
+            // Save the transaction
+            const addButton = await waitFor(() => {
+              const addButton = within(formDialog).getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+              [
+                "FR98dYA=",
+              ]
+            `)
+          }
+        )
+      })
+
+      it('allows edit', async () => {
+        const { testAccount } = localnet.context
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const methodPanel = await expandMethodAccordion(component, user, 'echo_boolean')
+
+            // Call the method
+            const callButton = await waitFor(() => {
+              const callButton = within(methodPanel).getByRole('button', { name: 'Call' })
+              expect(callButton).not.toBeDisabled()
+              return callButton!
+            })
+            await user.click(callButton)
+            let formDialog = component.getByRole('dialog')
+
+            // Input
+            await setArgSelect(formDialog, user, 'Argument 1', 'True')
+
+            // Save the transaction
+            const addButton = await waitFor(() => {
+              const addButton = within(formDialog).getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            // Edit the transaction
+            const transactionGroupTable = await waitFor(() => within(methodPanel).getByLabelText(transactionGroupTableLabel))
+            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
+            formDialog = component.getByRole('dialog')
+
+            // Verify the existing values
+            const wrapperDiv = await waitFor(() => getByText(formDialog, 'Argument 1').parentElement!)
+            const theSelect = wrapperDiv.querySelector('select')!
+            expect(theSelect).toHaveValue('true')
+
+            // Update the values
+            await setArgSelect(formDialog, user, 'Argument 1', 'False')
+
+            // Save the transaction
+            const updateButton = await waitFor(() => {
+              const updateButton = within(formDialog).getByRole('button', { name: 'Update' })
+              expect(updateButton).not.toBeDisabled()
+              return updateButton!
+            })
+            await user.click(updateButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+              [
+                "FR98dQA=",
+              ]
+            `)
+          }
+        )
+      })
+    })
   })
 })
+
+const setArgSelect = async (parentComponent: HTMLElement, user: UserEvent, argName: string, value: string) => {
+  const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)
+  await selectOption(wrapperDiv, user, /Value/, value)
+}
 
 const getArgInput = async (parentComponent: HTMLElement, argName: string) => {
   const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)

@@ -333,6 +333,9 @@ export const asFieldInput = (
   if (type instanceof algosdk.ABIUfixedType) {
     return value
   }
+  if (type instanceof algosdk.ABIBoolType) {
+    return value.toString().toLowerCase()
+  }
   if (
     (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
     (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)

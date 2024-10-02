@@ -47,3 +47,7 @@ class TestContract(ARC4Contract):
                 arc4.Tuple[DynamicInts, arc4.String]((child_array.copy(), str)),
             )
         )
+
+    @arc4.abimethod
+    def echo_boolean(self, bool: arc4.Bool) -> arc4.Bool:
+        return bool

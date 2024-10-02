@@ -294,7 +294,7 @@ const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
     }
     return arg.toString()
   }
-  if (!arg) {
+  if (arg === undefined) {
     return 'Not set'
   }
   const abiValue = getAbiValue(type, arg as algosdk.ABIValue)
