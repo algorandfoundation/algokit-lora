@@ -20,7 +20,6 @@ export interface TransactionFormItemProps<TSchema extends Record<string, unknown
   onEdit: () => void
 }
 
-// TODO: NC - When setting a fee (or round range), then resetting it back the previously set fee is still set.
 export function TransactionFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
   transactionType,
   field,

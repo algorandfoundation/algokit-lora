@@ -1,6 +1,11 @@
 import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commonSchema } from '@/features/transaction-wizard/data/common'
+import {
+  senderFieldSchema,
+  commonSchema,
+  onCompleteField,
+  onCompleteOptions as _onCompleteOptions,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -34,6 +39,7 @@ import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 const appCallFormSchema = {
   ...commonSchema,
   ...senderFieldSchema,
+  ...onCompleteField,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
 }
@@ -92,6 +98,7 @@ export function MethodCallTransactionBuilder({
           method: methodForm.abiMethod,
           methodName: methodForm.name,
           methodArgs: methodArgs,
+          onComplete: Number(values.onComplete),
         })
       }
     },
@@ -126,6 +133,7 @@ export function MethodCallTransactionBuilder({
       return {
         applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
+        onComplete: transaction.onComplete.toString(),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         methodName: transaction.methodName,
@@ -142,6 +150,7 @@ export function MethodCallTransactionBuilder({
       },
       ..._defaultValues,
       applicationId: _defaultValues?.applicationId ? BigInt(_defaultValues.applicationId) : undefined,
+      onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,
     }
   }, [mode, transaction, activeAddress, _defaultValues])
 
@@ -197,9 +206,10 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTra
         methodDefinitions: [],
       }
     }
+
     return {
       appSpec: loadableMethodDefinitions.data.appSpec,
-      methodDefinitions: loadableMethodDefinitions.data.methods,
+      methodDefinitions: loadableMethodDefinitions.data.methods.filter((method) => (method.callConfig?.call ?? []).length > 0),
     }
   }, [loadableMethodDefinitions])
 
@@ -236,7 +246,16 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTra
       return
     }
 
+    const methodDefinition = methodDefinitions.find((method) => method.name === methodName)
+
     if (methodForm?.name !== undefined && methodName !== methodForm.name) {
+      const defaultOnComplete = methodDefinition?.callConfig ? methodDefinition?.callConfig?.call[0] : undefined
+      if (defaultOnComplete !== undefined) {
+        // This is needed to ensure the select list options have updated before setting the value, otherwise it isn't selected in the UI
+        setTimeout(() => {
+          setValue('onComplete', defaultOnComplete.toString())
+        }, 10)
+      }
       const values = getValues()
       for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
         const value = values[key as keyof typeof values]
@@ -247,7 +266,7 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTra
     }
 
     onSetAppSpec(appSpec)
-    onSetMethodForm(asMethodForm(methodDefinitions.find((method) => method.name === methodName)!))
+    onSetMethodForm(asMethodForm(methodDefinition!))
   }, [getValues, methodDefinitions, methodForm?.name, methodName, onSetMethodForm, setValue, onSetAppSpec, appSpec])
 
   const abiMethodArgs = useMemo(() => {
@@ -288,6 +307,16 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTra
     )
   }, [methodForm?.arguments, helper, editTransactionArg])
 
+  const onCompleteOptions = useMemo(() => {
+    return _onCompleteOptions.filter((x) => {
+      if (!methodForm?.callConfig || methodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+        return true
+      }
+
+      return false
+    })
+  }, [methodForm?.callConfig])
+
   return (
     <div className="space-y-4">
       {helper.numberField({
@@ -301,6 +330,11 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTra
           label: method.name,
           value: method.name,
         })),
+      })}
+      {helper.selectField({
+        field: 'onComplete',
+        label: 'On complete',
+        options: onCompleteOptions,
       })}
       {helper.textField({
         field: 'sender',

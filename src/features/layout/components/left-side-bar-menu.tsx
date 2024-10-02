@@ -26,6 +26,7 @@ export function LeftSideBarMenu({ className }: Props) {
   const menuItems = [
     { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <Braces />, text: 'App Studio' },
+    // { urlTemplate: Urls.AppLab, icon: <FlaskConical />, text: 'App Lab' },
     // { urlTemplate: Urls.TransactionWizard, icon: <WandSparkles />, text: 'Txn Wizard' },
     { urlTemplate: Urls.Fund, icon: <Coins />, text: 'Fund' },
   ]

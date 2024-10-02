@@ -29,7 +29,6 @@ import { TransactionType } from '@/features/transactions/models'
 // - re-order does weird things with the row borders
 // - resource populate dialog, do asset/application look to ensure valid
 // - lookup application to ensure valid when calling a method or making an app call
-// - clear button should clear and transaction result
 // - check the error handling
 // - check the success handling
 // - lock the abi method selector when initiating via app lab
@@ -321,12 +320,12 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       ),
     },
     {
-      dt: 'Arguments',
-      dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
+      dt: 'On complete',
+      dd: asOnCompleteLabel(transaction.onComplete),
     },
     {
-      dt: 'On Complete',
-      dd: asOnCompleteLabel(transaction.onComplete),
+      dt: 'Arguments',
+      dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
     },
     ...asNoteItem(transaction.note),
     ...asFeeItem(transaction.fee),
@@ -354,6 +353,10 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
       ),
     },
     ...(transaction.methodName ? [{ dt: 'Method name', dd: transaction.methodName }] : []),
+    {
+      dt: 'On complete',
+      dd: asOnCompleteLabel(transaction.onComplete),
+    },
     {
       dt: 'Arguments',
       dd: (

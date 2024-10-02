@@ -82,6 +82,10 @@ export type MethodDefinition = {
   signature: string
   description?: string
   abiMethod: algosdk.ABIMethod
+  callConfig?: {
+    call: algosdk.OnApplicationComplete[]
+    create: algosdk.OnApplicationComplete[]
+  }
   arguments: ArgumentDefinition[]
   returns: ReturnsDefinition
 }

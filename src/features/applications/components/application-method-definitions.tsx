@@ -8,7 +8,12 @@ import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
+import {
+  BuildableTransactionType,
+  BuildAppCallTransactionResult,
+  BuildMethodCallTransactionResult,
+  BuildTransactionResult,
+} from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
@@ -27,10 +32,17 @@ type Props = {
 
 // TODO: NC - ABI Methods?
 export function ApplicationMethodDefinitions({ abiMethods, applicationId }: Props) {
+  const readonly = !abiMethods.appSpec
+
   return (
     <Accordion type="multiple">
       {abiMethods.methods.map((method, index) => (
-        <Method method={method} key={index} applicationId={applicationId} />
+        <Method
+          method={method}
+          key={index}
+          applicationId={applicationId}
+          readonly={readonly || (method.callConfig?.call ?? []).length === 0}
+        />
       ))}
     </Accordion>
   )
@@ -39,9 +51,10 @@ export function ApplicationMethodDefinitions({ abiMethods, applicationId }: Prop
 type MethodProps = {
   method: MethodDefinition
   applicationId: ApplicationId
+  readonly: boolean
 }
 
-function Method({ method, applicationId }: MethodProps) {
+function Method({ method, applicationId, readonly }: MethodProps) {
   const [transaction, setTransaction] = useState<BuildMethodCallTransactionResult | undefined>(undefined)
   const [sentTransaction, setSentTransaction] = useState<AppCallTransaction | undefined>(undefined)
 
@@ -70,12 +83,16 @@ function Method({ method, applicationId }: MethodProps) {
       transaction: {
         applicationId: applicationId,
         methodName: method.name,
+        onComplete:
+          method.callConfig && method.callConfig.call.length > 0
+            ? (method.callConfig.call[0] as algosdk.OnApplicationComplete as BuildAppCallTransactionResult['onComplete'])
+            : undefined,
       },
     })
     if (transaction && transaction.type === BuildableTransactionType.MethodCall) {
       setTransaction(transaction)
     }
-  }, [applicationId, method.name, open])
+  }, [applicationId, method.callConfig, method.name, open])
 
   const handleTransactionSent = useCallback(
     (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => {
@@ -95,6 +112,7 @@ function Method({ method, applicationId }: MethodProps) {
     setTransaction(undefined)
     setSentTransaction(undefined)
   }, [])
+
   return (
     <AccordionItem value={method.signature}>
       <AccordionTrigger>
@@ -114,15 +132,16 @@ function Method({ method, applicationId }: MethodProps) {
             <span className="flex">No arguments.</span>
           )}
         </div>
-
         <Returns returns={method.returns} />
-        <div className="flex justify-end">
-          {!transaction && (
-            <Button variant="default" className="w-28" onClick={openDialog} icon={<Parentheses size={16} />}>
-              Call
-            </Button>
-          )}
-        </div>
+        {!readonly && (
+          <div className="flex justify-end">
+            {!transaction && (
+              <Button variant="default" className="w-28" onClick={openDialog} icon={<Parentheses size={16} />}>
+                Call
+              </Button>
+            )}
+          </div>
+        )}
         {transaction && (
           <TransactionsBuilder
             transactions={[transaction]}

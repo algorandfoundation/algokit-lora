@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commonSchema } from '@/features/transaction-wizard/data/common'
+import { senderFieldSchema, commonSchema, onCompleteField, onCompleteOptions } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -13,11 +13,11 @@ import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard
 import { BuildAppCallTransactionResult, BuildableTransactionType } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { asOnCompleteLabel } from '../mappers'
 
 const formData = zfd.formData({
   ...commonSchema,
   ...senderFieldSchema,
+  ...onCompleteField,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   args: zfd.repeatableOfType(
     z.object({
@@ -25,13 +25,6 @@ const formData = zfd.formData({
       value: zfd.text(),
     })
   ),
-  onComplete: z.union([
-    z.literal(algosdk.OnApplicationComplete.NoOpOC.toString()),
-    z.literal(algosdk.OnApplicationComplete.OptInOC.toString()),
-    z.literal(algosdk.OnApplicationComplete.ClearStateOC.toString()),
-    z.literal(algosdk.OnApplicationComplete.CloseOutOC.toString()),
-    z.literal(algosdk.OnApplicationComplete.DeleteApplicationOC.toString()),
-  ]),
 })
 
 type Props = {
@@ -42,17 +35,6 @@ type Props = {
   onSubmit: (transaction: BuildAppCallTransactionResult) => void
   onCancel: () => void
 }
-
-const onCompleteOptions = [
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.NoOpOC), value: algosdk.OnApplicationComplete.NoOpOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.ClearStateOC), value: algosdk.OnApplicationComplete.ClearStateOC.toString() },
-  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.CloseOutOC), value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
-  {
-    label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
-    value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
-  },
-]
 
 export function AppCallTransactionBuilder({ mode, transaction, activeAddress, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
@@ -76,13 +58,13 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
       return {
         applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
+        onComplete: transaction.onComplete.toString(),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         args: transaction.args.map((arg) => ({
           id: randomGuid(),
           value: arg,
         })),
-        onComplete: transaction.onComplete.toString(),
       }
     }
     return {
@@ -116,6 +98,11 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
             field: 'applicationId',
             label: 'Application ID',
           })}
+          {helper.selectField({
+            field: 'onComplete',
+            label: 'On complete',
+            options: onCompleteOptions,
+          })}
           {helper.textField({
             field: 'sender',
             label: 'Sender',
@@ -137,11 +124,6 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
                 label: `Argument ${index + 1}`,
               })
             },
-          })}
-          {helper.selectField({
-            field: 'onComplete',
-            label: 'On Complete',
-            options: onCompleteOptions,
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />

@@ -15,6 +15,7 @@ import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec } from '@/features/common/utils'
+import { CallConfigValue } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -101,6 +102,9 @@ const getValue = (bytes: string) => {
   }
 }
 
+const callValues: CallConfigValue[] = ['ALL', 'CALL']
+const createValue: CallConfigValue[] = ['ALL', 'CREATE']
+
 export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): ApplicationAbiMethods => {
   const isArc32 = isArc32AppSpec(appSpec)
   const contract = isArc32 ? appSpec.contract : appSpec
@@ -139,6 +143,32 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
       description: abiMethod.description,
       arguments: methodArgs,
       abiMethod: abiMethod,
+      callConfig: hint?.call_config
+        ? {
+            call: [
+              ...(callValues.includes(hint.call_config.no_op ?? 'NEVER') ? [algosdk.OnApplicationComplete.NoOpOC] : []),
+              ...(callValues.includes(hint.call_config.opt_in ?? 'NEVER') ? [algosdk.OnApplicationComplete.OptInOC] : []),
+              ...(callValues.includes(hint.call_config.close_out ?? 'NEVER') ? [algosdk.OnApplicationComplete.CloseOutOC] : []),
+              ...(callValues.includes(hint.call_config.update_application ?? 'NEVER')
+                ? [algosdk.OnApplicationComplete.UpdateApplicationOC]
+                : []),
+              ...(callValues.includes(hint.call_config.delete_application ?? 'NEVER')
+                ? [algosdk.OnApplicationComplete.DeleteApplicationOC]
+                : []),
+            ],
+            create: [
+              ...(createValue.includes(hint.call_config.no_op ?? 'NEVER') ? [algosdk.OnApplicationComplete.NoOpOC] : []),
+              ...(createValue.includes(hint.call_config.opt_in ?? 'NEVER') ? [algosdk.OnApplicationComplete.OptInOC] : []),
+              ...(createValue.includes(hint.call_config.close_out ?? 'NEVER') ? [algosdk.OnApplicationComplete.CloseOutOC] : []),
+              ...(createValue.includes(hint.call_config.update_application ?? 'NEVER')
+                ? [algosdk.OnApplicationComplete.UpdateApplicationOC]
+                : []),
+              ...(createValue.includes(hint.call_config.delete_application ?? 'NEVER')
+                ? [algosdk.OnApplicationComplete.DeleteApplicationOC]
+                : []),
+            ],
+          }
+        : undefined,
       returns: {
         ...abiMethod.returns,
         hint:

@@ -11,6 +11,7 @@ import { Transaction } from '@/features/transactions/models'
 import React from 'react'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
+// TODO: NC - I don' think this is used
 export enum BuildableTransactionFormFieldType {
   Text = 'Text',
   Account = 'Account',
@@ -129,6 +130,12 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]
   boxes?: string[]
+  onComplete:
+    | algosdk.OnApplicationComplete.NoOpOC
+    | algosdk.OnApplicationComplete.OptInOC
+    | algosdk.OnApplicationComplete.ClearStateOC
+    | algosdk.OnApplicationComplete.CloseOutOC
+    | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
 export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult

@@ -111,7 +111,9 @@ const asMethodCallTransaction = async (transaction: BuildMethodCallTransactionRe
     .createTransaction.call({
       ...params,
       method: transaction.methodName,
+      onComplete: transaction.onComplete,
     })
+
   return result.transactions
 }
 
