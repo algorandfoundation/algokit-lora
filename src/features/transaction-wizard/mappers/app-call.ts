@@ -15,6 +15,7 @@ import {
   TransactionArgumentField,
 } from '@/features/transaction-wizard/models'
 import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const argumentPathSeparator = '-'
 const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
@@ -321,4 +322,42 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
     schema: methodSchema,
     returns: method.returns,
   } satisfies MethodForm
+}
+
+// TODO: PD - check with boolean
+export const asFieldInput = (
+  type: algosdk.ABIArgumentType,
+  value: algosdk.ABIValue | BuildTransactionResult
+): algosdk.ABIValue | { id: string; child: algosdk.ABIValue }[] | BuildTransactionResult => {
+  if (type instanceof algosdk.ABIUfixedType) {
+    return value
+  }
+  if (
+    (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
+    (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
+  ) {
+    return uint8ArrayToBase64(value as Uint8Array)
+  }
+
+  if (type instanceof algosdk.ABIArrayStaticType) {
+    return (value as algosdk.ABIValue[]).map((item) => asFieldInput(type.childType, item)) as algosdk.ABIValue
+  }
+  if (type instanceof algosdk.ABIArrayDynamicType) {
+    return (value as any[]).map((item) => ({
+      id: new Date().getTime().toString(),
+      child: asFieldInput(type.childType, item),
+    })) as unknown as algosdk.ABIValue[] | { id: string; child: algosdk.ABIValue }[]
+  }
+  if (type instanceof algosdk.ABITupleType) {
+    return (value as any[]).map((item, index) => asFieldInput(type.childTypes[index], item)) as unknown as {
+      id: string
+      child: algosdk.ABIValue
+    }[]
+  }
+  if (algosdk.abiTypeIsTransaction(type)) {
+    if (value && typeof value === 'object' && 'type' in value) {
+      return value as unknown as BuildTransactionResult
+    }
+  }
+  return value as algosdk.ABIValue
 }

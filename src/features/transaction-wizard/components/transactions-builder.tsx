@@ -136,7 +136,6 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     }
   }, [activeAddress, transactions, onTransactionSent])
 
-  // TODO: PD - check why sender and called app aren't populated into the resources
   const populateResources = useCallback(async () => {
     try {
       setErrorMessage(undefined)

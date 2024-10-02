@@ -24,11 +24,10 @@ import {
 } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { asMethodForm, extractArgumentIndexFromFieldPath, methodArgPrefix } from '../mappers'
+import { asMethodForm, extractArgumentIndexFromFieldPath, asFieldInput, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilder } from './transaction-builder'
-import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
@@ -119,14 +118,7 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.method.args[index]
-          if (
-            (type instanceof algosdk.ABIArrayStaticType && type.childType instanceof algosdk.ABIByteType) ||
-            (type instanceof algosdk.ABIArrayDynamicType && type.childType instanceof algosdk.ABIByteType)
-          ) {
-            acc[`${methodArgPrefix}-${index}`] = uint8ArrayToBase64(arg as Uint8Array)
-          } else {
-            acc[`${methodArgPrefix}-${index}`] = arg
-          }
+          acc[`${methodArgPrefix}-${index}`] = asFieldInput(type, arg)
           return acc
         },
         {} as Record<string, unknown>
