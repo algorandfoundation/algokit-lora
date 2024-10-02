@@ -22,7 +22,6 @@ const createApplicationMethodDefinitionsAtom = (applicationId: ApplicationId) =>
   })
 }
 
-// TODO: NC - Rename all this stuff
 export const useLoadableApplicationAbiMethodDefinitions = (application: Application) => {
   const applicationMethodDefinitionsAtom = useMemo(() => {
     return createApplicationMethodDefinitionsAtom(application.id)

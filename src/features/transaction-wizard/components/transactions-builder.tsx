@@ -6,11 +6,10 @@ import { TransactionBuilder } from './transaction-builder'
 import { algod, algorandClient } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
-import { TransactionsGraph } from '@/features/transactions-graph'
+import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import {
-  SendTransactionResult,
   BuildTransactionResult,
   BuildableTransactionType,
   BuildAppCallTransactionResult,
@@ -40,7 +39,7 @@ export const addTransactionLabel = 'Add Transaction'
 type Props = {
   transactions?: BuildTransactionResult[]
   onReset?: () => void
-  onTransactionSent?: (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => void
+  onTransactionSent?: (transactions: Transaction[]) => void
   renderContext: 'transaction-wizard' | 'app-lab'
 }
 
@@ -49,7 +48,7 @@ const transactionGroupLabel = 'Transaction Group'
 export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, renderContext }: Props) {
   const { activeAddress } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
-  const [sendTransactionResult, setSendTransactionResult] = useState<SendTransactionResult | undefined>(undefined)
+  const [transactionGraphResult, setTransactionGraphResult] = useState<TransactionsGraphData | undefined>(undefined)
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   const nonDeletableTransactionIds = useMemo(() => {
@@ -113,25 +112,18 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
 
-      const buildTransactionResultToAlgosdkTransactionMap = new Map<string, string>()
-
       const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
         const txns = await asAlgosdkTransactions(transaction)
-        buildTransactionResultToAlgosdkTransactionMap.set(transaction.id, txns[txns.length - 1].txID())
         txns.forEach((txn) => algokitComposer.addTransaction(txn))
       }
       const result = await algokitComposer.send()
       const sentTxns = asTransactionFromSendResult(result)
       const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
-      // TODO: NC - transactions in here is not being used. Find out where we use it elsewhere
-      setSendTransactionResult({
-        transactions: sentTxns,
-        transactionsGraphData,
-      })
+      setTransactionGraphResult(transactionsGraphData)
 
-      onTransactionSent?.(buildTransactionResultToAlgosdkTransactionMap, sentTxns)
+      onTransactionSent?.(sentTxns)
     } catch (error) {
       setErrorMessage(asError(error).message)
     }
@@ -211,7 +203,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   const reset = useCallback(() => {
     setTransactions([])
     setErrorMessage(undefined)
-    setSendTransactionResult(undefined)
+    setTransactionGraphResult(undefined)
     onReset?.()
   }, [onReset])
 
@@ -311,12 +303,12 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       </div>
       {transactionBuilderDialog}
       {editResourcesDialog}
-      {sendTransactionResult && (
+      {transactionGraphResult && (
         <div className="my-4 flex flex-col gap-2 text-sm">
           <h3>Result</h3>
           <h4>Transaction Visual</h4>
           <TransactionsGraph
-            transactionsGraphData={sendTransactionResult.transactionsGraphData}
+            transactionsGraphData={transactionGraphResult}
             bgClassName={renderContext === 'transaction-wizard' ? 'bg-background' : 'bg-card'}
             downloadable={false}
           />

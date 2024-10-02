@@ -40,8 +40,9 @@ export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
           )
         })}
         <Button
-          variant="outline-secondary"
+          variant="no-style"
           type="button"
+          className="text-secondary"
           onClick={() =>
             append({
               id: new Date().getTime().toString(),

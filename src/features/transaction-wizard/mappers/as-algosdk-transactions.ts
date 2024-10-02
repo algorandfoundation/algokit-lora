@@ -17,15 +17,20 @@ import {
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
 import { algorandClient } from '@/features/common/data/algo-client'
-import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
+import {
+  AppCallMethodCall,
+  AppCallParams,
+  AssetConfigParams,
+  AssetCreateParams,
+  AssetDestroyParams,
+  AssetTransferParams,
+  PaymentParams,
+} from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return [await asPaymentTransaction(transaction)]
-  }
-  if (transaction.type === BuildableTransactionType.MethodCall) {
-    return await asMethodCallTransaction(transaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -38,15 +43,15 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   if (transaction.type === BuildableTransactionType.AssetCreate) {
     return [await asAssetCreateTransaction(transaction)]
   }
-
   if (transaction.type === BuildableTransactionType.AssetReconfigure) {
     return [await asAssetReconfigureTransaction(transaction)]
   }
-
   if (transaction.type === BuildableTransactionType.AssetDestroy) {
     return [await asAssetDestroyTransaction(transaction)]
   }
-
+  if (transaction.type === BuildableTransactionType.MethodCall) {
+    return await asMethodCallTransactions(transaction)
+  }
   if (transaction.type === BuildableTransactionType.AppCall) {
     return [await asAppCallTransaction(transaction)]
   }
@@ -54,10 +59,10 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   throw new Error('Unsupported transaction type')
 }
 
-const asPaymentTransaction = async (
+export const asPaymentTransactionParams = (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
-): Promise<algosdk.Transaction> => {
-  return await algorandClient.createTransaction.payment({
+): PaymentParams => {
+  return {
     sender: transaction.sender,
     receiver: transaction.receiver ?? transaction.sender,
     closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo : undefined,
@@ -65,7 +70,13 @@ const asPaymentTransaction = async (
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
-  })
+  }
+}
+const asPaymentTransaction = async (
+  transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
+): Promise<algosdk.Transaction> => {
+  const params = asPaymentTransactionParams(transaction)
+  return await algorandClient.createTransaction.payment(params)
 }
 
 const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<AppCallMethodCall> => {
@@ -91,17 +102,17 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
     appId: BigInt(transaction.applicationId),
     method: transaction.method,
     args: args,
-    note: transaction.note,
-    ...asFee(transaction.fee),
-    ...asValidRounds(transaction.validRounds),
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
     boxReferences: transaction.boxes ?? [],
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
   }
 }
 
-const asMethodCallTransaction = async (transaction: BuildMethodCallTransactionResult): Promise<algosdk.Transaction[]> => {
+const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionResult): Promise<algosdk.Transaction[]> => {
   const params = await asMethodCallParams(transaction)
   const result = await algorandClient.client
     .getAppClientById({
@@ -117,41 +128,37 @@ const asMethodCallTransaction = async (transaction: BuildMethodCallTransactionRe
   return result.transactions
 }
 
-const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
-  return await algorandClient.createTransaction.appCall({
+export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionResult): AppCallParams => {
+  return {
     sender: transaction.sender,
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
-    note: transaction.note,
-    ...asFee(transaction.fee),
-    ...asValidRounds(transaction.validRounds),
     onComplete: transaction.onComplete,
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
     boxReferences: transaction.boxes ?? [],
-  })
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
+  const params = asAppCallTransactionParams(transaction)
+  return await algorandClient.createTransaction.appCall(params)
 }
 
-const asAssetTransferTransaction = async (
+export const asAssetTransferTransactionParams = (
   transaction:
     | BuildAssetTransferTransactionResult
     | BuildAssetOptInTransactionResult
     | BuildAssetOptOutTransactionResult
     | BuildAssetClawbackTransactionResult
-): Promise<algosdk.Transaction> => {
+): AssetTransferParams => {
   invariant(transaction.asset.decimals !== undefined, 'Asset decimals is required')
 
-  if (
-    transaction.type === BuildableTransactionType.AssetClawback &&
-    (!transaction.asset.clawback || transaction.sender !== transaction.asset.clawback)
-  ) {
-    throw new Error('Invalid clawback transaction')
-  }
-
   const amount = 'amount' in transaction && transaction.amount > 0 ? BigInt(transaction.amount * 10 ** transaction.asset.decimals) : 0n
-
-  return await algorandClient.createTransaction.assetTransfer({
+  return {
     sender: transaction.sender,
     receiver: 'receiver' in transaction ? transaction.receiver : transaction.sender,
     clawbackTarget: 'clawbackTarget' in transaction ? transaction.clawbackTarget : undefined,
@@ -161,11 +168,28 @@ const asAssetTransferTransaction = async (
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
-  })
+  }
+}
+const asAssetTransferTransaction = async (
+  transaction:
+    | BuildAssetTransferTransactionResult
+    | BuildAssetOptInTransactionResult
+    | BuildAssetOptOutTransactionResult
+    | BuildAssetClawbackTransactionResult
+): Promise<algosdk.Transaction> => {
+  if (
+    transaction.type === BuildableTransactionType.AssetClawback &&
+    (!transaction.asset.clawback || transaction.sender !== transaction.asset.clawback)
+  ) {
+    throw new Error('Invalid clawback transaction')
+  }
+
+  const params = asAssetTransferTransactionParams(transaction)
+  return await algorandClient.createTransaction.assetTransfer(params)
 }
 
-const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
-  return await algorandClient.createTransaction.assetCreate({
+export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTransactionResult): AssetCreateParams => {
+  return {
     sender: transaction.sender,
     total: transaction.total,
     decimals: transaction.decimals,
@@ -181,22 +205,55 @@ const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransaction
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
-  })
+  }
+}
+const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransactionResult): Promise<algosdk.Transaction> => {
+  const params = asAssetCreateTransactionParams(transaction)
+  return await algorandClient.createTransaction.assetCreate(params)
 }
 
+const asAssetReconfigureTransactionParams = (transaction: BuildAssetReconfigureTransactionResult): AssetConfigParams => {
+  return {
+    sender: transaction.sender,
+    assetId: BigInt(transaction.asset.id),
+    manager: transaction.manager,
+    reserve: transaction.reserve,
+    freeze: transaction.freeze,
+    clawback: transaction.clawback,
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
 const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureTransactionResult): Promise<algosdk.Transaction> => {
-  return algorandClient.createTransaction.assetConfig({
-    sender: transaction.sender,
-    assetId: BigInt(transaction.asset.id),
-    manager: transaction.sender,
-  })
+  const params = asAssetReconfigureTransactionParams(transaction)
+  return await algorandClient.createTransaction.assetConfig(params)
 }
 
-const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
-  return algorandClient.createTransaction.assetDestroy({
+const asAssetDestroyTransactionParams = (transaction: BuildAssetDestroyTransactionResult): AssetDestroyParams => {
+  return {
     sender: transaction.sender,
     assetId: BigInt(transaction.asset.id),
-  })
+  }
+}
+const asAssetDestroyTransaction = async (transaction: BuildAssetDestroyTransactionResult): Promise<algosdk.Transaction> => {
+  const params = asAssetDestroyTransactionParams(transaction)
+  return await algorandClient.createTransaction.assetDestroy(params)
+}
+
+export const asAssetConfigTransactionParams = (
+  transaction: BuildAssetCreateTransactionResult | BuildAssetReconfigureTransactionResult | BuildAssetDestroyTransactionResult
+): AssetCreateParams | AssetConfigParams | AssetDestroyParams => {
+  switch (transaction.type) {
+    case BuildableTransactionType.AssetCreate:
+      return asAssetCreateTransactionParams(transaction)
+    case BuildableTransactionType.AssetReconfigure:
+      return asAssetReconfigureTransactionParams(transaction)
+    case BuildableTransactionType.AssetDestroy:
+      return asAssetDestroyTransactionParams(transaction)
+    default:
+      throw new Error('Unsupported transaction type')
+  }
 }
 
 const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>

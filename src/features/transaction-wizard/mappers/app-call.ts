@@ -25,8 +25,6 @@ const argumentFieldPath = (argumentIndex: number) => `${methodArgPrefix}${argume
 export const extractArgumentIndexFromFieldPath = (path: string) =>
   parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
-// TODO: NC - Check this approach to ensure it still makes sense
-
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   if (type instanceof algosdk.ABIUintType) {
     const max = BigInt(2 ** type.bitSize) - BigInt(1)

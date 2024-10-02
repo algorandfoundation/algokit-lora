@@ -22,16 +22,15 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
-import { algo } from '@algorandfoundation/algokit-utils'
 import { TransactionType } from '@/features/transactions/models'
-
-// TODO: NC - UX TODOs
-// - re-order does weird things with the row borders
-// - resource populate dialog, do asset/application look to ensure valid
-// - lookup application to ensure valid when calling a method or making an app call
-// - check the error handling
-// - check the success handling
-// - lock the abi method selector when initiating via app lab
+import {
+  asAppCallTransactionParams,
+  asAssetConfigTransactionParams,
+  asAssetTransferTransactionParams,
+  asPaymentTransactionParams,
+} from './as-algosdk-transactions'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -62,44 +61,45 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
   throw new Error(`Unsupported transaction type`)
 }
 
-const asPaymentTransaction = (transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {
+const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {
+  const params = asPaymentTransactionParams(txn)
+
   return [
     {
       dt: 'Sender',
       dd: (
-        <AccountLink className="text-primary underline" address={transaction.sender}>
-          {transaction.sender}
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
         </AccountLink>
       ),
     },
-    ...(transaction.receiver
-      ? [
-          {
-            dt: 'Receiver',
-            dd: (
-              <AccountLink className="text-primary underline" address={transaction.receiver}>
-                {transaction.receiver}
-              </AccountLink>
-            ),
-          },
-        ]
-      : []),
-    ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
+    {
+      dt: 'Receiver',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.receiver}>
+          {params.receiver}
+        </AccountLink>
+      ),
+    },
+    ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
           {
             dt: 'Close remainder to',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.closeRemainderTo}>
-                {transaction.closeRemainderTo}
+              <AccountLink className="text-primary underline" address={params.closeRemainderTo}>
+                {params.closeRemainderTo}
               </AccountLink>
             ),
           },
         ]
       : []),
-    ...(transaction.amount !== undefined ? [{ dt: 'Amount', dd: <DisplayAlgo amount={algo(transaction.amount)} /> }] : []),
-    ...asNoteItem(transaction.note),
-    ...asFeeItem(transaction.fee),
-    ...asValidRoundsItem(transaction.validRounds),
+    {
+      dt: 'Amount',
+      dd: <DisplayAlgo amount={params.amount} />,
+    },
+    ...asNoteItem(params.note),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
   ]
 }
 
@@ -110,46 +110,44 @@ const asAssetTransferTransaction = (
     | BuildAssetOptOutTransactionResult
     | BuildAssetClawbackTransactionResult
 ): DescriptionListItems => {
+  const params = asAssetTransferTransactionParams(transaction)
+
   return [
     {
       dt: 'Sender',
       dd: (
-        <AccountLink className="text-primary underline" address={transaction.sender}>
-          {transaction.sender}
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
         </AccountLink>
       ),
     },
-    ...('receiver' in transaction && transaction.receiver
-      ? [
-          {
-            dt: 'Receiver',
-            dd: (
-              <AccountLink className="text-primary underline" address={transaction.receiver}>
-                {transaction.receiver}
-              </AccountLink>
-            ),
-          },
-        ]
-      : []),
-    ...('clawbackTarget' in transaction && transaction.clawbackTarget
+    {
+      dt: 'Receiver',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.receiver}>
+          {params.receiver}
+        </AccountLink>
+      ),
+    },
+    ...('clawbackTarget' in params && params.clawbackTarget
       ? [
           {
             dt: 'Clawback target',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.clawbackTarget}>
-                {transaction.clawbackTarget}
+              <AccountLink className="text-primary underline" address={params.clawbackTarget}>
+                {params.clawbackTarget}
               </AccountLink>
             ),
           },
         ]
       : []),
-    ...('closeRemainderTo' in transaction && transaction.closeRemainderTo
+    ...('closeAssetTo' in params && params.closeAssetTo
       ? [
           {
             dt: 'Close remainder to',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.closeRemainderTo}>
-                {transaction.closeRemainderTo}
+              <AccountLink className="text-primary underline" address={params.closeAssetTo}>
+                {params.closeAssetTo}
               </AccountLink>
             ),
           },
@@ -158,108 +156,109 @@ const asAssetTransferTransaction = (
     {
       dt: 'Asset ID',
       dd: (
-        <AssetIdLink className="text-primary underline" assetId={transaction.asset.id}>
-          {transaction.asset.id}
+        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
+          {Number(params.assetId)}
         </AssetIdLink>
       ),
     },
-    ...('amount' in transaction && transaction.amount !== undefined
-      ? [{ dt: 'Amount', dd: `${transaction.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}` }]
-      : []),
-    ...asNoteItem(transaction.note),
-    ...asFeeItem(transaction.fee),
-    ...asValidRoundsItem(transaction.validRounds),
+    {
+      dt: 'Amount',
+      dd: `${params.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
+    },
+    ...asNoteItem(params.note),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
   ]
 }
 
 const asAssetConfigTransaction = (
   transaction: BuildAssetCreateTransactionResult | BuildAssetReconfigureTransactionResult | BuildAssetDestroyTransactionResult
 ): DescriptionListItems => {
+  const params = asAssetConfigTransactionParams(transaction)
+
   return [
-    ...('asset' in transaction && transaction.asset.id
+    ...('assetId' in params && params.assetId
       ? [
           {
             dt: 'Asset ID',
             dd: (
-              <AssetIdLink className="text-primary underline" assetId={transaction.asset.id}>
-                {transaction.asset.id}
+              <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
+                {Number(params.assetId)}
               </AssetIdLink>
             ),
           },
         ]
       : []),
-    ...('assetName' in transaction && transaction.assetName ? [{ dt: 'Asset name', dd: transaction.assetName }] : []),
-    ...('unitName' in transaction && transaction.unitName ? [{ dt: 'Unit name', dd: transaction.unitName }] : []),
-    ...('total' in transaction && transaction.total ? [{ dt: 'Total', dd: transaction.total }] : []),
-    ...('decimals' in transaction && transaction.decimals ? [{ dt: 'Decimals', dd: transaction.decimals }] : []),
-    ...('sender' in transaction && transaction.sender
-      ? [
-          {
-            dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
-            dd: (
-              <AccountLink className="text-primary underline" address={transaction.sender}>
-                {transaction.sender}
-              </AccountLink>
-            ),
-          },
-        ]
-      : []),
-    ...('manager' in transaction && transaction.manager
+    ...('assetName' in params && params.assetName ? [{ dt: 'Asset name', dd: params.assetName }] : []),
+    ...('unitName' in params && params.unitName ? [{ dt: 'Unit name', dd: params.unitName }] : []),
+    ...('total' in params && params.total ? [{ dt: 'Total', dd: params.total }] : []),
+    ...('decimals' in params && params.decimals ? [{ dt: 'Decimals', dd: params.decimals }] : []),
+    {
+      dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
+    },
+    ...('manager' in params && params.manager
       ? [
           {
             dt: 'Manager',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.manager}>
-                {transaction.manager}
+              <AccountLink className="text-primary underline" address={params.manager}>
+                {params.manager}
               </AccountLink>
             ),
           },
         ]
       : []),
-    ...('reserve' in transaction && transaction.reserve
+    ...('reserve' in params && params.reserve
       ? [
           {
             dt: 'Reserve',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.reserve}>
-                {transaction.reserve}
+              <AccountLink className="text-primary underline" address={params.reserve}>
+                {params.reserve}
               </AccountLink>
             ),
           },
         ]
       : []),
-    ...('freeze' in transaction && transaction.freeze
+    ...('freeze' in params && params.freeze
       ? [
           {
             dt: 'Freeze',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.freeze}>
-                {transaction.freeze}
+              <AccountLink className="text-primary underline" address={params.freeze}>
+                {params.freeze}
               </AccountLink>
             ),
           },
         ]
       : []),
-    ...('clawback' in transaction && transaction.clawback
+    ...('clawback' in params && params.clawback
       ? [
           {
             dt: 'Clawback',
             dd: (
-              <AccountLink className="text-primary underline" address={transaction.clawback}>
-                {transaction.clawback}
+              <AccountLink className="text-primary underline" address={params.clawback}>
+                {params.clawback}
               </AccountLink>
             ),
           },
         ]
       : []),
-    ...('defaultFrozen' in transaction && transaction.defaultFrozen
-      ? [{ dt: 'Freeze holdings of this asset by default', dd: transaction.defaultFrozen.toString() }]
+    ...('defaultFrozen' in params && params.defaultFrozen
+      ? [{ dt: 'Freeze holdings of this asset by default', dd: params.defaultFrozen.toString() }]
       : []),
-    ...('url' in transaction && transaction.url ? [{ dt: 'URL', dd: transaction.url }] : []),
-    ...('metadataHash' in transaction && transaction.metadataHash ? [{ dt: 'Metadata hash', dd: transaction.metadataHash }] : []),
-    ...asNoteItem(transaction.note),
-    ...asFeeItem(transaction.fee),
-    ...asValidRoundsItem(transaction.validRounds),
+    ...('url' in params && params.url ? [{ dt: 'URL', dd: params.url }] : []),
+    ...('metadataHash' in params && params.metadataHash && typeof params.metadataHash === 'string'
+      ? [{ dt: 'Metadata hash', dd: params.metadataHash }]
+      : []),
+    ...asNoteItem(params.note),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
   ]
 }
 
@@ -302,82 +301,99 @@ const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
 }
 
 const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): DescriptionListItems => {
+  const params = asAppCallTransactionParams(transaction)
+
   return [
     {
       dt: 'Sender',
       dd: (
-        <AccountLink className="text-primary underline" address={transaction.sender}>
-          {transaction.sender}
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
         </AccountLink>
       ),
     },
     {
       dt: 'Application ID',
       dd: (
-        <ApplicationLink className="text-primary underline" applicationId={transaction.applicationId}>
-          {transaction.applicationId}
+        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+          {Number(params.appId)}
         </ApplicationLink>
       ),
     },
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(transaction.onComplete),
+      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
-    {
-      dt: 'Arguments',
-      dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
-    },
-    ...asNoteItem(transaction.note),
-    ...asFeeItem(transaction.fee),
-    ...asValidRoundsItem(transaction.validRounds),
-    ...asResourcesItem(transaction),
+    ...(transaction.args.length > 0
+      ? [
+          {
+            dt: 'Arguments',
+            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
+          },
+        ]
+      : []),
+    ...asNoteItem(params.note),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
 }
 
 const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult): DescriptionListItems => {
+  // Done to share the majority of the mappings with app call
+  const params = asAppCallTransactionParams({
+    ...transaction,
+    type: BuildableTransactionType.AppCall,
+    args: [],
+  })
+
   return [
     {
       dt: 'Sender',
       dd: (
-        <AccountLink className="text-primary underline" address={transaction.sender}>
-          {transaction.sender}
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
         </AccountLink>
       ),
     },
     {
       dt: 'Application ID',
       dd: (
-        <ApplicationLink className="text-primary underline" applicationId={transaction.applicationId}>
-          {transaction.applicationId}
+        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+          {Number(params.appId)}
         </ApplicationLink>
       ),
     },
     ...(transaction.methodName ? [{ dt: 'Method name', dd: transaction.methodName }] : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(transaction.onComplete),
+      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
-    {
-      dt: 'Arguments',
-      dd: (
-        <ol>
-          {transaction.method.args.map((arg, index) => (
-            <li key={index} className="truncate">
-              {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
-            </li>
-          ))}
-        </ol>
-      ),
-    },
-    ...asNoteItem(transaction.note),
-    ...asFeeItem(transaction.fee),
-    ...asValidRoundsItem(transaction.validRounds),
-    ...asResourcesItem(transaction),
+    ...(transaction.method.args.length > 0
+      ? [
+          {
+            dt: 'Arguments',
+            dd: (
+              <ol>
+                {transaction.method.args.map((arg, index) => (
+                  <li key={index} className="truncate">
+                    {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
+                  </li>
+                ))}
+              </ol>
+            ),
+          },
+        ]
+      : []),
+    ...asNoteItem(params.note),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
 }
 
-const asNoteItem = (note?: string) =>
-  note
+const asNoteItem = (note?: string | Uint8Array) =>
+  note && typeof note === 'string'
     ? [
         {
           dt: 'Note',
@@ -386,20 +402,19 @@ const asNoteItem = (note?: string) =>
       ]
     : []
 
-const asFeeItem = (fee: BuildTransactionResult['fee']) =>
-  !fee.setAutomatically && fee.value ? [{ dt: 'Fee', dd: <DisplayAlgo amount={algo(fee.value)} /> }] : []
+const asFeeItem = (fee?: AlgoAmount) => (fee ? [{ dt: 'Fee', dd: <DisplayAlgo amount={fee} /> }] : [])
 
-const asValidRoundsItem = (validRounds: BuildTransactionResult['validRounds']) =>
-  !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid
+const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
+  firstValid && lastValid
     ? [
         {
           dt: 'Valid rounds',
-          dd: `${validRounds.firstValid} - ${validRounds.lastValid}`,
+          dd: `${firstValid} - ${lastValid}`,
         },
       ]
     : []
 
-const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
+const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[], boxes?: CommonAppCallParams['boxReferences']) => {
   return [
     {
       dt: 'Resources',
@@ -409,9 +424,9 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             accounts:&nbsp;
             <>
               <span>[</span>
-              {transaction.accounts && transaction.accounts.length > 0 && (
+              {accounts && accounts.length > 0 && (
                 <ol className="pl-4">
-                  {transaction.accounts?.map((address, index, array) => (
+                  {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
                       <AccountLink className="text-primary underline" address={address}>
                         {address}
@@ -428,12 +443,12 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             assets:&nbsp;
             <>
               <span>[</span>
-              {transaction.foreignAssets && transaction.foreignAssets.length > 0 && (
+              {assets && assets.length > 0 && (
                 <ol className="pl-4">
-                  {transaction.foreignAssets.map((assetId, index, array) => (
+                  {assets.map((assetId, index, array) => (
                     <li key={index} className="truncate">
-                      <AssetIdLink className="text-primary underline" assetId={assetId}>
-                        {assetId}
+                      <AssetIdLink className="text-primary underline" assetId={Number(assetId)}>
+                        {Number(assetId)}
                       </AssetIdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
@@ -447,12 +462,12 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             applications:&nbsp;
             <>
               <span>[</span>
-              {transaction.foreignApps && transaction.foreignApps.length > 0 && (
+              {apps && apps.length > 0 && (
                 <ol className="pl-4">
-                  {transaction.foreignApps?.map((appId, index, array) => (
+                  {apps?.map((appId, index, array) => (
                     <li key={index} className="truncate">
-                      <ApplicationLink className="text-primary underline" applicationId={appId}>
-                        {appId}
+                      <ApplicationLink className="text-primary underline" applicationId={Number(appId)}>
+                        {Number(appId)}
                       </ApplicationLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
@@ -466,11 +481,11 @@ const asResourcesItem = (transaction: BuildAppCallTransactionResult | BuildMetho
             boxes:&nbsp;
             <>
               <span>[</span>
-              {transaction.boxes && transaction.boxes.length > 0 && (
+              {boxes && boxes.length > 0 && (
                 <ol className="pl-4">
-                  {transaction.boxes?.map((boxKey, index, array) => (
+                  {boxes?.map((boxKey, index, array) => (
                     <li key={index} className="truncate">
-                      {boxKey}
+                      {boxKey.toString()}
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}

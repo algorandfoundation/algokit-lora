@@ -18,7 +18,6 @@ import { TransactionBuilder } from '@/features/transaction-wizard/components/tra
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
 import { AppCallTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { invariant } from '@/utils/invariant'
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
@@ -27,10 +26,9 @@ import { Parentheses } from 'lucide-react'
 
 type Props = {
   applicationId: ApplicationId
-  abiMethods: ApplicationAbiMethods // TODO: NC - Get the naming right
+  abiMethods: ApplicationAbiMethods
 }
 
-// TODO: NC - ABI Methods?
 export function ApplicationMethodDefinitions({ abiMethods, applicationId }: Props) {
   const readonly = !abiMethods.appSpec
 
@@ -56,7 +54,7 @@ type MethodProps = {
 
 function Method({ method, applicationId, readonly }: MethodProps) {
   const [transaction, setTransaction] = useState<BuildMethodCallTransactionResult | undefined>(undefined)
-  const [sentTransaction, setSentTransaction] = useState<AppCallTransaction | undefined>(undefined)
+  const [sentAppCallTransactions, setSentAppCallTransactions] = useState<AppCallTransaction[]>([])
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Create ABI Method Call Transaction',
@@ -94,23 +92,14 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     }
   }, [applicationId, method.callConfig, method.name, open])
 
-  const handleTransactionSent = useCallback(
-    (buildTransactionResultToAlgosdkTransactionMap: Map<string, string>, transactions: Transaction[]) => {
-      invariant(transaction, 'Transaction is undefined')
-
-      const algosdkTxId = buildTransactionResultToAlgosdkTransactionMap.get(transaction.id)
-      const algosdkTransaction = transactions.find((tx) => tx.id === algosdkTxId)
-      invariant(algosdkTransaction, 'Algosdk transaction not found')
-      invariant(algosdkTransaction.type === TransactionType.AppCall, 'Algosdk transaction is not an AppCall')
-
-      setSentTransaction(algosdkTransaction)
-    },
-    [transaction]
-  )
+  const handleTransactionSent = useCallback((transactions: Transaction[]) => {
+    const appCallTransactions = transactions.filter((txn) => txn.type === TransactionType.AppCall)
+    setSentAppCallTransactions(appCallTransactions as unknown as AppCallTransaction[])
+  }, [])
 
   const reset = useCallback(() => {
     setTransaction(undefined)
-    setSentTransaction(undefined)
+    setSentAppCallTransactions([])
   }, [])
 
   return (
@@ -146,34 +135,42 @@ function Method({ method, applicationId, readonly }: MethodProps) {
           <TransactionsBuilder
             transactions={[transaction]}
             onReset={reset}
-            onTransactionSent={(map, txns) => handleTransactionSent(map, txns)}
+            onTransactionSent={(txns) => handleTransactionSent(txns)}
             renderContext="app-lab"
           />
         )}
-        {sentTransaction && (
+        {sentAppCallTransactions.length > 0 && (
           <div className="mt-2 space-y-2">
-            <h4>Method Call Result</h4>
-            <div>
-              <DescriptionList
-                items={[
-                  {
-                    dt: transactionIdLabel,
-                    dd: (
-                      <TransactionLink transactionId={sentTransaction.id} className="text-sm text-primary underline">
-                        {sentTransaction.id}
-                      </TransactionLink>
-                    ),
-                  },
-                  {
-                    dt: 'Return value',
-                    dd: (
-                      <RenderInlineAsyncAtom atom={sentTransaction.abiMethod}>
-                        {(abiMethod) => (abiMethod ? <DecodedAbiMethodReturnValue return={abiMethod?.return} /> : 'void')}
-                      </RenderInlineAsyncAtom>
-                    ),
-                  },
-                ]}
-              />
+            <h4>App Call Results</h4>
+            <div className="space-y-4">
+              {sentAppCallTransactions.map((sentTransaction, index) => (
+                <RenderInlineAsyncAtom key={index} atom={sentTransaction.abiMethod}>
+                  {(abiMethod) =>
+                    abiMethod ? (
+                      <DescriptionList
+                        items={[
+                          {
+                            dt: transactionIdLabel,
+                            dd: (
+                              <TransactionLink transactionId={sentTransaction.id} className="text-sm text-primary underline">
+                                {sentTransaction.id}
+                              </TransactionLink>
+                            ),
+                          },
+                          {
+                            dt: 'Method name',
+                            dd: abiMethod.name,
+                          },
+                          {
+                            dt: 'Return value',
+                            dd: <DecodedAbiMethodReturnValue return={abiMethod.return} />,
+                          },
+                        ]}
+                      />
+                    ) : undefined
+                  }
+                </RenderInlineAsyncAtom>
+              ))}
             </div>
           </div>
         )}

@@ -11,6 +11,11 @@ import { abiMethodResolver } from '@/features/abi-methods/data'
 const asBlockTransaction = (res: algosdk.modelsv2.PendingTransactionResponse): BlockInnerTransaction => {
   return {
     txn: res.txn.txn,
+    sgnr: res.txn.sgnr,
+    caid: res.txn.txn.caid,
+    apid: res.txn.txn.apid,
+    aca: res.assetClosingAmount,
+    ca: res.closingAmount !== undefined ? Number(res.closingAmount) : undefined,
     dt: {
       // We don't use gd or ld in this context, so don't need to map.
       gd: {},
@@ -41,6 +46,8 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
       logs: confirmation.logs,
       createdAssetId: confirmation.assetIndex !== undefined ? Number(confirmation.assetIndex) : undefined,
       createdAppId: confirmation.applicationIndex !== undefined ? Number(confirmation.applicationIndex) : undefined,
+      closeAmount: confirmation.closingAmount != undefined ? Number(confirmation.closingAmount) : undefined,
+      assetCloseAmount: confirmation.assetClosingAmount,
     })
     const transaction = asTransaction(txnResult, assetSummaryResolver, abiMethodResolver)
     return transaction

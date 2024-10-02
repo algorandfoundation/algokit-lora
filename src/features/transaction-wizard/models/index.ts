@@ -5,9 +5,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition, ArgumentDefinition } from '@/features/applications/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Address } from '@/features/accounts/data/types'
-import { TransactionsGraphData } from '@/features/transactions-graph'
 import { AssetId } from '@/features/assets/data/types'
-import { Transaction } from '@/features/transactions/models'
 import React from 'react'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
@@ -247,8 +245,3 @@ export type BuildTransactionResult =
   | BuildAssetReconfigureTransactionResult
   | BuildAssetDestroyTransactionResult
   | BuildMethodCallTransactionResult
-
-export type SendTransactionResult = {
-  transactions: Transaction[]
-  transactionsGraphData: TransactionsGraphData
-}
