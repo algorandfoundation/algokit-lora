@@ -39,6 +39,8 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
       roundTimestamp: Math.floor(Date.now() / 1000),
       transaction: result.transactions[i],
       logs: confirmation.logs,
+      createdAssetId: confirmation.assetIndex !== undefined ? Number(confirmation.assetIndex) : undefined,
+      createdAppId: confirmation.applicationIndex !== undefined ? Number(confirmation.applicationIndex) : undefined,
     })
     const transaction = asTransaction(txnResult, assetSummaryResolver, abiMethodResolver)
     return transaction

@@ -125,6 +125,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       const sentTxns = asTransactionFromSendResult(result)
       const transactionsGraphData = asTransactionsGraphData(sentTxns)
 
+      // TODO: NC - transactions in here is not being used. Find out where we use it elsewhere
       setSendTransactionResult({
         transactions: sentTxns,
         transactionsGraphData,
