@@ -46,7 +46,7 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
         <Table className="border-b" aria-label={ariaLabel}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-t bg-muted/50">
+              <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} className={cn(header.column.columnDef.meta?.className)}>

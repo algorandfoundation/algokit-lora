@@ -323,7 +323,6 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
   } satisfies MethodForm
 }
 
-// TODO: PD - check with boolean
 export const asFieldInput = (
   type: algosdk.ABIArgumentType,
   value: algosdk.ABIValue | BuildTransactionResult
