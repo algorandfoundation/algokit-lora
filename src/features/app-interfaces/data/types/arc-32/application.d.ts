@@ -61,10 +61,10 @@ export interface AlgoAppSpec {
   hints?: {
     [k: string]: Hint
   }
-  source: AppSources
+  source?: AppSources
   contract: AbiContract
-  schema: SchemaSpec
-  state: StateSchemaSpec
+  schema?: SchemaSpec
+  state?: StateSchemaSpec
   bare_call_config?: CallConfig
   [k: string]: unknown
 }
@@ -110,7 +110,7 @@ export interface ContractMethodArg {
    * Catch all for fixed length arrays and tuples
    */
   type: string
-  name: string
+  name?: string
   [k: string]: unknown
 }
 export interface Event {

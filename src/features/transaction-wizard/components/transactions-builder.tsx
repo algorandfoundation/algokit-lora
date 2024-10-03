@@ -125,6 +125,8 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 
       onTransactionSent?.(sentTxns)
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
       setErrorMessage(asError(error).message)
     }
   }, [activeAddress, transactions, onTransactionSent])
@@ -165,6 +167,8 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
         return newTransactions
       })
     } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
       setErrorMessage(asError(error).message)
     }
   }, [transactions, activeAddress])

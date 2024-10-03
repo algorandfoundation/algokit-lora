@@ -73,7 +73,7 @@ export type ReturnsDefinition = {
 }
 
 export type ApplicationAbiMethods = {
-  appSpec?: Arc32AppSpec
+  appSpec: Arc32AppSpec
   methods: MethodDefinition[]
 }
 

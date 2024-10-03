@@ -116,7 +116,6 @@
       "type": "object",
       "additionalProperties": true,
       "required": [
-        "name",
         "type"
       ],
       "properties": {
