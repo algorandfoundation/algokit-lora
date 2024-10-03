@@ -1,12 +1,12 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiTupleRepresentation } from '@/features/abi-methods/models'
+import { AbiTupleValue as AbiTupleModel } from '@/features/abi-methods/models'
 
 type RenderABITupleValuesProps = {
-  tuple: AbiTupleRepresentation
+  tuple: AbiTupleModel
 }
 
 export function AbiTupleValue({ tuple }: RenderABITupleValuesProps) {
-  if (tuple.multiLine) {
+  if (tuple.multiline) {
     return (
       <>
         <span>(</span>

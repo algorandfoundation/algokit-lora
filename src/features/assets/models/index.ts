@@ -3,6 +3,10 @@ export type AssetSummary = {
   name?: string
   decimals: number
   unitName?: string
+  creator: string
+  manager?: string
+  reserve?: string
+  freeze?: string
   clawback?: string
 }
 
@@ -27,10 +31,6 @@ export type Asset = AssetSummary & {
   total: number | bigint
   defaultFrozen: boolean
   url?: string
-  creator: string
-  manager?: string
-  reserve?: string
-  freeze?: string
   type: AssetType
   standardsUsed: AssetStandard[]
   traits?: Record<string, string>

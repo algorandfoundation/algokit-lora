@@ -34,7 +34,7 @@ export const foreignApplicationsTabLabel = 'Foreign Applications'
 export const foreignAssetsTabLabel = 'Foreign Assets'
 export const globalStateDeltaTabLabel = 'Global State Delta'
 export const localStateDeltaTabLabel = 'Local State Delta'
-export const decodedAbiMethodTabLabel = 'Decoded ABI Method'
+export const decodedAbiMethodTabLabel = 'ABI Method'
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 

@@ -39,7 +39,7 @@ export function AppInterfaceCard({ appInterface, onDelete }: Props) {
   return (
     <Card>
       <CardContent className="flex min-h-44 flex-col">
-        <h2>{appInterface.name}</h2>
+        <h2 className="truncate">{appInterface.name}</h2>
         <div className="flex grow flex-col justify-between gap-4">
           <DescriptionList items={items} />
           <div className="flex items-center justify-between">

@@ -10,7 +10,6 @@ import { Auth0ContextInterface, useAuth0 } from '@auth0/auth0-react'
 import { atom, useAtomValue } from 'jotai'
 import { atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
-import { useWallet } from '@txnlab/use-wallet'
 
 type DispenserApiErrorResponse =
   | {
@@ -89,7 +88,7 @@ const fund = async (dispenserUrl: string, token: string, receiver: Address, amou
     },
     body: JSON.stringify({
       receiver,
-      amount: amount.microAlgos,
+      amount: Number(amount.microAlgos), // This conversion is needed as stringify doesn't handle bigint
     }),
     signal: AbortSignal && 'timeout' in AbortSignal ? AbortSignal.timeout(20_000) : undefined,
   })
@@ -148,7 +147,6 @@ const useRefundStatusAtom = () => {
 
 export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddress }: NonNullable<NetworkConfig['dispenserApi']>) => {
   const { getAccessTokenSilently } = useAuth0()
-  const { signer } = useWallet()
 
   const fundLimitAtom = useFundLimitAtom(dispenserApiUrl, getAccessTokenSilently)
 
@@ -179,7 +177,6 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
           sender: activeAccount.address,
           receiver: dispenserAddress,
           amount,
-          signer,
         })
 
         if (!sendResult.confirmation.confirmedRound) {
@@ -188,7 +185,7 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
 
         await refund(dispenserApiUrl, token, sendResult.transaction.txID())
       },
-      [dispenserAddress, dispenserApiUrl, getAccessTokenSilently, signer]
+      [dispenserAddress, dispenserApiUrl, getAccessTokenSilently]
     )
   )
 

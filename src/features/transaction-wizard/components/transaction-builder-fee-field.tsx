@@ -1,38 +1,33 @@
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
-import { BuildableTransactionFormField } from '../models'
-import { Path, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
+import { commonFormData } from '../data/common'
 
-type Props<TSchema extends z.ZodSchema> = {
-  helper: FormFieldHelper<z.infer<TSchema>>
-  path: Path<TSchema>
-  field: BuildableTransactionFormField
-}
+export function TransactionBuilderFeeField() {
+  const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, setValue } = useFormContext<z.infer<typeof commonFormData>>()
 
-export function TransactionBuilderFeeField<TSchema extends z.ZodSchema>({ helper, path, field }: Props<TSchema>) {
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<TSchema>>()
+  const setAutomaticallyPath = 'fee.setAutomatically'
+  const feeValuePath = 'fee.value'
 
-  const setAutomaticallyPath = `${path}.setAutomatically` as typeof path
-  const feeValuePath = `${path}.value` as typeof path
-
-  const setFeeAutomatically = watch(setAutomaticallyPath)
+  const setAutomatically = watch(setAutomaticallyPath)
 
   useEffect(() => {
-    clearErrors(feeValuePath)
-    if (setFeeAutomatically) {
-      resetField(feeValuePath)
+    if (setAutomatically) {
+      setValue(feeValuePath, undefined)
     }
-  }, [clearErrors, resetField, feeValuePath, setFeeAutomatically])
+    clearErrors(feeValuePath)
+  }, [clearErrors, setValue, setAutomatically])
 
   return (
     <div className="grid">
       {helper.checkboxField({
-        label: field.label,
+        label: 'Set fee automatically',
         field: setAutomaticallyPath,
       })}
-      {!setFeeAutomatically && (
+      {!setAutomatically && (
         <div className="ml-6 mt-3 grid gap-4">
           {helper.numberField({
             label: (

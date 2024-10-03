@@ -4,6 +4,7 @@ import { useToggle } from '@/features/common/hooks/use-toggle'
 import { useCallback } from 'react'
 import { CreateAppInterfaceDialogBody } from '@/features/app-interfaces/components/create-app-interface-dialog-body'
 import { createAppInterfaceLabel } from '@/features/app-interfaces/components/labels'
+import { Plus } from 'lucide-react'
 
 type Props = {
   onSuccess: () => void
@@ -19,7 +20,7 @@ export function CreateAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
 
   return (
     <div className="flex justify-end">
-      <Button variant="outline-secondary" onClick={on}>
+      <Button onClick={on} icon={<Plus size={16} />}>
         Create
       </Button>
       <Dialog open={dialogOpen} onOpenChange={(open) => (open ? on() : off())} modal={true}>

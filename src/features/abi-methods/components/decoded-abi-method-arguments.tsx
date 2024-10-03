@@ -1,4 +1,4 @@
-import { AbiMethodArgumentRepresentation, AbiType } from '@/features/abi-methods/models'
+import { AbiMethodArgument, AbiType } from '@/features/abi-methods/models'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -7,11 +7,11 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { useMemo, useCallback } from 'react'
 
 type Props = {
-  arguments: AbiMethodArgumentRepresentation[]
-  multiLine: boolean
+  arguments: AbiMethodArgument[]
+  multiline: boolean
 }
-export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine }: Props) {
-  const renderArgumentValue = useCallback((argument: AbiMethodArgumentRepresentation) => {
+export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline }: Props) {
+  const renderArgumentValue = useCallback((argument: AbiMethodArgument) => {
     if (argument.type === AbiType.Transaction) {
       return (
         <TransactionLink className="text-primary underline" transactionId={argument.value}>
@@ -52,9 +52,9 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine 
     [argumentsProp, renderArgumentValue]
   )
 
-  if (multiLine) {
+  if (multiline) {
     return (
-      <ul className="pl-4">
+      <ol className="pl-4">
         {components.map((component, index, array) => (
           <li key={index}>
             <>
@@ -63,7 +63,7 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiLine 
             </>
           </li>
         ))}
-      </ul>
+      </ol>
     )
   } else {
     return (
