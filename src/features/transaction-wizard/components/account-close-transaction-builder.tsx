@@ -15,6 +15,10 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 
+const senderLabel = 'Sender'
+const receiverLabel = 'Receiver'
+const closeRemainderToLabel = 'Close remainder to'
+
 const formSchema = z
   .object({
     ...commonSchema,
@@ -106,20 +110,20 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
         <>
           {helper.textField({
             field: 'sender',
-            label: 'Sender',
+            label: senderLabel,
             helpText: 'Account to be closed. Sends the transaction and pays the fee',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.textField({
             field: 'closeRemainderTo',
-            label: 'Close remainder to',
-            helpText: 'Account to receive the balance when sender account is closed',
+            label: closeRemainderToLabel,
+            helpText: `Account to receive the remaining balance when '${senderLabel}' account is closed`,
             placeholder: ZERO_ADDRESS,
           })}
           {helper.textField({
             field: 'receiver',
-            label: 'Receiver',
-            helpText: 'Account to pay the amount to. Leave blank if Close remainder to account should receive the full balance',
+            label: receiverLabel,
+            helpText: `Account to pay the amount to. Leave blank if '${closeRemainderToLabel}' account should receive the full balance`,
             placeholder: ZERO_ADDRESS,
           })}
           {helper.numberField({
@@ -131,7 +135,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
               </span>
             ),
             decimalScale: 6,
-            helpText: 'Amount to pay. Leave blank if Close remainder to account should get the full balance',
+            helpText: `Amount to pay the '${receiverLabel}' account. Leave blank if '${closeRemainderToLabel}' account should get the full balance`,
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />

@@ -60,8 +60,6 @@ type FormFieldsProps = {
 }
 
 function FormFields({ helper, asset }: FormFieldsProps) {
-  // TODO: NC - Confirm all the handling of the asset re-configure, to prevent asset's being bricked.
-
   return (
     <>
       {helper.numberField({

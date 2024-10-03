@@ -15,6 +15,8 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 
+const receiverLabel = 'Receiver'
+
 const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
@@ -92,8 +94,8 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
           })}
           {helper.textField({
             field: 'receiver',
-            label: 'Receiver',
-            helpText: 'Account to pay to',
+            label: receiverLabel,
+            helpText: 'Account to pay the amount to',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.numberField({
@@ -105,7 +107,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
               </span>
             ),
             decimalScale: 6,
-            helpText: 'Amount to pay',
+            helpText: `Amount to pay the '${receiverLabel}' account`,
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
