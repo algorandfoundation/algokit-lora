@@ -23,6 +23,7 @@ import { AccountLink } from '@/features/accounts/components/account-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 
 const formSchema = {
   ...commonSchema,
@@ -84,11 +85,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
-      {helper.textField({
-        field: 'note',
-        label: 'Note',
-        helpText: 'A note for the transaction',
-      })}
+      <TransactionBuilderNoteField />
     </>
   )
 }
@@ -162,12 +159,12 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
-        asset: data.asset,
         type: BuildableTransactionType.AssetDestroy,
+        asset: data.asset,
         sender: data.sender,
-        note: data.note,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -175,8 +172,8 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
         asset: transaction.asset,
+        sender: transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

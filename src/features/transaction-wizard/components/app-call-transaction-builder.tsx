@@ -13,6 +13,7 @@ import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard
 import { BuildAppCallTransactionResult, BuildableTransactionType } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -47,6 +48,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),
+        note: values.note,
         onComplete: Number(values.onComplete),
       })
     },
@@ -61,6 +63,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
         onComplete: transaction.onComplete.toString(),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
+        note: transaction.note,
         args: transaction.args.map((arg) => ({
           id: randomGuid(),
           value: arg,
@@ -97,19 +100,23 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
           {helper.numberField({
             field: 'applicationId',
             label: 'Application ID',
+            helpText: 'The application to be called',
           })}
           {helper.selectField({
             field: 'onComplete',
             label: 'On complete',
             options: onCompleteOptions,
+            helpText: 'Action to perform after executing the program',
           })}
           {helper.textField({
             field: 'sender',
             label: 'Sender',
+            helpText: 'Account to call from. Sends the transaction and pays the fee',
           })}
           {helper.arrayField({
             field: 'args',
             label: 'Arguments',
+            helpText: 'Arguments that can be accessed from the program',
             addButtonLabel: 'Add Argument',
             noItemsLabel: 'No arguments.',
             newItem: () => {
@@ -127,6 +134,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
+          <TransactionBuilderNoteField />
         </div>
       )}
     </Form>

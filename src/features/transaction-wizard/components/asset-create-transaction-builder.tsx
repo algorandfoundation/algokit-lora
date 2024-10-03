@@ -14,6 +14,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 
 const formSchema = {
   ...commonSchema,
@@ -63,7 +64,7 @@ function FormFields({ helper }: FormFieldsProps) {
       {helper.textField({
         field: 'sender',
         label: 'Creator',
-        helpText: 'Asset creator account. Sends the transaction and pays the fee',
+        helpText: 'Account that creates the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.textField({
@@ -107,11 +108,7 @@ function FormFields({ helper }: FormFieldsProps) {
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
-      {helper.textField({
-        field: 'note',
-        label: 'Note',
-        helpText: 'A note for the transaction',
-      })}
+      <TransactionBuilderNoteField />
     </>
   )
 }
@@ -130,21 +127,21 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetCreate,
-        sender: data.sender,
-        total: data.total,
-        decimals: data.decimals,
         assetName: data.assetName,
         unitName: data.unitName,
-        url: data.url,
-        metadataHash: data.metadataHash,
-        defaultFrozen: data.defaultFrozen ?? false,
+        total: data.total,
+        decimals: data.decimals,
+        sender: data.sender,
         manager: data.manager,
         reserve: data.reserve,
         freeze: data.freeze,
         clawback: data.clawback,
-        note: data.note,
+        defaultFrozen: data.defaultFrozen ?? false,
+        url: data.url,
+        metadataHash: data.metadataHash,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -152,18 +149,18 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
-        total: transaction.total,
-        decimals: transaction.decimals,
         assetName: transaction.assetName,
         unitName: transaction.unitName,
-        url: transaction.url,
-        metadataHash: transaction.metadataHash,
-        defaultFrozen: transaction.defaultFrozen,
+        total: transaction.total,
+        decimals: transaction.decimals,
+        sender: transaction.sender,
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,
         clawback: transaction.clawback,
+        defaultFrozen: transaction.defaultFrozen,
+        url: transaction.url,
+        metadataHash: transaction.metadataHash,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

@@ -20,6 +20,9 @@ import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+
+const receiverLabel = 'Receiver'
 
 const formSchema = {
   ...commonSchema,
@@ -54,6 +57,11 @@ type FormFieldsProps = {
 function FormFields({ helper, asset }: FormFieldsProps) {
   return (
     <>
+      {helper.numberField({
+        field: 'asset.id',
+        label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
+        helpText: 'The asset to be transfered',
+      })}
       {helper.textField({
         field: 'sender',
         label: 'Sender',
@@ -62,28 +70,19 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       {helper.textField({
         field: 'receiver',
-        label: 'Receiver',
-        helpText: 'Account that receives the asset',
+        label: receiverLabel,
+        helpText: 'Account to receive the asset',
         placeholder: ZERO_ADDRESS,
-      })}
-      {helper.numberField({
-        field: 'asset.id',
-        label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be transfered',
       })}
       {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,
-        helpText: 'Amount to transfer',
+        helpText: `Asset amount to transfer to the '${receiverLabel}' account`,
         decimalScale: asset && asset.decimals ? asset.decimals : 0,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
-      {helper.textField({
-        field: 'note',
-        label: 'Note',
-        helpText: 'A note for the transaction',
-      })}
+      <TransactionBuilderNoteField />
     </>
   )
 }
@@ -158,14 +157,14 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
-        asset: data.asset,
         type: BuildableTransactionType.AssetTransfer,
+        asset: data.asset,
         sender: data.sender,
         receiver: data.receiver,
         amount: data.amount,
-        note: data.note,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -173,9 +172,9 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
+        asset: transaction.asset,
         sender: transaction.sender,
         receiver: transaction.receiver,
-        asset: transaction.asset,
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,

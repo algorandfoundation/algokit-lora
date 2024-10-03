@@ -14,6 +14,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -64,9 +65,9 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
         closeRemainderTo: data.closeRemainderTo,
         receiver: data.receiver,
         amount: data.amount,
-        note: data.note,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -123,7 +124,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
           {helper.textField({
             field: 'receiver',
             label: receiverLabel,
-            helpText: `Account to pay the amount to. Leave blank if '${closeRemainderToLabel}' account should receive the full balance`,
+            helpText: `Account to receive the amount. Leave blank if '${closeRemainderToLabel}' account should receive the full balance`,
             placeholder: ZERO_ADDRESS,
           })}
           {helper.numberField({
@@ -139,11 +140,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
-          {helper.textField({
-            field: 'note',
-            label: 'Note',
-            helpText: 'A note for the transaction',
-          })}
+          <TransactionBuilderNoteField />
         </>
       )}
     </Form>

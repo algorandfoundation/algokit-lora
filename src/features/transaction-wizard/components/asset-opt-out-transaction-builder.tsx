@@ -20,6 +20,7 @@ import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 
 const formSchema = {
   ...commonSchema,
@@ -53,6 +54,11 @@ type FormFieldsProps = {
 function FormFields({ helper, asset }: FormFieldsProps) {
   return (
     <>
+      {helper.numberField({
+        field: 'asset.id',
+        label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
+        helpText: 'The asset to be opted out of',
+      })}
       {helper.textField({
         field: 'sender',
         label: 'Sender',
@@ -65,18 +71,9 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         helpText: 'Account to receive the remaining balance of the asset',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.numberField({
-        field: 'asset.id',
-        label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be opted out of',
-      })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
-      {helper.textField({
-        field: 'note',
-        label: 'Note',
-        helpText: 'A note for the transaction',
-      })}
+      <TransactionBuilderNoteField />
     </>
   )
 }
@@ -151,13 +148,13 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
-        asset: data.asset,
         type: BuildableTransactionType.AssetOptOut,
+        asset: data.asset,
         sender: data.sender,
         closeRemainderTo: data.closeRemainderTo,
-        note: data.note,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -165,9 +162,9 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
+        asset: transaction.asset,
         sender: transaction.sender,
         closeRemainderTo: transaction.closeRemainderTo,
-        asset: transaction.asset,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
