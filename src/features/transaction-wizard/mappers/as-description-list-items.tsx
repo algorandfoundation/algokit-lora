@@ -15,6 +15,7 @@ import {
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   MethodCallArg,
+  PlaceholderTransactionResult,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
@@ -364,7 +365,7 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
         </ApplicationLink>
       ),
     },
-    ...(transaction.methodName ? [{ dt: 'Method name', dd: transaction.methodName }] : []),
+    ...(transaction.method ? [{ dt: 'Method name', dd: transaction.method.name }] : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
@@ -534,6 +535,8 @@ export const asTransactionLabel = (type: BuildableTransactionType) => {
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
       return TransactionType.AssetConfig
+    case BuildableTransactionType.Placeholder:
+      return ''
     default:
       throw new Error(`Unknown type ${type}`)
   }

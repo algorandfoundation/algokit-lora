@@ -85,14 +85,15 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
 
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
-      if (typeof arg === 'object' && 'type' in arg) {
-        if (arg.type !== BuildableTransactionType.MethodCall) {
-          // Other transaction types only return 1 transaction
-          return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
-        } else {
-          return asMethodCallParams(arg as BuildMethodCallTransactionResult)
-        }
-      }
+      // TODO: PD - read from the group here
+      // if (typeof arg === 'object' && 'type' in arg) {
+      //   if (arg.type !== BuildableTransactionType.MethodCall) {
+      //     // Other transaction types only return 1 transaction
+      //     return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
+      //   } else {
+      //     return asMethodCallParams(arg as BuildMethodCallTransactionResult)
+      //   }
+      // }
       return arg
     })
   )
@@ -101,7 +102,7 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
     sender: transaction.sender,
     appId: BigInt(transaction.applicationId),
     method: transaction.method,
-    args: args,
+    args: [],
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],

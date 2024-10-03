@@ -111,6 +111,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
+      invariant(ensureThereIsNoPlaceholderTransaction(transactions), 'Please set all transaction arguments for method calls')
 
       const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
@@ -171,13 +172,13 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult) => {
-      const txn = await openTransactionBuilderDialog({
-        mode: TransactionBuilderMode.Edit,
-        transaction: transaction,
-      })
-      if (txn) {
-        setTransactions((prev) => prev.map((t) => (t.id === txn.id ? txn : t)))
-      }
+      // const txn = await openTransactionBuilderDialog({
+      //   mode: TransactionBuilderMode.Edit,
+      //   transaction: transaction,
+      // })
+      // if (txn) {
+      //   setTransactions((prev) => prev.map((t) => (t.id === txn.id ? txn : t)))
+      // }
     },
     [openTransactionBuilderDialog]
   )
@@ -352,4 +353,12 @@ const setTransactionResouces = (transactions: BuildTransactionResult[], transact
   }
 
   set(transactions)
+}
+
+const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionResult[]) => {
+  return !transactions.some(
+    (transaction) =>
+      transaction.type === BuildableTransactionType.MethodCall &&
+      transaction.methodArgs.some((arg) => typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder)
+  )
 }
