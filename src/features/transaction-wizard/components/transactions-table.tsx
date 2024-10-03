@@ -61,14 +61,14 @@ function TransactionRow({
 
   const subTransactionsRows = renderSubTransactions(row.original, onEditResources)
   return (
-    <TableBody ref={setNodeRef} style={style} className="border-y">
+    <TableBody ref={setNodeRef} style={style}>
       {subTransactionsRows}
       <TableRow data-state={row.getIsSelected() && 'selected'}>
-        <TableCell className="w-10">
+        <TableCell className="w-10 border-b">
           <RowDragHandleCell rowId={row.id} />
         </TableCell>
         {row.getVisibleCells().map((cell) => (
-          <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+          <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </TableCell>
         ))}
@@ -114,14 +114,14 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
   return (
     <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="grid">
-        <Table aria-label={ariaLabel} className="overflow-hidden">
+        <Table aria-label={ariaLabel} className="border-separate border-spacing-0 overflow-hidden">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-t bg-muted/50">
-                <TableHead className="w-10"></TableHead>
+              <TableRow key={headerGroup.id} className="relative z-10 bg-muted hover:bg-muted">
+                <TableHead className="w-10 border-y"></TableHead>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className={cn(header.column.columnDef.meta?.className)}>
+                    <TableHead key={header.id} className={cn(header.column.columnDef.meta?.className, 'border-y')}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )
@@ -290,7 +290,7 @@ function SubTransactionsRows({
           {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
         >
           {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+            <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
           ))}
