@@ -1349,7 +1349,7 @@ describe('application-method-definitions', () => {
 
             // Verify the existing values
             const wrapperDiv = await waitFor(() => getByText(formDialog, 'Argument 1').parentElement!)
-            expect(within(wrapperDiv).findByRole('combobox')).toHaveTextContent('True')
+            expect(await within(wrapperDiv).findByRole('combobox')).toHaveTextContent('True')
 
             // Update the values
             await setArgSelect(formDialog, user, 'Argument 1', 'False')
