@@ -5,7 +5,7 @@ import { cn } from '@/features/common/utils'
 import { Button } from '@/features/common/components/button'
 import { useCallback } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
-import { Telescope, Braces, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins } from 'lucide-react'
+import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, Braces } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
@@ -27,7 +27,7 @@ export function LeftSideBarMenu({ className }: Props) {
     { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.AppStudio, icon: <Braces />, text: 'App Studio' },
     // { urlTemplate: Urls.AppLab, icon: <FlaskConical />, text: 'App Lab' },
-    // { urlTemplate: Urls.TransactionWizard, icon: <WandSparkles />, text: 'Txn Wizard' },
+    // { urlTemplate: Urls.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
     { urlTemplate: Urls.Fund, icon: <Coins />, text: 'Fund' },
   ]
   const [layout, setLayout] = useLayout()
