@@ -155,7 +155,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
     <div className="duration-300 animate-in fade-in-20">
       <p className="mb-4">
         <a
-          href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#deployapp"
+          href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#input-parameters"
           target="_blank"
           rel="nofollow"
           className="text-primary underline"

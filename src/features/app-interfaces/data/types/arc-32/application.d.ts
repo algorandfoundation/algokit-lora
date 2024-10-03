@@ -110,7 +110,7 @@ export interface ContractMethodArg {
    * Catch all for fixed length arrays and tuples
    */
   type: string
-  name: string
+  name?: string
   [k: string]: unknown
 }
 export interface Event {
