@@ -30,17 +30,10 @@ type Props = {
 }
 
 export function ApplicationMethodDefinitions({ abiMethods, applicationId }: Props) {
-  const readonly = !abiMethods.appSpec
-
   return (
     <Accordion type="multiple">
       {abiMethods.methods.map((method, index) => (
-        <Method
-          method={method}
-          key={index}
-          applicationId={applicationId}
-          readonly={readonly || (method.callConfig?.call ?? []).length === 0}
-        />
+        <Method method={method} key={index} applicationId={applicationId} readonly={(method.callConfig?.call ?? []).length === 0} />
       ))}
     </Accordion>
   )
