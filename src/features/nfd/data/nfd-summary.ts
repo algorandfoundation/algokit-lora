@@ -4,11 +4,11 @@ import { Nfd } from './types'
 import { asNfdSummary } from '../mappers/nfd-summary'
 import { Address } from '@/features/accounts/data/types'
 
-export const nfdSummaryResolver = (nfd: Nfd) => {
-  return createNfdSummaryAtom(nfd)
+export const forwardNfdSummaryResolver = (nfd: Nfd) => {
+  return createForwardNfdSummaryAtom(nfd)
 }
 
-export const createNfdSummaryAtom = (nfd: Nfd) => {
+export const createForwardNfdSummaryAtom = (nfd: Nfd) => {
   return atom(async (get) => {
     const nfdResult = await get(getForwardNfdResultAtom(nfd))
     return asNfdSummary(nfdResult)

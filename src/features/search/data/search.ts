@@ -18,7 +18,7 @@ import { createApplicationSummaryAtom } from '@/features/applications/data/appli
 import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
 import { isNFD } from '@/features/nfd/data/is-nfd'
-import { createNfdSummaryAtom, createReverseNfdSummaryAtom } from '@/features/nfd/data/nfd-summary'
+import { createForwardNfdSummaryAtom, createReverseNfdSummaryAtom } from '@/features/nfd/data/nfd-summary'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -52,7 +52,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isNFD(term)) {
-      const nfdAtom = createNfdSummaryAtom(term)
+      const nfdAtom = createForwardNfdSummaryAtom(term)
       const nfd = await handleErrorInAsyncMaybeAtom(get(nfdAtom), handle404)
       if (nfd && isAddress(nfd.address)) {
         results.push({
