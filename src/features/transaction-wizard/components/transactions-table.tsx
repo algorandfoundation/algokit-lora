@@ -16,7 +16,7 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { EllipsisVertical, GripVertical } from 'lucide-react'
+import { EllipsisVertical, GripVertical, LinkIcon } from 'lucide-react'
 import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
@@ -260,15 +260,22 @@ const getSubTransactionsTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return transaction.type === BuildableTransactionType.Placeholder ? (
+      return (
         <div>
-          <span>Argument for method {transaction.argForMethod}</span>
-          <Button variant="link" className="ml-2" onClick={() => onEdit(transaction)}>
-            Create
-          </Button>
+          {transaction.type === BuildableTransactionType.Placeholder ? (
+            <div>
+              <span>Argument for method {transaction.argForMethod}</span>
+              <Button variant="link" className="ml-2" onClick={() => onEdit(transaction)}>
+                Create
+              </Button>
+            </div>
+          ) : (
+            <DescriptionList items={asDescriptionListItems(transaction, onEdit)} dtClassName="w-[9.5rem] truncate" />
+          )}
+          <div className="absolute bottom-[-10px] right-1/2">
+            <LinkIcon size={16} className={'text-muted-foreground/60'} />
+          </div>
         </div>
-      ) : (
-        <DescriptionList items={asDescriptionListItems(transaction, onEdit)} dtClassName="w-[9.5rem] truncate" />
       )
     },
   },
@@ -318,6 +325,7 @@ function SubTransactionsRows({
           key={row.id}
           data-state={row.getIsSelected() && 'selected'}
           {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
+          className="relative"
         >
           {row.getVisibleCells().map((cell) => (
             <TableCell
