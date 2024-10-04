@@ -33,7 +33,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
   const createAppInterface = useCreateAppInterface()
   const [snapshot] = useCreateAppInterfaceStateMachine()
 
-  const save = useCallback(
+  const create = useCallback(
     async (values: z.infer<typeof formSchema>) => {
       const commonProps = {
         applicationId: values.applicationId,
@@ -78,7 +78,7 @@ export function CreateAppInterfaceForm({ appSpecFile, appSpec, onSuccess }: Prop
     <div className="duration-300 animate-in fade-in-20">
       <Form
         schema={formSchema}
-        onSubmit={save}
+        onSubmit={create}
         onSuccess={onSuccess}
         defaultValues={defaultValues}
         formAction={
@@ -143,6 +143,7 @@ function FormInner({ helper, appSpec }: FormInnerProps) {
       {helper.textField({
         field: 'name',
         label: 'Name',
+        helpText: 'Name of the app interface',
       })}
       {isArc4AppSpec(appSpec) && (
         <>

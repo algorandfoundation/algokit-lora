@@ -6,8 +6,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
-import { deployApp } from '@algorandfoundation/algokit-utils'
-import { algod, indexer } from '@/features/common/data/algo-client'
+import { algorandClient } from '@/features/common/data/algo-client'
 import { Arc32AppSpec } from '../data/types'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
@@ -21,10 +20,15 @@ import { Fieldset } from '@/features/forms/components/fieldset'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { deployButtonLabel } from '@/features/app-interfaces/components/labels'
 import { AppManager } from '@algorandfoundation/algokit-utils/types/app-manager'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+
+export const UPDATABLE_TEMPLATE_VAR_NAME = 'UPDATABLE'
+export const DELETABLE_TEMPLATE_VAR_NAME = 'DELETABLE'
 
 type Props = {
   className?: string
   appSpec: Arc32AppSpec
+  appName?: string
 }
 
 enum TemplateParamType {
@@ -40,8 +44,6 @@ const templateParam = z.object({
 const formSchema = zfd.formData({
   name: zfd.text(),
   version: zfd.text(),
-  onUpdate: zfd.text(z.union([z.literal('fail'), z.literal('update'), z.literal('replace'), z.literal('append')]).optional()),
-  onSchemaBreak: zfd.text(z.union([z.literal('fail'), z.literal('replace'), z.literal('append')]).optional()),
   deletable: z.boolean().optional(),
   updatable: z.boolean().optional(),
   templateParams: z.array(templateParam),
@@ -80,67 +82,60 @@ const getTealTemplateParams = (names: string[], formData: DeployAppFormData) => 
   )
 }
 
-export function DeployAppForm({ className, appSpec }: Props) {
+export function DeployAppForm({ className, appSpec, appName }: Props) {
   const [_, send] = useCreateAppInterfaceStateMachine()
-  const { signer, activeAddress } = useWallet()
+  const { activeAddress } = useWallet()
 
   const templateParamNames = useMemo(() => {
     const approvalTemplateParams = getTemplateParamNames(appSpec.source?.approval ?? '')
     const clearTemplateParams = getTemplateParamNames(appSpec.source?.clear ?? '')
-    return Array.from(new Set([...approvalTemplateParams, ...clearTemplateParams]))
+    return {
+      approval: approvalTemplateParams,
+      clear: clearTemplateParams,
+    }
   }, [appSpec])
+  const unifiedTemplateParamNames = Array.from(new Set([...templateParamNames.approval, ...templateParamNames.clear])).filter(
+    (x) => ![UPDATABLE_TEMPLATE_VAR_NAME, DELETABLE_TEMPLATE_VAR_NAME].includes(x)
+  )
+  const enableDeployTimeUpdatabilityControl = templateParamNames.approval.includes(UPDATABLE_TEMPLATE_VAR_NAME)
+  const enableDeployTimeDeletabilityControl = templateParamNames.approval.includes(DELETABLE_TEMPLATE_VAR_NAME)
 
-  const save = useCallback(
+  const deploy = useCallback(
     async (values: DeployAppFormData) => {
       invariant(appSpec.source?.approval, 'Approval program is not set')
       invariant(appSpec.source?.clear, 'Clear program is not set')
       invariant(activeAddress, 'No active wallet account is available')
 
-      const signerAccount = {
-        addr: activeAddress,
-        signer,
-      }
+      const appFactory = algorandClient.client.getAppFactory({
+        appSpec: appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
+        defaultSender: activeAddress,
+        appName: values.name,
+        version: values.version,
+        deletable: values.deletable,
+        updatable: values.updatable,
+      })
 
-      const deployAppResult = await deployApp(
-        {
-          from: signerAccount,
-          approvalProgram: base64ToUtf8(appSpec.source.approval),
-          clearStateProgram: base64ToUtf8(appSpec.source.clear),
+      const { result: deployAppResult } = await appFactory.deploy({
+        createParams: {
           schema: {
             localInts: appSpec.state?.local.num_uints ?? 0,
             localByteSlices: appSpec.state?.local.num_byte_slices ?? 0,
             globalInts: appSpec.state?.global.num_uints ?? 0,
             globalByteSlices: appSpec.state?.global.num_byte_slices ?? 0,
           },
-          metadata: {
-            name: values.name,
-            version: values.version,
-            deletable: values.deletable,
-            updatable: values.updatable,
-          },
-          onUpdate: values.onUpdate,
-          onSchemaBreak: values.onSchemaBreak,
-          deployTimeParams: getTealTemplateParams(templateParamNames, values),
         },
-        algod,
-        indexer
-      )
+        onUpdate: 'fail',
+        onSchemaBreak: 'fail',
+        deployTimeParams: getTealTemplateParams(unifiedTemplateParamNames, values),
+        populateAppCallResources: true,
+      })
+
       return Number(deployAppResult.appId)
     },
-    [
-      activeAddress,
-      appSpec.source?.approval,
-      appSpec.source?.clear,
-      appSpec.state?.global.num_byte_slices,
-      appSpec.state?.global.num_uints,
-      appSpec.state?.local.num_byte_slices,
-      appSpec.state?.local.num_uints,
-      signer,
-      templateParamNames,
-    ]
+    [activeAddress, appSpec, unifiedTemplateParamNames]
   )
 
-  const onSuccess = useCallback(
+  const completeDeployment = useCallback(
     (appId: ApplicationId) => {
       send({ type: 'deployAppCompleted', applicationId: appId })
     },
@@ -153,21 +148,10 @@ export function DeployAppForm({ className, appSpec }: Props) {
 
   return (
     <div className="duration-300 animate-in fade-in-20">
-      <p className="mb-4">
-        <a
-          href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#input-parameters"
-          target="_blank"
-          rel="nofollow"
-          className="text-primary underline"
-        >
-          Learn more
-        </a>
-        &nbsp;about deploying an app.
-      </p>
       <Form
         schema={formSchema}
-        onSubmit={save}
-        onSuccess={onSuccess}
+        onSubmit={deploy}
+        onSuccess={completeDeployment}
         formAction={
           <FormActions>
             <CancelButton onClick={onCancel} className="w-28" />
@@ -175,8 +159,11 @@ export function DeployAppForm({ className, appSpec }: Props) {
           </FormActions>
         }
         defaultValues={{
-          name: appSpec.contract.name,
-          templateParams: templateParamNames.map(() => ({ type: TemplateParamType.String })),
+          name: appName,
+          version: '1.0',
+          templateParams: unifiedTemplateParamNames.map(() => ({ type: TemplateParamType.String })),
+          updatable: enableDeployTimeUpdatabilityControl ? false : undefined,
+          deletable: enableDeployTimeDeletabilityControl ? false : undefined,
         }}
         className={className}
       >
@@ -185,43 +172,27 @@ export function DeployAppForm({ className, appSpec }: Props) {
             {helper.textField({
               field: 'name',
               label: 'Name',
+              helpText: 'Name of the app, which must be unique for the creator account. This is used in the deployment idempotency check',
             })}
             {helper.textField({
               field: 'version',
               label: 'Version',
-              placeholder: '1.0.0',
+              helpText: 'Version of the app',
             })}
-            {helper.selectField({
-              field: 'onUpdate',
-              label: 'On Update',
-              options: [
-                { value: 'fail', label: 'Fail' },
-                { value: 'update', label: 'Update App' },
-                { value: 'replace', label: 'Replace App' },
-                { value: 'append', label: 'Append App' },
-              ],
-            })}
-            {helper.selectField({
-              field: 'onSchemaBreak',
-              label: 'On Schema Break',
-              options: [
-                { value: 'fail', label: 'Fail' },
-                { value: 'replace', label: 'Replace App' },
-                { value: 'append', label: 'Append App' },
-              ],
-            })}
-            {helper.checkboxField({
-              field: 'deletable',
-              label: 'Deletable',
-            })}
-            {helper.checkboxField({
-              field: 'updatable',
-              label: 'Updatable',
-            })}
+            {enableDeployTimeUpdatabilityControl &&
+              helper.checkboxField({
+                field: 'updatable',
+                label: 'Updatable',
+              })}
+            {enableDeployTimeDeletabilityControl &&
+              helper.checkboxField({
+                field: 'deletable',
+                label: 'Deletable',
+              })}
             <Fieldset legend="Template Params">
-              {templateParamNames.length === 0 && <span className="text-sm">No template params.</span>}
-              {templateParamNames.length > 0 &&
-                templateParamNames.map((name, index) => <TemplateParamForm key={index} name={name} index={index} />)}
+              {unifiedTemplateParamNames.length === 0 && <span className="text-sm">No template params.</span>}
+              {unifiedTemplateParamNames.length > 0 &&
+                unifiedTemplateParamNames.map((name, index) => <TemplateParamForm key={index} name={name} index={index} />)}
             </Fieldset>
           </>
         )}
