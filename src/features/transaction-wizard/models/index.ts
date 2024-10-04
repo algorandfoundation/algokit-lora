@@ -197,6 +197,7 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
   }
 }
 
+// TODO: PD - rethink the name
 export type PlaceholderTransactionResult = {
   id: string
   type: BuildableTransactionType.Placeholder

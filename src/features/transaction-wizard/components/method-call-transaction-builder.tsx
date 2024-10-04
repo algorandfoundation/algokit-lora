@@ -71,7 +71,7 @@ export function MethodCallTransactionBuilder({
 
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
-      // TODO: PD - handle the placeholder transactions on edit - just drop them
+      // TODO: PD - handle the placeholder transactions when changing method? - just drop them
       // TODO: PD - handle the placeholder transactions on delete
       invariant(methodForm, 'Method form is required')
 
@@ -80,12 +80,16 @@ export function MethodCallTransactionBuilder({
         if ('getAppCallArg' in arg) {
           return arg.getAppCallArg(value)
         } else {
-          return {
-            id: randomGuid(),
-            type: BuildableTransactionType.Placeholder,
-            targetType: arg.type,
-            argForMethod: methodForm.name,
-          } satisfies PlaceholderTransactionResult
+          if (mode === TransactionBuilderMode.Create) {
+            return {
+              id: randomGuid(),
+              type: BuildableTransactionType.Placeholder,
+              targetType: arg.type,
+              argForMethod: methodForm.name,
+            } satisfies PlaceholderTransactionResult
+          } else {
+            return transaction!.methodArgs[index]
+          }
         }
       })
 
@@ -105,7 +109,7 @@ export function MethodCallTransactionBuilder({
 
       onSubmit(methodCallTxn)
     },
-    [methodForm, onSubmit, transaction?.id, appSpec]
+    [methodForm, transaction, appSpec, onSubmit, mode]
   )
 
   const onSetMethodForm = useCallback((method: MethodForm | undefined) => {

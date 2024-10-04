@@ -36,6 +36,7 @@ type Props = {
 export function PaymentTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
+      console.log('data', data)
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,

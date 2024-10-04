@@ -14,6 +14,7 @@ import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
+  PlaceholderTransactionResult,
 } from '../models'
 import { asAlgosdkTransactions } from '../mappers'
 import { TransactionBuilderMode } from '../data'
@@ -30,6 +31,7 @@ import { asError } from '@/utils/error'
 import { Transaction } from '@/features/transactions/models'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
+import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -171,14 +173,15 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   }, [transactions, activeAddress])
 
   const editTransaction = useCallback(
-    async (transaction: BuildTransactionResult) => {
-      // const txn = await openTransactionBuilderDialog({
-      //   mode: TransactionBuilderMode.Edit,
-      //   transaction: transaction,
-      // })
-      // if (txn) {
-      //   setTransactions((prev) => prev.map((t) => (t.id === txn.id ? txn : t)))
-      // }
+    async (transaction: BuildTransactionResult | PlaceholderTransactionResult) => {
+      const txn = await openTransactionBuilderDialog({
+        mode: TransactionBuilderMode.Edit,
+        type: transaction.type === BuildableTransactionType.Placeholder ? asAlgosdkTransactionType(transaction.targetType) : undefined,
+        transaction: transaction.type === BuildableTransactionType.Placeholder ? undefined : transaction,
+      })
+      if (txn) {
+        setTransactions((prev) => setTransaction(prev, transaction.id, txn))
+      }
     },
     [openTransactionBuilderDialog]
   )
@@ -353,6 +356,48 @@ const setTransactionResouces = (transactions: BuildTransactionResult[], transact
   }
 
   set(transactions)
+}
+
+// TODO: PD - write test for: create an method call, set the pay txn, update the method call, the pay txn should not be overwritten
+const setTransaction = (transactions: BuildTransactionResult[], transactionId: string, newTransaction: BuildTransactionResult) => {
+  console.log(transactionId, newTransaction)
+  // Having 2 set functions to make TypeScript happy
+  const tryRecursiveSet = (transaction: BuildTransactionResult | PlaceholderTransactionResult) => {
+    if (transaction.id === transactionId) {
+      return newTransaction
+    }
+    if (transaction.type !== BuildableTransactionType.MethodCall) {
+      return transaction
+    }
+    transaction.methodArgs = transaction.methodArgs.map((arg) => {
+      if (typeof arg === 'object' && 'type' in arg) {
+        return tryRecursiveSet(arg)
+      }
+      return arg
+    })
+    return transaction
+  }
+
+  const trySet = (transaction: BuildTransactionResult) => {
+    if (transaction.id === transactionId) {
+      return newTransaction
+    }
+    if (transaction.type !== BuildableTransactionType.MethodCall) {
+      return transaction
+    }
+    transaction.methodArgs = transaction.methodArgs.map((arg) => {
+      if (typeof arg === 'object' && 'type' in arg) {
+        return tryRecursiveSet(arg)
+      }
+      return arg
+    })
+    console.log('arg', transaction.methodArgs)
+    return transaction
+  }
+
+  const results = transactions.map((transaction) => trySet(transaction))
+  console.log('results', results)
+  return results
 }
 
 const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionResult[]) => {

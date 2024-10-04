@@ -84,7 +84,7 @@ type Props = {
   data: BuildTransactionResult[]
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
-  onEdit: (transaction: BuildTransactionResult) => Promise<void>
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
@@ -134,16 +134,9 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
           </TableHeader>
           <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TransactionRow
-                  key={row.id}
-                  row={row}
-                  onEdit={() => {
-                    return Promise.resolve()
-                  }}
-                  onEditResources={onEditResources}
-                />
-              ))
+              table
+                .getRowModel()
+                .rows.map((row) => <TransactionRow key={row.id} row={row} onEdit={onEdit} onEditResources={onEditResources} />)
             ) : (
               <TableBody>
                 <TableRow>
@@ -167,7 +160,7 @@ const getTableColumns = ({
   onDelete,
 }: {
   nonDeletableTransactionIds: string[]
-  onEdit: (transaction: BuildTransactionResult) => Promise<void>
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
