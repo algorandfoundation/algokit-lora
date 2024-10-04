@@ -15,6 +15,7 @@ import {
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   MethodCallArg,
+  PlaceholderTransaction,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
@@ -31,8 +32,12 @@ import {
 } from './as-algosdk-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
+import { Button } from '@/features/common/components/button'
 
-export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
+export const asDescriptionListItems = (
+  transaction: BuildTransactionResult,
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return asPaymentTransaction(transaction)
   }
@@ -40,7 +45,7 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
     return asAppCallTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
-    return asMethodCallTransaction(transaction)
+    return asMethodCallTransaction(transaction, onEditTransaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -262,10 +267,23 @@ const asAssetConfigTransaction = (
   ]
 }
 
-const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
+const asMethodArg = (
+  type: algosdk.ABIArgumentType,
+  arg: MethodCallArg,
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+) => {
   if (algosdk.abiTypeIsTransaction(type)) {
     // Transaction type args are shown in the table
-    return 'Transaction in group'
+    return (
+      <div>
+        <span>Transaction in group</span>
+        {typeof arg === 'object' && 'type' in arg && (
+          <Button variant="link" className="ml-2 h-4" onClick={() => onEditTransaction(arg)}>
+            {arg.type === BuildableTransactionType.Placeholder ? 'Create' : 'Edit'}
+          </Button>
+        )}
+      </div>
+    )
   }
   if (algosdk.abiTypeIsReference(type)) {
     if (type === algosdk.ABIReferenceType.account) {
@@ -339,7 +357,10 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
   ]
 }
 
-const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult): DescriptionListItems => {
+const asMethodCallTransaction = (
+  transaction: BuildMethodCallTransactionResult,
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
   const params = asAppCallTransactionParams({
     ...transaction,
@@ -377,7 +398,7 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
               <ol>
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
-                    {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
+                    {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index], onEditTransaction)}
                   </li>
                 ))}
               </ol>

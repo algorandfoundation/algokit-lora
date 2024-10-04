@@ -174,7 +174,7 @@ const getTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return <DescriptionList items={asDescriptionListItems(transaction)} dtClassName="w-[9.5rem] truncate" />
+      return <DescriptionList items={asDescriptionListItems(transaction, onEdit)} dtClassName="w-[9.5rem] truncate" />
     },
   },
   {
@@ -268,7 +268,7 @@ const getSubTransactionsTableColumns = ({
           </Button>
         </div>
       ) : (
-        <DescriptionList items={asDescriptionListItems(transaction)} dtClassName="w-[9.5rem] truncate" />
+        <DescriptionList items={asDescriptionListItems(transaction, onEdit)} dtClassName="w-[9.5rem] truncate" />
       )
     },
   },
