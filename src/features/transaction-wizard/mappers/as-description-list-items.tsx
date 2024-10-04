@@ -36,7 +36,7 @@ import { Button } from '@/features/common/components/button'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return asPaymentTransaction(transaction)
@@ -270,14 +270,14 @@ const asAssetConfigTransaction = (
 const asMethodArg = (
   type: algosdk.ABIArgumentType,
   arg: MethodCallArg,
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   if (algosdk.abiTypeIsTransaction(type)) {
     // Transaction type args are shown in the table
     return (
       <div>
         <span>Transaction in group</span>
-        {typeof arg === 'object' && 'type' in arg && (
+        {onEditTransaction && typeof arg === 'object' && 'type' in arg && (
           <Button variant="link" className="ml-2 h-4" onClick={() => onEditTransaction(arg)}>
             {arg.type === BuildableTransactionType.Placeholder ? 'Create' : 'Edit'}
           </Button>
@@ -359,7 +359,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
 
 const asMethodCallTransaction = (
   transaction: BuildMethodCallTransactionResult,
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
   const params = asAppCallTransactionParams({
