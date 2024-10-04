@@ -15,7 +15,6 @@ import {
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   MethodCallArg,
-  PlaceholderTransaction,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'

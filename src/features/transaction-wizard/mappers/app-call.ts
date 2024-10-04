@@ -269,7 +269,6 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
         helper.transactionField({
           label: 'Value',
           field: argumentFieldPath(argIndex) as FieldPath<any>,
-          transactionType: type,
         }),
     }
   }

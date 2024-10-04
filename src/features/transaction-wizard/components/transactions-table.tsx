@@ -29,6 +29,7 @@ import { asDescriptionListItems, asTransactionLabel } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 import { transactionActionsLabel } from './labels'
+import { Button } from '@/features/common/components/button'
 
 export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   const { attributes, listeners } = useSortable({
@@ -260,7 +261,12 @@ const getSubTransactionsTableColumns = ({
     cell: (c) => {
       const transaction = c.row.original
       return transaction.type === BuildableTransactionType.Placeholder ? (
-        <div>Argument for method {transaction.argForMethod}</div>
+        <div>
+          <span>Argument for method {transaction.argForMethod}</span>
+          <Button variant="link" className="ml-2" onClick={() => onEdit(transaction)}>
+            Create
+          </Button>
+        </div>
       ) : (
         <DescriptionList items={asDescriptionListItems(transaction)} dtClassName="w-[9.5rem] truncate" />
       )
@@ -269,24 +275,25 @@ const getSubTransactionsTableColumns = ({
   {
     id: 'actions',
     meta: { className: 'w-10' },
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
-          <EllipsisVertical size={16} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
-          {row.original.type === BuildableTransactionType.AppCall ||
-            (row.original.type === BuildableTransactionType.MethodCall && (
-              <DropdownMenuItem
-                onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
-              >
-                Edit Resources
-              </DropdownMenuItem>
-            ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) =>
+      row.original.type !== BuildableTransactionType.Placeholder ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
+            <EllipsisVertical size={16} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="right">
+            <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+            {row.original.type === BuildableTransactionType.AppCall ||
+              (row.original.type === BuildableTransactionType.MethodCall && (
+                <DropdownMenuItem
+                  onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
+                >
+                  Edit Resources
+                </DropdownMenuItem>
+              ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : undefined,
   },
 ]
 function SubTransactionsRows({
@@ -318,7 +325,7 @@ function SubTransactionsRows({
               className={cn(
                 cell.column.columnDef.meta?.className,
                 'border-b',
-                row.original.type === BuildableTransactionType.Placeholder ? 'bg-muted-foreground/90' : ''
+                row.original.type === BuildableTransactionType.Placeholder ? 'bg-muted-foreground/70' : ''
               )}
             >
               {flexRender(cell.column.columnDef.cell, cell.getContext())}

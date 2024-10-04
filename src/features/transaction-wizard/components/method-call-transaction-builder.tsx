@@ -35,6 +35,8 @@ import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { invariant } from '@/utils/invariant'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
+import { Info } from 'lucide-react'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -134,6 +136,8 @@ export function MethodCallTransactionBuilder({
           const { type } = transaction.method.args[index]
           if (!algosdk.abiTypeIsTransaction(type)) {
             acc[`${methodArgPrefix}-${index}`] = asFieldInput(type, arg as algosdk.ABIValue)
+          } else {
+            acc[`${methodArgPrefix}-${index}`] = arg
           }
           return acc
         },
@@ -260,7 +264,23 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
             : []),
           {
             dt: 'Type',
-            dd: arg.hint?.struct ? <Struct struct={arg.hint.struct} /> : arg.type.toString(),
+            dd: arg.hint?.struct ? (
+              <Struct struct={arg.hint.struct} />
+            ) : algosdk.abiTypeIsTransaction(arg.type) ? (
+              <div>
+                <span>{arg.type.toString()}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="ml-2 inline">
+                      <Info className="inline" size={16} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>Transaction arguments are created automatically in the group</TooltipContent>
+                </Tooltip>
+              </div>
+            ) : (
+              arg.type.toString()
+            ),
           },
           ...(arg.hint?.defaultArgument
             ? [
