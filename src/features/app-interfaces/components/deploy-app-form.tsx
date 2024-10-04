@@ -92,8 +92,8 @@ export function DeployAppForm({ className, appSpec }: Props) {
 
   const save = useCallback(
     async (values: DeployAppFormData) => {
-      invariant(appSpec.source.approval, 'Approval program is not set')
-      invariant(appSpec.source.clear, 'Clear program is not set')
+      invariant(appSpec.source?.approval, 'Approval program is not set')
+      invariant(appSpec.source?.clear, 'Clear program is not set')
       invariant(activeAddress, 'No active wallet account is available')
 
       const signerAccount = {
@@ -107,10 +107,10 @@ export function DeployAppForm({ className, appSpec }: Props) {
           approvalProgram: base64ToUtf8(appSpec.source.approval),
           clearStateProgram: base64ToUtf8(appSpec.source.clear),
           schema: {
-            localInts: appSpec.state.local.num_uints,
-            localByteSlices: appSpec.state.local.num_byte_slices,
-            globalInts: appSpec.state.global.num_uints,
-            globalByteSlices: appSpec.state.global.num_byte_slices,
+            localInts: appSpec.state?.local.num_uints ?? 0,
+            localByteSlices: appSpec.state?.local.num_byte_slices ?? 0,
+            globalInts: appSpec.state?.global.num_uints ?? 0,
+            globalByteSlices: appSpec.state?.global.num_byte_slices ?? 0,
           },
           metadata: {
             name: values.name,
@@ -129,12 +129,12 @@ export function DeployAppForm({ className, appSpec }: Props) {
     },
     [
       activeAddress,
-      appSpec.source.approval,
-      appSpec.source.clear,
-      appSpec.state.global.num_byte_slices,
-      appSpec.state.global.num_uints,
-      appSpec.state.local.num_byte_slices,
-      appSpec.state.local.num_uints,
+      appSpec.source?.approval,
+      appSpec.source?.clear,
+      appSpec.state?.global.num_byte_slices,
+      appSpec.state?.global.num_uints,
+      appSpec.state?.local.num_byte_slices,
+      appSpec.state?.local.num_uints,
       signer,
       templateParamNames,
     ]
@@ -155,7 +155,7 @@ export function DeployAppForm({ className, appSpec }: Props) {
     <div className="duration-300 animate-in fade-in-20">
       <p className="mb-4">
         <a
-          href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#deployapp"
+          href="https://github.com/algorandfoundation/algokit-utils-ts/blob/main/docs/capabilities/app-deploy.md#input-parameters"
           target="_blank"
           rel="nofollow"
           className="text-primary underline"

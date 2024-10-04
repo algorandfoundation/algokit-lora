@@ -14,6 +14,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 
 const receiverLabel = 'Receiver'
 
@@ -43,9 +44,9 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
         sender: data.sender,
         receiver: data.receiver,
         amount: data.amount,
-        note: data.note,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -96,7 +97,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
           {helper.textField({
             field: 'receiver',
             label: receiverLabel,
-            helpText: 'Account to pay the amount to',
+            helpText: 'Account to receive the amount',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.numberField({
@@ -112,11 +113,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
           })}
           <TransactionBuilderFeeField />
           <TransactionBuilderValidRoundField />
-          {helper.textField({
-            field: 'note',
-            label: 'Note',
-            helpText: 'A note for the transaction',
-          })}
+          <TransactionBuilderNoteField />
         </>
       )}
     </Form>

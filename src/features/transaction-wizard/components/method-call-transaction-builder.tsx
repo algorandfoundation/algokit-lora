@@ -33,6 +33,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { invariant } from '@/utils/invariant'
 
 const appCallFormSchema = {
@@ -104,6 +105,7 @@ export function MethodCallTransactionBuilder({
         method: methodForm.abiMethod,
         methodName: methodForm.name,
         methodArgs: methodArgs,
+        note: values.note,
         onComplete: Number(values.onComplete),
       } satisfies BuildMethodCallTransactionResult
 
@@ -143,9 +145,10 @@ export function MethodCallTransactionBuilder({
         applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        methodName: transaction.methodName,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
-        methodName: transaction.methodName,
+        note: transaction.note,
         ...methodArgs,
       }
     }
@@ -290,6 +293,7 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
       {helper.numberField({
         field: 'applicationId',
         label: 'Application ID',
+        helpText: 'The application to be called',
       })}
       {helper.selectField({
         field: 'methodName',
@@ -298,15 +302,18 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
           label: method.name,
           value: method.name,
         })),
+        helpText: 'Name of the ABI method to call',
       })}
       {helper.selectField({
         field: 'onComplete',
         label: 'On complete',
         options: onCompleteOptions,
+        helpText: 'Action to perform after executing the program',
       })}
       {helper.textField({
         field: 'sender',
         label: 'Sender',
+        helpText: 'Account to call from. Sends the transaction and pays the fee',
       })}
       {abiMethodArgs.map((arg, index) => (
         <div key={index} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
@@ -317,6 +324,7 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
       ))}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
+      <TransactionBuilderNoteField />
     </div>
   )
 }

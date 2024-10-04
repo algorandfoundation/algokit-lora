@@ -74,14 +74,6 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
         </AccountLink>
       ),
     },
-    {
-      dt: 'Receiver',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.receiver}>
-          {params.receiver}
-        </AccountLink>
-      ),
-    },
     ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
           {
@@ -95,12 +87,20 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
         ]
       : []),
     {
+      dt: 'Receiver',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.receiver}>
+          {params.receiver}
+        </AccountLink>
+      ),
+    },
+    {
       dt: 'Amount',
       dd: <DisplayAlgo amount={params.amount} />,
     },
-    ...asNoteItem(params.note),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
   ]
 }
 
@@ -114,6 +114,14 @@ const asAssetTransferTransaction = (
   const params = asAssetTransferTransactionParams(transaction)
 
   return [
+    {
+      dt: 'Asset ID',
+      dd: (
+        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
+          {Number(params.assetId)}
+        </AssetIdLink>
+      ),
+    },
     {
       dt: 'Sender',
       dd: (
@@ -155,20 +163,12 @@ const asAssetTransferTransaction = (
         ]
       : []),
     {
-      dt: 'Asset ID',
-      dd: (
-        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
-          {Number(params.assetId)}
-        </AssetIdLink>
-      ),
-    },
-    {
       dt: 'Amount',
       dd: `${params.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
     },
-    ...asNoteItem(params.note),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
   ]
 }
 
@@ -257,9 +257,9 @@ const asAssetConfigTransaction = (
     ...('metadataHash' in params && params.metadataHash && typeof params.metadataHash === 'string'
       ? [{ dt: 'Metadata hash', dd: params.metadataHash }]
       : []),
-    ...asNoteItem(params.note),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
   ]
 }
 
@@ -306,14 +306,6 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
 
   return [
     {
-      dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
-    },
-    {
       dt: 'Application ID',
       dd: (
         <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
@@ -325,6 +317,14 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
     },
+    {
+      dt: 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
+    },
     ...(transaction.args.length > 0
       ? [
           {
@@ -333,9 +333,9 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
           },
         ]
       : []),
-    ...asNoteItem(params.note),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
 }
@@ -350,14 +350,6 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
 
   return [
     {
-      dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
-    },
-    {
       dt: 'Application ID',
       dd: (
         <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
@@ -365,10 +357,18 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
         </ApplicationLink>
       ),
     },
-    ...(transaction.method ? [{ dt: 'Method name', dd: transaction.method.name }] : []),
+    ...(transaction.method ? [{ dt: 'Method', dd: transaction.method.name }] : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+    },
+    {
+      dt: 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
     },
     ...(transaction.method.args.length > 0
       ? [
@@ -386,9 +386,9 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
           },
         ]
       : []),
-    ...asNoteItem(params.note),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
 }

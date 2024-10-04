@@ -16,6 +16,7 @@ import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { CallConfigValue } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -111,15 +112,64 @@ const createValue: CallConfigValue[] = ['ALL', 'CREATE']
 export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): ApplicationAbiMethods => {
   const isArc32 = isArc32AppSpec(appSpec)
   const contract = isArc32 ? appSpec.contract : appSpec
-  const methods = contract.methods.map((method) => {
-    const abiMethod = new algosdk.ABIMethod({
+  const abiMethods = contract.methods.map((method) => {
+    return new algosdk.ABIMethod({
       name: method.name,
       desc: method.desc,
       args: method.args,
       returns: method.returns,
     })
+  })
+  const unifiedAppSpec = isArc32
+    ? appSpec
+    : ({
+        // Build a basic ARC-32 app spec from the ARC-4 one
+        contract: contract,
+        hints: abiMethods.reduce(
+          (acc, method) => {
+            return {
+              ...acc,
+              [method.getSignature()]: {
+                call_config: {
+                  no_op: 'CALL',
+                  opt_in: 'CALL',
+                  close_out: 'CALL',
+                  update_application: 'CALL',
+                  delete_application: 'CALL',
+                },
+              },
+            }
+          },
+          {} as {
+            [k: string]: Hint
+          }
+        ),
+        state: {
+          global: {
+            num_byte_slices: 0,
+            num_uints: 0,
+          },
+          local: {
+            num_byte_slices: 0,
+            num_uints: 0,
+          },
+        },
+        schema: {
+          global: {
+            declared: {},
+            reserved: {},
+          },
+          local: {
+            declared: {},
+            reserved: {},
+          },
+        },
+        bare_call_config: {},
+      } satisfies Arc32AppSpec)
+
+  const methods = abiMethods.map((abiMethod) => {
     const signature = abiMethod.getSignature()
-    const hint = isArc32AppSpec(appSpec) && appSpec.hints ? appSpec.hints[signature] : undefined
+    const hint = unifiedAppSpec.hints ? unifiedAppSpec.hints[signature] : undefined
 
     const methodArgs = abiMethod.args.map((arg) => {
       const argHint =
@@ -185,7 +235,7 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
   })
 
   return {
-    appSpec: isArc32 ? appSpec : undefined,
+    appSpec: unifiedAppSpec,
     methods,
   }
 }

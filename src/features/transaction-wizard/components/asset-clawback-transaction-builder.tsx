@@ -20,6 +20,9 @@ import { AssetId } from '@/features/assets/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+
+const clawbackTargetLabel = 'Clawback target'
 
 const formSchema = z
   .object({
@@ -71,6 +74,11 @@ type FormFieldsProps = {
 function FormFields({ helper, asset }: FormFieldsProps) {
   return (
     <>
+      {helper.numberField({
+        field: 'asset.id',
+        label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
+        helpText: 'The asset to be clawed back',
+      })}
       {helper.textField({
         field: 'sender',
         label: 'Sender',
@@ -80,33 +88,24 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.textField({
         field: 'receiver',
         label: 'Receiver',
-        helpText: 'Account that receives the asset',
+        helpText: 'Account to receive the asset',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.textField({
         field: 'clawbackTarget',
-        label: 'Clawback target',
+        label: clawbackTargetLabel,
         helpText: 'Account the asset will be clawed back from',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.numberField({
-        field: 'asset.id',
-        label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be clawed back',
-      })}
-      {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,
-        helpText: 'Amount to claw back',
+        helpText: `Amount to claw back from the '${clawbackTargetLabel}' account`,
         decimalScale: asset && asset.decimals ? asset.decimals : 0,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
-      {helper.textField({
-        field: 'note',
-        label: 'Note',
-        helpText: 'A note for the transaction',
-      })}
+      <TransactionBuilderNoteField />
     </>
   )
 }
@@ -181,15 +180,15 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, activeAddre
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
-        asset: data.asset,
         type: BuildableTransactionType.AssetClawback,
+        asset: data.asset,
         sender: data.sender,
         receiver: data.receiver,
         clawbackTarget: data.clawbackTarget,
         amount: data.amount,
-        note: data.note,
         fee: data.fee,
         validRounds: data.validRounds,
+        note: data.note,
       })
     },
     [onSubmit, transaction?.id]
@@ -197,10 +196,10 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, activeAddre
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
+        asset: transaction.asset,
         sender: transaction.sender,
         receiver: transaction.receiver,
         clawbackTarget: transaction.clawbackTarget,
-        asset: transaction.asset,
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
