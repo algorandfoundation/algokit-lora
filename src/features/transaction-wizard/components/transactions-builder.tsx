@@ -10,11 +10,11 @@ import { TransactionsGraph, TransactionsGraphData } from '@/features/transaction
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import {
-  BuildTransactionResult,
   BuildableTransactionType,
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
-  PlaceholderTransactionResult,
+  BuildTransactionResult,
+  PlaceholderTransaction,
 } from '../models'
 import { asAlgosdkTransactions } from '../mappers'
 import { TransactionBuilderMode } from '../data'
@@ -138,6 +138,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
+      invariant(ensureThereIsNoPlaceholderTransaction(transactions), 'Please set all transaction arguments for method calls')
 
       const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
@@ -163,7 +164,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
               applications: transactionWithResources.txn.appForeignApps ?? [],
               boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
             }
-            setTransactionResouces(newTransactions, transaction.id, resources)
+            setTransactionResources(newTransactions, transaction.id, resources)
           }
         }
 
@@ -177,7 +178,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   }, [transactions, activeAddress])
 
   const editTransaction = useCallback(
-    async (transaction: BuildTransactionResult | PlaceholderTransactionResult) => {
+    async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
       const txn =
         transaction.type === BuildableTransactionType.Placeholder
           ? await openTransactionBuilderDialog({
@@ -190,7 +191,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
               transaction: transaction,
             })
       if (txn) {
-        setTransactions((prev) => setTransaction(prev, transaction.id, txn))
+        setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
       }
     },
     [openTransactionBuilderDialog]
@@ -206,7 +207,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       if (resources) {
         setTransactions((prev) => {
           const newTransactions = [...prev]
-          setTransactionResouces(newTransactions, transaction.id, resources)
+          setTransactionResources(newTransactions, transaction.id, resources)
           return newTransactions
         })
       }
@@ -342,72 +343,44 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
   }, [] as BuildTransactionResult[])
 }
 
-// This is an inplace mutation of the transactions
-const setTransactionResouces = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
-  const set = (transactions: BuildTransactionResult[]) => {
-    for (let i = 0; i < transactions.length; i++) {
-      const transaction = transactions[i]
-
-      if (
-        transaction.id === transactionId &&
-        (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall)
-      ) {
-        transaction.accounts = resources.accounts
-        transaction.foreignAssets = resources.assets
-        transaction.foreignApps = resources.applications
-        transaction.boxes = resources.boxes
-      }
-
-      if (transaction.type === BuildableTransactionType.MethodCall) {
-        const txns = transaction.methodArgs.filter((arg): arg is BuildTransactionResult => isBuildTransactionResult(arg))
-        set(txns)
+const setTransactionResources = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
+  return setTransaction(transactions, transactionId, (transaction) => {
+    if (transaction.type === BuildableTransactionType.MethodCall || transaction.type === BuildableTransactionType.AppCall) {
+      return {
+        ...transaction,
+        accounts: resources.accounts,
+        foreignAssets: resources.assets,
+        foreignApps: resources.applications,
+        boxes: resources.boxes,
       }
     }
-  }
-
-  set(transactions)
+    throw new Error(`Cannot set resources for transaction type ${transaction.type}`)
+  })
 }
 
 // TODO: PD - write test for: create an method call, set the pay txn, update the method call, the pay txn should not be overwritten
-const setTransaction = (transactions: BuildTransactionResult[], transactionId: string, newTransaction: BuildTransactionResult) => {
-  console.log(transactionId, newTransaction)
-  // Having 2 set functions to make TypeScript happy
-  const tryRecursiveSet = (transaction: BuildTransactionResult | PlaceholderTransactionResult) => {
+const setTransaction = (
+  transactions: BuildTransactionResult[],
+  transactionId: string,
+  setter: (oldTxn: BuildTransactionResult | PlaceholderTransaction) => BuildTransactionResult
+) => {
+  const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction) => {
     if (transaction.id === transactionId) {
-      return newTransaction
+      return setter(transaction)
     }
     if (transaction.type !== BuildableTransactionType.MethodCall) {
       return transaction
     }
     transaction.methodArgs = transaction.methodArgs.map((arg) => {
       if (typeof arg === 'object' && 'type' in arg) {
-        return tryRecursiveSet(arg)
+        return trySet(arg)
       }
       return arg
     })
     return transaction
   }
 
-  const trySet = (transaction: BuildTransactionResult) => {
-    if (transaction.id === transactionId) {
-      return newTransaction
-    }
-    if (transaction.type !== BuildableTransactionType.MethodCall) {
-      return transaction
-    }
-    transaction.methodArgs = transaction.methodArgs.map((arg) => {
-      if (typeof arg === 'object' && 'type' in arg) {
-        return tryRecursiveSet(arg)
-      }
-      return arg
-    })
-    console.log('arg', transaction.methodArgs)
-    return transaction
-  }
-
-  const results = transactions.map((transaction) => trySet(transaction))
-  console.log('results', results)
-  return results
+  return transactions.map((transaction) => trySet(transaction) as BuildTransactionResult)
 }
 
 const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionResult[]) => {

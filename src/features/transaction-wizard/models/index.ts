@@ -85,8 +85,6 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   applicationId: ApplicationId
   appSpec: AppSpec
   method: algosdk.ABIMethod
-  // TODO: PD - don't need methodName
-  methodName: string
   methodArgs: MethodCallArg[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
@@ -100,7 +98,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
     | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
-export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransactionResult
+export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
@@ -197,8 +195,7 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
   }
 }
 
-// TODO: PD - rethink the name
-export type PlaceholderTransactionResult = {
+export type PlaceholderTransaction = {
   id: string
   type: BuildableTransactionType.Placeholder
   targetType: algosdk.ABITransactionType

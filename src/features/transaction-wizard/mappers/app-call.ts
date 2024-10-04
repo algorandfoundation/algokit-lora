@@ -7,7 +7,7 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import { ArgumentField, MethodForm, PlaceholderTransactionResult, TransactionArgumentField } from '@/features/transaction-wizard/models'
+import { ArgumentField, MethodForm, TransactionArgumentField } from '@/features/transaction-wizard/models'
 import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
@@ -16,9 +16,6 @@ const arrayItemPathSeparator = '.' // This must be a . for react hook form to wo
 export const methodArgPrefix = 'methodArg'
 
 const argumentFieldPath = (argumentIndex: number) => `${methodArgPrefix}${argumentPathSeparator}${argumentIndex}`
-// TODO: PD - this isn't used anymore
-export const extractArgumentIndexFromFieldPath = (path: string) =>
-  parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   if (type instanceof algosdk.ABIUintType) {

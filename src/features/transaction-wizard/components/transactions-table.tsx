@@ -22,7 +22,7 @@ import {
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
-  PlaceholderTransactionResult,
+  PlaceholderTransaction,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabel } from '../mappers'
@@ -47,7 +47,7 @@ function TransactionRow({
   onEditResources,
 }: {
   row: Row<BuildTransactionResult>
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -84,7 +84,7 @@ type Props = {
   data: BuildTransactionResult[]
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
@@ -160,7 +160,7 @@ const getTableColumns = ({
   onDelete,
 }: {
   nonDeletableTransactionIds: string[]
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
@@ -202,7 +202,7 @@ const getTableColumns = ({
   },
 ]
 
-const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransactionResult | PlaceholderTransactionResult)[] => {
+const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransactionResult | PlaceholderTransaction)[] => {
   if (transaction.type !== BuildableTransactionType.MethodCall) {
     return []
   }
@@ -214,15 +214,18 @@ const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransact
       if (isBuildTransactionResult(arg)) {
         acc.push(...[...getSubTransactions(arg), arg])
       }
+      if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder) {
+        acc.push(arg)
+      }
       return acc
     },
-    [] as (BuildTransactionResult | PlaceholderTransactionResult)[]
+    [] as (BuildTransactionResult | PlaceholderTransaction)[]
   )
 }
 
 const renderSubTransactions = (
   transaction: BuildTransactionResult,
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>,
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>,
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 ): React.ReactNode => {
   if (transaction.type !== BuildableTransactionType.MethodCall) {
@@ -240,9 +243,9 @@ const getSubTransactionsTableColumns = ({
   onEdit,
   onEditResources,
 }: {
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
-}): ColumnDef<BuildTransactionResult | PlaceholderTransactionResult>[] => [
+}): ColumnDef<BuildTransactionResult | PlaceholderTransaction>[] => [
   {
     id: 'empty',
     meta: { className: 'w-10' },
@@ -291,8 +294,8 @@ function SubTransactionsRows({
   onEdit,
   onEditResources,
 }: {
-  subTransactions: (BuildTransactionResult | PlaceholderTransactionResult)[]
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransactionResult) => Promise<void>
+  subTransactions: (BuildTransactionResult | PlaceholderTransaction)[]
+  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const table = useReactTable({

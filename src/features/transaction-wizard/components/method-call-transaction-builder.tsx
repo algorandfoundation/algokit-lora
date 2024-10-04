@@ -24,7 +24,7 @@ import {
   BuildTransactionResult,
   BuildableTransactionType,
   MethodForm,
-  PlaceholderTransactionResult,
+  PlaceholderTransaction,
 } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
@@ -70,10 +70,9 @@ export function MethodCallTransactionBuilder({
     return zfd.formData(formSchema)
   }, [formSchema])
 
+  // TODO: PD test that the txn args are removed after changing method
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
-      // TODO: PD - handle the placeholder transactions when changing method? - just drop them
-      // TODO: PD - handle the placeholder transactions on delete
       invariant(methodForm, 'Method form is required')
 
       const methodArgs = methodForm.arguments.map((arg, index) => {
@@ -81,13 +80,13 @@ export function MethodCallTransactionBuilder({
         if ('getAppCallArg' in arg) {
           return arg.getAppCallArg(value)
         } else {
-          if (mode === TransactionBuilderMode.Create) {
+          if (mode === TransactionBuilderMode.Create || (transaction && values.methodName !== transaction.method.name)) {
             return {
               id: randomGuid(),
               type: BuildableTransactionType.Placeholder,
               targetType: arg.type,
               argForMethod: methodForm.name,
-            } satisfies PlaceholderTransactionResult
+            } satisfies PlaceholderTransaction
           } else {
             return transaction!.methodArgs[index]
           }
@@ -98,15 +97,14 @@ export function MethodCallTransactionBuilder({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.MethodCall,
         applicationId: Number(values.applicationId),
+        method: methodForm.abiMethod,
+        onComplete: Number(values.onComplete),
         sender: values.sender,
+        appSpec: appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
+        methodArgs: methodArgs,
         fee: values.fee,
         validRounds: values.validRounds,
-        appSpec: appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
-        method: methodForm.abiMethod,
-        methodName: methodForm.name,
-        methodArgs: methodArgs,
         note: values.note,
-        onComplete: Number(values.onComplete),
       } satisfies BuildMethodCallTransactionResult
 
       onSubmit(methodCallTxn)
@@ -145,7 +143,7 @@ export function MethodCallTransactionBuilder({
         applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         onComplete: transaction.onComplete.toString(),
-        methodName: transaction.methodName,
+        methodName: transaction.method.name,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
