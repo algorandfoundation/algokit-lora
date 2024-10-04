@@ -174,11 +174,17 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult | PlaceholderTransactionResult) => {
-      const txn = await openTransactionBuilderDialog({
-        mode: TransactionBuilderMode.Edit,
-        type: transaction.type === BuildableTransactionType.Placeholder ? asAlgosdkTransactionType(transaction.targetType) : undefined,
-        transaction: transaction.type === BuildableTransactionType.Placeholder ? undefined : transaction,
-      })
+      const txn =
+        transaction.type === BuildableTransactionType.Placeholder
+          ? await openTransactionBuilderDialog({
+              mode: TransactionBuilderMode.Create,
+              type: asAlgosdkTransactionType(transaction.targetType),
+              transaction: undefined,
+            })
+          : await openTransactionBuilderDialog({
+              mode: TransactionBuilderMode.Edit,
+              transaction: transaction,
+            })
       if (txn) {
         setTransactions((prev) => setTransaction(prev, transaction.id, txn))
       }
