@@ -18,7 +18,7 @@ export function CreateAppInterfaceDialogBody({ onSuccess }: Props) {
         <CreateAppInterfaceForm appSpec={snapshot.context.appSpec} appSpecFile={snapshot.context.file} onSuccess={onSuccess} />
       )}
       {snapshot.value === 'deployApp' && snapshot.context.appSpec && isArc32AppSpec(snapshot.context.appSpec) && (
-        <DeployAppForm appSpec={snapshot.context.appSpec} />
+        <DeployAppForm appName={snapshot.context.name} appSpec={snapshot.context.appSpec} />
       )}
     </>
   )

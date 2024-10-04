@@ -49,9 +49,6 @@ describe('create-app-interface-dialog-body', () => {
             target: { value: '1.0.0' },
           })
 
-          await selectOption(component.container, user, /On Update/, 'Fail')
-          await selectOption(component.container, user, /On Schema Break/, 'Fail')
-
           const someStringTemplateParamDiv = await findParentDiv(component.container, 'SOME_STRING')
           await selectOption(someStringTemplateParamDiv, user, /Type/, 'String')
           const someStringInput = getByLabelText(someStringTemplateParamDiv, /Value/)
