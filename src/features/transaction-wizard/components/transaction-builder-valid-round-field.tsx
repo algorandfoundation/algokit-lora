@@ -3,10 +3,12 @@ import { z } from 'zod'
 import { useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
 import { commonFormData } from '../data/common'
+import { useSyncedRound } from '@/features/blocks/data'
 
 export function TransactionBuilderValidRoundField() {
   const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
-  const { watch, clearErrors, setValue } = useFormContext<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, setValue, getValues } = useFormContext<z.infer<typeof commonFormData>>()
+  const syncedRound = useSyncedRound()
 
   const setAutomaticallyPath = 'validRounds.setAutomatically'
   const firstValidPath = 'validRounds.firstValid'
@@ -18,8 +20,15 @@ export function TransactionBuilderValidRoundField() {
     if (setAutomatically) {
       setValue(firstValidPath, undefined)
       setValue(lastValidPath, undefined)
+    } else {
+      if (syncedRound && getValues(firstValidPath) === undefined && getValues(lastValidPath) === undefined) {
+        setValue(firstValidPath, BigInt(syncedRound))
+        setValue(lastValidPath, BigInt(syncedRound + 1000))
+      }
     }
     clearErrors(firstValidPath)
+    clearErrors(lastValidPath)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearErrors, setValue, setAutomatically])
 
   return (

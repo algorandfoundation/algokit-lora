@@ -28,6 +28,7 @@ import { asDescriptionListItems, asTransactionLabel } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 import { transactionActionsLabel } from './labels'
+import { Button } from '@/features/common/components/button'
 
 export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   const { attributes, listeners } = useSortable({
@@ -135,7 +136,7 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
             ) : (
               <TableBody>
                 <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                  <TableCell colSpan={columns.length + 1} className="h-24 text-center">
                     No transactions.
                   </TableCell>
                 </TableRow>
@@ -173,11 +174,11 @@ const getTableColumns = ({
   },
   {
     id: 'actions',
-    meta: { className: 'w-10' },
+    meta: { className: 'w-14' },
     cell: ({ row }) => (
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex w-full items-center justify-center py-4" aria-label={transactionActionsLabel}>
-          <EllipsisVertical size={16} />
+        <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
+          <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
           <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
@@ -250,12 +251,12 @@ const getSubTransactionsTableColumns = ({
   },
   {
     id: 'actions',
-    meta: { className: 'w-10' },
+    meta: { className: 'w-14' },
     cell: ({ row }) =>
       row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall ? (
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex w-full items-center justify-center py-4">
-            <EllipsisVertical size={16} />
+          <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
+            <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="right">
             <DropdownMenuItem
