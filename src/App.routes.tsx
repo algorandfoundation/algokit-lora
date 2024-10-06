@@ -12,7 +12,6 @@ import { AccountPage, accountPageTitle } from './features/accounts/pages/account
 import { AssetPage, assetPageTitle } from './features/assets/pages/asset-page'
 import { ApplicationPage, applicationPageTitle } from './features/applications/pages/application-page'
 import { SettingsPage, settingsPageTitle } from './features/settings/pages/settings-page'
-import { TxPage } from './features/transactions/pages/tx-page'
 import { IndexPage } from '@/index-page'
 import { NetworkPage } from '@/features/network/pages/network-page'
 import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/app-studio-page'
@@ -21,6 +20,7 @@ import { FundAuthCallbackPage } from './features/fund/fund-auth-callback-page'
 import { FundErrorPage } from './features/fund/fund-error-page'
 import { AppLab, appLabPageTitle } from './features/app-lab/pages/app-lab'
 import { TransactionWizardPage, transactionWizardPageTitle } from './features/transaction-wizard/transaction-wizard-page'
+import { RedirectPage } from './features/common/pages/redirect-page'
 
 export const routes = evalTemplates([
   {
@@ -97,7 +97,11 @@ export const routes = evalTemplates([
           },
           {
             template: Urls.Explore.Tx,
-            element: <TxPage />,
+            element: <RedirectPage from={Urls.Explore.Tx} to={Urls.Explore.Transaction} />,
+          },
+          {
+            template: Urls.Explore.Txn,
+            element: <RedirectPage from={Urls.Explore.Txn} to={Urls.Explore.Transaction} />,
           },
         ],
       },
@@ -130,6 +134,14 @@ export const routes = evalTemplates([
         template: Urls.TransactionWizard,
         errorElement: <ErrorPage title={transactionWizardPageTitle} />,
         element: <TransactionWizardPage />,
+      },
+      {
+        template: Urls.TxWizard,
+        element: <RedirectPage from={Urls.TxWizard} to={Urls.TransactionWizard} />,
+      },
+      {
+        template: Urls.TxnWizard,
+        element: <RedirectPage from={Urls.TxnWizard} to={Urls.TransactionWizard} />,
       },
     ],
   },

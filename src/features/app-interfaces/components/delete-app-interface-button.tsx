@@ -22,9 +22,9 @@ export function DeleteAppInterfaceButton({ appInterface, onDelete }: Props) {
 
   return (
     <ConfirmButton
-      icon={<TrashIcon className="text-destructive" />}
+      icon={<TrashIcon size={16} />}
       size="sm"
-      variant="no-style"
+      variant="destructive"
       dialogHeaderText={deleteAppInterfaceLabel}
       dialogContent={<div>Are you sure you want to delete '{appInterface.name}'?</div>}
       onConfirm={onConfirm}

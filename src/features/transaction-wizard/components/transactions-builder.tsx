@@ -298,22 +298,22 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           </div>
         )}
         <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2">
+          <AsyncActionButton
+            variant="outline"
+            onClick={populateResources}
+            icon={<HardDriveDownload size={16} />}
+            {...populateResourcesButtonDisabledProps}
+          >
+            Populate Resources
+          </AsyncActionButton>
+          <div className="left-auto flex gap-2">
             <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>
               Clear
             </Button>
-            <AsyncActionButton
-              variant="outline"
-              onClick={populateResources}
-              icon={<HardDriveDownload size={16} />}
-              {...populateResourcesButtonDisabledProps}
-            >
-              Populate Resources
+            <AsyncActionButton className="w-28" onClick={sendTransactions} icon={<Send size={16} />} {...sendButtonDisabledProps}>
+              Send
             </AsyncActionButton>
           </div>
-          <AsyncActionButton className="w-28" onClick={sendTransactions} icon={<Send size={16} />} {...sendButtonDisabledProps}>
-            Send
-          </AsyncActionButton>
         </div>
       </div>
       {transactionBuilderDialog}
