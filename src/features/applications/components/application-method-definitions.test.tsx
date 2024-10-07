@@ -264,7 +264,7 @@ describe('application-method-definitions', () => {
             })
             await user.click(callButton)
             let formDialog = component.getByRole('dialog')
-            //
+            // Wait for the dialog to be rendered
             await waitFor(() => within(formDialog).getByText('Argument 1'))
             // Save the app call transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
@@ -367,9 +367,18 @@ describe('application-method-definitions', () => {
             })
             await user.click(callButton)
             let formDialog = component.getByRole('dialog')
+            // Wait for the dialog to be rendered
+            await waitFor(() => within(formDialog).getByText('Argument 1'))
+            // Click add to add the payment transaction as param
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Add the payment transaction
-            await openAddTransactionTypeArgDialog(formDialog, user, 'Argument 1')
+            // Click "Create" on the table to launch the dialog for the payment transaction
+            let transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
+            let firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
+            await user.click(within(firstBodyRow).getAllByRole('button', { name: 'Create' })[0])
+            formDialog = component.getByRole('dialog')
+
+            // Fill in the payment transaction
             const receiverInput = await within(formDialog).findByLabelText(/Receiver/)
             fireEvent.input(receiverInput, {
               target: { value: testAccount2.addr },
@@ -380,28 +389,22 @@ describe('application-method-definitions', () => {
               target: { value: '0.5' },
             })
 
-            // Click add to add the payment transaction as param
+            // Save the payment transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Click add to add the app call transaction into the transaction group
-            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
-
-            // Click the edit button on the transaction group
-            const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            // Edit the payment transaction
+            transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
+            firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
+            await user.click(within(firstBodyRow).getByRole('button', { name: transactionActionsLabel }))
             await user.click(component.getByRole('menuitem', { name: 'Edit' }))
 
             formDialog = component.getByRole('dialog')
-            await openEditTransactionTypeArgDialog(formDialog, user, 'Argument 1')
             amountInput = await within(formDialog).findByLabelText(/Amount/)
             fireEvent.input(amountInput, {
               target: { value: '0.6' },
             })
 
             // Save the payment transaction
-            await user.click(within(formDialog).getByRole('button', { name: 'Update' }))
-
-            // Save the app call transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Update' }))
 
             // Send the transactions
@@ -1452,20 +1455,6 @@ const expandMethodAccordion = async (component: RenderResult, user: UserEvent, m
     const accordionTrigger = component.getByRole('button', { name: methodName })
     await user.click(accordionTrigger)
 
-    const accordionPanel = component.getByRole('region', { name: methodName })
-    return accordionPanel
+    return component.getByRole('region', { name: methodName })
   })
-}
-
-const openAddTransactionTypeArgDialog = async (parentComponent: HTMLElement, user: UserEvent, argName: string) => {
-  const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)
-  await user.click(await waitFor(() => within(wrapperDiv).getByRole('button', { name: 'Add Transaction' })))
-}
-
-const openEditTransactionTypeArgDialog = async (parentComponent: HTMLElement, user: UserEvent, argName: string) => {
-  const wrapperDiv = await waitFor(() => getByText(parentComponent, argName).parentElement!)
-  const actionButton = within(wrapperDiv).getByRole('button')
-  await user.click(actionButton)
-  await user.keyboard('[ArrowDown]')
-  await user.keyboard('[Enter]')
 }

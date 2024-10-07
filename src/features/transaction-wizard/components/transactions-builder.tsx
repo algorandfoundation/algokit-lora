@@ -366,7 +366,7 @@ const setTransaction = (
 ) => {
   const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction) => {
     if (transaction.id === transactionId) {
-      return setter(transaction)
+      return { ...setter(transaction) }
     }
     if (transaction.type !== BuildableTransactionType.MethodCall) {
       return transaction
@@ -377,7 +377,7 @@ const setTransaction = (
       }
       return arg
     })
-    return transaction
+    return { ...transaction }
   }
 
   return transactions.map((transaction) => trySet(transaction) as BuildTransactionResult)

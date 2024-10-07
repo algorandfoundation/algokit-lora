@@ -305,9 +305,6 @@ function SubTransactionsRows({
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const subTransactions = useMemo(() => {
-    if (transaction.type !== BuildableTransactionType.MethodCall) {
-      return []
-    }
     return getSubTransactions(transaction)
   }, [transaction])
 
