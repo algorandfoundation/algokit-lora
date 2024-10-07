@@ -282,9 +282,9 @@ const asMethodArg = (
 
     // Transaction type args are shown in the table
     return (
-      <div>
+      <div className="inline">
         <span>
-          Transaction index <strong>{argIndex}</strong> in group
+          Transaction <strong className="text-primary">{argIndex}</strong> in group
         </span>
         {onEditTransaction && (
           <Button variant="link" className="ml-2 h-4" onClick={() => onEditTransaction(arg)}>
