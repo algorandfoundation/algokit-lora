@@ -75,6 +75,7 @@ export function MethodCallTransactionBuilder({
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       invariant(methodForm, 'Method form is required')
+      const methodCallTransactionId = transaction?.id ?? randomGuid()
 
       const methodArgs = methodForm.arguments.map((arg, index) => {
         const value = values[`${methodArgPrefix}-${index}` as keyof z.infer<typeof formData>]
@@ -86,7 +87,7 @@ export function MethodCallTransactionBuilder({
               id: randomGuid(),
               type: BuildableTransactionType.Placeholder,
               targetType: arg.type,
-              argForMethod: methodForm.name,
+              methodCallTransactionId: methodCallTransactionId,
             } satisfies PlaceholderTransaction
           } else {
             return transaction!.methodArgs[index]
@@ -95,7 +96,7 @@ export function MethodCallTransactionBuilder({
       })
 
       const methodCallTxn = {
-        id: transaction?.id ?? randomGuid(),
+        id: methodCallTransactionId,
         type: BuildableTransactionType.MethodCall,
         applicationId: Number(values.applicationId),
         method: methodForm.abiMethod,

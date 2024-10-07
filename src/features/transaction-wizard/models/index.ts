@@ -199,7 +199,7 @@ export type PlaceholderTransaction = {
   id: string
   type: BuildableTransactionType.Placeholder
   targetType: algosdk.ABITransactionType
-  argForMethod: string
+  methodCallTransactionId: string
 }
 
 export type BuildTransactionResult =
@@ -215,9 +215,4 @@ export type BuildTransactionResult =
   | BuildAssetDestroyTransactionResult
   | BuildMethodCallTransactionResult
 
-type IndexProps = {
-  index: number
-  groupId: string
-}
-
-export type IndexedTransaction = (BuildTransactionResult & IndexProps) | (PlaceholderTransaction & IndexProps)
+export type TransactionIndex = Map<string, number>

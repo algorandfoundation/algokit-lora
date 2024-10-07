@@ -14,9 +14,9 @@ import {
   BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
-  IndexedTransaction,
   MethodCallArg,
   PlaceholderTransaction,
+  TransactionIndex,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
@@ -38,7 +38,7 @@ import { invariant } from '@/utils/invariant'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
-  indexedTransactions: IndexedTransaction[],
+  transactionIndex: TransactionIndex,
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -48,7 +48,7 @@ export const asDescriptionListItems = (
     return asAppCallTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
-    return asMethodCallTransaction(transaction, indexedTransactions, onEditTransaction)
+    return asMethodCallTransaction(transaction, transactionIndex, onEditTransaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -273,20 +273,18 @@ const asAssetConfigTransaction = (
 const asMethodArg = (
   type: algosdk.ABIArgumentType,
   arg: MethodCallArg,
-  indexedTransactions: IndexedTransaction[],
+  transactionIndex: TransactionIndex,
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   if (algosdk.abiTypeIsTransaction(type)) {
     invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
-    const txnArg = indexedTransactions.find((t) => t.id === arg.id)
-    invariant(txnArg, 'Could not find transaction in group')
-    const index = txnArg.index
+    const argIndex = transactionIndex.get(arg.id)!
 
     // Transaction type args are shown in the table
     return (
       <div>
         <span>
-          Transaction index <strong>{index}</strong> in group
+          Transaction index <strong>{argIndex}</strong> in group
         </span>
         {onEditTransaction && (
           <Button variant="link" className="ml-2 h-4" onClick={() => onEditTransaction(arg)}>
@@ -370,7 +368,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
 
 const asMethodCallTransaction = (
   transaction: BuildMethodCallTransactionResult,
-  indexedTransactions: IndexedTransaction[],
+  transactionIndex: TransactionIndex,
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
@@ -411,7 +409,7 @@ const asMethodCallTransaction = (
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
                     {arg.name ? arg.name : `Arg ${index}`}:{' '}
-                    {asMethodArg(arg.type, transaction.methodArgs![index], indexedTransactions, onEditTransaction)}
+                    {asMethodArg(arg.type, transaction.methodArgs![index], transactionIndex, onEditTransaction)}
                   </li>
                 ))}
               </ol>
