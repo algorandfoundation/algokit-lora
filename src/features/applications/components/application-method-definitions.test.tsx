@@ -263,11 +263,19 @@ describe('application-method-definitions', () => {
               return callButton!
             })
             await user.click(callButton)
-            const formDialog = component.getByRole('dialog')
+            let formDialog = component.getByRole('dialog')
+            //
+            await waitFor(() => within(formDialog).getByText('Argument 1'))
+            // Save the app call transaction
+            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Add the payment transaction
-            await user.click(await waitFor(() => within(formDialog).getByRole('button', { name: 'Add Transaction' })))
+            // Click "Create" on the table to launch the dialog for the payment transaction
+            const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
+            const firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
+            await user.click(within(firstBodyRow).getAllByRole('button', { name: 'Create' })[0])
+            formDialog = component.getByRole('dialog')
 
+            // Fill in the payment transaction
             const receiverInput = await within(formDialog).findByLabelText(/Receiver/)
             fireEvent.input(receiverInput, {
               target: { value: testAccount2.addr },
@@ -279,9 +287,6 @@ describe('application-method-definitions', () => {
             })
 
             // Save the payment transaction
-            await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
-
-            // Save the app call transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
             // Send the transactions

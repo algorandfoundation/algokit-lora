@@ -288,7 +288,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           data={transactions}
           setData={setTransactions}
           nonDeletableTransactionIds={nonDeletableTransactionIds}
-          onEdit={editTransaction}
+          onEditTransaction={editTransaction}
           onEditResources={editResources}
           onDelete={deleteTransaction}
         />

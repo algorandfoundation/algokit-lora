@@ -1,20 +1,19 @@
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable, Row } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { CSSProperties, useMemo } from 'react'
 import { cn } from '@/features/common/utils'
 import {
+  closestCenter,
   DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  closestCenter,
-  type DragEndEvent,
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { useSortable } from '@dnd-kit/sortable'
+import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { EllipsisVertical, GripVertical, LinkIcon } from 'lucide-react'
 import {
@@ -44,11 +43,11 @@ export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
 
 function TransactionRow({
   row,
-  onEdit,
+  onEditTransaction,
   onEditResources,
 }: {
   row: Row<BuildTransactionResult>
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
@@ -63,10 +62,9 @@ function TransactionRow({
     position: 'relative',
   }
 
-  const subTransactionsRows = renderSubTransactions(row.original, onEdit, onEditResources)
   return (
     <TableBody ref={setNodeRef} style={style}>
-      {subTransactionsRows}
+      <SubTransactionsRows transaction={row.original} onEditTransaction={onEditTransaction} onEditResources={onEditResources} />
       <TableRow data-state={row.getIsSelected() && 'selected'}>
         <TableCell className="w-10 border-b">
           <RowDragHandleCell rowId={row.id} />
@@ -85,14 +83,22 @@ type Props = {
   data: BuildTransactionResult[]
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
 }
 
-export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditResources, onDelete, nonDeletableTransactionIds }: Props) {
-  const columns = getTableColumns({ onEdit, onEditResources, onDelete, nonDeletableTransactionIds })
+export function TransactionsTable({
+  data,
+  setData,
+  ariaLabel,
+  onEditTransaction,
+  onEditResources,
+  onDelete,
+  nonDeletableTransactionIds,
+}: Props) {
+  const columns = getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds })
   const table = useReactTable({
     data,
     columns,
@@ -137,7 +143,9 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
             {table.getRowModel().rows?.length ? (
               table
                 .getRowModel()
-                .rows.map((row) => <TransactionRow key={row.id} row={row} onEdit={onEdit} onEditResources={onEditResources} />)
+                .rows.map((row) => (
+                  <TransactionRow key={row.id} row={row} onEditTransaction={onEditTransaction} onEditResources={onEditResources} />
+                ))
             ) : (
               <TableBody>
                 <TableRow>
@@ -156,12 +164,12 @@ export function TransactionsTable({ data, setData, ariaLabel, onEdit, onEditReso
 
 const getTableColumns = ({
   nonDeletableTransactionIds,
-  onEdit,
+  onEditTransaction,
   onEditResources,
   onDelete,
 }: {
   nonDeletableTransactionIds: string[]
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
@@ -174,7 +182,7 @@ const getTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return <DescriptionList items={asDescriptionListItems(transaction, onEdit)} dtClassName="w-[9.5rem] truncate" />
+      return <DescriptionList items={asDescriptionListItems(transaction, onEditTransaction)} dtClassName="w-[9.5rem] truncate" />
     },
   },
   {
@@ -186,7 +194,7 @@ const getTableColumns = ({
           <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
           {(row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall) && (
             <DropdownMenuItem
               onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
@@ -224,27 +232,11 @@ const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransact
   )
 }
 
-const renderSubTransactions = (
-  transaction: BuildTransactionResult,
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>,
-  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
-): React.ReactNode => {
-  if (transaction.type !== BuildableTransactionType.MethodCall) {
-    return undefined
-  }
-  const subTransactions = getSubTransactions(transaction)
-  if (subTransactions.length === 0) {
-    return undefined
-  }
-
-  return <SubTransactionsRows subTransactions={subTransactions} onEdit={onEdit} onEditResources={onEditResources} />
-}
-
 const getSubTransactionsTableColumns = ({
-  onEdit,
+  onEditTransaction,
   onEditResources,
 }: {
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }): ColumnDef<BuildTransactionResult | PlaceholderTransaction>[] => [
   {
@@ -265,12 +257,12 @@ const getSubTransactionsTableColumns = ({
           {transaction.type === BuildableTransactionType.Placeholder ? (
             <div>
               <span>Argument for method {transaction.argForMethod}</span>
-              <Button variant="link" className="ml-2" onClick={() => onEdit(transaction)}>
+              <Button variant="link" className="ml-2" onClick={() => onEditTransaction(transaction)}>
                 Create
               </Button>
             </div>
           ) : (
-            <DescriptionList items={asDescriptionListItems(transaction, onEdit)} dtClassName="w-[9.5rem] truncate" />
+            <DescriptionList items={asDescriptionListItems(transaction, onEditTransaction)} dtClassName="w-[9.5rem] truncate" />
           )}
           <div className="absolute bottom-[-10px] right-1/2">
             <LinkIcon size={16} className={'text-muted-foreground/60'} />
@@ -289,7 +281,7 @@ const getSubTransactionsTableColumns = ({
             <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="right">
-            <DropdownMenuItem onClick={() => onEdit(row.original)}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
             {row.original.type === BuildableTransactionType.AppCall ||
               (row.original.type === BuildableTransactionType.MethodCall && (
                 <DropdownMenuItem
@@ -304,17 +296,24 @@ const getSubTransactionsTableColumns = ({
   },
 ]
 function SubTransactionsRows({
-  subTransactions,
-  onEdit,
+  transaction,
+  onEditTransaction,
   onEditResources,
 }: {
-  subTransactions: (BuildTransactionResult | PlaceholderTransaction)[]
-  onEdit: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  transaction: BuildTransactionResult
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
+  const subTransactions = useMemo(() => {
+    if (transaction.type !== BuildableTransactionType.MethodCall) {
+      return []
+    }
+    return getSubTransactions(transaction)
+  }, [transaction])
+
   const table = useReactTable({
     data: subTransactions,
-    columns: getSubTransactionsTableColumns({ onEdit, onEditResources }),
+    columns: getSubTransactionsTableColumns({ onEditTransaction, onEditResources }),
     getCoreRowModel: getCoreRowModel(),
   })
 
