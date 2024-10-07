@@ -358,7 +358,6 @@ const setTransactionResources = (transactions: BuildTransactionResult[], transac
   })
 }
 
-// TODO: PD - write test for: create an method call, set the pay txn, update the method call, the pay txn should not be overwritten
 const setTransaction = (
   transactions: BuildTransactionResult[],
   transactionId: string,

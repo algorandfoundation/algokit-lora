@@ -72,7 +72,6 @@ export function MethodCallTransactionBuilder({
     return zfd.formData(formSchema)
   }, [formSchema])
 
-  // TODO: PD test that the txn args are removed after changing method
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       invariant(methodForm, 'Method form is required')
