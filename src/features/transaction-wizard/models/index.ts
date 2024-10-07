@@ -214,3 +214,10 @@ export type BuildTransactionResult =
   | BuildAssetReconfigureTransactionResult
   | BuildAssetDestroyTransactionResult
   | BuildMethodCallTransactionResult
+
+type IndexProps = {
+  index: number
+  groupId: string
+}
+
+export type IndexedTransaction = (BuildTransactionResult & IndexProps) | (PlaceholderTransaction & IndexProps)

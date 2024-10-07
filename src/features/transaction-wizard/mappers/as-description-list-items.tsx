@@ -14,6 +14,7 @@ import {
   BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
+  IndexedTransaction,
   MethodCallArg,
   PlaceholderTransaction,
 } from '../models'
@@ -33,9 +34,11 @@ import {
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
+import { invariant } from '@/utils/invariant'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
+  indexedTransactions: IndexedTransaction[],
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -45,7 +48,7 @@ export const asDescriptionListItems = (
     return asAppCallTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
-    return asMethodCallTransaction(transaction, onEditTransaction)
+    return asMethodCallTransaction(transaction, indexedTransactions, onEditTransaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -270,14 +273,22 @@ const asAssetConfigTransaction = (
 const asMethodArg = (
   type: algosdk.ABIArgumentType,
   arg: MethodCallArg,
+  indexedTransactions: IndexedTransaction[],
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   if (algosdk.abiTypeIsTransaction(type)) {
+    invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
+    const txnArg = indexedTransactions.find((t) => t.id === arg.id)
+    invariant(txnArg, 'Could not find transaction in group')
+    const index = txnArg.index
+
     // Transaction type args are shown in the table
     return (
       <div>
-        <span>Transaction in group</span>
-        {onEditTransaction && typeof arg === 'object' && 'type' in arg && (
+        <span>
+          Transaction index <strong>{index}</strong> in group
+        </span>
+        {onEditTransaction && (
           <Button variant="link" className="ml-2 h-4" onClick={() => onEditTransaction(arg)}>
             {arg.type === BuildableTransactionType.Placeholder ? 'Create' : 'Edit'}
           </Button>
@@ -359,6 +370,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
 
 const asMethodCallTransaction = (
   transaction: BuildMethodCallTransactionResult,
+  indexedTransactions: IndexedTransaction[],
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
@@ -398,7 +410,8 @@ const asMethodCallTransaction = (
               <ol>
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
-                    {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index], onEditTransaction)}
+                    {arg.name ? arg.name : `Arg ${index}`}:{' '}
+                    {asMethodArg(arg.type, transaction.methodArgs![index], indexedTransactions, onEditTransaction)}
                   </li>
                 ))}
               </ol>
