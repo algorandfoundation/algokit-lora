@@ -53,7 +53,9 @@ export const Urls = {
     }),
   }),
   AppStudio: UrlTemplate`/app-studio`,
-  AppLab: UrlTemplate`/app-lab`,
+  AppLab: UrlTemplate`/app-lab`.extend({
+    Create: UrlTemplate`/create`,
+  }),
   Settings: UrlTemplate`/settings`,
   Fund: UrlTemplate`/fund`,
   FundAuthCallback: UrlTemplate`/fund/auth-callback`, // This is intentionally not a nested route, as there is no need

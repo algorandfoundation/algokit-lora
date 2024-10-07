@@ -1,8 +1,8 @@
 import { AnyUrlTemplate } from '@/routes/url-template'
 import { stripUrlParams } from '@/routes/urls'
-import { Loader2 as Loader } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { PageLoader } from '../components/page-loader'
 
 type Props = {
   from: AnyUrlTemplate
@@ -21,5 +21,5 @@ export function RedirectPage({ from: _from, to: _to }: Props) {
     navigate(location.pathname.replace(from, to))
   }, [location.pathname, navigate, from, to])
 
-  return <Loader className="size-10 animate-spin" />
+  return <PageLoader />
 }

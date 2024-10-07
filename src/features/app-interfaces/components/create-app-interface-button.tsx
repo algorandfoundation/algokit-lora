@@ -10,6 +10,8 @@ type Props = {
   onSuccess: () => void
 }
 
+// TODO: NC - Remove this
+
 export function CreateAppInterfaceButton({ onSuccess: _onSuccess }: Props) {
   const { on, off, state: dialogOpen } = useToggle(false)
 

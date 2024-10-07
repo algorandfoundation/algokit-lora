@@ -1,8 +1,10 @@
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { Card, CardContent } from '@/features/common/components/card'
 import { AppInterfaceCard } from '@/features/app-interfaces/components/app-interface-card'
-import { CreateAppInterfaceButton } from '@/features/app-interfaces/components/create-app-interface-button'
 import { createAppInterfaceLabel } from '@/features/app-interfaces/components/labels'
+import { Urls } from '@/routes/urls'
+import { TemplatedLink } from '@/features/routing/components/templated-link/templated-link'
+import { CreateAppInterfaceButton } from './create-app-interface-button'
 
 type Props = {
   appInterfaces: AppInterfaceEntity[]
@@ -16,6 +18,7 @@ export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
           <h2>{createAppInterfaceLabel}</h2>
           <div className="flex grow flex-col justify-between gap-4">
             <p>Create an app interface by uploading an App Spec file</p>
+            <TemplatedLink urlTemplate={Urls.AppLab.Create}>Create</TemplatedLink>
             <CreateAppInterfaceButton onSuccess={refreshAppInterfaces} />
           </div>
         </CardContent>
