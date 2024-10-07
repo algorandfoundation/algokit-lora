@@ -1,31 +1,24 @@
 import { useCreateAppInterfaceStateMachine } from '../data/create-app-interface'
-import { WIPSelectAppSpecForm } from './wip-select-app-spec-form'
+import { WIPUploadAppSpec } from './wip-upload-app-spec'
 import { WIPDeployApp } from './wip-deploy-app'
-import { WIPDetails } from './wip-details'
+import { WIPDeploymentDetails } from './wip-deployment-details'
+import { AppSpecStandard } from '../data/types'
 
 type Props = {
-  snapshot: ReturnType<typeof useCreateAppInterfaceStateMachine>
+  machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
 // TODO: NC - Handle state machine being reset when connecting a wallet (maybe block buttons until a wallet is connected?)
 
-export function CreateFromDeployment({ snapshot }: Props) {
-  const [state] = snapshot
+export function CreateFromDeployment({ machine }: Props) {
+  const [state] = machine
 
   if (state.matches({ fromAppDeployment: 'appSpec' })) {
-    return <WIPSelectAppSpecForm snapshot={snapshot} />
+    return <WIPUploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32]} />
   } else if (state.matches({ fromAppDeployment: 'appDetails' })) {
-    return <WIPDetails snapshot={snapshot} />
+    return <WIPDeploymentDetails machine={machine} />
   } else if (state.matches({ fromAppDeployment: 'deployment' })) {
-    return (
-      <WIPDeployApp snapshot={snapshot} />
-      // <div>
-      //   <span>fromAppDeployment 3</span>
-      //   <Button onClick={() => send({ type: 'deploymentCancelled' })}>Back</Button>
-      //   <Button onClick={() => send({ type: 'deploymentCompleted', applicationId: 1234 })}>Deploy</Button>
-      // </div>
-    )
+    return <WIPDeployApp machine={machine} />
   }
-
-  throw new Error('Not implemented')
+  return undefined
 }

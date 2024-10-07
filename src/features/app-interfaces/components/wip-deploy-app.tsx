@@ -1,7 +1,12 @@
 import { useCallback, useState } from 'react'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/create-app-interface'
 import { Button } from '@/features/common/components/button'
-import { BuildableTransactionType, BuildAppCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
+import {
+  BuildableTransactionType,
+  BuildAppCallTransactionResult,
+  BuildMethodCallTransactionResult,
+  BuildTransactionResult,
+} from '@/features/transaction-wizard/models'
 import { useWallet } from '@txnlab/use-wallet'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import algosdk from 'algosdk'
@@ -9,36 +14,41 @@ import { TransactionBuilder } from '@/features/transaction-wizard/components/tra
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { invariant } from '@/utils/invariant'
-import { Transaction, TransactionType } from '@/features/transactions/models'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
-import { Parentheses } from 'lucide-react'
+import { ArrowLeft, Parentheses, Rocket } from 'lucide-react'
 import { algorandClient } from '@/features/common/data/algo-client'
-import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { isArc32AppSpec } from '@/features/common/utils'
+import { asAppCallTransactionParams } from '@/features/transaction-wizard/mappers'
+import { asApplicationAbiMethods } from '@/features/applications/mappers'
 
 type Props = {
-  snapshot: ReturnType<typeof useCreateAppInterfaceStateMachine>
+  machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-export function WIPDeployApp({ snapshot }: Props) {
-  const [state, send] = snapshot
-  const [transaction, setTransaction] = useState<BuildAppCallTransactionResult | undefined>(undefined)
-  // const { getValues } = useFormContext<DeployAppFormData>()
+export function WIPDeployApp({ machine }: Props) {
+  const [state, send] = machine
+  invariant(state.context.appSpec && isArc32AppSpec(state.context.appSpec), 'ARC32 app spec is required')
+  const [transaction, setTransaction] = useState<BuildAppCallTransactionResult | BuildMethodCallTransactionResult | undefined>(undefined)
   const { activeAddress } = useWallet()
-  // const [sentAppCallTransactions, setSentAppCallTransactions] = useState<AppCallTransaction[]>([])
+
+  const appSpec = state.context.appSpec
 
   const { open, dialog } = useDialogForm({
     dialogHeader: 'Create Deployment App Call Transaction',
     dialogBody: (
       props: DialogBodyProps<
-        { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
+        {
+          type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall
+          transaction?: Partial<BuildTransactionResult>
+        },
         BuildTransactionResult
       >
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={props.data?.transactionType as unknown as algosdk.TransactionType}
-        type={BuildableTransactionType.AppCall}
-        defaultValues={props.data?.transaction}
+        transactionType={algosdk.TransactionType.appl}
+        type={props.data.type}
+        defaultValues={props.data.transaction}
         onCancel={props.onCancel}
         onSubmit={props.onSubmit}
       />
@@ -47,106 +57,141 @@ export function WIPDeployApp({ snapshot }: Props) {
 
   const deploy = useCallback(
     async (transactions: BuildTransactionResult[]) => {
-      // const values = getValues()
-      invariant(state.context.appSpec && 'source' in state.context.appSpec, 'Only ARC32 app spec is supported')
-      invariant(state.context.appSpec.source?.approval, 'Approval program is not set')
-      invariant(state.context.appSpec.source?.clear, 'Clear program is not set')
+      invariant(appSpec && 'source' in appSpec, 'Only ARC32 app spec is supported')
+      invariant(appSpec.source?.approval, 'Approval program is not set')
+      invariant(appSpec.source?.clear, 'Clear program is not set')
       invariant(activeAddress, 'No active wallet account is available')
-
+      invariant(transactions.length === 1, 'Only one deploy transaction is supported')
+      const deployTransaction = transactions[0]
+      invariant(
+        [BuildableTransactionType.AppCall, BuildableTransactionType.MethodCall].includes(deployTransaction.type),
+        'Only app call transactions are supported'
+      )
       const appFactory = algorandClient.client.getAppFactory({
         appSpec: state.context.appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
         defaultSender: activeAddress,
         appName: state.context.name,
         version: state.context.version,
-        // deletable: values.deletable,
-        // updatable: values.updatable,
+        updatable: state.context.updatable,
+        deletable: state.context.deletable,
       })
 
-      const transaction = transactions[0] as BuildAppCallTransactionResult
+      // TODO: NC - App call transactions don't need an app id
 
-      invariant(transaction.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
+      const { appId: _, ...appCallParams } =
+        deployTransaction.type === BuildableTransactionType.AppCall
+          ? asAppCallTransactionParams(deployTransaction)
+          : { appId: 0, onComplete: algosdk.OnApplicationComplete.NoOpOC } // TODO: NC - Fix this
+      invariant(appCallParams.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
 
-      const { result: deployAppResult } = await appFactory.deploy({
+      const { result } = await appFactory.deploy({
         createParams: {
-          onComplete: transaction.onComplete,
-          args: [],
-          // onComplete: algosdk.OnApplicationComplete.NoOpOC,
-          // args: [new Uint8Array()],
+          ...appCallParams,
+          onComplete: appCallParams.onComplete,
           // method: '',
           schema: {
-            localInts: state.context.appSpec.state?.local.num_uints ?? 0,
-            localByteSlices: state.context.appSpec.state?.local.num_byte_slices ?? 0,
-            globalInts: state.context.appSpec.state?.global.num_uints ?? 0,
-            globalByteSlices: state.context.appSpec.state?.global.num_byte_slices ?? 0,
+            localInts: appSpec.state?.local.num_uints ?? 0,
+            localByteSlices: appSpec.state?.local.num_byte_slices ?? 0,
+            globalInts: appSpec.state?.global.num_uints ?? 0,
+            globalByteSlices: appSpec.state?.global.num_byte_slices ?? 0,
           },
         },
-        onUpdate: 'fail',
-        onSchemaBreak: 'fail',
-        // deployTimeParams: getTealTemplateParams(unifiedTemplateParamNames, values),
+        onUpdate: 'append',
+        onSchemaBreak: 'append',
+        deployTimeParams: state.context.templateParams,
         populateAppCallResources: true,
       })
 
-      console.log(deployAppResult.appId)
+      // TODO: NC - Run the create app interface logic
+      // TODO: NC - Present a toast
 
-      send({ type: 'deploymentCompleted', applicationId: Number(deployAppResult.appId) })
-
-      if (deployAppResult.operationPerformed !== 'nothing') {
-        return {
-          transactions: deployAppResult.transactions,
-          confirmations: [deployAppResult.confirmation],
-        } as SendTransactionResults
-      }
-
-      return undefined
+      send({ type: 'deploymentCompleted', applicationId: Number(result.appId) })
     },
-    [activeAddress, send, state.context.appSpec, state.context.name, state.context.version]
+    [
+      activeAddress,
+      appSpec,
+      send,
+      state.context.appSpec,
+      state.context.deletable,
+      state.context.name,
+      state.context.templateParams,
+      state.context.updatable,
+      state.context.version,
+    ]
   )
 
-  const openDialog = useCallback(async () => {
-    const transaction = await open({
-      transactionType: algosdk.ABITransactionType.appl,
-      transaction: {
-        onComplete: algosdk.OnApplicationComplete.NoOpOC,
-      },
-    })
-    if (transaction && transaction.type === BuildableTransactionType.AppCall) {
-      setTransaction(transaction)
-    }
-  }, [open])
+  const back = useCallback(() => {
+    send({ type: 'deploymentCancelled' })
+  }, [send])
 
-  const handleTransactionSent = useCallback((transactions: Transaction[]) => {
-    const appCallTransactions = transactions.filter((txn) => txn.type === TransactionType.AppCall)
-
-    console.log(appCallTransactions)
-    // setSentAppCallTransactions(appCallTransactions as unknown as AppCallTransaction[])
-  }, [])
+  const openDialog = useCallback(
+    async (type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall) => {
+      const transaction = await open({
+        type,
+        transaction: {
+          onComplete: algosdk.OnApplicationComplete.NoOpOC, // TODO: NC - Set this based on the app spec info
+        },
+      })
+      if (
+        transaction &&
+        (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall)
+      ) {
+        setTransaction(transaction)
+      }
+    },
+    [open]
+  )
 
   const reset = useCallback(() => {
     setTransaction(undefined)
-    // setSentAppCallTransactions([])
   }, [])
 
   const transactions = transaction ? [transaction] : []
 
+  // TODO: NC - Handle the transition better
+  // TODO: NC - Render all the deployable ABI methods
+
+  //
+
+  const abiMethods = asApplicationAbiMethods(appSpec)
+
+  const temp = abiMethods.methods.reduce((acc, method) => {
+    if ((method.callConfig?.create ?? []).length > 0) {
+      return [...acc, method.name]
+    }
+    return acc
+  }, [] as string[])
+
   return (
-    <>
+    <div className="duration-300 animate-in fade-in-20">
       <div className="flex justify-end">
-        {!transaction && (
-          <Button variant="default" className="w-28" onClick={openDialog} icon={<Parentheses size={16} />}>
-            Bare Deploy
-          </Button>
+        {transactions.length === 0 && (
+          <>
+            {temp.map((method) => (
+              <Button variant="default" onClick={() => openDialog(BuildableTransactionType.MethodCall)} icon={<Parentheses size={16} />}>
+                {method}
+              </Button>
+            ))}
+            <Button variant="default" onClick={() => openDialog(BuildableTransactionType.AppCall)} icon={<Parentheses size={16} />}>
+              Bare Deploy
+            </Button>
+          </>
         )}
       </div>
-      {/* <TransactionsBuilder
+      <TransactionsBuilder
         key={transactions.length}
-        transactions={transactions}
+        defaultTransactions={transactions}
         onReset={reset}
-        handleSend={deploy}
-        onTransactionSent={(txns) => handleTransactionSent(txns)}
-        renderContext="app-lab"
-      /> */}
-      <span>Transactions builder here {transactions.length}</span>
+        onSendTransactions={deploy}
+        disableAddTransaction
+        additionalActions={
+          <Button onClick={back} icon={<ArrowLeft size={16} />}>
+            Back
+          </Button>
+        }
+        sendButtonConfig={{ label: 'Deploy', icon: <Rocket size={16} /> }}
+      />
       {dialog}
-    </>
+    </div>
   )
 }

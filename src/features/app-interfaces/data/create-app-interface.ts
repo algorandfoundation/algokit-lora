@@ -25,17 +25,22 @@ createAppInterface
 */
 
 // TODO: NC - Move this
+// TODO: NC - Should we construct this type to be a bit friendlier to use in context?
 type CreateAppInterfaceContext = {
   applicationId?: ApplicationId
   file?: File
   appSpec?: Arc32AppSpec | Arc4AppSpec
   name?: string
   version?: string
-  fromRound?: bigint
-  toRound?: bigint
+  roundFirstValid?: number
+  roundLastValid?: number
+  updatable?: boolean
+  deletable?: boolean
+  templateParams?: Record<string, string | number | Uint8Array>
 }
 
 // TODO: NC - Do we need to remove state as we navigate backwards?
+// TODO: NC - We can potentially just implement a cancelled event
 
 const createMachine = () =>
   setup({
@@ -53,6 +58,9 @@ const createMachine = () =>
             toRound?: bigint
             applicationId?: ApplicationId
             version?: string
+            updatable?: boolean
+            deletable?: boolean
+            templateParams?: Record<string, string | number | Uint8Array>
           }
         | { type: 'detailsCancelled' }
         | {
@@ -91,6 +99,10 @@ const createMachine = () =>
               },
               appSpecUploadCancelled: {
                 target: '#createAppInterface',
+                actions: assign({
+                  file: () => undefined,
+                  appSpec: () => undefined,
+                }),
               },
             },
           },
@@ -126,6 +138,10 @@ const createMachine = () =>
               },
               appSpecUploadCancelled: {
                 target: '#createAppInterface',
+                actions: assign({
+                  file: () => undefined,
+                  appSpec: () => undefined,
+                }),
               },
             },
           },
@@ -136,14 +152,20 @@ const createMachine = () =>
                 actions: assign({
                   name: ({ event }) => event.name,
                   version: ({ event }) => event.version,
-                  fromRound: ({ event }) => event.fromRound,
-                  toRound: ({ event }) => event.toRound,
-                  // TODO: NC - Add template params
-                  // TODO: NC - Add updatable/deletable
+                  updatable: ({ event }) => event.updatable,
+                  deletable: ({ event }) => event.deletable,
+                  templateParams: ({ event }) => event.templateParams,
                 }),
               },
               detailsCancelled: {
                 target: 'appSpec',
+                actions: assign({
+                  name: () => undefined,
+                  version: () => undefined,
+                  updatable: () => undefined,
+                  deletable: () => undefined,
+                  templateParams: () => undefined,
+                }),
               },
             },
           },
@@ -157,6 +179,9 @@ const createMachine = () =>
               },
               deploymentCancelled: {
                 target: 'appDetails',
+                actions: assign({
+                  applicationId: () => undefined,
+                }),
               },
             },
           },

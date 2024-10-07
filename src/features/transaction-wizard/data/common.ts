@@ -4,6 +4,9 @@ import { isAddress } from '@/utils/is-address'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import { asOnCompleteLabel } from '../mappers/as-description-list-items'
+import { algorandClient } from '@/features/common/data/algo-client'
+import { BuildTransactionResult } from '../models'
+import { asAlgosdkTransactions } from '../mappers'
 
 export const requiredMessage = 'Required'
 
@@ -101,3 +104,12 @@ export const commonSchema = {
 }
 
 export const commonFormData = zfd.formData(commonSchema)
+
+export const buildComposer = async (transactions: BuildTransactionResult[]) => {
+  const composer = algorandClient.newGroup()
+  for (const transaction of transactions) {
+    const txns = await asAlgosdkTransactions(transaction)
+    txns.forEach((txn) => composer.addTransaction(txn))
+  }
+  return composer
+}

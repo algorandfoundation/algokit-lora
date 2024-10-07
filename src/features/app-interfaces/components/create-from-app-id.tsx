@@ -1,9 +1,10 @@
 import { useCreateAppInterfaceStateMachine } from '../data/create-app-interface'
 
 type Props = {
-  snapshot: ReturnType<typeof useCreateAppInterfaceStateMachine>
+  machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-export function CreateFromAppId({ snapshot: [state, send] }: Props) {
+export function CreateFromAppId({ machine }: Props) {
+  const [state, send] = machine
   return <span>fromAppId</span>
 }
