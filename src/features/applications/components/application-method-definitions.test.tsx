@@ -21,8 +21,7 @@ import { selectOption } from '@/tests/utils/select-option'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
-  const myStore = getDefaultStore()
-  return myStore
+  return getDefaultStore()
 })
 
 describe('application-method-definitions', () => {
