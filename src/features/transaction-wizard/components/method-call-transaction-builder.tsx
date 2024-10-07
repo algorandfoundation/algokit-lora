@@ -163,6 +163,7 @@ export function MethodCallTransactionBuilder({
         setAutomatically: true,
       },
       ..._defaultValues,
+      methodName: _defaultValues?.method?.name,
       applicationId: _defaultValues?.applicationId ? BigInt(_defaultValues.applicationId) : undefined,
       onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,
     }
