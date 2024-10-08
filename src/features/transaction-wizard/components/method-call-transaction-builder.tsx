@@ -37,6 +37,8 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { invariant } from '@/utils/invariant'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 import { Info } from 'lucide-react'
+import { ApplicationId } from '@/features/applications/data/types'
+import { MethodDefinition } from '@/features/applications/models'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -64,13 +66,48 @@ export function MethodCallTransactionBuilder({
   onSubmit,
   onCancel,
 }: Props) {
-  const [appSpec, setAppSpec] = useState<Arc32AppSpec | undefined>(undefined)
-  const [methodForm, setMethodForm] = useState<MethodForm | undefined>(undefined)
-  const [formSchema, setFormSchema] = useState(appCallFormSchema)
+  const [appId, setAppId] = useState<ApplicationId | undefined>(_defaultValues?.applicationId)
+  const [methodName, setMethodName] = useState<string | undefined>(_defaultValues?.method?.name)
+
+  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
+
+  const { appSpec, methodDefinitions } = useMemo(() => {
+    if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
+      return {
+        appSpec: undefined,
+        methodDefinitions: [],
+      }
+    }
+
+    return {
+      appSpec: loadableMethodDefinitions.data.appSpec,
+      methodDefinitions: loadableMethodDefinitions.data.methods.filter((method) => (method.callConfig?.call ?? []).length > 0),
+    }
+  }, [loadableMethodDefinitions])
+
+  const methodDefinition = useMemo(() => {
+    if (!methodName || methodDefinitions.length === 0 || !appSpec) {
+      return undefined
+    }
+    const methodDefinition = methodDefinitions.find((method) => method.name === methodName)
+    invariant(methodDefinition, `Method definition not found for method ${methodName}`)
+    return methodDefinition
+  }, [appSpec, methodDefinitions, methodName])
+
+  const methodForm = useMemo(() => {
+    return methodDefinition ? asMethodForm(methodDefinition) : undefined
+  }, [methodDefinition])
 
   const formData = useMemo(() => {
-    return zfd.formData(formSchema)
-  }, [formSchema])
+    if (!methodForm) {
+      return zfd.formData(appCallFormSchema)
+    }
+
+    return zfd.formData({
+      ...appCallFormSchema,
+      ...methodForm.schema,
+    })
+  }, [methodForm])
 
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
@@ -114,21 +151,6 @@ export function MethodCallTransactionBuilder({
     },
     [methodForm, transaction, appSpec, onSubmit, mode]
   )
-
-  const onSetMethodForm = useCallback((method: MethodForm | undefined) => {
-    if (!method) {
-      setFormSchema(appCallFormSchema)
-      setMethodForm(undefined)
-    } else {
-      setFormSchema(() => {
-        return {
-          ...appCallFormSchema,
-          ...method.schema,
-        }
-      })
-      setMethodForm(method)
-    }
-  }, [])
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
@@ -182,48 +204,55 @@ export function MethodCallTransactionBuilder({
         </FormActions>
       }
     >
-      {(helper) => <FormInner helper={helper} methodForm={methodForm} onSetAppSpec={setAppSpec} onSetMethodForm={onSetMethodForm} />}
+      {(helper) => (
+        <FormInner
+          helper={helper}
+          onAppIdChanged={setAppId}
+          onMethodNameChanged={setMethodName}
+          appSpec={appSpec}
+          methodDefinitions={methodDefinitions}
+          methodDefinition={methodDefinition}
+          methodForm={methodForm}
+        />
+      )}
     </Form>
   )
 }
 
 type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof baseFormData>>
+  onAppIdChanged: (appId: ApplicationId) => void
+  onMethodNameChanged: (methodName?: string) => void
+  appSpec: Arc32AppSpec | undefined
+  methodDefinitions: MethodDefinition[]
+  methodDefinition: MethodDefinition | undefined
   methodForm: MethodForm | undefined
-  onSetAppSpec: (appSpec: Arc32AppSpec) => void
-  onSetMethodForm: (method: MethodForm | undefined) => void
 }
 
-function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormInnerProps) {
-  const { watch, setValue, getValues } = useFormContext<z.infer<typeof baseFormData>>()
+function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefinitions, methodDefinition, methodForm }: FormInnerProps) {
+  const { watch, setValue, getValues, unregister } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('applicationId')
   const methodName = watch('methodName')
 
-  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
-
-  const { appSpec, methodDefinitions } = useMemo(() => {
-    if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
-      return {
-        appSpec: undefined,
-        methodDefinitions: [],
-      }
-    }
-
-    return {
-      appSpec: loadableMethodDefinitions.data.appSpec,
-      methodDefinitions: loadableMethodDefinitions.data.methods.filter((method) => (method.callConfig?.call ?? []).length > 0),
-    }
-  }, [loadableMethodDefinitions])
+  useEffect(() => {
+    onAppIdChanged(Number(appId))
+  }, [appId, onAppIdChanged])
 
   useEffect(() => {
-    if (!methodName || methodDefinitions.length === 0 || !appSpec) {
-      onSetMethodForm(undefined)
-      return
+    onMethodNameChanged(methodName)
+  }, [methodName, onMethodNameChanged])
+
+  useEffect(() => {
+    if (methodForm !== undefined && methodName !== methodForm.name) {
+      const values = getValues()
+      for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
+        unregister(key as Path<z.infer<typeof baseFormData>>)
+      }
     }
+  }, [getValues, methodForm, methodName, unregister])
 
-    const methodDefinition = methodDefinitions.find((method) => method.name === methodName)
-
-    if (methodForm?.name !== undefined && methodName !== methodForm.name) {
+  useEffect(() => {
+    if (methodDefinition !== undefined && methodName !== methodDefinition.name) {
       const defaultOnComplete = methodDefinition?.callConfig ? methodDefinition?.callConfig?.call[0] : undefined
       if (defaultOnComplete !== undefined) {
         // This is needed to ensure the select list options have updated before setting the value, otherwise it isn't selected in the UI
@@ -231,18 +260,8 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
           setValue('onComplete', defaultOnComplete.toString())
         }, 10)
       }
-      const values = getValues()
-      for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
-        const value = values[key as keyof typeof values]
-        // for number and bigint, set to empty string so that the input is reset
-        const defaultValue = typeof value === 'number' || typeof value === 'bigint' ? '' : undefined
-        setValue(key as Path<z.infer<typeof baseFormData>>, defaultValue)
-      }
     }
-
-    onSetAppSpec(appSpec)
-    onSetMethodForm(asMethodForm(methodDefinition!))
-  }, [getValues, methodDefinitions, methodForm?.name, methodName, onSetMethodForm, setValue, onSetAppSpec, appSpec])
+  }, [methodDefinition, methodName, setValue])
 
   const abiMethodArgs = useMemo(() => {
     return (
@@ -336,7 +355,7 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
         helpText: 'Account to call from. Sends the transaction and pays the fee',
       })}
       {abiMethodArgs.map((arg, index) => (
-        <div key={index} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
+        <div key={`${methodName}-arg-${index}`} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
           <DescriptionList items={arg.descriptions} dtClassName="w-24 truncate" />
           {arg.field}
