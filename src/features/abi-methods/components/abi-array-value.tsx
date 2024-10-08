@@ -1,23 +1,23 @@
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiArrayRepresentation } from '@/features/abi-methods/models'
+import { AbiArrayValue as AbiArrayModel } from '@/features/abi-methods/models'
 
 type Props = {
-  array: AbiArrayRepresentation
+  array: AbiArrayModel
 }
 
 export function AbiArrayValue({ array }: Props) {
-  if (array.multiLine) {
+  if (array.multiline) {
     return (
       <>
         <span>[</span>
-        <ul className="pl-4">
+        <ol className="pl-4">
           {array.values.map((item, index, array) => (
             <li key={index}>
               <AbiValue abiValue={item} />
               {index < array.length - 1 ? <span>{', '}</span> : null}
             </li>
           ))}
-        </ul>
+        </ol>
         <span>]</span>
       </>
     )

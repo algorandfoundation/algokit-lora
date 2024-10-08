@@ -1,5 +1,4 @@
 import { Asset } from '@/features/assets/models'
-import { useWallet } from '@txnlab/use-wallet'
 import { useCallback, useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai/index'
 import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
@@ -9,8 +8,6 @@ import { toast } from 'react-toastify'
 import { asError } from '@/utils/error'
 
 export const useAssetOptInOut = (asset: Asset) => {
-  const { signer } = useWallet()
-
   const status = useMemo(() => {
     return atom(async (get) => {
       const activeAccount = await get(activeWalletAccountAtom)
@@ -45,7 +42,6 @@ export const useAssetOptInOut = (asset: Asset) => {
             ensureZeroBalance: true,
             assetId: BigInt(asset.id),
             sender: activeAccount.address,
-            signer,
           })
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-out successful')
@@ -61,7 +57,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           errorHandler(error)
         }
       },
-      [asset.id, signer]
+      [asset.id]
     )
   )
 
@@ -78,7 +74,6 @@ export const useAssetOptInOut = (asset: Asset) => {
           const sendResult = await algorandClient.send.assetOptIn({
             assetId: BigInt(asset.id),
             sender: activeAccount.address,
-            signer,
           })
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successful')
@@ -94,7 +89,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           errorHandler(error)
         }
       },
-      [asset.id, signer]
+      [asset.id]
     )
   )
 

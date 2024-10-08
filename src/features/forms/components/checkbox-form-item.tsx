@@ -26,13 +26,15 @@ export function CheckboxFormItem<TSchema extends Record<string, unknown>>({
     <Controller
       name={field}
       render={({ field: { value, onChange } }) => (
-        <div className={cn('ml-0.5 flex items-center space-x-2', className)}>
-          <Checkbox id={field} name={field} checked={value} onCheckedChange={onChange} {...rest} />
-          {label && (
-            <Label htmlFor={field} aria-invalid={Boolean(error)}>
-              {label}
-            </Label>
-          )}
+        <div className={cn('grid', className)}>
+          <div className="ml-0.5 flex items-center space-x-2">
+            <Checkbox id={field} name={field} checked={value} onCheckedChange={onChange} {...rest} />
+            {label && (
+              <Label htmlFor={field} aria-invalid={Boolean(error)}>
+                {label}
+              </Label>
+            )}
+          </div>
           <HintText errorText={error?.message} helpText={helpText} />
         </div>
       )}

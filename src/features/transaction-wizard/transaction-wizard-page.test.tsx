@@ -1,15 +1,13 @@
 import { afterEach, beforeEach, describe, expect, vitest, it, vi } from 'vitest'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { executeComponentTest } from '@/tests/test-component'
-import { fireEvent, render, waitFor } from '@/tests/testing-library'
+import { fireEvent, render, waitFor, within } from '@/tests/testing-library'
 import { useWallet } from '@txnlab/use-wallet'
 import { algo } from '@algorandfoundation/algokit-utils'
-import { transactionIdLabel } from '../transactions/components/transaction-info'
-import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
-import { accountCloseTransaction } from './data/payment-transactions'
 import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
 import { selectOption } from '@/tests/utils/select-option'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
+import { addTransactionLabel } from './components/transactions-builder'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -58,13 +56,20 @@ describe('transaction-wizard-page', () => {
             return render(<TransactionWizardPage />)
           },
           async (component, user) => {
-            const sendButton = await waitFor(() => {
-              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            const addButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: 'Add' })
               expect(sendButton).not.toBeDisabled()
               return sendButton!
             })
 
-            await user.click(sendButton)
+            await user.click(addButton)
 
             await waitFor(() => {
               const requiredValidationMessages = component.getAllByText('Required')
@@ -83,18 +88,19 @@ describe('transaction-wizard-page', () => {
             return render(<TransactionWizardPage />)
           },
           async (component, user) => {
-            const sendButton = await waitFor(() => {
-              const sendButton = component.getByRole('button', { name: sendButtonLabel })
-              expect(sendButton).not.toBeDisabled()
-              return sendButton!
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
             })
+            await user.click(addTransactionButton)
 
-            const senderInput = await component.findByLabelText(/Sender address/)
+            const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
               target: { value: testAccount.addr },
             })
 
-            const receiverInput = await component.findByLabelText(/Receiver address/)
+            const receiverInput = await component.findByLabelText(/Receiver/)
             fireEvent.input(receiverInput, {
               target: { value: testAccount2.addr },
             })
@@ -104,14 +110,34 @@ describe('transaction-wizard-page', () => {
               target: { value: '0.5' },
             })
 
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
             await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
 
             const transactionId = await waitFor(
               () => {
-                expect(component.queryByText('Required')).not.toBeInTheDocument()
-                const transactionIdComponent = getByDescriptionTerm(component.container, transactionIdLabel)
-                expect(transactionIdComponent).toBeDefined()
-                return transactionIdComponent.textContent!
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
               },
               { timeout: 10_000 }
             )
@@ -137,15 +163,21 @@ describe('transaction-wizard-page', () => {
             return render(<TransactionWizardPage />)
           },
           async (component, user) => {
-            await selectOption(component.container, user, transactionTypeLabel, accountCloseTransaction.label)
-
-            const sendButton = await waitFor(() => {
-              const sendButton = component.getByRole('button', { name: sendButtonLabel })
-              expect(sendButton).not.toBeDisabled()
-              return sendButton!
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
             })
+            await user.click(addTransactionButton)
 
-            await user.click(sendButton)
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Account Close (pay)')
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
 
             await waitFor(() => {
               const requiredValidationMessages = component.getAllByText('Required')
@@ -164,15 +196,16 @@ describe('transaction-wizard-page', () => {
             return render(<TransactionWizardPage />)
           },
           async (component, user) => {
-            await selectOption(component.container, user, transactionTypeLabel, accountCloseTransaction.label)
-
-            const sendButton = await waitFor(() => {
-              const sendButton = component.getByRole('button', { name: sendButtonLabel })
-              expect(sendButton).not.toBeDisabled()
-              return sendButton!
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
             })
+            await user.click(addTransactionButton)
 
-            const senderInput = await component.findByLabelText(/Sender address/)
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Account Close (pay)')
+
+            const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
               target: { value: testAccount.addr },
             })
@@ -182,14 +215,34 @@ describe('transaction-wizard-page', () => {
               target: { value: testAccount2.addr },
             })
 
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
             await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText('Result').parentElement!
+              },
+              { timeout: 10_000 }
+            )
 
             const transactionId = await waitFor(
               () => {
-                expect(component.queryByText('Required')).not.toBeInTheDocument()
-                const transactionIdComponent = getByDescriptionTerm(component.container, transactionIdLabel)
-                expect(transactionIdComponent).toBeDefined()
-                return transactionIdComponent.textContent!
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
               },
               { timeout: 10_000 }
             )

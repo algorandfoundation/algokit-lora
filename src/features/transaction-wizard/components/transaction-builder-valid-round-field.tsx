@@ -1,36 +1,40 @@
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { z } from 'zod'
-import { BuildableTransactionFormField } from '../models'
-import { Path, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { useEffect } from 'react'
+import { commonFormData } from '../data/common'
+import { useSyncedRound } from '@/features/blocks/data'
 
-type Props<TSchema extends z.ZodSchema> = {
-  helper: FormFieldHelper<z.infer<TSchema>>
-  path: Path<TSchema>
-  field: BuildableTransactionFormField
-}
+export function TransactionBuilderValidRoundField() {
+  const helper = new FormFieldHelper<z.infer<typeof commonFormData>>()
+  const { watch, clearErrors, setValue, getValues } = useFormContext<z.infer<typeof commonFormData>>()
+  const syncedRound = useSyncedRound()
 
-export function TransactionBuilderValidRoundField<TSchema extends z.ZodSchema>({ helper, path, field }: Props<TSchema>) {
-  const { watch, clearErrors, resetField } = useFormContext<z.infer<TSchema>>()
-
-  const setAutomaticallyPath = `${path}.setAutomatically` as typeof path
-  const firstValidPath = `${path}.firstValid` as typeof path
-  const lastValidPath = `${path}.lastValid` as typeof path
+  const setAutomaticallyPath = 'validRounds.setAutomatically'
+  const firstValidPath = 'validRounds.firstValid'
+  const lastValidPath = 'validRounds.lastValid'
 
   const setAutomatically = watch(setAutomaticallyPath)
 
   useEffect(() => {
-    clearErrors(firstValidPath)
     if (setAutomatically) {
-      resetField(firstValidPath)
-      resetField(lastValidPath)
+      setValue(firstValidPath, undefined)
+      setValue(lastValidPath, undefined)
+    } else {
+      if (syncedRound && getValues(firstValidPath) === undefined && getValues(lastValidPath) === undefined) {
+        setValue(firstValidPath, BigInt(syncedRound))
+        setValue(lastValidPath, BigInt(syncedRound + 1000))
+      }
     }
-  }, [clearErrors, resetField, setAutomatically, firstValidPath, lastValidPath])
+    clearErrors(firstValidPath)
+    clearErrors(lastValidPath)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clearErrors, setValue, setAutomatically])
 
   return (
     <div className="grid">
       {helper.checkboxField({
-        label: field.label,
+        label: 'Set valid rounds automatically',
         field: setAutomaticallyPath,
       })}
       {!setAutomatically && (

@@ -1,8 +1,8 @@
-import { AbiMethodReturnRepresentation } from '@/features/abi-methods/models'
+import { AbiMethodReturn } from '@/features/abi-methods/models'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
 
 type Props = {
-  return: AbiMethodReturnRepresentation
+  return: AbiMethodReturn
 }
 
 export function DecodedAbiMethodReturnValue({ return: returnProp }: Props) {

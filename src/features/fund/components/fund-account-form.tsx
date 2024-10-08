@@ -75,7 +75,6 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit, defaultRece
       schema={fundFormSchema}
       defaultValues={{ receiver: defaultReceiver, amount: '' as unknown as undefined }}
       onSubmit={fundAccount}
-      resetOnSuccess={true}
       formAction={
         <FormActions>
           <SubmitButton>{onCreateReceiver ? 'Create and Fund' : 'Fund'}</SubmitButton>

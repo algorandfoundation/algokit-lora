@@ -121,7 +121,7 @@ export function ApplicationDetails({ application }: Props) {
     ]
   )
 
-  const abiMethodDefinitions = useLoadableApplicationAbiMethodDefinitions(application)
+  const applicationAbiMethodsLoadable = useLoadableApplicationAbiMethodDefinitions(application)
 
   return (
     <div className="space-y-4">
@@ -136,13 +136,14 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
-      <RenderLoadable loadable={abiMethodDefinitions} fallback={<></>}>
-        {(abiMethodDefinitions) =>
-          abiMethodDefinitions.length > 0 && (
+      <RenderLoadable loadable={applicationAbiMethodsLoadable} fallback={<></>}>
+        {(applicationAbiMethods) =>
+          applicationAbiMethods &&
+          applicationAbiMethods.methods.length > 0 && (
             <Card aria-label={applicationAbiMethodDefinitionsLabel}>
               <CardContent className="space-y-1">
                 <h2>{applicationAbiMethodDefinitionsLabel}</h2>
-                <ApplicationMethodDefinitions methods={abiMethodDefinitions} />
+                <ApplicationMethodDefinitions applicationId={application.id} abiMethods={applicationAbiMethods} />
               </CardContent>
             </Card>
           )

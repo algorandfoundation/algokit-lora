@@ -1,1 +1,1 @@
-export const asJson = (indexerResult: unknown) => JSON.stringify(indexerResult, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
+export const asJson = (value: unknown) => JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)

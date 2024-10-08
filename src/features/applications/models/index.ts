@@ -1,6 +1,7 @@
 import { ApplicationId } from '../data/types'
 import algosdk from 'algosdk'
 import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -55,7 +56,6 @@ export type ArgumentHint = {
 }
 
 export type ArgumentDefinition = {
-  id: number
   name?: string
   description?: string
   type: algosdk.ABIArgumentType
@@ -72,10 +72,20 @@ export type ReturnsDefinition = {
   hint?: ReturnsHint
 }
 
+export type ApplicationAbiMethods = {
+  appSpec: Arc32AppSpec
+  methods: MethodDefinition[]
+}
+
 export type MethodDefinition = {
   name: string
   signature: string
   description?: string
+  abiMethod: algosdk.ABIMethod
+  callConfig?: {
+    call: algosdk.OnApplicationComplete[]
+    create: algosdk.OnApplicationComplete[]
+  }
   arguments: ArgumentDefinition[]
   returns: ReturnsDefinition
 }

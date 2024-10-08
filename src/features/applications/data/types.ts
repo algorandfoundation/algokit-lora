@@ -1,4 +1,5 @@
 import { ApplicationResult as IndexerApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 
 export type ApplicationId = number
 
@@ -11,3 +12,5 @@ export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round
     'global-state'?: IndexerApplicationResult['params']['global-state']
   }
 }
+
+export type AppClientMethodCallParamsArgs = NonNullable<AppCallMethodCall['args']>[number]

@@ -86,7 +86,7 @@ function VectorLabelText({ type }: { type: LabelType }) {
 
 function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
   return (
-    <RenderAsyncAtom atom={transaction.abiMethod} fallback={null}>
+    <RenderAsyncAtom atom={transaction.abiMethod} fallback={''}>
       {(abiMethod) => {
         return abiMethod ? <div className="overflow-x-hidden text-ellipsis">{abiMethod.name}</div> : null
       }}
