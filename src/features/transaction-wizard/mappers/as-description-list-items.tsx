@@ -16,7 +16,7 @@ import {
   BuildTransactionResult,
   MethodCallArg,
   PlaceholderTransaction,
-  TransactionIndex,
+  TransactionsIndex,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
@@ -38,7 +38,7 @@ import { invariant } from '@/utils/invariant'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
-  transactionIndex: TransactionIndex,
+  transactionsIndex: TransactionsIndex,
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -48,7 +48,7 @@ export const asDescriptionListItems = (
     return asAppCallTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
-    return asMethodCallTransaction(transaction, transactionIndex, onEditTransaction)
+    return asMethodCallTransaction(transaction, transactionsIndex, onEditTransaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -273,12 +273,12 @@ const asAssetConfigTransaction = (
 const asMethodArg = (
   type: algosdk.ABIArgumentType,
   arg: MethodCallArg,
-  transactionIndex: TransactionIndex,
+  transactionsIndex: TransactionsIndex,
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   if (algosdk.abiTypeIsTransaction(type)) {
     invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
-    const argIndex = transactionIndex.get(arg.id)!
+    const argIndex = transactionsIndex.get(arg.id)!
 
     // Transaction type args are shown in the table
     return (
@@ -368,7 +368,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
 
 const asMethodCallTransaction = (
   transaction: BuildMethodCallTransactionResult,
-  transactionIndex: TransactionIndex,
+  transactionsIndex: TransactionsIndex,
   onEditTransaction?: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
@@ -409,7 +409,7 @@ const asMethodCallTransaction = (
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
                     {arg.name ? arg.name : `Arg ${index}`}:{' '}
-                    {asMethodArg(arg.type, transaction.methodArgs![index], transactionIndex, onEditTransaction)}
+                    {asMethodArg(arg.type, transaction.methodArgs![index], transactionsIndex, onEditTransaction)}
                   </li>
                 ))}
               </ol>

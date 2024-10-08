@@ -215,4 +215,4 @@ export type BuildTransactionResult =
   | BuildAssetDestroyTransactionResult
   | BuildMethodCallTransactionResult
 
-export type TransactionIndex = Map<string, number>
+export type TransactionsIndex = Map<string, number>

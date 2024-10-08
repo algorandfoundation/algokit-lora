@@ -21,7 +21,7 @@ import {
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
-  TransactionIndex,
+  TransactionsIndex,
   PlaceholderTransaction,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
@@ -44,12 +44,12 @@ export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
 
 function TransactionRow({
   row,
-  transactionIndex,
+  transactionsIndex,
   onEditTransaction,
   onEditResources,
 }: {
   row: Row<BuildTransactionResult>
-  transactionIndex: TransactionIndex
+  transactionsIndex: TransactionsIndex
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
@@ -69,7 +69,7 @@ function TransactionRow({
     <TableBody ref={setNodeRef} style={style}>
       <SubTransactionsRows
         transaction={row.original}
-        transactionIndex={transactionIndex}
+        transactionsIndex={transactionsIndex}
         onEditTransaction={onEditTransaction}
         onEditResources={onEditResources}
       />
@@ -106,9 +106,9 @@ export function TransactionsTable({
   onDelete,
   nonDeletableTransactionIds,
 }: Props) {
-  const transactionIndex = useMemo(() => indexTransactions(data), [data])
+  const transactionsIndex = useMemo(() => indexTransactions(data), [data])
 
-  const columns = getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds, transactionIndex })
+  const columns = getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds, transactionsIndex })
 
   const table = useReactTable({
     data,
@@ -158,7 +158,7 @@ export function TransactionsTable({
                   <TransactionRow
                     key={row.id}
                     row={row}
-                    transactionIndex={transactionIndex}
+                    transactionsIndex={transactionsIndex}
                     onEditTransaction={onEditTransaction}
                     onEditResources={onEditResources}
                   />
@@ -179,7 +179,7 @@ export function TransactionsTable({
   )
 }
 
-const indexTransactions = (transactions: BuildTransactionResult[]): TransactionIndex => {
+const indexTransactions = (transactions: BuildTransactionResult[]): TransactionsIndex => {
   let index = 1
   return transactions.reduce((acc, transaction) => {
     if (transaction.type !== BuildableTransactionType.MethodCall) {
@@ -196,13 +196,13 @@ const indexTransactions = (transactions: BuildTransactionResult[]): TransactionI
 }
 
 const getTableColumns = ({
-  transactionIndex,
+  transactionsIndex,
   nonDeletableTransactionIds,
   onEditTransaction,
   onEditResources,
   onDelete,
 }: {
-  transactionIndex: TransactionIndex
+  transactionsIndex: TransactionsIndex
   nonDeletableTransactionIds: string[]
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
@@ -212,7 +212,7 @@ const getTableColumns = ({
     header: 'Index',
     cell: (c) => {
       const transaction = c.row.original
-      return transactionIndex.get(transaction.id)!
+      return transactionsIndex.get(transaction.id)!
     },
   },
   {
@@ -226,7 +226,7 @@ const getTableColumns = ({
       const transaction = c.row.original
       return (
         <DescriptionList
-          items={asDescriptionListItems(transaction, transactionIndex, onEditTransaction)}
+          items={asDescriptionListItems(transaction, transactionsIndex, onEditTransaction)}
           dtClassName="w-[9.5rem] truncate"
         />
       )
@@ -280,11 +280,11 @@ const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransact
 }
 
 const getSubTransactionsTableColumns = ({
-  transactionIndex,
+  transactionsIndex,
   onEditTransaction,
   onEditResources,
 }: {
-  transactionIndex: TransactionIndex
+  transactionsIndex: TransactionsIndex
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }): ColumnDef<BuildTransactionResult | PlaceholderTransaction>[] => [
@@ -296,7 +296,7 @@ const getSubTransactionsTableColumns = ({
     header: 'Index',
     cell: (c) => {
       const transaction = c.row.original
-      return transactionIndex.get(transaction.id)!
+      return transactionsIndex.get(transaction.id)!
     },
   },
   {
@@ -314,7 +314,7 @@ const getSubTransactionsTableColumns = ({
             <div>
               <span>
                 Argument for app call&nbsp;
-                <strong className="text-primary">{transactionIndex.get(transaction.methodCallTransactionId)}</strong> in group
+                <strong className="text-primary">{transactionsIndex.get(transaction.methodCallTransactionId)}</strong> in group
               </span>
               <Button variant="link" className="ml-2" onClick={() => onEditTransaction(transaction)}>
                 Create
@@ -322,7 +322,7 @@ const getSubTransactionsTableColumns = ({
             </div>
           ) : (
             <DescriptionList
-              items={asDescriptionListItems(transaction, transactionIndex, onEditTransaction)}
+              items={asDescriptionListItems(transaction, transactionsIndex, onEditTransaction)}
               dtClassName="w-[9.5rem] truncate"
             />
           )}
@@ -359,12 +359,12 @@ const getSubTransactionsTableColumns = ({
 ]
 function SubTransactionsRows({
   transaction,
-  transactionIndex,
+  transactionsIndex,
   onEditTransaction,
   onEditResources,
 }: {
   transaction: BuildTransactionResult
-  transactionIndex: TransactionIndex
+  transactionsIndex: TransactionsIndex
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
@@ -374,7 +374,7 @@ function SubTransactionsRows({
 
   const table = useReactTable({
     data: subTransactions,
-    columns: getSubTransactionsTableColumns({ transactionIndex, onEditTransaction, onEditResources }),
+    columns: getSubTransactionsTableColumns({ transactionsIndex, onEditTransaction, onEditResources }),
     getCoreRowModel: getCoreRowModel(),
   })
 
