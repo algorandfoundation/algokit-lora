@@ -312,10 +312,7 @@ const getSubTransactionsTableColumns = ({
         <div>
           {transaction.type === BuildableTransactionType.Placeholder ? (
             <div>
-              <span>
-                Argument for app call&nbsp;
-                <strong className="text-primary">{transactionsIndex.get(transaction.methodCallTransactionId)}</strong> in group
-              </span>
+              <span>Argument for transaction {transactionsIndex.get(transaction.methodCallTransactionId)} in the group</span>
               <Button variant="link" className="ml-2" onClick={() => onEditTransaction(transaction)}>
                 Create
               </Button>

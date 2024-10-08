@@ -277,7 +277,7 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm }: FormIn
                       <Info className="inline" size={16} />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent>Transaction arguments are created automatically in the group</TooltipContent>
+                  <TooltipContent>This argument is a transaction in the group</TooltipContent>
                 </Tooltip>
               </div>
             ) : (

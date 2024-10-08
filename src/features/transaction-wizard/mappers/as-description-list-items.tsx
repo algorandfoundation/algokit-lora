@@ -283,9 +283,7 @@ const asMethodArg = (
     // Transaction type args are shown in the table
     return (
       <div className="inline">
-        <span>
-          Transaction <strong className="text-primary">{argIndex}</strong> in group
-        </span>
+        <span>Transaction {argIndex} in the group</span>
         {onEditTransaction && (
           <Button variant="link" className="ml-2 h-4" onClick={() => onEditTransaction(arg)}>
             {arg.type === BuildableTransactionType.Placeholder ? 'Create' : 'Edit'}
