@@ -31,7 +31,6 @@ import { DefaultArgument } from '@/features/abi-methods/components/default-value
 import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { invariant } from '@/utils/invariant'
@@ -209,7 +208,6 @@ export function MethodCallTransactionBuilder({
           helper={helper}
           onAppIdChanged={setAppId}
           onMethodNameChanged={setMethodName}
-          appSpec={appSpec}
           methodDefinitions={methodDefinitions}
           methodDefinition={methodDefinition}
           methodForm={methodForm}
@@ -223,7 +221,6 @@ type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof baseFormData>>
   onAppIdChanged: (appId: ApplicationId) => void
   onMethodNameChanged: (methodName?: string) => void
-  appSpec: Arc32AppSpec | undefined
   methodDefinitions: MethodDefinition[]
   methodDefinition: MethodDefinition | undefined
   methodForm: MethodForm | undefined
