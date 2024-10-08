@@ -323,9 +323,9 @@ const getReferencedTransactionIdsAtom = (transaction: TransactionResult, abiMeth
     invariant(transaction['confirmed-round'] && transaction['group'], 'Cannot get referenced transactions without a group')
 
     const groupResult = await get(getGroupResultAtom(transaction['group'], transaction['confirmed-round']))
-    const transactionsIndexInGroup = groupResult.transactionIds.findIndex((id) => id === transaction.id)
+    const transactionIndexInGroup = groupResult.transactionIds.findIndex((id) => id === transaction.id)
     const transactionTypeArgsCount = abiMethod.args.filter((arg) => algosdk.abiTypeIsTransaction(arg.type)).length
-    return groupResult.transactionIds.slice(transactionsIndexInGroup - transactionTypeArgsCount, transactionsIndexInGroup)
+    return groupResult.transactionIds.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
   })
 }
 

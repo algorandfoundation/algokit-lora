@@ -113,7 +113,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
-      invariant(ensureThereIsNoPlaceholderTransaction(transactions), 'Please set all transaction arguments for method calls')
+      ensureThereIsNoPlaceholderTransaction(transactions)
 
       const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
@@ -138,7 +138,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
-      invariant(ensureThereIsNoPlaceholderTransaction(transactions), 'Please set all transaction arguments for method calls')
+      ensureThereIsNoPlaceholderTransaction(transactions)
 
       const algokitComposer = algorandClient.newGroup()
       for (const transaction of transactions) {
@@ -184,7 +184,6 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           ? await openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Create,
               type: asAlgosdkTransactionType(transaction.targetType),
-              transaction: undefined,
             })
           : await openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Edit,
@@ -383,9 +382,10 @@ const setTransaction = (
 }
 
 const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionResult[]) => {
-  return !transactions.some(
+  const predicate = !transactions.some(
     (transaction) =>
       transaction.type === BuildableTransactionType.MethodCall &&
       transaction.methodArgs.some((arg) => typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder)
   )
+  invariant(predicate, 'Please set all transaction arguments for method calls')
 }

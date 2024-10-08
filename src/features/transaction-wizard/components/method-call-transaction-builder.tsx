@@ -1,10 +1,10 @@
 import algosdk from 'algosdk'
 import { bigIntSchema } from '@/features/forms/data/common'
 import {
-  senderFieldSchema,
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
+  senderFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -20,15 +20,15 @@ import { TransactionBuilderFeeField } from '@/features/transaction-wizard/compon
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
 import {
+  BuildableTransactionType,
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
-  BuildableTransactionType,
   MethodForm,
   PlaceholderTransaction,
 } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
-import { asMethodForm, asFieldInput, methodArgPrefix } from '../mappers'
+import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
@@ -75,6 +75,7 @@ export function MethodCallTransactionBuilder({
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       invariant(methodForm, 'Method form is required')
+
       const methodCallTransactionId = transaction?.id ?? randomGuid()
 
       const methodArgs = methodForm.arguments.map((arg, index) => {

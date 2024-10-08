@@ -209,7 +209,7 @@ const getTableColumns = ({
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
   {
-    header: 'Index',
+    id: 'position',
     cell: (c) => {
       const transaction = c.row.original
       return transactionsIndex.get(transaction.id)!
@@ -293,7 +293,7 @@ const getSubTransactionsTableColumns = ({
     meta: { className: 'w-10' },
   },
   {
-    header: 'Index',
+    id: 'position',
     cell: (c) => {
       const transaction = c.row.original
       return transactionsIndex.get(transaction.id)!
