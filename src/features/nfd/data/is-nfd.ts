@@ -1,1 +1,3 @@
-export const isNFD = (name: string) => /^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*\.algo$/.test(name)
+const nfdRegex = /^(.+\.algo)$/
+
+export const isNFD = (name: string) => nfdRegex.test(name)

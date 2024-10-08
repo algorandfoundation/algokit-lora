@@ -18,7 +18,7 @@ import { createApplicationSummaryAtom } from '@/features/applications/data/appli
 import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
 import { isNFD } from '@/features/nfd/data/is-nfd'
-import { createForwardNfdSummaryAtom, createReverseNfdSummaryAtom } from '@/features/nfd/data/nfd-summary'
+import { getNfdResultAtom } from '@/features/nfd/data/nfd-result'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -43,23 +43,23 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
     const results: SearchResult[] = []
 
     if (isAddress(term)) {
-      const nfdAtom = createReverseNfdSummaryAtom(term)
-      const nfd = await handleErrorInAsyncMaybeAtom(get(nfdAtom), handle404)
+      const nfdAtom = getNfdResultAtom({ address: term })
+      const nfd = await get(nfdAtom)
       results.push({
         type: SearchResultType.Account,
         id: term,
-        label: nfd ? `${ellipseAddress(term)} (${nfd.name})` : ellipseAddress(term),
+        label: `${ellipseAddress(term)}${nfd ? ` (${nfd.name})` : ''}`,
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isNFD(term)) {
-      const nfdAtom = createForwardNfdSummaryAtom(term)
-      const nfd = await handleErrorInAsyncMaybeAtom(get(nfdAtom), handle404)
-      if (nfd && isAddress(nfd.address)) {
+      const nfdAtom = getNfdResultAtom({ nfd: term })
+      const nfd = await get(nfdAtom)
+      if (nfd && isAddress(nfd.depositAccount)) {
         results.push({
           type: SearchResultType.Account,
-          id: nfd.address,
-          label: `${ellipseAddress(nfd.address)} (${nfd.name})`,
-          url: Urls.Explore.Account.ByAddress.build({ address: nfd.address, networkId: selectedNetwork }),
+          id: nfd.depositAccount,
+          label: `${ellipseAddress(nfd.depositAccount)} (${nfd.name})`,
+          url: Urls.Explore.Account.ByAddress.build({ address: nfd.depositAccount, networkId: selectedNetwork }),
         })
       }
     } else if (isTransactionId(term)) {

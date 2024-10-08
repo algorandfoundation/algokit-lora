@@ -14,11 +14,5 @@ export type NfdLookup = ReverseNfdLookpup | ForwardNfdLookup
 export type NfdResult = {
   name: Nfd
   depositAccount: Address
-  owner: Address
-  caAlgo: Address
-}
-
-export type NfdSummary = {
-  name: Nfd
-  address: Address
+  caAlgo: Address[]
 }
