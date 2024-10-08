@@ -209,8 +209,8 @@ export function MethodCallTransactionBuilder({
           onAppIdChanged={setAppId}
           onMethodNameChanged={setMethodName}
           methodDefinitions={methodDefinitions}
-          methodDefinition={methodDefinition}
-          methodForm={methodForm}
+          selectedMethodDefinition={methodDefinition}
+          selectedMethodForm={methodForm}
         />
       )}
     </Form>
@@ -222,11 +222,18 @@ type FormInnerProps = {
   onAppIdChanged: (appId: ApplicationId) => void
   onMethodNameChanged: (methodName?: string) => void
   methodDefinitions: MethodDefinition[]
-  methodDefinition: MethodDefinition | undefined
-  methodForm: MethodForm | undefined
+  selectedMethodDefinition: MethodDefinition | undefined
+  selectedMethodForm: MethodForm | undefined
 }
 
-function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefinitions, methodDefinition, methodForm }: FormInnerProps) {
+function FormInner({
+  helper,
+  onAppIdChanged,
+  onMethodNameChanged,
+  methodDefinitions,
+  selectedMethodDefinition,
+  selectedMethodForm,
+}: FormInnerProps) {
   const { watch, setValue, getValues, unregister } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('applicationId')
   const methodName = watch('methodName')
@@ -240,17 +247,17 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
   }, [methodName, onMethodNameChanged])
 
   useEffect(() => {
-    if (methodForm !== undefined && methodName !== methodForm.name) {
+    if (selectedMethodForm !== undefined && methodName !== selectedMethodForm.name) {
       const values = getValues()
       for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
         unregister(key as Path<z.infer<typeof baseFormData>>)
       }
     }
-  }, [getValues, methodForm, methodName, unregister])
+  }, [getValues, selectedMethodForm, methodName, unregister])
 
   useEffect(() => {
-    if (methodDefinition !== undefined && methodName !== methodDefinition.name) {
-      const defaultOnComplete = methodDefinition?.callConfig ? methodDefinition?.callConfig?.call[0] : undefined
+    if (selectedMethodDefinition !== undefined && methodName !== selectedMethodDefinition.name) {
+      const defaultOnComplete = selectedMethodDefinition?.callConfig ? selectedMethodDefinition?.callConfig?.call[0] : undefined
       if (defaultOnComplete !== undefined) {
         // This is needed to ensure the select list options have updated before setting the value, otherwise it isn't selected in the UI
         setTimeout(() => {
@@ -258,11 +265,11 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         }, 10)
       }
     }
-  }, [methodDefinition, methodName, setValue])
+  }, [selectedMethodDefinition, methodName, setValue])
 
   const abiMethodArgs = useMemo(() => {
     return (
-      methodForm?.arguments.map((arg) => ({
+      selectedMethodForm?.arguments.map((arg) => ({
         descriptions: [
           ...(arg.name
             ? [
@@ -312,17 +319,20 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         field: arg.createField(helper),
       })) ?? []
     )
-  }, [methodForm?.arguments, helper])
+  }, [selectedMethodForm?.arguments, helper])
 
   const onCompleteOptions = useMemo(() => {
     return _onCompleteOptions.filter((x) => {
-      if (!methodForm?.callConfig || methodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      if (
+        !selectedMethodForm?.callConfig ||
+        selectedMethodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)
+      ) {
         return true
       }
 
       return false
     })
-  }, [methodForm?.callConfig])
+  }, [selectedMethodForm?.callConfig])
 
   return (
     <div className="space-y-4">
