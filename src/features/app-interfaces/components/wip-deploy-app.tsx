@@ -20,10 +20,13 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams } from '@/features/transaction-wizard/mappers'
 import { asApplicationAbiMethods } from '@/features/applications/mappers'
+import { Arc32AppSpec } from '../data/types'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
+
+// TODO: NC - Support populate on app calls - approvalProgram and clearStateProgram are required for application creation
 
 export function WIPDeployApp({ machine }: Props) {
   const [state, send] = machine
@@ -34,6 +37,7 @@ export function WIPDeployApp({ machine }: Props) {
   const appSpec = state.context.appSpec
 
   const { open, dialog } = useDialogForm({
+    // TODO: NC - This name needs fixing
     dialogHeader: 'Create Deployment App Call Transaction',
     dialogBody: (
       props: DialogBodyProps<
@@ -81,7 +85,7 @@ export function WIPDeployApp({ machine }: Props) {
       const { appId: _, ...appCallParams } =
         deployTransaction.type === BuildableTransactionType.AppCall
           ? asAppCallTransactionParams(deployTransaction)
-          : { appId: 0, onComplete: algosdk.OnApplicationComplete.NoOpOC } // TODO: NC - Fix this
+          : { appId: 0n, onComplete: algosdk.OnApplicationComplete.NoOpOC } // TODO: NC - Fix this
       invariant(appCallParams.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
 
       const { result } = await appFactory.deploy({
@@ -101,9 +105,6 @@ export function WIPDeployApp({ machine }: Props) {
         deployTimeParams: state.context.templateParams,
         populateAppCallResources: true,
       })
-
-      // TODO: NC - Run the create app interface logic
-      // TODO: NC - Present a toast
 
       send({ type: 'deploymentCompleted', applicationId: Number(result.appId) })
     },
@@ -125,11 +126,18 @@ export function WIPDeployApp({ machine }: Props) {
   }, [send])
 
   const openDialog = useCallback(
-    async (type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall) => {
+    async (type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall, appSpec?: Arc32AppSpec, methodName?: string) => {
       const transaction = await open({
         type,
         transaction: {
-          onComplete: algosdk.OnApplicationComplete.NoOpOC, // TODO: NC - Set this based on the app spec info
+          applicationId: 0,
+          ...(methodName && appSpec
+            ? {
+                methodName,
+                appSpec,
+              }
+            : undefined),
+          // onComplete: algosdk.OnApplicationComplete.NoOpOC, // TODO: NC - Set this based on the app spec info
         },
       })
       if (
@@ -154,8 +162,10 @@ export function WIPDeployApp({ machine }: Props) {
   //
 
   const abiMethods = asApplicationAbiMethods(appSpec)
-
   const temp = abiMethods.methods.reduce((acc, method) => {
+    // method.abiMethod
+    // method.name
+    // method.arguments
     if ((method.callConfig?.create ?? []).length > 0) {
       return [...acc, method.name]
     }
@@ -167,8 +177,13 @@ export function WIPDeployApp({ machine }: Props) {
       <div className="flex justify-end">
         {transactions.length === 0 && (
           <>
-            {temp.map((method) => (
-              <Button variant="default" onClick={() => openDialog(BuildableTransactionType.MethodCall)} icon={<Parentheses size={16} />}>
+            {temp.map((method, index) => (
+              <Button
+                key={index}
+                variant="default"
+                onClick={() => openDialog(BuildableTransactionType.MethodCall, appSpec, method)}
+                icon={<Parentheses size={16} />}
+              >
                 {method}
               </Button>
             ))}

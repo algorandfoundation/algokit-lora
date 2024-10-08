@@ -304,14 +304,18 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
   const params = asAppCallTransactionParams(transaction)
 
   return [
-    {
-      dt: 'Application ID',
-      dd: (
-        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-          {Number(params.appId)}
-        </ApplicationLink>
-      ),
-    },
+    ...(params.appId !== 0n
+      ? [
+          {
+            dt: 'Application ID',
+            dd: (
+              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+                {Number(params.appId)}
+              </ApplicationLink>
+            ),
+          },
+        ]
+      : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
@@ -348,14 +352,18 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
   })
 
   return [
-    {
-      dt: 'Application ID',
-      dd: (
-        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-          {Number(params.appId)}
-        </ApplicationLink>
-      ),
-    },
+    ...(params.appId !== 0n
+      ? [
+          {
+            dt: 'Application ID',
+            dd: (
+              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+                {Number(params.appId)}
+              </ApplicationLink>
+            ),
+          },
+        ]
+      : []),
     ...(transaction.methodName ? [{ dt: 'Method', dd: transaction.methodName }] : []),
     {
       dt: 'On complete',

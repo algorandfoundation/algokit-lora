@@ -8,6 +8,7 @@ import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 export enum BuildableTransactionType {
   // pay
@@ -82,7 +83,7 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.MethodCall
   applicationId: ApplicationId
-  appSpec: AppSpec
+  appSpec: Arc32AppSpec
   method: algosdk.ABIMethod
   methodName: string
   methodArgs: MethodCallArg[]
