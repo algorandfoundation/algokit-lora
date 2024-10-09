@@ -1,50 +1,33 @@
-import { CopyButton } from '@/features/common/components/copy-button'
-import { cn } from '@/features/common/utils'
-import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
-import { Urls } from '@/routes/urls'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { PropsWithChildren } from 'react'
-import { useSelectedNetwork } from '@/features/network/data'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { is404 } from '@/utils/error'
+import { accountInvalidAddressMessage } from '../pages/account-page'
+import { AccountLinkInner } from './account-link-inner'
 
-type Props = PropsWithChildren<{
+export const handle404 = (e: Error) => {
+  if (is404(e)) {
+    return new Error(accountInvalidAddressMessage)
+  }
+  throw e
+}
+
+export type AccountLinkProps = PropsWithChildren<{
   address: string
   short?: boolean
   className?: string
   showCopyButton?: boolean
 }>
 
-export const AccountLink = fixedForwardRef(
-  ({ address, short, className, children, showCopyButton, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
-    const [selectedNetwork] = useSelectedNetwork()
+export const AccountLink = fixedForwardRef(({ address, ...rest }: AccountLinkProps) => {
+  const [loadablenfd] = useLoadableNfd(address)
 
-    const link = (
-      <TemplatedNavLink
-        className={cn(!children && 'text-primary underline', !children && !short && 'truncate', className)}
-        urlTemplate={Urls.Explore.Account.ByAddress}
-        urlParams={{ address, networkId: selectedNetwork }}
-        ref={ref}
-        {...rest}
-      >
-        {children ? (
-          children
-        ) : short ? (
-          <abbr className="tracking-wide" title={address}>
-            {ellipseAddress(address)}
-          </abbr>
-        ) : (
-          address
-        )}
-      </TemplatedNavLink>
-    )
-
-    return children ? (
-      link
-    ) : (
-      <div className="flex items-center">
-        {link}
-        {showCopyButton && <CopyButton value={address} />}
-      </div>
-    )
-  }
-)
+  return (
+    <>
+      <RenderLoadable loadable={loadablenfd} transformError={handle404} fallback={<AccountLinkInner address={address} {...rest} />}>
+        {(nfd) => <AccountLinkInner address={address} nfd={nfd?.name ?? undefined} {...rest} />}
+      </RenderLoadable>
+    </>
+  )
+})

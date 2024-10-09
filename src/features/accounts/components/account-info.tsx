@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
-import { AccountLink } from './account-link'
+import { AccountLink, handle404 } from './account-link'
 import {
   accountAddressLabel,
   accountApplicationsCreatedLabel,
@@ -19,19 +19,29 @@ import {
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type Props = {
   account: Account
 }
 
 export function AccountInfo({ account }: Props) {
+  const [loadablenfd] = useLoadableNfd(account.address)
+  console.log(loadablenfd)
   const accountInfoItems = useMemo(() => {
     const items = [
       {
         dt: accountAddressLabel,
         dd: (
           <div className="flex items-center">
-            <span className="truncate">{account.address}</span>
+            <RenderLoadable
+              loadable={loadablenfd}
+              transformError={handle404}
+              fallback={<span className="truncate">{account.address}</span>}
+            >
+              {(nfd) => <span className="truncate">{nfd?.name}</span>}
+            </RenderLoadable>
             <CopyButton value={account.address} />
           </div>
         ),
