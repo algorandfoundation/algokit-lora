@@ -86,6 +86,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       url: config.testNetDispenserApiUrl,
       address: config.testNetDispenserAddress,
     },
+    nfdApiUrl: 'https://api.testnet.nf.domains',
   },
   [mainnetId]: {
     name: 'MainNet',
@@ -98,6 +99,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       port: 443,
     },
     walletProviders: nonLocalnetWalletProviders,
+    nfdApiUrl: 'https://api.nf.domains',
   },
 }
 
