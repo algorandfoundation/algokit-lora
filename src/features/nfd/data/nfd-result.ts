@@ -3,7 +3,7 @@ import { Atom, atom, Getter, Setter } from 'jotai'
 import { Nfd, NfdLookup, NfdResult } from './types'
 import { Address } from '@/features/accounts/data/types'
 
-const getReverseLookupNfdResult = async (_: Getter, set: Setter, address: Address): Promise<Nfd | null> => {
+const getReverseLookupNfd = async (_: Getter, set: Setter, address: Address): Promise<Nfd | null> => {
   try {
     const response = await fetch(`https://api.nf.domains/nfd/lookup?address=${address}`, {
       method: 'GET',
@@ -35,7 +35,7 @@ const getReverseLookupNfdResult = async (_: Getter, set: Setter, address: Addres
     })
 
     // Cache all *other* addresses associated with this NFD for reverse lookups
-    set(reverseNfdResultsAtom, (prev) => {
+    set(reverseNfdsAtom, (prev) => {
       const next = new Map(prev)
       const addressesToAdd = new Set([nfdResult.depositAccount, ...nfdResult.caAlgo].filter((a) => a !== address))
       addressesToAdd.forEach((address) => {
@@ -73,7 +73,7 @@ const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd): Prom
     } satisfies NfdResult
 
     // Cache all addresses associated with this NFD for reverse lookups
-    set(reverseNfdResultsAtom, (prev) => {
+    set(reverseNfdsAtom, (prev) => {
       const next = new Map(prev)
       const addressesToAdd = new Set([nfdResult.depositAccount, ...nfdResult.caAlgo])
       addressesToAdd.forEach((address) => {
@@ -96,7 +96,7 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
   }
 
   return atom(async (get) => {
-    const nfd = await get(getReverseNfdResultAtom(nfdLookup.address, { skipTimestampUpdate: true }))
+    const nfd = await get(getReverseNfdAtom(nfdLookup.address, { skipTimestampUpdate: true }))
     if (nfd) {
       return await get(getForwardNfdResultAtom(nfd, { skipTimestampUpdate: true }))
     }
@@ -105,5 +105,5 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
 }
 
 const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache(getForwardLookupNfdResult, (nfd) => nfd)
-const [reverseNfdResultsAtom, getReverseNfdResultAtom] = readOnlyAtomCache(getReverseLookupNfdResult, (address) => address)
-export { forwardNfdResultsAtom, reverseNfdResultsAtom }
+const [reverseNfdsAtom, getReverseNfdAtom] = readOnlyAtomCache(getReverseLookupNfd, (address) => address)
+export { forwardNfdResultsAtom, reverseNfdsAtom }
