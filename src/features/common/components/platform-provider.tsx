@@ -7,10 +7,12 @@ import { useTheme } from '../hooks/use-theme'
 import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
 import { useDataProviderToken, useStateCleanupEffect } from '../data'
 import { ToastContainer } from 'react-toastify'
+import { useBatchNfdResolutionEffect } from '@/features/nfd/data/nfd-result'
 
 function RegisterGlobalEffects() {
   useSubscribeToBlocksEffect()
   useStateCleanupEffect()
+  useBatchNfdResolutionEffect()
   return <></>
 }
 
