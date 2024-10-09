@@ -15,11 +15,10 @@ import { isTransactionId } from '@/utils/is-transaction-id'
 import { isInteger } from '@/utils/is-integer'
 import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
-import { mainnetId, useSelectedNetwork } from '@/features/network/data'
+import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
 import { isNFD } from '@/features/nfd/data/is-nfd'
 import { getNfdResultAtom } from '@/features/nfd/data/nfd-result'
-import { NfdResult } from '@/features/nfd/data/types'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -44,20 +43,15 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
     const results: SearchResult[] = []
 
     if (isAddress(term)) {
-      let nfd: NfdResult | null = null
-
-      if (selectedNetwork === mainnetId) {
-        const nfdAtom = getNfdResultAtom({ address: term })
-        nfd = await get(nfdAtom)
-      }
-
+      const nfdAtom = getNfdResultAtom({ address: term })
+      const nfd = await get(nfdAtom)
       results.push({
         type: SearchResultType.Account,
         id: term,
         label: `${ellipseAddress(term)}${nfd ? ` (${nfd.name})` : ''}`,
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
-    } else if (selectedNetwork === mainnetId && isNFD(term)) {
+    } else if (isNFD(term)) {
       const nfdAtom = getNfdResultAtom({ nfd: term })
       const nfd = await get(nfdAtom)
       if (nfd && isAddress(nfd.depositAccount)) {
