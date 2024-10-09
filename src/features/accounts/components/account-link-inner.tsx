@@ -25,13 +25,13 @@ export const AccountLinkInner = fixedForwardRef(
       >
         {children ? (
           children
-        ) : short ? (
-          <abbr className="tracking-wide" title={address}>
-            {nfd ? nfd : ellipseAddress(address)}
-          </abbr>
         ) : nfd ? (
           <abbr className="tracking-wide" title={address}>
             {nfd}
+          </abbr>
+        ) : short ? (
+          <abbr className="tracking-wide" title={address}>
+            {ellipseAddress(address)}
           </abbr>
         ) : (
           address
