@@ -6,7 +6,7 @@ import { Application } from '../models'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 import { ApplicationId } from './types'
 
-const createApplicationMethodDefinitionsAtom = (applicationId: ApplicationId) => {
+export const createApplicationMethodDefinitionsAtom = (applicationId: ApplicationId) => {
   return atom(async (get) => {
     const appInterface = await get(createAppInterfaceAtom(applicationId))
 

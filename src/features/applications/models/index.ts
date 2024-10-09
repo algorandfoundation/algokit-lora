@@ -35,6 +35,10 @@ export type ApplicationGlobalStateValue =
       type: ApplicationGlobalStateType.Uint
       value: number | bigint
     }
+  | {
+      type: string
+      value: algosdk.ABIValue
+    }
 
 export enum ApplicationGlobalStateType {
   Bytes = 'Bytes',

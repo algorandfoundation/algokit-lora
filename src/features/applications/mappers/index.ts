@@ -16,7 +16,8 @@ import { asJson } from '@/utils/as-json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { CallConfigValue } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
+import { DeclaredSchemaValueSpec, Hint } from '@/features/app-interfaces/data/types/arc-32/application'
+import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -24,7 +25,9 @@ export const asApplicationSummary = (application: ApplicationResult): Applicatio
   }
 }
 
-export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult): Application => {
+export const asApplication = (application: ApplicationResult, metadata: ApplicationMetadataResult, appSpec?: Arc32AppSpec): Application => {
+  const globalStateDeclaredSchema = appSpec?.schema?.global?.declared
+
   return {
     id: application.id,
     name: metadata?.name,
@@ -50,7 +53,10 @@ export const asApplication = (application: ApplicationResult, metadata: Applicat
   }
 }
 
-export const asGlobalStateValue = (globalState: ApplicationResult['params']['global-state']): Application['globalState'] => {
+export const asGlobalStateValue = (
+  globalState: ApplicationResult['params']['global-state'],
+  declaredSchema?: Record<string, DeclaredSchemaValueSpec>
+): Application['globalState'] => {
   if (!globalState) {
     return
   }
@@ -58,7 +64,9 @@ export const asGlobalStateValue = (globalState: ApplicationResult['params']['glo
   return new Map(
     globalState
       .map(({ key, value }) => {
-        return [getKey(key), getGlobalStateValue(value)] as const
+        const keyName = getKey(key)
+        const keyValue = getGlobalStateValue(keyName, value, declaredSchema)
+        return [keyName, keyValue] as const
       })
       .sort((a, b) => a[0].localeCompare(b[0]))
   )
@@ -74,8 +82,16 @@ const getKey = (key: string): string => {
   }
 }
 
-const getGlobalStateValue = (tealValue: modelsv2.TealValue): ApplicationGlobalStateValue => {
+const getGlobalStateValue = (
+  key: string,
+  tealValue: modelsv2.TealValue,
+  declaredSchema?: Record<string, DeclaredSchemaValueSpec>
+): ApplicationGlobalStateValue => {
   if (tealValue.type === 1) {
+    if (declaredSchema && key in declaredSchema) {
+      const foo = declaredSchema[key]
+      foo.type
+    }
     return {
       type: ApplicationGlobalStateType.Bytes,
       value: getValue(tealValue.bytes),
