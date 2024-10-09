@@ -20,6 +20,7 @@ export const accountOptedApplicationsTabId = 'opted-applications'
 
 export const accountInformationLabel = 'Account Information'
 export const accountAddressLabel = 'Address'
+export const accountNfdLabel = 'Nfd'
 export const accountBalanceLabel = 'Balance'
 export const accountMinBalanceLabel = 'Min Balance'
 export const accountAssetsHeldLabel = 'Held assets'
