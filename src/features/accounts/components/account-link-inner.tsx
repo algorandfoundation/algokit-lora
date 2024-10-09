@@ -30,7 +30,9 @@ export const AccountLinkInner = fixedForwardRef(
             {nfd ? nfd : ellipseAddress(address)}
           </abbr>
         ) : nfd ? (
-          nfd
+          <abbr className="tracking-wide" title={address}>
+            {nfd}
+          </abbr>
         ) : (
           address
         )}
