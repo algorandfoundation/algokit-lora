@@ -151,7 +151,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       const transactionsWithResources = populatedAtc.buildGroup()
 
       setTransactions((prev) => {
-        const newTransactions = [...prev]
+        let newTransactions = [...prev]
 
         const flattenedTransactions = flattenTransactions(transactions)
         for (let i = 0; i < flattenedTransactions.length; i++) {
@@ -164,7 +164,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
               applications: transactionWithResources.txn.appForeignApps ?? [],
               boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
             }
-            setTransactionResources(newTransactions, transaction.id, resources)
+            newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }
         }
 
@@ -205,9 +205,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
         setTransactions((prev) => {
-          const newTransactions = [...prev]
-          setTransactionResources(newTransactions, transaction.id, resources)
-          return newTransactions
+          return setTransactionResources(prev, transaction.id, resources)
         })
       }
     },
