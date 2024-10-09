@@ -44,7 +44,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
 
     if (isAddress(term)) {
       const nfdAtom = getNfdResultAtom({ address: term })
-      const nfd = await get(nfdAtom)
+      const nfd = await get(nfdAtom) // TODO: NC - This blocks until the NFD is resolved, maybe we should do this in the UI instead?
       results.push({
         type: SearchResultType.Account,
         id: term,

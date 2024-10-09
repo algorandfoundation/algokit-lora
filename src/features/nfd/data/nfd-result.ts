@@ -1,12 +1,89 @@
-import { createReadOnlyAtomAndTimestamp, readOnlyAtomCache } from '@/features/common/data'
-import { Atom, atom, Getter, Setter } from 'jotai'
+import { createReadOnlyAtomAndTimestamp, createTimestamp, readOnlyAtomCache, writableAtomCache } from '@/features/common/data'
+import { Atom, atom, Getter, Setter, useAtomValue } from 'jotai'
 import { Nfd, NfdLookup, NfdResult } from './types'
 import { Address } from '@/features/accounts/data/types'
 import { networkConfig } from '@/features/common/data/algo-client'
+import { atomEffect } from 'jotai-effect'
 
-const getReverseLookupNfd = async (_: Getter, set: Setter, address: Address, nfdApiUrl: string): Promise<Nfd | null> => {
+const addressesToResolveAtom = atom(new Set<string>())
+
+export const batchNfdResolutionEffect = atomEffect((get, set) => {
+  if (!networkConfig.nfdApiUrl) {
+    return
+  }
+
+  const addressesToResolve = get.peek(addressesToResolveAtom)
+  const cleanup = setInterval(() => {
+    ;(async () => {
+      if (!networkConfig.nfdApiUrl || addressesToResolve.size === 0) {
+        return
+      }
+
+      // TODO: NC - this needs to respect the API limit. We should break the batches smaller and parallelise the requests
+      const nfdResults = await reverseLookup(Array.from(addressesToResolve), networkConfig.nfdApiUrl)
+
+      const [forwardNfdResultsToAdd, reverseNfdsToAdd] = nfdResults.reduce(
+        (acc, nfdResult) => {
+          if (!acc[0].has(nfdResult.name)) {
+            acc[0].set(nfdResult.name, nfdResult)
+          }
+          const addressesToAdd = new Set([nfdResult.depositAccount, ...nfdResult.caAlgo])
+          addressesToAdd.forEach((address) => {
+            if (!acc[1].has(address)) {
+              acc[1].set(address, nfdResult.name)
+            }
+          })
+          return acc
+        },
+        [new Map<Nfd, NfdResult>(), new Map<Address, Nfd | null>()] as const
+      )
+      addressesToResolve.forEach((address) => {
+        if (!reverseNfdsToAdd.has(address)) {
+          reverseNfdsToAdd.set(address, null)
+        }
+      })
+
+      // Cache the NFD result for forward lookups. Reverse lookups will also use this cache
+      set(forwardNfdResultsAtom, (prev) => {
+        const next = new Map(prev)
+        forwardNfdResultsToAdd.forEach((nfdResult) => {
+          if (!next.has(nfdResult.name)) {
+            next.set(nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult))
+          }
+        })
+        return next
+      })
+
+      // Cache all addresses associated with the resolved NFD for reverse lookups
+      set(reverseNfdsAtom, (_prev) => {
+        const next = new Map(_prev)
+        reverseNfdsToAdd.forEach((nfd, address) => {
+          // Ensures we replace the pending promise with resolved data
+          if (addressesToResolve.has(address) && next.get(address)) {
+            set(next.get(address)![0], nfd)
+          } else if (!next.has(address)) {
+            next.set(address, [atom<Promise<Nfd | null> | Nfd | null>(nfd), createTimestamp()])
+          }
+        })
+        return next
+      })
+      addressesToResolve.clear()
+    })()
+  }, 1000)
+  return () => clearInterval(cleanup)
+})
+
+const getReverseLookupNfd = (get: Getter, __: Setter, address: Address) => {
+  const addressesToResolve = get(addressesToResolveAtom)
+  addressesToResolve.add(address)
+  return atom<Promise<Nfd | null> | Nfd | null>(new Promise<Nfd>(() => {}))
+}
+
+const reverseLookup = async (addresses: Address[], nfdApiUrl: string): Promise<NfdResult[]> => {
+  const query = `address=${addresses.join('&address=')}`
+
   try {
-    const response = await fetch(`${nfdApiUrl}/nfd/lookup?address=${address}`, {
+    const response = await fetch(`${nfdApiUrl}/nfd/lookup?${query}`, {
       method: 'GET',
       headers: {
         accept: 'application/json',
@@ -14,42 +91,13 @@ const getReverseLookupNfd = async (_: Getter, set: Setter, address: Address, nfd
     })
 
     if (!response.ok) {
-      return null
+      return []
     }
 
-    const body = await response.json()
-    const nfd = body[address] as NfdResult
-    const nfdResult = {
-      name: nfd.name,
-      depositAccount: nfd.depositAccount,
-      caAlgo: nfd.caAlgo ?? [],
-    } satisfies NfdResult
-
-    // Cache the NFD result for forward lookups. Reverse lookups will also use this cache
-    set(forwardNfdResultsAtom, (prev) => {
-      if (!prev.has(nfdResult.name)) {
-        const next = new Map(prev)
-        next.set(nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult))
-        return next
-      }
-      return prev
-    })
-
-    // Cache all *other* addresses associated with this NFD for reverse lookups
-    set(reverseNfdsAtom, (prev) => {
-      const next = new Map(prev)
-      const addressesToAdd = new Set([nfdResult.depositAccount, ...nfdResult.caAlgo].filter((a) => a !== address))
-      addressesToAdd.forEach((address) => {
-        if (!prev.has(address)) {
-          next.set(address, createReadOnlyAtomAndTimestamp(nfdResult.name))
-        }
-      })
-      return next
-    })
-
-    return nfdResult.name
+    const body = (await response.json()) as Record<Address, NfdResult>
+    return Object.values(body)
   } catch (e: unknown) {
-    return null
+    return []
   }
 }
 
@@ -79,7 +127,7 @@ const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd, nfdAp
       const addressesToAdd = new Set([nfdResult.depositAccount, ...nfdResult.caAlgo])
       addressesToAdd.forEach((address) => {
         if (!prev.has(address)) {
-          next.set(address, createReadOnlyAtomAndTimestamp(nfdResult.name))
+          next.set(address, [atom<Promise<Nfd | null> | Nfd | null>(nfdResult.name), createTimestamp()])
         }
       })
       return next
@@ -89,6 +137,11 @@ const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd, nfdAp
   } catch (e: unknown) {
     return null
   }
+}
+
+const voidAtom = atom<void>(undefined)
+export const useBatchNfdResolutionEffect = () => {
+  return useAtomValue(batchNfdResolutionEffect)
 }
 
 export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult | null>> => {
@@ -101,7 +154,7 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
       return await get(getForwardNfdResultAtom(nfdLookup.nfd, networkConfig.nfdApiUrl, { skipTimestampUpdate: true }))
     }
 
-    const nfd = await get(getReverseNfdAtom(nfdLookup.address, networkConfig.nfdApiUrl, { skipTimestampUpdate: true }))
+    const nfd = await get(getReverseNfdAtom(nfdLookup.address, { skipTimestampUpdate: true }))
     if (nfd) {
       return await get(getForwardNfdResultAtom(nfd, networkConfig.nfdApiUrl, { skipTimestampUpdate: true }))
     }
@@ -110,5 +163,5 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
 }
 
 const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache(getForwardLookupNfdResult, (nfd) => nfd)
-const [reverseNfdsAtom, getReverseNfdAtom] = readOnlyAtomCache(getReverseLookupNfd, (address) => address)
+const [reverseNfdsAtom, getReverseNfdAtom] = writableAtomCache(getReverseLookupNfd, (address) => address)
 export { forwardNfdResultsAtom, reverseNfdsAtom }
