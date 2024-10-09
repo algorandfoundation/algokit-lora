@@ -2,10 +2,11 @@ import { createReadOnlyAtomAndTimestamp, readOnlyAtomCache } from '@/features/co
 import { Atom, atom, Getter, Setter } from 'jotai'
 import { Nfd, NfdLookup, NfdResult } from './types'
 import { Address } from '@/features/accounts/data/types'
+import { networkConfig } from '@/features/common/data/algo-client'
 
-const getReverseLookupNfd = async (_: Getter, set: Setter, address: Address): Promise<Nfd | null> => {
+const getReverseLookupNfd = async (_: Getter, set: Setter, address: Address, nfdApiUrl: string): Promise<Nfd | null> => {
   try {
-    const response = await fetch(`https://api.nf.domains/nfd/lookup?address=${address}`, {
+    const response = await fetch(`${nfdApiUrl}/nfd/lookup?address=${address}`, {
       method: 'GET',
       headers: {
         accept: 'application/json',
@@ -52,9 +53,9 @@ const getReverseLookupNfd = async (_: Getter, set: Setter, address: Address): Pr
   }
 }
 
-const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd): Promise<NfdResult | null> => {
+const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd, nfdApiUrl: string): Promise<NfdResult | null> => {
   try {
-    const response = await fetch(`https://api.nf.domains/nfd/${nfd}?view=tiny`, {
+    const response = await fetch(`${nfdApiUrl}/nfd/${nfd}?view=tiny`, {
       method: 'GET',
       headers: {
         accept: 'application/json',
@@ -91,14 +92,18 @@ const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd): Prom
 }
 
 export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult | null>> => {
-  if ('nfd' in nfdLookup) {
-    return getForwardNfdResultAtom(nfdLookup.nfd, { skipTimestampUpdate: true })
-  }
-
   return atom(async (get) => {
-    const nfd = await get(getReverseNfdAtom(nfdLookup.address, { skipTimestampUpdate: true }))
+    if (!networkConfig.nfdApiUrl) {
+      return null
+    }
+
+    if ('nfd' in nfdLookup) {
+      return await get(getForwardNfdResultAtom(nfdLookup.nfd, networkConfig.nfdApiUrl, { skipTimestampUpdate: true }))
+    }
+
+    const nfd = await get(getReverseNfdAtom(nfdLookup.address, networkConfig.nfdApiUrl, { skipTimestampUpdate: true }))
     if (nfd) {
-      return await get(getForwardNfdResultAtom(nfd, { skipTimestampUpdate: true }))
+      return await get(getForwardNfdResultAtom(nfd, networkConfig.nfdApiUrl, { skipTimestampUpdate: true }))
     }
     return null
   })
