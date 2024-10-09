@@ -17,6 +17,7 @@ import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { CallConfigValue } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
+import { base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -95,15 +96,7 @@ const getValue = (bytes: string) => {
   if (buf.length === 32) {
     return encodeAddress(new Uint8Array(buf))
   }
-
-  if (isUtf8(buf)) {
-    const utf8Decoded = buf.toString('utf8')
-    // Check if the string contains any unprintable characters
-    if (!utf8Decoded.match(/[\p{Cc}\p{Cn}\p{Cs}]+/gu)) {
-      return utf8Decoded
-    }
-  }
-  return buf.toString('base64')
+  return base64ToUtf8IfValid(bytes)
 }
 
 const callValues: CallConfigValue[] = ['ALL', 'CALL']
