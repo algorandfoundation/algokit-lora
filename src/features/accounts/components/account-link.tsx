@@ -1,16 +1,19 @@
-import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { PropsWithChildren } from 'react'
 import { useLoadableNfd } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { is404 } from '@/utils/error'
-import { accountInvalidAddressMessage } from '../pages/account-page'
 import { AccountLinkInner } from './account-link-inner'
 
-export const handle404 = (e: Error) => {
+const nfdInvalidAddressMessage = 'Invalid nfd address'
+const nfdFailedToLoadMessage = 'Nfd failed to load'
+
+export const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(accountInvalidAddressMessage)
+    return new Error(nfdInvalidAddressMessage)
   }
-  throw e
+  // eslint-disable-next-line no-console
+  console.error(e)
+  return new Error(nfdFailedToLoadMessage)
 }
 
 export type AccountLinkProps = PropsWithChildren<{
@@ -20,14 +23,14 @@ export type AccountLinkProps = PropsWithChildren<{
   showCopyButton?: boolean
 }>
 
-export const AccountLink = fixedForwardRef(({ address, ...rest }: AccountLinkProps) => {
+export const AccountLink = ({ address, ...rest }: AccountLinkProps) => {
   const [loadablenfd] = useLoadableNfd(address)
 
   return (
     <>
-      <RenderLoadable loadable={loadablenfd} transformError={handle404} fallback={<AccountLinkInner address={address} {...rest} />}>
+      <RenderLoadable loadable={loadablenfd} transformError={transformError} fallback={<AccountLinkInner address={address} {...rest} />}>
         {(nfd) => <AccountLinkInner address={address} nfd={nfd?.name ?? undefined} {...rest} />}
       </RenderLoadable>
     </>
   )
-})
+}

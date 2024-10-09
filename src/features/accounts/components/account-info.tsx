@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
-import { AccountLink, handle404 } from './account-link'
+import { AccountLink, transformError } from './account-link'
 import {
   accountAddressLabel,
   accountApplicationsCreatedLabel,
@@ -28,7 +28,6 @@ type Props = {
 
 export function AccountInfo({ account }: Props) {
   const [loadablenfd] = useLoadableNfd(account.address)
-  console.log(loadablenfd)
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -37,7 +36,7 @@ export function AccountInfo({ account }: Props) {
           <div className="flex items-center">
             <RenderLoadable
               loadable={loadablenfd}
-              transformError={handle404}
+              transformError={transformError}
               fallback={<span className="truncate">{account.address}</span>}
             >
               {(nfd) => <span className="truncate">{nfd?.name}</span>}
