@@ -1,3 +1,3 @@
 import { isValidAddress } from 'algosdk'
 
-export const isAddress = (id: string) => isValidAddress(id)
+export const isAddress = (maybeAddress: string) => isValidAddress(maybeAddress)

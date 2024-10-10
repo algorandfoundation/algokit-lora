@@ -26,6 +26,7 @@ export type NetworkConfig = {
     url: string
     address: Address
   }
+  nfdApiUrl?: string
 }
 
 export type NetworkConfigWithId = {

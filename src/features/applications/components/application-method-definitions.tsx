@@ -73,7 +73,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
       transactionType: algosdk.ABITransactionType.appl,
       transaction: {
         applicationId: applicationId,
-        methodName: method.name,
+        method: method.abiMethod,
         onComplete:
           method.callConfig && method.callConfig.call.length > 0
             ? (method.callConfig.call[0] as algosdk.OnApplicationComplete as BuildAppCallTransactionResult['onComplete'])
@@ -83,7 +83,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     if (transaction && transaction.type === BuildableTransactionType.MethodCall) {
       setTransaction(transaction)
     }
-  }, [applicationId, method.callConfig, method.name, open])
+  }, [applicationId, method, open])
 
   const handleTransactionSent = useCallback((transactions: Transaction[]) => {
     const appCallTransactions = transactions.filter((txn) => txn.type === TransactionType.AppCall)
