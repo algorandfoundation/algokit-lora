@@ -15,7 +15,7 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { EllipsisVertical, GripVertical, LinkIcon } from 'lucide-react'
+import { EllipsisVertical, GripVertical, Link2Icon, PlusCircle } from 'lucide-react'
 import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
@@ -25,7 +25,7 @@ import {
   PlaceholderTransaction,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
-import { asDescriptionListItems, asTransactionLabel } from '../mappers'
+import { asDescriptionListItems, asTransactionLabelFromBuildableTransactionType, asTransactionLabelFromTransactionType } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
 import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 import { transactionActionsLabel } from './labels'
@@ -217,7 +217,7 @@ const getTableColumns = ({
   },
   {
     header: 'Type',
-    accessorFn: (item) => asTransactionLabel(item.type),
+    accessorFn: (item) => asTransactionLabelFromBuildableTransactionType(item.type),
     meta: { className: 'w-40' },
   },
   {
@@ -301,7 +301,10 @@ const getSubTransactionsTableColumns = ({
   },
   {
     header: 'Type',
-    accessorFn: (item) => (item.type === BuildableTransactionType.Placeholder ? item.targetType : asTransactionLabel(item.type)),
+    accessorFn: (item) =>
+      item.type === BuildableTransactionType.Placeholder
+        ? asTransactionLabelFromTransactionType(item.targetType)
+        : asTransactionLabelFromBuildableTransactionType(item.type),
     meta: { className: 'w-40' },
   },
   {
@@ -311,11 +314,9 @@ const getSubTransactionsTableColumns = ({
       return (
         <div>
           {transaction.type === BuildableTransactionType.Placeholder ? (
-            <div>
-              <span>Argument for transaction {transactionPositions.get(transaction.methodCallTransactionId)} in the group</span>
-              <Button variant="link" className="ml-2" onClick={() => onEditTransaction(transaction)}>
-                Create
-              </Button>
+            <div className="flex min-h-8 items-center gap-1.5">
+              <PlusCircle size={16} />
+              <span>Build argument for transaction {transactionPositions.get(transaction.methodCallTransactionId)}</span>
             </div>
           ) : (
             <DescriptionList
@@ -323,8 +324,8 @@ const getSubTransactionsTableColumns = ({
               dtClassName="w-[9.5rem] truncate"
             />
           )}
-          <div className="absolute bottom-[-10px] right-1/2">
-            <LinkIcon size={16} className={'text-muted-foreground/60'} />
+          <div className="absolute -bottom-2 right-1/2">
+            <Link2Icon size={16} className="text-muted-foreground/70" />
           </div>
         </div>
       )
@@ -381,18 +382,14 @@ function SubTransactionsRows({
         <TableRow
           key={row.id}
           data-state={row.getIsSelected() && 'selected'}
-          {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
-          className="relative"
+          className={cn(
+            'relative',
+            row.original.type === BuildableTransactionType.Placeholder && 'cursor-pointer bg-muted/50 text-primary'
+          )}
+          {...(row.original.type === BuildableTransactionType.Placeholder ? { onClick: () => onEditTransaction(row.original) } : undefined)}
         >
           {row.getVisibleCells().map((cell) => (
-            <TableCell
-              key={cell.id}
-              className={cn(
-                cell.column.columnDef.meta?.className,
-                'border-b',
-                row.original.type === BuildableTransactionType.Placeholder ? 'bg-muted-foreground/70' : ''
-              )}
-            >
+            <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </TableCell>
           ))}

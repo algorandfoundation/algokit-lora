@@ -385,5 +385,5 @@ const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionRes
       transaction.type === BuildableTransactionType.MethodCall &&
       transaction.methodArgs.some((arg) => typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder)
   )
-  invariant(predicate, 'Please set all transaction arguments for method calls')
+  invariant(predicate, 'Please build all transaction arguments for ABI method calls')
 }

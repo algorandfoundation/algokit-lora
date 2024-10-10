@@ -268,10 +268,10 @@ describe('application-method-definitions', () => {
             // Save the app call transaction
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Click "Create" on the table to launch the dialog for the payment transaction
+            // Click placeholder row in the table to launch the dialog for the payment transaction
             const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
             const firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
-            await user.click(within(firstBodyRow).getAllByRole('button', { name: 'Create' })[0])
+            await user.click(firstBodyRow)
             formDialog = component.getByRole('dialog')
 
             // Fill in the payment transaction
@@ -371,10 +371,10 @@ describe('application-method-definitions', () => {
             // Click add to add the payment transaction as param
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Click "Create" on the table to launch the dialog for the payment transaction
+            // Click placeholder row in the table to launch the dialog for the payment transaction
             let transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
             let firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
-            await user.click(within(firstBodyRow).getAllByRole('button', { name: 'Create' })[0])
+            await user.click(firstBodyRow)
             formDialog = component.getByRole('dialog')
 
             // Fill in the payment transaction
@@ -489,10 +489,10 @@ describe('application-method-definitions', () => {
             // Click add to add the payment transaction as param
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Click "Create" on the table to launch the dialog for the payment transaction
+            // Click placeholder row in the table to launch the dialog for the payment transaction
             let transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
             let firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
-            await user.click(within(firstBodyRow).getAllByRole('button', { name: 'Create' })[0])
+            await user.click(firstBodyRow)
             formDialog = component.getByRole('dialog')
 
             // Fill in the payment transaction
@@ -606,10 +606,10 @@ describe('application-method-definitions', () => {
             // Click add to add the payment transaction as param
             await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
 
-            // Click "Create" on the table to launch the dialog for the payment transaction
+            // Click placeholder row in the table to launch the dialog for the payment transaction
             let transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
             let firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
-            await user.click(within(firstBodyRow).getAllByRole('button', { name: 'Create' })[0])
+            await user.click(firstBodyRow)
             formDialog = component.getByRole('dialog')
 
             // Fill in the payment transaction

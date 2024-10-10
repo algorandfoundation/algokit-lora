@@ -292,13 +292,11 @@ function FormInner({
             dd: arg.hint?.struct ? (
               <Struct struct={arg.hint.struct} />
             ) : algosdk.abiTypeIsTransaction(arg.type) ? (
-              <div>
+              <div className="flex items-center gap-1.5">
                 <span>{arg.type.toString()}</span>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="ml-2 inline">
-                      <Info className="inline" size={16} />
-                    </div>
+                    <Info className="inline" size={16} />
                   </TooltipTrigger>
                   <TooltipContent>This argument is a transaction in the group</TooltipContent>
                 </Tooltip>
