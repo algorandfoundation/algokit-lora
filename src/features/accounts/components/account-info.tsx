@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { cn } from '@/features/common/utils'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
-import { AccountLink, transformError } from './account-link'
+import { AccountLink } from './account-link'
 import {
   accountAddressLabel,
   accountApplicationsCreatedLabel,
@@ -20,7 +20,7 @@ import {
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useLoadableNfd } from '@/features/nfd/data/nfd'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type Props = {
@@ -28,7 +28,7 @@ type Props = {
 }
 
 export function AccountInfo({ account }: Props) {
-  const [loadableNfd] = useLoadableNfd(account.address)
+  const [loadableNfd] = useLoadableNfdResult(account.address)
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -46,7 +46,7 @@ export function AccountInfo({ account }: Props) {
               dt: accountNfdLabel,
               dd: (
                 <div className="flex items-center">
-                  <RenderLoadable loadable={loadableNfd} transformError={transformError} fallback={<></>}>
+                  <RenderLoadable loadable={loadableNfd} fallback={<></>}>
                     {(nfd) => <span className="truncate">{nfd?.name}</span>}
                   </RenderLoadable>
                 </div>

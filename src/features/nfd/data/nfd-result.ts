@@ -4,6 +4,7 @@ import { Nfd, NfdLookup, NfdResult } from './types'
 import { Address } from '@/features/accounts/data/types'
 import { networkConfig } from '@/features/common/data/algo-client'
 import { atomEffect } from 'jotai-effect'
+import { useMemo } from 'react'
 
 const addressesToResolveAtom = atom(new Set<string>())
 
@@ -160,6 +161,12 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
     }
     return null
   })
+}
+
+export const useNfdResultAtom = (address: Address) => {
+  return useMemo(() => {
+    return getNfdResultAtom({ address: address })
+  }, [address])
 }
 
 const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache(getForwardLookupNfdResult, (nfd) => nfd)
