@@ -2,7 +2,7 @@ import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
-import { ellipseAddress } from '@/utils/ellipse-address'
+import { ellipseAddress, ellipseNfd } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
 import { useNetworkConfig } from '@/features/network/data'
@@ -87,7 +87,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
             ))}
           <abbr title={activeAddress} className="no-underline">
             {loadableNfd.state === 'hasData' && loadableNfd.data !== null ? (
-              <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{nfd?.name}</span>}</RenderLoadable>
+              <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{ellipseNfd(nfd?.name)}</span>}</RenderLoadable>
             ) : (
               <>{ellipseAddress(activeAddress)}</>
             )}
@@ -97,13 +97,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       <PopoverContent align="end" className="w-56 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1">
-              {loadableNfd.state === 'hasData' && loadableNfd.data !== null ? (
-                <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{nfd?.name}</span>}</RenderLoadable>
-              ) : (
-                <>{ellipseAddress(connectedActiveAccounts[0].address, 6)}</>
-              )}
-            </abbr>
+            <abbr className="ml-1">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">
