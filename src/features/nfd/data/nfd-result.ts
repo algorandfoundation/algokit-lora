@@ -140,7 +140,6 @@ const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd, nfdAp
   }
 }
 
-const voidAtom = atom<void>(undefined)
 export const useBatchNfdResolutionEffect = () => {
   return useAtomValue(batchNfdResolutionEffect)
 }
