@@ -6,6 +6,7 @@ import { networkConfig } from '@/features/common/data/algo-client'
 import { atomEffect } from 'jotai-effect'
 import { useMemo } from 'react'
 
+const MAX_BATCH_SIZE = 20
 const addressesToResolveAtom = atom(new Set<string>())
 
 export const batchNfdResolutionEffect = atomEffect((get, set) => {
@@ -19,9 +20,19 @@ export const batchNfdResolutionEffect = atomEffect((get, set) => {
       if (!networkConfig.nfdApiUrl || addressesToResolve.size === 0) {
         return
       }
+      const networkNfdApiUrl = networkConfig.nfdApiUrl
 
+      const addressesArray = Array.from(addressesToResolve)
+      const batches = []
+      for (let i = 0; i < addressesArray.length; i += MAX_BATCH_SIZE) {
+        batches.push(addressesArray.slice(i, i + MAX_BATCH_SIZE))
+      }
+      const batchPromises = batches.map((batch) => reverseLookup(batch, networkNfdApiUrl))
+      const allResults = await Promise.all(batchPromises)
+
+      const nfdResults = allResults.flat()
       // TODO: NC - this needs to respect the API limit. We should break the batches smaller and parallelise the requests
-      const nfdResults = await reverseLookup(Array.from(addressesToResolve), networkConfig.nfdApiUrl)
+      // const nfdResults = await reverseLookup(Array.from(addressesToResolve), networkConfig.nfdApiUrl)
 
       const [forwardNfdResultsToAdd, reverseNfdsToAdd] = nfdResults.reduce(
         (acc, nfdResult) => {

@@ -7,13 +7,14 @@ import { cn } from '@/features/common/utils'
 import { useSelectedNetwork } from '@/features/network/data'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
-import { ellipseAddress } from '@/utils/ellipse-address'
+import { ellipseAddress, ellipseNfd } from '@/utils/ellipse-address'
 
 export type AccountLinkProps = PropsWithChildren<{
   address: string
   short?: boolean
   className?: string
   showCopyButton?: boolean
+  truncate?: boolean
 }>
 
 export const AccountLink = ({ address, ...rest }: AccountLinkProps) => {
@@ -34,7 +35,7 @@ type AccountLinkInnerProps = AccountLinkProps & {
 
 const AccountLinkInner = fixedForwardRef(
   (
-    { address, nfd, short, className, children, showCopyButton, ...rest }: AccountLinkInnerProps,
+    { address, nfd, short, className, children, showCopyButton, truncate, ...rest }: AccountLinkInnerProps,
     ref?: React.LegacyRef<HTMLAnchorElement>
   ) => {
     const [selectedNetwork] = useSelectedNetwork()
@@ -51,7 +52,7 @@ const AccountLinkInner = fixedForwardRef(
           children
         ) : nfd ? (
           <abbr className="tracking-wide" title={address}>
-            {nfd}
+            {truncate ? ellipseNfd(nfd) : nfd}
           </abbr>
         ) : short ? (
           <abbr className="tracking-wide" title={address}>

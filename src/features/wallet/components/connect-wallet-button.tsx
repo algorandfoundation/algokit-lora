@@ -20,6 +20,8 @@ import { walletDialogOpenAtom } from '../data/wallet-dialog'
 import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -68,7 +70,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
     },
     [activeProvider]
   )
-
+  const [loadableNfd] = useLoadableNfdResult(activeAddress)
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -84,14 +86,24 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
               />
             ))}
           <abbr title={activeAddress} className="no-underline">
-            {ellipseAddress(activeAddress)}
+            {loadableNfd.state === 'hasData' && loadableNfd.data !== null ? (
+              <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{nfd?.name}</span>}</RenderLoadable>
+            ) : (
+              <>{ellipseAddress(activeAddress)}</>
+            )}
           </abbr>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-56 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+            <abbr className="ml-1">
+              {loadableNfd.state === 'hasData' && loadableNfd.data !== null ? (
+                <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{nfd?.name}</span>}</RenderLoadable>
+              ) : (
+                <>{ellipseAddress(connectedActiveAccounts[0].address, 6)}</>
+              )}
+            </abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">
