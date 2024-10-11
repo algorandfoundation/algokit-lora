@@ -7,13 +7,7 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import {
-  ArgumentField,
-  MethodCallArg,
-  MethodForm,
-  BuildTransactionResult,
-  TransactionArgumentField,
-} from '@/features/transaction-wizard/models'
+import { ArgumentField, MethodForm, TransactionArgumentField } from '@/features/transaction-wizard/models'
 import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
@@ -22,8 +16,6 @@ const arrayItemPathSeparator = '.' // This must be a . for react hook form to wo
 export const methodArgPrefix = 'methodArg'
 
 const argumentFieldPath = (argumentIndex: number) => `${methodArgPrefix}${argumentPathSeparator}${argumentIndex}`
-export const extractArgumentIndexFromFieldPath = (path: string) =>
-  parseInt(path.split(argumentPathSeparator)[1].split(arrayItemPathSeparator)[0])
 
 const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
   if (type instanceof algosdk.ABIUintType) {
@@ -230,7 +222,7 @@ const getCreateField = (
   return undefined
 }
 
-const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Promise<MethodCallArg> => {
+const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): algosdk.ABIValue => {
   if (type instanceof algosdk.ABIUfixedType) {
     return fixedPointDecimalStringToBigInt(value as string, type.precision) as algosdk.ABIValue
   }
@@ -242,18 +234,13 @@ const getAppCallArg = async (type: algosdk.ABIArgumentType, value: unknown): Pro
   }
 
   if (type instanceof algosdk.ABIArrayStaticType) {
-    return (await Promise.all((value as unknown[]).map((item) => getAppCallArg(type.childType, item)))) as algosdk.ABIValue
+    return (value as unknown[]).map((item) => getAppCallArg(type.childType, item)) as algosdk.ABIValue
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
-    return (await Promise.all((value as any[]).map((item) => getAppCallArg(type.childType, item.child)))) as algosdk.ABIValue
+    return (value as any[]).map((item) => getAppCallArg(type.childType, item.child)) as algosdk.ABIValue
   }
   if (type instanceof algosdk.ABITupleType) {
-    return (await Promise.all((value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)))) as algosdk.ABIValue
-  }
-  if (algosdk.abiTypeIsTransaction(type)) {
-    if (value && typeof value === 'object' && 'type' in value) {
-      return value as unknown as BuildTransactionResult
-    }
+    return (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)) as algosdk.ABIValue
   }
   return value as algosdk.ABIValue
 }
@@ -263,6 +250,7 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
   if (!algosdk.abiTypeIsTransaction(arg.type)) {
     return {
       ...arg,
+      type: arg.type,
       path: argumentFieldPath(argIndex),
       createField: (helper: FormFieldHelper<any>) =>
         getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
@@ -272,20 +260,16 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
       getAppCallArg: (value) => getAppCallArg(arg.type, value),
     }
   } else {
-    const transactionType = arg.type
+    const type = arg.type
     return {
       ...arg,
-      transactionType: transactionType,
+      type: type,
       path: argumentFieldPath(argIndex),
-      createField: (helper: FormFieldHelper<any>, onEdit: () => void) =>
+      createField: (helper: FormFieldHelper<any>) =>
         helper.transactionField({
           label: 'Value',
           field: argumentFieldPath(argIndex) as FieldPath<any>,
-          onEdit: onEdit,
-          transactionType: transactionType,
         }),
-      fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      getAppCallArg: (value) => getAppCallArg(arg.type, value),
     }
   }
 }
@@ -303,10 +287,13 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
   })
   const methodSchema = argFields.reduce(
     (acc, arg, index) => {
-      return {
-        ...acc,
-        [argumentFieldPath(index)]: arg.fieldSchema,
+      if ('fieldSchema' in arg) {
+        return {
+          ...acc,
+          [argumentFieldPath(index)]: arg.fieldSchema,
+        }
       }
+      return acc
     },
     {} as Record<string, z.ZodTypeAny>
   )
@@ -325,8 +312,8 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
 
 export const asFieldInput = (
   type: algosdk.ABIArgumentType,
-  value: algosdk.ABIValue | BuildTransactionResult
-): algosdk.ABIValue | { id: string; child: algosdk.ABIValue }[] | BuildTransactionResult => {
+  value: algosdk.ABIValue
+): algosdk.ABIValue | { id: string; child: algosdk.ABIValue }[] => {
   if (type instanceof algosdk.ABIUfixedType) {
     return value
   }
@@ -354,11 +341,6 @@ export const asFieldInput = (
       id: string
       child: algosdk.ABIValue
     }[]
-  }
-  if (algosdk.abiTypeIsTransaction(type)) {
-    if (value && typeof value === 'object' && 'type' in value) {
-      return value as unknown as BuildTransactionResult
-    }
   }
   return value as algosdk.ABIValue
 }

@@ -121,7 +121,7 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
     })
     .createTransaction.call({
       ...params,
-      method: transaction.methodName,
+      method: transaction.method.name,
       onComplete: transaction.onComplete,
     })
 
