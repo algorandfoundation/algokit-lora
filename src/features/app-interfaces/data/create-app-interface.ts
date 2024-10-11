@@ -54,8 +54,8 @@ const createMachine = () =>
         | {
             type: 'detailsCompleted'
             name?: string
-            fromRound?: bigint
-            toRound?: bigint
+            roundFirstValid?: number
+            roundLastValid?: number
             applicationId?: ApplicationId
             version?: string
             updatable?: boolean
@@ -113,8 +113,8 @@ const createMachine = () =>
                 actions: assign({
                   name: ({ event }) => event.name,
                   applicationId: ({ event }) => event.applicationId,
-                  fromRound: ({ event }) => event.fromRound,
-                  toRound: ({ event }) => event.toRound,
+                  roundFirstValid: ({ event }) => event.roundFirstValid,
+                  roundLastValid: ({ event }) => event.roundLastValid,
                 }),
               },
               detailsCancelled: {

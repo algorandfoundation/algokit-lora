@@ -7,7 +7,6 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 export enum BuildableTransactionType {
@@ -26,6 +25,8 @@ export enum BuildableTransactionType {
   AssetCreate = 'AssetCreate',
   AssetReconfigure = 'AssetReconfigure',
   AssetDestroy = 'AssetDestroy',
+  // placeholder
+  Placeholder = 'Placeholder',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -34,19 +35,18 @@ export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
   schema: Record<string, z.ZodType<any>>
 }
 
-export type ArgumentField = ArgumentDefinition & {
+export type ArgumentField = Omit<ArgumentDefinition, 'type'> & {
+  type: algosdk.ABIType | algosdk.ABIReferenceType
   path: string
   fieldSchema: z.ZodTypeAny
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-  getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
+  getAppCallArg: (arg: unknown) => algosdk.ABIValue
 }
 
-export type TransactionArgumentField = ArgumentDefinition & {
+export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
+  type: algosdk.ABITransactionType
   path: string
-  fieldSchema: z.ZodTypeAny
-  transactionType: algosdk.ABITransactionType
-  createField: (helper: FormFieldHelper<any>, onEdit: () => void) => React.JSX.Element | undefined
-  getAppCallArg: (arg: unknown) => Promise<MethodCallArg>
+  createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
 }
 
 type CommonBuildTransactionResult = {
@@ -85,7 +85,6 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   applicationId: ApplicationId
   appSpec: Arc32AppSpec
   method: algosdk.ABIMethod
-  methodName: string
   methodArgs: MethodCallArg[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
@@ -99,7 +98,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
     | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
-export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult
+export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
@@ -196,6 +195,13 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
   }
 }
 
+export type PlaceholderTransaction = {
+  id: string
+  type: BuildableTransactionType.Placeholder
+  targetType: algosdk.ABITransactionType
+  methodCallTransactionId: string
+}
+
 export type BuildTransactionResult =
   | BuildPaymentTransactionResult
   | BuildAccountCloseTransactionResult
@@ -208,3 +214,5 @@ export type BuildTransactionResult =
   | BuildAssetReconfigureTransactionResult
   | BuildAssetDestroyTransactionResult
   | BuildMethodCallTransactionResult
+
+export type TransactionPositionsInGroup = Map<string, number>

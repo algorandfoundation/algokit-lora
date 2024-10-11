@@ -20,10 +20,13 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import {
   AppCallMethodCall,
   AppCallParams,
+  AppMethodCall,
+  AppMethodCallParams,
   AssetConfigParams,
   AssetCreateParams,
   AssetDestroyParams,
   AssetTransferParams,
+  CommonAppCallParams,
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
@@ -60,6 +63,37 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   throw new Error('Unsupported transaction type')
 }
 
+// export const asAlgosdkTransactionParams = (transaction: BuildTransactionResult) => {
+//   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
+//     return [asPaymentTransactionParams(transaction)]
+//   }
+//   if (
+//     transaction.type === BuildableTransactionType.AssetTransfer ||
+//     transaction.type === BuildableTransactionType.AssetOptIn ||
+//     transaction.type === BuildableTransactionType.AssetOptOut ||
+//     transaction.type === BuildableTransactionType.AssetClawback
+//   ) {
+//     return [asAssetTransferTransactionParams(transaction)]
+//   }
+//   if (transaction.type === BuildableTransactionType.AssetCreate) {
+//     return [asAssetCreateTransactionParams(transaction)]
+//   }
+//   if (transaction.type === BuildableTransactionType.AssetReconfigure) {
+//     return [asAssetReconfigureTransactionParams(transaction)]
+//   }
+//   if (transaction.type === BuildableTransactionType.AssetDestroy) {
+//     return [asAssetDestroyTransactionParams(transaction)]
+//   }
+//   if (transaction.type === BuildableTransactionType.MethodCall) {
+//     return asMethodCallTransactionParams(transaction)
+//   }
+//   if (transaction.type === BuildableTransactionType.AppCall) {
+//     return [asAppCallTransactionParams(transaction)]
+//   }
+
+//   throw new Error('Unsupported transaction type')
+// }
+
 export const asPaymentTransactionParams = (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
 ): PaymentParams => {
@@ -91,7 +125,7 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
           // Other transaction types only return 1 transaction
           return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
         } else {
-          return asMethodCallParams(arg as BuildMethodCallTransactionResult)
+          return await asMethodCallParams(arg as BuildMethodCallTransactionResult)
         }
       }
       return arg
@@ -113,6 +147,37 @@ const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult)
   }
 }
 
+// const asMethodCallTransactionParams = (transaction: BuildMethodCallTransactionResult): AppMethodCall<CommonAppCallParams> => {
+//   invariant(transaction.method, 'Method is required')
+//   invariant(transaction.methodArgs, 'Method args are required')
+
+//   const args = transaction.methodArgs.map((arg) => {
+//     if (typeof arg === 'object' && 'type' in arg) {
+//       if (arg.type !== BuildableTransactionType.MethodCall) {
+//         // Other transaction types only return 1 transaction
+//         return asAlgosdkTransactionParams(arg as BuildTransactionResult)
+//       } else {
+//         return asMethodCallTransactionParams(arg as BuildMethodCallTransactionResult) // I'm not sure that this is needed?
+//       }
+//     }
+//     return arg
+//   })
+
+//   return {
+//     sender: transaction.sender,
+//     appId: BigInt(transaction.applicationId),
+//     method: transaction.method,
+//     args: args,
+//     accountReferences: transaction.accounts ?? [],
+//     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
+//     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
+//     boxReferences: transaction.boxes ?? [],
+//     note: transaction.note,
+//     ...asFee(transaction.fee),
+//     ...asValidRounds(transaction.validRounds),
+//   }
+// }
+
 const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionResult): Promise<algosdk.Transaction[]> => {
   const params = await asMethodCallParams(transaction)
   const result = await algorandClient.client
@@ -122,7 +187,7 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
     })
     .createTransaction.call({
       ...params,
-      method: transaction.methodName,
+      method: transaction.method.name,
       onComplete: transaction.onComplete,
     })
 

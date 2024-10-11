@@ -7,10 +7,11 @@ import { algod } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
 import {
-  BuildTransactionResult,
   BuildableTransactionType,
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
+  BuildTransactionResult,
+  PlaceholderTransaction,
 } from '../models'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
@@ -26,6 +27,7 @@ import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
 import React from 'react'
+import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
 import { buildComposer } from '../data/common'
 
 export const transactionTypeLabel = 'Transaction type'
@@ -126,6 +128,7 @@ export function TransactionsBuilder({
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
+      ensureThereIsNoPlaceholderTransaction(transactions)
 
       await onSendTransactions(transactions)
     } catch (error) {
@@ -139,6 +142,7 @@ export function TransactionsBuilder({
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
+      ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
       const { atc } = await composer.build()
@@ -146,7 +150,7 @@ export function TransactionsBuilder({
       const transactionsWithResources = populatedAtc.buildGroup()
 
       setTransactions((prev) => {
-        const newTransactions = [...prev]
+        let newTransactions = [...prev]
 
         const flattenedTransactions = flattenTransactions(transactions)
         for (let i = 0; i < flattenedTransactions.length; i++) {
@@ -159,7 +163,7 @@ export function TransactionsBuilder({
               applications: transactionWithResources.txn.appForeignApps ?? [],
               boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
             }
-            setTransactionResouces(newTransactions, transaction.id, resources)
+            newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }
         }
 
@@ -173,13 +177,19 @@ export function TransactionsBuilder({
   }, [transactions, activeAddress])
 
   const editTransaction = useCallback(
-    async (transaction: BuildTransactionResult) => {
-      const txn = await openTransactionBuilderDialog({
-        mode: TransactionBuilderMode.Edit,
-        transaction: transaction,
-      })
+    async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
+      const txn =
+        transaction.type === BuildableTransactionType.Placeholder
+          ? await openTransactionBuilderDialog({
+              mode: TransactionBuilderMode.Create,
+              type: asAlgosdkTransactionType(transaction.targetType),
+            })
+          : await openTransactionBuilderDialog({
+              mode: TransactionBuilderMode.Edit,
+              transaction: transaction,
+            })
       if (txn) {
-        setTransactions((prev) => prev.map((t) => (t.id === txn.id ? txn : t)))
+        setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
       }
     },
     [openTransactionBuilderDialog]
@@ -194,9 +204,7 @@ export function TransactionsBuilder({
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
         setTransactions((prev) => {
-          const newTransactions = [...prev]
-          setTransactionResouces(newTransactions, transaction.id, resources)
-          return newTransactions
+          return setTransactionResources(prev, transaction.id, resources)
         })
       }
     },
@@ -273,7 +281,7 @@ export function TransactionsBuilder({
           data={transactions}
           setData={setTransactions}
           nonDeletableTransactionIds={nonDeletableTransactionIds}
-          onEdit={editTransaction}
+          onEditTransaction={editTransaction}
           onEditResources={editResources}
           onDelete={deleteTransaction}
         />
@@ -320,28 +328,50 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
   }, [] as BuildTransactionResult[])
 }
 
-// This is an inplace mutation of the transactions
-const setTransactionResouces = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
-  const set = (transactions: BuildTransactionResult[]) => {
-    for (let i = 0; i < transactions.length; i++) {
-      const transaction = transactions[i]
-
-      if (
-        transaction.id === transactionId &&
-        (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall)
-      ) {
-        transaction.accounts = resources.accounts
-        transaction.foreignAssets = resources.assets
-        transaction.foreignApps = resources.applications
-        transaction.boxes = resources.boxes
-      }
-
-      if (transaction.type === BuildableTransactionType.MethodCall) {
-        const txns = transaction.methodArgs.filter((arg): arg is BuildTransactionResult => isBuildTransactionResult(arg))
-        set(txns)
+const setTransactionResources = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
+  return setTransaction(transactions, transactionId, (transaction) => {
+    if (transaction.type === BuildableTransactionType.MethodCall || transaction.type === BuildableTransactionType.AppCall) {
+      return {
+        ...transaction,
+        accounts: resources.accounts,
+        foreignAssets: resources.assets,
+        foreignApps: resources.applications,
+        boxes: resources.boxes,
       }
     }
+    throw new Error(`Cannot set resources for transaction type ${transaction.type}`)
+  })
+}
+
+const setTransaction = (
+  transactions: BuildTransactionResult[],
+  transactionId: string,
+  setter: (oldTxn: BuildTransactionResult | PlaceholderTransaction) => BuildTransactionResult
+) => {
+  const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction) => {
+    if (transaction.id === transactionId) {
+      return { ...setter(transaction) }
+    }
+    if (transaction.type !== BuildableTransactionType.MethodCall) {
+      return transaction
+    }
+    transaction.methodArgs = transaction.methodArgs.map((arg) => {
+      if (typeof arg === 'object' && 'type' in arg) {
+        return trySet(arg)
+      }
+      return arg
+    })
+    return { ...transaction }
   }
 
-  set(transactions)
+  return transactions.map((transaction) => trySet(transaction) as BuildTransactionResult)
+}
+
+const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionResult[]) => {
+  const predicate = !transactions.some(
+    (transaction) =>
+      transaction.type === BuildableTransactionType.MethodCall &&
+      transaction.methodArgs.some((arg) => typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder)
+  )
+  invariant(predicate, 'Please build all transaction arguments for ABI method calls')
 }

@@ -5,6 +5,6 @@ type Props = {
 }
 
 export function CreateFromAppId({ machine }: Props) {
-  const [state, send] = machine
+  const [_state, _send] = machine
   return <span>fromAppId</span>
 }

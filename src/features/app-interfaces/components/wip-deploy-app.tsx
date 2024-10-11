@@ -66,7 +66,7 @@ export function WIPDeployApp({ machine }: Props) {
       invariant(appSpec.source?.clear, 'Clear program is not set')
       invariant(activeAddress, 'No active wallet account is available')
       invariant(transactions.length === 1, 'Only one deploy transaction is supported')
-      const deployTransaction = transactions[0]
+      const deployTransaction = transactions[0] // TODO: NC - Do we need to go more complex?
       invariant(
         [BuildableTransactionType.AppCall, BuildableTransactionType.MethodCall].includes(deployTransaction.type),
         'Only app call transactions are supported'
