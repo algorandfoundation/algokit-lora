@@ -1,11 +1,9 @@
 import { assign, setup } from 'xstate'
-import { Arc32AppSpec, Arc4AppSpec, CreateAppInterfaceContext } from './types'
+import { Arc32AppSpec, Arc4AppSpec, CreateAppInterfaceContext, TemplateParam } from './types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useMemo } from 'react'
 import { atomWithMachine } from 'jotai-xstate'
 import { useAtom } from 'jotai'
-
-// TODO: NC - We can potentially just implement a cancelled event
 
 const createMachine = () =>
   setup({
@@ -24,7 +22,7 @@ const createMachine = () =>
             version?: string
             updatable?: boolean
             deletable?: boolean
-            templateParams?: Record<string, string | number | Uint8Array>
+            templateParams?: TemplateParam[]
           }
         | { type: 'detailsCancelled' }
         | {
@@ -32,7 +30,9 @@ const createMachine = () =>
             applicationId?: ApplicationId
             roundFirstValid?: bigint
           }
-        | { type: 'deploymentCancelled' },
+        | { type: 'deploymentCancelled' }
+        | { type: 'createCompleted' }
+        | { type: 'createFailed' },
     },
   }).createMachine({
     id: 'createAppInterface',
@@ -78,7 +78,7 @@ const createMachine = () =>
           appDetails: {
             on: {
               detailsCompleted: {
-                target: '#finished',
+                target: 'create',
                 actions: assign({
                   name: ({ event }) => event.name,
                   roundFirstValid: ({ event }) => event.roundFirstValid,
@@ -92,6 +92,16 @@ const createMachine = () =>
                   roundFirstValid: () => undefined,
                   roundLastValid: () => undefined,
                 }),
+              },
+            },
+          },
+          create: {
+            on: {
+              createCompleted: {
+                target: '#finished',
+              },
+              createFailed: {
+                target: 'appDetails',
               },
             },
           },
@@ -145,7 +155,7 @@ const createMachine = () =>
           deployment: {
             on: {
               deploymentCompleted: {
-                target: '#finished',
+                target: 'create',
                 actions: assign({
                   applicationId: ({ event }) => event.applicationId,
                   roundFirstValid: ({ event }) => event.roundFirstValid,
@@ -157,6 +167,16 @@ const createMachine = () =>
                   applicationId: () => undefined,
                   roundFirstValid: () => undefined,
                 }),
+              },
+            },
+          },
+          create: {
+            on: {
+              createCompleted: {
+                target: '#finished',
+              },
+              createFailed: {
+                target: 'deployment',
               },
             },
           },

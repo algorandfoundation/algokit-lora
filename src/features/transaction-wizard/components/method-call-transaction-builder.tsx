@@ -184,7 +184,6 @@ export function MethodCallTransactionBuilder({
       validRounds: {
         setAutomatically: true,
       },
-      // ..._defaultValues, // TODO: NC - Confirm this isn't needed
       methodName: _defaultValues?.method?.name,
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
       onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,

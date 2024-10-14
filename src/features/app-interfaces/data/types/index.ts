@@ -23,6 +23,18 @@ export type AppSpecVersion =
 
 export type { Arc32AppSpec, Arc4AppSpec }
 
+export enum TemplateParamType {
+  String = 'String',
+  Number = 'Number',
+  Uint8Array = 'Uint8Array',
+}
+
+export type TemplateParam = {
+  name: string
+  type: TemplateParamType
+  value: string
+}
+
 export type CreateAppInterfaceContext = {
   applicationId?: ApplicationId
   file?: File
@@ -33,5 +45,5 @@ export type CreateAppInterfaceContext = {
   roundLastValid?: bigint
   updatable?: boolean
   deletable?: boolean
-  templateParams?: Record<string, string | number | Uint8Array>
+  templateParams?: TemplateParam[]
 }

@@ -41,11 +41,11 @@ export const useCreateAppInterface = () => {
       const existingAppInterfaces = await getAppInterfaces(dbConnection)
       invariant(
         existingAppInterfaces.find((e) => e.applicationId === applicationId) === undefined,
-        `Application ID "${applicationId}" is already associated with another app interface`
+        `Application ID '${applicationId}' is already associated with another app interface`
       )
       invariant(
         existingAppInterfaces.find((e) => e.name.toLowerCase() === name.toLowerCase()) === undefined,
-        `App interface "${name}" already exists, please choose a different name`
+        `App interface '${name}' already exists, please choose a different name`
       )
 
       await writeAppInterface(dbConnection, {

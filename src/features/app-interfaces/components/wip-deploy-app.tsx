@@ -20,18 +20,43 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import { isArc32AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { asApplicationAbiMethods } from '@/features/applications/mappers'
-import { Arc32AppSpec } from '../data/types'
+import { Arc32AppSpec, TemplateParamType } from '../data/types'
 import { CreateOnComplete } from '@algorandfoundation/algokit-utils/types/app-factory'
 import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
 // TODO: NC - Support populate on app calls - approvalProgram and clearStateProgram are required for application creation
-// TOOD: NC - FIX: InvariantError: App interface "DigitalMarketplace" already exists, please choose a different name
+// TODO: NC - Rename the WIP components + get structure in the correct place
+
+const getTealTemplateParams = (templateParams: ReturnType<typeof useCreateAppInterfaceStateMachine>[0]['context']['templateParams']) => {
+  if (!templateParams) {
+    return undefined
+  }
+
+  return templateParams.reduce(
+    (acc, templateParam) => {
+      const type = templateParam.type
+      const value = templateParam.value
+      if (type === TemplateParamType.String) {
+        acc[templateParam.name] = value
+      }
+      if (type === TemplateParamType.Number) {
+        acc[templateParam.name] = Number(value)
+      }
+      if (type === TemplateParamType.Uint8Array) {
+        acc[templateParam.name] = base64ToBytes(value)
+      }
+      return acc
+    },
+    {} as Record<string, string | number | Uint8Array>
+  )
+}
 
 export function WIPDeployApp({ machine }: Props) {
   const [state, send] = machine
@@ -63,8 +88,7 @@ export function WIPDeployApp({ machine }: Props) {
   }
 
   const { open, dialog } = useDialogForm({
-    // TODO: NC - This name needs fixing
-    dialogHeader: 'Create Deployment App Call Transaction',
+    dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
         {
@@ -118,7 +142,7 @@ export function WIPDeployApp({ machine }: Props) {
         },
         onUpdate: 'append',
         onSchemaBreak: 'append',
-        deployTimeParams: state.context.templateParams,
+        deployTimeParams: getTealTemplateParams(state.context.templateParams),
         populateAppCallResources: true,
       })
 
@@ -175,8 +199,6 @@ export function WIPDeployApp({ machine }: Props) {
   }, [])
 
   const transactions = transaction ? [transaction] : []
-
-  // TODO: NC - Handle the transition better
 
   const abiMethods = asApplicationAbiMethods(appSpec)
   const deploymentOptions = useMemo(() => {

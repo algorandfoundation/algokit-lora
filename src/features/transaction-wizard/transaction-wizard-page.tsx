@@ -36,7 +36,6 @@ export function TransactionWizardPage() {
           onSendTransactions={sendTransactions}
           onReset={reset}
         />
-        {/* TODO: NC - It probably makes sense to split this into a component, as I think we want the same behaviour */}
         {transactionGraphResult && (
           <div className="my-4 flex flex-col gap-2 text-sm">
             <h3>Result</h3>

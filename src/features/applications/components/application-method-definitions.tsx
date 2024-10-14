@@ -59,7 +59,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
-    dialogHeader: 'Create ABI Method Call Transaction',
+    dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
         { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,

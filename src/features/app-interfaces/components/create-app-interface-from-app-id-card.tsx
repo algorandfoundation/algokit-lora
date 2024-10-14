@@ -19,7 +19,7 @@ const schema = zfd.formData({
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
       exists: z.boolean().optional(),
-      hasAppInterface: z.boolean().optional(),
+      appInterfaceExists: z.boolean().optional(),
     })
     .superRefine((application, ctx) => {
       if (application.exists === false) {
@@ -28,7 +28,7 @@ const schema = zfd.formData({
           message: 'Application does not exist',
           path: ['id'],
         })
-      } else if (application.hasAppInterface === true) {
+      } else if (application.appInterfaceExists === true) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'Application already has an app interface',
@@ -71,9 +71,6 @@ type FieldsWithAssetInfoProps = {
   applicationId: ApplicationId
 }
 
-// TODO: NC - If create fails, just send a back action?? (need to also show the error)
-// TODO: NC - Add first valid round for the deployment scenario <- Done Test it
-
 function FormFieldsWithApplicationValidation({ helper, formCtx, applicationId }: FieldsWithAssetInfoProps) {
   const loadableApplicationSummary = useLoadableApplicationSummaryAtom(applicationId)
   const loadableAppInterfaces = useLoadableAppInterfacesAtom()
@@ -86,12 +83,11 @@ function FormFieldsWithApplicationValidation({ helper, formCtx, applicationId }:
     }
 
     if (loadableAppInterfaces.state === 'hasData') {
-      const hasAppInterface = loadableAppInterfaces.data.some((appInterface) => appInterface.applicationId === applicationId)
-      setValue('application.hasAppInterface', hasAppInterface)
+      const appInterfaceExists = loadableAppInterfaces.data.some((appInterface) => appInterface.applicationId === applicationId)
+      setValue('application.appInterfaceExists', appInterfaceExists)
       trigger('application')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadableAppInterfaces.state, loadableApplicationSummary])
+  }, [applicationId, loadableAppInterfaces, loadableApplicationSummary, setValue, trigger])
 
   return <FormFields helper={helper} />
 }

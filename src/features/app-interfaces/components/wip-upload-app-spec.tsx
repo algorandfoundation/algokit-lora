@@ -20,8 +20,6 @@ type Props = {
   supportedStandards: AppSpecStandard[]
 }
 
-// TODO: NC - Probably want to set a min height on the screen
-
 export function WIPUploadAppSpec({ machine, supportedStandards }: Props) {
   const [state, send] = machine
 
