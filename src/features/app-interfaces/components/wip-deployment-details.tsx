@@ -11,6 +11,7 @@ import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { invariant } from '@/utils/invariant'
 import { AppManager } from '@algorandfoundation/algokit-utils/types/app-manager'
+import { ArrowLeft } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { z } from 'zod'
@@ -115,7 +116,8 @@ export function WIPDeploymentDetails({ machine }: Props) {
   const defaultValues = useMemo(
     () => ({
       name: state.context.name ?? appSpec.contract.name,
-      version: '1.0',
+      version: state.context.version ?? '1.0',
+      // TODO: NC - Set the previous values
       templateParams: unifiedTemplateParamNames.map(() => ({ type: TemplateParamType.String })),
       updatable: enableDeployTimeUpdatabilityControl ? false : undefined,
       deletable: enableDeployTimeDeletabilityControl ? false : undefined,
@@ -125,6 +127,7 @@ export function WIPDeploymentDetails({ machine }: Props) {
       enableDeployTimeDeletabilityControl,
       enableDeployTimeUpdatabilityControl,
       state.context.name,
+      state.context.version,
       unifiedTemplateParamNames,
     ]
   )
@@ -137,10 +140,10 @@ export function WIPDeploymentDetails({ machine }: Props) {
       defaultValues={defaultValues}
       formAction={
         <FormActions>
-          <Button type="button" variant="outline" className="w-28" onClick={back}>
+          <Button type="button" variant="outline" className="mr-auto w-24" onClick={back} icon={<ArrowLeft size={16} />}>
             Back
           </Button>
-          <SubmitButton className="w-28">Next</SubmitButton>
+          <SubmitButton className="w-24">Next</SubmitButton>
         </FormActions>
       }
     >

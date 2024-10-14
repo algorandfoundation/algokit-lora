@@ -38,8 +38,6 @@ import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
 
-// TODO: NC - Half width'ish (same as fund) deployment forms
-
 const appCallFormSchema = {
   ...commonSchema,
   ...senderFieldSchema,
@@ -258,18 +256,26 @@ function FormInner({
   }, [getValues, selectedMethodForm, methodName, unregister])
 
   useEffect(() => {
-    if (selectedMethodDefinition !== undefined && methodName !== selectedMethodDefinition.name) {
-      const defaultOnComplete = selectedMethodDefinition?.callConfig ? selectedMethodDefinition?.callConfig?.call[0] : undefined
-      if (defaultOnComplete !== undefined) {
-        // TODO: NC - Check this
+    // TODO: NC - This is not choosing the previously selected method
 
-        // This is needed to ensure the select list options have updated before setting the value, otherwise it isn't selected in the UI
-        setTimeout(() => {
-          setValue('onComplete', defaultOnComplete.toString())
-        }, 10)
+    // When changing a method, this computes and sets the default onComplete value
+    // console.log(getValues('onComplete'))
+
+    if (selectedMethodDefinition !== undefined) {
+      const defaultOnComplete =
+        appId === 0n
+          ? (selectedMethodDefinition.callConfig?.create ?? []).length > 0
+            ? selectedMethodDefinition.callConfig?.create[0]
+            : undefined
+          : (selectedMethodDefinition?.callConfig?.call ?? []).length > 0
+            ? selectedMethodDefinition?.callConfig?.call[0]
+            : undefined
+
+      if (defaultOnComplete !== undefined) {
+        setValue('onComplete', defaultOnComplete.toString())
       }
     }
-  }, [selectedMethodDefinition, methodName, setValue])
+  }, [selectedMethodDefinition, setValue, appId, getValues])
 
   const abiMethodArgs = useMemo(() => {
     return (
@@ -325,17 +331,18 @@ function FormInner({
 
   const onCompleteOptions = useMemo(() => {
     return _onCompleteOptions.filter((x) => {
-      if (
-        !selectedMethodForm?.callConfig ||
-        selectedMethodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete) ||
-        selectedMethodForm?.callConfig?.create.includes(Number(x.value) as algosdk.OnApplicationComplete) // TODO: NC - Check this condition
-      ) {
+      if (!selectedMethodForm) {
+        return false
+      } else if (!selectedMethodForm?.callConfig) {
+        return true
+      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+        return true
+      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
         return true
       }
-
       return false
     })
-  }, [selectedMethodForm?.callConfig])
+  }, [appId, selectedMethodForm])
 
   return (
     <div className="space-y-4">

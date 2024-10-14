@@ -1,45 +1,10 @@
 import { assign, setup } from 'xstate'
-import { Arc32AppSpec, Arc4AppSpec } from './types'
+import { Arc32AppSpec, Arc4AppSpec, CreateAppInterfaceContext } from './types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useMemo } from 'react'
 import { atomWithMachine } from 'jotai-xstate'
 import { useAtom } from 'jotai'
 
-/*
-createAppInterface
-  fromAppId
-    appSpec
-      appSpecCancelled
-      appSpecCompleted
-    details (AppIdDetails)
-      detailsCancelled
-      detailsCompleted
-  fromAppDeployment
-    appSpec
-      appSpecCancelled
-      appSpecCompleted
-    details (AppDeploymentDetails)
-      detailsCancelled
-      detailsCompleted
-    deploy
-*/
-
-// TODO: NC - Move this
-// TODO: NC - Should we construct this type to be a bit friendlier to use in context?
-type CreateAppInterfaceContext = {
-  applicationId?: ApplicationId
-  file?: File
-  appSpec?: Arc32AppSpec | Arc4AppSpec
-  name?: string
-  version?: string
-  roundFirstValid?: number
-  roundLastValid?: number
-  updatable?: boolean
-  deletable?: boolean
-  templateParams?: Record<string, string | number | Uint8Array>
-}
-
-// TODO: NC - Do we need to remove state as we navigate backwards?
 // TODO: NC - We can potentially just implement a cancelled event
 
 const createMachine = () =>
@@ -47,16 +12,15 @@ const createMachine = () =>
     types: {
       context: {} as CreateAppInterfaceContext,
       events: {} as
-        | { type: 'fromAppIdSelected' }
+        | { type: 'fromAppIdSelected'; applicationId: ApplicationId }
         | { type: 'fromAppDeploymentSelected' }
         | { type: 'appSpecUploadCompleted'; file: File; appSpec: Arc32AppSpec | Arc4AppSpec }
         | { type: 'appSpecUploadCancelled' }
         | {
             type: 'detailsCompleted'
             name?: string
-            roundFirstValid?: number
-            roundLastValid?: number
-            applicationId?: ApplicationId
+            roundFirstValid?: bigint
+            roundLastValid?: bigint
             version?: string
             updatable?: boolean
             deletable?: boolean
@@ -66,6 +30,7 @@ const createMachine = () =>
         | {
             type: 'deploymentCompleted'
             applicationId?: ApplicationId
+            roundFirstValid?: bigint
           }
         | { type: 'deploymentCancelled' },
     },
@@ -79,6 +44,9 @@ const createMachine = () =>
         on: {
           fromAppIdSelected: {
             target: 'fromAppId',
+            actions: assign({
+              applicationId: ({ event }) => event.applicationId,
+            }),
           },
           fromAppDeploymentSelected: {
             target: 'fromAppDeployment',
@@ -102,6 +70,7 @@ const createMachine = () =>
                 actions: assign({
                   file: () => undefined,
                   appSpec: () => undefined,
+                  applicationId: () => undefined,
                 }),
               },
             },
@@ -112,13 +81,17 @@ const createMachine = () =>
                 target: '#finished',
                 actions: assign({
                   name: ({ event }) => event.name,
-                  applicationId: ({ event }) => event.applicationId,
                   roundFirstValid: ({ event }) => event.roundFirstValid,
                   roundLastValid: ({ event }) => event.roundLastValid,
                 }),
               },
               detailsCancelled: {
                 target: 'appSpec',
+                actions: assign({
+                  name: () => undefined,
+                  roundFirstValid: () => undefined,
+                  roundLastValid: () => undefined,
+                }),
               },
             },
           },
@@ -175,12 +148,14 @@ const createMachine = () =>
                 target: '#finished',
                 actions: assign({
                   applicationId: ({ event }) => event.applicationId,
+                  roundFirstValid: ({ event }) => event.roundFirstValid,
                 }),
               },
               deploymentCancelled: {
                 target: 'appDetails',
                 actions: assign({
                   applicationId: () => undefined,
+                  roundFirstValid: () => undefined,
                 }),
               },
             },

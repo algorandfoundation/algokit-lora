@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/create-app-interface'
 import { Button } from '@/features/common/components/button'
 import {
@@ -18,15 +18,20 @@ import { TransactionsBuilder } from '@/features/transaction-wizard/components/tr
 import { ArrowLeft, Parentheses, Rocket } from 'lucide-react'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { isArc32AppSpec } from '@/features/common/utils'
-import { asAppCallTransactionParams } from '@/features/transaction-wizard/mappers'
+import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { asApplicationAbiMethods } from '@/features/applications/mappers'
 import { Arc32AppSpec } from '../data/types'
+import { CreateOnComplete } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
+import { MethodDefinition } from '@/features/applications/models'
+import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
 // TODO: NC - Support populate on app calls - approvalProgram and clearStateProgram are required for application creation
+// TOOD: NC - FIX: InvariantError: App interface "DigitalMarketplace" already exists, please choose a different name
 
 export function WIPDeployApp({ machine }: Props) {
   const [state, send] = machine
@@ -35,6 +40,27 @@ export function WIPDeployApp({ machine }: Props) {
   const { activeAddress } = useWallet()
 
   const appSpec = state.context.appSpec
+
+  const asDeployCreateParams = async (
+    transaction: BuildTransactionResult
+  ): Promise<(AppClientMethodCallParams & CreateOnComplete) | (AppClientBareCallParams & CreateOnComplete)> => {
+    if (transaction.type === BuildableTransactionType.MethodCall) {
+      const { appId: _, ...params } = await asMethodCallParams(transaction)
+      return {
+        ...params,
+        method: params.method.name,
+        onComplete: params.onComplete,
+      } satisfies AppClientMethodCallParams & CreateOnComplete
+    } else if (transaction.type === BuildableTransactionType.AppCall) {
+      const { appId: _, ...params } = asAppCallTransactionParams(transaction)
+      invariant(params.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
+      return {
+        ...params,
+        onComplete: params.onComplete,
+      } satisfies AppClientBareCallParams & CreateOnComplete
+    }
+    throw new Error('Invalid transaction type')
+  }
 
   const { open, dialog } = useDialogForm({
     // TODO: NC - This name needs fixing
@@ -80,19 +106,9 @@ export function WIPDeployApp({ machine }: Props) {
         deletable: state.context.deletable,
       })
 
-      // TODO: NC - App call transactions don't need an app id
-
-      const { appId: _, ...appCallParams } =
-        deployTransaction.type === BuildableTransactionType.AppCall
-          ? asAppCallTransactionParams(deployTransaction)
-          : { appId: 0n, onComplete: algosdk.OnApplicationComplete.NoOpOC } // TODO: NC - Fix this
-      invariant(appCallParams.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
-
       const { result } = await appFactory.deploy({
         createParams: {
-          ...appCallParams,
-          onComplete: appCallParams.onComplete,
-          // method: '',
+          ...(await asDeployCreateParams(deployTransaction)),
           schema: {
             localInts: appSpec.state?.local.num_uints ?? 0,
             localByteSlices: appSpec.state?.local.num_byte_slices ?? 0,
@@ -106,7 +122,7 @@ export function WIPDeployApp({ machine }: Props) {
         populateAppCallResources: true,
       })
 
-      send({ type: 'deploymentCompleted', applicationId: Number(result.appId) })
+      send({ type: 'deploymentCompleted', applicationId: Number(result.appId), roundFirstValid: result.updatedRound })
     },
     [
       activeAddress,
@@ -126,14 +142,18 @@ export function WIPDeployApp({ machine }: Props) {
   }, [send])
 
   const openDialog = useCallback(
-    async (type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall, appSpec?: Arc32AppSpec, methodName?: string) => {
+    async (
+      type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall,
+      appSpec?: Arc32AppSpec,
+      method?: MethodDefinition
+    ) => {
       const transaction = await open({
         type,
         transaction: {
           applicationId: 0,
-          ...(methodName && appSpec
+          ...(method && appSpec
             ? {
-                methodName,
+                method: method.abiMethod,
                 appSpec,
               }
             : undefined),
@@ -157,42 +177,48 @@ export function WIPDeployApp({ machine }: Props) {
   const transactions = transaction ? [transaction] : []
 
   // TODO: NC - Handle the transition better
-  // TODO: NC - Render all the deployable ABI methods
-
-  //
 
   const abiMethods = asApplicationAbiMethods(appSpec)
-  const temp = abiMethods.methods.reduce((acc, method) => {
-    // method.abiMethod
-    // method.name
-    // method.arguments
-    if ((method.callConfig?.create ?? []).length > 0) {
-      return [...acc, method.name]
-    }
-    return acc
-  }, [] as string[])
+  const deploymentOptions = useMemo(() => {
+    return abiMethods.methods
+      .reduce((acc, method, index) => {
+        if ((method.callConfig?.create ?? []).length > 0) {
+          return [
+            ...acc,
+            {
+              dt: method.name,
+              dd: (
+                <Button
+                  key={index}
+                  variant="default"
+                  onClick={() => openDialog(BuildableTransactionType.MethodCall, appSpec, method)}
+                  icon={<Parentheses size={16} />}
+                >
+                  Call
+                </Button>
+              ),
+            },
+          ]
+        }
+        return acc
+      }, [] as DescriptionListItems)
+      .concat({
+        dt: 'Bare',
+        dd: (
+          <Button variant="default" onClick={() => openDialog(BuildableTransactionType.AppCall)} icon={<Parentheses size={16} />}>
+            Call
+          </Button>
+        ),
+      })
+  }, [abiMethods.methods, appSpec, openDialog])
 
   return (
     <div className="duration-300 animate-in fade-in-20">
-      <div className="flex justify-end">
-        {transactions.length === 0 && (
-          <>
-            {temp.map((method, index) => (
-              <Button
-                key={index}
-                variant="default"
-                onClick={() => openDialog(BuildableTransactionType.MethodCall, appSpec, method)}
-                icon={<Parentheses size={16} />}
-              >
-                {method}
-              </Button>
-            ))}
-            <Button variant="default" onClick={() => openDialog(BuildableTransactionType.AppCall)} icon={<Parentheses size={16} />}>
-              Bare Deploy
-            </Button>
-          </>
-        )}
-      </div>
+      {transactions.length === 0 && (
+        <div className="mb-4">
+          <DescriptionList items={deploymentOptions} dtClassName="self-center" />
+        </div>
+      )}
       <TransactionsBuilder
         key={transactions.length}
         defaultTransactions={transactions}
@@ -200,7 +226,7 @@ export function WIPDeployApp({ machine }: Props) {
         onSendTransactions={deploy}
         disableAddTransaction
         additionalActions={
-          <Button onClick={back} icon={<ArrowLeft size={16} />}>
+          <Button type="button" variant="outline" className="w-24" onClick={back} icon={<ArrowLeft size={16} />}>
             Back
           </Button>
         }

@@ -1,5 +1,6 @@
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { AbiContract as Arc4AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
+import { ApplicationId } from '@/features/applications/data/types'
 
 export enum AppSpecStandard {
   ARC32 = 'ARC-32',
@@ -21,3 +22,16 @@ export type AppSpecVersion =
     }
 
 export type { Arc32AppSpec, Arc4AppSpec }
+
+export type CreateAppInterfaceContext = {
+  applicationId?: ApplicationId
+  file?: File
+  appSpec?: Arc32AppSpec | Arc4AppSpec
+  name?: string
+  version?: string
+  roundFirstValid?: bigint
+  roundLastValid?: bigint
+  updatable?: boolean
+  deletable?: boolean
+  templateParams?: Record<string, string | number | Uint8Array>
+}

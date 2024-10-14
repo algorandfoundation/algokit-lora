@@ -9,6 +9,7 @@ import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/dat
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { Button } from '@/features/common/components/button'
+import { ArrowLeft } from 'lucide-react'
 
 const selectAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -52,10 +53,10 @@ export function WIPUploadAppSpec({ machine, supportedStandards }: Props) {
       onSubmit={next}
       formAction={
         <FormActions>
-          <Button type="button" variant="outline" className="w-28" onClick={back}>
+          <Button type="button" variant="outline" className="mr-auto w-24" onClick={back} icon={<ArrowLeft size={16} />}>
             Back
           </Button>
-          <SubmitButton className="w-28">Next</SubmitButton>
+          <SubmitButton className="w-24">Next</SubmitButton>
         </FormActions>
       }
     >

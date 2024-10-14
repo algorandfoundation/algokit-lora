@@ -201,7 +201,7 @@ const asAssetConfigTransaction = (
     ...('assetName' in params && params.assetName ? [{ dt: 'Asset name', dd: params.assetName }] : []),
     ...('unitName' in params && params.unitName ? [{ dt: 'Unit name', dd: params.unitName }] : []),
     ...('total' in params && params.total ? [{ dt: 'Total', dd: params.total }] : []),
-    ...('decimals' in params && params.decimals ? [{ dt: 'Decimals', dd: params.decimals }] : []),
+    ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
       dd: (

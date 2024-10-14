@@ -1,5 +1,3 @@
-import { Button } from '@/features/common/components/button'
-import { Card, CardContent } from '@/features/common/components/card'
 import { PageTitle } from '@/features/common/components/page-title'
 import { cn, isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { useCreateAppInterfaceStateMachine } from '../data/create-app-interface'
@@ -13,14 +11,16 @@ import { toast } from 'react-toastify'
 import { invariant } from '@/utils/invariant'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '../data/types'
 import { useCreateAppInterface } from '../data'
+import { CreateAppInterfaceFromAppIdCard } from '../components/create-app-interface-from-app-id-card'
+import { CreateAppInterfaceFromDeploymentCard } from '../components/create-app-interface-from-deployment-card'
 
 export const createAppInterfacePageTitle = 'Create App Interface'
 
-function Inner() {
+function CreateAppInterfaceInner() {
   const navigate = useNavigate()
   const createAppInterface = useCreateAppInterface()
   const machine = useCreateAppInterfaceStateMachine()
-  const [state, send] = machine
+  const [state] = machine
 
   const create = useCallback(async () => {
     invariant(state.context.applicationId, 'Application ID is required')
@@ -30,8 +30,8 @@ function Inner() {
     const common = {
       applicationId: state.context.applicationId,
       name: state.context.name,
-      roundFirstValid: state.context.roundFirstValid,
-      roundLastValid: state.context.roundLastValid,
+      roundFirstValid: state.context.roundFirstValid !== undefined ? Number(state.context.roundFirstValid) : undefined,
+      roundLastValid: state.context.roundLastValid !== undefined ? Number(state.context.roundLastValid) : undefined,
     }
 
     if (isArc32AppSpec(state.context.appSpec)) {
@@ -68,31 +68,23 @@ function Inner() {
 
   if (state.matches('createAppInterface')) {
     return (
-      <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-4')}>
-        <Card>
-          <CardContent>
-            <div>
-              <h2>Use Existing App ID</h2>
-              <span>Enter a previously deployed app id to create an app interface.</span>
-              <Button onClick={() => send({ type: 'fromAppIdSelected' })}>Use existing</Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent>
-            <div>
-              <h2>Deploy New App</h2>
-              <span>Deploy a new app and create an app interface.</span>
-              <Button onClick={() => send({ type: 'fromAppDeploymentSelected' })}>Deploy new</Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className={cn('xl:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-4')}>
+        <CreateAppInterfaceFromAppIdCard machine={machine} />
+        <CreateAppInterfaceFromDeploymentCard machine={machine} />
       </div>
     )
   } else if (state.matches('fromAppId')) {
-    return <CreateFromAppId machine={machine} />
+    return (
+      <div className="xl:w-3/4">
+        <CreateFromAppId machine={machine} />
+      </div>
+    )
   } else if (state.matches('fromAppDeployment')) {
-    return <CreateFromDeployment machine={machine} />
+    return (
+      <div className="xl:w-3/4">
+        <CreateFromDeployment machine={machine} />
+      </div>
+    )
   }
 
   return <PageLoader />
@@ -102,7 +94,7 @@ export function CreateAppInterface() {
   return (
     <>
       <PageTitle title={createAppInterfacePageTitle} />
-      <Inner />
+      <CreateAppInterfaceInner />
     </>
   )
 }

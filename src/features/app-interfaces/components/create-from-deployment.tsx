@@ -8,8 +8,6 @@ type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-// TODO: NC - Handle state machine being reset when connecting a wallet (maybe block buttons until a wallet is connected?)
-
 export function CreateFromDeployment({ machine }: Props) {
   const [state] = machine
 

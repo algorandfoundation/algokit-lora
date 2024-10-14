@@ -141,7 +141,6 @@ export function TransactionsBuilder({
   const populateResources = useCallback(async () => {
     try {
       setErrorMessage(undefined)
-      invariant(activeAddress, 'Please connect your wallet')
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
@@ -174,7 +173,7 @@ export function TransactionsBuilder({
       console.error(error)
       setErrorMessage(asError(error).message)
     }
-  }, [transactions, activeAddress])
+  }, [transactions])
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
@@ -218,13 +217,6 @@ export function TransactionsBuilder({
   }, [onReset])
 
   const populateResourcesButtonDisabledProps = useMemo(() => {
-    if (!activeAddress) {
-      return {
-        disabled: true,
-        disabledReason: connectWalletMessage,
-      }
-    }
-
     if (!transactions.find((t) => t.type === BuildableTransactionType.AppCall || t.type === BuildableTransactionType.MethodCall)) {
       return {
         disabled: true,
@@ -235,7 +227,7 @@ export function TransactionsBuilder({
     return {
       disabled: false,
     }
-  }, [activeAddress, transactions])
+  }, [transactions])
 
   const sendButtonDisabledProps = useMemo(() => {
     if (!activeAddress) {

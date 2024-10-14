@@ -1,11 +1,11 @@
 import { assign, setup } from 'xstate'
 import { AppSpecVersion, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types.ts'
-import { useAtom } from 'jotai'
+import { atom, useAtom, useAtomValue } from 'jotai'
 import { atomWithMachine } from 'jotai-xstate'
 import { AppInterfaceEntity, DbConnection, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { useAtomCallback } from 'jotai/utils'
-import { useCallback } from 'react'
+import { loadable, useAtomCallback } from 'jotai/utils'
+import { useCallback, useMemo } from 'react'
 import { invariant } from '@/utils/invariant'
 import { createTimestamp } from '@/features/common/data'
 import { getAppInterfaces } from '@/features/app-interfaces/data'
@@ -14,6 +14,8 @@ export type AppSpecDetails = {
   applicationId: ApplicationId
   name: string
 } & AppSpecVersion
+
+// TODO: NC - Think about the naming of this file.
 
 export const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
   await dbConnection.put('app-interfaces', appInterface)
@@ -118,4 +120,18 @@ const createAppInterfaceMachineAtom = atomWithMachine(() => createMachine())
 
 export const useCreateAppInterfaceStateMachine = () => {
   return useAtom(createAppInterfaceMachineAtom)
+}
+
+const useAppInterfacesAtom = () => {
+  return useMemo(() => {
+    return atom(async (get) => {
+      const dbConnection = await get(dbConnectionAtom)
+      return await getAppInterfaces(dbConnection)
+    })
+  }, [])
+}
+
+export const useLoadableAppInterfacesAtom = () => {
+  const appInterfacesAtom = useAppInterfacesAtom()
+  return useAtomValue(loadable(appInterfacesAtom))
 }
