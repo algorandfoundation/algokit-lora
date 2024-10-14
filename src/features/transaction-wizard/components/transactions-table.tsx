@@ -148,8 +148,6 @@ export function TransactionsTable({
   }
 
   const sensors = useSensors(useSensor(MouseSensor, {}), useSensor(TouchSensor, {}), useSensor(KeyboardSensor, {}))
-  // table.getRowModel().
-  // table.getRow('')
 
   return (
     <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors}>
@@ -237,21 +235,28 @@ const getTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      if (isPlaceholderTransaction(transaction)) {
-        return (
-          <div className="flex min-h-8 items-center gap-1.5">
-            <PlusCircle size={16} />
-            <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
-          </div>
-        )
-      } else {
-        return (
-          <DescriptionList
-            items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
-            dtClassName="w-[9.5rem] truncate"
-          />
-        )
-      }
+      const isMethodCallArg = isPlaceholderTransaction(transaction) || transaction.argumentForMethodCalls?.length
+
+      return (
+        <div>
+          {isPlaceholderTransaction(transaction) ? (
+            <div className="flex min-h-8 items-center gap-1.5">
+              <PlusCircle size={16} />
+              <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
+            </div>
+          ) : (
+            <DescriptionList
+              items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
+              dtClassName="w-[9.5rem] truncate"
+            />
+          )}
+          {isMethodCallArg && (
+            <div className="absolute -bottom-2 right-1/2">
+              <Link2Icon size={16} className="text-muted-foreground/70" />
+            </div>
+          )}
+        </div>
+      )
     },
   },
   {

@@ -66,6 +66,7 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
     dialogBody: (
       props: DialogBodyProps<
         {
+          familyId?: string
           type?: algosdk.TransactionType
           mode: TransactionBuilderMode
           transaction?: BuildTransactionResult
@@ -77,6 +78,7 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
     ) => (
       <TransactionBuilder
         transactionType={props.data.type}
+        familyId={props.data.familyId}
         mode={props.data.mode}
         type={props.data.transaction?.type}
         defaultValues={props.data.defaultValues}
@@ -192,6 +194,8 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
       const isPlaceholder = isPlaceholderTransaction(transaction)
+      const familyId = transactionFamilies.find((f) => f.transactions.some((t) => t.id === transaction.id))?.id
+
       let foo: algosdk.ABITransactionType[] | undefined
       if (isPlaceholder) {
         // TODO: PD - supported nested, maybe obj ref instead of just id
@@ -204,6 +208,7 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
 
       const txn = isPlaceholder
         ? await openTransactionBuilderDialog({
+            familyId: familyId,
             mode: TransactionBuilderMode.Create,
             type: asAlgosdkTransactionType(transaction.targetType),
             foo: foo,
@@ -212,9 +217,22 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
             mode: TransactionBuilderMode.Edit,
             transaction: transaction,
           })
-      // if (txn) {
-      //   setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
-      // }
+
+      console.log(txn)
+
+      if (txn) {
+        setTransactionFamilies((prev) => {
+          return prev.map((family) => {
+            if (family.id === familyId) {
+              return {
+                ...family,
+                transactions: family.transactions.map((t) => (t.id === transaction.id ? txn : t)),
+              }
+            }
+            return family
+          })
+        })
+      }
     },
     [openTransactionBuilderDialog, transactions]
   )

@@ -15,6 +15,7 @@ export const transactionTypeLabel = 'Transaction type'
 type Props = {
   transactionType?: algosdk.TransactionType
   type?: BuildableTransactionType
+  familyId?: string
   mode: TransactionBuilderMode
   defaultValues?: Partial<BuildTransactionResult>
   transaction?: BuildTransactionResult
@@ -23,7 +24,7 @@ type Props = {
   foo?: algosdk.ABITransactionType[]
 }
 
-export function TransactionBuilder({ mode, transactionType, type, transaction, defaultValues, onSubmit, onCancel, foo }: Props) {
+export function TransactionBuilder({ mode, familyId, transactionType, type, transaction, defaultValues, onSubmit, onCancel, foo }: Props) {
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
   const validBuilderConfigs = useMemo(() => {
@@ -68,6 +69,7 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
 
           <FormComponent
             mode={mode}
+            familyId={familyId}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             defaultValues={defaultValues as any}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
