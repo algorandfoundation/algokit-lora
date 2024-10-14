@@ -25,6 +25,7 @@ import {
   BuildTransactionResult,
   MethodForm,
   PlaceholderTransaction,
+  TransactionArgumentField,
 } from '../models'
 import { Struct } from '@/features/abi-methods/components/struct'
 import { DefaultArgument } from '@/features/abi-methods/components/default-value'
@@ -50,16 +51,18 @@ const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {
   mode: TransactionBuilderMode
+  familyId?: string
   transaction?: BuildMethodCallTransactionResult
   activeAddress?: string
   defaultValues?: Partial<BuildMethodCallTransactionResult>
-  onSubmit: (transaction: BuildTransactionResult) => void
+  onSubmit: (transactions: (PlaceholderTransaction | BuildTransactionResult)[]) => void
   onCancel: () => void
   foo?: algosdk.ABITransactionType[]
 }
 
 export function MethodCallTransactionBuilder({
   mode,
+  familyId,
   transaction,
   activeAddress,
   defaultValues: _defaultValues,
@@ -68,6 +71,8 @@ export function MethodCallTransactionBuilder({
   foo,
 }: Props) {
   // TODO: PD - enforce the right method signature
+  // TODO: PD - disable method name select on edit
+
   const [appId, setAppId] = useState<ApplicationId | undefined>(_defaultValues?.applicationId)
   const [methodName, setMethodName] = useState<string | undefined>(_defaultValues?.method?.name)
 
@@ -122,27 +127,22 @@ export function MethodCallTransactionBuilder({
     async (values: z.infer<typeof formData>) => {
       invariant(methodForm, 'Method form is required')
 
-      const methodCallTransactionId = transaction?.id ?? randomGuid()
+      const transactionId = transaction?.id ?? randomGuid()
 
-      const methodArgs = methodForm.arguments.map((arg, index) => {
-        const value = values[`${methodArgPrefix}-${index}` as keyof z.infer<typeof formData>]
-        if ('getAppCallArg' in arg) {
-          return arg.getAppCallArg(value)
-        } else {
-          if (mode === TransactionBuilderMode.Create || (transaction && values.methodName !== transaction.method.name)) {
-            return {
-              id: randomGuid(),
-              targetType: arg.type,
-              argumentForMethodCall: methodCallTransactionId,
-            } satisfies PlaceholderTransaction
+      const methodArgs = methodForm.arguments
+        .filter((arg) => !algosdk.abiTypeIsTransaction(arg.type))
+        .map((arg, index) => {
+          const value = values[`${methodArgPrefix}-${index}` as keyof z.infer<typeof formData>]
+          if ('getAppCallArg' in arg) {
+            return arg.getAppCallArg(value)
           } else {
-            return transaction!.methodArgs[index]
+            throw Error(`Cannot get method call argument value at ${index + 1}`)
           }
-        }
-      })
+        })
 
       const methodCallTxn = {
-        id: methodCallTransactionId,
+        id: transactionId,
+        familyId: familyId ?? transactionId,
         type: BuildableTransactionType.MethodCall,
         applicationId: Number(values.applicationId),
         method: methodForm.abiMethod,
@@ -155,7 +155,18 @@ export function MethodCallTransactionBuilder({
         note: values.note,
       } satisfies BuildMethodCallTransactionResult
 
-      onSubmit(methodCallTxn)
+      if (mode === TransactionBuilderMode.Create) {
+        const placeholderTransactions = methodForm.arguments
+          .filter((arg): arg is TransactionArgumentField => algosdk.abiTypeIsTransaction(arg.type))
+          .map((arg) => ({
+            id: randomGuid(),
+            targetType: arg.type,
+            argumentForMethodCall: transactionId,
+          }))
+        return onSubmit([...placeholderTransactions, methodCallTxn])
+      } else {
+        onSubmit([methodCallTxn])
+      }
     },
     [methodForm, transaction, appSpec, onSubmit, mode]
   )

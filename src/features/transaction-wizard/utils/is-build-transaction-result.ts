@@ -1,9 +1,9 @@
-import { MethodCallArg, BuildTransactionResult, PlaceholderTransaction } from '../models'
+import { BuildTransactionResult, PlaceholderTransaction } from '../models'
 
-export const isBuildTransactionResult = (arg: MethodCallArg): arg is BuildTransactionResult => {
+export const isBuildTransactionResult = (arg: BuildTransactionResult | PlaceholderTransaction): arg is BuildTransactionResult => {
   return typeof arg === 'object' && 'type' in arg
 }
 
-export const isPlaceholderTransaction = (arg: MethodCallArg): arg is PlaceholderTransaction => {
+export const isPlaceholderTransaction = (arg: BuildTransactionResult | PlaceholderTransaction): arg is PlaceholderTransaction => {
   return typeof arg === 'object' && 'targetType' in arg
 }

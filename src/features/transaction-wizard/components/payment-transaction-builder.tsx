@@ -28,17 +28,21 @@ const formData = zfd.formData(formSchema)
 
 type Props = {
   mode: TransactionBuilderMode
+  familyId?: string
   transaction?: BuildPaymentTransactionResult
   activeAddress?: string
   onSubmit: (transaction: BuildPaymentTransactionResult) => void
   onCancel: () => void
 }
 
-export function PaymentTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function PaymentTransactionBuilder({ mode, familyId, transaction, activeAddress, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
+      const transactionId = transaction?.id ?? randomGuid()
+
       onSubmit({
-        id: transaction?.id ?? randomGuid(),
+        id: transactionId,
+        familyId: familyId ?? transactionId,
         type: BuildableTransactionType.Payment,
         sender: data.sender,
         receiver: data.receiver,
@@ -48,7 +52,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [familyId, onSubmit, transaction?.id]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

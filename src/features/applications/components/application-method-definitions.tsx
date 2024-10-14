@@ -13,6 +13,8 @@ import {
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
+  PlaceholderTransaction,
+  TransactionFamily,
 } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
@@ -46,7 +48,7 @@ type MethodProps = {
 }
 
 function Method({ method, applicationId, readonly }: MethodProps) {
-  const [transaction, setTransaction] = useState<BuildMethodCallTransactionResult | undefined>(undefined)
+  const [transactionFamily, setTransactionFamily] = useState<TransactionFamily | undefined>(undefined)
   const [sentAppCallTransactions, setSentAppCallTransactions] = useState<AppCallTransaction[]>([])
 
   const { open, dialog } = useDialogForm({
@@ -54,7 +56,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     dialogBody: (
       props: DialogBodyProps<
         { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
-        BuildTransactionResult
+        (PlaceholderTransaction | BuildTransactionResult)[]
       >
     ) => (
       <TransactionBuilder
@@ -69,7 +71,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
   })
 
   const openDialog = useCallback(async () => {
-    const transaction = await open({
+    const transactions = await open({
       transactionType: algosdk.ABITransactionType.appl,
       transaction: {
         applicationId: applicationId,
@@ -80,8 +82,11 @@ function Method({ method, applicationId, readonly }: MethodProps) {
             : undefined,
       },
     })
-    if (transaction && transaction.type === BuildableTransactionType.MethodCall) {
-      setTransaction(transaction)
+    if (transactions) {
+      setTransactionFamily({
+        id: transactions[transactions.length - 1].id,
+        transactions,
+      })
     }
   }, [applicationId, method, open])
 
@@ -91,7 +96,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
   }, [])
 
   const reset = useCallback(() => {
-    setTransaction(undefined)
+    setTransactionFamily(undefined)
     setSentAppCallTransactions([])
   }, [])
 
@@ -117,16 +122,16 @@ function Method({ method, applicationId, readonly }: MethodProps) {
         <Returns returns={method.returns} />
         {!readonly && (
           <div className="flex justify-end">
-            {!transaction && (
+            {!transactionFamily && (
               <Button variant="default" className="w-28" onClick={openDialog} icon={<Parentheses size={16} />}>
                 Call
               </Button>
             )}
           </div>
         )}
-        {transaction && (
+        {transactionFamily && (
           <TransactionsBuilder
-            transactions={[transaction]}
+            transactionFamilies={[transactionFamily]}
             onReset={reset}
             onTransactionSent={(txns) => handleTransactionSent(txns)}
             renderContext="app-lab"

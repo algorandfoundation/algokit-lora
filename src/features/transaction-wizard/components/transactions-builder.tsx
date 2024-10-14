@@ -15,6 +15,7 @@ import {
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
   PlaceholderTransaction,
+  TransactionFamily,
 } from '../models'
 import { asAlgosdkTransactions } from '../mappers'
 import { TransactionBuilderMode } from '../data'
@@ -40,7 +41,7 @@ const connectWalletMessage = 'Please connect a wallet'
 export const addTransactionLabel = 'Add Transaction'
 
 type Props = {
-  transactions?: BuildTransactionResult[]
+  transactionFamilies: TransactionFamily[]
   onReset?: () => void
   onTransactionSent?: (transactions: Transaction[]) => void
   renderContext: 'transaction-wizard' | 'app-lab'
@@ -48,15 +49,17 @@ type Props = {
 
 const transactionGroupLabel = 'Transaction Group'
 
-export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, renderContext }: Props) {
+export function TransactionsBuilder({ transactionFamilies: _transactionFamilies, onReset, onTransactionSent, renderContext }: Props) {
   const { activeAddress } = useWallet()
-  const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
+  const [transactionFamilies, setTransactionFamilies] = useState<TransactionFamily[]>(_transactionFamilies ?? [])
+  const transactions = useMemo(() => transactionFamilies.flatMap((family) => family.transactions), [transactionFamilies])
+
   const [transactionGraphResult, setTransactionGraphResult] = useState<TransactionsGraphData | undefined>(undefined)
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   const nonDeletableTransactionIds = useMemo(() => {
-    return transactionsProp?.map((t) => t.id) ?? []
-  }, [transactionsProp])
+    return _transactionFamilies?.map((t) => t.id) ?? []
+  }, [_transactionFamilies])
 
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
     dialogHeader: 'Build Transaction',
@@ -69,7 +72,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           defaultValues?: Partial<BuildTransactionResult>
           foo?: algosdk.ABITransactionType[]
         },
-        BuildTransactionResult
+        (PlaceholderTransaction | BuildTransactionResult)[]
       >
     ) => (
       <TransactionBuilder
@@ -104,10 +107,17 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       return <ConfirmTransactionsResourcesForm resources={resources} onSubmit={props.onSubmit} onCancel={props.onCancel} />
     },
   })
+
   const createTransaction = useCallback(async () => {
-    const transaction = await openTransactionBuilderDialog({ mode: TransactionBuilderMode.Create })
-    if (transaction) {
-      setTransactions((prev) => [...prev, transaction])
+    const transactions = await openTransactionBuilderDialog({ mode: TransactionBuilderMode.Create })
+    if (transactions && transactions.length > 0) {
+      setTransactionFamilies((prev) => [
+        ...prev,
+        {
+          id: transactions[transactions.length - 1].id,
+          transactions,
+        },
+      ])
     }
   }, [openTransactionBuilderDialog])
 
@@ -115,20 +125,20 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
-      ensureThereIsNoPlaceholderTransaction(transactions)
-
-      const algokitComposer = algorandClient.newGroup()
-      for (const transaction of transactions) {
-        const txns = await asAlgosdkTransactions(transaction)
-        txns.forEach((txn) => algokitComposer.addTransaction(txn))
-      }
-      const result = await algokitComposer.send()
-      const sentTxns = asTransactionFromSendResult(result)
-      const transactionsGraphData = asTransactionsGraphData(sentTxns)
-
-      setTransactionGraphResult(transactionsGraphData)
-
-      onTransactionSent?.(sentTxns)
+      // ensureThereIsNoPlaceholderTransaction(transactions)
+      //
+      // const algokitComposer = algorandClient.newGroup()
+      // for (const transaction of transactions) {
+      //   const txns = await asAlgosdkTransactions(transaction)
+      //   txns.forEach((txn) => algokitComposer.addTransaction(txn))
+      // }
+      // const result = await algokitComposer.send()
+      // const sentTxns = asTransactionFromSendResult(result)
+      // const transactionsGraphData = asTransactionsGraphData(sentTxns)
+      //
+      // setTransactionGraphResult(transactionsGraphData)
+      //
+      // onTransactionSent?.(sentTxns)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
@@ -140,38 +150,38 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     try {
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
-      ensureThereIsNoPlaceholderTransaction(transactions)
-
-      const algokitComposer = algorandClient.newGroup()
-      for (const transaction of transactions) {
-        const txns = await asAlgosdkTransactions(transaction)
-        txns.forEach((txn) => algokitComposer.addTransaction(txn))
-      }
-
-      const { atc } = await algokitComposer.build()
-      const populatedAtc = await populateAppCallResources(atc, algod)
-      const transactionsWithResources = populatedAtc.buildGroup()
-
-      setTransactions((prev) => {
-        let newTransactions = [...prev]
-
-        const flattenedTransactions = flattenTransactions(transactions)
-        for (let i = 0; i < flattenedTransactions.length; i++) {
-          const transaction = flattenedTransactions[i]
-          const transactionWithResources = transactionsWithResources[i]
-          if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
-            const resources = {
-              accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
-              assets: transactionWithResources.txn.appForeignAssets ?? [],
-              applications: transactionWithResources.txn.appForeignApps ?? [],
-              boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
-            }
-            newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
-          }
-        }
-
-        return newTransactions
-      })
+      // ensureThereIsNoPlaceholderTransaction(transactions)
+      //
+      // const algokitComposer = algorandClient.newGroup()
+      // for (const transaction of transactions) {
+      //   const txns = await asAlgosdkTransactions(transaction)
+      //   txns.forEach((txn) => algokitComposer.addTransaction(txn))
+      // }
+      //
+      // const { atc } = await algokitComposer.build()
+      // const populatedAtc = await populateAppCallResources(atc, algod)
+      // const transactionsWithResources = populatedAtc.buildGroup()
+      //
+      // setTransactions((prev) => {
+      //   let newTransactions = [...prev]
+      //
+      //   const flattenedTransactions = flattenTransactions(transactions)
+      //   for (let i = 0; i < flattenedTransactions.length; i++) {
+      //     const transaction = flattenedTransactions[i]
+      //     const transactionWithResources = transactionsWithResources[i]
+      //     if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
+      //       const resources = {
+      //         accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
+      //         assets: transactionWithResources.txn.appForeignAssets ?? [],
+      //         applications: transactionWithResources.txn.appForeignApps ?? [],
+      //         boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
+      //       }
+      //       newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
+      //     }
+      //   }
+      //
+      //   return newTransactions
+      // })
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
@@ -184,17 +194,9 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       const isPlaceholder = isPlaceholderTransaction(transaction)
       let foo: algosdk.ABITransactionType[] | undefined
       if (isPlaceholder) {
-        // TODO: supported nested
-        const methodCallTxn = transactions.find(
-          (t): t is BuildMethodCallTransactionResult =>
-            t.type === BuildableTransactionType.MethodCall && t.id == transaction.argumentForMethodCall
-        )
-        invariant(methodCallTxn, `Method call transaction ${transaction.argumentForMethodCall} not found`)
-        const a = methodCallTxn.methodArgs.filter(
-          (arg): arg is BuildTransactionResult | PlaceholderTransaction => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg)
-        )
-        const i = a.findIndex((arg) => arg.id === transaction.id)
-        foo = a
+        // TODO: PD - supported nested, maybe obj ref instead of just id
+        const i = transactions.findIndex((arg) => arg.id === transaction.id)
+        foo = transactions
           .slice(0, i)
           .map((a) => (isBuildTransactionResult(a) ? asAlgosdkABITransactionType(a.type) : a.targetType))
           .reverse()
@@ -210,31 +212,32 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
             mode: TransactionBuilderMode.Edit,
             transaction: transaction,
           })
-      if (txn) {
-        setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
-      }
+      // if (txn) {
+      //   setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
+      // }
     },
-    [openTransactionBuilderDialog]
+    [openTransactionBuilderDialog, transactions]
   )
 
-  const deleteTransaction = useCallback((transaction: BuildTransactionResult) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== transaction.id))
+  // TODO: PD - refactor the delete, it works but won't be great
+  const deleteTransactionFamily = useCallback((transaction: BuildTransactionResult) => {
+    setTransactionFamilies((prev) => prev.filter((t) => t.id !== transaction.id))
   }, [])
 
   const editResources = useCallback(
     async (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
-        setTransactions((prev) => {
-          return setTransactionResources(prev, transaction.id, resources)
-        })
+        // setTransactions((prev) => {
+        //   return setTransactionResources(prev, transaction.id, resources)
+        // })
       }
     },
     [openEditResourcesDialog]
   )
 
   const reset = useCallback(() => {
-    setTransactions([])
+    setTransactionFamilies([])
     setErrorMessage(undefined)
     setTransactionGraphResult(undefined)
     onReset?.()
@@ -248,7 +251,12 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       }
     }
 
-    if (!transactions.find((t) => t.type === BuildableTransactionType.AppCall || t.type === BuildableTransactionType.MethodCall)) {
+    if (
+      !transactions.find(
+        (t) =>
+          isBuildTransactionResult(t) && (t.type === BuildableTransactionType.AppCall || t.type === BuildableTransactionType.MethodCall)
+      )
+    ) {
       return {
         disabled: true,
         disabledReason: 'No application call transactions',
@@ -268,7 +276,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       }
     }
 
-    const groupTransactionCount = flattenTransactions(transactions).length
+    const groupTransactionCount = transactions.length
     if (groupTransactionCount > 16) {
       return {
         disabled: true,
@@ -303,12 +311,12 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
         </div>
         <TransactionsTable
           ariaLabel={transactionGroupTableLabel}
-          data={transactions}
-          setData={setTransactions}
+          families={transactionFamilies}
+          setFamilies={setTransactionFamilies}
           nonDeletableTransactionIds={nonDeletableTransactionIds}
           onEditTransaction={editTransaction}
           onEditResources={editResources}
-          onDelete={deleteTransaction}
+          onDelete={deleteTransactionFamily}
         />
         {errorMessage && (
           <div>

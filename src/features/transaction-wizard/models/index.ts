@@ -49,6 +49,7 @@ export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
 
 type CommonBuildTransactionResult = {
   id: string
+  familyId: string
   sender: Address
   fee: {
     setAutomatically: boolean
@@ -97,7 +98,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
     | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
-export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction
+export type MethodCallArg = algosdk.ABIValue
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
@@ -214,3 +215,8 @@ export type BuildTransactionResult =
   | BuildMethodCallTransactionResult
 
 export type TransactionPositionsInGroup = Map<string, number>
+
+export type TransactionFamily = {
+  id: string
+  transactions: (PlaceholderTransaction | BuildTransactionResult)[]
+}

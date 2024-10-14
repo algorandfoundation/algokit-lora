@@ -1,4 +1,4 @@
-import { ColumnDef, flexRender, getCoreRowModel, Row, useReactTable } from '@tanstack/react-table'
+import { ColumnDef, flexRender, getCoreRowModel, Row, RowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { CSSProperties, useMemo } from 'react'
 import { cn } from '@/features/common/utils'
@@ -23,6 +23,7 @@ import {
   BuildTransactionResult,
   TransactionPositionsInGroup,
   PlaceholderTransaction,
+  TransactionFamily,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabelFromBuildableTransactionType, asTransactionLabelFromTransactionType } from '../mappers'
@@ -42,19 +43,21 @@ export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   )
 }
 
-function TransactionRow({
-  row,
+function TransactionsFamily({
+  rowModel,
+  family,
   transactionPositions,
   onEditTransaction,
   onEditResources,
 }: {
-  row: Row<BuildTransactionResult>
+  rowModel: RowModel<PlaceholderTransaction | BuildTransactionResult>
+  family: TransactionFamily
   transactionPositions: TransactionPositionsInGroup
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
 }) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.id,
+    id: family.id,
   })
 
   const style: CSSProperties = {
@@ -65,19 +68,32 @@ function TransactionRow({
     position: 'relative',
   }
 
+  const familyMemberRows = useMemo(
+    () => family.transactions.slice(0, -1).map((t) => rowModel.rowsById[t.id]!),
+    [family.transactions, rowModel]
+  )
+  const familyLeaderRow = useMemo(() => rowModel.rowsById[family.id]!, [family.id, rowModel])
+
   return (
     <TableBody ref={setNodeRef} style={style}>
-      <SubTransactionsRows
-        transaction={row.original}
-        transactionPositions={transactionPositions}
-        onEditTransaction={onEditTransaction}
-        onEditResources={onEditResources}
-      />
-      <TableRow data-state={row.getIsSelected() && 'selected'}>
+      {familyMemberRows.map((row) => (
+        <TableRow
+          className={cn('relative', isPlaceholderTransaction(row.original) && 'cursor-pointer bg-muted/50 text-primary')}
+          {...(isPlaceholderTransaction(row.original) ? { onClick: () => onEditTransaction(row.original) } : undefined)}
+        >
+          <TableCell></TableCell>
+          {row.getVisibleCells().map((cell) => (
+            <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableCell>
+          ))}
+        </TableRow>
+      ))}
+      <TableRow>
         <TableCell className="w-10 border-b">
-          <RowDragHandleCell rowId={row.id} />
+          <RowDragHandleCell rowId={familyLeaderRow.id} />
         </TableCell>
-        {row.getVisibleCells().map((cell) => (
+        {familyLeaderRow.getVisibleCells().map((cell) => (
           <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
           </TableCell>
@@ -88,8 +104,8 @@ function TransactionRow({
 }
 
 type Props = {
-  data: BuildTransactionResult[]
-  setData: (data: BuildTransactionResult[]) => void
+  families: TransactionFamily[]
+  setFamilies: (data: TransactionFamily[]) => void
   ariaLabel?: string
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
@@ -98,26 +114,27 @@ type Props = {
 }
 
 export function TransactionsTable({
-  data,
-  setData,
+  families,
+  setFamilies,
   ariaLabel,
   onEditTransaction,
   onEditResources,
   onDelete,
   nonDeletableTransactionIds,
 }: Props) {
-  const transactionPositions = useMemo(() => calculatePositions(data), [data])
+  const transactions = useMemo(() => families.flatMap((family) => family.transactions), [families])
+  const transactionPositions = useMemo(() => calculatePositions(transactions), [transactions])
 
   const columns = getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds, transactionPositions })
 
   const table = useReactTable({
-    data,
+    data: transactions,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getRowId: (row) => row.id,
   })
 
-  const dataIds = useMemo<string[]>(() => data.map((d) => d.id), [data])
+  const dataIds = useMemo<string[]>(() => families.map((d) => d.id), [families])
 
   // reorder rows after drag & drop
   function handleDragEnd(event: DragEndEvent) {
@@ -125,12 +142,14 @@ export function TransactionsTable({
     if (active && over && active.id !== over.id) {
       const oldIndex = dataIds.indexOf(active.id.toString())
       const newIndex = dataIds.indexOf(over.id.toString())
-      const newData = arrayMove(data, oldIndex, newIndex) //this is just a splice util
-      setData(newData)
+      const newData = arrayMove(families, oldIndex, newIndex) //this is just a splice util
+      setFamilies(newData)
     }
   }
 
   const sensors = useSensors(useSensor(MouseSensor, {}), useSensor(TouchSensor, {}), useSensor(KeyboardSensor, {}))
+  // table.getRowModel().
+  // table.getRow('')
 
   return (
     <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors}>
@@ -151,18 +170,17 @@ export function TransactionsTable({
             ))}
           </TableHeader>
           <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
-            {table.getRowModel().rows?.length ? (
-              table
-                .getRowModel()
-                .rows.map((row) => (
-                  <TransactionRow
-                    key={row.id}
-                    row={row}
-                    transactionPositions={transactionPositions}
-                    onEditTransaction={onEditTransaction}
-                    onEditResources={onEditResources}
-                  />
-                ))
+            {families.length ? (
+              families.map((family) => (
+                <TransactionsFamily
+                  rowModel={table.getRowModel()}
+                  key={family.id}
+                  family={family}
+                  transactionPositions={transactionPositions}
+                  onEditTransaction={onEditTransaction}
+                  onEditResources={onEditResources}
+                />
+              ))
             ) : (
               <TableBody>
                 <TableRow>
@@ -179,19 +197,11 @@ export function TransactionsTable({
   )
 }
 
-const calculatePositions = (transactions: BuildTransactionResult[]): TransactionPositionsInGroup => {
+const calculatePositions = (transactions: (PlaceholderTransaction | BuildTransactionResult)[]): TransactionPositionsInGroup => {
   let index = 1
   return transactions.reduce((acc, transaction) => {
-    if (transaction.type !== BuildableTransactionType.MethodCall) {
-      acc.set(transaction.id, index++)
-      return acc
-    } else {
-      getSubTransactions(transaction).forEach((t) => {
-        acc.set(t.id, index++)
-      })
-      acc.set(transaction.id, index++)
-      return acc
-    }
+    acc.set(transaction.id, index++)
+    return acc
   }, new Map<string, number>())
 }
 
@@ -207,91 +217,7 @@ const getTableColumns = ({
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
-}): ColumnDef<BuildTransactionResult>[] => [
-  {
-    id: 'position',
-    cell: (c) => {
-      const transaction = c.row.original
-      return transactionPositions.get(transaction.id)!
-    },
-  },
-  {
-    header: 'Type',
-    accessorFn: (item) => asTransactionLabelFromBuildableTransactionType(item.type),
-    meta: { className: 'w-40' },
-  },
-  {
-    header: 'Description',
-    cell: (c) => {
-      const transaction = c.row.original
-      return (
-        <DescriptionList
-          items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
-          dtClassName="w-[9.5rem] truncate"
-        />
-      )
-    },
-  },
-  {
-    id: 'actions',
-    meta: { className: 'w-14' },
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
-          <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
-          {(row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall) && (
-            <DropdownMenuItem
-              onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
-            >
-              Edit Resources
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem onClick={() => onDelete(row.original)} disabled={nonDeletableTransactionIds.includes(row.original.id)}>
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
-]
-
-const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransactionResult | PlaceholderTransaction)[] => {
-  if (transaction.type !== BuildableTransactionType.MethodCall) {
-    return []
-  }
-  if (!transaction.methodArgs) {
-    return []
-  }
-  return transaction.methodArgs.reduce(
-    (acc, arg) => {
-      if (isBuildTransactionResult(arg)) {
-        acc.push(...[...getSubTransactions(arg), arg])
-      }
-      if (isPlaceholderTransaction(arg)) {
-        acc.push(arg)
-      }
-      return acc
-    },
-    [] as (BuildTransactionResult | PlaceholderTransaction)[]
-  )
-}
-
-const getSubTransactionsTableColumns = ({
-  transactionPositions,
-  onEditTransaction,
-  onEditResources,
-}: {
-  transactionPositions: TransactionPositionsInGroup
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
-  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
-}): ColumnDef<BuildTransactionResult | PlaceholderTransaction>[] => [
-  {
-    id: 'empty',
-    meta: { className: 'w-10' },
-  },
+}): ColumnDef<PlaceholderTransaction | BuildTransactionResult>[] => [
   {
     id: 'position',
     cell: (c) => {
@@ -311,24 +237,21 @@ const getSubTransactionsTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return (
-        <div>
-          {isPlaceholderTransaction(transaction) ? (
-            <div className="flex min-h-8 items-center gap-1.5">
-              <PlusCircle size={16} />
-              <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
-            </div>
-          ) : (
-            <DescriptionList
-              items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
-              dtClassName="w-[9.5rem] truncate"
-            />
-          )}
-          <div className="absolute -bottom-2 right-1/2">
-            <Link2Icon size={16} className="text-muted-foreground/70" />
+      if (isPlaceholderTransaction(transaction)) {
+        return (
+          <div className="flex min-h-8 items-center gap-1.5">
+            <PlusCircle size={16} />
+            <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
           </div>
-        </div>
-      )
+        )
+      } else {
+        return (
+          <DescriptionList
+            items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
+            dtClassName="w-[9.5rem] truncate"
+          />
+        )
+      }
     },
   },
   {
@@ -342,56 +265,159 @@ const getSubTransactionsTableColumns = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="right">
             <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
-            {row.original.type === BuildableTransactionType.AppCall ||
-              (row.original.type === BuildableTransactionType.MethodCall && (
-                <DropdownMenuItem
-                  onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
-                >
-                  Edit Resources
-                </DropdownMenuItem>
-              ))}
+            {(row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall) && (
+              <DropdownMenuItem
+                onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
+              >
+                Edit Resources
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem
+              onClick={() => onDelete(row.original as BuildTransactionResult)}
+              disabled={nonDeletableTransactionIds.includes(row.original.id)}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : undefined,
   },
 ]
-function SubTransactionsRows({
-  transaction,
-  transactionPositions,
-  onEditTransaction,
-  onEditResources,
-}: {
-  transaction: BuildTransactionResult
-  transactionPositions: TransactionPositionsInGroup
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
-  onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
-}) {
-  const subTransactions = useMemo(() => {
-    return getSubTransactions(transaction)
-  }, [transaction])
 
-  const table = useReactTable({
-    data: subTransactions,
-    columns: getSubTransactionsTableColumns({ transactionPositions, onEditTransaction, onEditResources }),
-    getCoreRowModel: getCoreRowModel(),
-  })
+// const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransactionResult | PlaceholderTransaction)[] => {
+//   if (transaction.type !== BuildableTransactionType.MethodCall) {
+//     return []
+//   }
+//   if (!transaction.methodArgs) {
+//     return []
+//   }
+//   return transaction.methodArgs.reduce(
+//     (acc, arg) => {
+//       if (isBuildTransactionResult(arg)) {
+//         acc.push(...[...getSubTransactions(arg), arg])
+//       }
+//       if (isPlaceholderTransaction(arg)) {
+//         acc.push(arg)
+//       }
+//       return acc
+//     },
+//     [] as (BuildTransactionResult | PlaceholderTransaction)[]
+//   )
+// }
 
-  return (
-    <>
-      {table.getRowModel().rows.map((row) => (
-        <TableRow
-          key={row.id}
-          data-state={row.getIsSelected() && 'selected'}
-          className={cn('relative', isPlaceholderTransaction(row.original) && 'cursor-pointer bg-muted/50 text-primary')}
-          {...(isPlaceholderTransaction(row.original) ? { onClick: () => onEditTransaction(row.original) } : undefined)}
-        >
-          {row.getVisibleCells().map((cell) => (
-            <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </TableCell>
-          ))}
-        </TableRow>
-      ))}
-    </>
-  )
-}
+// const getSubTransactionsTableColumns = ({
+//   transactionPositions,
+//   onEditTransaction,
+//   onEditResources,
+// }: {
+//   transactionPositions: TransactionPositionsInGroup
+//   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+//   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
+// }): ColumnDef<BuildTransactionResult | PlaceholderTransaction>[] => [
+//   {
+//     id: 'empty',
+//     meta: { className: 'w-10' },
+//   },
+//   {
+//     id: 'position',
+//     cell: (c) => {
+//       const transaction = c.row.original
+//       return transactionPositions.get(transaction.id)!
+//     },
+//   },
+//   {
+//     header: 'Type',
+//     accessorFn: (item) =>
+//       isPlaceholderTransaction(item)
+//         ? asTransactionLabelFromTransactionType(item.targetType)
+//         : asTransactionLabelFromBuildableTransactionType(item.type),
+//     meta: { className: 'w-40' },
+//   },
+//   {
+//     header: 'Description',
+//     cell: (c) => {
+//       const transaction = c.row.original
+//       return (
+//         <div>
+//           {isPlaceholderTransaction(transaction) ? (
+//             <div className="flex min-h-8 items-center gap-1.5">
+//               <PlusCircle size={16} />
+//               <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
+//             </div>
+//           ) : (
+//             <DescriptionList
+//               items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
+//               dtClassName="w-[9.5rem] truncate"
+//             />
+//           )}
+//           <div className="absolute -bottom-2 right-1/2">
+//             <Link2Icon size={16} className="text-muted-foreground/70" />
+//           </div>
+//         </div>
+//       )
+//     },
+//   },
+//   {
+//     id: 'actions',
+//     meta: { className: 'w-14' },
+//     cell: ({ row }) =>
+//       !isPlaceholderTransaction(row.original) ? (
+//         <DropdownMenu>
+//           <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
+//             <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
+//           </DropdownMenuTrigger>
+//           <DropdownMenuContent align="start" side="right">
+//             <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
+//             {row.original.type === BuildableTransactionType.AppCall ||
+//               (row.original.type === BuildableTransactionType.MethodCall && (
+//                 <DropdownMenuItem
+//                   onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
+//                 >
+//                   Edit Resources
+//                 </DropdownMenuItem>
+//               ))}
+//           </DropdownMenuContent>
+//         </DropdownMenu>
+//       ) : undefined,
+//   },
+// ]
+// function SubTransactionsRows({
+//   transaction,
+//   transactionPositions,
+//   onEditTransaction,
+//   onEditResources,
+// }: {
+//   transaction: BuildTransactionResult
+//   transactionPositions: TransactionPositionsInGroup
+//   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+//   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
+// }) {
+//   const subTransactions = useMemo(() => {
+//     return getSubTransactions(transaction)
+//   }, [transaction])
+//
+//   const table = useReactTable({
+//     data: subTransactions,
+//     columns: getSubTransactionsTableColumns({ transactionPositions, onEditTransaction, onEditResources }),
+//     getCoreRowModel: getCoreRowModel(),
+//   })
+//
+//   return (
+//     <>
+//       {table.getRowModel().rows.map((row) => (
+//         <TableRow
+//           key={row.id}
+//           data-state={row.getIsSelected() && 'selected'}
+//           className={cn('relative', isPlaceholderTransaction(row.original) && 'cursor-pointer bg-muted/50 text-primary')}
+//           {...(isPlaceholderTransaction(row.original) ? { onClick: () => onEditTransaction(row.original) } : undefined)}
+//         >
+//           {row.getVisibleCells().map((cell) => (
+//             <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>
+//               {flexRender(cell.column.columnDef.cell, cell.getContext())}
+//             </TableCell>
+//           ))}
+//         </TableRow>
+//       ))}
+//     </>
+//   )
+// }

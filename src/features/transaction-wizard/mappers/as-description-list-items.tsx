@@ -279,23 +279,24 @@ const asMethodArg = (
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   if (algosdk.abiTypeIsTransaction(type)) {
-    invariant(isBuildTransactionResult(arg) || isPlaceholderTransaction(arg), 'Transaction type args must be a transaction')
-    const argPosition = transactionPositions.get(arg.id)!
-
-    // Transaction type args are shown in the table
-    return (
-      <div className="float-left flex items-center gap-1.5">
-        <span className="truncate">Transaction {argPosition} in the group</span>
-        <Button
-          className="size-4 p-0 text-primary"
-          variant="no-style"
-          onClick={() => onEditTransaction(arg)}
-          {...(isPlaceholderTransaction(arg)
-            ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
-            : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
-        />
-      </div>
-    )
+    return 'TODO: PD - implement'
+    // invariant(isBuildTransactionResult(arg) || isPlaceholderTransaction(arg), 'Transaction type args must be a transaction')
+    // const argPosition = transactionPositions.get(arg.id)!
+    //
+    // // Transaction type args are shown in the table
+    // return (
+    //   <div className="float-left flex items-center gap-1.5">
+    //     <span className="truncate">Transaction {argPosition} in the group</span>
+    //     <Button
+    //       className="size-4 p-0 text-primary"
+    //       variant="no-style"
+    //       onClick={() => onEditTransaction(arg)}
+    //       {...(isPlaceholderTransaction(arg)
+    //         ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
+    //         : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
+    //     />
+    //   </div>
+    // )
   }
   if (algosdk.abiTypeIsReference(type)) {
     if (type === algosdk.ABIReferenceType.account) {

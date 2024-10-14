@@ -49,17 +49,20 @@ const formData = zfd.formData(formSchema)
 
 type Props = {
   mode: TransactionBuilderMode
+  familyId?: string
   transaction?: BuildAccountCloseTransactionResult
   activeAddress?: string
   onSubmit: (transaction: BuildAccountCloseTransactionResult) => void
   onCancel: () => void
 }
 
-export function AccountCloseTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AccountCloseTransactionBuilder({ mode, familyId, transaction, activeAddress, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
+      const transactionId = transaction?.id ?? randomGuid()
       onSubmit({
-        id: transaction?.id ?? randomGuid(),
+        id: transactionId,
+        familyId: familyId ?? transactionId,
         type: BuildableTransactionType.AccountClose,
         sender: data.sender,
         closeRemainderTo: data.closeRemainderTo,
@@ -70,7 +73,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [familyId, onSubmit, transaction?.id]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

@@ -1,6 +1,6 @@
 import algosdk from 'algosdk'
 import { useMemo, useState } from 'react'
-import { BuildableTransactionType, BuildTransactionResult } from '../models'
+import { BuildableTransactionType, BuildTransactionResult, PlaceholderTransaction } from '../models'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -18,7 +18,7 @@ type Props = {
   mode: TransactionBuilderMode
   defaultValues?: Partial<BuildTransactionResult>
   transaction?: BuildTransactionResult
-  onSubmit: (transaction: BuildTransactionResult) => void
+  onSubmit: (transactions: (PlaceholderTransaction | BuildTransactionResult)[]) => void
   onCancel: () => void
   foo?: algosdk.ABITransactionType[]
 }
@@ -72,7 +72,14 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
             defaultValues={defaultValues as any}
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             transaction={transaction as any}
-            onSubmit={onSubmit}
+            onSubmit={(result) => {
+              console.log('result', result)
+              if (Array.isArray(result)) {
+                onSubmit(result)
+              } else {
+                onSubmit([result])
+              }
+            }}
             onCancel={onCancel}
             activeAddress={activeWalletAddressSnapshot}
             foo={foo}

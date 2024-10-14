@@ -30,6 +30,7 @@ const formData = zfd.formData({
 
 type Props = {
   mode: TransactionBuilderMode
+  familyId?: string
   transaction?: BuildAppCallTransactionResult
   activeAddress?: string
   defaultValues?: Partial<BuildAppCallTransactionResult>
@@ -37,11 +38,22 @@ type Props = {
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilder({ mode, transaction, activeAddress, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
+export function AppCallTransactionBuilder({
+  mode,
+  familyId,
+  transaction,
+  activeAddress,
+  defaultValues: _defaultValues,
+  onSubmit,
+  onCancel,
+}: Props) {
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
+      const transactionId = transaction?.id ?? randomGuid()
+
       onSubmit({
-        id: transaction?.id ?? randomGuid(),
+        id: transactionId,
+        familyId: familyId ?? transactionId,
         type: BuildableTransactionType.AppCall,
         applicationId: Number(values.applicationId),
         sender: values.sender,
