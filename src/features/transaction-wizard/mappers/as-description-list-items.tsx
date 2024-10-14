@@ -16,7 +16,6 @@ import {
   BuildTransactionResult,
   MethodCallArg,
   PlaceholderTransaction,
-  TransactionPositionsInGroup,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
@@ -34,13 +33,13 @@ import {
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
-import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
-import { isBuildTransactionResult, isPlaceholderTransaction } from '@/features/transaction-wizard/utils/is-build-transaction-result'
+import { isPlaceholderTransaction } from '@/features/transaction-wizard/utils/is-build-transaction-result'
+import { useMemo } from 'react'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
-  transactionPositions: TransactionPositionsInGroup,
+  transactionGroup: (PlaceholderTransaction | BuildTransactionResult)[],
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -50,7 +49,7 @@ export const asDescriptionListItems = (
     return asAppCallTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
-    return asMethodCallTransaction(transaction, transactionPositions, onEditTransaction)
+    return asMethodCallTransaction(transaction, transactionGroup, onEditTransaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -272,12 +271,7 @@ const asAssetConfigTransaction = (
   ]
 }
 
-const asMethodArg = (
-  type: algosdk.ABIArgumentType,
-  arg: MethodCallArg,
-  transactionPositions: TransactionPositionsInGroup,
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
-) => {
+const asNonTransactionArg = (type: algosdk.ABIType | algosdk.ABIReferenceType, arg: MethodCallArg) => {
   if (algosdk.abiTypeIsTransaction(type)) {
     return 'TODO: PD - implement'
     // invariant(isBuildTransactionResult(arg) || isPlaceholderTransaction(arg), 'Transaction type args must be a transaction')
@@ -331,6 +325,29 @@ const asMethodArg = (
   return <AbiValue abiValue={abiValue} />
 }
 
+const asTransactionArg = (
+  transaction: PlaceholderTransaction | BuildTransactionResult,
+  transactionGroup: (PlaceholderTransaction | BuildTransactionResult)[],
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+) => {
+  const argPosition = transactionGroup.findIndex((t) => t.id === transaction.id) + 1
+
+  // Transaction type args are shown in the table
+  return (
+    <div className="float-left flex items-center gap-1.5">
+      <span className="truncate">Transaction {argPosition} in the group</span>
+      <Button
+        className="size-4 p-0 text-primary"
+        variant="no-style"
+        onClick={() => onEditTransaction(transaction)}
+        {...(isPlaceholderTransaction(transaction)
+          ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
+          : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
+      />
+    </div>
+  )
+}
+
 const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): DescriptionListItems => {
   const params = asAppCallTransactionParams(transaction)
 
@@ -372,7 +389,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
 
 const asMethodCallTransaction = (
   transaction: BuildMethodCallTransactionResult,
-  transactionPositions: TransactionPositionsInGroup,
+  transactionGroup: (PlaceholderTransaction | BuildTransactionResult)[],
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
@@ -408,16 +425,7 @@ const asMethodCallTransaction = (
       ? [
           {
             dt: 'Arguments',
-            dd: (
-              <ol>
-                {transaction.method.args.map((arg, index) => (
-                  <li key={index} className="truncate">
-                    <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index}`}: </span>
-                    {asMethodArg(arg.type, transaction.methodArgs![index], transactionPositions, onEditTransaction)}
-                  </li>
-                ))}
-              </ol>
-            ),
+            dd: <MethodCallArguments transaction={transaction} transactionGroup={transactionGroup} onEditTransaction={onEditTransaction} />,
           },
         ]
       : []),
@@ -426,6 +434,49 @@ const asMethodCallTransaction = (
     ...asNoteItem(params.note),
     ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
   ]
+}
+
+function MethodCallArguments({
+  transaction,
+  transactionGroup,
+  onEditTransaction,
+}: {
+  transaction: BuildMethodCallTransactionResult
+  transactionGroup: (PlaceholderTransaction | BuildTransactionResult)[]
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+}) {
+  const family = transactionGroup.filter((t) => t.familyId === transaction.familyId)
+  const items = useMemo(() => {
+    let nonTransactionArgIndex = transaction.methodArgs.length - 1
+    let transactionArgIndex = family.findIndex((t) => t.id === transaction.id) - 1
+
+    const results = [...transaction.method.args].reverse().map((arg, index) => {
+      if (!algosdk.abiTypeIsTransaction(arg.type)) {
+        return {
+          name: arg.name ? arg.name : `Arg ${index}`,
+          component: asNonTransactionArg(arg.type, transaction.methodArgs[nonTransactionArgIndex--]),
+        }
+      } else {
+        return {
+          name: arg.name ? arg.name : `Arg ${index}`,
+          component: asTransactionArg(family[transactionArgIndex--], transactionGroup, onEditTransaction),
+        }
+      }
+    })
+
+    return results.reverse()
+  }, [family, onEditTransaction, transaction, transactionGroup])
+
+  return (
+    <ol>
+      {items.map((item, index) => (
+        <li key={index} className="truncate">
+          <span className="float-left mr-1.5">{item.name}: </span>
+          {item.component}
+        </li>
+      ))}
+    </ol>
+  )
 }
 
 const asNoteItem = (note?: string | Uint8Array) =>

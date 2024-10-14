@@ -197,8 +197,9 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
 
 export type PlaceholderTransaction = {
   id: string
+  familyId: string
   targetType: algosdk.ABITransactionType
-  argumentForMethodCall: string
+  argumentForMethodCalls: string[]
 }
 
 export type BuildTransactionResult =

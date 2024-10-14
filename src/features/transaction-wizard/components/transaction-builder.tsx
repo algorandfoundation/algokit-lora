@@ -75,7 +75,6 @@ export function TransactionBuilder({ mode, familyId, transactionType, type, tran
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             transaction={transaction as any}
             onSubmit={(result) => {
-              console.log('result', result)
               if (Array.isArray(result)) {
                 onSubmit(result)
               } else {

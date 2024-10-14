@@ -158,17 +158,21 @@ export function MethodCallTransactionBuilder({
       if (mode === TransactionBuilderMode.Create) {
         const placeholderTransactions = methodForm.arguments
           .filter((arg): arg is TransactionArgumentField => algosdk.abiTypeIsTransaction(arg.type))
-          .map((arg) => ({
-            id: randomGuid(),
-            targetType: arg.type,
-            argumentForMethodCall: transactionId,
-          }))
+          .map(
+            (arg) =>
+              ({
+                id: randomGuid(),
+                familyId: familyId ?? transactionId,
+                targetType: arg.type,
+                argumentForMethodCalls: [transactionId],
+              }) satisfies PlaceholderTransaction
+          )
         return onSubmit([...placeholderTransactions, methodCallTxn])
       } else {
         onSubmit([methodCallTxn])
       }
     },
-    [methodForm, transaction, appSpec, onSubmit, mode]
+    [methodForm, transaction?.id, familyId, appSpec, mode, onSubmit]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {

@@ -31,6 +31,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/is-build-transaction-result'
 import { transactionActionsLabel } from './labels'
 import { Button } from '@/features/common/components/button'
+import { PlaceholderDescription } from '@/features/transaction-wizard/components/placeholder-description'
 
 export const RowDragHandleCell = ({ rowId }: { rowId: string }) => {
   const { attributes, listeners } = useSortable({
@@ -78,6 +79,7 @@ function TransactionsFamily({
     <TableBody ref={setNodeRef} style={style}>
       {familyMemberRows.map((row) => (
         <TableRow
+          key={row.id}
           className={cn('relative', isPlaceholderTransaction(row.original) && 'cursor-pointer bg-muted/50 text-primary')}
           {...(isPlaceholderTransaction(row.original) ? { onClick: () => onEditTransaction(row.original) } : undefined)}
         >
@@ -125,7 +127,13 @@ export function TransactionsTable({
   const transactions = useMemo(() => families.flatMap((family) => family.transactions), [families])
   const transactionPositions = useMemo(() => calculatePositions(transactions), [transactions])
 
-  const columns = getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds, transactionPositions })
+  const columns = getTableColumns({
+    onEditTransaction,
+    onEditResources,
+    onDelete,
+    nonDeletableTransactionIds,
+    transactionGroup: transactions,
+  })
 
   const table = useReactTable({
     data: transactions,
@@ -204,13 +212,13 @@ const calculatePositions = (transactions: (PlaceholderTransaction | BuildTransac
 }
 
 const getTableColumns = ({
-  transactionPositions,
+  transactionGroup,
   nonDeletableTransactionIds,
   onEditTransaction,
   onEditResources,
   onDelete,
 }: {
-  transactionPositions: TransactionPositionsInGroup
+  transactionGroup: (PlaceholderTransaction | BuildTransactionResult)[]
   nonDeletableTransactionIds: string[]
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
@@ -220,7 +228,7 @@ const getTableColumns = ({
     id: 'position',
     cell: (c) => {
       const transaction = c.row.original
-      return transactionPositions.get(transaction.id)!
+      return transactionGroup.findIndex((t) => t.id === transaction.id) + 1
     },
   },
   {
@@ -240,13 +248,10 @@ const getTableColumns = ({
       return (
         <div>
           {isPlaceholderTransaction(transaction) ? (
-            <div className="flex min-h-8 items-center gap-1.5">
-              <PlusCircle size={16} />
-              <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
-            </div>
+            <PlaceholderDescription transaction={transaction} transactionGroup={transactionGroup} />
           ) : (
             <DescriptionList
-              items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
+              items={asDescriptionListItems(transaction, transactionGroup, onEditTransaction)}
               dtClassName="w-[9.5rem] truncate"
             />
           )}

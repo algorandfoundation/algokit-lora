@@ -199,6 +199,7 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
       let foo: algosdk.ABITransactionType[] | undefined
       if (isPlaceholder) {
         // TODO: PD - supported nested, maybe obj ref instead of just id
+        // TODO: PD - the .reverse can be troublesome
         const i = transactions.findIndex((arg) => arg.id === transaction.id)
         foo = transactions
           .slice(0, i)
@@ -206,7 +207,7 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
           .reverse()
       }
 
-      const txn = isPlaceholder
+      const txns = isPlaceholder
         ? await openTransactionBuilderDialog({
             familyId: familyId,
             mode: TransactionBuilderMode.Create,
@@ -218,15 +219,62 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
             transaction: transaction,
           })
 
-      console.log(txn)
+      if (!txns || txns.length === 0) {
+        return
+      }
 
-      if (txn) {
+      if (txns.length === 1) {
         setTransactionFamilies((prev) => {
           return prev.map((family) => {
             if (family.id === familyId) {
               return {
                 ...family,
-                transactions: family.transactions.map((t) => (t.id === transaction.id ? txn : t)),
+                transactions: family.transactions.map((t) => (t.id === transaction.id ? txns[0] : t)),
+              }
+            }
+            return family
+          })
+        })
+      } else {
+        setTransactionFamilies((prev) => {
+          return prev.map((family) => {
+            if (family.id === familyId) {
+              console.log(txns, family.transactions)
+              const transactionArgsForMethodCall = txns.slice(0, -1)
+              const methodCallTxn = txns[txns.length - 1]
+
+              const newTransactions: (BuildTransactionResult | PlaceholderTransaction)[] = []
+
+              const index = family.transactions.findIndex((t) => t.id === transaction.id)
+              for (let i = family.transactions.length - 1; i >= 0; i--) {
+                if (i > index) {
+                  newTransactions.push(family.transactions[i])
+                  continue
+                }
+                if (i === index) {
+                  newTransactions.push(methodCallTxn)
+                  continue
+                }
+
+                const existingTransaction = family.transactions[i]
+                const placeholderTxn = transactionArgsForMethodCall.pop()
+                invariant(placeholderTxn && isPlaceholderTransaction(placeholderTxn), 'Transaction arg must be a placeholder transaction')
+                invariant(
+                  (isPlaceholderTransaction(existingTransaction) && existingTransaction.targetType === placeholderTxn.targetType) ||
+                    (isBuildTransactionResult(existingTransaction) &&
+                      asAlgosdkABITransactionType(existingTransaction.type) === placeholderTxn.targetType),
+                  'Failed to insert transaction arg, it will create an invalid group'
+                )
+                newTransactions.push({
+                  ...existingTransaction,
+                  argumentForMethodCalls: [methodCallTxn.id, ...(existingTransaction.argumentForMethodCalls ?? [])],
+                })
+              }
+              newTransactions.push(...transactionArgsForMethodCall.reverse())
+
+              return {
+                ...family,
+                transactions: newTransactions.reverse(),
               }
             }
             return family
@@ -234,7 +282,7 @@ export function TransactionsBuilder({ transactionFamilies: _transactionFamilies,
         })
       }
     },
-    [openTransactionBuilderDialog, transactions]
+    [openTransactionBuilderDialog, transactionFamilies, transactions]
   )
 
   // TODO: PD - refactor the delete, it works but won't be great

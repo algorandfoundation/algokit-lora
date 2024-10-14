@@ -11,7 +11,6 @@ import { DefaultArgument } from '@/features/abi-methods/components/default-value
 import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
-  BuildMethodCallTransactionResult,
   BuildTransactionResult,
   PlaceholderTransaction,
   TransactionFamily,
