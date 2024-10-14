@@ -55,6 +55,7 @@ type Props = {
   defaultValues?: Partial<BuildMethodCallTransactionResult>
   onSubmit: (transaction: BuildTransactionResult) => void
   onCancel: () => void
+  foo?: algosdk.ABITransactionType[]
 }
 
 export function MethodCallTransactionBuilder({
@@ -64,11 +65,17 @@ export function MethodCallTransactionBuilder({
   defaultValues: _defaultValues,
   onSubmit,
   onCancel,
+  foo,
 }: Props) {
+  // TODO: PD - enforce the right method signature
   const [appId, setAppId] = useState<ApplicationId | undefined>(_defaultValues?.applicationId)
   const [methodName, setMethodName] = useState<string | undefined>(_defaultValues?.method?.name)
 
   const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(Number(appId))
+
+  if (foo) {
+    console.log(foo)
+  }
 
   const { appSpec, methodDefinitions } = useMemo(() => {
     if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
@@ -94,6 +101,9 @@ export function MethodCallTransactionBuilder({
   }, [appSpec, methodDefinitions, methodName])
 
   const methodForm = useMemo(() => {
+    if (!methodDefinition) {
+      return undefined
+    }
     return methodDefinition ? asMethodForm(methodDefinition) : undefined
   }, [methodDefinition])
 
@@ -122,9 +132,8 @@ export function MethodCallTransactionBuilder({
           if (mode === TransactionBuilderMode.Create || (transaction && values.methodName !== transaction.method.name)) {
             return {
               id: randomGuid(),
-              type: BuildableTransactionType.Placeholder,
               targetType: arg.type,
-              methodCallTransactionId: methodCallTransactionId,
+              argumentForMethodCall: methodCallTransactionId,
             } satisfies PlaceholderTransaction
           } else {
             return transaction!.methodArgs[index]

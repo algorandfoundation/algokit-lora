@@ -25,13 +25,14 @@ import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/is-build-transaction-result'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Transaction } from '@/features/transactions/models'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
 import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
+import { asAlgosdkABITransactionType } from '@/features/transaction-wizard/mappers/as-algosdk-abi-transaction-type'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -66,6 +67,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           mode: TransactionBuilderMode
           transaction?: BuildTransactionResult
           defaultValues?: Partial<BuildTransactionResult>
+          foo?: algosdk.ABITransactionType[]
         },
         BuildTransactionResult
       >
@@ -76,6 +78,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
         type={props.data.transaction?.type}
         defaultValues={props.data.defaultValues}
         transaction={props.data.transaction}
+        foo={props.data.foo}
         onCancel={props.onCancel}
         onSubmit={props.onSubmit}
       />
@@ -108,7 +111,6 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     }
   }, [openTransactionBuilderDialog])
 
-  // TODO: Support nested app calls
   const sendTransactions = useCallback(async () => {
     try {
       setErrorMessage(undefined)
@@ -179,16 +181,35 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
-      const txn =
-        transaction.type === BuildableTransactionType.Placeholder
-          ? await openTransactionBuilderDialog({
-              mode: TransactionBuilderMode.Create,
-              type: asAlgosdkTransactionType(transaction.targetType),
-            })
-          : await openTransactionBuilderDialog({
-              mode: TransactionBuilderMode.Edit,
-              transaction: transaction,
-            })
+      const isPlaceholder = isPlaceholderTransaction(transaction)
+      let foo: algosdk.ABITransactionType[] | undefined
+      if (isPlaceholder) {
+        // TODO: supported nested
+        const methodCallTxn = transactions.find(
+          (t): t is BuildMethodCallTransactionResult =>
+            t.type === BuildableTransactionType.MethodCall && t.id == transaction.argumentForMethodCall
+        )
+        invariant(methodCallTxn, `Method call transaction ${transaction.argumentForMethodCall} not found`)
+        const a = methodCallTxn.methodArgs.filter(
+          (arg): arg is BuildTransactionResult | PlaceholderTransaction => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg)
+        )
+        const i = a.findIndex((arg) => arg.id === transaction.id)
+        foo = a
+          .slice(0, i)
+          .map((a) => (isBuildTransactionResult(a) ? asAlgosdkABITransactionType(a.type) : a.targetType))
+          .reverse()
+      }
+
+      const txn = isPlaceholder
+        ? await openTransactionBuilderDialog({
+            mode: TransactionBuilderMode.Create,
+            type: asAlgosdkTransactionType(transaction.targetType),
+            foo: foo,
+          })
+        : await openTransactionBuilderDialog({
+            mode: TransactionBuilderMode.Edit,
+            transaction: transaction,
+          })
       if (txn) {
         setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
       }
@@ -333,7 +354,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
 const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTransactionResult[] => {
   return transactions.reduce((acc, transaction) => {
     if (transaction.type === BuildableTransactionType.MethodCall) {
-      const methodCallArgs = transaction.methodArgs.filter((arg) => isBuildTransactionResult(arg))
+      const methodCallArgs = transaction.methodArgs.filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
       return [...acc, ...flattenTransactions(methodCallArgs as BuildTransactionResult[]), transaction]
     }
     return [...acc, transaction]
@@ -342,6 +363,10 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
 
 const setTransactionResources = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
   return setTransaction(transactions, transactionId, (transaction) => {
+    if (isPlaceholderTransaction(transaction)) {
+      throw new Error(`Cannot set resources for placeholder transaction`)
+    }
+
     if (transaction.type === BuildableTransactionType.MethodCall || transaction.type === BuildableTransactionType.AppCall) {
       return {
         ...transaction,
@@ -364,15 +389,17 @@ const setTransaction = (
     if (transaction.id === transactionId) {
       return { ...setter(transaction) }
     }
-    if (transaction.type !== BuildableTransactionType.MethodCall) {
-      return transaction
-    }
-    transaction.methodArgs = transaction.methodArgs.map((arg) => {
-      if (typeof arg === 'object' && 'type' in arg) {
-        return trySet(arg)
+    if (!isPlaceholderTransaction(transaction)) {
+      if (transaction.type !== BuildableTransactionType.MethodCall) {
+        return transaction
       }
-      return arg
-    })
+      transaction.methodArgs = transaction.methodArgs.map((arg) => {
+        if (typeof arg === 'object' && 'type' in arg) {
+          return trySet(arg)
+        }
+        return arg
+      })
+    }
     return { ...transaction }
   }
 
@@ -382,8 +409,7 @@ const setTransaction = (
 const ensureThereIsNoPlaceholderTransaction = (transactions: BuildTransactionResult[]) => {
   const predicate = !transactions.some(
     (transaction) =>
-      transaction.type === BuildableTransactionType.MethodCall &&
-      transaction.methodArgs.some((arg) => typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder)
+      transaction.type === BuildableTransactionType.MethodCall && transaction.methodArgs.some((arg) => isPlaceholderTransaction(arg))
   )
   invariant(predicate, 'Please build all transaction arguments for ABI method calls')
 }

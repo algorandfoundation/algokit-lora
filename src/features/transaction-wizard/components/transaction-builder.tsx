@@ -1,95 +1,16 @@
 import algosdk from 'algosdk'
 import { useMemo, useState } from 'react'
 import { BuildableTransactionType, BuildTransactionResult } from '../models'
-import { MethodCallTransactionBuilder } from './method-call-transaction-builder'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
-import { PaymentTransactionBuilder } from './payment-transaction-builder'
-import { AssetTransferTransactionBuilder } from './asset-transfer-transaction-builder'
-import { AssetOptInTransactionBuilder } from './asset-opt-in-transaction-builder'
 import { TransactionBuilderMode } from '../data'
-import { AssetOptOutTransactionBuilder } from './asset-opt-out-transaction-builder'
-import { AssetClawbackTransactionBuilder } from './asset-clawback-transaction-builder'
-import { AssetCreateTransactionBuilder } from './asset-create-transaction-builder'
-import { AssetReconfigureTransactionBuilder } from './asset-reconfigure-transaction-builder'
-import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-builder'
-import { AppCallTransactionBuilder } from './app-call-transaction-builder'
-import { AccountCloseTransactionBuilder } from './account-close-transaction-builder'
+import { builderConfigs } from '@/features/transaction-wizard/data/builder-config'
 
 export const transactionTypeLabel = 'Transaction type'
-
-const builderConfigs = [
-  {
-    transactionType: algosdk.TransactionType.pay,
-    type: BuildableTransactionType.Payment,
-    label: 'Payment (pay)',
-    component: PaymentTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.pay,
-    type: BuildableTransactionType.AccountClose,
-    label: 'Account Close (pay)',
-    component: AccountCloseTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.appl,
-    type: BuildableTransactionType.AppCall,
-    label: 'Application Call (appl)',
-    component: AppCallTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.appl,
-    type: BuildableTransactionType.MethodCall,
-    label: 'ABI Method Call (appl)',
-    component: MethodCallTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.axfer,
-    type: BuildableTransactionType.AssetTransfer,
-    label: 'Asset Transfer (axfer)',
-    component: AssetTransferTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.axfer,
-    type: BuildableTransactionType.AssetOptIn,
-    label: 'Asset opt-in (axfer)',
-    component: AssetOptInTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.axfer,
-    type: BuildableTransactionType.AssetOptOut,
-    label: 'Asset opt-out (axfer)',
-    component: AssetOptOutTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.axfer,
-    type: BuildableTransactionType.AssetClawback,
-    label: 'Asset clawback (axfer)',
-    component: AssetClawbackTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.acfg,
-    type: BuildableTransactionType.AssetCreate,
-    label: 'Asset create (acfg)',
-    component: AssetCreateTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.acfg,
-    type: BuildableTransactionType.AssetReconfigure,
-    label: 'Asset reconfigure (acfg)',
-    component: AssetReconfigureTransactionBuilder,
-  },
-  {
-    transactionType: algosdk.TransactionType.acfg,
-    type: BuildableTransactionType.AssetDestroy,
-    label: 'Asset destroy (acfg)',
-    component: AssetDestroyTransactionBuilder,
-  },
-]
 
 type Props = {
   transactionType?: algosdk.TransactionType
@@ -99,9 +20,10 @@ type Props = {
   transaction?: BuildTransactionResult
   onSubmit: (transaction: BuildTransactionResult) => void
   onCancel: () => void
+  foo?: algosdk.ABITransactionType[]
 }
 
-export function TransactionBuilder({ mode, transactionType, type, transaction, defaultValues, onSubmit, onCancel }: Props) {
+export function TransactionBuilder({ mode, transactionType, type, transaction, defaultValues, onSubmit, onCancel, foo }: Props) {
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
 
   const validBuilderConfigs = useMemo(() => {
@@ -153,6 +75,7 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
             onSubmit={onSubmit}
             onCancel={onCancel}
             activeAddress={activeWalletAddressSnapshot}
+            foo={foo}
           />
         </div>
       )}

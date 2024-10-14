@@ -27,7 +27,7 @@ import {
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabelFromBuildableTransactionType, asTransactionLabelFromTransactionType } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
-import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/is-build-transaction-result'
 import { transactionActionsLabel } from './labels'
 import { Button } from '@/features/common/components/button'
 
@@ -270,7 +270,7 @@ const getSubTransactions = (transaction: BuildTransactionResult): (BuildTransact
       if (isBuildTransactionResult(arg)) {
         acc.push(...[...getSubTransactions(arg), arg])
       }
-      if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.Placeholder) {
+      if (isPlaceholderTransaction(arg)) {
         acc.push(arg)
       }
       return acc
@@ -302,7 +302,7 @@ const getSubTransactionsTableColumns = ({
   {
     header: 'Type',
     accessorFn: (item) =>
-      item.type === BuildableTransactionType.Placeholder
+      isPlaceholderTransaction(item)
         ? asTransactionLabelFromTransactionType(item.targetType)
         : asTransactionLabelFromBuildableTransactionType(item.type),
     meta: { className: 'w-40' },
@@ -313,10 +313,10 @@ const getSubTransactionsTableColumns = ({
       const transaction = c.row.original
       return (
         <div>
-          {transaction.type === BuildableTransactionType.Placeholder ? (
+          {isPlaceholderTransaction(transaction) ? (
             <div className="flex min-h-8 items-center gap-1.5">
               <PlusCircle size={16} />
-              <span>Build argument for transaction {transactionPositions.get(transaction.methodCallTransactionId)}</span>
+              <span>Build argument for transaction {transactionPositions.get(transaction.argumentForMethodCall)}</span>
             </div>
           ) : (
             <DescriptionList
@@ -335,7 +335,7 @@ const getSubTransactionsTableColumns = ({
     id: 'actions',
     meta: { className: 'w-14' },
     cell: ({ row }) =>
-      row.original.type !== BuildableTransactionType.Placeholder ? (
+      !isPlaceholderTransaction(row.original) ? (
         <DropdownMenu>
           <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
             <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
@@ -382,11 +382,8 @@ function SubTransactionsRows({
         <TableRow
           key={row.id}
           data-state={row.getIsSelected() && 'selected'}
-          className={cn(
-            'relative',
-            row.original.type === BuildableTransactionType.Placeholder && 'cursor-pointer bg-muted/50 text-primary'
-          )}
-          {...(row.original.type === BuildableTransactionType.Placeholder ? { onClick: () => onEditTransaction(row.original) } : undefined)}
+          className={cn('relative', isPlaceholderTransaction(row.original) && 'cursor-pointer bg-muted/50 text-primary')}
+          {...(isPlaceholderTransaction(row.original) ? { onClick: () => onEditTransaction(row.original) } : undefined)}
         >
           {row.getVisibleCells().map((cell) => (
             <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className, 'border-b')}>

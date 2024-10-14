@@ -25,8 +25,6 @@ export enum BuildableTransactionType {
   AssetCreate = 'AssetCreate',
   AssetReconfigure = 'AssetReconfigure',
   AssetDestroy = 'AssetDestroy',
-  // placeholder
-  Placeholder = 'Placeholder',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -62,6 +60,7 @@ type CommonBuildTransactionResult = {
     lastValid?: bigint
   }
   note?: string
+  argumentForMethodCalls?: string[]
 }
 
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
@@ -197,9 +196,8 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
 
 export type PlaceholderTransaction = {
   id: string
-  type: BuildableTransactionType.Placeholder
   targetType: algosdk.ABITransactionType
-  methodCallTransactionId: string
+  argumentForMethodCall: string
 }
 
 export type BuildTransactionResult =

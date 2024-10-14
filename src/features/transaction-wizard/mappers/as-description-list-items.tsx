@@ -36,6 +36,7 @@ import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/com
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '@/features/transaction-wizard/utils/is-build-transaction-result'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -278,7 +279,7 @@ const asMethodArg = (
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   if (algosdk.abiTypeIsTransaction(type)) {
-    invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
+    invariant(isBuildTransactionResult(arg) || isPlaceholderTransaction(arg), 'Transaction type args must be a transaction')
     const argPosition = transactionPositions.get(arg.id)!
 
     // Transaction type args are shown in the table
@@ -289,7 +290,7 @@ const asMethodArg = (
           className="size-4 p-0 text-primary"
           variant="no-style"
           onClick={() => onEditTransaction(arg)}
-          {...(arg.type === BuildableTransactionType.Placeholder
+          {...(isPlaceholderTransaction(arg)
             ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
             : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
         />
