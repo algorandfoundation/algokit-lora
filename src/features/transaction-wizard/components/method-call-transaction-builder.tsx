@@ -64,9 +64,25 @@ export function MethodCallTransactionBuilder({
   onSubmit,
   onCancel,
 }: Props) {
-  const [appId, setAppId] = useState<ApplicationId | undefined>(_defaultValues?.applicationId)
-  const [methodName, setMethodName] = useState<string | undefined>(_defaultValues?.method?.name)
-  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(_defaultValues?.appSpec, appId)
+  const initialValues = useMemo(() => {
+    if (mode === TransactionBuilderMode.Edit && transaction) {
+      return {
+        applicationId: transaction.applicationId !== undefined ? transaction.applicationId : undefined,
+        methodName: transaction.method.name,
+        appSpec: transaction.appSpec,
+      }
+    }
+
+    return {
+      applicationId: _defaultValues?.applicationId !== undefined ? _defaultValues.applicationId : undefined,
+      methodName: _defaultValues?.method?.name,
+      appSpec: _defaultValues?.appSpec,
+    }
+  }, [_defaultValues?.appSpec, _defaultValues?.applicationId, _defaultValues?.method?.name, mode, transaction])
+
+  const [appId, setAppId] = useState<ApplicationId | undefined>(initialValues.applicationId)
+  const [methodName, setMethodName] = useState<string | undefined>(initialValues.methodName)
+  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(initialValues.appSpec, initialValues.applicationId)
 
   const { appSpec, methodDefinitions } = useMemo(() => {
     if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
@@ -84,18 +100,13 @@ export function MethodCallTransactionBuilder({
     }
   }, [appId, loadableMethodDefinitions])
 
-  const methodDefinition = useMemo(() => {
+  const methodForm = useMemo(() => {
     if (!methodName || methodDefinitions.length === 0 || !appSpec) {
       return undefined
     }
     const methodDefinition = methodDefinitions.find((method) => method.name === methodName)
-    invariant(methodDefinition, `Method definition not found for method ${methodName}`)
-    return methodDefinition
-  }, [appSpec, methodDefinitions, methodName])
-
-  const methodForm = useMemo(() => {
     return methodDefinition ? asMethodForm(methodDefinition) : undefined
-  }, [methodDefinition])
+  }, [appSpec, methodDefinitions, methodName])
 
   const formData = useMemo(() => {
     if (!methodForm) {
@@ -208,7 +219,6 @@ export function MethodCallTransactionBuilder({
           onAppIdChanged={setAppId}
           onMethodNameChanged={setMethodName}
           methodDefinitions={methodDefinitions}
-          selectedMethodDefinition={methodDefinition}
           selectedMethodForm={methodForm}
         />
       )}
@@ -221,18 +231,10 @@ type FormInnerProps = {
   onAppIdChanged: (appId: ApplicationId) => void
   onMethodNameChanged: (methodName?: string) => void
   methodDefinitions: MethodDefinition[]
-  selectedMethodDefinition: MethodDefinition | undefined
   selectedMethodForm: MethodForm | undefined
 }
 
-function FormInner({
-  helper,
-  onAppIdChanged,
-  onMethodNameChanged,
-  methodDefinitions,
-  selectedMethodDefinition,
-  selectedMethodForm,
-}: FormInnerProps) {
+function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefinitions, selectedMethodForm }: FormInnerProps) {
   const { watch, setValue, getValues, unregister } = useFormContext<z.infer<typeof baseFormData>>()
   const appId = watch('applicationId')
   const methodName = watch('methodName')
@@ -246,35 +248,35 @@ function FormInner({
   }, [methodName, onMethodNameChanged])
 
   useEffect(() => {
+    // Handles resetting state when the user changes the method name inside the dialog
+
     if (selectedMethodForm !== undefined && methodName !== selectedMethodForm.name) {
       const values = getValues()
       for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
         unregister(key as Path<z.infer<typeof baseFormData>>)
       }
-    }
-  }, [getValues, selectedMethodForm, methodName, unregister])
 
-  useEffect(() => {
-    // TODO: NC - This is not choosing the previously selected method
-
-    // When changing a method, this computes and sets the default onComplete value
-    // console.log(getValues('onComplete'))
-
-    if (selectedMethodDefinition !== undefined) {
-      const defaultOnComplete =
-        appId === 0n
-          ? (selectedMethodDefinition.callConfig?.create ?? []).length > 0
-            ? selectedMethodDefinition.callConfig?.create[0]
-            : undefined
-          : (selectedMethodDefinition?.callConfig?.call ?? []).length > 0
-            ? selectedMethodDefinition?.callConfig?.call[0]
-            : undefined
-
-      if (defaultOnComplete !== undefined) {
-        setValue('onComplete', defaultOnComplete.toString())
+      const selectedMethodDefinition = methodDefinitions.find((method) => {
+        return method.name === methodName
+      })
+      if (selectedMethodDefinition !== undefined) {
+        const defaultOnComplete =
+          appId === 0n
+            ? (selectedMethodDefinition.callConfig?.create ?? []).length > 0
+              ? selectedMethodDefinition.callConfig?.create[0]
+              : undefined
+            : (selectedMethodDefinition?.callConfig?.call ?? []).length > 0
+              ? selectedMethodDefinition?.callConfig?.call[0]
+              : undefined
+        if (defaultOnComplete !== undefined) {
+          // The setTimeout is needed to ensure the select list options have updated before setting the value, otherwise it isn't selected in the UI
+          setTimeout(() => {
+            setValue('onComplete', defaultOnComplete.toString())
+          }, 10)
+        }
       }
     }
-  }, [selectedMethodDefinition, setValue, appId, getValues])
+  }, [getValues, selectedMethodForm, methodName, unregister, methodDefinitions, appId, setValue])
 
   const abiMethodArgs = useMemo(() => {
     return (

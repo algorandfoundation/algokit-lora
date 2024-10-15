@@ -361,7 +361,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       ? [
           {
             dt: 'Arguments',
-            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
+            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index + 1}`, dd: arg }))} />,
           },
         ]
       : []),
@@ -418,7 +418,7 @@ const asMethodCallTransaction = (
               <ol>
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
-                    <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index}`}: </span>
+                    <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index + 1}`}: </span>
                     {asMethodArg(arg.type, transaction.methodArgs![index], transactionPositions, onEditTransaction)}
                   </li>
                 ))}

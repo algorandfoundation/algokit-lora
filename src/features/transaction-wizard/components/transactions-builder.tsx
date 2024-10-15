@@ -47,6 +47,7 @@ type Props = {
     label: string
     icon: React.JSX.Element
   }
+  disablePopulate?: boolean
 }
 
 const defaultTitle = <h4 className="pb-0 text-primary">{transactionGroupLabel}</h4>
@@ -63,6 +64,7 @@ export function TransactionsBuilder({
   additionalActions,
   disableAddTransaction = false,
   sendButtonConfig = defaultSendButtonConfig,
+  disablePopulate = false,
 }: Props) {
   const { activeAddress } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? [])
@@ -285,14 +287,16 @@ export function TransactionsBuilder({
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-2">
             {additionalActions}
-            <AsyncActionButton
-              variant="outline"
-              onClick={populateResources}
-              icon={<HardDriveDownload size={16} />}
-              {...populateResourcesButtonDisabledProps}
-            >
-              Populate Resources
-            </AsyncActionButton>
+            {!disablePopulate && (
+              <AsyncActionButton
+                variant="outline"
+                onClick={populateResources}
+                icon={<HardDriveDownload size={16} />}
+                {...populateResourcesButtonDisabledProps}
+              >
+                Populate Resources
+              </AsyncActionButton>
+            )}
           </div>
           <div className="left-auto flex gap-2">
             <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>

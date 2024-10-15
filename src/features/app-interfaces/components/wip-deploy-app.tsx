@@ -31,7 +31,6 @@ type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-// TODO: NC - Support populate on app calls - approvalProgram and clearStateProgram are required for application creation
 // TODO: NC - Rename the WIP components + get structure in the correct place
 
 const getTealTemplateParams = (templateParams: ReturnType<typeof useCreateAppInterfaceStateMachine>[0]['context']['templateParams']) => {
@@ -115,12 +114,12 @@ export function WIPDeployApp({ machine }: Props) {
       invariant(appSpec.source?.approval, 'Approval program is not set')
       invariant(appSpec.source?.clear, 'Clear program is not set')
       invariant(activeAddress, 'No active wallet account is available')
-      invariant(transactions.length === 1, 'Only one deploy transaction is supported')
-      const deployTransaction = transactions[0] // TODO: NC - Do we need to go more complex?
-      invariant(
-        [BuildableTransactionType.AppCall, BuildableTransactionType.MethodCall].includes(deployTransaction.type),
-        'Only app call transactions are supported'
-      )
+      const appCallTransactions = transactions.filter((t) => {
+        return [BuildableTransactionType.AppCall, BuildableTransactionType.MethodCall].includes(t.type)
+      })
+      invariant(appCallTransactions.length > 0, 'An app call transaction is required')
+      const deployTransaction = appCallTransactions[appCallTransactions.length - 1]
+
       const appFactory = algorandClient.client.getAppFactory({
         appSpec: state.context.appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
         defaultSender: activeAddress,
@@ -171,6 +170,8 @@ export function WIPDeployApp({ machine }: Props) {
       appSpec?: Arc32AppSpec,
       method?: MethodDefinition
     ) => {
+      const createCallConfig = (method?.callConfig?.create ?? []).filter((c) => c !== algosdk.OnApplicationComplete.UpdateApplicationOC)
+      const onComplete = createCallConfig.length > 0 ? (createCallConfig[0] as BuildAppCallTransactionResult['onComplete']) : undefined
       const transaction = await open({
         type,
         transaction: {
@@ -179,9 +180,9 @@ export function WIPDeployApp({ machine }: Props) {
             ? {
                 method: method.abiMethod,
                 appSpec,
+                onComplete,
               }
             : undefined),
-          // onComplete: algosdk.OnApplicationComplete.NoOpOC, // TODO: NC - Set this based on the app spec info
         },
       })
       if (
@@ -253,6 +254,7 @@ export function WIPDeployApp({ machine }: Props) {
           </Button>
         }
         sendButtonConfig={{ label: 'Deploy', icon: <Rocket size={16} /> }}
+        disablePopulate={true}
       />
       {dialog}
     </div>
