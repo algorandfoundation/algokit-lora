@@ -1,18 +1,16 @@
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/create-app-interface'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
-import { isArc32AppSpec } from '@/features/common/utils'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { bigIntSchema } from '@/features/forms/data/common'
-import { invariant } from '@/utils/invariant'
 import { ArrowLeft } from 'lucide-react'
 import { useCallback, useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useDebounce } from 'use-debounce'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
-import { useLoadableAppInterfacesAtom } from '../data'
+import { useLoadableAppInterfacesAtom } from '../../data'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 
 const schema = zfd.formData(
@@ -80,11 +78,11 @@ type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-export function WIPAppDetails({ machine }: Props) {
+export function AppDetails({ machine }: Props) {
   const [state, send] = machine
-  invariant(state.context.appSpec && isArc32AppSpec(state.context.appSpec), 'ARC32 app spec is required')
 
   const appSpec = state.context.appSpec
+  const contractName = appSpec ? (('name' in appSpec ? appSpec.name : appSpec.contract.name) as string) : undefined
 
   const next = useCallback(
     (values: z.infer<typeof schema>) => {
@@ -104,11 +102,11 @@ export function WIPAppDetails({ machine }: Props) {
 
   const defaultValues = useMemo(
     () => ({
-      name: state.context.name ?? appSpec.contract.name,
+      name: state.context.name ?? contractName,
       roundFirstValid: state.context.roundFirstValid,
       roundLastValid: state.context.roundLastValid,
     }),
-    [appSpec.contract.name, state.context.name, state.context.roundFirstValid, state.context.roundLastValid]
+    [contractName, state.context.name, state.context.roundFirstValid, state.context.roundLastValid]
   )
 
   return (

@@ -1,8 +1,8 @@
 import { PageTitle } from '@/features/common/components/page-title'
 import { cn, isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
-import { useCreateAppInterfaceStateMachine } from '../data/create-app-interface'
-import { CreateFromAppId } from '../components/create-from-app-id'
-import { CreateFromDeployment } from '../components/create-from-deployment'
+import { useCreateAppInterfaceStateMachine } from '../data'
+import { FromAppIdWorkflow } from '../components/create/from-app-id-workflow'
+import { FromDeploymentWorkflow } from '../components/create/from-deployment-workflow'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -11,8 +11,8 @@ import { toast } from 'react-toastify'
 import { invariant } from '@/utils/invariant'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '../data/types'
 import { useCreateAppInterface } from '../data'
-import { CreateAppInterfaceFromAppIdCard } from '../components/create-app-interface-from-app-id-card'
-import { CreateAppInterfaceFromDeploymentCard } from '../components/create-app-interface-from-deployment-card'
+import { FromAppIdCard } from '../components/create/from-app-id-card'
+import { FromDeploymentCard } from '../components/create/from-deployment-card'
 import { asError } from '@/utils/error'
 
 export const createAppInterfacePageTitle = 'Create App Interface'
@@ -81,20 +81,20 @@ function CreateAppInterfaceInner() {
   if (state.matches('createAppInterface')) {
     return (
       <div className={cn('xl:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-4')}>
-        <CreateAppInterfaceFromAppIdCard machine={machine} />
-        <CreateAppInterfaceFromDeploymentCard machine={machine} />
+        <FromAppIdCard machine={machine} />
+        <FromDeploymentCard machine={machine} />
       </div>
     )
   } else if (state.matches('fromAppId')) {
     return (
       <div className="xl:w-3/4">
-        <CreateFromAppId machine={machine} />
+        <FromAppIdWorkflow machine={machine} />
       </div>
     )
   } else if (state.matches('fromAppDeployment')) {
     return (
       <div className="xl:w-3/4">
-        <CreateFromDeployment machine={machine} />
+        <FromDeploymentWorkflow machine={machine} />
       </div>
     )
   }

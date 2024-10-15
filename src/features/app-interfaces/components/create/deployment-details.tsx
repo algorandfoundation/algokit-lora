@@ -1,4 +1,4 @@
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/create-app-interface'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
 import { Label } from '@/features/common/components/label'
 import { cn, isArc32AppSpec } from '@/features/common/utils'
@@ -16,8 +16,8 @@ import { useFormContext } from 'react-hook-form'
 import { useDebounce } from 'use-debounce'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
-import { useLoadableAppInterfacesAtom } from '../data'
-import { TemplateParamType } from '../data/types'
+import { useLoadableAppInterfacesAtom } from '../../data'
+import { TemplateParamType } from '../../data/types'
 
 export const UPDATABLE_TEMPLATE_VAR_NAME = 'UPDATABLE'
 export const DELETABLE_TEMPLATE_VAR_NAME = 'DELETABLE'
@@ -95,7 +95,7 @@ function FormInner({
       {helper.textField({
         field: 'name',
         label: 'Name',
-        helpText: 'Name of the app interface',
+        helpText: 'Name of the app, which must be unique for the creator account. This is used in the deployment idempotency check',
       })}
       {helper.textField({
         field: 'version',
@@ -125,7 +125,7 @@ type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-export function WIPDeploymentDetails({ machine }: Props) {
+export function DeploymentDetails({ machine }: Props) {
   const [state, send] = machine
   invariant(state.context.appSpec && isArc32AppSpec(state.context.appSpec), 'ARC32 app spec is required')
 

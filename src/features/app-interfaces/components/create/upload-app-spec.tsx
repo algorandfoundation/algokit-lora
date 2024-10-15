@@ -5,7 +5,7 @@ import { zfd } from 'zod-form-data'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { readFile } from '@/utils/read-file'
 import { jsonAsArc32AppSpec, jsonAsArc4AppSpec } from '@/features/abi-methods/mappers'
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data/create-app-interface'
+import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { Button } from '@/features/common/components/button'
@@ -20,7 +20,7 @@ type Props = {
   supportedStandards: AppSpecStandard[]
 }
 
-export function WIPUploadAppSpec({ machine, supportedStandards }: Props) {
+export function UploadAppSpec({ machine, supportedStandards }: Props) {
   const [state, send] = machine
 
   const uploadPlaceholder = useMemo(() => {

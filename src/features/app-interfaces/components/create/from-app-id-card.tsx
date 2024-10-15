@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react'
-import { useCreateAppInterfaceStateMachine } from '../data/create-app-interface'
+import { useCreateAppInterfaceStateMachine } from '../../data'
 import { numberSchema } from '@/features/forms/data/common'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
@@ -12,7 +12,7 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useDebounce } from 'use-debounce'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useLoadableApplicationSummaryAtom } from '@/features/applications/data/application-summary'
-import { useLoadableAppInterfacesAtom } from '../data'
+import { useLoadableAppInterfacesAtom } from '../../data'
 
 const schema = zfd.formData({
   application: z
@@ -96,7 +96,7 @@ type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-export function CreateAppInterfaceFromAppIdCard({ machine }: Props) {
+export function FromAppIdCard({ machine }: Props) {
   const [_state, send] = machine
   const fromAppIdSelected = useCallback(
     (data: z.infer<typeof schema>) => {

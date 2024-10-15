@@ -1,14 +1,15 @@
 import { useCallback, useMemo } from 'react'
-import { useCreateAppInterfaceStateMachine } from '../data/create-app-interface'
+import { useCreateAppInterfaceStateMachine } from '../../data'
 import { Card, CardContent } from '@/features/common/components/card'
 import { Button } from '@/features/common/components/button'
 import { useWallet } from '@txnlab/use-wallet'
+import { deployAppLabel } from '../labels'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
 }
 
-export function CreateAppInterfaceFromDeploymentCard({ machine }: Props) {
+export function FromDeploymentCard({ machine }: Props) {
   const { activeAddress } = useWallet()
   const [_state, send] = machine
 
@@ -33,7 +34,7 @@ export function CreateAppInterfaceFromDeploymentCard({ machine }: Props) {
         <div className="flex grow flex-col">
           <div className="ml-auto mt-auto">
             <Button onClick={fromDeploymentSelected} {...disabledProps}>
-              Deploy new
+              {deployAppLabel}
             </Button>
           </div>
         </div>
