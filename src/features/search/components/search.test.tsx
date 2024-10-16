@@ -2,7 +2,7 @@ import { Search, noSearchResultsMessage, searchPlaceholderLabel } from './search
 import { describe, it, expect, vi } from 'vitest'
 import { render, waitFor } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
-import { createStore } from 'jotai'
+import { atom, createStore } from 'jotai'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
@@ -14,7 +14,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
-import { forwardNfdResultsAtom } from '@/features/nfd/data/nfd-result'
+import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data/nfd-result'
 import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 
 describe('search', () => {
@@ -40,14 +40,12 @@ describe('search', () => {
     const applicationResult = applicationResultMother.basic().withId(assetResult.index).build()
     const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
     const transactionResult = transactionResultMother.payment().withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ').build()
-    const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
 
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
     myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
     myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult)]]))
-    myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult)]]))
 
     describe.each([
       {
@@ -79,6 +77,10 @@ describe('search', () => {
       it(`should navigate to the ${type.toLowerCase()} page`, () => {
         const mockNavigate = vi.fn()
         vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+        if (type === SearchResultType.Account) {
+          const mockReverseNfdAtom = atom<string | Promise<string | null> | null>(null)
+          myStore.set(reverseNfdsAtom, new Map([[id, [mockReverseNfdAtom, Date.now()] as const]]))
+        }
 
         return executeComponentTest(
           () => render(<Search />, undefined, myStore),
