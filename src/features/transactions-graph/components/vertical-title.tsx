@@ -36,7 +36,7 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
   return (
     <span className={cn('text-l font-semibold')}>
       {vertical.type === 'Account' && (
-        <div className={cn('grid')}>
+        <div className={cn('grid text-center')}>
           <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
             <AccountLink address={vertical.accountAddress} short={true} truncate={true} />
           </TitleWrapper>
