@@ -18,6 +18,7 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -114,6 +115,7 @@ describe('block-page', () => {
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(x)])))

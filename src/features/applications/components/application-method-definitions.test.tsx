@@ -18,6 +18,7 @@ import { sendButtonLabel } from '@/features/transaction-wizard/components/transa
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 import { selectOption } from '@/tests/utils/select-option'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -51,6 +52,7 @@ describe('application-method-definitions', () => {
       ],
       lastModified: createTimestamp(),
     } satisfies AppInterfaceEntity)
+    vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
   })
 
   describe('when a wallet is connected', () => {
