@@ -82,7 +82,7 @@ export function MethodCallTransactionBuilder({
 
   const [appId, setAppId] = useState<ApplicationId | undefined>(initialValues.applicationId)
   const [methodName, setMethodName] = useState<string | undefined>(initialValues.methodName)
-  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(initialValues.appSpec, initialValues.applicationId)
+  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(initialValues.appSpec, appId)
 
   const { appSpec, methodDefinitions } = useMemo(() => {
     if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
