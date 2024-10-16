@@ -52,7 +52,6 @@ export const Urls = {
       ById: UrlTemplate`/${UrlParams.ApplicationId}`,
     }),
   }),
-  AppStudio: UrlTemplate`/app-studio`,
   AppLab: UrlTemplate`/app-lab`,
   Settings: UrlTemplate`/settings`,
   Fund: UrlTemplate`/fund`,
