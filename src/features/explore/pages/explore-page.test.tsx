@@ -16,7 +16,6 @@ import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
-import { before } from 'node:test'
 import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 describe('explore-page', () => {
