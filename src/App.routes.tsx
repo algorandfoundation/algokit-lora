@@ -14,7 +14,6 @@ import { ApplicationPage, applicationPageTitle } from './features/applications/p
 import { SettingsPage, settingsPageTitle } from './features/settings/pages/settings-page'
 import { IndexPage } from '@/index-page'
 import { NetworkPage } from '@/features/network/pages/network-page'
-import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/app-studio-page'
 import { FundPage } from './features/fund/fund-page'
 import { FundAuthCallbackPage } from './features/fund/fund-auth-callback-page'
 import { FundErrorPage } from './features/fund/fund-error-page'
@@ -105,11 +104,6 @@ export const routes = evalTemplates([
             element: <RedirectPage from={Urls.Explore.Txn} to={Urls.Explore.Transaction} />,
           },
         ],
-      },
-      {
-        template: Urls.AppStudio,
-        errorElement: <ErrorPage title={appStudioPageTitle} />,
-        element: <AppStudioPage />,
       },
       {
         template: Urls.AppLab,
