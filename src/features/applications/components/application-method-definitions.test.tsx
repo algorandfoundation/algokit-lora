@@ -193,7 +193,7 @@ describe('application-method-definitions', () => {
 
             // Edit the transaction
             const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
             formDialog = component.getByRole('dialog')
 
@@ -383,7 +383,7 @@ describe('application-method-definitions', () => {
 
             // Click the edit button on the transaction group
             const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(component.getByRole('menuitem', { name: 'Edit' }))
 
             formDialog = component.getByRole('dialog')
@@ -564,7 +564,7 @@ describe('application-method-definitions', () => {
 
             // Edit the transaction
             const transactionGroupTable = await waitFor(() => within(echoBytesPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
             formDialog = component.getByRole('dialog')
 
@@ -770,7 +770,7 @@ describe('application-method-definitions', () => {
 
             // Edit the transaction
             const transactionGroupTable = await waitFor(() => within(echoArrayPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
             formDialog = component.getByRole('dialog')
 
@@ -953,7 +953,7 @@ describe('application-method-definitions', () => {
 
             // Edit the transaction
             const transactionGroupTable = await waitFor(() => within(echoDynamicArrayPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
             formDialog = component.getByRole('dialog')
 
@@ -1170,7 +1170,7 @@ describe('application-method-definitions', () => {
 
             // Edit the transaction
             const transactionGroupTable = await waitFor(() => within(methodPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
             formDialog = component.getByRole('dialog')
 
@@ -1343,7 +1343,7 @@ describe('application-method-definitions', () => {
 
             // Edit the transaction
             const transactionGroupTable = await waitFor(() => within(methodPanel).getByLabelText(transactionGroupTableLabel))
-            await user.click(within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
+            await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
             await user.click(await waitFor(() => component.getByRole('menuitem', { name: 'Edit' })))
             formDialog = component.getByRole('dialog')
 
