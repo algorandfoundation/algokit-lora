@@ -248,14 +248,21 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
   }, [methodName, onMethodNameChanged])
 
   useEffect(() => {
-    // Handles resetting state when the user changes the method name inside the dialog
-
+    // Clear method specific args when the method is changed
     if (selectedMethodForm !== undefined && methodName !== selectedMethodForm.name) {
       const values = getValues()
       for (const key of Object.keys(values).filter((key) => key.startsWith(methodArgPrefix))) {
         unregister(key as Path<z.infer<typeof baseFormData>>)
       }
+    }
+  }, [getValues, methodName, selectedMethodForm, unregister])
 
+  useEffect(() => {
+    // Set the onComplete field when the user changes the method or they are first selecting the method
+    if (
+      (selectedMethodForm !== undefined && methodName !== selectedMethodForm.name) ||
+      (selectedMethodForm === undefined && methodName !== undefined)
+    ) {
       const selectedMethodDefinition = methodDefinitions.find((method) => {
         return method.name === methodName
       })
@@ -276,7 +283,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         }
       }
     }
-  }, [getValues, selectedMethodForm, methodName, unregister, methodDefinitions, appId, setValue])
+  }, [appId, methodDefinitions, methodName, selectedMethodForm, setValue])
 
   const abiMethodArgs = useMemo(() => {
     return (
