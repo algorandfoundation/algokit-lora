@@ -12,6 +12,7 @@ type Props = PropsWithChildren<{
 export function TestPlatformProvider({ children, store }: Props) {
   const networkConfig = {
     id: localnetId,
+    nfdApiUrl: 'http://not-used',
     ...defaultNetworkConfigs.localnet,
   }
   useTheme()

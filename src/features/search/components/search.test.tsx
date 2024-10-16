@@ -14,6 +14,8 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
+import { forwardNfdResultsAtom } from '@/features/nfd/data/nfd-result'
+import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 
 describe('search', () => {
   describe('when no search results have been returned', () => {
@@ -38,12 +40,14 @@ describe('search', () => {
     const applicationResult = applicationResultMother.basic().withId(assetResult.index).build()
     const blockResult = blockResultMother.blockWithoutTransactions().withRound(assetResult.index).build()
     const transactionResult = transactionResultMother.payment().withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ').build()
+    const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
 
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
     myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
     myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult)]]))
+    myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult)]]))
 
     describe.each([
       {
@@ -94,5 +98,45 @@ describe('search', () => {
         )
       })
     })
+  })
+
+  describe('when search results for nfd have been returned', () => {
+    const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
+    const myStore = createStore()
+    myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult)]]))
+
+    describe.each([
+      {
+        type: SearchResultType.Account,
+        term: 'datamuseum.algo',
+        id: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU',
+        label: 'DHMC…W6PU (datamuseum.algo)',
+      },
+    ])(
+      'and the $type result is selected for nfd',
+      ({ type, id, term, label }: { type: SearchResultType; id: string; term: string; label: string }) => {
+        it(`should navigate to the ${type.toLowerCase()} page`, () => {
+          const mockNavigate = vi.fn()
+          vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
+          return executeComponentTest(
+            () => render(<Search />, undefined, myStore),
+            async (component, user) => {
+              await waitFor(
+                async () => {
+                  const input = component.getByPlaceholderText(searchPlaceholderLabel)
+                  await user.type(input, term)
+                  const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
+                  const result = results.find((result) => result!.textContent!.includes(type))!
+                  await user.click(result)
+                  expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
+                },
+                { timeout: 10000 }
+              )
+            }
+          )
+        })
+      }
+    )
   })
 })

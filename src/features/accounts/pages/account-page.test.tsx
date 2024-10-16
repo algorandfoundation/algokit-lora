@@ -22,11 +22,16 @@ import {
   accountRekeyedToLabel,
   accountAssetLabel,
   accountApplicationLabel,
+  accountNfdLabel,
 } from '../components/labels'
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod } from '@/features/common/data/algo-client'
+import { reverseNfdsAtom } from '@/features/nfd/data/nfd-result'
+import { nfdResultMother } from '@/tests/object-mother/nfd-result'
+import { atom } from 'jotai'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -37,6 +42,14 @@ vi.mock('@/features/common/data/algo-client', async () => {
         do: vi.fn().mockReturnValue({ then: vi.fn() }),
       }),
     },
+  }
+})
+
+vi.mock('@/features/nfd/data/nfd', async () => {
+  const original = await vi.importActual('@/features/nfd/data/nfd')
+  return {
+    ...original,
+    useLoadableNfdResult: vi.fn(),
   }
 })
 
@@ -302,6 +315,44 @@ describe('account-page', () => {
             const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
             expect(applicationTabList).toBeTruthy()
             expect(applicationTabList.children.length).toBe(2)
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an account with Nfd', () => {
+    const accountResult = accountResultMother['mainnet-DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU']().build()
+    const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
+
+    it('should be rendered with the correct data', async () => {
+      const myStore = createStore()
+      const mockReverseNfdAtom = atom<string | Promise<string | null> | null>('datamuseum.algo')
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
+      myStore.set(reverseNfdsAtom, new Map([[nfdResult.depositAccount, [mockReverseNfdAtom, Date.now()] as const]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'hasData', data: nfdResult }])
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU' },
+                { term: accountNfdLabel, description: 'datamuseum.algo' },
+                { term: accountBalanceLabel, description: '1915.70635' },
+                { term: accountMinBalanceLabel, description: '0.1' },
+                { term: accountAssetsHeldLabel, description: '0' },
+                { term: accountAssetsCreatedLabel, description: '0' },
+                { term: accountAssetsOptedInLabel, description: '0' },
+                { term: accountApplicationsCreatedLabel, description: '0' },
+                { term: accountApplicationsOptedInLabel, description: '0' },
+              ],
+            })
           })
         }
       )

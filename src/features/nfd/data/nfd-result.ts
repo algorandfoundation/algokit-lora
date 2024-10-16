@@ -81,7 +81,7 @@ export const batchNfdResolutionEffect = atomEffect((get, set) => {
       })
       addressesToResolve.clear()
     })()
-  }, 1000)
+  }, 200)
   return () => clearInterval(cleanup)
 })
 
@@ -125,7 +125,6 @@ const getForwardLookupNfdResult = async (_: Getter, set: Setter, nfd: Nfd, nfdAp
     if (!response.ok) {
       return null
     }
-
     const body = (await response.json()) as NfdResult
     const nfdResult = {
       name: body.name,
