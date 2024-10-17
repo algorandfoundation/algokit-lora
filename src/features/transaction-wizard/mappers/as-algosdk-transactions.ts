@@ -87,11 +87,13 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
       if (typeof arg === 'object' && 'type' in arg) {
-        if (arg.type !== BuildableTransactionType.MethodCall) {
+        if (arg.type === BuildableTransactionType.SatisfiedBy || arg.type === BuildableTransactionType.Placeholder) {
+          return undefined
+        } else if (arg.type !== BuildableTransactionType.MethodCall) {
           // Other transaction types only return 1 transaction
-          return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
+          return (await asAlgosdkTransactions(arg))[0]
         } else {
-          return await asMethodCallParams(arg as BuildMethodCallTransactionResult)
+          return await asMethodCallParams(arg)
         }
       }
       return arg
@@ -102,7 +104,8 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     sender: transaction.sender,
     appId: BigInt(transaction.applicationId),
     method: transaction.method,
-    args: args,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    args: args as any, // TODO: NC - Remove this once the method call arg is updated in utils-ts to support undefined
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
@@ -267,3 +270,26 @@ const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRoun
         lastValidRound: validRounds.lastValid,
       }
     : undefined
+
+// TODO: NC - New file?
+export const asAbiTransactionType = (type: BuildableTransactionType) => {
+  switch (type) {
+    case BuildableTransactionType.Payment:
+    case BuildableTransactionType.AccountClose:
+      return algosdk.ABITransactionType.pay
+    case BuildableTransactionType.AppCall:
+    case BuildableTransactionType.MethodCall:
+      return algosdk.ABITransactionType.appl
+    case BuildableTransactionType.AssetOptIn:
+    case BuildableTransactionType.AssetOptOut:
+    case BuildableTransactionType.AssetTransfer:
+    case BuildableTransactionType.AssetClawback:
+      return algosdk.ABITransactionType.axfer
+    case BuildableTransactionType.AssetCreate:
+    case BuildableTransactionType.AssetReconfigure:
+    case BuildableTransactionType.AssetDestroy:
+      return algosdk.ABITransactionType.acfg
+    default:
+      return algosdk.ABITransactionType.any
+  }
+}

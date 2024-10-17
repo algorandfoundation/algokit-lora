@@ -166,7 +166,9 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
 
     const methodArgs = abiMethod.args.map((arg) => {
       const argHint =
-        hint && arg.name && (hint.structs?.[arg.name] || hint.default_arguments?.[arg.name])
+        hint &&
+        arg.name &&
+        (('structs' in hint && hint.structs?.[arg.name]) || ('default_arguments' in hint && hint.default_arguments?.[arg.name]))
           ? ({
               struct: hint.structs?.[arg.name],
               defaultArgument: hint.default_arguments?.[arg.name],
@@ -218,7 +220,7 @@ export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): Ap
       returns: {
         ...abiMethod.returns,
         hint:
-          hint && hint.structs?.['output']
+          hint && 'structs' in hint && hint.structs?.['output']
             ? {
                 struct: hint.structs?.['output'],
               }

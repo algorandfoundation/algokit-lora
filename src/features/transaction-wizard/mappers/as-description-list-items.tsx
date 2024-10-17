@@ -36,6 +36,7 @@ import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/com
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/is-build-transaction-result'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -74,6 +75,10 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
   const params = asPaymentTransactionParams(txn)
 
   return [
+    {
+      dt: 'ID',
+      dd: txn.id,
+    },
     {
       dt: 'Sender',
       dd: (
@@ -271,28 +276,50 @@ const asAssetConfigTransaction = (
   ]
 }
 
+// TODO: NC - Name this better
+const flatten = (args: MethodCallArg[]): MethodCallArg[] => {
+  return args.reduce((acc, arg) => {
+    if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.MethodCall) {
+      return [...acc, ...flatten(arg.methodArgs), arg]
+    }
+    return [...acc, arg]
+  }, [] as MethodCallArg[])
+}
+
 const asMethodArg = (
   type: algosdk.ABIArgumentType,
-  arg: MethodCallArg,
+  argIndex: number,
+  args: MethodCallArg[],
   transactionPositions: TransactionPositionsInGroup,
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
+  const arg = args[argIndex]
   if (algosdk.abiTypeIsTransaction(type)) {
     invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
-    const argPosition = transactionPositions.get(arg.id)!
+
+    const argId = arg.type === BuildableTransactionType.SatisfiedBy ? arg.satisfiedById : arg.id
+    const resolvedArg =
+      arg.id !== argId
+        ? flatten(args)
+            .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
+            .find((a) => a.id === argId)
+        : arg
+    const argPosition = transactionPositions.get(argId)
 
     // Transaction type args are shown in the table
     return (
       <div className="float-left flex items-center gap-1.5">
-        <span className="truncate">Transaction {argPosition} in the group</span>
-        <Button
-          className="size-4 p-0 text-primary"
-          variant="no-style"
-          onClick={() => onEditTransaction(arg)}
-          {...(arg.type === BuildableTransactionType.Placeholder
-            ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
-            : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
-        />
+        <span className="truncate">Transaction {argPosition ?? ''} in the group</span>
+        {resolvedArg && resolvedArg.type !== BuildableTransactionType.SatisfiedBy && (
+          <Button
+            className="size-4 p-0 text-primary"
+            variant="no-style"
+            onClick={() => onEditTransaction(resolvedArg)}
+            {...(resolvedArg.type === BuildableTransactionType.Placeholder
+              ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
+              : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
+          />
+        )}
       </div>
     )
   }
@@ -385,6 +412,10 @@ const asMethodCallTransaction = (
   })
 
   return [
+    {
+      dt: 'ID',
+      dd: transaction.id,
+    },
     ...(params.appId !== 0n
       ? [
           {
@@ -419,7 +450,7 @@ const asMethodCallTransaction = (
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
                     <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index + 1}`}: </span>
-                    {asMethodArg(arg.type, transaction.methodArgs![index], transactionPositions, onEditTransaction)}
+                    {asMethodArg(arg.type, index, transaction.methodArgs!, transactionPositions, onEditTransaction)}
                   </li>
                 ))}
               </ol>

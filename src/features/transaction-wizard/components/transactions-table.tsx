@@ -23,6 +23,7 @@ import {
   BuildTransactionResult,
   TransactionPositionsInGroup,
   PlaceholderTransaction,
+  SatisifiedByTransaction,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabelFromBuildableTransactionType, asTransactionLabelFromTransactionType } from '../mappers'
@@ -91,7 +92,7 @@ type Props = {
   data: BuildTransactionResult[]
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
@@ -179,9 +180,10 @@ export function TransactionsTable({
   )
 }
 
+// TODO: NC - Work out this logic
 const calculatePositions = (transactions: BuildTransactionResult[]): TransactionPositionsInGroup => {
   let index = 1
-  return transactions.reduce((acc, transaction) => {
+  const flattened = transactions.reduce((acc, transaction) => {
     if (transaction.type !== BuildableTransactionType.MethodCall) {
       acc.set(transaction.id, index++)
       return acc
@@ -193,6 +195,8 @@ const calculatePositions = (transactions: BuildTransactionResult[]): Transaction
       return acc
     }
   }, new Map<string, number>())
+
+  return flattened
 }
 
 const getTableColumns = ({
@@ -204,7 +208,7 @@ const getTableColumns = ({
 }: {
   transactionPositions: TransactionPositionsInGroup
   nonDeletableTransactionIds: string[]
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
@@ -316,7 +320,9 @@ const getSubTransactionsTableColumns = ({
           {transaction.type === BuildableTransactionType.Placeholder ? (
             <div className="flex min-h-8 items-center gap-1.5">
               <PlusCircle size={16} />
-              <span>Build argument for transaction {transactionPositions.get(transaction.methodCallTransactionId)}</span>
+              {transaction.type === BuildableTransactionType.Placeholder && (
+                <span>Build argument for transaction {transactionPositions.get(transaction.methodCallTransactionId)}</span>
+              )}
             </div>
           ) : (
             <DescriptionList

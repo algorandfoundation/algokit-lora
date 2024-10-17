@@ -27,6 +27,7 @@ export enum BuildableTransactionType {
   AssetDestroy = 'AssetDestroy',
   // placeholder
   Placeholder = 'Placeholder',
+  SatisfiedBy = 'SatisfiedBy',
 }
 
 export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
@@ -98,7 +99,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
     | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
 
-export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction
+export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
@@ -200,6 +201,13 @@ export type PlaceholderTransaction = {
   type: BuildableTransactionType.Placeholder
   targetType: algosdk.ABITransactionType
   methodCallTransactionId: string
+}
+
+export type SatisifiedByTransaction = {
+  id: string
+  type: BuildableTransactionType.SatisfiedBy
+  targetType: algosdk.ABITransactionType
+  satisfiedById: string
 }
 
 export type BuildTransactionResult =
