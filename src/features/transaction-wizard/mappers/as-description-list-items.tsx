@@ -201,7 +201,7 @@ const asAssetConfigTransaction = (
     ...('assetName' in params && params.assetName ? [{ dt: 'Asset name', dd: params.assetName }] : []),
     ...('unitName' in params && params.unitName ? [{ dt: 'Unit name', dd: params.unitName }] : []),
     ...('total' in params && params.total ? [{ dt: 'Total', dd: params.total }] : []),
-    ...('decimals' in params && params.decimals ? [{ dt: 'Decimals', dd: params.decimals }] : []),
+    ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
       dd: (
@@ -333,14 +333,18 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
   const params = asAppCallTransactionParams(transaction)
 
   return [
-    {
-      dt: 'Application ID',
-      dd: (
-        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-          {Number(params.appId)}
-        </ApplicationLink>
-      ),
-    },
+    ...(params.appId !== 0n
+      ? [
+          {
+            dt: 'Application ID',
+            dd: (
+              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+                {Number(params.appId)}
+              </ApplicationLink>
+            ),
+          },
+        ]
+      : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
@@ -357,7 +361,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       ? [
           {
             dt: 'Arguments',
-            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
+            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index + 1}`, dd: arg }))} />,
           },
         ]
       : []),
@@ -381,14 +385,18 @@ const asMethodCallTransaction = (
   })
 
   return [
-    {
-      dt: 'Application ID',
-      dd: (
-        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-          {Number(params.appId)}
-        </ApplicationLink>
-      ),
-    },
+    ...(params.appId !== 0n
+      ? [
+          {
+            dt: 'Application ID',
+            dd: (
+              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+                {Number(params.appId)}
+              </ApplicationLink>
+            ),
+          },
+        ]
+      : []),
     ...(transaction.method ? [{ dt: 'Method', dd: transaction.method.name }] : []),
     {
       dt: 'On complete',
@@ -410,7 +418,7 @@ const asMethodCallTransaction = (
               <ol>
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
-                    <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index}`}: </span>
+                    <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index + 1}`}: </span>
                     {asMethodArg(arg.type, transaction.methodArgs![index], transactionPositions, onEditTransaction)}
                   </li>
                 ))}

@@ -3,12 +3,9 @@ import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
-import { algod, algorandClient } from '@/features/common/data/algo-client'
+import { algod } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet'
 import { invariant } from '@/utils/invariant'
-import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
-import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
@@ -16,7 +13,6 @@ import {
   BuildTransactionResult,
   PlaceholderTransaction,
 } from '../models'
-import { asAlgosdkTransactions } from '../mappers'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
 import { populateAppCallResources } from '@algorandfoundation/algokit-utils'
@@ -28,34 +24,55 @@ import {
 import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
-import { Transaction } from '@/features/transactions/models'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
+import React from 'react'
 import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
+import { buildComposer } from '../data/common'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
 export const addTransactionLabel = 'Add Transaction'
+export const transactionGroupLabel = 'Transaction Group'
 
 type Props = {
-  transactions?: BuildTransactionResult[]
-  onReset?: () => void
-  onTransactionSent?: (transactions: Transaction[]) => void
-  renderContext: 'transaction-wizard' | 'app-lab'
+  defaultTransactions?: BuildTransactionResult[]
+  onSendTransactions: (transactions: BuildTransactionResult[]) => Promise<void>
+  onReset: () => void
+  title?: React.JSX.Element
+  additionalActions?: React.JSX.Element
+  disableAddTransaction?: boolean
+  sendButtonConfig?: {
+    label: string
+    icon: React.JSX.Element
+  }
+  disablePopulate?: boolean
 }
 
-const transactionGroupLabel = 'Transaction Group'
+const defaultTitle = <h4 className="pb-0 text-primary">{transactionGroupLabel}</h4>
+const defaultSendButtonConfig = {
+  label: sendButtonLabel,
+  icon: <Send size={16} />,
+}
 
-export function TransactionsBuilder({ transactions: transactionsProp, onReset, onTransactionSent, renderContext }: Props) {
+export function TransactionsBuilder({
+  defaultTransactions,
+  onSendTransactions,
+  onReset,
+  title = defaultTitle,
+  additionalActions,
+  disableAddTransaction = false,
+  sendButtonConfig = defaultSendButtonConfig,
+  disablePopulate = false,
+}: Props) {
   const { activeAddress } = useWallet()
-  const [transactions, setTransactions] = useState<BuildTransactionResult[]>(transactionsProp ?? [])
-  const [transactionGraphResult, setTransactionGraphResult] = useState<TransactionsGraphData | undefined>(undefined)
+  const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? [])
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   const nonDeletableTransactionIds = useMemo(() => {
-    return transactionsProp?.map((t) => t.id) ?? []
-  }, [transactionsProp])
+    return defaultTransactions?.map((t) => t.id) ?? []
+  }, [defaultTransactions])
 
   const { open: openTransactionBuilderDialog, dialog: transactionBuilderDialog } = useDialogForm({
     dialogHeader: 'Build Transaction',
@@ -115,38 +132,21 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       invariant(activeAddress, 'Please connect your wallet')
       ensureThereIsNoPlaceholderTransaction(transactions)
 
-      const algokitComposer = algorandClient.newGroup()
-      for (const transaction of transactions) {
-        const txns = await asAlgosdkTransactions(transaction)
-        txns.forEach((txn) => algokitComposer.addTransaction(txn))
-      }
-      const result = await algokitComposer.send()
-      const sentTxns = asTransactionFromSendResult(result)
-      const transactionsGraphData = asTransactionsGraphData(sentTxns)
-
-      setTransactionGraphResult(transactionsGraphData)
-
-      onTransactionSent?.(sentTxns)
+      await onSendTransactions(transactions)
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error)
       setErrorMessage(asError(error).message)
     }
-  }, [activeAddress, transactions, onTransactionSent])
+  }, [activeAddress, onSendTransactions, transactions])
 
   const populateResources = useCallback(async () => {
     try {
       setErrorMessage(undefined)
-      invariant(activeAddress, 'Please connect your wallet')
       ensureThereIsNoPlaceholderTransaction(transactions)
 
-      const algokitComposer = algorandClient.newGroup()
-      for (const transaction of transactions) {
-        const txns = await asAlgosdkTransactions(transaction)
-        txns.forEach((txn) => algokitComposer.addTransaction(txn))
-      }
-
-      const { atc } = await algokitComposer.build()
+      const composer = await buildComposer(transactions)
+      const { atc } = await composer.build()
       const populatedAtc = await populateAppCallResources(atc, algod)
       const transactionsWithResources = populatedAtc.buildGroup()
 
@@ -175,7 +175,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
       console.error(error)
       setErrorMessage(asError(error).message)
     }
-  }, [transactions, activeAddress])
+  }, [transactions])
 
   const editTransaction = useCallback(
     async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
@@ -215,18 +215,10 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
   const reset = useCallback(() => {
     setTransactions([])
     setErrorMessage(undefined)
-    setTransactionGraphResult(undefined)
     onReset?.()
   }, [onReset])
 
   const populateResourcesButtonDisabledProps = useMemo(() => {
-    if (!activeAddress) {
-      return {
-        disabled: true,
-        disabledReason: connectWalletMessage,
-      }
-    }
-
     if (!transactions.find((t) => t.type === BuildableTransactionType.AppCall || t.type === BuildableTransactionType.MethodCall)) {
       return {
         disabled: true,
@@ -237,7 +229,7 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     return {
       disabled: false,
     }
-  }, [activeAddress, transactions])
+  }, [transactions])
 
   const sendButtonDisabledProps = useMemo(() => {
     if (!activeAddress) {
@@ -271,14 +263,12 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
     <div>
       <div className="space-y-4">
         <div className="mb-4 flex items-center gap-2">
-          {renderContext === 'transaction-wizard' ? (
-            <h2 className="pb-0">{transactionGroupLabel}</h2>
-          ) : (
-            <h4 className="pb-0 text-primary">{transactionGroupLabel}</h4>
+          {title}
+          {!disableAddTransaction && (
+            <Button variant="outline-secondary" onClick={createTransaction} className="ml-auto" icon={<Plus size={16} />}>
+              {addTransactionLabel}
+            </Button>
           )}
-          <Button variant="outline-secondary" onClick={createTransaction} className={'ml-auto'} icon={<Plus size={16} />}>
-            {addTransactionLabel}
-          </Button>
         </div>
         <TransactionsTable
           ariaLabel={transactionGroupTableLabel}
@@ -295,37 +285,31 @@ export function TransactionsBuilder({ transactions: transactionsProp, onReset, o
           </div>
         )}
         <div className="flex items-center justify-between gap-2">
-          <AsyncActionButton
-            variant="outline"
-            onClick={populateResources}
-            icon={<HardDriveDownload size={16} />}
-            {...populateResourcesButtonDisabledProps}
-          >
-            Populate Resources
-          </AsyncActionButton>
+          <div className="flex gap-2">
+            {additionalActions}
+            {!disablePopulate && (
+              <AsyncActionButton
+                variant="outline"
+                onClick={populateResources}
+                icon={<HardDriveDownload size={16} />}
+                {...populateResourcesButtonDisabledProps}
+              >
+                Populate Resources
+              </AsyncActionButton>
+            )}
+          </div>
           <div className="left-auto flex gap-2">
             <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>
               Clear
             </Button>
-            <AsyncActionButton className="w-28" onClick={sendTransactions} icon={<Send size={16} />} {...sendButtonDisabledProps}>
-              Send
+            <AsyncActionButton className="w-28" onClick={sendTransactions} icon={sendButtonConfig.icon} {...sendButtonDisabledProps}>
+              {sendButtonConfig.label}
             </AsyncActionButton>
           </div>
         </div>
       </div>
       {transactionBuilderDialog}
       {editResourcesDialog}
-      {transactionGraphResult && (
-        <div className="my-4 flex flex-col gap-2 text-sm">
-          <h3>Result</h3>
-          <h4>Transaction Visual</h4>
-          <TransactionsGraph
-            transactionsGraphData={transactionGraphResult}
-            bgClassName={renderContext === 'transaction-wizard' ? 'bg-background' : 'bg-card'}
-            downloadable={false}
-          />
-        </div>
-      )}
     </div>
   )
 }

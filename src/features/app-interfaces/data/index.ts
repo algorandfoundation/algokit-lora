@@ -1,3 +1,3 @@
 export * from './read'
 export * from './delete'
-export * from './write'
+export * from './create'

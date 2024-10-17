@@ -5,6 +5,7 @@ import { loadable } from 'jotai/utils'
 import { Application } from '../models'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 import { ApplicationId } from './types'
+import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 
 const createApplicationMethodDefinitionsAtom = (applicationId: ApplicationId) => {
   return atom(async (get) => {
@@ -29,9 +30,15 @@ export const useLoadableApplicationAbiMethodDefinitions = (application: Applicat
   return useAtomValue(loadable(applicationMethodDefinitionsAtom))
 }
 
-export const useLoadableAbiMethodDefinitions = (applicationId: ApplicationId) => {
+export const useLoadableAbiMethodDefinitions = (appSpec?: Arc32AppSpec, applicationId?: ApplicationId) => {
   const applicationMethodDefinitionsAtom = useMemo(() => {
-    return createApplicationMethodDefinitionsAtom(applicationId)
-  }, [applicationId])
+    if (appSpec) {
+      return atom(() => Promise.resolve(asApplicationAbiMethods(appSpec)))
+    } else if (applicationId) {
+      return createApplicationMethodDefinitionsAtom(applicationId)
+    }
+
+    return atom(() => Promise.resolve(undefined))
+  }, [appSpec, applicationId])
   return useAtomValue(loadable(applicationMethodDefinitionsAtom))
 }

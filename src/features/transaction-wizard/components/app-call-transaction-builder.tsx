@@ -58,7 +58,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        applicationId: transaction.applicationId ? BigInt(transaction.applicationId) : undefined,
+        applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         onComplete: transaction.onComplete.toString(),
         fee: transaction.fee,
@@ -79,7 +79,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
       validRounds: {
         setAutomatically: true,
       },
-      applicationId: _defaultValues?.applicationId ? BigInt(_defaultValues.applicationId) : undefined,
+      applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
     }
   }, [mode, activeAddress, _defaultValues?.applicationId, transaction])
 
@@ -97,11 +97,12 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
     >
       {(helper) => (
         <div className="space-y-4">
-          {helper.numberField({
-            field: 'applicationId',
-            label: 'Application ID',
-            helpText: 'The application to be called',
-          })}
+          {defaultValues.applicationId !== 0n &&
+            helper.numberField({
+              field: 'applicationId',
+              label: 'Application ID',
+              helpText: 'The application to be called',
+            })}
           {helper.selectField({
             field: 'onComplete',
             label: 'On complete',

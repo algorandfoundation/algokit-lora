@@ -324,7 +324,7 @@ const getSubTransactionsTableColumns = ({
               dtClassName="w-[9.5rem] truncate"
             />
           )}
-          <div className="absolute -bottom-2 right-1/2">
+          <div className="absolute -bottom-2 right-1/2 z-10">
             <Link2Icon size={16} className="text-muted-foreground/70" />
           </div>
         </div>
