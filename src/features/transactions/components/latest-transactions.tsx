@@ -9,6 +9,9 @@ import { Badge } from '@/features/common/components/badge'
 import { TransactionSummary } from '@/features/transactions/models'
 import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { useMemo } from 'react'
+import { Loadable } from 'jotai/vanilla/utils/loadable'
+import { NfdResult } from '@/features/nfd/data/types'
 
 export const latestTransactionsTitle = 'Latest Transactions'
 
@@ -16,9 +19,17 @@ type Props = {
   latestTransactions: TransactionSummary[]
 }
 
+function useConditionalLoadableNfdResult(address: string | number | undefined) {
+  const [loadableNfd] = useLoadableNfdResult(typeof address === 'string' ? address : '')
+  return useMemo(() => ({ loadableNfd, isString: typeof address === 'string' }), [address, loadableNfd]) as {
+    loadableNfd: Loadable<NfdResult | null>
+    isString: boolean
+  }
+}
+
 function Transaction({ transaction }: { transaction: TransactionSummary }) {
-  const [loadableNfdFrom] = useLoadableNfdResult(transaction.from)
-  const [loadableNfdTo] = useLoadableNfdResult(transaction.to?.toString() ?? '')
+  const { loadableNfd: loadableNfdFrom } = useConditionalLoadableNfdResult(transaction.from)
+  const { loadableNfd: loadableNfdTo, isString: isTransactionToString } = useConditionalLoadableNfdResult(transaction.to)
 
   return (
     <li key={transaction.id} className="border-b last:border-0">
@@ -41,19 +52,12 @@ function Transaction({ transaction }: { transaction: TransactionSummary }) {
               },
               {
                 dt: 'To:',
-                dd: (
-                  <RenderLoadable
-                    loadable={loadableNfdTo}
-                    fallback={transaction.to && typeof transaction.to === 'string' ? ellipseAddress(transaction.to) : transaction.to}
-                  >
-                    {(nfd) => (
-                      <>
-                        {transaction.to && typeof transaction.to === 'string'
-                          ? nfd?.name ?? ellipseAddress(transaction.to)
-                          : transaction.to}
-                      </>
-                    )}
+                dd: isTransactionToString ? (
+                  <RenderLoadable loadable={loadableNfdTo} fallback={ellipseAddress(transaction.to as string)}>
+                    {(nfd) => <>{nfd?.name ?? ellipseAddress(transaction.to as string)}</>}
                   </RenderLoadable>
+                ) : (
+                  <>{transaction.to}</>
                 ),
               },
             ]}
