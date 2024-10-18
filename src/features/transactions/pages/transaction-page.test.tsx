@@ -86,6 +86,7 @@ import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/ind
 import { genesisHashAtom } from '@/features/blocks/data'
 import { writeAppInterface } from '@/features/app-interfaces/data'
 import { algod } from '@/features/common/data/algo-client'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -159,6 +160,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -218,6 +221,7 @@ describe('transaction-page', () => {
 
     beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
     })
 
     it('should show the multisig information', () => {
@@ -259,6 +263,7 @@ describe('transaction-page', () => {
 
     beforeEach(() => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
     })
 
     it('should show 2 tabs with the logicsig base64 as default', () => {
@@ -320,6 +325,7 @@ describe('transaction-page', () => {
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       })
 
       it('should show 2 tabs with the note base64 as default', () => {
@@ -370,6 +376,7 @@ describe('transaction-page', () => {
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       })
 
       it('should show 3 tabs with the note json as default', () => {
@@ -437,6 +444,7 @@ describe('transaction-page', () => {
 
       beforeEach(() => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       })
 
       it('should show 3 tabs with the note arc-2 as default', () => {
@@ -504,6 +512,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -565,6 +574,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -590,6 +600,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -615,6 +627,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -648,6 +662,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -747,6 +763,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2' }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -877,6 +895,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2/1' }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -914,6 +933,7 @@ describe('transaction-page', () => {
 
     it('should be rendered without error', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -945,6 +965,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -978,6 +1000,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1039,6 +1063,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1069,6 +1095,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -1132,6 +1160,8 @@ describe('transaction-page', () => {
 
     it('should be rendered correctly', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       return executeComponentTest(
@@ -1161,6 +1191,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1197,6 +1229,8 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1229,6 +1263,8 @@ describe('when rendering a rekey transaction', () => {
 
   it('should be rendered with the correct data', () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
     const myStore = createStore()
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1257,6 +1293,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
 
   it('should be rendered with the correct data', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
     const myStore = createStore()
     myStore.set(genesisHashAtom, 'some-hash')
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
@@ -1301,6 +1338,8 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
 
   it('should be rendered with the correct data', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+
     const myStore = createStore()
     myStore.set(genesisHashAtom, 'some-hash')
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))

@@ -40,6 +40,7 @@ import { writeAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -115,6 +116,7 @@ describe('application-page', () => {
     const applicationResult = applicationResultMother['mainnet-80441968']().build()
 
     it('should be rendered with the correct data', () => {
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
 
@@ -234,6 +236,7 @@ describe('application-page', () => {
     const transactionResult = transactionResultMother['mainnet-XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ']().build()
 
     it('should be rendered with the correct app name', () => {
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
 
@@ -268,6 +271,7 @@ describe('application-page', () => {
     const applicationResult = applicationResultMother['mainnet-80441968']().build()
 
     it('should be rendered with the refresh button', () => {
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
 
@@ -357,6 +361,7 @@ describe('application-page', () => {
 
     it('should be rendered with the correct data', async () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
         Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
       )

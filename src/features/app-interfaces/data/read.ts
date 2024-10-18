@@ -11,6 +11,13 @@ export const getAppInterfaces = async (dbConnection: DbConnection) => {
   return await dbConnection.getAll('app-interfaces')
 }
 
+export const createAppInterfaceAtom = (applicationId: ApplicationId) => {
+  return atom(async (get) => {
+    const dbConnection = await get(dbConnectionAtom)
+    return await getAppInterface(dbConnection, applicationId)
+  })
+}
+
 export const useAppInterfaces = () => {
   const appInterfacesAtom = useMemo(() => {
     return atomWithRefresh(async (get) => {
@@ -21,11 +28,4 @@ export const useAppInterfaces = () => {
     })
   }, [])
   return [useAtomValue(loadable(appInterfacesAtom)), useSetAtom(appInterfacesAtom)] as const
-}
-
-export const createAppInterfaceAtom = (applicationId: ApplicationId) => {
-  return atom(async (get) => {
-    const dbConnection = await get(dbConnectionAtom)
-    return await getAppInterface(dbConnection, applicationId)
-  })
 }
