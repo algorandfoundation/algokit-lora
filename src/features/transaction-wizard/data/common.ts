@@ -4,6 +4,7 @@ import { isAddress } from '@/utils/is-address'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import { asOnCompleteLabel } from '../mappers/as-description-list-items'
+import { isNfd } from '@/features/nfd/data/is-nfd'
 
 export const requiredMessage = 'Required'
 
@@ -11,7 +12,7 @@ const invalidAddressMessage = 'Invalid address'
 export const optionalAddressFieldSchema = zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) : true), {
   message: invalidAddressMessage,
 })
-export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) : true), {
+export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
   message: invalidAddressMessage,
 })
 

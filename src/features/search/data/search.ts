@@ -17,7 +17,7 @@ import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
 import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
-import { isNFD } from '@/features/nfd/data/is-nfd'
+import { isNfd } from '@/features/nfd/data/is-nfd'
 import { getNfdResultAtom } from '@/features/nfd/data/nfd-result'
 
 const handle404 = (e: Error) => {
@@ -51,7 +51,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         label: `${ellipseAddress(term)}${nfd ? ` (${nfd.name})` : ''}`,
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
-    } else if (isNFD(term)) {
+    } else if (isNfd(term)) {
       const nfdAtom = getNfdResultAtom({ nfd: term })
       const nfd = await get(nfdAtom)
       if (nfd && isAddress(nfd.depositAccount)) {

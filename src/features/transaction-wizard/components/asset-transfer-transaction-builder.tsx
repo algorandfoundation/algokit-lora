@@ -21,6 +21,9 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { NfdResult } from '@/features/nfd/data/types'
+import { Address } from '@/features/accounts/data/types'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 const receiverLabel = 'Receiver'
 
@@ -52,9 +55,10 @@ const formData = zfd.formData(formSchema)
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>
   asset?: AssetSummary
+  nfd?: NfdResult
 }
 
-function FormFields({ helper, asset }: FormFieldsProps) {
+function FormFields({ helper, asset, nfd }: FormFieldsProps) {
   return (
     <>
       {helper.numberField({
@@ -64,7 +68,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       {helper.textField({
         field: 'sender',
-        label: 'Sender',
+        label: <span className="flex items-center gap-1.5">Sender {nfd && nfd.name ? ` (${nfd.name})` : ''}</span>,
         helpText: 'Account to transfer from. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
@@ -96,9 +100,15 @@ function FormInner({ helper }: FormInnerProps) {
 
   const assetIdFieldValue = formCtx.watch('asset.id') // This actually comes back as a string value, so we convert below
   const [assetId] = useDebounce(assetIdFieldValue ? Number(assetIdFieldValue) : undefined, 500)
+  const addressFieldValue = formCtx.watch('sender')
+  const [address] = useDebounce(addressFieldValue ? addressFieldValue : undefined, 500)
 
   if (assetId) {
     return <FormFieldsWithAssetInfo helper={helper} formCtx={formCtx} assetId={assetId} />
+  }
+  if (address) {
+    console.log('hey inside the if')
+    return <FormFieldsWithNfd helper={helper} formCtx={formCtx} address={address} />
   }
 
   return <FormFields helper={helper} />
@@ -140,6 +150,28 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       }}
     >
       {(asset) => <FormFields helper={helper} asset={asset} />}
+    </RenderLoadable>
+  )
+}
+
+type FieldsWithNfdProps = {
+  helper: FormFieldHelper<z.infer<typeof formData>>
+  formCtx: UseFormReturn<z.infer<typeof formData>>
+  address: Address
+}
+
+function FormFieldsWithNfd({ helper, address }: FieldsWithNfdProps) {
+  const [loadableNfd] = useLoadableNfdResult(address)
+
+  return (
+    <RenderLoadable
+      loadable={loadableNfd}
+      fallback={<FormFields helper={helper} />}
+      transformError={() => {
+        return <FormFields helper={helper} />
+      }}
+    >
+      {(nfd) => <FormFields helper={helper} nfd={nfd?.name ? nfd : undefined} />}
     </RenderLoadable>
   )
 }
