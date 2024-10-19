@@ -135,7 +135,6 @@ export function MethodCallTransactionBuilder({
               id: randomGuid(),
               type: BuildableTransactionType.Placeholder,
               targetType: arg.type,
-              methodCallTransactionId: methodCallTransactionId,
             } satisfies PlaceholderTransaction
           } else {
             return transaction!.methodArgs[index]

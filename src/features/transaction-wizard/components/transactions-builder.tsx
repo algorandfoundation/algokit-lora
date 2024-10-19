@@ -12,6 +12,7 @@ import {
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
   PlaceholderTransaction,
+  FulfilledByTransaction,
 } from '../models'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
@@ -21,7 +22,7 @@ import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
@@ -29,6 +30,7 @@ import { transactionGroupTableLabel } from './labels'
 import React from 'react'
 import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
 import { buildComposer } from '../data/common'
+import { asAbiTransactionType } from '../mappers'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -119,13 +121,13 @@ export function TransactionsBuilder({
     },
   })
   const createTransaction = useCallback(async () => {
+    setErrorMessage(undefined)
     const transaction = await openTransactionBuilderDialog({ mode: TransactionBuilderMode.Create })
     if (transaction) {
       setTransactions((prev) => [...prev, transaction])
     }
   }, [openTransactionBuilderDialog])
 
-  // TODO: Support nested app calls
   const sendTransactions = useCallback(async () => {
     try {
       setErrorMessage(undefined)
@@ -178,30 +180,39 @@ export function TransactionsBuilder({
   }, [transactions])
 
   const editTransaction = useCallback(
-    async (transaction: BuildTransactionResult | PlaceholderTransaction) => {
-      const txn =
-        transaction.type === BuildableTransactionType.Placeholder
-          ? await openTransactionBuilderDialog({
+    async (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => {
+      setErrorMessage(undefined)
+      try {
+        const txn = await (transaction.type === BuildableTransactionType.Placeholder ||
+        transaction.type === BuildableTransactionType.Fulfilled
+          ? openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Create,
               type: asAlgosdkTransactionType(transaction.targetType),
             })
-          : await openTransactionBuilderDialog({
+          : openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Edit,
               transaction: transaction,
-            })
-      if (txn) {
-        setTransactions((prev) => setTransaction(prev, transaction.id, () => txn))
+            }))
+        if (txn) {
+          setTransactions(patchTransactions(transactions, transaction.id, txn))
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(error)
+        setErrorMessage(asError(error).message)
       }
     },
-    [openTransactionBuilderDialog]
+    [openTransactionBuilderDialog, transactions]
   )
 
   const deleteTransaction = useCallback((transaction: BuildTransactionResult) => {
+    setErrorMessage(undefined)
     setTransactions((prev) => prev.filter((t) => t.id !== transaction.id))
   }, [])
 
   const editResources = useCallback(
     async (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => {
+      setErrorMessage(undefined)
       const resources = await openEditResourcesDialog({ transaction })
       if (resources) {
         setTransactions((prev) => {
@@ -339,18 +350,157 @@ const setTransactionResources = (transactions: BuildTransactionResult[], transac
   })
 }
 
+const buildRelatedTransactionsGroup = (transaction: BuildTransactionResult) => {
+  if (transaction.type === BuildableTransactionType.MethodCall) {
+    if (!transaction.methodArgs) {
+      return []
+    }
+
+    return transaction.methodArgs.reduce(
+      (acc, arg) => {
+        if (isBuildTransactionResult(arg)) {
+          acc.push(...buildRelatedTransactionsGroup(arg).concat(arg))
+        }
+        if (
+          typeof arg === 'object' &&
+          'type' in arg &&
+          [BuildableTransactionType.Placeholder, BuildableTransactionType.Fulfilled].includes(arg.type)
+        ) {
+          acc.push(arg)
+        }
+        return acc
+      },
+      [] as (BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction)[]
+    )
+  }
+
+  return []
+}
+
+const buildRelatedTransactionsGroups = (transactions: BuildTransactionResult[]) => {
+  return transactions.map((transaction) => {
+    return buildRelatedTransactionsGroup(transaction)
+  })
+}
+
+export const patchTransactions = (
+  previousTransactions: BuildTransactionResult[],
+  previousId: string,
+  newTransaction: BuildTransactionResult
+): BuildTransactionResult[] => {
+  const replacements = new Array<[string, BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction]>([
+    previousId,
+    newTransaction,
+  ])
+
+  if (newTransaction.type === BuildableTransactionType.MethodCall) {
+    const relatedTransactions = buildRelatedTransactionsGroups(previousTransactions).find((group) => group.some((t) => t.id === previousId))
+
+    if (relatedTransactions) {
+      const index = relatedTransactions.findIndex((t) => t.id === previousId)
+      newTransaction.methodArgs
+        .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
+        .reverse()
+        .forEach((arg) => {
+          const previousRelatedTransactionsIndex = index - 1
+          if (previousRelatedTransactionsIndex >= 0) {
+            const previousRelatedTransaction = relatedTransactions[previousRelatedTransactionsIndex]
+
+            const previousRelatedTransactionType =
+              previousRelatedTransaction.type === BuildableTransactionType.Placeholder ||
+              previousRelatedTransaction.type === BuildableTransactionType.Fulfilled
+                ? previousRelatedTransaction.targetType
+                : asAbiTransactionType(previousRelatedTransaction.type)
+            const argType = arg.type === BuildableTransactionType.Placeholder ? arg.targetType : asAbiTransactionType(arg.type)
+
+            if (
+              previousRelatedTransactionType === argType ||
+              previousRelatedTransactionType === algosdk.ABITransactionType.any ||
+              argType === algosdk.ABITransactionType.any
+            ) {
+              replacements.push([
+                previousRelatedTransaction.id,
+                {
+                  id: previousRelatedTransaction.id,
+                  type: BuildableTransactionType.Fulfilled,
+                  targetType: previousRelatedTransactionType,
+                  fulfilledById: arg.id,
+                } satisfies FulfilledByTransaction,
+              ])
+
+              if (previousRelatedTransactionType === argType && previousRelatedTransaction.type !== BuildableTransactionType.Placeholder) {
+                replacements.push([arg.id, { ...previousRelatedTransaction, id: arg.id }])
+              } else if (argType === algosdk.ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
+                replacements.push([arg.id, { ...arg, targetType: previousRelatedTransactionType }])
+              }
+            } else {
+              throw new Error('Failed to insert transaction arg, it will create an invalid group')
+            }
+          }
+        })
+    }
+  }
+
+  const nextTransactions = replacements.reduce((acc, [id, replacement]) => {
+    return setTransaction(acc, id, replacement)
+  }, previousTransactions)
+
+  // It's possible that a transaction fulfilling another transaction has been replaced, so change these back to placeholders
+  const additionalReplacements = buildRelatedTransactionsGroups(nextTransactions).reduce((acc, group) => {
+    group
+      .filter((arg) => arg.type === BuildableTransactionType.Fulfilled)
+      .forEach((fulfilled) => {
+        const fulfilledByTransaction = group.find((arg) => arg.id === fulfilled.fulfilledById)
+        if (!fulfilledByTransaction) {
+          acc.push([
+            fulfilled.id,
+            {
+              id: fulfilled.id,
+              type: BuildableTransactionType.Placeholder,
+              targetType: fulfilled.targetType,
+            },
+          ])
+        }
+      })
+
+    return acc
+  }, new Array<[string, BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction]>())
+
+  return additionalReplacements.length > 0
+    ? additionalReplacements.reduce((acc, [id, replacement]) => {
+        return setTransaction(acc, id, replacement)
+      }, nextTransactions)
+    : nextTransactions
+}
+
 const setTransaction = (
   transactions: BuildTransactionResult[],
   transactionId: string,
-  setter: (oldTxn: BuildTransactionResult | PlaceholderTransaction) => BuildTransactionResult
+  nextTransaction:
+    | (BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction)
+    | ((
+        oldTxn: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction
+      ) => BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction)
 ) => {
-  const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction) => {
+  const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => {
     if (transaction.id === transactionId) {
-      return { ...setter(transaction) }
+      const next = typeof nextTransaction === 'function' ? nextTransaction(transaction) : nextTransaction
+      return { ...next }
+    }
+    if (
+      transaction.type === BuildableTransactionType.Fulfilled &&
+      transaction.fulfilledById === transactionId &&
+      typeof nextTransaction !== 'function'
+    ) {
+      return {
+        ...transaction,
+        fulfilledById: nextTransaction.id,
+      }
     }
     if (transaction.type !== BuildableTransactionType.MethodCall) {
       return transaction
     }
+
     transaction.methodArgs = transaction.methodArgs.map((arg) => {
       if (typeof arg === 'object' && 'type' in arg) {
         return trySet(arg)

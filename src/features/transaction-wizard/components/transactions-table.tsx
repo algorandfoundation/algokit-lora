@@ -23,11 +23,12 @@ import {
   BuildTransactionResult,
   TransactionPositionsInGroup,
   PlaceholderTransaction,
+  FulfilledByTransaction,
 } from '../models'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { asDescriptionListItems, asTransactionLabelFromBuildableTransactionType, asTransactionLabelFromTransactionType } from '../mappers'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/features/common/components/dropdown-menu'
-import { isBuildTransactionResult } from '../utils/is-build-transaction-result'
+import { isBuildTransactionResult } from '../utils/transaction-result-narrowing'
 import { transactionActionsLabel } from './labels'
 import { Button } from '@/features/common/components/button'
 
@@ -91,7 +92,7 @@ type Props = {
   data: BuildTransactionResult[]
   setData: (data: BuildTransactionResult[]) => void
   ariaLabel?: string
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
   nonDeletableTransactionIds: string[]
@@ -204,7 +205,7 @@ const getTableColumns = ({
 }: {
   transactionPositions: TransactionPositionsInGroup
   nonDeletableTransactionIds: string[]
-  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => Promise<void>
   onEditResources: (transaction: BuildAppCallTransactionResult | BuildMethodCallTransactionResult) => Promise<void>
   onDelete: (transaction: BuildTransactionResult) => void
 }): ColumnDef<BuildTransactionResult>[] => [
@@ -316,7 +317,7 @@ const getSubTransactionsTableColumns = ({
           {transaction.type === BuildableTransactionType.Placeholder ? (
             <div className="flex min-h-8 items-center gap-1.5">
               <PlusCircle size={16} />
-              <span>Build argument for transaction {transactionPositions.get(transaction.methodCallTransactionId)}</span>
+              {transaction.type === BuildableTransactionType.Placeholder && <span>Build argument for transaction</span>}
             </div>
           ) : (
             <DescriptionList
