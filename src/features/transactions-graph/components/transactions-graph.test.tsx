@@ -18,7 +18,7 @@ import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { Atom } from 'jotai/index'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { setTimeout } from 'timers/promises'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -38,7 +38,7 @@ describe('payment-transaction-graph', () => {
     transactionResultMother['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']().build(),
   ])('when rendering transaction $id', (transactionResult: TransactionResult) => {
     it('should match snapshot', () => {
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
       const model = asPaymentTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
@@ -67,7 +67,7 @@ describe('asset-transfer-transaction-graph', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResult }: { transactionResult: TransactionResult; assetResult: AssetResult }) => {
       it('should match snapshot', () => {
-        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+        vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
         const assetResolver = createAssetResolver([assetResult])
         const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
         const graphData = asTransactionsGraphData([transaction])
@@ -122,7 +122,7 @@ describe('application-call-graph', () => {
     'when rendering transaction $transactionResult.id',
     ({ transactionResult, assetResults }: { transactionResult: TransactionResult; assetResults: AssetResult[] }) => {
       it('should match snapshot', () => {
-        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+        vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
         const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults), createAbiMethodResolver())
@@ -150,7 +150,7 @@ describe('key-reg-graph', () => {
   ])('when rendering transaction $transactionResult.id', ({ transactionResult }: { transactionResult: TransactionResult }) => {
     it('should match snapshot', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
       const model = asKeyRegTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
@@ -224,7 +224,7 @@ describe('group-graph', () => {
       assetResults: AssetResult[]
     }) => {
       it('should match snapshot', () => {
-        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+        vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
         const assetResolver = createAssetResolver(assetResults)
         const transactions = transactionResults.map((t) => asTransaction(t, assetResolver, createAbiMethodResolver()))
         const groupResult = groupResultMother.groupWithTransactions(transactionResults).withId(groupId).build()

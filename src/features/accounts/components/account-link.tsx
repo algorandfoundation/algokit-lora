@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { CopyButton } from '@/features/common/components/copy-button'
@@ -18,7 +18,7 @@ export type AccountLinkProps = PropsWithChildren<{
 }>
 
 export const AccountLink = ({ address, ...rest }: AccountLinkProps) => {
-  const [loadableNfd] = useLoadableNfdResult(address)
+  const [loadableNfd] = useLoadableNfd(address)
 
   return (
     <>
