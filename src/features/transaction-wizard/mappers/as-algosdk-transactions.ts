@@ -87,7 +87,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
       if (typeof arg === 'object' && 'type' in arg) {
-        if (arg.type === BuildableTransactionType.SatisfiedBy || arg.type === BuildableTransactionType.Placeholder) {
+        if (arg.type === BuildableTransactionType.Fulfilled || arg.type === BuildableTransactionType.Placeholder) {
           return undefined
         } else if (arg.type !== BuildableTransactionType.MethodCall) {
           // Other transaction types only return 1 transaction
@@ -104,8 +104,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     sender: transaction.sender,
     appId: BigInt(transaction.applicationId),
     method: transaction.method,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    args: args as any, // TODO: NC - Remove this once the method call arg is updated in utils-ts to support undefined
+    args: args,
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
@@ -271,7 +270,6 @@ const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRoun
       }
     : undefined
 
-// TODO: NC - New file?
 export const asAbiTransactionType = (type: BuildableTransactionType) => {
   switch (type) {
     case BuildableTransactionType.Payment:

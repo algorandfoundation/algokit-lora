@@ -11,9 +11,8 @@ import {
   BuildAppCallTransactionResult,
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
-  MethodCallArg,
   PlaceholderTransaction,
-  SatisifiedByTransaction,
+  FulfilledByTransaction,
 } from '../models'
 import { TransactionBuilderMode } from '../data'
 import { TransactionsTable } from './transactions-table'
@@ -23,7 +22,7 @@ import {
   ConfirmTransactionsResourcesForm,
   TransactionResources,
 } from '@/features/applications/components/confirm-transactions-resources-form'
-import { isBuildTransactionResult, isPlaceholderTransaction, isSatisfiedByTransaction } from '../utils/is-build-transaction-result'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
 import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
@@ -70,7 +69,7 @@ export function TransactionsBuilder({
   disablePopulate = false,
 }: Props) {
   const { activeAddress } = useWallet()
-  const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? []) // TODO: NC - Need to sort this part here
+  const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? [])
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
 
   const nonDeletableTransactionIds = useMemo(() => {
@@ -129,7 +128,6 @@ export function TransactionsBuilder({
     }
   }, [openTransactionBuilderDialog])
 
-  // TODO: Support nested app calls
   const sendTransactions = useCallback(async () => {
     try {
       setErrorMessage(undefined)
@@ -182,11 +180,11 @@ export function TransactionsBuilder({
   }, [transactions])
 
   const editTransaction = useCallback(
-    async (transaction: BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction) => {
+    async (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => {
       setErrorMessage(undefined)
       try {
         const txn = await (transaction.type === BuildableTransactionType.Placeholder ||
-        transaction.type === BuildableTransactionType.SatisfiedBy
+        transaction.type === BuildableTransactionType.Fulfilled
           ? openTransactionBuilderDialog({
               mode: TransactionBuilderMode.Create,
               type: asAlgosdkTransactionType(transaction.targetType),
@@ -337,25 +335,6 @@ const flattenTransactions = (transactions: BuildTransactionResult[]): BuildTrans
   }, [] as BuildTransactionResult[])
 }
 
-const flattenTransactions2 = (
-  transactions: (BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction)[],
-  argFilterPredicate: (arg: MethodCallArg) => boolean
-): (BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction)[] => {
-  return transactions.reduce(
-    (acc, transaction) => {
-      if (transaction.type === BuildableTransactionType.MethodCall) {
-        // TODO: NC - It's not great running multiple filters
-        const methodCallArgs = transaction.methodArgs
-          .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg) || isSatisfiedByTransaction(arg))
-          .filter(argFilterPredicate)
-        return [...acc, ...flattenTransactions2(methodCallArgs, argFilterPredicate), transaction]
-      }
-      return [...acc, transaction]
-    },
-    [] as (BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction)[]
-  )
-}
-
 const setTransactionResources = (transactions: BuildTransactionResult[], transactionId: string, resources: TransactionResources) => {
   return setTransaction(transactions, transactionId, (transaction) => {
     if (transaction.type === BuildableTransactionType.MethodCall || transaction.type === BuildableTransactionType.AppCall) {
@@ -371,86 +350,88 @@ const setTransactionResources = (transactions: BuildTransactionResult[], transac
   })
 }
 
-/*
-prev
-[
-  method: {
-    args: [payPlaceholder or pay, appCallPlaceholder]
-  }
-]
+const buildRelatedTransactionsGroup = (transaction: BuildTransactionResult) => {
+  if (transaction.type === BuildableTransactionType.MethodCall) {
+    if (!transaction.methodArgs) {
+      return []
+    }
 
-txn
-appCallPlaceholder {
-  args: [payPlaceholder] <-- Needs to go as deep as the number of txn args
+    return transaction.methodArgs.reduce(
+      (acc, arg) => {
+        if (isBuildTransactionResult(arg)) {
+          acc.push(...buildRelatedTransactionsGroup(arg).concat(arg))
+        }
+        if (
+          typeof arg === 'object' &&
+          'type' in arg &&
+          [BuildableTransactionType.Placeholder, BuildableTransactionType.Fulfilled].includes(arg.type)
+        ) {
+          acc.push(arg)
+        }
+        return acc
+      },
+      [] as (BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction)[]
+    )
+  }
+
+  return []
 }
 
-===> if it's a pay, we need to replace the payPlaceholder with the pay and then substitute in, then make the parent arg undefined or something else to indicate it's been statisifed
-
-
-Do a replacements type setup
-
-
-*/
+const buildRelatedTransactionsGroups = (transactions: BuildTransactionResult[]) => {
+  return transactions.map((transaction) => {
+    return buildRelatedTransactionsGroup(transaction)
+  })
+}
 
 export const patchTransactions = (
   previousTransactions: BuildTransactionResult[],
   previousId: string,
   newTransaction: BuildTransactionResult
 ): BuildTransactionResult[] => {
-  const replacements = new Array<[string, BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction]>([
+  const replacements = new Array<[string, BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction]>([
     previousId,
     newTransaction,
   ])
 
-  // TODO: NC - Handle rendering the position of all transaction the arg statisfies "Build argument for transaction..."
-
   if (newTransaction.type === BuildableTransactionType.MethodCall) {
-    const existingGroup = flattenTransactions2(
-      previousTransactions,
-      (arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg)
-    )
-    // Find the transaction
-    const index = existingGroup.findIndex((t) => t.id === previousId)
+    const relatedTransactions = buildRelatedTransactionsGroups(previousTransactions).find((group) => group.some((t) => t.id === previousId))
 
-    if (index > 0) {
+    if (relatedTransactions) {
+      const index = relatedTransactions.findIndex((t) => t.id === previousId)
       newTransaction.methodArgs
         .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
         .reverse()
         .forEach((arg) => {
-          const previousIndexInGroup = index - 1
-          if (previousIndexInGroup >= 0) {
-            const previousTransactionInGroup = existingGroup[previousIndexInGroup]
+          const previousRelatedTransactionsIndex = index - 1
+          if (previousRelatedTransactionsIndex >= 0) {
+            const previousRelatedTransaction = relatedTransactions[previousRelatedTransactionsIndex]
 
-            // TODO: NC - Handle `any` transactions as well <-- I think this is already done. Confirm.
-
-            // TODO: NC - thing might not be linked to the app call transaction at all. Ensure it is.
-            const previousTransactionInGroupType =
-              previousTransactionInGroup.type === BuildableTransactionType.Placeholder
-                ? previousTransactionInGroup.targetType
-                : asAbiTransactionType(previousTransactionInGroup.type)
+            const previousRelatedTransactionType =
+              previousRelatedTransaction.type === BuildableTransactionType.Placeholder ||
+              previousRelatedTransaction.type === BuildableTransactionType.Fulfilled
+                ? previousRelatedTransaction.targetType
+                : asAbiTransactionType(previousRelatedTransaction.type)
             const argType = arg.type === BuildableTransactionType.Placeholder ? arg.targetType : asAbiTransactionType(arg.type)
 
-            // TODO: NC - Handle the edit scenarios to ensure the we don't attach the arg to the wrong transaction
-
-            // If you have a full group, then you change, handle that...
-
-            // TODO: NC - Handle when a placeholder has been built
-
-            // TODO: NC - Ensure the transaction is linked, otherwise don't do anything
-
-            if (previousTransactionInGroupType === argType || previousTransactionInGroupType === algosdk.ABITransactionType.any) {
+            if (
+              previousRelatedTransactionType === argType ||
+              previousRelatedTransactionType === algosdk.ABITransactionType.any ||
+              argType === algosdk.ABITransactionType.any
+            ) {
               replacements.push([
-                previousTransactionInGroup.id,
+                previousRelatedTransaction.id,
                 {
-                  id: previousTransactionInGroup.id,
-                  type: BuildableTransactionType.SatisfiedBy,
-                  targetType: previousTransactionInGroupType,
-                  satisfiedById: arg.id,
-                } satisfies SatisifiedByTransaction,
+                  id: previousRelatedTransaction.id,
+                  type: BuildableTransactionType.Fulfilled,
+                  targetType: previousRelatedTransactionType,
+                  fulfilledById: arg.id,
+                } satisfies FulfilledByTransaction,
               ])
 
-              if (previousTransactionInGroup.type !== BuildableTransactionType.Placeholder) {
-                replacements.push([arg.id, { ...previousTransactionInGroup, id: arg.id }])
+              if (previousRelatedTransactionType === argType && previousRelatedTransaction.type !== BuildableTransactionType.Placeholder) {
+                replacements.push([arg.id, { ...previousRelatedTransaction, id: arg.id }])
+              } else if (argType === algosdk.ABITransactionType.any && arg.type === BuildableTransactionType.Placeholder) {
+                replacements.push([arg.id, { ...arg, targetType: previousRelatedTransactionType }])
               }
             } else {
               throw new Error('Failed to insert transaction arg, it will create an invalid group')
@@ -464,28 +445,26 @@ export const patchTransactions = (
     return setTransaction(acc, id, replacement)
   }, previousTransactions)
 
-  // Check if there is a satisfied by without a transaction
-  const temp = flattenTransactions2(
-    nextTransactions,
-    (arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg) || isSatisfiedByTransaction(arg)
-  )
+  // It's possible that a transaction fulfilling another transaction has been replaced, so change these back to placeholders
+  const additionalReplacements = buildRelatedTransactionsGroups(nextTransactions).reduce((acc, group) => {
+    group
+      .filter((arg) => arg.type === BuildableTransactionType.Fulfilled)
+      .forEach((fulfilled) => {
+        const fulfilledByTransaction = group.find((arg) => arg.id === fulfilled.fulfilledById)
+        if (!fulfilledByTransaction) {
+          acc.push([
+            fulfilled.id,
+            {
+              id: fulfilled.id,
+              type: BuildableTransactionType.Placeholder,
+              targetType: fulfilled.targetType,
+            },
+          ])
+        }
+      })
 
-  const additionalReplacements = new Array<[string, BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction]>()
-  const satisfiedByItems = temp.filter((arg) => arg.type === BuildableTransactionType.SatisfiedBy)
-  satisfiedByItems.forEach((satisfiedBy) => {
-    const satisfiedByTransaction = temp.find((arg) => arg.id === satisfiedBy.satisfiedById)
-    if (!satisfiedByTransaction) {
-      additionalReplacements.push([
-        satisfiedBy.id,
-        {
-          id: satisfiedBy.id,
-          type: BuildableTransactionType.Placeholder,
-          targetType: satisfiedBy.targetType,
-          methodCallTransactionId: 'hirearchy-needed', // TODO: NC - Fix this
-        },
-      ])
-    }
-  })
+    return acc
+  }, new Array<[string, BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction]>())
 
   return additionalReplacements.length > 0
     ? additionalReplacements.reduce((acc, [id, replacement]) => {
@@ -498,31 +477,29 @@ const setTransaction = (
   transactions: BuildTransactionResult[],
   transactionId: string,
   nextTransaction:
-    | (BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction)
+    | (BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction)
     | ((
-        oldTxn: BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction
-      ) => BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction)
+        oldTxn: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction
+      ) => BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction)
 ) => {
-  const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction | SatisifiedByTransaction) => {
+  const trySet = (transaction: BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction) => {
     if (transaction.id === transactionId) {
       const next = typeof nextTransaction === 'function' ? nextTransaction(transaction) : nextTransaction
       return { ...next }
     }
     if (
-      transaction.type === BuildableTransactionType.SatisfiedBy &&
-      transaction.satisfiedById === transactionId &&
+      transaction.type === BuildableTransactionType.Fulfilled &&
+      transaction.fulfilledById === transactionId &&
       typeof nextTransaction !== 'function'
     ) {
       return {
         ...transaction,
-        satisfiedById: nextTransaction.id,
+        fulfilledById: nextTransaction.id,
       }
     }
     if (transaction.type !== BuildableTransactionType.MethodCall) {
       return transaction
     }
-
-    // Look at the transaction that was set and adjust the args accordingly
 
     transaction.methodArgs = transaction.methodArgs.map((arg) => {
       if (typeof arg === 'object' && 'type' in arg) {

@@ -36,7 +36,7 @@ import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/com
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
-import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/is-build-transaction-result'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -68,17 +68,13 @@ export const asDescriptionListItems = (
     return asAssetConfigTransaction(transaction)
   }
 
-  throw new Error(`Unsupported transaction type`)
+  throw new Error('Unsupported transaction type')
 }
 
 const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {
   const params = asPaymentTransactionParams(txn)
 
   return [
-    {
-      dt: 'ID',
-      dd: txn.id,
-    },
     {
       dt: 'Sender',
       dd: (
@@ -276,7 +272,6 @@ const asAssetConfigTransaction = (
   ]
 }
 
-// TODO: NC - Name this better
 const flatten = (args: MethodCallArg[]): MethodCallArg[] => {
   return args.reduce((acc, arg) => {
     if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.MethodCall) {
@@ -297,7 +292,7 @@ const asMethodArg = (
   if (algosdk.abiTypeIsTransaction(type)) {
     invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
 
-    const argId = arg.type === BuildableTransactionType.SatisfiedBy ? arg.satisfiedById : arg.id
+    const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
     const resolvedArg =
       arg.id !== argId
         ? flatten(args)
@@ -310,7 +305,7 @@ const asMethodArg = (
     return (
       <div className="float-left flex items-center gap-1.5">
         <span className="truncate">Transaction {argPosition ?? ''} in the group</span>
-        {resolvedArg && resolvedArg.type !== BuildableTransactionType.SatisfiedBy && (
+        {resolvedArg && resolvedArg.type !== BuildableTransactionType.Fulfilled && (
           <Button
             className="size-4 p-0 text-primary"
             variant="no-style"
@@ -412,10 +407,6 @@ const asMethodCallTransaction = (
   })
 
   return [
-    {
-      dt: 'ID',
-      dd: transaction.id,
-    },
     ...(params.appId !== 0n
       ? [
           {
