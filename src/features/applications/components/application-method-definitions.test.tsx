@@ -18,6 +18,7 @@ import { sendButtonLabel } from '@/features/transaction-wizard/components/transa
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 import { selectOption } from '@/tests/utils/select-option'
+import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -136,7 +137,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -215,7 +216,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -299,7 +300,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -417,7 +418,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -539,7 +540,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -700,7 +701,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -786,7 +787,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -897,7 +898,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1000,7 +1001,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1080,7 +1081,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1183,7 +1184,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1280,7 +1281,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1412,7 +1413,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1481,7 +1482,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -1569,7 +1570,7 @@ describe('application-method-definitions', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )

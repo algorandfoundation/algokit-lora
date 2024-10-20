@@ -6,7 +6,7 @@ import {
   transactionRekeyToLabel,
   transactionTypeLabel,
 } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { asTransactionLinkTextComponent, TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionReceiverLabel, transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { transactionAmountLabel } from '@/features/transactions/components/transactions-table-columns'
@@ -19,12 +19,17 @@ import {
   transactionCloseRemainderToLabel,
 } from '@/features/transactions/components/payment-transaction-info'
 
-export function PaymentTransactionTooltipContent({ transaction }: { transaction: PaymentTransaction | InnerPaymentTransaction }) {
+type Props = {
+  transaction: PaymentTransaction | InnerPaymentTransaction
+  isSimulated: boolean
+}
+
+export function PaymentTransactionTooltipContent({ transaction, isSimulated }: Props) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
+        dd: isSimulated ? asTransactionLinkTextComponent(transaction.id, true) : <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -67,7 +72,7 @@ export function PaymentTransactionTooltipContent({ transaction }: { transaction:
           ]
         : []),
     ],
-    [transaction]
+    [isSimulated, transaction]
   )
 
   return (
