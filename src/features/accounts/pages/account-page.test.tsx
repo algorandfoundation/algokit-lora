@@ -89,7 +89,7 @@ describe('account-page', () => {
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
 
       return executeComponentTest(
         () => render(<AccountPage />, undefined, myStore),
@@ -142,7 +142,7 @@ describe('account-page', () => {
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -187,7 +187,7 @@ describe('account-page', () => {
       const myStore = createStore()
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
 
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -239,7 +239,7 @@ describe('account-page', () => {
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -280,7 +280,7 @@ describe('account-page', () => {
       const myStore = createStore()
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
 
-      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
