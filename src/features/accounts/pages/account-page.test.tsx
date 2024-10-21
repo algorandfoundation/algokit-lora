@@ -31,7 +31,7 @@ import { algod } from '@/features/common/data/algo-client'
 import { reverseNfdsAtom } from '@/features/nfd/data/nfd-result'
 import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 import { atom } from 'jotai'
-import { useLoadableNfd, useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
