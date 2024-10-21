@@ -9,6 +9,7 @@ import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, F
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
+import SvgWizard from '@/features/common/components/icons/wizard'
 
 type Props = {
   className?: string
@@ -26,7 +27,7 @@ export function LeftSideBarMenu({ className }: Props) {
   const menuItems = [
     { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.AppLab, icon: <FlaskConical />, text: 'App Lab' },
-    // { urlTemplate: Urls.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
+    { urlTemplate: Urls.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
     { urlTemplate: Urls.Fund, icon: <Coins />, text: 'Fund' },
   ]
   const [layout, setLayout] = useLayout()

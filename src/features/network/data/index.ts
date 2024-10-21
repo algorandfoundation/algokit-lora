@@ -5,6 +5,7 @@ import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
 import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
+import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
 
 export { localnetId, testnetId, mainnetId, fnetId } from './types'
 export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
@@ -216,7 +217,7 @@ export const useDeleteCustomNetworkConfig = () => {
   )
 }
 
-const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
+const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, createAtomStorageWithoutSubscription(), { getOnInit: true })
 export const selectedNetworkAtomId = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)
