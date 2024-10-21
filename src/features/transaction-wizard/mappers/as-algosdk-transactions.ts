@@ -27,6 +27,7 @@ import {
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -79,18 +80,20 @@ const asPaymentTransaction = async (
   return await algorandClient.createTransaction.payment(params)
 }
 
-const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<AppCallMethodCall> => {
+export const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<AppCallMethodCall> => {
   invariant(transaction.method, 'Method is required')
   invariant(transaction.methodArgs, 'Method args are required')
 
   const args = await Promise.all(
     transaction.methodArgs.map(async (arg) => {
       if (typeof arg === 'object' && 'type' in arg) {
-        if (arg.type !== BuildableTransactionType.MethodCall) {
+        if (arg.type === BuildableTransactionType.Fulfilled || arg.type === BuildableTransactionType.Placeholder) {
+          return undefined
+        } else if (arg.type !== BuildableTransactionType.MethodCall) {
           // Other transaction types only return 1 transaction
-          return (await asAlgosdkTransactions(arg as BuildTransactionResult))[0]
+          return (await asAlgosdkTransactions(arg))[0]
         } else {
-          return asMethodCallParams(arg as BuildMethodCallTransactionResult)
+          return await asMethodCallParams(arg)
         }
       }
       return arg
@@ -117,11 +120,11 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
   const result = await algorandClient.client
     .getAppClientById({
       appId: BigInt(transaction.applicationId),
-      appSpec: transaction.appSpec,
+      appSpec: transaction.appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
     })
     .createTransaction.call({
       ...params,
-      method: transaction.methodName,
+      method: transaction.method.name,
       onComplete: transaction.onComplete,
     })
 
@@ -266,3 +269,25 @@ const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRoun
         lastValidRound: validRounds.lastValid,
       }
     : undefined
+
+export const asAbiTransactionType = (type: BuildableTransactionType) => {
+  switch (type) {
+    case BuildableTransactionType.Payment:
+    case BuildableTransactionType.AccountClose:
+      return algosdk.ABITransactionType.pay
+    case BuildableTransactionType.AppCall:
+    case BuildableTransactionType.MethodCall:
+      return algosdk.ABITransactionType.appl
+    case BuildableTransactionType.AssetOptIn:
+    case BuildableTransactionType.AssetOptOut:
+    case BuildableTransactionType.AssetTransfer:
+    case BuildableTransactionType.AssetClawback:
+      return algosdk.ABITransactionType.axfer
+    case BuildableTransactionType.AssetCreate:
+    case BuildableTransactionType.AssetReconfigure:
+    case BuildableTransactionType.AssetDestroy:
+      return algosdk.ABITransactionType.acfg
+    default:
+      return algosdk.ABITransactionType.any
+  }
+}

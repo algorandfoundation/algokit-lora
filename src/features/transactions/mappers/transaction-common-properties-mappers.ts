@@ -6,7 +6,7 @@ import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { asJson } from '@/utils/as-json'
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
-  invariant(transactionResult['confirmed-round'], 'confirmed-round is not set')
+  invariant(transactionResult['confirmed-round'] !== undefined, 'confirmed-round is not set')
   invariant(transactionResult['round-time'], 'round-time is not set')
 
   return {

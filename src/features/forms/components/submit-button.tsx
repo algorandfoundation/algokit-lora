@@ -21,7 +21,6 @@ export function SubmitButton({ className, children, icon, disabled, disabledReas
       variant="default"
       type="submit"
       className={cn(className)}
-      icon={icon}
       disabled={disabled}
       disabledReason={!isSubmitting ? disabledReason : undefined}
     >

@@ -12,8 +12,9 @@ type Props = {
   transactionsGraphData: TransactionsGraphData
   downloadable: boolean
   bgClassName?: string
+  isSimulated?: boolean
 }
-export function TransactionsGraph({ transactionsGraphData, downloadable, bgClassName: _bgClassName }: Props) {
+export function TransactionsGraph({ transactionsGraphData, downloadable, bgClassName: _bgClassName, isSimulated = false }: Props) {
   const { verticals, horizontals } = transactionsGraphData
   const horizontalsCount = horizontals.length
   const maxNestingLevel = Math.max(...horizontals.map((h) => h.depth))
@@ -108,7 +109,7 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
             </div>
           </div>
           {horizontals.map((row, index) => (
-            <Horizontal key={index} verticals={verticals} horizontal={row} bgClassName={bgClassName} />
+            <Horizontal key={index} verticals={verticals} horizontal={row} bgClassName={bgClassName} isSimulated={isSimulated} />
           ))}
         </div>
       </div>

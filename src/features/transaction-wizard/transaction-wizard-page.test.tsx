@@ -8,6 +8,7 @@ import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './
 import { selectOption } from '@/tests/utils/select-option'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 import { addTransactionLabel } from './components/transactions-builder'
+import { groupSendResultsLabel } from './components/group-send-results'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -127,7 +128,7 @@ describe('transaction-wizard-page', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )
@@ -232,7 +233,7 @@ describe('transaction-wizard-page', () => {
             const resultsDiv = await waitFor(
               () => {
                 expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText('Result').parentElement!
+                return component.getByText(groupSendResultsLabel).parentElement!
               },
               { timeout: 10_000 }
             )

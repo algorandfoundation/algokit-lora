@@ -6,7 +6,7 @@ import {
   transactionRekeyToLabel,
   transactionTypeLabel,
 } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { asTransactionLinkTextComponent, TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionReceiverLabel, transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { transactionAmountLabel } from '@/features/transactions/components/transactions-table-columns'
@@ -21,16 +21,17 @@ import {
 } from '@/features/transactions/components/asset-transfer-transaction-info'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 
-export function AssetTransferTransactionTooltipContent({
-  transaction,
-}: {
+type Props = {
   transaction: AssetTransferTransaction | InnerAssetTransferTransaction
-}) {
+  isSimulated: boolean
+}
+
+export function AssetTransferTransactionTooltipContent({ transaction, isSimulated }: Props) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
+        dd: isSimulated ? asTransactionLinkTextComponent(transaction.id, true) : <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -81,7 +82,7 @@ export function AssetTransferTransactionTooltipContent({
           ]
         : []),
     ],
-    [transaction]
+    [isSimulated, transaction]
   )
 
   return (

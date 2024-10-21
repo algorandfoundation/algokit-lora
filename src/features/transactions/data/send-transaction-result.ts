@@ -40,7 +40,7 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
       roundIndex: 0,
       genesisHash: confirmation.txn.txn.gh,
       genesisId: confirmation.txn.txn.gen,
-      roundNumber: Number(confirmation.confirmedRound),
+      roundNumber: Number(confirmation.confirmedRound ?? 0),
       roundTimestamp: Math.floor(Date.now() / 1000),
       transaction: result.transactions[i],
       logs: confirmation.logs,
