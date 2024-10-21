@@ -14,6 +14,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -108,11 +109,11 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
             options: onCompleteOptions,
             helpText: 'Action to perform after executing the program',
           })}
-          {helper.textField({
-            field: 'sender',
-            label: 'Sender',
-            helpText: 'Account to call from. Sends the transaction and pays the fee',
-          })}
+          <TransactionBuilderAddressField
+            fieldName="sender"
+            label="Sender"
+            helpText="Account to call from. Sends the transaction and pays the fee"
+          />
           {helper.arrayField({
             field: 'args',
             label: 'Arguments',

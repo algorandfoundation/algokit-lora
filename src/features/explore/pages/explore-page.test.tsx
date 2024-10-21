@@ -16,7 +16,7 @@ import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
-import { useLoadableNfd } from '@/features/nfd/data/nfd'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
@@ -64,7 +64,7 @@ describe('explore-page', () => {
     )
     myStore.set(syncedRoundAtom, block.round)
     beforeEach(() => {
-      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
     })
 
     it('the processed blocks are displayed', () => {
@@ -129,7 +129,7 @@ describe('explore-page', () => {
       }
     )
     beforeEach(() => {
-      vi.mocked(useLoadableNfd).mockReturnValue([{ state: 'loading' }])
+      vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
     })
 
     it('only the latest 10 blocks are displayed', () => {

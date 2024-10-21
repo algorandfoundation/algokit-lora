@@ -3,20 +3,21 @@ import { z } from 'zod'
 import { useFormContext } from 'react-hook-form'
 import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
 import { useDebounce } from 'use-debounce'
-import { formData } from './asset-transfer-transaction-builder'
 import { NfdResult } from '@/features/nfd/data/types'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useEffect, useState } from 'react'
 import { isNfd } from '@/features/nfd/data/is-nfd'
+import { commonAddressFormData } from '../data/common'
 
-type TransactionBuilderSenderFieldProps = {
-  fieldName: keyof z.infer<typeof formData>
+type TransactionBuilderAddressFieldProps = {
+  fieldName: keyof z.infer<typeof commonAddressFormData>
   helpText: string
-  helper: FormFieldHelper<z.infer<typeof formData>>
+  label: string
 }
 
-export function TransactionBuilderAddressField({ fieldName, helper, helpText }: TransactionBuilderSenderFieldProps) {
-  const formCtx = useFormContext<z.infer<typeof formData>>()
+export function TransactionBuilderAddressField({ fieldName, helpText, label }: TransactionBuilderAddressFieldProps) {
+  const helper = new FormFieldHelper<z.infer<typeof commonAddressFormData>>()
+  const formCtx = useFormContext<z.infer<typeof commonAddressFormData>>()
   const fieldValue = formCtx.watch(fieldName)
   const [debouncedValue] = useDebounce(fieldValue && isNfd(String(fieldValue)) ? String(fieldValue) : '', 500)
   const [loadableNfd] = useLoadableNfdResult(debouncedValue)
@@ -34,7 +35,11 @@ export function TransactionBuilderAddressField({ fieldName, helper, helpText }: 
     <div>
       {helper.textField({
         field: fieldName,
-        label: <span className="flex items-center gap-1.5">Sender {currentNfd ? ` (${currentNfd.depositAccount})` : ''}</span>,
+        label: (
+          <span className="flex items-center gap-1.5">
+            {label} {currentNfd ? ` (${currentNfd.depositAccount})` : ''}
+          </span>
+        ),
         helpText: helpText,
         placeholder: ZERO_ADDRESS,
       })}

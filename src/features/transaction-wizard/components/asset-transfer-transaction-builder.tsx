@@ -17,7 +17,6 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
@@ -67,15 +66,10 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       })}
       <TransactionBuilderAddressField
         helpText="Account to transfer from. Sends the transaction and pays the fee"
-        helper={helper}
         fieldName={'sender'}
+        label="Sender"
       />
-      {helper.textField({
-        field: 'receiver',
-        label: receiverLabel,
-        helpText: 'Account to receive the asset',
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField helpText="Account to receive the asset" fieldName={'receiver'} label={receiverLabel} />
       {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,

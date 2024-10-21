@@ -36,6 +36,7 @@ import { TransactionBuilder } from './transaction-builder'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -342,11 +343,11 @@ function FormInner({ helper, methodForm, onSetAppSpec, onSetMethodForm, onSetTra
         options: onCompleteOptions,
         helpText: 'Action to perform after executing the program',
       })}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'Account to call from. Sends the transaction and pays the fee',
-      })}
+      <TransactionBuilderAddressField
+        fieldName={'sender'}
+        label="Sender"
+        helpText="Account to call from. Sends the transaction and pays the fee"
+      />
       {abiMethodArgs.map((arg, index) => (
         <div key={index} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
