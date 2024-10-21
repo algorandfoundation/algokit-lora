@@ -38,7 +38,7 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
       {vertical.type === 'Account' && (
         <div className={cn('grid text-center')}>
           <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
-            <AccountLink address={vertical.accountAddress} short={true} />
+            <AccountLink address={vertical.accountAddress} short={true} truncate={true} />
           </TitleWrapper>
           {vertical.associatedAccounts.map((associatedAccount, i) => (
             <AssociatedAccountTitleWrapper key={i} {...associatedAccount} />
@@ -54,7 +54,7 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
             leftComponent={<LinkIcon size={16} className={'text-primary'} />}
             rightComponent={<AccountNumber number={vertical.linkedAccount.accountNumber} />}
           >
-            <AccountLink address={vertical.linkedAccount.accountAddress} short={true} />
+            <AccountLink address={vertical.linkedAccount.accountAddress} short={true} className={cn('truncate')} />
           </TitleWrapper>
           {vertical.associatedAccounts.map((associatedAccount, i) => (
             <AssociatedAccountTitleWrapper key={i} {...associatedAccount} />

@@ -2,7 +2,7 @@ import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
-import { ellipseAddress } from '@/utils/ellipse-address'
+import { ellipseAddress, ellipseNfd } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
 import { useNetworkConfig } from '@/features/network/data'
@@ -20,6 +20,8 @@ import { walletDialogOpenAtom } from '../data/wallet-dialog'
 import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -68,7 +70,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
     },
     [activeProvider]
   )
-
+  const [loadableNfd] = useLoadableNfdResult(activeAddress)
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -84,7 +86,11 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
               />
             ))}
           <abbr title={activeAddress} className="no-underline">
-            {ellipseAddress(activeAddress)}
+            {loadableNfd.state === 'hasData' && loadableNfd.data !== null ? (
+              <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{ellipseNfd(nfd?.name)}</span>}</RenderLoadable>
+            ) : (
+              <>{ellipseAddress(activeAddress)}</>
+            )}
           </abbr>
         </Button>
       </PopoverTrigger>

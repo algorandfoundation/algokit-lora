@@ -15,16 +15,20 @@ import {
   accountBalanceLabel,
   accountInformationLabel,
   accountMinBalanceLabel,
+  accountNfdLabel,
   accountRekeyedToLabel,
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type Props = {
   account: Account
 }
 
 export function AccountInfo({ account }: Props) {
+  const [loadableNfd] = useLoadableNfdResult(account.address)
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -36,6 +40,20 @@ export function AccountInfo({ account }: Props) {
           </div>
         ),
       },
+      ...(loadableNfd.state === 'hasData' && loadableNfd.data !== null
+        ? [
+            {
+              dt: accountNfdLabel,
+              dd: (
+                <div className="flex items-center">
+                  <RenderLoadable loadable={loadableNfd} fallback={<></>}>
+                    {(nfd) => <span className="truncate">{nfd?.name}</span>}
+                  </RenderLoadable>
+                </div>
+              ),
+            },
+          ]
+        : []),
       {
         dt: accountBalanceLabel,
         dd: <DisplayAlgo amount={account.balance} />,
@@ -84,6 +102,7 @@ export function AccountInfo({ account }: Props) {
     account.totalApplicationsCreated,
     account.totalApplicationsOptedIn,
     account.rekeyedTo,
+    loadableNfd,
   ])
   return (
     <Card aria-label={accountInformationLabel}>
