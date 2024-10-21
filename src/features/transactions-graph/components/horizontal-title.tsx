@@ -1,15 +1,16 @@
 import { TransactionType } from '@/features/transactions/models'
 import { useMemo } from 'react'
-import { InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { asInnerTransactionLinkText, InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'
+import { asTransactionLinkTextComponent, TransactionLink } from '@/features/transactions/components/transaction-link'
 import { cn } from '@/features/common/utils'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { Horizontal } from '../models'
 
 type Props = {
   horizontal: Horizontal
+  isSimulated: boolean
 }
-export function HorizontalTitle({ horizontal }: Props) {
+export function HorizontalTitle({ horizontal, isSimulated }: Props) {
   const { transaction, hasNextSibling, ancestors, depth } = horizontal
   const parent = ancestors.length > 0 ? ancestors[ancestors.length - 1] : undefined
   const hasChildren = horizontal.transaction.type === TransactionType.AppCall && horizontal.transaction.innerTransactions.length > 0
@@ -19,10 +20,14 @@ export function HorizontalTitle({ horizontal }: Props) {
 
   const component = useMemo(() => {
     if ('innerId' in transaction) {
-      return <InnerTransactionLink networkTransactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
+      return isSimulated ? (
+        asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId)
+      ) : (
+        <InnerTransactionLink networkTransactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
+      )
     }
-    return <TransactionLink transactionId={transaction.id} short={true} />
-  }, [transaction])
+    return isSimulated ? asTransactionLinkTextComponent(transaction.id) : <TransactionLink transactionId={transaction.id} short={true} />
+  }, [isSimulated, transaction])
 
   return (
     <div

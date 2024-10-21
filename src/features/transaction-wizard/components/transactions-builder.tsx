@@ -25,12 +25,15 @@ import {
 import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { HintText } from '@/features/forms/components/hint-text'
 import { asError } from '@/utils/error'
-import { Eraser, HardDriveDownload, Plus, Send } from 'lucide-react'
+import { Eraser, HardDriveDownload, Plus, Send, SquarePlay } from 'lucide-react'
 import { transactionGroupTableLabel } from './labels'
 import React from 'react'
 import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
-import { buildComposer } from '../data/common'
+import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
+import AlgoKitComposer from '@algorandfoundation/algokit-utils/types/composer'
+import { Label } from '@/features/common/components/label'
+import { Checkbox } from '@/features/common/components/checkbox'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -38,18 +41,21 @@ const connectWalletMessage = 'Please connect a wallet'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
+export type SimulateResult = Awaited<ReturnType<AlgoKitComposer['simulate']>>
+
 type Props = {
   defaultTransactions?: BuildTransactionResult[]
   onSendTransactions: (transactions: BuildTransactionResult[]) => Promise<void>
+  onSimulated?: (result: SimulateResult) => void
   onReset: () => void
   title?: React.JSX.Element
   additionalActions?: React.JSX.Element
   disableAddTransaction?: boolean
+  disablePopulate?: boolean
   sendButtonConfig?: {
     label: string
     icon: React.JSX.Element
   }
-  disablePopulate?: boolean
 }
 
 const defaultTitle = <h4 className="pb-0 text-primary">{transactionGroupLabel}</h4>
@@ -61,16 +67,18 @@ const defaultSendButtonConfig = {
 export function TransactionsBuilder({
   defaultTransactions,
   onSendTransactions,
+  onSimulated,
   onReset,
   title = defaultTitle,
   additionalActions,
   disableAddTransaction = false,
-  sendButtonConfig = defaultSendButtonConfig,
   disablePopulate = false,
+  sendButtonConfig = defaultSendButtonConfig,
 }: Props) {
   const { activeAddress } = useWallet()
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? [])
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
+  const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -141,6 +149,23 @@ export function TransactionsBuilder({
       setErrorMessage(asError(error).message)
     }
   }, [activeAddress, onSendTransactions, transactions])
+
+  const simulateTransactions = useCallback(async () => {
+    try {
+      setErrorMessage(undefined)
+      ensureThereIsNoPlaceholderTransaction(transactions)
+
+      const result = await (requireSignaturesOnSimulate
+        ? (await buildComposer(transactions)).simulate()
+        : (await buildComposerWithEmptySignatures(transactions)).simulate({ allowEmptySignatures: true }))
+
+      return onSimulated?.(result)
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error)
+      setErrorMessage(asError(error).message)
+    }
+  }, [onSimulated, requireSignaturesOnSimulate, transactions])
 
   const populateResources = useCallback(async () => {
     try {
@@ -242,11 +267,11 @@ export function TransactionsBuilder({
     }
   }, [transactions])
 
-  const sendButtonDisabledProps = useMemo(() => {
-    if (!activeAddress) {
+  const commonButtonDisableProps = useMemo(() => {
+    if (transactions.length === 0) {
       return {
         disabled: true,
-        disabledReason: connectWalletMessage,
+        disabledReason: 'No transactions to send',
       }
     }
 
@@ -258,17 +283,32 @@ export function TransactionsBuilder({
       }
     }
 
-    if (transactions.length === 0) {
-      return {
-        disabled: true,
-        disabledReason: 'No transactions to send',
-      }
-    }
-
     return {
       disabled: false,
     }
-  }, [activeAddress, transactions])
+  }, [transactions])
+
+  const simulateButtonDisabledProps = useMemo(() => {
+    if (requireSignaturesOnSimulate && !activeAddress) {
+      return {
+        disabled: true,
+        disabledReason: connectWalletMessage,
+      }
+    }
+
+    return commonButtonDisableProps
+  }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
+
+  const sendButtonDisabledProps = useMemo(() => {
+    if (!activeAddress) {
+      return {
+        disabled: true,
+        disabledReason: connectWalletMessage,
+      }
+    }
+
+    return commonButtonDisableProps
+  }, [activeAddress, commonButtonDisableProps])
 
   return (
     <div>
@@ -295,6 +335,20 @@ export function TransactionsBuilder({
             <HintText errorText={errorMessage} />
           </div>
         )}
+        {onSimulated && (
+          <div className="grid">
+            <div className="ml-auto flex items-center space-x-2">
+              <Checkbox
+                id="require-signatures-on-simulate"
+                name="require-signatures-on-simulate"
+                checked={requireSignaturesOnSimulate}
+                onCheckedChange={(checked) => setRequireSignaturesOnSimulate(typeof checked == 'boolean' ? checked : false)}
+              />
+              <Label htmlFor="require-signatures-on-simulate">Require signatures on simulate</Label>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-2">
             {additionalActions}
@@ -313,6 +367,16 @@ export function TransactionsBuilder({
             <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>
               Clear
             </Button>
+            {onSimulated && (
+              <AsyncActionButton
+                className="w-28"
+                onClick={simulateTransactions}
+                icon={<SquarePlay size={16} />}
+                {...simulateButtonDisabledProps}
+              >
+                Simulate
+              </AsyncActionButton>
+            )}
             <AsyncActionButton className="w-28" onClick={sendTransactions} icon={sendButtonConfig.icon} {...sendButtonDisabledProps}>
               {sendButtonConfig.label}
             </AsyncActionButton>

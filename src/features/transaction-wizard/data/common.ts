@@ -113,3 +113,35 @@ export const buildComposer = async (transactions: BuildTransactionResult[]) => {
   }
   return composer
 }
+
+export const buildComposerWithEmptySignatures = async (transactions: BuildTransactionResult[]) => {
+  const composer = algorandClient.newGroup()
+  for (const transaction of transactions) {
+    const txns = await asAlgosdkTransactions(transaction)
+    txns.forEach((txn) => composer.addTransaction(txn, fixedEmptyTransactionSigner))
+  }
+  return composer
+}
+
+// TODO: Remove this fix and use `fixSigners` once nodes have updated to algod 3.26
+// This code was lifted for algokit-utils-ts
+// https://github.com/algorand/go-algorand/pull/5942
+const fixedEmptyTransactionSigner: algosdk.TransactionSigner = async (txns: algosdk.Transaction[], indexes: number[]) => {
+  const stxns = await algosdk.makeEmptyTransactionSigner()(txns, indexes)
+  return Promise.all(
+    stxns.map(async (stxn) => {
+      const decodedStxn = algosdk.decodeSignedTransaction(stxn)
+      const sender = algosdk.encodeAddress(decodedStxn.txn.from.publicKey)
+
+      const authAddr = (await algorandClient.client.algod.accountInformation(sender).do())['auth-addr']
+
+      const stxnObj: { txn: algosdk.EncodedTransaction; sgnr?: Buffer } = { txn: decodedStxn.txn.get_obj_for_encoding() }
+
+      if (authAddr !== undefined) {
+        stxnObj.sgnr = Buffer.from(algosdk.decodeAddress(authAddr).publicKey)
+      }
+
+      return algosdk.encodeObj(stxnObj)
+    })
+  )
+}

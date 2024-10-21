@@ -310,15 +310,16 @@ type Props = {
   horizontal: HorizontalModel
   verticals: Vertical[]
   bgClassName: string
+  isSimulated: boolean
 }
-export function Horizontal({ horizontal, verticals, bgClassName }: Props) {
+export function Horizontal({ horizontal, verticals, bgClassName, isSimulated }: Props) {
   const { transaction, representation, ancestors, isSubHorizontal } = horizontal
 
   return (
     <>
       <div className={cn('p-0 relative')}>
         <ConnectionsFromAncestorsToAncestorsNextSiblings ancestors={ancestors} />
-        {!isSubHorizontal && <HorizontalTitle horizontal={horizontal} />}
+        {!isSubHorizontal && <HorizontalTitle horizontal={horizontal} isSimulated={isSimulated} />}
         {isSubHorizontal && <SubHorizontalTitle horizontal={horizontal} />}
       </div>
       {verticals.map((_, index) => {
@@ -348,13 +349,27 @@ export function Horizontal({ horizontal, verticals, bgClassName }: Props) {
                 ) : null}
               </TooltipTrigger>
               <TooltipContent>
-                {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.Payment && (
+                  <PaymentTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AssetTransfer && (
+                  <AssetTransferTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AppCall && (
+                  <AppCallTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AssetConfig && (
+                  <AssetConfigTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AssetFreeze && (
+                  <AssetFreezeTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.KeyReg && (
+                  <KeyRegTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.StateProof && (
+                  <StateProofTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
               </TooltipContent>
             </Tooltip>
           )
