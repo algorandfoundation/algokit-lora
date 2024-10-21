@@ -89,5 +89,6 @@ vi.mock('@/features/nfd/data/nfd', async () => {
   return {
     ...original,
     useLoadableNfd: vi.fn(),
+    useLoadableNfdResult: vi.fn(),
   }
 })

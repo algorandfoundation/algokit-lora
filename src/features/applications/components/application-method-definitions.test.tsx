@@ -18,7 +18,7 @@ import { sendButtonLabel } from '@/features/transaction-wizard/components/transa
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 import { selectOption } from '@/tests/utils/select-option'
-import { useLoadableNfd } from '@/features/nfd/data/nfd'
+import { useLoadableNfd, useLoadableNfdResult } from '@/features/nfd/data/nfd'
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -63,6 +63,7 @@ describe('application-method-definitions', () => {
     describe('when calling calculator add method', () => {
       it('reports validation errors when required fields have not been supplied', () => {
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
 
         return executeComponentTest(
           () => {
@@ -95,6 +96,7 @@ describe('application-method-definitions', () => {
       it('succeeds when all fields have been correctly supplied', () => {
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
 
         return executeComponentTest(
           () => {
@@ -167,6 +169,7 @@ describe('application-method-definitions', () => {
       it('allows the users to switch to echo_bytes method and send the transaction', async () => {
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+        vi.mocked(useLoadableNfdResult).mockReturnValue([{ state: 'loading' }])
 
         return executeComponentTest(
           () => {
