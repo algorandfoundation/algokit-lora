@@ -8,6 +8,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useEffect, useState } from 'react'
 import { isNfd } from '@/features/nfd/data/is-nfd'
 import { commonAddressFormData } from '../data/common'
+import { ellipseAddress } from '@/utils/ellipse-address'
 
 type TransactionBuilderAddressFieldProps = {
   fieldName: keyof z.infer<typeof commonAddressFormData>
@@ -37,7 +38,7 @@ export function TransactionBuilderAddressField({ fieldName, helpText, label }: T
         field: fieldName,
         label: (
           <span className="flex items-center gap-1.5">
-            {label} {currentNfd ? ` (${currentNfd.depositAccount})` : ''}
+            {label} {currentNfd ? ` (${ellipseAddress(currentNfd.depositAccount)})` : ''}
           </span>
         ),
         helpText: helpText,
