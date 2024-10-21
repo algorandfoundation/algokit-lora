@@ -4,14 +4,17 @@ import { isAddress } from '@/utils/is-address'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import algosdk from 'algosdk'
 import { asOnCompleteLabel } from '../mappers/as-description-list-items'
+import { isNfd } from '@/features/nfd/data/is-nfd'
 
 export const requiredMessage = 'Required'
 
 const invalidAddressMessage = 'Invalid address'
-export const optionalAddressFieldSchema = zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) : true), {
-  message: invalidAddressMessage,
-})
-export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) : true), {
+export const optionalAddressFieldSchema = zfd
+  .text(z.string().optional())
+  .refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
+    message: invalidAddressMessage,
+  })
+export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
   message: invalidAddressMessage,
 })
 
@@ -101,3 +104,16 @@ export const commonSchema = {
 }
 
 export const commonFormData = zfd.formData(commonSchema)
+
+export const commonAddressSchema = {
+  ...senderFieldSchema,
+  ...receiverFieldSchema,
+  closeRemainderTo: addressFieldSchema,
+  clawbackTarget: addressFieldSchema,
+  manager: optionalAddressFieldSchema,
+  reserve: optionalAddressFieldSchema,
+  freeze: optionalAddressFieldSchema,
+  clawback: optionalAddressFieldSchema,
+}
+
+export const commonAddressFormData = zfd.formData(commonAddressSchema)

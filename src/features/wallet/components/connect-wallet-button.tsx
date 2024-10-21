@@ -20,7 +20,7 @@ import { walletDialogOpenAtom } from '../data/wallet-dialog'
 import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 export const connectWalletLabel = 'Connect Wallet'
@@ -70,7 +70,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
     },
     [activeProvider]
   )
-  const [loadableNfd] = useLoadableNfdResult(activeAddress)
+  const [loadableNfd] = useLoadableNfd(activeAddress)
   return (
     <Popover>
       <PopoverTrigger asChild>

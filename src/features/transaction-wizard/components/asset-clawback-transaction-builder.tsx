@@ -17,10 +17,10 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const clawbackTargetLabel = 'Clawback target'
 
@@ -79,24 +79,17 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be clawed back',
       })}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'receiver',
-        label: 'Receiver',
-        helpText: 'Account to receive the asset',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'clawbackTarget',
-        label: clawbackTargetLabel,
-        helpText: 'Account the asset will be clawed back from',
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField
+        fieldName="sender"
+        label="Sender"
+        helpText="The clawback account of the asset. Sends the transaction and pays the fee"
+      />
+      <TransactionBuilderAddressField fieldName="receiver" label="Receiver" helpText="Account to receive the asset" />
+      <TransactionBuilderAddressField
+        fieldName="clawbackTarget"
+        label={clawbackTargetLabel}
+        helpText="Account the asset will be clawed back from"
+      />
       {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,

@@ -88,6 +88,7 @@ vi.mock('@/features/nfd/data/nfd', async () => {
   const original = await vi.importActual('@/features/nfd/data/nfd')
   return {
     ...original,
+    useLoadableNfd: vi.fn(),
     useLoadableNfdResult: vi.fn(),
   }
 })

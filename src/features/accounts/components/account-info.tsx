@@ -20,7 +20,7 @@ import {
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 type Props = {
@@ -28,7 +28,7 @@ type Props = {
 }
 
 export function AccountInfo({ account }: Props) {
-  const [loadableNfd] = useLoadableNfdResult(account.address)
+  const [loadableNfd] = useLoadableNfd(account.address)
   const accountInfoItems = useMemo(() => {
     const items = [
       {

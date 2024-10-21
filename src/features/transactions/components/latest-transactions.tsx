@@ -7,7 +7,7 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { ArrowRightLeft, Info } from 'lucide-react'
 import { Badge } from '@/features/common/components/badge'
 import { TransactionSummary } from '@/features/transactions/models'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableNfd } from '@/features/nfd/data/nfd'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { useMemo } from 'react'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
@@ -20,7 +20,7 @@ type Props = {
 }
 
 function useConditionalLoadableNfdResult(address: string | number | undefined) {
-  const [loadableNfd] = useLoadableNfdResult(typeof address === 'string' ? address : '')
+  const [loadableNfd] = useLoadableNfd(typeof address === 'string' ? address : '')
   return useMemo(() => ({ loadableNfd, isString: typeof address === 'string' }), [address, loadableNfd]) as {
     loadableNfd: Loadable<NfdResult | null>
     isString: boolean

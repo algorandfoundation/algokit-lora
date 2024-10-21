@@ -17,10 +17,11 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { NfdResult } from '@/features/nfd/data/types'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const receiverLabel = 'Receiver'
 
@@ -47,11 +48,12 @@ const formSchema = {
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
 }
 
-const formData = zfd.formData(formSchema)
+export const formData = zfd.formData(formSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>
   asset?: AssetSummary
+  nfd?: NfdResult
 }
 
 function FormFields({ helper, asset }: FormFieldsProps) {
@@ -62,18 +64,12 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be transfered',
       })}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'Account to transfer from. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'receiver',
-        label: receiverLabel,
-        helpText: 'Account to receive the asset',
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField
+        helpText="Account to transfer from. Sends the transaction and pays the fee"
+        fieldName={'sender'}
+        label="Sender"
+      />
+      <TransactionBuilderAddressField helpText="Account to receive the asset" fieldName={'receiver'} label={receiverLabel} />
       {helper.numberField({
         field: 'amount',
         label: <span className="flex items-center gap-1.5">Amount{asset && asset.unitName ? ` (${asset.unitName})` : ''}</span>,

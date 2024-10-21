@@ -17,13 +17,13 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const formSchema = {
   ...commonSchema,
@@ -77,12 +77,11 @@ function FormFields({ helper, asset }: FormFieldsProps) {
           &nbsp;must hold all units
         </small>
       )}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'The current asset manager address. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField
+        fieldName="sender"
+        label="Sender"
+        helpText="The current asset manager address. Sends the transaction and pays the fee"
+      />
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
       <TransactionBuilderNoteField />

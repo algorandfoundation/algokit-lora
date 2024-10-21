@@ -172,10 +172,16 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
   })
 }
 
-export const useNfdResultAtom = (address: Address) => {
+export const useNfdAtom = (address: Address) => {
   return useMemo(() => {
     return getNfdResultAtom({ address: address })
   }, [address])
+}
+
+export const useNfdResultAtom = (nfd: Nfd) => {
+  return useMemo(() => {
+    return getNfdResultAtom({ nfd: nfd })
+  }, [nfd])
 }
 
 const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache(getForwardLookupNfdResult, (nfd) => nfd)

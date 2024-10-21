@@ -1,3 +1,3 @@
 const nfdRegex = /^(.+\.algo)$/
 
-export const isNFD = (name: string) => nfdRegex.test(name)
+export const isNfd = (name: string) => nfdRegex.test(name)
