@@ -14,11 +14,18 @@ import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { Atom } from 'jotai/index'
 import { AbiMethod } from '@/features/abi-methods/models'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
+import { Round } from '@/features/blocks/data/types'
+import { getGroupResultAtom } from '@/features/groups/data'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
+  abiMethodResolver: (
+    transactionResult: TransactionResult,
+    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  ) => Atom<Promise<AbiMethod | undefined>>,
+  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>> = getGroupResultAtom
 ) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:
@@ -27,7 +34,7 @@ export const asTransaction = (
       return asAssetTransferTransaction(transactionResult, assetResolver)
     }
     case algosdk.TransactionType.appl: {
-      return asAppCallTransaction(transactionResult, assetResolver, abiMethodResolver)
+      return asAppCallTransaction(transactionResult, assetResolver, abiMethodResolver, groupResolver)
     }
     case algosdk.TransactionType.acfg: {
       return asAssetConfigTransaction(transactionResult)

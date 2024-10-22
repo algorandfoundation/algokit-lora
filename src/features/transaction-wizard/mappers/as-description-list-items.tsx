@@ -15,6 +15,8 @@ import {
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   MethodCallArg,
+  PlaceholderTransaction,
+  TransactionPositionsInGroup,
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
@@ -31,8 +33,17 @@ import {
 } from './as-algosdk-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
+import { Button } from '@/features/common/components/button'
+import { invariant } from '@/utils/invariant'
+import { Edit, PlusCircle } from 'lucide-react'
+import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
+import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
 
-export const asDescriptionListItems = (transaction: BuildTransactionResult): DescriptionListItems => {
+export const asDescriptionListItems = (
+  transaction: BuildTransactionResult,
+  transactionPositions: TransactionPositionsInGroup,
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+): DescriptionListItems => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
     return asPaymentTransaction(transaction)
   }
@@ -40,7 +51,7 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
     return asAppCallTransaction(transaction)
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
-    return asMethodCallTransaction(transaction)
+    return asMethodCallTransaction(transaction, transactionPositions, onEditTransaction)
   }
   if (
     transaction.type === BuildableTransactionType.AssetTransfer ||
@@ -58,7 +69,7 @@ export const asDescriptionListItems = (transaction: BuildTransactionResult): Des
     return asAssetConfigTransaction(transaction)
   }
 
-  throw new Error(`Unsupported transaction type`)
+  throw new Error('Unsupported transaction type')
 }
 
 const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {
@@ -111,7 +122,6 @@ const asAssetTransferTransaction = (
     | BuildAssetClawbackTransactionResult
 ): DescriptionListItems => {
   const params = asAssetTransferTransactionParams(transaction)
-  const amount = 'amount' in transaction ? transaction.amount : 0
 
   return [
     {
@@ -164,7 +174,7 @@ const asAssetTransferTransaction = (
       : []),
     {
       dt: 'Amount',
-      dd: `${amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
+      dd: `${asAssetDisplayAmount(params.amount, transaction.asset.decimals!)}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
@@ -193,7 +203,7 @@ const asAssetConfigTransaction = (
     ...('assetName' in params && params.assetName ? [{ dt: 'Asset name', dd: params.assetName }] : []),
     ...('unitName' in params && params.unitName ? [{ dt: 'Unit name', dd: params.unitName }] : []),
     ...('total' in params && params.total ? [{ dt: 'Total', dd: params.total }] : []),
-    ...('decimals' in params && params.decimals ? [{ dt: 'Decimals', dd: params.decimals }] : []),
+    ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
       dd: (
@@ -263,10 +273,51 @@ const asAssetConfigTransaction = (
   ]
 }
 
-const asMethodArg = (type: algosdk.ABIArgumentType, arg: MethodCallArg) => {
+const flatten = (args: MethodCallArg[]): MethodCallArg[] => {
+  return args.reduce((acc, arg) => {
+    if (typeof arg === 'object' && 'type' in arg && arg.type === BuildableTransactionType.MethodCall) {
+      return [...acc, ...flatten(arg.methodArgs), arg]
+    }
+    return [...acc, arg]
+  }, [] as MethodCallArg[])
+}
+
+const asMethodArg = (
+  type: algosdk.ABIArgumentType,
+  argIndex: number,
+  args: MethodCallArg[],
+  transactionPositions: TransactionPositionsInGroup,
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+) => {
+  const arg = args[argIndex]
   if (algosdk.abiTypeIsTransaction(type)) {
+    invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
+
+    const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
+    const resolvedArg =
+      arg.id !== argId
+        ? flatten(args)
+            .filter((arg) => isBuildTransactionResult(arg) || isPlaceholderTransaction(arg))
+            .find((a) => a.id === argId)
+        : arg
+    const argPosition = transactionPositions.get(argId)
+
     // Transaction type args are shown in the table
-    return 'Transaction in group'
+    return (
+      <div className="float-left flex items-center gap-1.5">
+        <span className="truncate">Transaction {argPosition ?? ''} in the group</span>
+        {resolvedArg && resolvedArg.type !== BuildableTransactionType.Fulfilled && (
+          <Button
+            className="size-4 p-0 text-primary"
+            variant="no-style"
+            onClick={() => onEditTransaction(resolvedArg)}
+            {...(resolvedArg.type === BuildableTransactionType.Placeholder
+              ? { icon: <PlusCircle size={16} />, 'aria-label': 'Create' }
+              : { icon: <Edit size={16} />, 'aria-label': 'Edit' })}
+          />
+        )}
+      </div>
+    )
   }
   if (algosdk.abiTypeIsReference(type)) {
     if (type === algosdk.ABIReferenceType.account) {
@@ -305,14 +356,18 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
   const params = asAppCallTransactionParams(transaction)
 
   return [
-    {
-      dt: 'Application ID',
-      dd: (
-        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-          {Number(params.appId)}
-        </ApplicationLink>
-      ),
-    },
+    ...(params.appId !== 0n
+      ? [
+          {
+            dt: 'Application ID',
+            dd: (
+              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+                {Number(params.appId)}
+              </ApplicationLink>
+            ),
+          },
+        ]
+      : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
@@ -329,7 +384,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       ? [
           {
             dt: 'Arguments',
-            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index}`, dd: arg }))} />,
+            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index + 1}`, dd: arg }))} />,
           },
         ]
       : []),
@@ -340,7 +395,11 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
   ]
 }
 
-const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult): DescriptionListItems => {
+const asMethodCallTransaction = (
+  transaction: BuildMethodCallTransactionResult,
+  transactionPositions: TransactionPositionsInGroup,
+  onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
+): DescriptionListItems => {
   // Done to share the majority of the mappings with app call
   const params = asAppCallTransactionParams({
     ...transaction,
@@ -349,15 +408,19 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
   })
 
   return [
-    {
-      dt: 'Application ID',
-      dd: (
-        <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-          {Number(params.appId)}
-        </ApplicationLink>
-      ),
-    },
-    ...(transaction.methodName ? [{ dt: 'Method', dd: transaction.methodName }] : []),
+    ...(params.appId !== 0n
+      ? [
+          {
+            dt: 'Application ID',
+            dd: (
+              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
+                {Number(params.appId)}
+              </ApplicationLink>
+            ),
+          },
+        ]
+      : []),
+    ...(transaction.method ? [{ dt: 'Method', dd: transaction.method.name }] : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
@@ -378,7 +441,8 @@ const asMethodCallTransaction = (transaction: BuildMethodCallTransactionResult):
               <ol>
                 {transaction.method.args.map((arg, index) => (
                   <li key={index} className="truncate">
-                    {arg.name ? arg.name : `Arg ${index}`}: {asMethodArg(arg.type, transaction.methodArgs![index])}
+                    <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index + 1}`}: </span>
+                    {asMethodArg(arg.type, index, transaction.methodArgs!, transactionPositions, onEditTransaction)}
                   </li>
                 ))}
               </ol>
@@ -422,7 +486,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
       dd: (
         <ul>
           <li>
-            accounts:&nbsp;
+            <span className="mr-1">accounts:</span>
             <>
               <span>[</span>
               {accounts && accounts.length > 0 && (
@@ -441,7 +505,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
             </>
           </li>
           <li>
-            assets:&nbsp;
+            <span className="mr-1">assets:</span>
             <>
               <span>[</span>
               {assets && assets.length > 0 && (
@@ -460,7 +524,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
             </>
           </li>
           <li>
-            applications:&nbsp;
+            <span className="mr-1">applications:</span>
             <>
               <span>[</span>
               {apps && apps.length > 0 && (
@@ -479,7 +543,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
             </>
           </li>
           <li>
-            boxes:&nbsp;
+            <span className="mr-1">boxes:</span>
             <>
               <span>[</span>
               {boxes && boxes.length > 0 && (
@@ -518,7 +582,26 @@ export const asOnCompleteLabel = (onComplete: algosdk.OnApplicationComplete) => 
   }
 }
 
-export const asTransactionLabel = (type: BuildableTransactionType) => {
+export const asTransactionLabelFromTransactionType = (type: algosdk.ABITransactionType) => {
+  switch (type) {
+    case algosdk.ABITransactionType.pay:
+      return BuildableTransactionType.Payment
+    case algosdk.ABITransactionType.appl:
+      return TransactionType.AppCall
+    case algosdk.ABITransactionType.axfer:
+      return TransactionType.AssetFreeze
+    case algosdk.ABITransactionType.acfg:
+      return TransactionType.AssetConfig
+    case algosdk.ABITransactionType.afrz:
+      return TransactionType.AssetFreeze
+    case algosdk.ABITransactionType.keyreg:
+      return TransactionType.KeyReg
+    default:
+      return 'Transaction'
+  }
+}
+
+export const asTransactionLabelFromBuildableTransactionType = (type: BuildableTransactionType) => {
   switch (type) {
     case BuildableTransactionType.Payment:
     case BuildableTransactionType.AccountClose:
@@ -536,6 +619,6 @@ export const asTransactionLabel = (type: BuildableTransactionType) => {
     case BuildableTransactionType.AssetDestroy:
       return TransactionType.AssetConfig
     default:
-      throw new Error(`Unknown type ${type}`)
+      return 'Transaction'
   }
 }

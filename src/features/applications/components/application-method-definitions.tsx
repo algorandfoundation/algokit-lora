@@ -16,13 +16,14 @@ import {
 } from '@/features/transaction-wizard/models'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
-import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
-import { AppCallTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
-import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
+import { SimulateResult, TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
+import { AppCallTransaction, TransactionType } from '@/features/transactions/models'
 import { Parentheses } from 'lucide-react'
+import { buildComposer } from '@/features/transaction-wizard/data/common'
+import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
+import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
+import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { GroupSendResults, SendResults } from '@/features/transaction-wizard/components/group-send-results'
 
 type Props = {
   applicationId: ApplicationId
@@ -47,10 +48,10 @@ type MethodProps = {
 
 function Method({ method, applicationId, readonly }: MethodProps) {
   const [transaction, setTransaction] = useState<BuildMethodCallTransactionResult | undefined>(undefined)
-  const [sentAppCallTransactions, setSentAppCallTransactions] = useState<AppCallTransaction[]>([])
+  const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
 
   const { open, dialog } = useDialogForm({
-    dialogHeader: 'Create ABI Method Call Transaction',
+    dialogHeader: 'Build Transaction',
     dialogBody: (
       props: DialogBodyProps<
         { transactionType: algosdk.ABITransactionType; transaction?: Partial<BuildTransactionResult> } | undefined,
@@ -73,7 +74,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
       transactionType: algosdk.ABITransactionType.appl,
       transaction: {
         applicationId: applicationId,
-        methodName: method.name,
+        method: method.abiMethod,
         onComplete:
           method.callConfig && method.callConfig.call.length > 0
             ? (method.callConfig.call[0] as algosdk.OnApplicationComplete as BuildAppCallTransactionResult['onComplete'])
@@ -83,16 +84,38 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     if (transaction && transaction.type === BuildableTransactionType.MethodCall) {
       setTransaction(transaction)
     }
-  }, [applicationId, method.callConfig, method.name, open])
+  }, [applicationId, method, open])
 
-  const handleTransactionSent = useCallback((transactions: Transaction[]) => {
-    const appCallTransactions = transactions.filter((txn) => txn.type === TransactionType.AppCall)
-    setSentAppCallTransactions(appCallTransactions as unknown as AppCallTransaction[])
+  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
+    const sentTransactions = asTransactionFromSendResult(result)
+    const transactionsGraphData = asTransactionsGraphData(sentTransactions)
+    const appCallTransactions = sentTransactions.filter((txn) => txn.type === TransactionType.AppCall)
+    setSendResults({
+      transactionGraph: transactionsGraphData,
+      sentAppCalls: appCallTransactions as unknown as AppCallTransaction[],
+      simulateResponse,
+    })
   }, [])
+
+  const sendTransactions = useCallback(
+    async (transactions: BuildTransactionResult[]) => {
+      const composer = await buildComposer(transactions)
+      const result = await composer.send()
+      renderTransactionResults(result)
+    },
+    [renderTransactionResults]
+  )
+
+  const renderSimulateResult = useCallback(
+    async (result: SimulateResult) => {
+      renderTransactionResults(result, result.simulateResponse)
+    },
+    [renderTransactionResults]
+  )
 
   const reset = useCallback(() => {
     setTransaction(undefined)
-    setSentAppCallTransactions([])
+    setSendResults(undefined)
   }, [])
 
   return (
@@ -126,47 +149,13 @@ function Method({ method, applicationId, readonly }: MethodProps) {
         )}
         {transaction && (
           <TransactionsBuilder
-            transactions={[transaction]}
+            defaultTransactions={[transaction]}
             onReset={reset}
-            onTransactionSent={(txns) => handleTransactionSent(txns)}
-            renderContext="app-lab"
+            onSendTransactions={sendTransactions}
+            onSimulated={renderSimulateResult}
           />
         )}
-        {sentAppCallTransactions.length > 0 && (
-          <div className="mt-2 space-y-2">
-            <h4>App Call Results</h4>
-            <div className="space-y-4">
-              {sentAppCallTransactions.map((sentTransaction, index) => (
-                <RenderInlineAsyncAtom key={index} atom={sentTransaction.abiMethod}>
-                  {(abiMethod) =>
-                    abiMethod ? (
-                      <DescriptionList
-                        items={[
-                          {
-                            dt: transactionIdLabel,
-                            dd: (
-                              <TransactionLink transactionId={sentTransaction.id} className="text-sm text-primary underline">
-                                {sentTransaction.id}
-                              </TransactionLink>
-                            ),
-                          },
-                          {
-                            dt: 'Method name',
-                            dd: abiMethod.name,
-                          },
-                          {
-                            dt: 'Return value',
-                            dd: <DecodedAbiMethodReturnValue return={abiMethod.return} />,
-                          },
-                        ]}
-                      />
-                    ) : undefined
-                  }
-                </RenderInlineAsyncAtom>
-              ))}
-            </div>
-          </div>
-        )}
+        {sendResults && <GroupSendResults {...sendResults} />}
         {dialog}
       </AccordionContent>
     </AccordionItem>

@@ -4,7 +4,6 @@ import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { Round } from '@/features/blocks/data/types'
 import { AppSpecVersion } from '@/features/app-interfaces/data/types'
-import { getGroupResultAtom } from '@/features/groups/data'
 import { TransactionId } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AbiMethod, AbiMethodArgument, AbiMethodReturn, AbiValue, AbiType } from '@/features/abi-methods/models'
@@ -13,10 +12,14 @@ import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
 import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 import { sum } from '@/utils/sum'
 import { Hint, Struct } from '@/features/app-interfaces/data/types/arc-32/application'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
 
 const MAX_LINE_LENGTH = 20
 
-export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
+export const abiMethodResolver = (
+  transaction: TransactionResult,
+  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
     if (!isPossibleAbiAppCallTransaction(transaction)) {
       return undefined
@@ -25,7 +28,7 @@ export const abiMethodResolver = (transaction: TransactionResult): Atom<Promise<
     const abiMethodWithHint = await get(createAbiMethodWithHintAtom(transaction))
     if (!abiMethodWithHint) return undefined
 
-    const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethodWithHint))
+    const methodArguments = await get(createMethodArgumentsAtom(transaction, abiMethodWithHint, groupResolver))
     const methodReturn = getMethodReturn(transaction, abiMethodWithHint)
 
     const multiline =
@@ -76,14 +79,15 @@ const createAbiMethodWithHintAtom = (transaction: TransactionResult): Atom<Promi
 
 const createMethodArgumentsAtom = (
   transaction: TransactionResult,
-  abiMethodWithHint: AbiMethodWithHint
+  abiMethodWithHint: AbiMethodWithHint,
+  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
 ): Atom<Promise<AbiMethodArgument[]>> => {
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
     invariant(transaction['application-transaction']?.['application-args'], 'application-transaction application-args is not set')
     const { abiMethod, hint } = abiMethodWithHint
 
-    const referencedTransactionIds = await get(getReferencedTransactionIdsAtom(transaction, abiMethod))
+    const referencedTransactionIds = await get(getReferencedTransactionIdsAtom(transaction, abiMethod, groupResolver))
     const abiValues = getAbiValueArgs(transaction, abiMethod)
 
     const abiArguments: AbiMethodArgument[] = abiMethod.args.map((argumentSpec, index) => {
@@ -315,17 +319,23 @@ const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolea
   )
 }
 
-const getReferencedTransactionIdsAtom = (transaction: TransactionResult, abiMethod: algosdk.ABIMethod): Atom<Promise<TransactionId[]>> => {
+const getReferencedTransactionIdsAtom = (
+  transaction: TransactionResult,
+  abiMethod: algosdk.ABIMethod,
+  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+): Atom<Promise<TransactionId[]>> => {
   return atom(async (get) => {
     const hasReferencedTransactions = abiMethod.args.some((arg) => algosdk.abiTypeIsTransaction(arg.type))
-    if (!hasReferencedTransactions) return []
+    if (!hasReferencedTransactions) {
+      return []
+    }
 
-    invariant(transaction['confirmed-round'] && transaction['group'], 'Cannot get referenced transactions without a group')
+    invariant(transaction['confirmed-round'] !== undefined && transaction['group'], 'Cannot get referenced transactions without a group')
 
-    const groupResult = await get(getGroupResultAtom(transaction['group'], transaction['confirmed-round']))
-    const transactionIndexInGroup = groupResult.transactionIds.findIndex((id) => id === transaction.id)
+    const group = await get(groupResolver(transaction['group'], transaction['confirmed-round']))
+    const transactionIndexInGroup = group.transactionIds.findIndex((id) => id === transaction.id)
     const transactionTypeArgsCount = abiMethod.args.filter((arg) => algosdk.abiTypeIsTransaction(arg.type)).length
-    return groupResult.transactionIds.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
+    return group.transactionIds.slice(transactionIndexInGroup - transactionTypeArgsCount, transactionIndexInGroup)
   })
 }
 
