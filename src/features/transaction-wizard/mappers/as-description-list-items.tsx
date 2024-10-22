@@ -111,6 +111,7 @@ const asAssetTransferTransaction = (
     | BuildAssetClawbackTransactionResult
 ): DescriptionListItems => {
   const params = asAssetTransferTransactionParams(transaction)
+  const amount = 'amount' in transaction ? transaction.amount : 0
 
   return [
     {
@@ -163,7 +164,7 @@ const asAssetTransferTransaction = (
       : []),
     {
       dt: 'Amount',
-      dd: `${params.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
+      dd: `${amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
