@@ -12,7 +12,7 @@ import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-inter
 import { AbiType } from '@/features/abi-methods/models'
 import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
-import { groupResultsAtom } from '@/features/groups/data'
+import { getGroupResultAtom, groupResultsAtom } from '@/features/groups/data'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { writeAppInterface } from '@/features/app-interfaces/data'
 import { genesisHashAtom } from '@/features/blocks/data'
@@ -58,7 +58,7 @@ describe('resolving ABI method', () => {
         lastModified: createTimestamp(),
       } satisfies AppInterfaceEntity)
 
-      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      const abiMethod = await myStore.get(abiMethodResolver(transaction, getGroupResultAtom))
       expect(abiMethod).toBeDefined()
       expect(abiMethod!.name).toBe('opt_into_asset')
       expect(abiMethod!.arguments).toStrictEqual([
@@ -91,7 +91,7 @@ describe('resolving ABI method', () => {
         lastModified: createTimestamp(),
       } satisfies AppInterfaceEntity)
 
-      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      const abiMethod = await myStore.get(abiMethodResolver(transaction, getGroupResultAtom))
       expect(abiMethod).toBeDefined()
       expect(abiMethod!.name).toBe('opt_into_asset')
       expect(abiMethod!.arguments).toStrictEqual([
@@ -134,7 +134,7 @@ describe('resolving ABI method', () => {
         lastModified: createTimestamp(),
       } satisfies AppInterfaceEntity)
 
-      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
+      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction, getGroupResultAtom))
       expect(abiMethod).toBeDefined()
       expect(abiMethod!.name).toBe('start_auction')
       expect(abiMethod!.arguments).toStrictEqual([
@@ -180,7 +180,7 @@ describe('resolving ABI method', () => {
         lastModified: createTimestamp(),
       } satisfies AppInterfaceEntity)
 
-      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
+      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction, getGroupResultAtom))
       expect(abiMethod).toBeDefined()
       expect(abiMethod!.name).toBe('start_auction')
       expect(abiMethod!.arguments).toStrictEqual([
@@ -236,7 +236,7 @@ describe('resolving ABI method', () => {
         lastModified: createTimestamp(),
       } satisfies AppInterfaceEntity)
 
-      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction))
+      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction, getGroupResultAtom))
       expect(abiMethod).toBeDefined()
       expect(abiMethod!.name).toBe('test_ref_types_in_big_method')
       expect(abiMethod!.arguments).toStrictEqual([
@@ -434,7 +434,7 @@ describe('resolving ABI method', () => {
         lastModified: createTimestamp(),
       } satisfies AppInterfaceEntity)
 
-      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      const abiMethod = await myStore.get(abiMethodResolver(transaction, getGroupResultAtom))
       expect(abiMethod).toBeDefined()
       expect(abiMethod!.name).toBe('nest_array_and_tuple')
       expect(abiMethod!.arguments).toStrictEqual([
@@ -519,7 +519,7 @@ describe('resolving ABI method', () => {
     it('abiMethod should be undefined', async () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const abiMethod = await myStore.get(abiMethodResolver(transaction))
+      const abiMethod = await myStore.get(abiMethodResolver(transaction, getGroupResultAtom))
       expect(abiMethod).toBeUndefined()
     })
   })

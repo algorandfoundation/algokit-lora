@@ -21,7 +21,7 @@ export function HorizontalTitle({ horizontal, isSimulated }: Props) {
   const component = useMemo(() => {
     if ('innerId' in transaction) {
       return isSimulated ? (
-        asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId)
+        <span className="text-primary">{asInnerTransactionLinkText(transaction.networkTransactionId, transaction.innerId)}</span>
       ) : (
         <InnerTransactionLink networkTransactionId={transaction.networkTransactionId} innerTransactionId={transaction.innerId} />
       )

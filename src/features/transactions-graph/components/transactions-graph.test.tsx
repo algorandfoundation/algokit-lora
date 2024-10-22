@@ -18,6 +18,8 @@ import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { Atom } from 'jotai/index'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { setTimeout } from 'timers/promises'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
+import { Round } from '@/features/blocks/data/types'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -121,7 +123,12 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults), createAbiMethodResolver())
+        const model = asAppCallTransaction(
+          transactionResult,
+          createAssetResolver(assetResults),
+          createAbiMethodResolver(),
+          createGroupResolver()
+        )
         const graphData = asTransactionsGraphData([model])
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
@@ -253,4 +260,10 @@ const createAbiMethodResolver =
   () =>
   (_: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
     return atom(() => Promise.resolve(undefined))
+  }
+
+const createGroupResolver =
+  () =>
+  (_: GroupId, __: Round): Atom<Promise<GroupResult>> => {
+    return atom(() => Promise.resolve(undefined as unknown as GroupResult))
   }
