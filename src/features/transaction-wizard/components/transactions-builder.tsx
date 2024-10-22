@@ -31,7 +31,7 @@ import React from 'react'
 import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
-import AlgoKitComposer from '@algorandfoundation/algokit-utils/types/composer'
+import AlgoKitComposer, { SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
 
@@ -155,9 +155,17 @@ export function TransactionsBuilder({
       setErrorMessage(undefined)
       ensureThereIsNoPlaceholderTransaction(transactions)
 
+      const simulateConfig = {
+        execTraceConfig: new algosdk.modelsv2.SimulateTraceConfig({
+          enable: true,
+          scratchChange: true,
+          stackChange: true,
+          stateChange: true,
+        }),
+      } satisfies SimulateOptions
       const result = await (requireSignaturesOnSimulate
-        ? (await buildComposer(transactions)).simulate()
-        : (await buildComposerWithEmptySignatures(transactions)).simulate({ allowEmptySignatures: true }))
+        ? (await buildComposer(transactions)).simulate(simulateConfig)
+        : (await buildComposerWithEmptySignatures(transactions)).simulate({ ...simulateConfig, allowEmptySignatures: true }))
 
       return onSimulated?.(result)
     } catch (error) {
