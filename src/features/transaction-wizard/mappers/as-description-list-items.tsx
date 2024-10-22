@@ -37,6 +37,7 @@ import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
 import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
+import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -173,7 +174,7 @@ const asAssetTransferTransaction = (
       : []),
     {
       dt: 'Amount',
-      dd: `${params.amount}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
+      dd: `${asAssetDisplayAmount(params.amount, transaction.asset.decimals!)}${transaction.asset.unitName ? ` ${transaction.asset.unitName}` : ''}`,
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
