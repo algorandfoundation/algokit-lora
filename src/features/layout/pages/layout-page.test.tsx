@@ -152,11 +152,11 @@ describe('when rendering the layout page', () => {
   })
   describe('and the user opens a deep link to mainnet', () => {
     beforeAll(() => {
-      window.__TAURI__ = {}
+      window.__TAURI_INTERNALS__ = {}
       window.deepLink = 'algokit-lora://mainnet'
     })
     afterAll(() => {
-      window.__TAURI__ = undefined
+      window.__TAURI_INTERNALS__ = undefined
       localStorage.clear()
     })
 
@@ -187,7 +187,7 @@ describe('when rendering the layout page', () => {
     describe('then they open another deep link to testnet', () => {
       beforeAll(() => {})
       afterAll(() => {
-        window.__TAURI__ = undefined
+        window.__TAURI_INTERNALS__ = undefined
         localStorage.clear()
       })
 
@@ -212,7 +212,7 @@ describe('when rendering the layout page', () => {
 
   describe('and the user opens a deep link to a transaction', () => {
     beforeAll(() => {
-      window.__TAURI__ = {}
+      window.__TAURI_INTERNALS__ = {}
       window.deepLink = 'algokit-lora://mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1'
 
       vi.mocked(listen).mockImplementation(() => {
@@ -223,7 +223,7 @@ describe('when rendering the layout page', () => {
       })
     })
     afterAll(() => {
-      window.__TAURI__ = undefined
+      window.__TAURI_INTERNALS__ = undefined
       localStorage.clear()
     })
 

@@ -1,49 +1,54 @@
-import { useSetSelectedNetwork } from '@/features/network/data'
-import { Urls } from '@/routes/urls'
-import { listen } from '@tauri-apps/api/event'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { parseDeepLink } from '../parse-deep-link'
+import { useNetworkConfigs, useSelectedNetwork, useSetSelectedNetwork } from '@/features/network/data'
+import { getCurrent, onOpenUrl } from './tauri-deep-link'
 
 export function useDeepLink() {
-  const setSelectedNetwork = useSetSelectedNetwork()
   const navigate = useNavigate()
+  const [currentUrl, setCurrentUrl] = useState<string | null>(null)
+  const networkConfigs = useNetworkConfigs()
+  const [selectedNetwork] = useSelectedNetwork()
+  const networks = Object.keys(networkConfigs)
 
-  const handleDeepLink = useCallback(
-    async (url: string | undefined) => {
-      const options = parseDeepLink(url)
-      if (options) {
-        await setSelectedNetwork(options.networkId)
-        if (options.transactionId) {
-          navigate(Urls.Explore.Transaction.ById.build({ transactionId: options.transactionId, networkId: options.networkId }))
-        } else {
-          const url = Urls.Index.build({})
-          navigate(url)
+  const setSelectedNetwork = useSetSelectedNetwork()
+
+  const onDeepLink = useCallback(
+    (urls: string[]) => {
+      const url = urls[0]
+      const deepLinkRegex = /^algokit-lora:\/\//
+      const match = url.match(deepLinkRegex)
+      if (match) {
+        const newUrl = `/${url.replace(deepLinkRegex, '')}`
+        const networkId = newUrl.split('/')[1]
+        if (networks.includes(networkId) && networkId !== selectedNetwork) {
+          setSelectedNetwork(networkId)
         }
+        setCurrentUrl(newUrl)
+        navigate(newUrl)
       }
     },
-    [navigate, setSelectedNetwork]
+    [navigate, networks, selectedNetwork, setSelectedNetwork]
   )
 
   useEffect(() => {
-    if (!window.__TAURI__) {
-      return
-    }
-
-    if (window.deepLink) {
-      // On init
-      handleDeepLink(window.deepLink).then(() => {
-        // Reset so that it won't be used again
-        window.deepLink = undefined
+    // Only run useEffect if you are within a TAURI instance
+    if (!window.__TAURI_INTERNALS__) return
+    // If the currentUrl is falsy then the deeplink opened the app
+    if (!currentUrl) {
+      getCurrent().then((current) => {
+        if (current) {
+          onDeepLink(current)
+        }
       })
     }
-    // On deep link event while the app is open
-    const unlisten = listen('deep-link-received', (event) => {
-      handleDeepLink(event.payload as string)
+    // Register deep link listener
+    const unlisten = onOpenUrl((urls) => {
+      onDeepLink(urls)
     })
 
+    // Cleanup deep link listener
     return () => {
       unlisten.then((f) => f())
     }
-  }, [handleDeepLink])
+  }, [currentUrl, onDeepLink])
 }
