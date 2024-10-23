@@ -12,16 +12,16 @@ name = "tauri_app_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.0-rc", features = [] }
+tauri-build = { version = "2.0.0", features = [] }
 
 [dependencies]
-tauri = { version = "2.0.0-rc", features = [] }
-tauri-plugin-shell = "2.0.0-rc"
+tauri = { version = "2.0.0", features = [] }
+tauri-plugin-shell = "2.0.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri-plugin-deep-link = "2.0.0-rc"
+tauri-plugin-deep-link = "2.0.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-single-instance = "2.0.0-rc"
-tauri-plugin-cli = "2.0.0-rc"
+tauri-plugin-single-instance = "2.0.0"
+tauri-plugin-cli = "2.0.0"
 
