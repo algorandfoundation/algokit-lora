@@ -6,7 +6,7 @@ import {
   transactionRekeyToLabel,
   transactionTypeLabel,
 } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { asTransactionLinkTextComponent, TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { cn } from '@/features/common/utils'
@@ -14,12 +14,17 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { TransactionTypeDescriptionDetails } from '@/features/transactions/components/transaction-type-description-details'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 
-export function StateProofTransactionTooltipContent({ transaction }: { transaction: StateProofTransaction }) {
+type Props = {
+  transaction: StateProofTransaction
+  isSimulated: boolean
+}
+
+export function StateProofTransactionTooltipContent({ transaction, isSimulated }: Props) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
+        dd: isSimulated ? asTransactionLinkTextComponent(transaction.id, true) : <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -42,7 +47,7 @@ export function StateProofTransactionTooltipContent({ transaction }: { transacti
           ]
         : []),
     ],
-    [transaction]
+    [isSimulated, transaction]
   )
 
   return (

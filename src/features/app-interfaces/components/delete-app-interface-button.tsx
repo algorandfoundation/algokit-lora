@@ -16,7 +16,7 @@ export function DeleteAppInterfaceButton({ appInterface, onDelete }: Props) {
 
   const onConfirm = useCallback(async () => {
     await deleteAppInterface()
-    toast.success(`App interface ${appInterface.name} has been deleted`)
+    toast.success(`App interface '${appInterface.name}' has been deleted`)
     onDelete()
   }, [appInterface.name, deleteAppInterface, onDelete])
 

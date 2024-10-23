@@ -14,13 +14,13 @@ import { ApplicationPage, applicationPageTitle } from './features/applications/p
 import { SettingsPage, settingsPageTitle } from './features/settings/pages/settings-page'
 import { IndexPage } from '@/index-page'
 import { NetworkPage } from '@/features/network/pages/network-page'
-import { AppStudioPage, appStudioPageTitle } from './features/app-studio/pages/app-studio-page'
 import { FundPage } from './features/fund/fund-page'
 import { FundAuthCallbackPage } from './features/fund/fund-auth-callback-page'
 import { FundErrorPage } from './features/fund/fund-error-page'
 import { AppLab, appLabPageTitle } from './features/app-lab/pages/app-lab'
 import { TransactionWizardPage, transactionWizardPageTitle } from './features/transaction-wizard/transaction-wizard-page'
 import { RedirectPage } from './features/common/pages/redirect-page'
+import { CreateAppInterface, createAppInterfacePageTitle } from './features/app-interfaces/pages/create-app-interface'
 
 export const routes = evalTemplates([
   {
@@ -106,14 +106,19 @@ export const routes = evalTemplates([
         ],
       },
       {
-        template: Urls.AppStudio,
-        errorElement: <ErrorPage title={appStudioPageTitle} />,
-        element: <AppStudioPage />,
-      },
-      {
         template: Urls.AppLab,
-        errorElement: <ErrorPage title={appLabPageTitle} />,
-        element: <AppLab />,
+        children: [
+          {
+            template: Urls.AppLab,
+            errorElement: <ErrorPage title={appLabPageTitle} />,
+            element: <AppLab />,
+          },
+          {
+            template: Urls.AppLab.Create,
+            errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
+            element: <CreateAppInterface />,
+          },
+        ],
       },
       {
         template: Urls.Settings,
