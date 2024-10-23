@@ -8,6 +8,7 @@ export type ForwardNfdLookup = {
 
 export type ReverseNfdLookpup = {
   address: string
+  resolveNow?: boolean
 }
 
 export type NfdLookup = ReverseNfdLookpup | ForwardNfdLookup

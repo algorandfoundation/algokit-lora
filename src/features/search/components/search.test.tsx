@@ -14,7 +14,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
-import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data/nfd-result'
+import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data'
 import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 
 describe('search', () => {

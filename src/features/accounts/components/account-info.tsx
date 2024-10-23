@@ -20,15 +20,15 @@ import {
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
-import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 type Props = {
   account: Account
 }
 
 export function AccountInfo({ account }: Props) {
-  const [loadableNfd] = useLoadableNfdResult(account.address)
+  const loadableNfd = useLoadableReverseLookupNfdResult(account.address, true)
+
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -46,9 +46,7 @@ export function AccountInfo({ account }: Props) {
               dt: accountNfdLabel,
               dd: (
                 <div className="flex items-center">
-                  <RenderLoadable loadable={loadableNfd} fallback={<></>}>
-                    {(nfd) => <span className="truncate">{nfd?.name}</span>}
-                  </RenderLoadable>
+                  <span className="truncate">{loadableNfd.data.name}</span>
                 </div>
               ),
             },

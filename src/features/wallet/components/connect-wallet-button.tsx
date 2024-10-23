@@ -2,7 +2,7 @@ import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
-import { ellipseAddress, ellipseNfd } from '@/utils/ellipse-address'
+import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
 import { useNetworkConfig } from '@/features/network/data'
@@ -20,7 +20,7 @@ import { walletDialogOpenAtom } from '../data/wallet-dialog'
 import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
-import { useLoadableNfdResult } from '@/features/nfd/data/nfd'
+import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 export const connectWalletLabel = 'Connect Wallet'
@@ -70,11 +70,11 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
     },
     [activeProvider]
   )
-  const [loadableNfd] = useLoadableNfdResult(activeAddress)
+  const loadableNfd = useLoadableReverseLookupNfdResult(activeAddress)
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="hidden w-36 md:flex" variant="outline">
+        <Button className="hidden w-40 p-2 md:flex" variant="outline">
           {activeProvider &&
             ([PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC].includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -85,19 +85,17 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
                 className={cn('size-6 rounded object-contain mr-2')}
               />
             ))}
-          <abbr title={activeAddress} className="no-underline">
-            {loadableNfd.state === 'hasData' && loadableNfd.data !== null ? (
-              <RenderLoadable loadable={loadableNfd}>{(nfd) => <span className="truncate">{ellipseNfd(nfd?.name)}</span>}</RenderLoadable>
-            ) : (
-              <>{ellipseAddress(activeAddress)}</>
-            )}
+          <abbr title={activeAddress} className="truncate no-underline">
+            <RenderLoadable loadable={loadableNfd} fallback={ellipseAddress(activeAddress)}>
+              {(nfd) => (nfd ? nfd.name : ellipseAddress(activeAddress))}
+            </RenderLoadable>
           </abbr>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-56 border p-2" onOpenAutoFocus={preventDefault}>
+      <PopoverContent align="end" className="w-52 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+            <abbr className="ml-1 text-sm">{ellipseAddress(connectedActiveAccounts[0].address)}</abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">

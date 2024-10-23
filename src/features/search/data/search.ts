@@ -17,8 +17,7 @@ import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
 import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
-import { isNFD } from '@/features/nfd/data/is-nfd'
-import { getNfdResultAtom } from '@/features/nfd/data/nfd-result'
+import { getNfdResultAtom, isNFD } from '@/features/nfd/data'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -43,8 +42,8 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
     const results: SearchResult[] = []
 
     if (isAddress(term)) {
-      const nfdAtom = getNfdResultAtom({ address: term })
-      const nfd = await get(nfdAtom) // TODO: NC - This blocks until the NFD is resolved, maybe we should do this in the UI instead?
+      const nfdAtom = getNfdResultAtom({ address: term, resolveNow: true })
+      const nfd = await get(nfdAtom)
       results.push({
         type: SearchResultType.Account,
         id: term,
