@@ -1,5 +1,5 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { render, waitFor } from '@/tests/testing-library'
+import { render, renderHook, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
@@ -22,11 +22,16 @@ import {
   accountRekeyedToLabel,
   accountAssetLabel,
   accountApplicationLabel,
+  accountNfdLabel,
 } from '../components/labels'
 import { assetResultsAtom } from '@/features/assets/data'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod } from '@/features/common/data/algo-client'
+import { nfdResultMother } from '@/tests/object-mother/nfd-result'
+import { atom } from 'jotai'
+import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data'
+import { defaultNetworkConfigs, localnetId, useSetCustomNetworkConfig } from '@/features/network/data'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -302,6 +307,54 @@ describe('account-page', () => {
             const applicationTabList = component.getByRole('tablist', { name: accountApplicationLabel })
             expect(applicationTabList).toBeTruthy()
             expect(applicationTabList.children.length).toBe(2)
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an account with an NFD', () => {
+    const accountResult = accountResultMother['mainnet-DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU']().build()
+    const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
+
+    it('should be rendered with the correct data', async () => {
+      const myStore = createStore()
+      myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
+      myStore.set(
+        reverseNfdsAtom,
+        new Map([[nfdResult.depositAccount, [atom<string | Promise<string | null> | null>(nfdResult.name), Date.now()] as const]])
+      )
+      myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
+
+      renderHook(async () => {
+        const setCustomNetworkConfig = useSetCustomNetworkConfig()
+        setCustomNetworkConfig(localnetId, {
+          nfdApiUrl: 'http://not-used',
+          ...defaultNetworkConfigs[localnetId],
+        })
+      })
+
+      return executeComponentTest(
+        () => render(<AccountPage />, undefined, myStore),
+        async (component) => {
+          await waitFor(() => {
+            const informationCard = component.getByLabelText(accountInformationLabel)
+            descriptionListAssertion({
+              container: informationCard,
+              items: [
+                { term: accountAddressLabel, description: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU' },
+                { term: accountNfdLabel, description: 'datamuseum.algo' },
+                { term: accountBalanceLabel, description: '1915.70635' },
+                { term: accountMinBalanceLabel, description: '0.1' },
+                { term: accountAssetsHeldLabel, description: '0' },
+                { term: accountAssetsCreatedLabel, description: '0' },
+                { term: accountAssetsOptedInLabel, description: '0' },
+                { term: accountApplicationsCreatedLabel, description: '0' },
+                { term: accountApplicationsOptedInLabel, description: '0' },
+              ],
+            })
           })
         }
       )

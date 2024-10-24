@@ -31,6 +31,6 @@ export function AbiValue({ abiValue }: Props) {
     return <span className="text-abi-bool">{abiValue.value ? 'True' : 'False'}</span>
   }
   if (abiValue.type === AbiType.Address) {
-    return <AccountLink address={abiValue.value}></AccountLink>
+    return <AccountLink address={abiValue.value} />
   }
 }

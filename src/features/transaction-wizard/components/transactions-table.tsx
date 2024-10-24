@@ -143,7 +143,7 @@ export function TransactionsTable({
                 <TableHead className="w-10 border-y"></TableHead>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className={cn(header.column.columnDef.meta?.className, 'border-y')}>
+                    <TableHead key={header.id} className="border-y">
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )

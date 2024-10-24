@@ -49,7 +49,7 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
               <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className={cn(header.column.columnDef.meta?.className)}>
+                    <TableHead key={header.id}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )

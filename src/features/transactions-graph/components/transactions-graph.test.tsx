@@ -153,7 +153,6 @@ describe('key-reg-graph', () => {
   ])('when rendering transaction $transactionResult.id', ({ transactionResult }: { transactionResult: TransactionResult }) => {
     it('should match snapshot', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
-
       const model = asKeyRegTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(

@@ -34,7 +34,7 @@ function AssociatedAccountTitleWrapper({ type, accountAddress, accountNumber }: 
 
 export function VerticalTitle({ vertical }: { vertical: Vertical }) {
   return (
-    <span className={cn('text-l font-semibold')}>
+    <div className={cn('text-l font-semibold w-full')}>
       {vertical.type === 'Account' && (
         <div className={cn('grid text-center')}>
           <TitleWrapper rightComponent={<AccountNumber number={vertical.accountNumber} />}>
@@ -63,7 +63,7 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
       )}
       {vertical.type === 'Asset' && <AssetIdLink assetId={vertical.assetId} />}
       {vertical.type === 'OpUp' && <label className={'text-primary'}>OpUp</label>}
-    </span>
+    </div>
   )
 }
 
@@ -74,9 +74,9 @@ type TitleWrapperProps = {
 }
 function TitleWrapper({ leftComponent, children, rightComponent }: TitleWrapperProps) {
   return (
-    <div className={cn('flex gap-0.5 items-center justify-center')}>
+    <div className={cn('flex gap-0.5 items-center justify-center overflow-hidden')}>
       <div className={'shrink-0 basis-4'}>{leftComponent}</div>
-      <div>{children}</div>
+      {children}
       <div className={'shrink-0 basis-4'}>{rightComponent}</div>
     </div>
   )

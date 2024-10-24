@@ -30,13 +30,13 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
       scale: 2,
       onclone: (_, element) => {
         element.style.padding = '10px'
-        const ellipsisElements = element.querySelectorAll('[class*="ellipsis"]')
+        const ellipsisElements = element.querySelectorAll('[class*="ellipsis"], [class*="truncate"]')
         ellipsisElements.forEach((ellipsisElement) => {
           if (ellipsisElement.textContent) {
             const clientWidth = ellipsisElement.clientWidth
             const scrollWidth = ellipsisElement.scrollWidth
             if (scrollWidth > clientWidth) {
-              while (ellipsisElement.scrollWidth >= clientWidth) {
+              while (ellipsisElement.scrollWidth >= clientWidth - 4) {
                 ellipsisElement.textContent = ellipsisElement.textContent.slice(0, -1)
               }
               ellipsisElement.textContent = `${ellipsisElement.textContent}…`

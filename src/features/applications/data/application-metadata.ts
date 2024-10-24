@@ -4,7 +4,7 @@ import { flattenTransactionResult } from '@/features/transactions/utils/flatten-
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionType } from 'algosdk'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
-import { parseArc2 } from '@/features/transactions/mappers/arc-2'
+import { parseArc2 } from '@/features/transactions/mappers'
 import { parseJson } from '@/utils/parse-json'
 import { indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
