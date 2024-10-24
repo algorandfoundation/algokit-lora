@@ -317,7 +317,7 @@ const getSubTransactionsTableColumns = ({
           {transaction.type === BuildableTransactionType.Placeholder ? (
             <div className="flex min-h-8 items-center gap-1.5">
               <PlusCircle size={16} />
-              {transaction.type === BuildableTransactionType.Placeholder && <span>Build argument for transaction</span>}
+              {transaction.type === BuildableTransactionType.Placeholder && <span>Build the transaction passed in as an argument</span>}
             </div>
           ) : (
             <DescriptionList

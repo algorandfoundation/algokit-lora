@@ -59,7 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     if (props.disabled && disabledReason) {
       return (
-        <Tooltip delayDuration={400}>
+        <Tooltip>
           <TooltipTrigger asChild>
             <div tabIndex={0}>{button}</div>
           </TooltipTrigger>
@@ -130,7 +130,7 @@ const AsyncActionButton = React.forwardRef<HTMLButtonElement, AsyncActionButtonP
 
     if (disabled && disabledReason) {
       return (
-        <Tooltip delayDuration={400}>
+        <Tooltip>
           <TooltipTrigger asChild>
             <div tabIndex={0}>{button}</div>
           </TooltipTrigger>
