@@ -19,6 +19,7 @@ import { AssetReconfigureTransactionBuilder } from './asset-reconfigure-transact
 import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-builder'
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { AccountCloseTransactionBuilder } from './account-close-transaction-builder'
+import { AssetFreezeTransactionBuilder } from './asset-freeze-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -88,6 +89,12 @@ const builderConfigs = [
     type: BuildableTransactionType.AssetDestroy,
     label: 'Asset destroy (acfg)',
     component: AssetDestroyTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.afrz,
+    type: BuildableTransactionType.AssetFreeze,
+    label: 'Asset freeze (afrz)',
+    component: AssetFreezeTransactionBuilder,
   },
 ]
 

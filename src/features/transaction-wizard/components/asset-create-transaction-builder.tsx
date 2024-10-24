@@ -94,17 +94,17 @@ function FormFields({ helper }: FormFieldsProps) {
       {helper.checkboxField({
         field: 'defaultFrozen',
         label: 'Freeze holdings of this asset by default',
-        helpText: 'Cannot be changed after creation',
+        helpText: "Can't be changed after creation",
       })}
       {helper.textField({
         field: 'url',
         label: 'URL',
-        helpText: "URL for more information about the asset. Can't be changed after creation",
+        helpText: "URL for information about the asset. Can't be changed after creation",
       })}
       {helper.textField({
         field: 'metadataHash',
         label: 'Metadata hash',
-        helpText: "Metadata about the asset. Can't be changed after creation",
+        helpText: "Base64 encoded metadata hash. Can't be changed after creation",
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />

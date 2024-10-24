@@ -13,6 +13,7 @@ import {
   BuildAssetDestroyTransactionResult,
   BuildMethodCallTransactionResult,
   BuildAccountCloseTransactionResult,
+  BuildAssetFreezeTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -23,11 +24,13 @@ import {
   AssetConfigParams,
   AssetCreateParams,
   AssetDestroyParams,
+  AssetFreezeParams,
   AssetTransferParams,
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { Buffer } from 'buffer'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -49,6 +52,9 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   }
   if (transaction.type === BuildableTransactionType.AssetDestroy) {
     return [await asAssetDestroyTransaction(transaction)]
+  }
+  if (transaction.type === BuildableTransactionType.AssetFreeze) {
+    return [await asAssetFreezeTransaction(transaction)]
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
     return await asMethodCallTransactions(transaction)
@@ -199,7 +205,7 @@ export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTran
     assetName: transaction.assetName,
     unitName: transaction.unitName,
     url: transaction.url,
-    metadataHash: transaction.metadataHash,
+    metadataHash: transaction.metadataHash ? new Uint8Array(Buffer.from(transaction.metadataHash, 'base64')) : undefined,
     defaultFrozen: transaction.defaultFrozen,
     manager: transaction.manager,
     reserve: transaction.reserve,
@@ -257,6 +263,26 @@ export const asAssetConfigTransactionParams = (
     default:
       throw new Error('Unsupported transaction type')
   }
+}
+
+export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTransactionResult): AssetFreezeParams => {
+  return {
+    sender: transaction.sender,
+    assetId: BigInt(transaction.asset.id),
+    account: transaction.freezeTarget,
+    frozen: transaction.frozen,
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<algosdk.Transaction> => {
+  if (!transaction.asset.freeze || transaction.sender !== transaction.asset.freeze) {
+    throw new Error('Invalid freeze transaction')
+  }
+
+  const params = asAssetFreezeTransactionParams(transaction)
+  return await algorandClient.createTransaction.assetFreeze(params)
 }
 
 const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>

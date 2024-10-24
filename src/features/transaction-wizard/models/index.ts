@@ -25,6 +25,8 @@ export enum BuildableTransactionType {
   AssetCreate = 'AssetCreate',
   AssetReconfigure = 'AssetReconfigure',
   AssetDestroy = 'AssetDestroy',
+  // afrz
+  AssetFreeze = 'AssetFreeze',
   // placeholder
   Placeholder = 'Placeholder',
   Fulfilled = 'Fulfilled',
@@ -196,6 +198,18 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
   }
 }
 
+export type BuildAssetFreezeTransactionResult = CommonBuildTransactionResult & {
+  asset: {
+    id: AssetId
+    decimals?: number
+    unitName?: string
+    freeze?: Address
+  }
+  freezeTarget: Address
+  type: BuildableTransactionType.AssetFreeze
+  frozen: boolean
+}
+
 export type PlaceholderTransaction = {
   id: string
   type: BuildableTransactionType.Placeholder
@@ -220,6 +234,7 @@ export type BuildTransactionResult =
   | BuildAssetCreateTransactionResult
   | BuildAssetReconfigureTransactionResult
   | BuildAssetDestroyTransactionResult
+  | BuildAssetFreezeTransactionResult
   | BuildMethodCallTransactionResult
 
 export type TransactionPositionsInGroup = Map<string, number>
