@@ -7,6 +7,7 @@ import { asOnCompleteLabel } from '../mappers/as-description-list-items'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { BuildTransactionResult } from '../models'
 import { asAlgosdkTransactions } from '../mappers'
+import { Buffer } from 'buffer'
 
 export const requiredMessage = 'Required'
 
