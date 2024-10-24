@@ -7,6 +7,7 @@ import {
   BuildAssetClawbackTransactionResult,
   BuildAssetCreateTransactionResult,
   BuildAssetDestroyTransactionResult,
+  BuildAssetFreezeTransactionResult,
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
   BuildAssetReconfigureTransactionResult,
@@ -28,6 +29,7 @@ import { TransactionType } from '@/features/transactions/models'
 import {
   asAppCallTransactionParams,
   asAssetConfigTransactionParams,
+  asAssetFreezeTransactionParams,
   asAssetTransferTransactionParams,
   asPaymentTransactionParams,
 } from './as-algosdk-transactions'
@@ -67,6 +69,9 @@ export const asDescriptionListItems = (
     transaction.type === BuildableTransactionType.AssetDestroy
   ) {
     return asAssetConfigTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.AssetFreeze) {
+    return asAssetFreezeTransaction(transaction)
   }
 
   throw new Error('Unsupported transaction type')
@@ -260,13 +265,53 @@ const asAssetConfigTransaction = (
           },
         ]
       : []),
-    ...('defaultFrozen' in params && params.defaultFrozen
-      ? [{ dt: 'Freeze holdings of this asset by default', dd: params.defaultFrozen.toString() }]
-      : []),
+    ...('defaultFrozen' in params && params.defaultFrozen ? [{ dt: 'Freeze by default', dd: params.defaultFrozen.toString() }] : []),
     ...('url' in params && params.url ? [{ dt: 'URL', dd: params.url }] : []),
-    ...('metadataHash' in params && params.metadataHash && typeof params.metadataHash === 'string'
-      ? [{ dt: 'Metadata hash', dd: params.metadataHash }]
+    ...('metadataHash' in transaction && transaction.metadataHash
+      ? [{ dt: 'Metadata hash', dd: transaction.metadataHash.toString() }]
       : []),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
+  ]
+}
+
+const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult): DescriptionListItems => {
+  const params = asAssetFreezeTransactionParams(transaction)
+
+  return [
+    {
+      dt: 'Asset ID',
+      dd: (
+        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
+          {Number(params.assetId)}
+        </AssetIdLink>
+      ),
+    },
+    {
+      dt: 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
+    },
+    ...('account' in params && params.account
+      ? [
+          {
+            dt: 'Freeze target',
+            dd: (
+              <AccountLink className="text-primary underline" address={params.account}>
+                {params.account}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    {
+      dt: 'Action',
+      dd: params.frozen ? 'Freeze' : 'Unfreeze',
+    },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),

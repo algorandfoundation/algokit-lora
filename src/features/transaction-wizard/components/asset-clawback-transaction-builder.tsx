@@ -143,6 +143,7 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
+        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback ?? '' : '')
         setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
         trigger('asset')
       }
@@ -170,12 +171,11 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAssetClawbackTransactionResult
-  activeAddress?: string
   onSubmit: (transaction: BuildAssetClawbackTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetClawbackTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -207,7 +207,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, activeAddre
       }
     }
     return {
-      sender: activeAddress,
+      // We don't want to populate activeAddress as the sender, as the asset clawback address is what's needed
       fee: {
         setAutomatically: true,
       },
@@ -215,7 +215,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, activeAddre
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [mode, transaction])
 
   return (
     <Form
