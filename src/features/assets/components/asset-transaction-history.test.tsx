@@ -11,7 +11,6 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { getAllByRole } from '@testing-library/dom'
 import { ANY_NUMBER, ANY_STRING, searchTransactionsMock } from '@/tests/setup/mocks'
 import { RenderResult } from '@testing-library/react'
-import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -27,8 +26,6 @@ describe('asset-transaction-history', () => {
   const asset = assetResultMother['testnet-642327435']().build()
 
   it('should be able to handle pagination', () => {
-    vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
-
     const myStore = createStore()
     myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 

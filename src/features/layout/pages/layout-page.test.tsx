@@ -8,7 +8,6 @@ import { Event as TauriEvent, listen } from '@tauri-apps/api/event'
 import { networkConfigAtom } from '@/features/network/data'
 import { useNavigate } from 'react-router-dom'
 import { settingsStore } from '@/features/settings/data'
-import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -43,7 +42,6 @@ describe('when rendering the layout page', () => {
 
   describe('and the wallet is connected', () => {
     it('the wallet address is shown', async () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
       vi.mocked(useWallet).mockImplementation(() => {
         return {
@@ -70,7 +68,6 @@ describe('when rendering the layout page', () => {
     })
     describe('and there is more than one account', () => {
       it('the account switcher should be shown', async () => {
-        vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
         const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
         vi.mocked(useWallet).mockImplementation(() => {
           return {
@@ -112,7 +109,6 @@ describe('when rendering the layout page', () => {
 
     describe('and the user disconnects the wallet', () => {
       it('the wallet should be disconnected', async () => {
-        vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
         const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
         const disconnect = vi.fn()
         vi.mocked(useWallet).mockImplementation(() => {

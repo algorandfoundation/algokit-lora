@@ -15,19 +15,18 @@ const shouldCreateKmdClient = (config: NetworkConfig) => {
 }
 
 // Init the network config from local storage
-export let networkConfig = settingsStore.get(networkConfigAtom)
+const networkConfig = settingsStore.get(networkConfigAtom)
 export let indexer = ClientManager.getIndexerClient(networkConfig.indexer)
 export let algod = ClientManager.getAlgodClient(networkConfig.algod)
 export let kmd: algosdk.Kmd | undefined = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
 export let algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
 
-export const updateClientConfig = (_networkConfig: NetworkConfigWithId) => {
-  networkConfig = _networkConfig
-  indexer = ClientManager.getIndexerClient(_networkConfig.indexer)
-  algod = ClientManager.getAlgodClient(_networkConfig.algod)
-  kmd = shouldCreateKmdClient(_networkConfig) ? ClientManager.getKmdClient(_networkConfig.kmd!) : undefined
+export const updateClientConfig = (networkConfig: NetworkConfigWithId) => {
+  indexer = ClientManager.getIndexerClient(networkConfig.indexer)
+  algod = ClientManager.getAlgodClient(networkConfig.algod)
+  kmd = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
   algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
-  if (_networkConfig.id !== localnetId) {
+  if (networkConfig.id !== localnetId) {
     algorandClient.setDefaultValidityWindow(30)
   }
 }

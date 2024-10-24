@@ -40,8 +40,6 @@ const AccountLinkInner = fixedForwardRef(
   ) => {
     const [selectedNetwork] = useSelectedNetwork()
 
-    // TODO: NC - If children are passed, we won't be resolving the NFD. Are we okay with that?
-
     const link = (
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline', !children && 'truncate', className)}
@@ -67,7 +65,7 @@ const AccountLinkInner = fixedForwardRef(
     return children ? (
       link
     ) : (
-      <div className="flex items-center">
+      <div className="flex items-center overflow-hidden">
         {link}
         {showCopyButton && <CopyButton value={address} />}
       </div>

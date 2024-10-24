@@ -1,6 +1,6 @@
 import { Search, noSearchResultsMessage, searchPlaceholderLabel } from './search'
 import { describe, it, expect, vi } from 'vitest'
-import { render, waitFor } from '@/tests/testing-library'
+import { render, renderHook, waitFor } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
 import { atom, createStore } from 'jotai'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
@@ -16,6 +16,7 @@ import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data'
 import { nfdResultMother } from '@/tests/object-mother/nfd-result'
+import { defaultNetworkConfigs, localnetId, useSetCustomNetworkConfig } from '@/features/network/data'
 
 describe('search', () => {
   describe('when no search results have been returned', () => {
@@ -120,6 +121,14 @@ describe('search', () => {
         it(`should navigate to the ${type.toLowerCase()} page`, () => {
           const mockNavigate = vi.fn()
           vi.mocked(useNavigate).mockReturnValue(mockNavigate)
+
+          renderHook(async () => {
+            const setCustomNetworkConfig = useSetCustomNetworkConfig()
+            setCustomNetworkConfig(localnetId, {
+              nfdApiUrl: 'http://not-used',
+              ...defaultNetworkConfigs[localnetId],
+            })
+          })
 
           return executeComponentTest(
             () => render(<Search />, undefined, myStore),

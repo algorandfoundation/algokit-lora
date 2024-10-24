@@ -1,5 +1,5 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { render, waitFor } from '@/tests/testing-library'
+import { render, renderHook, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AccountPage, accountFailedToLoadMessage } from './account-page'
@@ -30,7 +30,8 @@ import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod } from '@/features/common/data/algo-client'
 import { nfdResultMother } from '@/tests/object-mother/nfd-result'
 import { atom } from 'jotai'
-import { useLoadableReverseLookupNfdResult, reverseNfdsAtom } from '@/features/nfd/data'
+import { forwardNfdResultsAtom, reverseNfdsAtom } from '@/features/nfd/data'
+import { defaultNetworkConfigs, localnetId, useSetCustomNetworkConfig } from '@/features/network/data'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -88,7 +89,6 @@ describe('account-page', () => {
       myStore.set(assetResultsAtom, assetResults)
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
 
       return executeComponentTest(
         () => render(<AccountPage />, undefined, myStore),
@@ -141,7 +141,6 @@ describe('account-page', () => {
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -186,7 +185,6 @@ describe('account-page', () => {
       const myStore = createStore()
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
 
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -238,7 +236,6 @@ describe('account-page', () => {
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
       myStore.set(assetResultsAtom, assetResults)
 
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -279,7 +276,6 @@ describe('account-page', () => {
       const myStore = createStore()
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
 
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
 
       return executeComponentTest(
@@ -317,18 +313,28 @@ describe('account-page', () => {
     })
   })
 
-  describe('when rendering an account with Nfd', () => {
+  describe('when rendering an account with an NFD', () => {
     const accountResult = accountResultMother['mainnet-DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU']().build()
     const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
 
     it('should be rendered with the correct data', async () => {
       const myStore = createStore()
-      const mockReverseNfdAtom = atom<string | Promise<string | null> | null>('datamuseum.algo')
       myStore.set(accountResultsAtom, new Map([[accountResult.address, createReadOnlyAtomAndTimestamp(accountResult)]]))
-      myStore.set(reverseNfdsAtom, new Map([[nfdResult.depositAccount, [mockReverseNfdAtom, Date.now()] as const]]))
+      myStore.set(
+        reverseNfdsAtom,
+        new Map([[nfdResult.depositAccount, [atom<string | Promise<string | null> | null>(nfdResult.name), Date.now()] as const]])
+      )
+      myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ address: accountResult.address }))
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'hasData', data: nfdResult })
+
+      renderHook(async () => {
+        const setCustomNetworkConfig = useSetCustomNetworkConfig()
+        setCustomNetworkConfig(localnetId, {
+          nfdApiUrl: 'http://not-used',
+          ...defaultNetworkConfigs[localnetId],
+        })
+      })
 
       return executeComponentTest(
         () => render(<AccountPage />, undefined, myStore),

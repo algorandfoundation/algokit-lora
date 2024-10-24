@@ -18,9 +18,7 @@ import { sendButtonLabel } from '@/features/transaction-wizard/components/transa
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 import { selectOption } from '@/tests/utils/select-option'
-import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
-
 
 const myStore = await vi.hoisted(async () => {
   const { getDefaultStore } = await import('jotai/index')
@@ -53,7 +51,6 @@ describe('application-method-definitions', () => {
       ],
       lastModified: createTimestamp(),
     } satisfies AppInterfaceEntity)
-    vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
   })
 
   describe('when a wallet is connected', () => {

@@ -19,7 +19,6 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
-import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -93,7 +92,7 @@ describe('group-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
+
       const myStore = createStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(x)])))

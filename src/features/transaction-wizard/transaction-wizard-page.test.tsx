@@ -8,7 +8,6 @@ import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './
 import { selectOption } from '@/tests/utils/select-option'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 import { addTransactionLabel } from './components/transactions-builder'
-import { useLoadableReverseLookupNfdResult } from '../nfd/data'
 import { groupSendResultsLabel } from './components/group-send-results'
 
 describe('transaction-wizard-page', () => {
@@ -49,7 +48,6 @@ describe('transaction-wizard-page', () => {
   describe('when a wallet is connected', () => {
     beforeEach(async () => {
       await setWalletAddressAndSigner(localnet)
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
     })
 
     describe('and a payment transaction is being sent', () => {

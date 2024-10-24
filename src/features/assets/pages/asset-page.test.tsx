@@ -35,7 +35,6 @@ import { algod, indexer } from '@/features/common/data/algo-client'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
-import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 const server = setupServer()
 
@@ -96,7 +95,6 @@ describe('asset-page', () => {
   describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
@@ -113,7 +111,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -199,7 +196,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -301,7 +297,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -388,7 +383,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -474,7 +468,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -592,7 +585,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother['mainnet-W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -727,7 +719,6 @@ describe('asset-page', () => {
     const destroyAssetTransactionResult = transactionResultMother['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -813,7 +804,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
 
     it('should be rendered with the refresh button', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -873,7 +863,6 @@ describe('asset-page', () => {
     const assetResult = assetResultMother['mainnet-1024439078']().build()
     const transactionResult = transactionResultMother.assetConfig().build()
     it('should be rendered with the correct data', () => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 

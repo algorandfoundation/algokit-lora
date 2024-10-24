@@ -1,7 +1,7 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { getAllByRole, getByRole, queryAllByRole, render, waitFor } from '@/tests/testing-library'
 import { Atom, createStore } from 'jotai'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
@@ -16,7 +16,6 @@ import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
-import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
@@ -63,9 +62,6 @@ describe('explore-page', () => {
       transactionResults.map((t) => [t.id, createTimestamp()] as const)
     )
     myStore.set(syncedRoundAtom, block.round)
-    beforeEach(() => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
-    })
 
     it('the processed blocks are displayed', () => {
       return executeComponentTest(
@@ -128,9 +124,6 @@ describe('explore-page', () => {
         transactions: new Map<TransactionId, readonly [Atom<TransactionResult>, number]>(),
       }
     )
-    beforeEach(() => {
-      vi.mocked(useLoadableReverseLookupNfdResult).mockReturnValue({ state: 'loading' })
-    })
 
     it('only the latest 10 blocks are displayed', () => {
       const myStore = createStore()

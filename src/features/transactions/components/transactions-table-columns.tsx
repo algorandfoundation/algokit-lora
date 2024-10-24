@@ -88,11 +88,13 @@ const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
         : transaction.sender
     return <AccountLink address={from} short={true} />
   },
+  meta: { className: 'max-w-36' },
 }
 const toColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionToLabel,
   accessorFn: (transaction) => transaction,
   cell: (c) => <TransactionTo transaction={c.getValue<Transaction>()} />,
+  meta: { className: 'max-w-36' },
 }
 const typeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Type',

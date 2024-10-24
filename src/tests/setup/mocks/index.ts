@@ -83,11 +83,3 @@ vi.mock('@auth0/auth0-react', async () => {
 })
 
 window.HTMLElement.prototype.hasPointerCapture = vi.fn()
-
-vi.mock('@/features/nfd/data', async () => {
-  const original = await vi.importActual('@/features/nfd/data')
-  return {
-    ...original,
-    useLoadableReverseLookupNfdResult: vi.fn(),
-  }
-})

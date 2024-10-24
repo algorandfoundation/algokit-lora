@@ -2,13 +2,12 @@ import { cn } from '@/features/common/utils'
 import { TransactionLink } from './transaction-link'
 import { Card, CardContent } from '@/features/common/components/card'
 import { ellipseId } from '@/utils/ellipse-id'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ArrowRightLeft, Info } from 'lucide-react'
 import { Badge } from '@/features/common/components/badge'
 import { TransactionSummary } from '@/features/transactions/models'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
-import { Address } from 'lute-connect'
+import { ellipseAddress } from '@/utils/ellipse-address'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 export const latestTransactionsTitle = 'Latest Transactions'
@@ -17,7 +16,7 @@ type Props = {
   latestTransactions: TransactionSummary[]
 }
 
-function TransactionAddress({ address }: { address: Address }) {
+function TransactionAddress({ address }: { address: string }) {
   const loadableNfd = useLoadableReverseLookupNfdResult(address)
   return (
     <RenderLoadable loadable={loadableNfd} fallback={ellipseAddress(address)}>
