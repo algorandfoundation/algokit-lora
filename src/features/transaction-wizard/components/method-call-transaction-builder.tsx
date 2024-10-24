@@ -315,7 +315,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
                   <TooltipTrigger asChild>
                     <Info className="inline" size={16} />
                   </TooltipTrigger>
-                  <TooltipContent>This argument is a transaction in the group</TooltipContent>
+                  <TooltipContent>Transaction arguments are built in the top level group</TooltipContent>
                 </Tooltip>
               </div>
             ) : (
