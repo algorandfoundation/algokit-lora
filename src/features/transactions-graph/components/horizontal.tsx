@@ -338,7 +338,7 @@ export function Horizontal({ horizontal, verticals, bgClassName, isSimulated }: 
 
         if (index === representation.fromVerticalIndex)
           return (
-            <Tooltip key={index} delayDuration={400}>
+            <Tooltip key={index}>
               <TooltipTrigger asChild>
                 {representation.type === RepresentationType.Vector ? (
                   <RenderTransactionVector key={index} vector={representation} transaction={transaction} bgClassName={bgClassName} />
