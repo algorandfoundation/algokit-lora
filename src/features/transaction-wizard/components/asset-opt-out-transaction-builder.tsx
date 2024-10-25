@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const formSchema = {
   ...commonSchema,
@@ -59,18 +60,16 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be opted out of',
       })}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'Account to opt out of the asset. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'closeRemainderTo',
-        label: 'Close remainder to',
-        helpText: 'Account to receive the remaining balance of the asset',
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField
+        fieldName="sender"
+        label="Sender"
+        helpText="Account to opt out of the asset. Sends the transaction and pays the fee"
+      />
+      <TransactionBuilderAddressField
+        fieldName="closeRemainderTo"
+        label="Close remainder to"
+        helpText="Account to receive the remaining balance of the asset"
+      />
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
       <TransactionBuilderNoteField />

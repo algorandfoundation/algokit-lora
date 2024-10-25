@@ -15,6 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -109,24 +110,21 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
     >
       {(helper) => (
         <>
-          {helper.textField({
-            field: 'sender',
-            label: senderLabel,
-            helpText: 'Account to be closed. Sends the transaction and pays the fee',
-            placeholder: ZERO_ADDRESS,
-          })}
-          {helper.textField({
-            field: 'closeRemainderTo',
-            label: closeRemainderToLabel,
-            helpText: `Account to receive the remaining balance when '${senderLabel}' account is closed`,
-            placeholder: ZERO_ADDRESS,
-          })}
-          {helper.textField({
-            field: 'receiver',
-            label: receiverLabel,
-            helpText: `Account to receive the amount. Leave blank if '${closeRemainderToLabel}' account should receive the full balance`,
-            placeholder: ZERO_ADDRESS,
-          })}
+          <TransactionBuilderAddressField
+            fieldName="sender"
+            label="Sender"
+            helpText="Account to be closed. Sends the transaction and pays the fee"
+          />
+          <TransactionBuilderAddressField
+            fieldName="closeRemainderTo"
+            label={closeRemainderToLabel}
+            helpText={`Account to receive the remaining balance when '${senderLabel}' account is closed`}
+          />
+          <TransactionBuilderAddressField
+            fieldName="receiver"
+            label={receiverLabel}
+            helpText={`Account to receive the amount. Leave blank if '${closeRemainderToLabel}' account should receive the full balance`}
+          />
           {helper.numberField({
             field: 'amount',
             label: (

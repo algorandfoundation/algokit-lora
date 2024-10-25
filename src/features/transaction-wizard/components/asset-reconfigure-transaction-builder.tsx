@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const formSchema = {
   ...commonSchema,
@@ -68,36 +69,31 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be reconfigured',
       })}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'The current asset manager address. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'manager',
-        label: 'Manager',
-        helpText: "Account that can re-configure and destroy the asset. If empty, the asset can't be re-configured",
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'reserve',
-        label: 'Reserve',
-        helpText: "Account that holds the reserve units of the asset. If empty, this address can't be changed",
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'freeze',
-        label: 'Freeze',
-        helpText: "Account that can freeze the asset. If empty, assets can't be frozen and this address can't be changed",
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'clawback',
-        label: 'Clawback',
-        helpText: "Account that can claw back the asset. If empty, assets can't be clawed back and this address can't be changed",
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField
+        fieldName="sender"
+        label="Sender"
+        helpText="The current asset manager address. Sends the transaction and pays the fee"
+      />
+      <TransactionBuilderAddressField
+        fieldName="manager"
+        label="Manager"
+        helpText="Account that can re-configure and destroy the asset. If empty, the asset can't be re-configured"
+      />
+      <TransactionBuilderAddressField
+        fieldName="reserve"
+        label="Reserve"
+        helpText="Account that holds the reserve units of the asset. If empty, this address can't be changed"
+      />
+      <TransactionBuilderAddressField
+        fieldName="freeze"
+        label="Freeze"
+        helpText="Account that can freeze the asset. If empty, assets can't be frozen and this address can't be changed"
+      />
+      <TransactionBuilderAddressField
+        fieldName="clawback"
+        label="Clawback"
+        helpText="Account that can claw back the asset. If empty, assets can't be clawed back and this address can't be changed"
+      />
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
       <TransactionBuilderNoteField />

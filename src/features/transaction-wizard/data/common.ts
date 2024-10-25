@@ -7,14 +7,17 @@ import { asOnCompleteLabel } from '../mappers/as-description-list-items'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { BuildTransactionResult } from '../models'
 import { asAlgosdkTransactions } from '../mappers'
+import { isNfd } from '@/features/nfd/data'
 
 export const requiredMessage = 'Required'
 
 const invalidAddressMessage = 'Invalid address'
-export const optionalAddressFieldSchema = zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) : true), {
-  message: invalidAddressMessage,
-})
-export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) : true), {
+export const optionalAddressFieldSchema = zfd
+  .text(z.string().optional())
+  .refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
+    message: invalidAddressMessage,
+  })
+export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
   message: invalidAddressMessage,
 })
 
@@ -145,3 +148,16 @@ const fixedEmptyTransactionSigner: algosdk.TransactionSigner = async (txns: algo
     })
   )
 }
+
+export const commonAddressSchema = {
+  ...senderFieldSchema,
+  ...receiverFieldSchema,
+  closeRemainderTo: addressFieldSchema,
+  clawbackTarget: addressFieldSchema,
+  manager: optionalAddressFieldSchema,
+  reserve: optionalAddressFieldSchema,
+  freeze: optionalAddressFieldSchema,
+  clawback: optionalAddressFieldSchema,
+}
+
+export const commonAddressFormData = zfd.formData(commonAddressSchema)

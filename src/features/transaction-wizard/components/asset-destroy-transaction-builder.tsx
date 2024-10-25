@@ -24,6 +24,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { TransactionBuilderAddressField } from './transaction-builder-address-field'
 
 const formSchema = {
   ...commonSchema,
@@ -77,12 +78,11 @@ function FormFields({ helper, asset }: FormFieldsProps) {
           &nbsp;must hold all units
         </small>
       )}
-      {helper.textField({
-        field: 'sender',
-        label: 'Sender',
-        helpText: 'The current asset manager address. Sends the transaction and pays the fee',
-        placeholder: ZERO_ADDRESS,
-      })}
+      <TransactionBuilderAddressField
+        fieldName="sender"
+        label="Sender"
+        helpText="The current asset manager address. Sends the transaction and pays the fee"
+      />
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
       <TransactionBuilderNoteField />
