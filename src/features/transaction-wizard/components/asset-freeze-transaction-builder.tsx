@@ -21,13 +21,14 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
 
 const formSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
     freezeTarget: addressFieldSchema,
-    frozen: z.boolean(),
+    frozen: z.string(),
     asset: z
       .object({
         id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
@@ -68,6 +69,11 @@ type FormFieldsProps = {
   asset?: AssetSummary
 }
 
+const freezeOptions = [
+  { value: 'true', label: freezeAssetLabel },
+  { value: 'false', label: unfreezeAssetLabel },
+]
+
 function FormFields({ helper, asset }: FormFieldsProps) {
   return (
     <>
@@ -88,9 +94,10 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         helpText: 'Account the asset will be frozen or unfrozen in',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.checkboxField({
+      {helper.radioGroupField({
         field: 'frozen',
-        label: 'Freeze',
+        label: 'Action',
+        options: freezeOptions,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
@@ -173,7 +180,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         asset: data.asset,
         sender: data.sender,
         freezeTarget: data.freezeTarget,
-        frozen: data.frozen,
+        frozen: data.frozen === 'true' ? true : false,
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
@@ -187,7 +194,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         asset: transaction.asset,
         sender: transaction.sender,
         freezeTarget: transaction.freezeTarget,
-        frozen: transaction.frozen,
+        frozen: transaction.frozen ? 'true' : 'false',
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -195,7 +202,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
     }
     return {
       // We don't want to populate activeAddress as the sender, as the asset freeze address is what's needed
-      frozen: true,
+      frozen: 'true',
       fee: {
         setAutomatically: true,
       },

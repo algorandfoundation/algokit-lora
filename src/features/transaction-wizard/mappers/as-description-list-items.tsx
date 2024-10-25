@@ -310,7 +310,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       : []),
     {
       dt: 'Action',
-      dd: params.frozen ? 'Freeze' : 'Unfreeze',
+      dd: params.frozen ? freezeAssetLabel : unfreezeAssetLabel,
     },
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
@@ -667,3 +667,6 @@ export const asTransactionLabelFromBuildableTransactionType = (type: BuildableTr
       return 'Transaction'
   }
 }
+
+export const freezeAssetLabel = 'Freeze asset'
+export const unfreezeAssetLabel = 'Unfreeze asset'
