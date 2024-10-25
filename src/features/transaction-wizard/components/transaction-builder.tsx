@@ -20,6 +20,7 @@ import { AssetDestroyTransactionBuilder } from './asset-destroy-transaction-buil
 import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { AccountCloseTransactionBuilder } from './account-close-transaction-builder'
 import { AssetFreezeTransactionBuilder } from './asset-freeze-transaction-builder'
+import { KeyRegistrationTransactionBuilder } from './key-registration-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -95,6 +96,12 @@ const builderConfigs = [
     type: BuildableTransactionType.AssetFreeze,
     label: 'Asset freeze (afrz)',
     component: AssetFreezeTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.keyreg,
+    type: BuildableTransactionType.KeyRegistration,
+    label: 'Key registration (keyreg)',
+    component: KeyRegistrationTransactionBuilder,
   },
 ]
 

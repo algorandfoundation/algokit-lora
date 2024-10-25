@@ -12,6 +12,7 @@ import {
   BuildAssetOptOutTransactionResult,
   BuildAssetReconfigureTransactionResult,
   BuildAssetTransferTransactionResult,
+  BuildKeyRegistrationTransactionResult,
   BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
@@ -31,6 +32,7 @@ import {
   asAssetConfigTransactionParams,
   asAssetFreezeTransactionParams,
   asAssetTransferTransactionParams,
+  asKeyRegistrationTransactionParams,
   asPaymentTransactionParams,
 } from './as-algosdk-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
@@ -72,6 +74,9 @@ export const asDescriptionListItems = (
   }
   if (transaction.type === BuildableTransactionType.AssetFreeze) {
     return asAssetFreezeTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.KeyRegistration) {
+    return asKeyRegistrationTransaction(transaction)
   }
 
   throw new Error('Unsupported transaction type')
@@ -312,6 +317,34 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Action',
       dd: params.frozen ? freezeAssetLabel : unfreezeAssetLabel,
     },
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
+  ]
+}
+
+const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransactionResult): DescriptionListItems => {
+  const params = asKeyRegistrationTransactionParams(transaction)
+
+  return [
+    {
+      dt: 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
+    },
+    {
+      dt: 'Registration',
+      dd: transaction.online ? onlineKeyRegistrationLabel : offlineKeyRegistrationLabel,
+    },
+    ...(params.voteKey ? [{ dt: 'Voting key', dd: Buffer.from(params.voteKey).toString('base64') }] : []),
+    ...(params.selectionKey ? [{ dt: 'Selection key', dd: Buffer.from(params.selectionKey).toString('base64') }] : []),
+    ...(params.stateProofKey ? [{ dt: 'State proof key', dd: Buffer.from(params.stateProofKey).toString('base64') }] : []),
+    ...(params.voteFirst ? [{ dt: 'First voting round', dd: params.voteFirst }] : []),
+    ...(params.voteLast ? [{ dt: 'Last voting round', dd: params.voteLast }] : []),
+    ...(params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -663,6 +696,10 @@ export const asTransactionLabelFromBuildableTransactionType = (type: BuildableTr
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
       return TransactionType.AssetConfig
+    case BuildableTransactionType.AssetFreeze:
+      return TransactionType.AssetFreeze
+    case BuildableTransactionType.KeyRegistration:
+      return TransactionType.KeyReg
     default:
       return 'Transaction'
   }
@@ -670,3 +707,5 @@ export const asTransactionLabelFromBuildableTransactionType = (type: BuildableTr
 
 export const freezeAssetLabel = 'Freeze asset'
 export const unfreezeAssetLabel = 'Unfreeze asset'
+export const onlineKeyRegistrationLabel = 'Online'
+export const offlineKeyRegistrationLabel = 'Offline'

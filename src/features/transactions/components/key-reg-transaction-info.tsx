@@ -10,10 +10,11 @@ type Props = {
   transaction: KeyRegTransaction | InnerKeyRegTransaction
 }
 
-export const voteParticipationKeyLabel = 'Vote Participation Key'
-export const selectionParticipationKeyLabel = 'Selection Participation Key'
-export const voteFirstValidLabel = 'Vote First Valid'
-export const voteLastValidLabel = 'Vote Last Valid'
+export const voteParticipationKeyLabel = 'Voting Key'
+export const selectionParticipationKeyLabel = 'Selection Key'
+export const stateProofKeyLabel = 'State Proof Key'
+export const voteFirstValidLabel = 'First Voting Round'
+export const voteLastValidLabel = 'Last Voting Round'
 export const voteKeyDilutionLabel = 'Vote Key Dilution'
 
 export function KeyRegTransactionInfo({ transaction }: Props) {
@@ -36,6 +37,12 @@ export function KeyRegTransactionInfo({ transaction }: Props) {
               dd: transaction.selectionParticipationKey,
             }
           : undefined,
+        transaction.stateProofKey
+          ? {
+              dt: stateProofKeyLabel,
+              dd: transaction.stateProofKey,
+            }
+          : undefined,
         ...(transaction.subType === KeyRegTransactionSubType.Online
           ? [
               {
@@ -56,6 +63,7 @@ export function KeyRegTransactionInfo({ transaction }: Props) {
     [
       transaction.selectionParticipationKey,
       transaction.sender,
+      transaction.stateProofKey,
       transaction.subType,
       transaction.voteFirstValid,
       transaction.voteKeyDilution,

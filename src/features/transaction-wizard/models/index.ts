@@ -27,6 +27,8 @@ export enum BuildableTransactionType {
   AssetDestroy = 'AssetDestroy',
   // afrz
   AssetFreeze = 'AssetFreeze',
+  // keyreg
+  KeyRegistration = 'KeyRegistration',
   // placeholder
   Placeholder = 'Placeholder',
   Fulfilled = 'Fulfilled',
@@ -210,6 +212,17 @@ export type BuildAssetFreezeTransactionResult = CommonBuildTransactionResult & {
   frozen: boolean
 }
 
+export type BuildKeyRegistrationTransactionResult = CommonBuildTransactionResult & {
+  type: BuildableTransactionType.KeyRegistration
+  online: boolean
+  voteKey?: string
+  selectionKey?: string
+  voteFirstValid?: bigint
+  voteLastValid?: bigint
+  voteKeyDilution?: bigint
+  stateProofKey?: string
+}
+
 export type PlaceholderTransaction = {
   id: string
   type: BuildableTransactionType.Placeholder
@@ -227,6 +240,7 @@ export type BuildTransactionResult =
   | BuildPaymentTransactionResult
   | BuildAccountCloseTransactionResult
   | BuildAppCallTransactionResult
+  | BuildMethodCallTransactionResult
   | BuildAssetTransferTransactionResult
   | BuildAssetOptInTransactionResult
   | BuildAssetOptOutTransactionResult
@@ -235,6 +249,6 @@ export type BuildTransactionResult =
   | BuildAssetReconfigureTransactionResult
   | BuildAssetDestroyTransactionResult
   | BuildAssetFreezeTransactionResult
-  | BuildMethodCallTransactionResult
+  | BuildKeyRegistrationTransactionResult
 
 export type TransactionPositionsInGroup = Map<string, number>

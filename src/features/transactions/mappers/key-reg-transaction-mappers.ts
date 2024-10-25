@@ -19,6 +19,7 @@ const mapCommonKeyRegTransactionProperties = (transactionResult: TransactionResu
     voteParticipationKey: keyReg['vote-participation-key'],
     nonParticipation: keyReg['non-participation'],
     selectionParticipationKey: keyReg['selection-participation-key'],
+    stateProofKey: keyReg['state-proof-key'],
     voteKeyDilution: keyReg['vote-key-dilution'],
     voteFirstValid: keyReg['vote-first-valid'],
     voteLastValid: keyReg['vote-last-valid'],
