@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, optionalAddressOrNfdFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,7 +17,6 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
@@ -31,7 +30,7 @@ const formSchema = {
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(), // This field is used to determine if an asset has been resolved
       unitName: z.string().optional(),
-      manager: z.string().optional(),
+      manager: optionalAddressOrNfdFieldSchema,
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -48,10 +47,10 @@ const formSchema = {
         })
       }
     }),
-  manager: optionalAddressFieldSchema,
-  reserve: optionalAddressFieldSchema,
-  freeze: optionalAddressFieldSchema,
-  clawback: optionalAddressFieldSchema,
+  manager: optionalAddressOrNfdFieldSchema,
+  reserve: optionalAddressOrNfdFieldSchema,
+  freeze: optionalAddressOrNfdFieldSchema,
+  clawback: optionalAddressOrNfdFieldSchema,
 }
 
 const formData = zfd.formData(formSchema)
@@ -193,11 +192,26 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
-        manager: transaction.manager,
-        reserve: transaction.reserve,
-        freeze: transaction.freeze,
-        clawback: transaction.clawback,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
+        manager: {
+          value: transaction.manager?.value,
+          address: transaction.manager?.address,
+        },
+        reserve: {
+          value: transaction.reserve?.value,
+          address: transaction.reserve?.address,
+        },
+        freeze: {
+          value: transaction.freeze?.value,
+          address: transaction.freeze?.address,
+        },
+        clawback: {
+          value: transaction.clawback?.value,
+          address: transaction.clawback?.address,
+        },
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

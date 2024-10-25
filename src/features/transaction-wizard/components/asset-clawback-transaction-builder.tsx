@@ -1,5 +1,11 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressAndNfdFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import {
+  addressOrNfdFieldSchema,
+  commonSchema,
+  optionalAddressOrNfdFieldSchema,
+  receiverFieldSchema,
+  senderFieldSchema,
+} from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -29,13 +35,13 @@ const formSchema = z
     ...commonSchema,
     ...senderFieldSchema,
     ...receiverFieldSchema,
-    clawbackTarget: addressAndNfdFieldSchema,
+    clawbackTarget: addressOrNfdFieldSchema,
     asset: z
       .object({
         id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
         decimals: z.number().optional(),
         unitName: z.string().optional(),
-        clawback: z.string().optional(),
+        clawback: optionalAddressOrNfdFieldSchema,
       })
       .superRefine((asset, ctx) => {
         if (asset.decimals === undefined) {
@@ -55,7 +61,7 @@ const formSchema = z
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   })
   .superRefine((data, ctx) => {
-    if (data.asset.clawback && data.sender && data.sender !== data.asset.clawback) {
+    if (data.asset.clawback && data.sender && data.sender.address !== data.asset.clawback.address) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Must be the clawback account of the asset',

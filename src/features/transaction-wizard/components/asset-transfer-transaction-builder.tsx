@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressOrNfdFieldSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,7 +17,6 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
@@ -34,7 +33,7 @@ const formSchema = {
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
       unitName: z.string().optional(),
-      clawback: z.string().optional(),
+      clawback: optionalAddressOrNfdFieldSchema,
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -115,7 +114,12 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
+        setValue(
+          'asset.clawback',
+          loadableAssetSummary.state === 'hasData' && loadableAssetSummary.data.clawback
+            ? { value: loadableAssetSummary.data.clawback.value, address: loadableAssetSummary.data.clawback.address }
+            : { value: undefined, address: undefined }
+        )
         trigger('asset')
       }
       if (initialAssetLoad) {
@@ -168,8 +172,14 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
-        receiver: transaction.receiver,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
+        receiver: {
+          value: transaction.receiver.value,
+          address: transaction.receiver.address,
+        },
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -178,7 +188,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? { value: activeAddress, address: activeAddress } : undefined,
       fee: {
         setAutomatically: true,
       },

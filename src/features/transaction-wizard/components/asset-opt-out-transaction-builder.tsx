@@ -1,6 +1,6 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressAndNfdFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
-import { z } from 'zod'
+import { addressOrNfdFieldSchema, commonSchema, optionalAddressOrNfdFieldSchema, senderFieldSchema } from '../data/common'
+import { optional, z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
 import { FormActions } from '@/features/forms/components/form-actions'
@@ -25,13 +25,13 @@ import { TransactionBuilderAddressField } from './transaction-builder-address-fi
 const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
-  closeRemainderTo: addressAndNfdFieldSchema,
+  closeRemainderTo: addressOrNfdFieldSchema,
   asset: z
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
       unitName: z.string().optional(),
-      clawback: z.string().optional(),
+      clawback: optionalAddressOrNfdFieldSchema,
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -161,15 +161,21 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
-        closeRemainderTo: transaction.closeRemainderTo,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
+        closeRemainderTo: {
+          value: transaction.closeRemainderTo.value,
+          address: transaction.closeRemainderTo.address,
+        },
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? { value: activeAddress, address: activeAddress } : undefined,
       fee: {
         setAutomatically: true,
       },

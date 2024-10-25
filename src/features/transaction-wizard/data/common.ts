@@ -43,6 +43,21 @@ export const addressOrNfdFieldSchema = z
     }
   })
 
+export const optionalAddressOrNfdFieldSchema = z
+  .object({
+    value: addressAndNfdFieldSchema,
+    address: zfd.text(),
+  })
+  .superRefine((addressOrNfd, ctx) => {
+    if (addressOrNfd.address && !isAddress(addressOrNfd.address)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: invalidAddressMessage,
+        path: ['value'],
+      })
+    }
+  })
+
 export const senderFieldSchema = {
   sender: addressOrNfdFieldSchema,
 }

@@ -60,7 +60,10 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: transaction.sender,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
         onComplete: transaction.onComplete.toString(),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -72,7 +75,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? { value: activeAddress, address: activeAddress } : undefined,
       onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
       fee: {
         setAutomatically: true,

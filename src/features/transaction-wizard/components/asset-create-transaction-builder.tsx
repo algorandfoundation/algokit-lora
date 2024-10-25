@@ -1,5 +1,5 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, optionalAddressOrNfdFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -12,7 +12,6 @@ import { Form } from '@/features/forms/components/form'
 import { BuildableTransactionType, BuildAssetCreateTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderAddressField } from './transaction-builder-address-field'
@@ -27,10 +26,10 @@ const formSchema = {
   url: zfd.text(z.string().optional()),
   metadataHash: zfd.text(z.string().optional()),
   defaultFrozen: z.boolean().optional(),
-  manager: optionalAddressFieldSchema,
-  reserve: optionalAddressFieldSchema,
-  freeze: optionalAddressFieldSchema,
-  clawback: optionalAddressFieldSchema,
+  manager: optionalAddressOrNfdFieldSchema,
+  reserve: optionalAddressOrNfdFieldSchema,
+  freeze: optionalAddressOrNfdFieldSchema,
+  clawback: optionalAddressOrNfdFieldSchema,
 }
 
 const formData = zfd.formData(formSchema)
@@ -149,11 +148,26 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
         unitName: transaction.unitName,
         total: transaction.total,
         decimals: transaction.decimals,
-        sender: transaction.sender,
-        manager: transaction.manager,
-        reserve: transaction.reserve,
-        freeze: transaction.freeze,
-        clawback: transaction.clawback,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
+        manager: {
+          value: transaction.manager?.value,
+          address: transaction.manager?.address,
+        },
+        reserve: {
+          value: transaction.reserve?.value,
+          address: transaction.reserve?.address,
+        },
+        freeze: {
+          value: transaction.freeze?.value,
+          address: transaction.freeze?.address,
+        },
+        clawback: {
+          value: transaction.clawback?.value,
+          address: transaction.clawback?.address,
+        },
         defaultFrozen: transaction.defaultFrozen,
         url: transaction.url,
         metadataHash: transaction.metadataHash,
@@ -164,7 +178,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? { value: activeAddress, address: activeAddress } : undefined,
       fee: {
         setAutomatically: true,
       },

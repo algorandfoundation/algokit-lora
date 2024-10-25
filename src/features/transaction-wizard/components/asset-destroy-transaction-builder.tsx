@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressOrNfdFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,7 +17,6 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { ellipseAddress } from '@/utils/ellipse-address'
@@ -33,7 +32,7 @@ const formSchema = {
     .object({
       id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
       decimals: z.number().optional(),
-      manager: z.string().optional(),
+      manager: optionalAddressOrNfdFieldSchema,
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -173,7 +172,10 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

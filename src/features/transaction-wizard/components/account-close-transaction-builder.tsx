@@ -1,5 +1,11 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressAndNfdFieldSchema, commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import {
+  addressAndNfdFieldSchema,
+  addressOrNfdFieldSchema,
+  commonSchema,
+  optionalAddressFieldSchema,
+  senderFieldSchema,
+} from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -24,8 +30,8 @@ const formSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
-    closeRemainderTo: addressAndNfdFieldSchema,
-    receiver: optionalAddressFieldSchema,
+    closeRemainderTo: addressOrNfdFieldSchema,
+    receiver: addressOrNfdFieldSchema,
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001).optional()),
   })
   .superRefine((data, ctx) => {
@@ -75,9 +81,18 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
-        closeRemainderTo: transaction.closeRemainderTo,
-        receiver: transaction.receiver,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
+        closeRemainderTo: {
+          value: transaction.closeRemainderTo?.value,
+          address: transaction.closeRemainderTo?.address,
+        },
+        rreceiver: {
+          value: transaction.receiver?.value,
+          address: transaction.receiver?.address,
+        },
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -85,7 +100,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? { value: activeAddress, address: activeAddress } : undefined,
       fee: {
         setAutomatically: true,
       },
