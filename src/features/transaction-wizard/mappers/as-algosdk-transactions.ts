@@ -13,6 +13,8 @@ import {
   BuildAssetDestroyTransactionResult,
   BuildMethodCallTransactionResult,
   BuildAccountCloseTransactionResult,
+  BuildAssetFreezeTransactionResult,
+  BuildKeyRegistrationTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -23,11 +25,14 @@ import {
   AssetConfigParams,
   AssetCreateParams,
   AssetDestroyParams,
+  AssetFreezeParams,
   AssetTransferParams,
+  OnlineKeyRegistrationParams,
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { Buffer } from 'buffer'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -49,6 +54,12 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   }
   if (transaction.type === BuildableTransactionType.AssetDestroy) {
     return [await asAssetDestroyTransaction(transaction)]
+  }
+  if (transaction.type === BuildableTransactionType.AssetFreeze) {
+    return [await asAssetFreezeTransaction(transaction)]
+  }
+  if (transaction.type === BuildableTransactionType.KeyRegistration) {
+    return [await asKeyRegistrationTransaction(transaction)]
   }
   if (transaction.type === BuildableTransactionType.MethodCall) {
     return await asMethodCallTransactions(transaction)
@@ -199,7 +210,7 @@ export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTran
     assetName: transaction.assetName,
     unitName: transaction.unitName,
     url: transaction.url,
-    metadataHash: transaction.metadataHash,
+    metadataHash: transaction.metadataHash ? new Uint8Array(Buffer.from(transaction.metadataHash, 'base64')) : undefined,
     defaultFrozen: transaction.defaultFrozen,
     manager: transaction.manager,
     reserve: transaction.reserve,
@@ -259,6 +270,58 @@ export const asAssetConfigTransactionParams = (
   }
 }
 
+export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTransactionResult): AssetFreezeParams => {
+  return {
+    sender: transaction.sender,
+    assetId: BigInt(transaction.asset.id),
+    account: transaction.freezeTarget,
+    frozen: transaction.frozen,
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<algosdk.Transaction> => {
+  if (!transaction.asset.freeze || transaction.sender !== transaction.asset.freeze) {
+    throw new Error('Invalid freeze transaction')
+  }
+
+  const params = asAssetFreezeTransactionParams(transaction)
+  return await algorandClient.createTransaction.assetFreeze(params)
+}
+
+export const asKeyRegistrationTransactionParams = (transaction: BuildKeyRegistrationTransactionResult): OnlineKeyRegistrationParams => {
+  return {
+    sender: transaction.sender,
+    voteKey: transaction.voteKey ? Uint8Array.from(Buffer.from(transaction.voteKey, 'base64')) : (undefined as unknown as Uint8Array),
+    selectionKey: transaction.selectionKey
+      ? Uint8Array.from(Buffer.from(transaction.selectionKey, 'base64'))
+      : (undefined as unknown as Uint8Array),
+    stateProofKey: transaction.stateProofKey
+      ? Uint8Array.from(Buffer.from(transaction.stateProofKey, 'base64'))
+      : (undefined as unknown as Uint8Array),
+    voteFirst: transaction.voteFirstValid ? transaction.voteFirstValid : 0n,
+    voteLast: transaction.voteLastValid ? transaction.voteLastValid : 0n,
+    voteKeyDilution: transaction.voteKeyDilution ? transaction.voteKeyDilution : 0n,
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+
+const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTransactionResult): Promise<algosdk.Transaction> => {
+  const params = asKeyRegistrationTransactionParams(transaction)
+  const txn = await algorandClient.createTransaction.onlineKeyRegistration(params)
+
+  if (!transaction.online) {
+    txn.voteFirst = undefined as unknown as number
+    txn.voteLast = undefined as unknown as number
+    txn.voteKeyDilution = undefined as unknown as number
+  }
+
+  return txn
+}
+
 const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
   !fee.setAutomatically && fee.value ? { staticFee: algos(fee.value) } : undefined
 
@@ -287,6 +350,10 @@ export const asAbiTransactionType = (type: BuildableTransactionType) => {
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
       return algosdk.ABITransactionType.acfg
+    case BuildableTransactionType.AssetFreeze:
+      return algosdk.ABITransactionType.afrz
+    case BuildableTransactionType.KeyRegistration:
+      return algosdk.ABITransactionType.keyreg
     default:
       return algosdk.ABITransactionType.any
   }

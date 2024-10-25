@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -9,7 +9,7 @@ import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from './transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from './transaction-builder-valid-round-field'
 import { Form } from '@/features/forms/components/form'
-import { BuildableTransactionType, BuildAssetReconfigureTransactionResult } from '../models'
+import { BuildableTransactionType, BuildAssetFreezeTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { AssetSummary } from '@/features/assets/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -21,17 +21,20 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
 
 const formSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
+    freezeTarget: addressFieldSchema,
+    frozen: z.string(),
     asset: z
       .object({
         id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
-        decimals: z.number().optional(), // This field is used to determine if an asset has been resolved
+        decimals: z.number().optional(),
         unitName: z.string().optional(),
-        manager: z.string().optional(),
+        freeze: z.string().optional(),
       })
       .superRefine((asset, ctx) => {
         if (asset.decimals === undefined) {
@@ -40,24 +43,20 @@ const formSchema = z
             message: 'Asset does not exist',
             path: ['id'],
           })
-        } else if (asset.id && asset.decimals !== undefined && !asset.manager) {
+        } else if (asset.freeze === undefined) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: 'Asset cannot be reconfigured',
+            message: 'Asset cannot be frozen or unfrozen',
             path: ['id'],
           })
         }
       }),
-    manager: optionalAddressFieldSchema,
-    reserve: optionalAddressFieldSchema,
-    freeze: optionalAddressFieldSchema,
-    clawback: optionalAddressFieldSchema,
   })
   .superRefine((data, ctx) => {
-    if (data.asset.manager && data.sender && data.sender !== data.asset.manager) {
+    if (data.asset.freeze && data.sender && data.sender !== data.asset.freeze) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Must be the manager account of the asset',
+        message: 'Must be the freeze account of the asset',
         path: ['sender'],
       })
     }
@@ -70,43 +69,35 @@ type FormFieldsProps = {
   asset?: AssetSummary
 }
 
+const freezeOptions = [
+  { value: 'true', label: freezeAssetLabel },
+  { value: 'false', label: unfreezeAssetLabel },
+]
+
 function FormFields({ helper, asset }: FormFieldsProps) {
   return (
     <>
       {helper.numberField({
         field: 'asset.id',
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
-        helpText: 'The asset to be reconfigured',
+        helpText: 'The asset to be frozen',
       })}
       {helper.textField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The manager account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The freeze account of the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.textField({
-        field: 'manager',
-        label: 'Manager',
-        helpText: "Account that can re-configure and destroy the asset. If empty, the asset can't be re-configured",
+        field: 'freezeTarget',
+        label: 'Freeze target',
+        helpText: 'Account the asset will be frozen or unfrozen in',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
-        field: 'reserve',
-        label: 'Reserve',
-        helpText: "Account that holds the reserve units of the asset. If empty, this address can't be changed",
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'freeze',
-        label: 'Freeze',
-        helpText: "Account that can freeze the asset. If empty, assets can't be frozen and this address can't be changed",
-        placeholder: ZERO_ADDRESS,
-      })}
-      {helper.textField({
-        field: 'clawback',
-        label: 'Clawback',
-        helpText: "Account that can claw back the asset. If empty, assets can't be clawed back and this address can't be changed",
-        placeholder: ZERO_ADDRESS,
+      {helper.radioGroupField({
+        field: 'frozen',
+        label: 'Action',
+        options: freezeOptions,
       })}
       <TransactionBuilderFeeField />
       <TransactionBuilderValidRoundField />
@@ -145,22 +136,18 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 
   useEffect(() => {
     if (loadableAssetSummary.state !== 'loading') {
-      // This logic prevents any default values being overridden on load when a transaction is edited
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
-        setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-        setValue('manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-        setValue('reserve', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.reserve : undefined)
-        setValue('freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
-        setValue('clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
-        trigger()
+        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze ?? '' : '')
+        setValue('asset.freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
+        trigger('asset')
       }
       if (initialAssetLoad) {
         setInitialAssetLoad(false)
       }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadableAssetSummary])
 
@@ -179,23 +166,21 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 
 type Props = {
   mode: TransactionBuilderMode
-  transaction?: BuildAssetReconfigureTransactionResult
-  onSubmit: (transaction: BuildAssetReconfigureTransactionResult) => void
+  transaction?: BuildAssetFreezeTransactionResult
+  onSubmit: (transaction: BuildAssetFreezeTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
+export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
-        type: BuildableTransactionType.AssetReconfigure,
+        type: BuildableTransactionType.AssetFreeze,
         asset: data.asset,
         sender: data.sender,
-        manager: data.manager,
-        reserve: data.reserve,
-        freeze: data.freeze,
-        clawback: data.clawback,
+        freezeTarget: data.freezeTarget,
+        frozen: data.frozen === 'true' ? true : false,
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
@@ -208,17 +193,16 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
       return {
         asset: transaction.asset,
         sender: transaction.sender,
-        manager: transaction.manager,
-        reserve: transaction.reserve,
-        freeze: transaction.freeze,
-        clawback: transaction.clawback,
+        freezeTarget: transaction.freezeTarget,
+        frozen: transaction.frozen ? 'true' : 'false',
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
       }
     }
     return {
-      // We don't want to populate activeAddress as the sender, as the asset manager address is what's needed
+      // We don't want to populate activeAddress as the sender, as the asset freeze address is what's needed
+      frozen: 'true',
       fee: {
         setAutomatically: true,
       },

@@ -7,10 +7,12 @@ import {
   BuildAssetClawbackTransactionResult,
   BuildAssetCreateTransactionResult,
   BuildAssetDestroyTransactionResult,
+  BuildAssetFreezeTransactionResult,
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
   BuildAssetReconfigureTransactionResult,
   BuildAssetTransferTransactionResult,
+  BuildKeyRegistrationTransactionResult,
   BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
@@ -28,7 +30,9 @@ import { TransactionType } from '@/features/transactions/models'
 import {
   asAppCallTransactionParams,
   asAssetConfigTransactionParams,
+  asAssetFreezeTransactionParams,
   asAssetTransferTransactionParams,
+  asKeyRegistrationTransactionParams,
   asPaymentTransactionParams,
 } from './as-algosdk-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
@@ -67,6 +71,12 @@ export const asDescriptionListItems = (
     transaction.type === BuildableTransactionType.AssetDestroy
   ) {
     return asAssetConfigTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.AssetFreeze) {
+    return asAssetFreezeTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.KeyRegistration) {
+    return asKeyRegistrationTransaction(transaction)
   }
 
   throw new Error('Unsupported transaction type')
@@ -260,13 +270,81 @@ const asAssetConfigTransaction = (
           },
         ]
       : []),
-    ...('defaultFrozen' in params && params.defaultFrozen
-      ? [{ dt: 'Freeze holdings of this asset by default', dd: params.defaultFrozen.toString() }]
-      : []),
+    ...('defaultFrozen' in params && params.defaultFrozen ? [{ dt: 'Freeze by default', dd: params.defaultFrozen.toString() }] : []),
     ...('url' in params && params.url ? [{ dt: 'URL', dd: params.url }] : []),
-    ...('metadataHash' in params && params.metadataHash && typeof params.metadataHash === 'string'
-      ? [{ dt: 'Metadata hash', dd: params.metadataHash }]
+    ...('metadataHash' in transaction && transaction.metadataHash
+      ? [{ dt: 'Metadata hash', dd: transaction.metadataHash.toString() }]
       : []),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
+  ]
+}
+
+const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult): DescriptionListItems => {
+  const params = asAssetFreezeTransactionParams(transaction)
+
+  return [
+    {
+      dt: 'Asset ID',
+      dd: (
+        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
+          {Number(params.assetId)}
+        </AssetIdLink>
+      ),
+    },
+    {
+      dt: 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
+    },
+    ...('account' in params && params.account
+      ? [
+          {
+            dt: 'Freeze target',
+            dd: (
+              <AccountLink className="text-primary underline" address={params.account}>
+                {params.account}
+              </AccountLink>
+            ),
+          },
+        ]
+      : []),
+    {
+      dt: 'Action',
+      dd: params.frozen ? freezeAssetLabel : unfreezeAssetLabel,
+    },
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
+  ]
+}
+
+const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransactionResult): DescriptionListItems => {
+  const params = asKeyRegistrationTransactionParams(transaction)
+
+  return [
+    {
+      dt: 'Sender',
+      dd: (
+        <AccountLink className="text-primary underline" address={params.sender}>
+          {params.sender}
+        </AccountLink>
+      ),
+    },
+    {
+      dt: 'Registration',
+      dd: transaction.online ? onlineKeyRegistrationLabel : offlineKeyRegistrationLabel,
+    },
+    ...(params.voteKey ? [{ dt: 'Voting key', dd: Buffer.from(params.voteKey).toString('base64') }] : []),
+    ...(params.selectionKey ? [{ dt: 'Selection key', dd: Buffer.from(params.selectionKey).toString('base64') }] : []),
+    ...(params.stateProofKey ? [{ dt: 'State proof key', dd: Buffer.from(params.stateProofKey).toString('base64') }] : []),
+    ...(params.voteFirst ? [{ dt: 'First voting round', dd: params.voteFirst }] : []),
+    ...(params.voteLast ? [{ dt: 'Last voting round', dd: params.voteLast }] : []),
+    ...(params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
@@ -618,7 +696,16 @@ export const asTransactionLabelFromBuildableTransactionType = (type: BuildableTr
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
       return TransactionType.AssetConfig
+    case BuildableTransactionType.AssetFreeze:
+      return TransactionType.AssetFreeze
+    case BuildableTransactionType.KeyRegistration:
+      return TransactionType.KeyReg
     default:
       return 'Transaction'
   }
 }
+
+export const freezeAssetLabel = 'Freeze asset'
+export const unfreezeAssetLabel = 'Unfreeze asset'
+export const onlineKeyRegistrationLabel = 'Online'
+export const offlineKeyRegistrationLabel = 'Offline'

@@ -11,6 +11,7 @@ import { AbiStaticArrayFormItem, AbiStaticArrayFormItemProps } from '@/features/
 import { AbiTupleFormItem, AbiTupleFormItemProps } from '@/features/forms/components/abi-tuple-form-item'
 import { TransactionFormItem, TransactionFormItemProps } from './transaction-form-item'
 import { ArrayFormItem, ArrayFormItemProps } from './array-form-item'
+import { RadioGroupFormItem, RadioGroupFormItemProps } from './radio-group-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -76,5 +77,9 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   arrayField(props: ArrayFormItemProps<TSchema>) {
     return <ArrayFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  radioGroupField(props: RadioGroupFormItemProps<TSchema>) {
+    return <RadioGroupFormItem {...this.prefixFieldProp(props)} />
   }
 }

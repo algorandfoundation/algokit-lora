@@ -244,6 +244,7 @@ export type BaseKeyRegTransaction = CommonTransactionProperties & {
   voteKeyDilution?: number
   voteLastValid?: number
   voteParticipationKey?: string
+  stateProofKey?: string
 }
 
 export enum KeyRegTransactionSubType {

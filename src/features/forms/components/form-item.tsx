@@ -16,6 +16,7 @@ export interface FormItemProps<TSchema extends Record<string, unknown> = Record<
   fullWidth?: boolean
   helpText?: string | ReactElement
   required?: boolean
+  noFor?: boolean
 }
 
 export function FormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
@@ -25,6 +26,7 @@ export function FormItem<TSchema extends Record<string, unknown> = Record<string
   helpText,
   children,
   required: explicitRequired,
+  noFor = false,
 }: FormItemProps<TSchema>) {
   const error = useFormFieldError(field)
   const { required: inferredRequired } = useFieldMetadata(field)
@@ -32,7 +34,7 @@ export function FormItem<TSchema extends Record<string, unknown> = Record<string
 
   return (
     <div className={cn('grid', className)}>
-      <Label htmlFor={field} aria-invalid={Boolean(error)} className="mb-2 ml-0.5 flex">
+      <Label {...(noFor ? {} : { htmlFor: field })} aria-invalid={Boolean(error)} className="mb-2 ml-0.5 flex">
         {label}
         {required && <span className="ml-1 text-error">*</span>}
       </Label>
