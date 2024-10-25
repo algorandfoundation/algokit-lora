@@ -107,11 +107,6 @@ const getReverseLookupNfdAtom = (
   lookup: ReverseNfdLookpup,
   nfdApiUrl: string
 ): WritableAtom<string | Promise<string | null> | null, [SetStateAction<string | Promise<string | null> | null>], void> => {
-  const cached = get(reverseNfdsAtom).get(lookup.address)
-  if (cached) {
-    return cached[0]
-  }
-
   if (lookup.resolveNow) {
     return atom<Promise<Nfd | null> | Nfd | null>(
       getReverseLookupNfdResult(get, set, new Set([lookup.address]), nfdApiUrl).then((nfdResult) => {
