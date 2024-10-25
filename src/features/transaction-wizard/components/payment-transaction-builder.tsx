@@ -12,7 +12,6 @@ import { Form } from '@/features/forms/components/form'
 import { BuildableTransactionType, BuildPaymentTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderAddressField } from './transaction-builder-address-field'
@@ -54,8 +53,14 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
-        receiver: transaction.receiver,
+        sender: {
+          value: transaction.sender.value,
+          address: transaction.sender.address,
+        },
+        receiver: {
+          value: transaction.receiver.value,
+          address: transaction.receiver.address,
+        },
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -64,7 +69,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? { value: activeAddress, address: activeAddress } : undefined,
       fee: {
         setAutomatically: true,
       },

@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { addressAndNfdFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,7 +17,6 @@ import { useFormContext, UseFormReturn } from 'react-hook-form'
 import { useLoadableAssetSummaryAtom } from '@/features/assets/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AssetId } from '@/features/assets/data/types'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
@@ -30,7 +29,7 @@ const formSchema = z
     ...commonSchema,
     ...senderFieldSchema,
     ...receiverFieldSchema,
-    clawbackTarget: addressFieldSchema,
+    clawbackTarget: addressAndNfdFieldSchema,
     asset: z
       .object({
         id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),

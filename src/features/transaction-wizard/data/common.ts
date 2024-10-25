@@ -17,14 +17,39 @@ export const optionalAddressFieldSchema = zfd
   .refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
     message: invalidAddressMessage,
   })
-export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
+export const addressAndNfdFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
   message: invalidAddressMessage,
 })
 
-export const senderFieldSchema = { sender: addressFieldSchema }
+export const addressOrNfdFieldSchema = z
+  .object({
+    value: addressAndNfdFieldSchema,
+    address: zfd.text(),
+  })
+  .superRefine((addressOrNfd, ctx) => {
+    if (!addressOrNfd.value) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: requiredMessage,
+        path: ['value'],
+      })
+    }
+    if (!addressOrNfd.address || !isAddress(addressOrNfd.address)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: requiredMessage,
+        path: ['value'],
+      })
+    }
+  })
 
-export const receiverFieldSchema = { receiver: addressFieldSchema }
+export const senderFieldSchema = {
+  sender: addressOrNfdFieldSchema,
+}
 
+export const receiverFieldSchema = {
+  receiver: addressOrNfdFieldSchema,
+}
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }
 
 export const feeFieldSchema = {
@@ -152,8 +177,8 @@ const fixedEmptyTransactionSigner: algosdk.TransactionSigner = async (txns: algo
 export const commonAddressSchema = {
   ...senderFieldSchema,
   ...receiverFieldSchema,
-  closeRemainderTo: addressFieldSchema,
-  clawbackTarget: addressFieldSchema,
+  closeRemainderTo: addressAndNfdFieldSchema,
+  clawbackTarget: addressAndNfdFieldSchema,
   manager: optionalAddressFieldSchema,
   reserve: optionalAddressFieldSchema,
   freeze: optionalAddressFieldSchema,

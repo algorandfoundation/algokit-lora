@@ -6,7 +6,7 @@ import { FieldPath, Path } from 'react-hook-form'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { addressAndNfdFieldSchema } from '@/features/transaction-wizard/data/common'
 import { ArgumentField, MethodForm, TransactionArgumentField } from '@/features/transaction-wizard/models'
 import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
@@ -60,7 +60,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
-    return isOptional ? addressFieldSchema.optional() : addressFieldSchema
+    return isOptional ? addressAndNfdFieldSchema.optional() : addressAndNfdFieldSchema
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
@@ -85,7 +85,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     return numberSchema(z.number().min(0))
   }
   if (type === algosdk.ABIReferenceType.account) {
-    return addressFieldSchema
+    return addressAndNfdFieldSchema
   }
   if (algosdk.abiTypeIsReference(type)) {
     const min = type === algosdk.ABIReferenceType.asset ? 0 : 1

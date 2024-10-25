@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { addressAndNfdFieldSchema, commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -12,7 +12,6 @@ import { Form } from '@/features/forms/components/form'
 import { BuildableTransactionType, BuildAccountCloseTransactionResult } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
-import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { TransactionBuilderAddressField } from './transaction-builder-address-field'
@@ -25,7 +24,7 @@ const formSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
-    closeRemainderTo: addressFieldSchema,
+    closeRemainderTo: addressAndNfdFieldSchema,
     receiver: optionalAddressFieldSchema,
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001).optional()),
   })
