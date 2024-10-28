@@ -3,6 +3,7 @@ import { Plus, TrashIcon } from 'lucide-react'
 import React, { useCallback } from 'react'
 import { FieldArray, FieldArrayWithId, FieldPath, FieldValues, Path, useFieldArray } from 'react-hook-form'
 import { FormItemProps } from './form-item'
+import { cn } from '@/features/common/utils'
 
 export interface ArrayFormItemProps<TSchema extends Record<string, unknown> = Record<string, unknown>>
   extends Omit<FormItemProps<TSchema>, 'children'> {
@@ -12,6 +13,7 @@ export interface ArrayFormItemProps<TSchema extends Record<string, unknown> = Re
   max?: number
   addButtonLabel?: string
   noItemsLabel?: string
+  deleteButtonClassName?: string
 }
 
 export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<string, unknown>>({
@@ -22,6 +24,7 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
   max,
   addButtonLabel = 'Add',
   noItemsLabel = 'No items.',
+  deleteButtonClassName,
 }: ArrayFormItemProps<TSchema>) {
   const { fields, append, remove } = useFieldArray({
     name: field,
@@ -57,7 +60,7 @@ export function ArrayFormItem<TSchema extends Record<string, unknown> = Record<s
           <div className="grow">{renderChildField(childField, index)}</div>
           <Button
             type="button"
-            className="mt-6"
+            className={cn('mt-6', deleteButtonClassName)}
             variant="destructive"
             size="sm"
             onClick={() => remove(index)}

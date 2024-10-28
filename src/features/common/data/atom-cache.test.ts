@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createReadOnlyAtomAndTimestamp, createTimestamp, readOnlyAtomCache, writableAtomCache } from './atom-cache'
 import { atom, Atom, Getter, SetStateAction, Setter, WritableAtom } from 'jotai'
+import { shortId } from '@/utils/short-id'
 
 const myStore = await vi.hoisted(async () => {
   const { createStore } = await import('jotai/index')
@@ -16,15 +17,13 @@ vi.mock('@/features/common/data/data-store', async () => {
 })
 
 describe('atom-cache', () => {
-  const asShortId = (date: Date) => Number(date).toString(36).toUpperCase()
-
   afterEach(async () => {
     vi.resetAllMocks()
   })
 
   describe('readonly atom cache', () => {
     const atomInitialiser = (_: Getter, __: Setter, date: Date) => {
-      return asShortId(date)
+      return shortId(date)
     }
 
     it('can add an item', () => {
@@ -36,7 +35,7 @@ describe('atom-cache', () => {
 
       myStore.set(myThingsAtom, (prev) => {
         const next = new Map(prev)
-        next.set(dateEpoch, createReadOnlyAtomAndTimestamp(asShortId(date)))
+        next.set(dateEpoch, createReadOnlyAtomAndTimestamp(shortId(date)))
         return next
       })
 
@@ -53,7 +52,7 @@ describe('atom-cache', () => {
       const [myThingsAtom, getMyThingAtom] = readOnlyAtomCache(
         atomInitialiser,
         (date) => Number(date),
-        new Map<number, readonly [Atom<string>, number]>([[dateEpoch, [atom(() => asShortId(date)), 1723999500000]]])
+        new Map<number, readonly [Atom<string>, number]>([[dateEpoch, [atom(() => shortId(date)), 1723999500000]]])
       )
 
       const myThingAtom = getMyThingAtom(date)
@@ -85,7 +84,7 @@ describe('atom-cache', () => {
 
   describe('writeable atom cache', () => {
     const atomInitialiser = (_: Getter, __: Setter, date: Date) => {
-      return atom(asShortId(date))
+      return atom(shortId(date))
     }
 
     it('can add an item', () => {
@@ -100,7 +99,7 @@ describe('atom-cache', () => {
 
       myStore.set(myThingsAtom, (prev) => {
         const next = new Map(prev)
-        next.set(dateEpoch, createWritableAtomAndTimestamp(asShortId(date)))
+        next.set(dateEpoch, createWritableAtomAndTimestamp(shortId(date)))
         return next
       })
 
@@ -118,7 +117,7 @@ describe('atom-cache', () => {
         atomInitialiser,
         (date) => Number(date),
         new Map<number, readonly [WritableAtom<string, [SetStateAction<string>], void>, number]>([
-          [dateEpoch, [atom(asShortId(date)), 1723999500000]],
+          [dateEpoch, [atom(shortId(date)), 1723999500000]],
         ])
       )
 
@@ -138,7 +137,7 @@ describe('atom-cache', () => {
         atomInitialiser,
         (date) => Number(date),
         new Map<number, readonly [WritableAtom<string, [SetStateAction<string>], void>, number]>([
-          [dateEpoch, [atom(asShortId(date)), 1723999500000]],
+          [dateEpoch, [atom(shortId(date)), 1723999500000]],
         ])
       )
 

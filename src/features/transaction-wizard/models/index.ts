@@ -76,7 +76,7 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   accounts?: Address[]
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]
-  boxes?: string[]
+  boxes?: (readonly [ApplicationId, string])[]
   onComplete:
     | algosdk.OnApplicationComplete.NoOpOC
     | algosdk.OnApplicationComplete.OptInOC
@@ -94,7 +94,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   accounts?: Address[]
   foreignAssets?: AssetId[]
   foreignApps?: ApplicationId[]
-  boxes?: string[]
+  boxes?: (readonly [ApplicationId, string])[]
   onComplete:
     | algosdk.OnApplicationComplete.NoOpOC
     | algosdk.OnApplicationComplete.OptInOC

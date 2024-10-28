@@ -197,8 +197,8 @@ export function TransactionsBuilder({
               accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
               assets: transactionWithResources.txn.appForeignAssets ?? [],
               applications: transactionWithResources.txn.appForeignApps ?? [],
-              boxes: transactionWithResources.txn.boxes?.map((box) => uint8ArrayToBase64(box.name)) ?? [],
-            }
+              boxes: transactionWithResources.txn.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ?? [],
+            } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }
         }
