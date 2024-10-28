@@ -108,7 +108,10 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
-    boxReferences: transaction.boxes ?? [],
+    boxReferences:
+      transaction.boxes?.map(([appId, boxName]) => {
+        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+      }) ?? [],
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),
@@ -140,7 +143,10 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
     assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
-    boxReferences: transaction.boxes ?? [],
+    boxReferences:
+      transaction.boxes?.map(([appId, boxName]) => {
+        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+      }) ?? [],
     note: transaction.note,
     ...asFee(transaction.fee),
     ...asValidRounds(transaction.validRounds),

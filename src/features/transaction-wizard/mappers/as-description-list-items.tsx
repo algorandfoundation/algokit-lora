@@ -38,6 +38,7 @@ import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
 import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
+import { AbiType } from '@/features/abi-methods/models'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -548,12 +549,46 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
               <span>[</span>
               {boxes && boxes.length > 0 && (
                 <ol className="pl-4">
-                  {boxes?.map((boxKey, index, array) => (
-                    <li key={index} className="truncate">
-                      {boxKey.toString()}
-                      {index < array.length - 1 ? <span>{', '}</span> : null}
-                    </li>
-                  ))}
+                  {boxes?.map((box, index, array) => {
+                    if (typeof box === 'object' && 'appId' in box && typeof box.name !== 'string' && !('addr' in box.name)) {
+                      const encodedBoxName = Buffer.from(box.name).toString('base64')
+                      return (
+                        <li key={index} className="truncate">
+                          <span>[</span>
+                          {box.appId > 0 ? (
+                            <ApplicationLink className="text-primary underline" applicationId={Number(box.appId)}>
+                              {Number(box.appId)}
+                            </ApplicationLink>
+                          ) : (
+                            <AbiValue
+                              abiValue={{
+                                type: AbiType.Uint,
+                                value: 0n,
+                                multiline: false,
+                                length: 1,
+                              }}
+                            />
+                          )}
+                          <span>{', '}</span>
+                          <AbiValue
+                            abiValue={{
+                              type: AbiType.String,
+                              value: encodedBoxName,
+                              multiline: false,
+                              length: encodedBoxName.length,
+                            }}
+                          />
+                          <span>]</span>
+                          {index < array.length - 1 ? <span>{', '}</span> : null}
+                        </li>
+                      )
+                    }
+                    return (
+                      <li key={index} className="truncate">
+                        unknown
+                      </li>
+                    )
+                  })}
                 </ol>
               )}
               <span>]</span>

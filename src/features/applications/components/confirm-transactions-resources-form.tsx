@@ -8,12 +8,14 @@ import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
+import { ApplicationId } from '../data/types'
+import { randomGuid } from '@/utils/random-guid'
 
 export type TransactionResources = {
   accounts: Address[]
   assets: number[]
   applications: number[]
-  boxes: string[]
+  boxes: (readonly [ApplicationId, string])[]
 }
 
 type Props = {
@@ -26,27 +28,30 @@ const formSchema = zfd.formData({
   accounts: zfd.repeatable(z.array(z.object({ id: z.string(), address: addressFieldSchema })).max(4)),
   assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })).max(8)),
   applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })).max(8)),
-  boxes: zfd.repeatable(z.array(z.object({ id: z.string(), boxName: zfd.text() })).max(8)),
+  boxes: zfd.repeatable(
+    z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)), boxName: zfd.text(z.string().optional()) })).max(8)
+  ),
 })
 
 export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel }: Props) {
   const defaultValues = useMemo(() => {
     return {
       accounts: (resources.accounts ?? []).map((address) => ({
-        id: address,
+        id: randomGuid(),
         address: address,
       })),
       assets: (resources.assets ?? []).map((asset) => ({
-        id: asset.toString(),
+        id: randomGuid(),
         assetId: asset,
       })),
       applications: (resources.applications ?? []).map((application) => ({
-        id: application.toString(),
+        id: randomGuid(),
         applicationId: application,
       })),
-      boxes: (resources.boxes ?? []).map((box) => ({
-        id: box,
-        boxName: box,
+      boxes: (resources.boxes ?? []).map(([applicationId, boxName]) => ({
+        id: randomGuid(),
+        applicationId,
+        boxName,
       })),
     }
   }, [resources])
@@ -56,7 +61,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
       const accounts = data.accounts.map((account) => account.address)
       const assets = data.assets.map((asset) => asset.assetId)
       const applications = data.applications.map((application) => application.applicationId)
-      const boxes = data.boxes.map((box) => box.boxName)
+      const boxes = data.boxes.map((box) => [box.applicationId, box.boxName ?? ''] as const)
       if (accounts.length + assets.length + applications.length + boxes.length > 8) {
         throw new Error('Total number of references cannot exceed 8')
       }
@@ -93,7 +98,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
                 label: `Account ${index + 1}`,
                 field: `accounts.${index}.address`,
               }),
-            newItem: () => ({ id: new Date().getTime().toString(), address: '' }),
+            newItem: () => ({ id: randomGuid(), address: '' }),
             max: 4,
             addButtonLabel: 'Add Account',
             noItemsLabel: 'No accounts.',
@@ -107,7 +112,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
                 label: `Asset ${index + 1}`,
                 field: `assets.${index}.assetId`,
               }),
-            newItem: () => ({ id: new Date().getTime().toString(), assetId: '' as unknown as number }),
+            newItem: () => ({ id: randomGuid(), assetId: '' as unknown as number }),
             max: 8,
             addButtonLabel: 'Add Asset',
             noItemsLabel: 'No assets.',
@@ -121,7 +126,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
                 label: `Application ${index + 1}`,
                 field: `applications.${index}.applicationId`,
               }),
-            newItem: () => ({ id: new Date().getTime().toString(), applicationId: '' as unknown as number }),
+            newItem: () => ({ id: randomGuid(), applicationId: '' as unknown as number }),
             max: 8,
             addButtonLabel: 'Add Application',
             noItemsLabel: 'No Applications.',
@@ -130,13 +135,26 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
           {helper.arrayField({
             label: 'Boxes',
             field: `boxes`,
-            renderChildField: (_, index) =>
-              helper.textField({
-                label: `Box ${index + 1}`,
-                field: `boxes.${index}.boxName`,
-                helpText: 'A Base64 encoded box name',
-              }),
-            newItem: () => ({ id: new Date().getTime().toString(), boxName: '' }),
+            deleteButtonClassName: 'mt-12',
+            renderChildField: (_, index) => (
+              <div className="flex flex-col gap-1">
+                <span className="ml-0.5 text-sm font-medium">Box {index + 1}</span>
+                <div className="flex gap-2">
+                  {helper.textField({
+                    label: 'Application ID',
+                    field: `boxes.${index}.applicationId`,
+                    className: 'w-1/4 self-start',
+                  })}
+                  {helper.textField({
+                    label: 'Name',
+                    field: `boxes.${index}.boxName`,
+                    helpText: 'A Base64 encoded box name',
+                    className: 'w-3/4 self-start',
+                  })}
+                </div>
+              </div>
+            ),
+            newItem: () => ({ id: randomGuid(), boxName: '' }),
             max: 8,
             addButtonLabel: 'Add Box',
             noItemsLabel: 'No Boxes.',
