@@ -22,6 +22,8 @@ import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
+import { Urls } from '@/routes/urls'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -198,6 +200,16 @@ export function ConnectWalletButton() {
           ) : (
             <ProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
           )
+        )}
+        {networkConfig.id === 'localnet' && (
+          <>
+            <span className="inline-flex justify-center text-sm font-medium">OR</span>
+            <Button variant="link" onClick={() => setDialogOpen(false)}>
+              <TemplatedNavLink urlTemplate={Urls.Fund} queryParams={{ create: true }}>
+                Create a funded dev account
+              </TemplatedNavLink>{' '}
+            </Button>
+          </>
         )}
       </>
     )
