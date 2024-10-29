@@ -8,30 +8,25 @@ export interface TemplatedNavLinkProps<TTemplateParams> {
   title?: string
   urlTemplate: UrlTemplateObj<TTemplateParams>
   urlParams?: Partial<TTemplateParams>
-  queryParams?: Record<string, string | number | boolean>
   children?: ReactNode
   ref?: React.LegacyRef<HTMLAnchorElement>
 }
 
-const buildQueryString = (queryParams?: Record<string, string | number | boolean>) => {
-  if (!queryParams) return ''
-  const queryString = new URLSearchParams(queryParams as Record<string, string>).toString()
-  return queryString ? `?${queryString}` : ''
-}
-
 export const TemplatedNavLink = fixedForwardRef(
   <TTemplateArgs,>(
-    { className, title, urlTemplate, urlParams, queryParams, children, ...rest }: TemplatedNavLinkProps<TTemplateArgs>,
+    { className, title, urlTemplate, urlParams, children, ...rest }: TemplatedNavLinkProps<TTemplateArgs>,
     ref: React.LegacyRef<HTMLAnchorElement>
   ) => {
     const existingParams = useParams()
 
-    const baseUrl = urlTemplate.build({ ...existingParams, ...urlParams } as TTemplateArgs)
-    const queryString = buildQueryString(queryParams)
-    const fullUrl = `${baseUrl}${queryString}`
-
     return (
-      <NavLink ref={ref} title={title} to={fullUrl} className={className} {...rest}>
+      <NavLink
+        ref={ref}
+        title={title}
+        to={urlTemplate.build({ ...existingParams, ...urlParams } as TTemplateArgs)}
+        className={className}
+        {...rest}
+      >
         {children}
       </NavLink>
     )

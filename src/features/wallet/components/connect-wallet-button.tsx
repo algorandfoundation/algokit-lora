@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/feat
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { useNetworkConfig } from '@/features/network/data'
+import { localnetId, useNetworkConfig } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
@@ -22,8 +22,8 @@ import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
+import { useNavigate } from 'react-router-dom'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -138,6 +138,7 @@ export function ConnectWalletButton() {
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
   const networkConfig = useNetworkConfig()
   const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
+  const navigate = useNavigate()
 
   let button = <></>
 
@@ -201,15 +202,20 @@ export function ConnectWalletButton() {
             <ProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
           )
         )}
-        {networkConfig.id === 'localnet' && (
-          <>
-            <span className="inline-flex justify-center text-sm font-medium">OR</span>
-            <Button variant="link" onClick={() => setDialogOpen(false)} className="h-0 pb-4">
-              <TemplatedNavLink urlTemplate={Urls.Fund} queryParams={{ create: true }}>
-                Create a funded dev account
-              </TemplatedNavLink>{' '}
+        {networkConfig.id === localnetId && (
+          <div className="flex flex-col gap-2">
+            <span className="inline-flex justify-center text-sm">OR</span>
+            <Button
+              variant="link"
+              onClick={() => {
+                setDialogOpen(false)
+                navigate({ pathname: Urls.Fund.build({}), search: '?create=true' })
+              }}
+              className="mb-0.5 h-auto p-0"
+            >
+              Create a funded dev account
             </Button>
-          </>
+          </div>
         )}
       </>
     )
