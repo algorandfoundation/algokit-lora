@@ -1,5 +1,5 @@
 import { TemplatedNavLink } from '../../routing/components/templated-nav-link/templated-nav-link'
-import { UrlParams, Urls } from '@/routes/urls'
+import { Urls } from '@/routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/common/components/navigation-menu'
 import { cn } from '@/features/common/utils'
 import { Button } from '@/features/common/components/button'
