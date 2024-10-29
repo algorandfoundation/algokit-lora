@@ -24,6 +24,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const formSchema = {
   ...commonSchema,
@@ -77,7 +78,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
           &nbsp;must hold all units
         </small>
       )}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'The current asset manager address. Sends the transaction and pays the fee',
@@ -122,7 +123,10 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
     if (loadableAssetSummary.state !== 'loading') {
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
-        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
+        setValue(
+          'sender',
+          loadableAssetSummary.state === 'hasData' ? asAddressOrNfd(loadableAssetSummary.data.manager ?? '') : asAddressOrNfd('')
+        )
         setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
         trigger()
       }

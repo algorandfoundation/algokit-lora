@@ -15,6 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const receiverLabel = 'Receiver'
 
@@ -63,7 +64,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -87,13 +88,13 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
     >
       {(helper) => (
         <>
-          {helper.textField({
+          {helper.addressField({
             field: 'sender',
             label: 'Sender',
             helpText: 'Account to pay from. Sends the transaction and pays the fee',
             placeholder: ZERO_ADDRESS,
           })}
-          {helper.textField({
+          {helper.addressField({
             field: 'receiver',
             label: receiverLabel,
             helpText: 'Account to receive the amount',

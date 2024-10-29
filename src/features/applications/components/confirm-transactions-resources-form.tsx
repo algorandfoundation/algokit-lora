@@ -4,12 +4,12 @@ import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { ApplicationId } from '../data/types'
 import { randomGuid } from '@/utils/random-guid'
+import { isAddress } from '@/utils/is-address'
 
 export type TransactionResources = {
   accounts: Address[]
@@ -25,7 +25,18 @@ type Props = {
 }
 
 const formSchema = zfd.formData({
-  accounts: zfd.repeatable(z.array(z.object({ id: z.string(), address: addressFieldSchema })).max(4)),
+  accounts: zfd.repeatable(
+    z
+      .array(
+        z.object({
+          id: z.string(),
+          address: zfd.text().refine((value) => (value ? isAddress(value) : true), {
+            message: 'Invalid address',
+          }),
+        })
+      )
+      .max(4)
+  ),
   assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })).max(8)),
   applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })).max(8)),
   boxes: zfd.repeatable(

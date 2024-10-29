@@ -15,6 +15,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const formSchema = {
   ...commonSchema,
@@ -61,31 +62,31 @@ function FormFields({ helper }: FormFieldsProps) {
         label: 'Decimals',
         helpText: "Set to 0 for a non-divisible asset. Can't be changed after creation",
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Creator',
         helpText: 'Account that creates the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'manager',
         label: 'Manager',
         helpText: "Account that can re-configure and destroy the asset. If empty, the asset can't be re-configured",
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'reserve',
         label: 'Reserve',
         helpText: "Account that holds the reserve units of the asset. If empty, this address can't be changed",
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'freeze',
         label: 'Freeze',
         helpText: "Account that can freeze the asset. If empty, assets can't be frozen and this address can't be changed",
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'clawback',
         label: 'Clawback',
         helpText: "Account that can claw back the asset. If empty, assets can't be clawed back and this address can't be changed",
@@ -132,10 +133,10 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
         total: data.total,
         decimals: data.decimals,
         sender: data.sender,
-        manager: data.manager,
-        reserve: data.reserve,
-        freeze: data.freeze,
-        clawback: data.clawback,
+        manager: asOptionalAddressOrNfd(data.manager),
+        reserve: asOptionalAddressOrNfd(data.reserve),
+        freeze: asOptionalAddressOrNfd(data.freeze),
+        clawback: asOptionalAddressOrNfd(data.clawback),
         defaultFrozen: data.defaultFrozen ?? false,
         url: data.url,
         metadataHash: data.metadataHash,
@@ -168,7 +169,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       fee: {
         setAutomatically: true,
       },
