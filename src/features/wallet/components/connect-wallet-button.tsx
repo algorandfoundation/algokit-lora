@@ -204,7 +204,7 @@ export function ConnectWalletButton() {
         {networkConfig.id === 'localnet' && (
           <>
             <span className="inline-flex justify-center text-sm font-medium">OR</span>
-            <Button variant="link" onClick={() => setDialogOpen(false)}>
+            <Button variant="link" onClick={() => setDialogOpen(false)} className="h-0 pb-4">
               <TemplatedNavLink urlTemplate={Urls.Fund} queryParams={{ create: true }}>
                 Create a funded dev account
               </TemplatedNavLink>{' '}
