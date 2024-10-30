@@ -10,6 +10,7 @@ import { AccountDetails } from '../components/account-details'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useTitle } from '@/utils/use-title'
 
 export const accountPageTitle = 'Account'
 export const accountInvalidAddressMessage = 'Address is invalid'
@@ -29,6 +30,7 @@ export function AccountPage() {
   const { address } = useRequiredParam(UrlParams.Address)
   invariant(isAddress(address), accountInvalidAddressMessage)
   const [loadableAccount, refreshAccount, isStale] = useLoadableAccount(address)
+  useTitle()
 
   const refresh = useCallback(() => {
     refreshAccount()

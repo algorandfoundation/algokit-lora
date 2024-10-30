@@ -9,6 +9,7 @@ import { is404 } from '@/utils/error'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -31,6 +32,7 @@ export function ApplicationPage() {
 
   const applicationId = parseInt(_applicationId, 10)
   const [loadableApplication, refreshApplication, isStale] = useLoadableApplication(applicationId)
+  useTitle()
 
   const refresh = useCallback(() => {
     refreshApplication()

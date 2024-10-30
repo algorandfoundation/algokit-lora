@@ -9,6 +9,7 @@ import { useLoadableAsset } from '../data'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -31,6 +32,7 @@ export function AssetPage() {
 
   const assetId = parseInt(_assetId, 10)
   const [loadableAsset, refreshAsset, isStale] = useLoadableAsset(assetId)
+  useTitle()
 
   const refresh = useCallback(() => {
     refreshAsset()
