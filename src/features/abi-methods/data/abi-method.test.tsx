@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { transactionResultsAtom } from '@/features/transactions/data'
@@ -15,32 +15,15 @@ import { groupResultMother } from '@/tests/object-mother/group-result'
 import { getGroupResultAtom, groupResultsAtom } from '@/features/groups/data'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { writeAppInterface } from '@/features/app-interfaces/data'
-import { genesisHashAtom } from '@/features/blocks/data'
-
-const myStore = await vi.hoisted(async () => {
-  const { getDefaultStore } = await import('jotai/index')
-  const myStore = getDefaultStore()
-  return myStore
-})
-
-vi.mock('@/features/common/data/data-store', async () => {
-  const original = await vi.importActual('@/features/common/data/data-store')
-  return {
-    ...original,
-    dataStore: myStore,
-  }
-})
+import { getTestStore } from '@/tests/utils/get-test-store'
 
 describe('resolving ABI method', () => {
-  beforeEach(() => {
-    myStore.set(genesisHashAtom, 'some-hash')
-  })
-
   describe('for an app call with referenced asset', () => {
     const transaction = transactionResultMother['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']().build()
     const asset = assetResultMother['testnet-705457144']().build()
 
     it('should resolve the correct data with arc32 appspec', async () => {
+      const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
@@ -74,6 +57,7 @@ describe('resolving ABI method', () => {
     })
 
     it('should resolve the correct data with arc4 appspec', async () => {
+      const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
@@ -117,6 +101,7 @@ describe('resolving ABI method', () => {
       .build()
 
     it('should resolve the correct data with arc32 appspec', async () => {
+      const myStore = getTestStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
@@ -163,6 +148,7 @@ describe('resolving ABI method', () => {
     })
 
     it('should resolve the correct data with arc4 appspec', async () => {
+      const myStore = getTestStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
@@ -219,6 +205,7 @@ describe('resolving ABI method', () => {
       .build()
 
     it('should resolve the correct data', async () => {
+      const myStore = getTestStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
@@ -418,6 +405,7 @@ describe('resolving ABI method', () => {
     const transaction = transactionResultMother['testnet-QLQS5F2U2OZJQJVQWZE5F6DKPDMY4LXEKHWE6NFHGTWJJGKKFA7A']().build()
 
     it('should resolve the correct data', async () => {
+      const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       const applicationId = transaction['application-transaction']!['application-id']!
@@ -517,6 +505,7 @@ describe('resolving ABI method', () => {
     const transaction = transactionResultMother['localnet-AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q']().build()
 
     it('abiMethod should be undefined', async () => {
+      const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction, getGroupResultAtom))

@@ -22,6 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formSchema = {
   ...commonSchema,
@@ -139,12 +140,12 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAssetOptOutTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildAssetOptOutTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AssetOptOutTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -172,7 +173,7 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
       }
     }
     return {
-      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -180,7 +181,7 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form
