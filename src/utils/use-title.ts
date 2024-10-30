@@ -7,6 +7,7 @@ const setTitle = (title: string) => {
 
 export const useTitle = (customString?: string) => {
   const urlParams = useParams()
+
   useEffect(() => {
     const currentTitle = document.title
     let pageTitle = `Lora`

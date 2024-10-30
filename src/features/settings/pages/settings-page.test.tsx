@@ -1,13 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import { findByRole, render, waitFor } from '@/tests/testing-library'
 import { SettingsPage } from '@/features/settings/pages/settings-page'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { createNetworkConfigDialogLabel, networkConfigsTableLabel } from '@/features/network/components/network-configs-table'
+import { useParams } from 'react-router-dom'
 
 describe('settings-page', () => {
   describe('when viewing', () => {
     it('the network table should be visible', () => {
+      vi.mocked(useParams).mockReturnValue({})
       return executeComponentTest(
         () => render(<SettingsPage />),
         async (component) => {

@@ -9,6 +9,7 @@ import { useWallet } from '@txnlab/use-wallet'
 import SampleSixAppSpec from '@/tests/test-app-specs/sample-six.arc32.json'
 import { Arc32AppSpec } from '../data/types'
 import { selectOption } from '@/tests/utils/select-option'
+import { useParams } from 'react-router-dom'
 
 describe('create-app-interface', () => {
   const localnet = algorandFixture()
@@ -19,6 +20,7 @@ describe('create-app-interface', () => {
 
   describe('when a wallet is connected', () => {
     beforeEach(async () => {
+      vi.mocked(useParams).mockReturnValue({})
       await setWalletAddressAndSigner(localnet)
     })
 
@@ -38,6 +40,7 @@ describe('create-app-interface', () => {
 
     it('can deploy an app with template parameters', () => {
       const appSpec = SampleSixAppSpec as Arc32AppSpec
+      vi.mocked(useParams).mockReturnValue({})
       return executeComponentTest(
         () => {
           return render(<CreateAppInterface />)
@@ -106,6 +109,8 @@ describe('create-app-interface', () => {
   describe('when a wallet is not connected', () => {
     beforeEach(async () => {
       const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+      vi.mocked(useParams).mockReturnValue({})
+
       vi.mocked(useWallet).mockImplementation(() => {
         return {
           ...original.useWallet(),

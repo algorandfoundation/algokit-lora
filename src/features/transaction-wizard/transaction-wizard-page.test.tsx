@@ -9,6 +9,7 @@ import { selectOption } from '@/tests/utils/select-option'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 import { addTransactionLabel } from './components/transactions-builder'
 import { groupSendResultsLabel } from './components/group-send-results'
+import { useParams } from 'react-router-dom'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -28,6 +29,7 @@ describe('transaction-wizard-page', () => {
           isReady: true,
         }
       })
+      vi.mocked(useParams).mockReturnValue({})
     })
 
     it('transaction cannot be sent', () => {
@@ -48,6 +50,7 @@ describe('transaction-wizard-page', () => {
   describe('when a wallet is connected', () => {
     beforeEach(async () => {
       await setWalletAddressAndSigner(localnet)
+      vi.mocked(useParams).mockReturnValue({})
     })
 
     describe('and a payment transaction is being sent', () => {
