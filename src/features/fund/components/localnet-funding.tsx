@@ -12,6 +12,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useLocation } from 'react-router-dom'
 
 const fundExistingAccountAccordionId = 'existing'
 const fundNewAccountAccordionId = 'new'
@@ -30,6 +31,11 @@ const fundLocalnetAccount = async (receiver: Address, amount: AlgoAmount) => {
 }
 
 export function LocalnetFunding() {
+  const { search } = useLocation()
+  const queryParams = new URLSearchParams(search)
+  const create = queryParams.get('create') === 'true'
+  const activeItem = create ? fundNewAccountAccordionId : fundExistingAccountAccordionId
+
   const { providers } = useWallet()
   const activeProvider = providers?.find((p) => p.isActive)
   const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
@@ -50,10 +56,11 @@ export function LocalnetFunding() {
     <RenderLoadable loadable={loadableActiveWalletAddressSnapshot} fallback={<PageLoader />}>
       {(activeWalletAddressSnapshot) => (
         <Accordion
+          key={activeItem}
           type="single"
           collapsible
           className="xl:w-1/2"
-          defaultValue={fundExistingAccountAccordionId}
+          defaultValue={activeItem}
           onValueChange={() => setCreatedAddress(undefined)}
         >
           <AccordionItem value={fundExistingAccountAccordionId}>
