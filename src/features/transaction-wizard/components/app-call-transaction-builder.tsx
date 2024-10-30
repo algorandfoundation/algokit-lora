@@ -14,6 +14,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -71,7 +72,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
       fee: {
         setAutomatically: true,
@@ -109,7 +110,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
             options: onCompleteOptions,
             helpText: 'Action to perform after executing the program',
           })}
-          {helper.textField({
+          {helper.addressField({
             field: 'sender',
             label: 'Sender',
             helpText: 'Account to call from. Sends the transaction and pays the fee',

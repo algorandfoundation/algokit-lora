@@ -22,6 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const formSchema = z
   .object({
@@ -53,11 +54,11 @@ const formSchema = z
       }),
   })
   .superRefine((data, ctx) => {
-    if (data.asset.freeze && data.sender && data.sender !== data.asset.freeze) {
+    if (data.asset.freeze && data.sender && data.sender.resolvedAddress && data.sender.resolvedAddress !== data.asset.freeze) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Must be the freeze account of the asset',
-        path: ['sender'],
+        path: ['sender.value'],
       })
     }
   })
@@ -82,13 +83,13 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be frozen',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'The freeze account of the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'freezeTarget',
         label: 'Freeze target',
         helpText: 'Account the asset will be frozen or unfrozen in',
@@ -139,7 +140,10 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze ?? '' : '')
+        setValue(
+          'sender',
+          loadableAssetSummary.state === 'hasData' ? asAddressOrNfd(loadableAssetSummary.data.freeze ?? '') : asAddressOrNfd('')
+        )
         setValue('asset.freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
         trigger('asset')
       }

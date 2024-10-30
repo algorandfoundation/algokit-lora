@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const clawbackTargetLabel = 'Clawback target'
 
@@ -55,11 +56,11 @@ const formSchema = z
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
   })
   .superRefine((data, ctx) => {
-    if (data.asset.clawback && data.sender && data.sender !== data.asset.clawback) {
+    if (data.asset.clawback && data.sender && data.sender.resolvedAddress && data.sender.resolvedAddress !== data.asset.clawback) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Must be the clawback account of the asset',
-        path: ['sender'],
+        path: ['sender.value'],
       })
     }
   })
@@ -79,19 +80,19 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be clawed back',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'The clawback account of the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'receiver',
         label: 'Receiver',
         helpText: 'Account to receive the asset',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'clawbackTarget',
         label: clawbackTargetLabel,
         helpText: 'Account the asset will be clawed back from',
@@ -143,7 +144,10 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback ?? '' : '')
+        setValue(
+          'sender',
+          loadableAssetSummary.state === 'hasData' ? asAddressOrNfd(loadableAssetSummary.data.clawback ?? '') : asAddressOrNfd('')
+        )
         setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
         trigger('asset')
       }

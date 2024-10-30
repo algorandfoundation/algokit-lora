@@ -6,8 +6,8 @@ import { FieldPath, Path } from 'react-hook-form'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { addressFieldSchema } from '@/features/transaction-wizard/data/common'
-import { ArgumentField, MethodForm, TransactionArgumentField } from '@/features/transaction-wizard/models'
+import { addressFieldSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { AddressOrNfd, ArgumentField, MethodForm, TransactionArgumentField } from '@/features/transaction-wizard/models'
 import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
@@ -60,7 +60,7 @@ const getFieldSchema = (type: algosdk.ABIArgumentType, isOptional: boolean): z.Z
     }
   }
   if (type instanceof algosdk.ABIAddressType) {
-    return isOptional ? addressFieldSchema.optional() : addressFieldSchema
+    return isOptional ? optionalAddressFieldSchema : addressFieldSchema
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
     if (type.childType instanceof algosdk.ABIByteType) {
@@ -169,8 +169,8 @@ const getCreateField = (
         }),
     })
   }
-  if (type instanceof algosdk.ABIAddressType) {
-    return formFieldHelper.textField({
+  if (type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account) {
+    return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,
     })
@@ -193,7 +193,7 @@ const getCreateField = (
         ),
     })
   }
-  if (type instanceof algosdk.ABIStringType || type === algosdk.ABIReferenceType.account) {
+  if (type instanceof algosdk.ABIStringType) {
     return formFieldHelper.textField({
       label: 'Value',
       field: `${path}` as Path<any>,
@@ -241,6 +241,9 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): algosdk.A
   }
   if (type instanceof algosdk.ABITupleType) {
     return (value as unknown[]).map((item, index) => getAppCallArg(type.childTypes[index], item)) as algosdk.ABIValue
+  }
+  if (type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account) {
+    return (value as AddressOrNfd).resolvedAddress
   }
   return value as algosdk.ABIValue
 }
