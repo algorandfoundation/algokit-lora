@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const formSchema = {
   ...commonSchema,
@@ -59,13 +60,13 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be opted out of',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to opt out of the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'closeRemainderTo',
         label: 'Close remainder to',
         helpText: 'Account to receive the remaining balance of the asset',
@@ -171,7 +172,7 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAddress
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       fee: {
         setAutomatically: true,
       },

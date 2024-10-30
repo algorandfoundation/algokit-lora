@@ -8,19 +8,47 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import { BuildTransactionResult } from '../models'
 import { asAlgosdkTransactions } from '../mappers'
 import { Buffer } from 'buffer'
+import { isNfd } from '@/features/nfd/data'
 
 export const requiredMessage = 'Required'
 
-const invalidAddressMessage = 'Invalid address'
-export const optionalAddressFieldSchema = zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) : true), {
-  message: invalidAddressMessage,
-})
-export const addressFieldSchema = zfd.text().refine((value) => (value ? isAddress(value) : true), {
-  message: invalidAddressMessage,
-})
+const invalidAddressOrNfdMessage = 'Invalid address or NFD'
+
+export const addressFieldSchema = z
+  .object({
+    value: zfd.text().refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
+      message: invalidAddressOrNfdMessage,
+    }),
+    resolvedAddress: z.string(),
+  })
+  .superRefine((field, ctx) => {
+    if (field.value && (!field.resolvedAddress || !isAddress(field.resolvedAddress))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: invalidAddressOrNfdMessage,
+        path: ['value'],
+      })
+    }
+  })
+
+export const optionalAddressFieldSchema = z
+  .object({
+    value: zfd.text(z.string().optional()).refine((value) => (value ? isAddress(value) || isNfd(value) : true), {
+      message: invalidAddressOrNfdMessage,
+    }),
+    resolvedAddress: z.string().optional(),
+  })
+  .superRefine((field, ctx) => {
+    if (field.value && (!field.resolvedAddress || !isAddress(field.resolvedAddress))) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: invalidAddressOrNfdMessage,
+        path: ['value'],
+      })
+    }
+  })
 
 export const senderFieldSchema = { sender: addressFieldSchema }
-
 export const receiverFieldSchema = { receiver: addressFieldSchema }
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }

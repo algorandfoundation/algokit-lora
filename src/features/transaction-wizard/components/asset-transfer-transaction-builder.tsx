@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const receiverLabel = 'Receiver'
 
@@ -62,13 +63,13 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be transfered',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to transfer from. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'receiver',
         label: receiverLabel,
         helpText: 'Account to receive the asset',
@@ -183,7 +184,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       fee: {
         setAutomatically: true,
       },

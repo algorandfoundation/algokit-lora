@@ -15,6 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -29,15 +30,15 @@ const formSchema = z
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001).optional()),
   })
   .superRefine((data, ctx) => {
-    if (data.amount && data.amount > 0 && !data.receiver) {
+    if (data.amount && data.amount > 0 && (!data.receiver || !data.receiver.resolvedAddress)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Required',
-        path: ['receiver'],
+        path: ['receiver.value'],
       })
     }
 
-    if (data.receiver && !data.amount) {
+    if (data.receiver && data.receiver.resolvedAddress && !data.amount) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Required',
@@ -63,7 +64,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
         type: BuildableTransactionType.AccountClose,
         sender: data.sender,
         closeRemainderTo: data.closeRemainderTo,
-        receiver: data.receiver,
+        receiver: asOptionalAddressOrNfd(data.receiver),
         amount: data.amount,
         fee: data.fee,
         validRounds: data.validRounds,
@@ -85,7 +86,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -109,19 +110,19 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
     >
       {(helper) => (
         <>
-          {helper.textField({
+          {helper.addressField({
             field: 'sender',
             label: senderLabel,
             helpText: 'Account to be closed. Sends the transaction and pays the fee',
             placeholder: ZERO_ADDRESS,
           })}
-          {helper.textField({
+          {helper.addressField({
             field: 'closeRemainderTo',
             label: closeRemainderToLabel,
             helpText: `Account to receive the remaining balance when '${senderLabel}' account is closed`,
             placeholder: ZERO_ADDRESS,
           })}
-          {helper.textField({
+          {helper.addressField({
             field: 'receiver',
             label: receiverLabel,
             helpText: `Account to receive the amount. Leave blank if '${closeRemainderToLabel}' account should receive the full balance`,

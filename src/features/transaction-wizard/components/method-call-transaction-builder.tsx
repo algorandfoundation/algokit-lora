@@ -37,6 +37,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -166,10 +167,11 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.method.args[index]
+          const field = `${methodArgPrefix}-${index}${type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account ? '.value' : ''}`
           if (!algosdk.abiTypeIsTransaction(type)) {
-            acc[`${methodArgPrefix}-${index}`] = asFieldInput(type, arg as algosdk.ABIValue)
+            acc[field] = asFieldInput(type, arg as algosdk.ABIValue)
           } else {
-            acc[`${methodArgPrefix}-${index}`] = arg
+            acc[field] = arg
           }
           return acc
         },
@@ -187,7 +189,7 @@ export function MethodCallTransactionBuilder({
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -374,7 +376,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         options: onCompleteOptions,
         helpText: 'Action to perform after executing the program',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to call from. Sends the transaction and pays the fee',

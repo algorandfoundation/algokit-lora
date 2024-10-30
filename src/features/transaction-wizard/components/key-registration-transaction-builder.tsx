@@ -17,6 +17,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const formSchema = z
   .object({
@@ -110,7 +111,7 @@ function FormFields({ helper }: FormFieldsProps) {
 
   return (
     <>
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to perform the key registration. Sends the transaction and pays the fee',
@@ -214,7 +215,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAdd
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
       online: 'true',
       fee: {
         setAutomatically: true,
