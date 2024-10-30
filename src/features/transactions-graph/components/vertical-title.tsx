@@ -61,8 +61,16 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
           ))}
         </div>
       )}
-      {vertical.type === 'Asset' && <AssetIdLink assetId={vertical.assetId} />}
-      {vertical.type === 'OpUp' && <label className={'text-primary'}>OpUp</label>}
+      {vertical.type === 'Asset' && (
+        <TitleWrapper>
+          <AssetIdLink assetId={vertical.assetId} />
+        </TitleWrapper>
+      )}
+      {vertical.type === 'OpUp' && (
+        <TitleWrapper>
+          <label className={'text-primary'}>OpUp</label>
+        </TitleWrapper>
+      )}
     </div>
   )
 }
