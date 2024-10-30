@@ -18,6 +18,7 @@ import { useFormContext } from 'react-hook-form'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formSchema = z
   .object({
@@ -171,12 +172,12 @@ function FormFields({ helper }: FormFieldsProps) {
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildKeyRegistrationTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildKeyRegistrationTransactionResult) => void
   onCancel: () => void
 }
 
-export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -215,7 +216,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAdd
     }
 
     return {
-      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       online: 'true',
       fee: {
         setAutomatically: true,
@@ -224,7 +225,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAdd
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form

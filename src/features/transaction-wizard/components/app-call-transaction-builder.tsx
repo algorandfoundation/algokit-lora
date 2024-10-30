@@ -15,6 +15,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -32,13 +33,13 @@ const formData = zfd.formData({
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAppCallTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   defaultValues?: Partial<BuildAppCallTransactionResult>
   onSubmit: (transaction: BuildAppCallTransactionResult) => void
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilder({ mode, transaction, activeAddress, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
+export function AppCallTransactionBuilder({ mode, transaction, activeAccount, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
@@ -72,7 +73,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
       }
     }
     return {
-      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
       fee: {
         setAutomatically: true,
@@ -82,7 +83,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAddress, de
       },
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
     }
-  }, [mode, activeAddress, _defaultValues?.applicationId, transaction])
+  }, [mode, activeAccount, _defaultValues?.applicationId, transaction])
 
   return (
     <Form

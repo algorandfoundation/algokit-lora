@@ -16,6 +16,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formSchema = {
   ...commonSchema,
@@ -117,12 +118,12 @@ function FormFields({ helper }: FormFieldsProps) {
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAssetCreateTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildAssetCreateTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -169,7 +170,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
     }
 
     return {
-      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -177,7 +178,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAddress
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form

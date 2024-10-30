@@ -7,7 +7,7 @@ import { DispenserApiUserInfo } from './dispenser-api-user-info'
 import { RefundDispenserForm } from './refund-dispenser-form'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Loader2 as Loader } from 'lucide-react'
-import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
+import { useLoadableActiveWalletAccountSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { PageLoader } from '@/features/common/components/page-loader'
 
 type Props = {
@@ -17,18 +17,18 @@ type Props = {
 export function DispenserApiLoggedIn({ networkConfig }: Props) {
   invariant(networkConfig.dispenserApi?.url, 'Dispenser API URL is not configured')
   const { fundLimit, fundAccount, refundStatus, refundDispenserAccount } = useDispenserApi(networkConfig.dispenserApi)
-  const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
+  const loadableActiveWalletAccountSnapshot = useLoadableActiveWalletAccountSnapshotAtom()
 
   return (
-    <RenderLoadable loadable={loadableActiveWalletAddressSnapshot} fallback={<PageLoader />}>
-      {(activeWalletAddressSnapshot) => (
+    <RenderLoadable loadable={loadableActiveWalletAccountSnapshot} fallback={<PageLoader />}>
+      {(activeWalletAccountSnapshot) => (
         <div className="flex flex-col gap-4 overflow-hidden xl:w-1/2">
           <DispenserApiUserInfo />
           <Accordion type="single" collapsible defaultValue="fund">
             <AccordionItem value="fund">
               <AccordionTrigger>Fund an existing {networkConfig.name} account</AccordionTrigger>
               <AccordionContent>
-                <FundAccountForm onSubmit={fundAccount} limit={fundLimit} defaultReceiver={activeWalletAddressSnapshot} />
+                <FundAccountForm onSubmit={fundAccount} limit={fundLimit} defaultReceiver={activeWalletAccountSnapshot?.address} />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="refund">

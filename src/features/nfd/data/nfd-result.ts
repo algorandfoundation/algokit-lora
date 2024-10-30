@@ -1,4 +1,4 @@
-import { createReadOnlyAtomAndTimestamp, createTimestamp, readOnlyAtomCache, writableAtomCache } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createTimestamp, readOnlyAtomCache, writableAtomCache } from '@/features/common/data/atom-cache'
 import { Atom, atom, Getter, SetStateAction, Setter, useAtomValue, WritableAtom } from 'jotai'
 import { ForwardNfdLookup, Nfd, NfdLookup, NfdResult, ReverseNfdLookpup } from './types'
 import { Address } from '@/features/accounts/data/types'
@@ -6,7 +6,7 @@ import { atomEffect } from 'jotai-effect'
 import { useMemo } from 'react'
 import { chunkArray } from '@/utils/chunk-array'
 import { loadable } from 'jotai/utils'
-import { settingsStore } from '@/features/settings/data'
+import { settingsStore } from '@/features/settings/data/settings'
 import { networkConfigAtom } from '@/features/network/data'
 
 const MAX_BATCH_SIZE = 20

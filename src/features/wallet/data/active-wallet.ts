@@ -6,12 +6,14 @@ import { Address } from '@/features/accounts/data/types'
 import { useEffect, useMemo } from 'react'
 import { atomEffect } from 'jotai-effect'
 import algosdk from 'algosdk'
+import { getNfdResultAtom } from '@/features/nfd/data/nfd-result'
 
 const activeWalletAddressAtom = atom<Promise<Address | undefined> | (Address | undefined)>(new Promise<Address | undefined>(() => {}))
 export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccount | undefined>>(async (get) => {
   const activeWalletAddress = await get(activeWalletAddressAtom)
   if (activeWalletAddress) {
-    return await getActiveWalletAccount(activeWalletAddress)
+    const nfdResult = await get(getNfdResultAtom({ address: activeWalletAddress, resolveNow: true }))
+    return { nfd: nfdResult?.name ?? null, ...(await getActiveWalletAccount(activeWalletAddress)) }
   } else {
     return undefined
   }
@@ -41,28 +43,30 @@ const getActiveWalletAccount = async (address: string) => {
     },
     minBalance: Number(accountInformation.minBalance.microAlgo),
     validAtRound: Number(accountInformation.validAsOfRound),
-  } satisfies ActiveWalletAccount
+  } satisfies Omit<ActiveWalletAccount, 'nfd'>
 }
 
 export const useLoadableActiveWalletAccount = () => {
   return useAtomValue(loadable(activeWalletAccountAtom))
 }
 
-const useActiveWalletAddressSnapshotAtom = () => {
+const useActiveWalletAccountSnapshotAtom = () => {
   return useMemo(() => {
-    const activeAddressAtom = atom<Promise<string | undefined> | string | undefined>(new Promise<string | undefined>(() => {}))
-    const snapshotActiveAddressEffect = atomEffect((get, set) => {
+    const activeAccountAtom = atom<Promise<ActiveWalletAccount | undefined> | ActiveWalletAccount | undefined>(
+      new Promise<ActiveWalletAccount | undefined>(() => {})
+    )
+    const snapshotActiveAccountEffect = atomEffect((get, set) => {
       ;(async () => {
         const activeWalletAccount = await get.peek(activeWalletAccountAtom)
-        set(activeAddressAtom, activeWalletAccount?.address)
+        set(activeAccountAtom, activeWalletAccount)
       })()
     })
-    return [activeAddressAtom, snapshotActiveAddressEffect] as const
+    return [activeAccountAtom, snapshotActiveAccountEffect] as const
   }, [])
 }
 
-export const useLoadableActiveWalletAddressSnapshotAtom = () => {
-  const [activeWalletAddressAtom, snapshotActiveAddressEffect] = useActiveWalletAddressSnapshotAtom()
-  useAtomValue(snapshotActiveAddressEffect)
-  return useAtomValue(loadable(activeWalletAddressAtom))
+export const useLoadableActiveWalletAccountSnapshotAtom = () => {
+  const [activeWalletAccountAtom, snapshotActiveAccountEffect] = useActiveWalletAccountSnapshotAtom()
+  useAtomValue(snapshotActiveAccountEffect)
+  return useAtomValue(loadable(activeWalletAccountAtom))
 }

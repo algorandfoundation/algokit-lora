@@ -16,6 +16,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -51,12 +52,12 @@ const formData = zfd.formData(formSchema)
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAccountCloseTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildAccountCloseTransactionResult) => void
   onCancel: () => void
 }
 
-export function AccountCloseTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AccountCloseTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -86,7 +87,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
       }
     }
     return {
-      sender: activeAddress ? asAddressOrNfd(activeAddress) : undefined,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -94,7 +95,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAddres
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form
