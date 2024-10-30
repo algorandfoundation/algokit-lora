@@ -1,10 +1,10 @@
 import { AbiMethodArgument, AbiType } from '@/features/abi-methods/models'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
-import { AccountLink } from '@/features/accounts/components/account-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { useMemo, useCallback } from 'react'
+import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 
 type Props = {
   arguments: AbiMethodArgument[]
@@ -20,9 +20,9 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
       )
     } else if (argument.type === AbiType.Account) {
       return (
-        <AccountLink className="text-primary underline" address={argument.value}>
+        <AddressOrNfdLink className="text-primary underline" address={argument.value}>
           {argument.value}
-        </AccountLink>
+        </AddressOrNfdLink>
       )
     } else if (argument.type === AbiType.Application) {
       return (

@@ -1,8 +1,8 @@
 import { AbiArrayValue } from '@/features/abi-methods/components/abi-array-value'
 import { AbiTupleValue } from '@/features/abi-methods/components/abi-tuple-value'
 import { AbiValue as AbiValueModel, AbiType } from '@/features/abi-methods/models'
-import { AccountLink } from '@/features/accounts/components/account-link'
 import { AbiStructValue } from '@/features/abi-methods/components/abi-struct-value'
+import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 
 type Props = {
   abiValue: AbiValueModel
@@ -31,6 +31,6 @@ export function AbiValue({ abiValue }: Props) {
     return <span className="text-abi-bool">{abiValue.value ? 'True' : 'False'}</span>
   }
   if (abiValue.type === AbiType.Address) {
-    return <AccountLink address={abiValue.value} />
+    return <AddressOrNfdLink address={abiValue.value.toString()} />
   }
 }
