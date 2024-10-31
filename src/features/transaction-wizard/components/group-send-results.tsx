@@ -24,18 +24,52 @@ export type Props = SendResults & {
   transactionGraphBgClassName?: string
 }
 
-const buildSimulateTraceFilename = (simulateResponse: algosdk.modelsv2.SimulateResponse) => {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '')
-  const txnTypesCount = simulateResponse.txnGroups.reduce((acc: Record<string, number>, txnGroup) => {
-    const txnType = txnGroup.txnResults[0].txnResult.txn.txn.type
-    acc[txnType] = (acc[txnType] || 0) + 1
-    return acc
-  }, {})
+const formatTimestampUtc = (date: Date): string => {
+  // Get UTC components
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0') // Months are zero-based
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0')
 
-  const txnTypesStr = Object.entries(txnTypesCount)
-    .map(([type, count]) => `${count}${type}`)
+  // Format the datetime string
+  return `${year}${month}${day}_${hours}${minutes}${seconds}`
+}
+
+const buildSimulateTraceFilename = (simulateResponse: algosdk.modelsv2.SimulateResponse) => {
+  const timestamp = formatTimestampUtc(new Date())
+  const txnGroups = simulateResponse.txnGroups
+  const txnTypesCount = txnGroups.reduce(
+    (
+      acc: Map<
+        string,
+        {
+          type: string
+          count: number
+        }
+      >,
+      txnGroup
+    ) => {
+      txnGroup.txnResults.forEach(({ txnResult }) => {
+        const { type } = txnResult.txn.txn
+        if (!acc.has(type)) {
+          acc.set(type, { type, count: 0 })
+        }
+        const entry = acc.get(type)!
+        entry.count++
+      })
+      return acc
+    },
+    new Map()
+  )
+
+  const txnTypesStr = Array.from(txnTypesCount.values())
+    .map(({ count, type }) => `${count}${type}`)
     .join('_')
-  return `${timestamp}_${txnTypesStr}.trace.avm.json`
+
+  const lastRound = simulateResponse.lastRound
+  return `${timestamp}_lr${lastRound}_${txnTypesStr}.trace.avm.json`
 }
 
 export function GroupSendResults({ transactionGraph, transactionGraphBgClassName, sentAppCalls, simulateResponse }: Props) {
