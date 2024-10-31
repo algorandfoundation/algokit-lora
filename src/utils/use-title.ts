@@ -1,48 +1,47 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 
+const TRUNCATE_LENGTH = 10
+
 const setTitle = (title: string) => {
   document.title = title
 }
 
-export const useTitle = (customString?: string) => {
+export const useTitle = (pagePrefix?: string) => {
   const urlParams = useParams()
 
   useEffect(() => {
     const currentTitle = document.title
-    let pageTitle = `Lora`
-    if (customString) {
-      pageTitle += ` ${customString}`
-    }
+    const pageTitleParams: string[] = []
     if (urlParams.transactionId) {
-      pageTitle += ` - TxnId:${urlParams.transactionId}`
+      pageTitleParams.push(`Txn:${urlParams.transactionId.slice(0, TRUNCATE_LENGTH)}`)
     }
     if (urlParams.transactionId && urlParams['*']) {
-      pageTitle += `, Inner:${urlParams['*']}`
+      pageTitleParams.push(`Inner:${urlParams['*']}`)
     }
     if (urlParams.round) {
-      pageTitle += ` - Block:${urlParams.round}`
+      pageTitleParams.push(`Block:${urlParams.round}`)
     }
     if (urlParams?.groupId) {
-      pageTitle += ` - Group:${urlParams.groupId}`
+      pageTitleParams.push(`Group:${urlParams.groupId.slice(0, TRUNCATE_LENGTH)}`)
     }
     if (urlParams?.address) {
-      pageTitle += ` - Addr:${urlParams.address}`
+      pageTitleParams.push(`Acct:${urlParams.address.slice(0, TRUNCATE_LENGTH)}`)
     }
     if (urlParams?.applicationId) {
-      pageTitle += ` - AppId:${urlParams.applicationId}`
+      pageTitleParams.push(`App:${urlParams.applicationId}`)
     }
     if (urlParams?.assetId) {
-      pageTitle += ` - AssetId:${urlParams.assetId}`
+      pageTitleParams.push(`Asset:${urlParams.assetId}`)
     }
     if (urlParams?.networkId) {
-      pageTitle += ` - ${urlParams.networkId}`
+      pageTitleParams.push(urlParams.networkId)
     }
-
+    const pageTitle = `Lora${pagePrefix ? ` ${pagePrefix}` : ''} ${pageTitleParams.join(' ')}`
     setTitle(pageTitle)
 
     return () => {
       setTitle(currentTitle)
     }
-  }, [customString, urlParams])
+  }, [pagePrefix, urlParams])
 }
