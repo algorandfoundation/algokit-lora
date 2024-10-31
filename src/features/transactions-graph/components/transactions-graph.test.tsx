@@ -20,6 +20,7 @@ import { AbiMethod } from '@/features/abi-methods/models'
 import { setTimeout } from 'timers/promises'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -263,6 +264,6 @@ const createAbiMethodResolver =
 
 const createGroupResolver =
   () =>
-  (_: GroupId, __: Round): Atom<Promise<GroupResult>> => {
-    return atom(() => Promise.resolve(undefined as unknown as GroupResult))
+  (_: GroupId, __: Round): AsyncMaybeAtom<GroupResult> => {
+    return atom(() => undefined as unknown as GroupResult)
   }

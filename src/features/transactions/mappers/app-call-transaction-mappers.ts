@@ -46,9 +46,9 @@ const mapCommonAppCallTransactionProperties = (
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>,
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -92,9 +92,9 @@ export const asAppCallTransaction = (
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): AppCallTransaction => {
   const commonProperties = mapCommonAppCallTransactionProperties(
     transactionResult.id,
@@ -117,9 +117,9 @@ export const asInnerAppCallTransaction = (
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
@@ -158,9 +158,9 @@ const asInnerTransaction = (
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)

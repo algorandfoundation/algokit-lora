@@ -20,9 +20,9 @@ export const asTransaction = (
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>> = getGroupResultAtom
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult> = getGroupResultAtom
 ) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:

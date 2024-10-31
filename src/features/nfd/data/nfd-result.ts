@@ -221,7 +221,13 @@ export const getNfdResultAtom = (nfdLookup: NfdLookup): Atom<Promise<NfdResult |
   })
 }
 
-const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache(getForwardLookupNfdResult, (lookup) => lookup.nfd)
+const forwardNfdResultKeySelector = (lookup: ForwardNfdLookup, _nfdApiUrl: string) => lookup.nfd
+
+const [forwardNfdResultsAtom, getForwardNfdResultAtom] = readOnlyAtomCache<
+  Parameters<typeof forwardNfdResultKeySelector>,
+  ReturnType<typeof forwardNfdResultKeySelector>,
+  Promise<NfdResult | null> | NfdResult | null
+>(getForwardLookupNfdResult, forwardNfdResultKeySelector)
 const [reverseNfdsAtom, getReverseNfdAtom] = writableAtomCache(getReverseLookupNfdAtom, (lookup) => lookup.address)
 export { forwardNfdResultsAtom, reverseNfdsAtom }
 

@@ -56,7 +56,7 @@ describe('explore-page', () => {
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
-    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(x)])))
+    myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
     myStore.set(
       latestTransactionIdsAtom,
       transactionResults.map((t) => [t.id, createTimestamp()] as const)

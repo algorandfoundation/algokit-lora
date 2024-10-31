@@ -71,6 +71,60 @@ describe('atom-cache', () => {
       expect(myStore.get(myThingAtom)).toBe('LZZV6LMO')
       expectTimestampToBeWithinSeconds(myThingTimestamp, now)
     })
+
+    it('can get an item that throws without caching', () => {
+      const myStore = getTestStore()
+      const fails = 'fails'
+      const success = 'success'
+
+      let initialiserCallCount = 0
+      const atomInitialiser = (_: Getter, __: Setter, arg: string): string => {
+        initialiserCallCount++
+
+        if (arg === fails) {
+          throw new Error('Boom')
+        }
+
+        return arg
+      }
+
+      const [_, getMyThing] = readOnlyAtomCache(atomInitialiser, (arg) => arg)
+
+      expect(() => myStore.get(getMyThing(fails))).toThrow('Boom')
+      expect(() => myStore.get(getMyThing(fails))).toThrow('Boom')
+      expect(myStore.get(getMyThing(success))).toBe(success)
+      expect(() => myStore.get(getMyThing(fails))).toThrow('Boom')
+      expect(myStore.get(getMyThing(success))).toBe(success)
+
+      expect(initialiserCallCount).toBe(4)
+    })
+
+    it('can get an async item that throws without caching', async () => {
+      const myStore = getTestStore()
+      const fails = 'fails'
+      const success = 'success'
+
+      let initialiserCallCount = 0
+      const asyncAtomInitialiser = (_: Getter, __: Setter, arg: string): Promise<string> => {
+        initialiserCallCount++
+
+        if (arg === fails) {
+          throw new Error('Boom')
+        }
+
+        return Promise.resolve(arg)
+      }
+
+      const [_, getMyThing] = readOnlyAtomCache(asyncAtomInitialiser, (arg) => arg)
+
+      await expect(async () => await myStore.get(getMyThing(fails))).rejects.toThrow('Boom')
+      await expect(async () => await myStore.get(getMyThing(fails))).rejects.toThrow('Boom')
+      expect(await myStore.get(getMyThing(success))).toBe(success)
+      await expect(async () => await myStore.get(getMyThing(fails))).rejects.toThrow('Boom')
+      expect(await myStore.get(getMyThing(success))).toBe(success)
+
+      expect(initialiserCallCount).toBe(4)
+    })
   })
 
   describe('writeable atom cache', () => {

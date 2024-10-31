@@ -62,4 +62,10 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
   return accountResult
 }
 
-export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnAccountResult, (address) => address)
+const keySelector = (address: Address) => address
+
+export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<AccountResult> | AccountResult
+>(syncAssociatedDataAndReturnAccountResult, keySelector)

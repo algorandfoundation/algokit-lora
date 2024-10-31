@@ -1,6 +1,6 @@
 import { Round } from '@/features/blocks/data/types'
 import { Getter, Setter } from 'jotai'
-import { GroupId } from './types'
+import { GroupId, GroupResult } from './types'
 import { addStateExtractedFromBlocksAtom, getBlockAndExtractData } from '@/features/blocks/data'
 import { invariant } from '@/utils/invariant'
 import { readOnlyAtomCache } from '@/features/common/data'
@@ -18,7 +18,10 @@ const syncAssociatedDataAndReturnGroupResult = async (_: Getter, set: Setter, gr
   return group
 }
 
-export const [groupResultsAtom, getGroupResultAtom] = readOnlyAtomCache(
-  syncAssociatedDataAndReturnGroupResult,
-  (groupId, _round) => groupId
-)
+const keySelector = (groupId: GroupId, _round: Round) => groupId
+
+export const [groupResultsAtom, getGroupResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<GroupResult> | GroupResult
+>(syncAssociatedDataAndReturnGroupResult, keySelector)

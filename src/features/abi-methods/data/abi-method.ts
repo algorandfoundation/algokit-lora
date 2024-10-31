@@ -13,12 +13,13 @@ import { createAppInterfaceAtom } from '@/features/app-interfaces/data'
 import { sum } from '@/utils/sum'
 import { Hint, Struct } from '@/features/app-interfaces/data/types/arc-32/application'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 const MAX_LINE_LENGTH = 20
 
 export const abiMethodResolver = (
   transaction: TransactionResult,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): Atom<Promise<AbiMethod | undefined>> => {
   return atom(async (get) => {
     if (!isPossibleAbiAppCallTransaction(transaction)) {
@@ -80,7 +81,7 @@ const createAbiMethodWithHintAtom = (transaction: TransactionResult): Atom<Promi
 const createMethodArgumentsAtom = (
   transaction: TransactionResult,
   abiMethodWithHint: AbiMethodWithHint,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): Atom<Promise<AbiMethodArgument[]>> => {
   return atom(async (get) => {
     invariant(transaction['application-transaction'], 'application-transaction is not set')
@@ -322,7 +323,7 @@ const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolea
 const getReferencedTransactionIdsAtom = (
   transaction: TransactionResult,
   abiMethod: algosdk.ABIMethod,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): Atom<Promise<TransactionId[]>> => {
   return atom(async (get) => {
     const hasReferencedTransactions = abiMethod.args.some((arg) => algosdk.abiTypeIsTransaction(arg.type))
