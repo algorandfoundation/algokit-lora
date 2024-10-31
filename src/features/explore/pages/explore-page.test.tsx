@@ -22,7 +22,7 @@ describe('explore-page', () => {
   describe('when no blocks are available', () => {
     const myStore = createStore()
 
-    it.only('no latest blocks are displayed', () => {
+    it('no latest blocks are displayed', () => {
       vi.mocked(useParams).mockReturnValue({ round: '1234' })
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),

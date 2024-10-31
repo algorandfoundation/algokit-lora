@@ -13,7 +13,7 @@ import { useParams } from 'react-router-dom'
 
 describe('fund-page', () => {
   describe('when on localnet', () => {
-    it.only('should render the localnet funding controls', () => {
+    it('should render the localnet funding controls', () => {
       renderHook(async () => {
         const setSelectedNetwork = useSetSelectedNetwork()
         await setSelectedNetwork(localnetId)

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 
 const TRUNCATE_LENGTH = 10
 
-const setTitle = (title: string) => {
+export const setTitle = (title: string) => {
   document.title = title
 }
 
