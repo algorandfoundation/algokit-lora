@@ -1,6 +1,6 @@
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionsSummary } from '@/features/common/models'
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
+import { Atom } from 'jotai'
 
 export type CommonBlockProperties = {
   round: number
@@ -10,7 +10,7 @@ export type CommonBlockProperties = {
 
 export type Block = CommonBlockProperties & {
   previousRound?: number
-  nextRound: AsyncMaybeAtom<number>
+  nextRound: Atom<Promise<number> | number>
   transactions: Transaction[]
   json: string
 }

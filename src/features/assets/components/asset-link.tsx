@@ -3,10 +3,10 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { AssetSummary } from '../models'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useSelectedNetwork } from '@/features/network/data'
+import { Atom } from 'jotai'
 
 type CommonProps = {
   className?: string
@@ -28,7 +28,7 @@ type AssetIdAndNameLinkProps = PropsWithChildren<
 
 type AssetLinkProps = PropsWithChildren<
   {
-    asset: AssetSummary | AsyncMaybeAtom<AssetSummary>
+    asset: AssetSummary | Atom<Promise<AssetSummary>>
   } & CommonProps
 >
 

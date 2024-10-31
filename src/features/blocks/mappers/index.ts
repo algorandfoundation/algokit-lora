@@ -2,9 +2,9 @@ import { Transaction, TransactionSummary } from '@/features/transactions/models'
 import { Block, BlockSummary, CommonBlockProperties } from '../models'
 import { BlockResult } from '../data/types'
 import { asTransactionsSummary } from '@/features/transactions/mappers'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { asJson } from '@/utils/as-json'
+import { Atom } from 'jotai'
 
 const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
   return {
@@ -22,7 +22,7 @@ export const asBlock = (
   block: BlockResult,
   transactions: Transaction[],
   transactionResults: TransactionResult[],
-  nextRound: AsyncMaybeAtom<number>
+  nextRound: Atom<Promise<number> | number>
 ): Block => {
   const { transactionIds: _, ...rest } = block
 

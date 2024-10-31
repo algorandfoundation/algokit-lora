@@ -2,10 +2,10 @@ import { AssetSummary } from '@/features/assets/models'
 import { AccountResult, AssetHoldingResult, AssetResult } from '../data/types'
 import { Account, AccountAssetSummary, AssetHolding } from '../models'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asJson } from '@/utils/as-json'
+import { Atom } from 'jotai'
 
-export const asAccount = (accountResult: AccountResult, assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>): Account => {
+export const asAccount = (accountResult: AccountResult, assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>): Account => {
   const [assetsHeld, assetsOpted] = asAssetHoldings(accountResult.assets ?? [], assetResolver)
 
   return {
@@ -29,7 +29,7 @@ export const asAccount = (accountResult: AccountResult, assetResolver: (assetId:
 
 const asAssetHoldings = (
   heldAssets: AssetHoldingResult[],
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
 ): [AssetHolding[], AssetHolding[]] =>
   heldAssets.reduce(
     (acc, result) => {
@@ -52,7 +52,7 @@ const asAssetHoldings = (
 
 const asAccountAssetSummaries = (
   createdAssets: AssetResult[],
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
 ): AccountAssetSummary[] =>
   createdAssets.map((asset) => {
     return {

@@ -29,7 +29,7 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
           const next = new Map(prev)
           transactionResults.forEach((transactionResult) => {
             if (!next.has(transactionResult.id)) {
-              next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
+              next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(transactionResult)))
             }
           })
           return next

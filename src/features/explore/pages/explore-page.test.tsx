@@ -55,8 +55,8 @@ describe('explore-page', () => {
     const transactionResults = [transactionResult1]
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
-    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(x)])))
+    myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(Promise.resolve(block))]]))
+    myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(Promise.resolve(x))])))
     myStore.set(
       latestTransactionIdsAtom,
       transactionResults.map((t) => [t.id, createTimestamp()] as const)
@@ -114,14 +114,17 @@ describe('explore-page', () => {
       (acc, [block, transactions]) => {
         return {
           syncedRound: block.round > acc.syncedRound ? block.round : acc.syncedRound,
-          blocks: new Map([...acc.blocks, [block.round, createReadOnlyAtomAndTimestamp(block)]]),
-          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)] as const)]),
+          blocks: new Map([...acc.blocks, [block.round, createReadOnlyAtomAndTimestamp(Promise.resolve(block))]]),
+          transactions: new Map([
+            ...acc.transactions,
+            ...transactions.map((t) => [t.id, createReadOnlyAtomAndTimestamp(Promise.resolve(t))] as const),
+          ]),
         }
       },
       {
         syncedRound: 0,
-        blocks: new Map<Round, readonly [Atom<BlockResult>, number]>(),
-        transactions: new Map<TransactionId, readonly [Atom<TransactionResult>, number]>(),
+        blocks: new Map<Round, readonly [Atom<Promise<BlockResult>>, number]>(),
+        transactions: new Map<TransactionId, readonly [Atom<Promise<TransactionResult>>, number]>(),
       }
     )
 

@@ -2,10 +2,10 @@ import { AssetSummary } from '@/features/assets/models'
 import { cn } from '../utils'
 import Decimal from 'decimal.js'
 import { Badge } from './badge'
-import { AsyncMaybeAtom } from '../data/types'
 import { RenderInlineAsyncAtom } from './render-inline-async-atom'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { compactAmount } from '@/utils/compact-amount'
+import { Atom } from 'jotai'
 
 export const asAssetDisplayAmount = (amount: number | bigint, decimals: number, short: boolean = false) => {
   // asset decimals value must be from 0 to 19 so it is safe to use .toString() here
@@ -40,7 +40,7 @@ const Amount = ({ asset, amount, isFrozen, linkClassName, short }: AmountProps) 
 
 type Props = {
   amount: number | bigint
-  asset: AssetSummary | AsyncMaybeAtom<AssetSummary>
+  asset: AssetSummary | Atom<Promise<AssetSummary>>
   isFrozen?: boolean
   className?: string
   linkClassName?: string

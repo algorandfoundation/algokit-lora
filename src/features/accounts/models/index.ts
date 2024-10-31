@@ -3,11 +3,11 @@ import { Address } from '../data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { ApplicationId } from '@/features/applications/data/types'
 import { AssetId } from '@/features/assets/data/types'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { Atom } from 'jotai'
 
 export type AccountAssetSummary = {
   assetId: AssetId
-  asset: AsyncMaybeAtom<AssetSummary>
+  asset: Atom<Promise<AssetSummary>>
 }
 
 export type AssetHolding = AccountAssetSummary & {

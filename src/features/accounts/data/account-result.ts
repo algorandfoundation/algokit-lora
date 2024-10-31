@@ -41,7 +41,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
       const next = new Map(prev)
       assetsToAdd.forEach((asset) => {
         if (!next.has(asset.index)) {
-          next.set(asset.index, createReadOnlyAtomAndTimestamp(asset))
+          next.set(asset.index, createReadOnlyAtomAndTimestamp(Promise.resolve(asset)))
         }
       })
       return next
@@ -53,7 +53,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
       const next = new Map(prev)
       applicationsToAdd.forEach((application) => {
         if (!next.has(application.id)) {
-          next.set(application.id, createReadOnlyAtomAndTimestamp(application))
+          next.set(application.id, createReadOnlyAtomAndTimestamp(Promise.resolve(application)))
         }
       })
       return next

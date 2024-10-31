@@ -8,7 +8,6 @@ import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { Atom } from 'jotai/index'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
@@ -17,7 +16,7 @@ import { getGroupResultAtom } from '@/features/groups/data/group-result'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>

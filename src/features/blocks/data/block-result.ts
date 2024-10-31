@@ -73,7 +73,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
           if (!next.has(transactionResult.id)) {
-            next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
+            next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(transactionResult)))
           }
         })
         return next
@@ -87,7 +87,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         groupResultsToAdd.forEach((groupResult) => {
           if (!next.has(groupResult.id)) {
-            next.set(groupResult.id, createReadOnlyAtomAndTimestamp(groupResult))
+            next.set(groupResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(groupResult)))
           }
         })
         return next
@@ -101,7 +101,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         blockResultsToAdd.forEach((blockResult) => {
           if (!next.has(blockResult.round)) {
-            next.set(blockResult.round, createReadOnlyAtomAndTimestamp(blockResult))
+            next.set(blockResult.round, createReadOnlyAtomAndTimestamp(Promise.resolve(blockResult)))
           }
         })
         return next

@@ -75,7 +75,7 @@ const getReverseLookupNfdResult = async (_: Getter, set: Setter, addresses: Set<
       const next = new Map(prev)
       forwardNfdResultsToAdd.forEach((nfdResult) => {
         if (!next.has(nfdResult.name)) {
-          next.set(nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult))
+          next.set(nfdResult.name, createReadOnlyAtomAndTimestamp(Promise.resolve(nfdResult)))
           hasChanged = true
         }
       })

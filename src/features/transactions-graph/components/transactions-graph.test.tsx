@@ -73,6 +73,7 @@ describe('asset-transfer-transaction-graph', () => {
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
+            expect(await component.findByRole('link', { name: assetResult.params['unit-name'] })).toBeTruthy()
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
             )
@@ -252,7 +253,7 @@ describe('group-graph', () => {
 const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {
   const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)
-  return atom(() => asAssetSummary(assetResult))
+  return atom(() => Promise.resolve(asAssetSummary(assetResult)))
 }
 
 const createAbiMethodResolver =

@@ -3,8 +3,8 @@ import { DataTable } from '@/features/common/components/data-table'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { AccountAssetSummary } from '../models'
 import { AssetSummary } from '@/features/assets/models'
-import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { Atom } from 'jotai'
 
 type Props = {
   assetsCreated: AccountAssetSummary[]
@@ -20,7 +20,7 @@ const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
     header: 'Name',
     accessorFn: (item) => item.asset,
     cell: (c) => {
-      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
+      const assetSummaryAtom = c.getValue<Atom<Promise<AssetSummary>>>()
       return <RenderInlineAsyncAtom atom={assetSummaryAtom}>{(asset) => asset.name}</RenderInlineAsyncAtom>
     },
   },
@@ -28,7 +28,7 @@ const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
     header: 'Unit',
     accessorFn: (item) => item.asset,
     cell: (c) => {
-      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
+      const assetSummaryAtom = c.getValue<Atom<Promise<AssetSummary>>>()
       return <RenderInlineAsyncAtom atom={assetSummaryAtom}>{(asset) => asset.unitName}</RenderInlineAsyncAtom>
     },
   },
