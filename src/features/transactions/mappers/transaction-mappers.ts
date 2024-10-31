@@ -8,6 +8,7 @@ import { asAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { Atom } from 'jotai/index'
 import { AbiMethod } from '@/features/abi-methods/models'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
@@ -16,12 +17,12 @@ import { getGroupResultAtom } from '@/features/groups/data/group-result'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>> = getGroupResultAtom
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult> = getGroupResultAtom
 ) => {
   switch (transactionResult['tx-type']) {
     case algosdk.TransactionType.pay:

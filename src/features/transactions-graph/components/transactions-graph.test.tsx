@@ -20,6 +20,7 @@ import { AbiMethod } from '@/features/abi-methods/models'
 import { setTimeout } from 'timers/promises'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -73,7 +74,6 @@ describe('asset-transfer-transaction-graph', () => {
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
-            expect(await component.findByRole('link', { name: assetResult.params['unit-name'] })).toBeTruthy()
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
             )
@@ -253,7 +253,7 @@ describe('group-graph', () => {
 const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {
   const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)
-  return atom(() => Promise.resolve(asAssetSummary(assetResult)))
+  return atom(() => asAssetSummary(assetResult))
 }
 
 const createAbiMethodResolver =
@@ -264,6 +264,6 @@ const createAbiMethodResolver =
 
 const createGroupResolver =
   () =>
-  (_: GroupId, __: Round): Atom<Promise<GroupResult>> => {
-    return atom(() => Promise.resolve(undefined as unknown as GroupResult))
+  (_: GroupId, __: Round): AsyncMaybeAtom<GroupResult> => {
+    return atom(() => undefined as unknown as GroupResult)
   }

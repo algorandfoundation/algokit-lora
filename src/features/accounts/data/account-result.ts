@@ -41,7 +41,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
       const next = new Map(prev)
       assetsToAdd.forEach((asset) => {
         if (!next.has(asset.index)) {
-          next.set(asset.index, createReadOnlyAtomAndTimestamp(Promise.resolve(asset)))
+          next.set(asset.index, createReadOnlyAtomAndTimestamp(asset))
         }
       })
       return next
@@ -53,7 +53,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
       const next = new Map(prev)
       applicationsToAdd.forEach((application) => {
         if (!next.has(application.id)) {
-          next.set(application.id, createReadOnlyAtomAndTimestamp(Promise.resolve(application)))
+          next.set(application.id, createReadOnlyAtomAndTimestamp(application))
         }
       })
       return next
@@ -62,4 +62,10 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
   return accountResult
 }
 
-export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnAccountResult, (address) => address)
+const keySelector = (address: Address) => address
+
+export const [accountResultsAtom, getAccountResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<AccountResult> | AccountResult
+>(syncAssociatedDataAndReturnAccountResult, keySelector)

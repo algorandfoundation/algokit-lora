@@ -8,7 +8,7 @@ import { createAssetSummaryAtom } from '@/features/assets/data'
 import { SearchResult, SearchResultType } from '../models'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { ellipseId } from '@/utils/ellipse-id'
-import { handleErrorInAsyncAtom } from '@/utils/jotai'
+import { handleErrorInAsyncMaybeAtom } from '@/utils/jotai'
 import { atomWithDebounce } from '@/features/common/data'
 import { isAddress } from '@/utils/is-address'
 import { isTransactionId } from '@/utils/is-transaction-id'
@@ -63,7 +63,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
       }
     } else if (isTransactionId(term)) {
       const transactionAtom = getTransactionResultAtom(term)
-      const transaction = await handleErrorInAsyncAtom(get(transactionAtom), handle404)
+      const transaction = await handleErrorInAsyncMaybeAtom(get(transactionAtom), handle404)
       if (transaction) {
         results.push({
           type: SearchResultType.Transaction,
@@ -90,8 +90,8 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
 
         try {
           const [asset, application] = await Promise.all([
-            handleErrorInAsyncAtom(get(assetAtom), handle404),
-            handleErrorInAsyncAtom(get(applicationAtom), handle404),
+            handleErrorInAsyncMaybeAtom(get(assetAtom), handle404),
+            handleErrorInAsyncMaybeAtom(get(applicationAtom), handle404),
           ])
 
           if (asset) {

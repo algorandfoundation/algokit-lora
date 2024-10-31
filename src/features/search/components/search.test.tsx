@@ -43,16 +43,10 @@ describe('search', () => {
     const transactionResult = transactionResultMother.payment().withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ').build()
 
     const myStore = createStore()
-    myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(Promise.resolve(blockResult))]]))
-    myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(Promise.resolve(assetResult))]]))
-    myStore.set(
-      applicationResultsAtom,
-      new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(applicationResult))]])
-    )
-    myStore.set(
-      transactionResultsAtom,
-      new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(transactionResult))]])
-    )
+    myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
+    myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+    myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+    myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult)]]))
 
     describe.each([
       {
@@ -112,7 +106,7 @@ describe('search', () => {
   describe('when search results for nfd have been returned', () => {
     const nfdResult = nfdResultMother['mainnet-datamuseum.algo']().build()
     const myStore = createStore()
-    myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(Promise.resolve(nfdResult))]]))
+    myStore.set(forwardNfdResultsAtom, new Map([[nfdResult.name, createReadOnlyAtomAndTimestamp(nfdResult)]]))
 
     describe.each([
       {

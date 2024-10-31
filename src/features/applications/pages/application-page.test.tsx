@@ -118,10 +118,7 @@ describe('application-page', () => {
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
 
-      myStore.set(
-        applicationResultsAtom,
-        new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(applicationResult))]])
-      )
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
@@ -240,10 +237,7 @@ describe('application-page', () => {
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
 
-      myStore.set(
-        applicationResultsAtom,
-        new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(applicationResult))]])
-      )
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
@@ -277,10 +271,7 @@ describe('application-page', () => {
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
 
-      myStore.set(
-        applicationResultsAtom,
-        new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(applicationResult))]])
-      )
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
@@ -372,10 +363,7 @@ describe('application-page', () => {
 
       const myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
-      myStore.set(
-        applicationResultsAtom,
-        new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(applicationResult))]])
-      )
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       const dbConnection = await myStore.get(dbConnectionAtom)
       await writeAppInterface(dbConnection, {

@@ -73,7 +73,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
           if (!next.has(transactionResult.id)) {
-            next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(transactionResult)))
+            next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
           }
         })
         return next
@@ -87,7 +87,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         groupResultsToAdd.forEach((groupResult) => {
           if (!next.has(groupResult.id)) {
-            next.set(groupResult.id, createReadOnlyAtomAndTimestamp(Promise.resolve(groupResult)))
+            next.set(groupResult.id, createReadOnlyAtomAndTimestamp(groupResult))
           }
         })
         return next
@@ -101,7 +101,7 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         blockResultsToAdd.forEach((blockResult) => {
           if (!next.has(blockResult.round)) {
-            next.set(blockResult.round, createReadOnlyAtomAndTimestamp(Promise.resolve(blockResult)))
+            next.set(blockResult.round, createReadOnlyAtomAndTimestamp(blockResult))
           }
         })
         return next
@@ -118,4 +118,10 @@ const syncAssociatedDataAndReturnBlockResult = async (_: Getter, set: Setter, ro
   return blockResult
 }
 
-export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnBlockResult, (round) => round)
+const keySelector = (round: Round) => round
+
+export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<BlockResult> | BlockResult
+>(syncAssociatedDataAndReturnBlockResult, keySelector)

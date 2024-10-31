@@ -3,11 +3,9 @@ import { dataStore } from './data-store'
 
 export const createTimestamp = (): number => Date.now()
 
-export const createReadOnlyAtomAndTimestamp = <T>(value: T): [Atom<T>, number] => {
+export const createReadOnlyAtomAndTimestamp = <T>(value: T) => {
   return [atom(() => value), createTimestamp()] as const
 }
-
-// TODO: NC - Remove the async maybe type and pattern everywhere
 
 function getOrCreateValueInCacheAtom<Key extends string | number, Args extends unknown[], Value>(
   keySelector: (...args: Args) => Key,
@@ -81,6 +79,8 @@ export function readOnlyAtomCache<Args extends unknown[], Key extends string | n
 
   const valueAtom = getOrCreateValueInCacheAtom(keySelector, valuesAtom, (get, set, ...args) => {
     const value = createInitialValue(get, set, ...args)
+
+    // TODO: NC - Is this what we want?
 
     const removeFromCache = () => {
       const values = get(valuesAtom)

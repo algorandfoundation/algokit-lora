@@ -10,7 +10,7 @@ import { invariant } from '@/utils/invariant'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
-import { Atom } from 'jotai'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 const mapSubType = (transactionResult: TransactionResult) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
@@ -35,7 +35,7 @@ const mapSubType = (transactionResult: TransactionResult) => {
 
 const mapCommonAssetTransferTransactionProperties = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ) => {
   invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
 
@@ -62,7 +62,7 @@ const mapCommonAssetTransferTransactionProperties = (
 
 export const asAssetTransferTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): AssetTransferTransaction => {
   return {
     id: transactionResult.id,
@@ -74,7 +74,7 @@ export const asInnerAssetTransferTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): InnerAssetTransferTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),

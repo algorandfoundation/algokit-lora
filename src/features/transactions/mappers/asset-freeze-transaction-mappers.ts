@@ -9,11 +9,11 @@ import {
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
-import { Atom } from 'jotai'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 
 const mapCommonAssetFreezeTransactionProperties = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): BaseAssetFreezeTransaction => {
   invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
   const assetFreeze = transactionResult['asset-freeze-transaction']
@@ -33,7 +33,7 @@ const mapCommonAssetFreezeTransactionProperties = (
 
 export const asAssetFreezeTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): AssetFreezeTransaction => {
   return {
     id: transactionResult.id,
@@ -45,7 +45,7 @@ export const asInnerAssetFreezeTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
 ): InnerAssetFreezeTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),

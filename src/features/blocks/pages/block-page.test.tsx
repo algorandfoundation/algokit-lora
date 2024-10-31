@@ -80,7 +80,7 @@ describe('block-page', () => {
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
-        myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(Promise.resolve(block))]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(
@@ -116,12 +116,9 @@ describe('block-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
 
         const myStore = createStore()
-        myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(Promise.resolve(block))]]))
-        myStore.set(
-          transactionResultsAtom,
-          new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(Promise.resolve(x))]))
-        )
-        myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(Promise.resolve(asset))]]))
+        myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
+        myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 
         return executeComponentTest(

@@ -94,16 +94,13 @@ describe('group-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
 
       const myStore = createStore()
-      myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(Promise.resolve(group))]]))
-      myStore.set(
-        transactionResultsAtom,
-        new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(Promise.resolve(x))]))
-      )
+      myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
+      myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(Promise.resolve(algoAssetResult))],
-          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(Promise.resolve(a))] as const),
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
       myStore.set(genesisHashAtom, 'some-hash')

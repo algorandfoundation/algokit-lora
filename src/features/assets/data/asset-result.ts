@@ -39,8 +39,10 @@ const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
   }
 }
 
-export const [assetResultsAtom, getAssetResultAtom] = readOnlyAtomCache(
-  getAssetResult,
-  (assetId) => assetId,
-  new Map([[algoAssetResult.index, [atom(() => Promise.resolve(algoAssetResult)), -1]]])
-)
+const keySelector = (assetId: AssetId) => assetId
+
+export const [assetResultsAtom, getAssetResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<AssetResult> | AssetResult
+>(getAssetResult, keySelector, new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]]))

@@ -1,6 +1,7 @@
 import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { AssetSummary } from '@/features/assets/models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { GroupId } from '@/features/groups/data/types'
 import { Atom } from 'jotai/index'
@@ -64,7 +65,7 @@ export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   amount: number | bigint
   closeRemainder?: CloseAssetRemainder
   assetId: AssetId
-  asset: Atom<Promise<AssetSummary>>
+  asset: AsyncMaybeAtom<AssetSummary>
   clawbackFrom?: Address
 }
 
@@ -211,7 +212,7 @@ export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   subType: undefined
   address: Address
   assetId: number
-  asset: Atom<Promise<AssetSummary>>
+  asset: AsyncMaybeAtom<AssetSummary>
   freezeStatus: AssetFreezeStatus
 }
 

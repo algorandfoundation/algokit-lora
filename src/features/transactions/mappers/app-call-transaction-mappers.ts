@@ -17,6 +17,7 @@ import { AssetSummary } from '@/features/assets/models'
 import { asInnerAssetConfigTransaction } from './asset-config-transaction-mappers'
 import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 import { Atom } from 'jotai/index'
 import { AbiMethod } from '@/features/abi-methods/models'
@@ -42,12 +43,12 @@ const opUpPrograms = [
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>,
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -88,12 +89,12 @@ const mapCommonAppCallTransactionProperties = (
 
 export const asAppCallTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): AppCallTransaction => {
   const commonProperties = mapCommonAppCallTransactionProperties(
     transactionResult.id,
@@ -113,12 +114,12 @@ export const asInnerAppCallTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
@@ -154,12 +155,12 @@ const asInnerTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => Atom<Promise<AssetSummary>>,
+  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
-    groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<AbiMethod | undefined>>,
-  groupResolver: (groupId: GroupId, round: Round) => Atom<Promise<GroupResult>>
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)

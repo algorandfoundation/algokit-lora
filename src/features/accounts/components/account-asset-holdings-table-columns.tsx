@@ -3,8 +3,8 @@ import { DisplayAssetAmount } from '@/features/common/components/display-asset-a
 import { AssetHolding } from '../models'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { AssetSummary } from '@/features/assets/models'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
-import { Atom } from 'jotai'
 
 export const accountAssetHoldingsTableColumns: ColumnDef<AssetHolding>[] = [
   {
@@ -16,7 +16,7 @@ export const accountAssetHoldingsTableColumns: ColumnDef<AssetHolding>[] = [
     header: 'Name',
     accessorFn: (item) => item.asset,
     cell: (c) => {
-      const assetSummaryAtom = c.getValue<Atom<Promise<AssetSummary>>>()
+      const assetSummaryAtom = c.getValue<AsyncMaybeAtom<AssetSummary>>()
       return <RenderInlineAsyncAtom atom={assetSummaryAtom}>{(asset) => asset.name}</RenderInlineAsyncAtom>
     },
   },
