@@ -1,3 +1,4 @@
+import { Address } from '@/features/accounts/data/types'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionsSummary } from '@/features/common/models'
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
@@ -13,6 +14,7 @@ export type Block = CommonBlockProperties & {
   nextRound: AsyncMaybeAtom<number>
   transactions: Transaction[]
   json: string
+  proposer?: Address
 }
 
 export type BlockSummary = CommonBlockProperties & {

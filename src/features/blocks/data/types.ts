@@ -1,3 +1,4 @@
+import { Address } from '@/features/accounts/data/types'
 import { GroupResult } from '@/features/groups/data/types'
 import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
@@ -18,6 +19,7 @@ export type BlockResult = {
   ['state-proof-tracking']?: BlockStateProofTracking[]
   ['upgrade-vote']?: BlockUpgradeVote
   ['participation-updates']?: ParticipationUpdates
+  proposer?: Address
 }
 
 export type BlockRewards = {

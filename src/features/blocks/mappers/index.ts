@@ -36,5 +36,6 @@ export const asBlock = (
       ...(!rest['upgrade-vote'] ? { ['upgrade-vote']: { ['upgrade-approve']: false, ['upgrade-delay']: 0 } } : undefined), // Match how indexer handles an undefined upgrade-vote
       transactions: transactionResults,
     }),
+    proposer: block.proposer,
   }
 }

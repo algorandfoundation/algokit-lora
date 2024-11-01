@@ -32,6 +32,7 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
               ['next-protocol-vote-before']: randomNumberBetween(1, 1000),
               ['next-protocol-switch-on']: randomNumberBetween(1, 1000),
             },
+            proposer: randomString(52, 52),
           }
     )
   }
