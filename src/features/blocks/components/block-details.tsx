@@ -11,6 +11,7 @@ import { transactionsTableColumnsWithoutRound } from '@/features/transactions/co
 import { DateFormatted } from '@/features/common/components/date-formatted'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
+import { AccountLink } from '@/features/accounts/components/account-link'
 
 type Props = {
   block: Block
@@ -21,7 +22,7 @@ export const timestampLabel = 'Timestamp'
 export const transactionsLabel = 'Transactions'
 export const previousRoundLabel = 'Previous Round'
 export const nextRoundLabel = 'Next Round'
-export const ProposerLabel = 'Proposer'
+export const proposerLabel = 'Proposer'
 
 export function BlockDetails({ block }: Props) {
   const blockItems = useMemo(
@@ -52,6 +53,14 @@ export function BlockDetails({ block }: Props) {
           </div>
         ),
       },
+      ...(block.proposer
+        ? [
+            {
+              dt: proposerLabel,
+              dd: <AccountLink address={block.proposer} showCopyButton={true} />,
+            },
+          ]
+        : []),
       {
         dt: previousRoundLabel,
         dd: block.previousRound !== undefined ? <BlockLink round={block.previousRound} /> : undefined,
@@ -60,14 +69,6 @@ export function BlockDetails({ block }: Props) {
         dt: nextRoundLabel,
         dd: <RenderInlineAsyncAtom atom={block.nextRound}>{(nextRound) => <BlockLink round={nextRound} />}</RenderInlineAsyncAtom>,
       },
-      ...(block.proposer
-        ? [
-            {
-              dt: ProposerLabel,
-              dd: block.proposer,
-            },
-          ]
-        : []),
     ],
     [
       block.nextRound,

@@ -11,7 +11,7 @@ import { blockResultsAtom, syncedRoundAtom } from '../data'
 import {
   nextRoundLabel,
   previousRoundLabel,
-  ProposerLabel,
+  proposerLabel,
   roundLabel,
   timestampLabel,
   transactionsLabel,
@@ -133,7 +133,7 @@ describe('block-page', () => {
                   { term: transactionsLabel, description: '0' },
                   { term: previousRoundLabel, description: (block.round - 1).toString() },
                   { term: nextRoundLabel, description: (block.round + 1).toString() },
-                  { term: ProposerLabel, description: block.proposer ?? '' },
+                  { term: proposerLabel, description: block.proposer ?? '' },
                 ],
               })
             )
