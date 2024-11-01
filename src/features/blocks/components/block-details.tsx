@@ -21,6 +21,7 @@ export const timestampLabel = 'Timestamp'
 export const transactionsLabel = 'Transactions'
 export const previousRoundLabel = 'Previous Round'
 export const nextRoundLabel = 'Next Round'
+export const ProposerLabel = 'Proposer'
 
 export function BlockDetails({ block }: Props) {
   const blockItems = useMemo(
@@ -59,10 +60,19 @@ export function BlockDetails({ block }: Props) {
         dt: nextRoundLabel,
         dd: <RenderInlineAsyncAtom atom={block.nextRound}>{(nextRound) => <BlockLink round={nextRound} />}</RenderInlineAsyncAtom>,
       },
+      ...(block.proposer
+        ? [
+            {
+              dt: ProposerLabel,
+              dd: block.proposer,
+            },
+          ]
+        : []),
     ],
     [
       block.nextRound,
       block.previousRound,
+      block.proposer,
       block.round,
       block.timestamp,
       block.transactionsSummary.count,
