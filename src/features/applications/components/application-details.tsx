@@ -121,7 +121,7 @@ export function ApplicationDetails({ application }: Props) {
     ]
   )
 
-  const applicationAbiMethodsLoadable = useLoadableApplicationAbiMethodDefinitions(application)
+  const applicationAbiMethodsLoadable = useLoadableApplicationAbiMethodDefinitions(application.id)
 
   return (
     <div className="space-y-4">

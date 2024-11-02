@@ -54,6 +54,9 @@ export const Urls = {
   }),
   AppLab: UrlTemplate`/app-lab`.extend({
     Create: UrlTemplate`/create`,
+    Edit: UrlTemplate`/edit`.extend({
+      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+    }),
   }),
   Settings: UrlTemplate`/settings`,
   Fund: UrlTemplate`/fund`,

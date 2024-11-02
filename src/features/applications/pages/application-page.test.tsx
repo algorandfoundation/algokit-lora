@@ -36,7 +36,7 @@ import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { writeAppInterface } from '@/features/app-interfaces/data'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
@@ -366,7 +366,7 @@ describe('application-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationResult.id,
         name: 'test',
         appSpecVersions: [

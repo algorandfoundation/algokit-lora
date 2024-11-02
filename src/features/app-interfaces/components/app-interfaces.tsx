@@ -7,6 +7,7 @@ import { Button } from '@/features/common/components/button'
 import { Plus } from 'lucide-react'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ApplicationId } from '@/features/applications/data/types'
 
 type Props = {
   appInterfaces: AppInterfaceEntity[]
@@ -18,6 +19,13 @@ export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
   const createAppInterface = useCallback(() => {
     navigate(Urls.AppLab.Create.build({}))
   }, [navigate])
+
+  const editAppInterface = useCallback(
+    (appId: ApplicationId) => () => {
+      navigate(Urls.AppLab.Edit.ById.build({ applicationId: appId.toString() }))
+    },
+    [navigate]
+  )
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -35,7 +43,12 @@ export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
         </CardContent>
       </Card>
       {appInterfaces.map((appInterface, index) => (
-        <AppInterfaceCard key={index} appInterface={appInterface} onDelete={refreshAppInterfaces} />
+        <AppInterfaceCard
+          key={index}
+          appInterface={appInterface}
+          onDelete={refreshAppInterfaces}
+          onEdit={editAppInterface(appInterface.applicationId)}
+        />
       ))}
     </div>
   )

@@ -80,8 +80,6 @@ export function readOnlyAtomCache<Args extends unknown[], Key extends string | n
   const valueAtom = getOrCreateValueInCacheAtom(keySelector, valuesAtom, (get, set, ...args) => {
     const value = createInitialValue(get, set, ...args)
 
-    // TODO: NC - Is this what we want?
-
     const removeFromCache = () => {
       const values = get(valuesAtom)
       values.delete(keySelector(...args))

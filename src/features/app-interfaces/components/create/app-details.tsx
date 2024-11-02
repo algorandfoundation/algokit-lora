@@ -29,6 +29,13 @@ const schema = zfd.formData(
           path: ['name'],
         })
       }
+      if (schema.roundFirstValid && schema.roundLastValid && schema.roundFirstValid > schema.roundLastValid) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Round first valid must be less than or equal to round last valid',
+          path: ['roundFirstValid'],
+        })
+      }
     })
 )
 
@@ -63,12 +70,12 @@ function FormInner({ helper }: FormInnerProps) {
       {helper.numberField({
         label: 'First valid round',
         field: 'roundFirstValid',
-        helpText: 'The first round the app spec is valid. Leave blank if the app has not been updated',
+        helpText: 'The first round the app spec is valid. This is only used for decoding historical mutable app calls',
       })}
       {helper.numberField({
         label: 'Last valid round',
         field: 'roundLastValid',
-        helpText: 'The last round the app spec is valid. Leave blank if the app has not been updated',
+        helpText: 'The last round the app spec is valid. This is only used for decoding historical mutable app calls',
       })}
     </>
   )
