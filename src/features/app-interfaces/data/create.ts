@@ -17,7 +17,7 @@ export type AppSpecDetails = {
   name: string
 } & AppSpecVersion
 
-export const writeAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
+export const upsertAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
   await dbConnection.put('app-interfaces', appInterface)
 }
 
@@ -27,14 +27,17 @@ export const useCreateAppInterface = () => {
       const { applicationId, name, ...appSpecVersion } = appSpecDetails
       invariant(
         appSpecVersion.roundFirstValid === undefined || appSpecVersion.roundFirstValid >= 0,
-        'roundFirstValid must be greater than or equal to 0'
+        'Round first valid must be greater than or equal to 0'
       )
       invariant(
         appSpecVersion.roundLastValid === undefined || appSpecVersion.roundLastValid >= 0,
-        'roundLastValid must be greater than or equal to 0'
+        'Round last valid must be greater than or equal to 0'
       )
       if (appSpecVersion.roundFirstValid !== undefined && appSpecVersion.roundLastValid !== undefined) {
-        invariant(appSpecVersion.roundLastValid > appSpecVersion.roundFirstValid, 'roundFirstValid must be greater than roundLastValid')
+        invariant(
+          appSpecVersion.roundLastValid >= appSpecVersion.roundFirstValid,
+          'Round last valid must be greater than or equal to round first valid'
+        )
       }
 
       const dbConnection = await get(dbConnectionAtom)
@@ -48,7 +51,7 @@ export const useCreateAppInterface = () => {
         `App interface '${name}' already exists, please choose a different name`
       )
 
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: name,
         appSpecVersions: [appSpecDetails],

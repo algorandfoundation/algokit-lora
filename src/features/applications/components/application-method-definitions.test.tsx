@@ -6,7 +6,7 @@ import TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32.json
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { writeAppInterface } from '@/features/app-interfaces/data'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { createTimestamp } from '@/features/common/data'
 import { ApplicationPage } from '../pages/application-page'
@@ -37,7 +37,7 @@ describe('application-method-definitions', () => {
     appId = Number(app.appId)
 
     const dbConnection = await myStore.get(dbConnectionAtom)
-    await writeAppInterface(dbConnection, {
+    await upsertAppInterface(dbConnection, {
       applicationId: appId,
       name: 'test',
       appSpecVersions: [

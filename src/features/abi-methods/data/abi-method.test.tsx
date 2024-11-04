@@ -14,7 +14,7 @@ import { abiMethodResolver } from '@/features/abi-methods/data'
 import { groupResultMother } from '@/tests/object-mother/group-result'
 import { getGroupResultAtom, groupResultsAtom } from '@/features/groups/data'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { writeAppInterface } from '@/features/app-interfaces/data'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { getTestStore } from '@/tests/utils/get-test-store'
 
 describe('resolving ABI method', () => {
@@ -29,7 +29,7 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: 'test',
         appSpecVersions: [
@@ -63,7 +63,7 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: 'test',
         appSpecVersions: [
@@ -107,7 +107,7 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: 'test',
         appSpecVersions: [
@@ -154,7 +154,7 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: 'test',
         appSpecVersions: [
@@ -211,7 +211,7 @@ describe('resolving ABI method', () => {
 
       const applicationId = appCallTransaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: 'test',
         appSpecVersions: [
@@ -410,7 +410,7 @@ describe('resolving ABI method', () => {
 
       const applicationId = transaction['application-transaction']!['application-id']!
       const dbConnection = await myStore.get(dbConnectionAtom)
-      await writeAppInterface(dbConnection, {
+      await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
         name: 'test',
         appSpecVersions: [

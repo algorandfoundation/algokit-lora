@@ -20,7 +20,8 @@ import { FundErrorPage } from './features/fund/fund-error-page'
 import { AppLab, appLabPageTitle } from './features/app-lab/pages/app-lab'
 import { TransactionWizardPage, transactionWizardPageTitle } from './features/transaction-wizard/transaction-wizard-page'
 import { RedirectPage } from './features/common/pages/redirect-page'
-import { CreateAppInterface, createAppInterfacePageTitle } from './features/app-interfaces/pages/create-app-interface'
+import { CreateAppInterfacePage, createAppInterfacePageTitle } from './features/app-interfaces/pages/create-app-interface-page'
+import { EditAppInterfacePage, editAppInterfacePageTitle } from './features/app-interfaces/pages/edit-app-interface-page'
 
 export const routes = evalTemplates([
   {
@@ -116,7 +117,12 @@ export const routes = evalTemplates([
           {
             template: Urls.AppLab.Create,
             errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
-            element: <CreateAppInterface />,
+            element: <CreateAppInterfacePage />,
+          },
+          {
+            template: Urls.AppLab.Edit.ById,
+            errorElement: <ErrorPage title={editAppInterfacePageTitle} />,
+            element: <EditAppInterfacePage />,
           },
         ],
       },
