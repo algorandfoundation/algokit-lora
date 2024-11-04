@@ -55,21 +55,21 @@ const formSchema = z
           path: ['stateProofKey'],
         })
       }
-      if (schema.voteFirstValid) {
+      if (!schema.voteFirstValid) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: requiredMessage,
           path: ['voteFirstValid'],
         })
       }
-      if (schema.voteLastValid) {
+      if (!schema.voteLastValid) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: requiredMessage,
           path: ['voteLastValid'],
         })
       }
-      if (schema.voteKeyDilution) {
+      if (!schema.voteKeyDilution) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: requiredMessage,
@@ -141,6 +141,7 @@ function FormFields({ helper }: FormFieldsProps) {
             field: 'stateProofKey',
             label: 'State proof key',
             helpText: 'The 64 byte state proof public key commitment, base64 encoded',
+            required: true,
           })}
           {helper.numberField({
             field: 'voteFirstValid',
