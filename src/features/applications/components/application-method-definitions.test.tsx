@@ -6,7 +6,7 @@ import TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32.json
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { writeAppInterface } from '@/features/app-interfaces/data'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { createTimestamp } from '@/features/common/data'
 import { ApplicationPage } from '../pages/application-page'
@@ -19,11 +19,7 @@ import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 import { selectOption } from '@/tests/utils/select-option'
 import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
-
-const myStore = await vi.hoisted(async () => {
-  const { getDefaultStore } = await import('jotai/index')
-  return getDefaultStore()
-})
+import { getTestStore } from '@/tests/utils/get-test-store'
 
 describe('application-method-definitions', () => {
   const localnet = algorandFixture()
@@ -35,12 +31,13 @@ describe('application-method-definitions', () => {
   })
 
   beforeEach(async () => {
+    const myStore = getTestStore()
     await setWalletAddressAndSigner(localnet)
     const { app } = await deploySmartContract(localnet, TestContractAppSpec as AppSpec)
     appId = Number(app.appId)
 
     const dbConnection = await myStore.get(dbConnectionAtom)
-    await writeAppInterface(dbConnection, {
+    await upsertAppInterface(dbConnection, {
       applicationId: appId,
       name: 'test',
       appSpecVersions: [
@@ -60,6 +57,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling calculator add method', () => {
       it('reports validation errors when required fields have not been supplied', () => {
+        const myStore = getTestStore()
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
         return executeComponentTest(
@@ -91,12 +89,13 @@ describe('application-method-definitions', () => {
         )
       })
       it('succeeds when all fields have been correctly supplied', () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
         return executeComponentTest(
           () => {
-            return render(<ApplicationPage />)
+            return render(<ApplicationPage />, undefined, myStore)
           },
           async (component, user) => {
             const addMethodPanel = await expandMethodAccordion(component, user, 'add')
@@ -163,6 +162,7 @@ describe('application-method-definitions', () => {
         )
       })
       it('allows the users to switch to echo_bytes method and send the transaction', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -245,6 +245,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling get_pay_txn_amount method', () => {
       it('succeeds when all fields have been correctly supplied', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
@@ -348,6 +349,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows the user to edit the payment amount', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
@@ -466,6 +468,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows the user to edit note for get_pay_txn_amount method call', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
@@ -584,6 +587,7 @@ describe('application-method-definitions', () => {
       })
 
       it('clear the payment transaction if the user switch to call add method', async () => {
+        const myStore = getTestStore()
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -658,6 +662,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling echo_bytes method', () => {
       it('succeeds when a byte array is supplied', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -728,6 +733,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows the user to edit the input, save and send again', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -814,6 +820,7 @@ describe('application-method-definitions', () => {
       })
 
       it('fails when no byte array is supplied', async () => {
+        const myStore = getTestStore()
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
         return executeComponentTest(
@@ -847,6 +854,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling echo_static_array method', () => {
       it('succeeds when an array is supplied', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -925,6 +933,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows edit', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1030,6 +1039,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling echo_dynamic_array method', () => {
       it('succeeds when an array is supplied', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1108,6 +1118,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows edit', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1213,6 +1224,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling nest_array_and_tuple method', () => {
       it('succeeds when the input is supplied', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1308,6 +1320,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows edit', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1442,6 +1455,7 @@ describe('application-method-definitions', () => {
 
     describe('when calling echo_boolean method', () => {
       it('succeeds when the input is supplied', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1509,6 +1523,7 @@ describe('application-method-definitions', () => {
       })
 
       it('allows edit', async () => {
+        const myStore = getTestStore()
         const { testAccount } = localnet.context
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 

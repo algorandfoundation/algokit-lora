@@ -24,4 +24,10 @@ const getApplicationResult = async (_: Getter, __: Setter, applicationId: Applic
   }
 }
 
-export const [applicationResultsAtom, getApplicationResultAtom] = readOnlyAtomCache(getApplicationResult, (applicationId) => applicationId)
+const keySelector = (applicationId: ApplicationId) => applicationId
+
+export const [applicationResultsAtom, getApplicationResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<ApplicationResult> | ApplicationResult
+>(getApplicationResult, keySelector)

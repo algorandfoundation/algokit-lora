@@ -9,7 +9,6 @@ import { dispenserApiLoginButtonLabel } from './components/dispenser-api-logged-
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react'
 import * as dispenserApi from './data/dispenser-api'
 import { algos } from '@algorandfoundation/algokit-utils'
-import { useParams } from 'react-router-dom'
 
 describe('fund-page', () => {
   describe('when on localnet', () => {
@@ -18,7 +17,6 @@ describe('fund-page', () => {
         const setSelectedNetwork = useSetSelectedNetwork()
         await setSelectedNetwork(localnetId)
       })
-      vi.mocked(useParams).mockReturnValue({})
 
       return executeComponentTest(
         () => render(<FundPage />),
@@ -38,7 +36,6 @@ describe('fund-page', () => {
         const setSelectedNetwork = useSetSelectedNetwork()
         await setSelectedNetwork(mainnetId)
       })
-      vi.mocked(useParams).mockReturnValue({})
 
       return executeComponentTest(
         () => render(<FundPage />),
@@ -73,7 +70,6 @@ describe('fund-page', () => {
         const setSelectedNetwork = useSetSelectedNetwork()
         await setSelectedNetwork(testnetId)
       })
-      vi.mocked(useParams).mockReturnValue({})
 
       return executeComponentTest(
         () =>
@@ -95,7 +91,6 @@ describe('fund-page', () => {
         const setSelectedNetwork = useSetSelectedNetwork()
         await setSelectedNetwork(testnetId)
       })
-      vi.mocked(useParams).mockReturnValue({})
 
       vi.mocked(useAuth0).mockImplementation(() => {
         return {
@@ -131,7 +126,6 @@ describe('fund-page', () => {
         const setSelectedNetwork = useSetSelectedNetwork()
         await setSelectedNetwork(fnetId)
       })
-      vi.mocked(useParams).mockReturnValue({})
 
       return executeComponentTest(
         () => render(<FundPage />),

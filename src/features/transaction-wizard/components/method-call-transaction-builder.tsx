@@ -37,6 +37,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -50,7 +52,7 @@ const baseFormData = zfd.formData(appCallFormSchema)
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildMethodCallTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   defaultValues?: Partial<BuildMethodCallTransactionResult>
   onSubmit: (transaction: BuildTransactionResult) => void
   onCancel: () => void
@@ -59,7 +61,7 @@ type Props = {
 export function MethodCallTransactionBuilder({
   mode,
   transaction,
-  activeAddress,
+  activeAccount,
   defaultValues: _defaultValues,
   onSubmit,
   onCancel,
@@ -166,10 +168,11 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.method.args[index]
+          const field = `${methodArgPrefix}-${index}${type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account ? '.value' : ''}`
           if (!algosdk.abiTypeIsTransaction(type)) {
-            acc[`${methodArgPrefix}-${index}`] = asFieldInput(type, arg as algosdk.ABIValue)
+            acc[field] = asFieldInput(type, arg as algosdk.ABIValue)
           } else {
-            acc[`${methodArgPrefix}-${index}`] = arg
+            acc[field] = arg
           }
           return acc
         },
@@ -187,7 +190,7 @@ export function MethodCallTransactionBuilder({
       }
     }
     return {
-      sender: activeAddress,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -198,7 +201,7 @@ export function MethodCallTransactionBuilder({
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
       onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,
     }
-  }, [mode, transaction, activeAddress, _defaultValues])
+  }, [mode, transaction, activeAccount, _defaultValues])
 
   return (
     <Form
@@ -374,7 +377,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         options: onCompleteOptions,
         helpText: 'Action to perform after executing the program',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to call from. Sends the transaction and pays the fee',

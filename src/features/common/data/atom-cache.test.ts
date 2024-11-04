@@ -2,19 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createReadOnlyAtomAndTimestamp, createTimestamp, readOnlyAtomCache, writableAtomCache } from './atom-cache'
 import { atom, Atom, Getter, SetStateAction, Setter, WritableAtom } from 'jotai'
 import { shortId } from '@/utils/short-id'
-
-const myStore = await vi.hoisted(async () => {
-  const { createStore } = await import('jotai/index')
-  return createStore()
-})
-
-vi.mock('@/features/common/data/data-store', async () => {
-  const original = await vi.importActual('@/features/common/data/data-store')
-  return {
-    ...original,
-    dataStore: myStore,
-  }
-})
+import { getTestStore } from '@/tests/utils/get-test-store'
 
 describe('atom-cache', () => {
   afterEach(async () => {
@@ -27,6 +15,7 @@ describe('atom-cache', () => {
     }
 
     it('can add an item', () => {
+      const myStore = getTestStore()
       const now = Date.now()
       const date = new Date('2024-08-18T15:52:00Z')
       const dateEpoch = Number(date)
@@ -46,6 +35,7 @@ describe('atom-cache', () => {
     })
 
     it('can get an existing item and the timestamp is updated', () => {
+      const myStore = getTestStore()
       const now = Date.now()
       const date = new Date('2024-08-18T16:52:00Z')
       const dateEpoch = Number(date)
@@ -64,6 +54,7 @@ describe('atom-cache', () => {
     })
 
     it("initialises an item that doesn't exist", () => {
+      const myStore = getTestStore()
       const now = Date.now()
       const date = new Date('2024-08-18T17:52:00Z')
       const dateEpoch = Number(date)
@@ -80,9 +71,64 @@ describe('atom-cache', () => {
       expect(myStore.get(myThingAtom)).toBe('LZZV6LMO')
       expectTimestampToBeWithinSeconds(myThingTimestamp, now)
     })
+
+    it('can get an item that throws without caching', () => {
+      const myStore = getTestStore()
+      const fails = 'fails'
+      const success = 'success'
+
+      let initialiserCallCount = 0
+      const atomInitialiser = (_: Getter, __: Setter, arg: string): string => {
+        initialiserCallCount++
+
+        if (arg === fails) {
+          throw new Error('Boom')
+        }
+
+        return arg
+      }
+
+      const [_, getMyThing] = readOnlyAtomCache(atomInitialiser, (arg) => arg)
+
+      expect(() => myStore.get(getMyThing(fails))).toThrow('Boom')
+      expect(() => myStore.get(getMyThing(fails))).toThrow('Boom')
+      expect(myStore.get(getMyThing(success))).toBe(success)
+      expect(() => myStore.get(getMyThing(fails))).toThrow('Boom')
+      expect(myStore.get(getMyThing(success))).toBe(success)
+
+      expect(initialiserCallCount).toBe(4)
+    })
+
+    it('can get an async item that throws without caching', async () => {
+      const myStore = getTestStore()
+      const fails = 'fails'
+      const success = 'success'
+
+      let initialiserCallCount = 0
+      const asyncAtomInitialiser = (_: Getter, __: Setter, arg: string): Promise<string> => {
+        initialiserCallCount++
+
+        if (arg === fails) {
+          throw new Error('Boom')
+        }
+
+        return Promise.resolve(arg)
+      }
+
+      const [_, getMyThing] = readOnlyAtomCache(asyncAtomInitialiser, (arg) => arg)
+
+      await expect(async () => await myStore.get(getMyThing(fails))).rejects.toThrow('Boom')
+      await expect(async () => await myStore.get(getMyThing(fails))).rejects.toThrow('Boom')
+      expect(await myStore.get(getMyThing(success))).toBe(success)
+      await expect(async () => await myStore.get(getMyThing(fails))).rejects.toThrow('Boom')
+      expect(await myStore.get(getMyThing(success))).toBe(success)
+
+      expect(initialiserCallCount).toBe(4)
+    })
   })
 
   describe('writeable atom cache', () => {
+    const myStore = getTestStore()
     const atomInitialiser = (_: Getter, __: Setter, date: Date) => {
       return atom(shortId(date))
     }
@@ -110,6 +156,7 @@ describe('atom-cache', () => {
     })
 
     it('can get an existing item and the timestamp is updated', () => {
+      const myStore = getTestStore()
       const now = Date.now()
       const date = new Date('2024-08-18T16:52:00Z')
       const dateEpoch = Number(date)
@@ -130,6 +177,7 @@ describe('atom-cache', () => {
     })
 
     it('can update an existing item', () => {
+      const myStore = getTestStore()
       const now = Date.now()
       const date = new Date('2024-08-18T16:52:00Z')
       const dateEpoch = Number(date)
@@ -151,6 +199,7 @@ describe('atom-cache', () => {
     })
 
     it("initialises an item that doesn't exist", () => {
+      const myStore = getTestStore()
       const now = Date.now()
       const date = new Date('2024-08-18T17:52:00Z')
       const dateEpoch = Number(date)

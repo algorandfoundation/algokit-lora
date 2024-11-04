@@ -7,18 +7,25 @@ import { DeleteAppInterfaceButton } from '@/features/app-interfaces/components/d
 import { appIdLabel, contractNameLabel, methodsLabel } from '@/features/app-interfaces/components/labels'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AppSpecStandard } from '../data/types'
+import { Button } from '@/features/common/components/button'
+import { Pencil } from 'lucide-react'
+import { getLatestAppSpecVersion } from '../mappers'
 
 type Props = {
   appInterface: AppInterfaceEntity
+  onEdit: () => void
   onDelete: () => void
 }
 
-export function AppInterfaceCard({ appInterface, onDelete }: Props) {
+export function AppInterfaceCard({ appInterface, onEdit, onDelete }: Props) {
   const items = useMemo(() => {
-    // Pick the first item in the array because we don't support multiple versions yet
-    const latestAppSpecVersion = appInterface.appSpecVersions[0]
-    const contract =
-      latestAppSpecVersion.standard === AppSpecStandard.ARC32 ? latestAppSpecVersion.appSpec.contract : latestAppSpecVersion.appSpec
+    const latestAppSpecVersion = getLatestAppSpecVersion(appInterface.appSpecVersions)
+
+    const contract = latestAppSpecVersion
+      ? latestAppSpecVersion.standard === AppSpecStandard.ARC32
+        ? latestAppSpecVersion.appSpec.contract
+        : latestAppSpecVersion.appSpec
+      : { name: 'Not available', methods: [] }
 
     return [
       {
@@ -42,9 +49,12 @@ export function AppInterfaceCard({ appInterface, onDelete }: Props) {
         <h2 className="truncate">{appInterface.name}</h2>
         <div className="flex grow flex-col justify-between gap-4">
           <DescriptionList items={items} />
-          <div className="flex items-center justify-between">
-            <p>Last modified: {dateFormatter.asShortDate(new Date(appInterface.lastModified))}</p>
-            <DeleteAppInterfaceButton appInterface={appInterface} onDelete={onDelete} />
+          <div className="flex items-center gap-2">
+            <p>Modified: {dateFormatter.asShortDate(new Date(appInterface.lastModified))}</p>
+            <div className="ml-auto flex gap-2">
+              <Button size="sm" variant="outline" icon={<Pencil size={16} />} onClick={onEdit} />
+              <DeleteAppInterfaceButton appInterface={appInterface} onDelete={onDelete} />
+            </div>
           </div>
         </div>
       </CardContent>

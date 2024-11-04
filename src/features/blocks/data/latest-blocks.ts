@@ -212,6 +212,7 @@ const subscriberAtom = atom(null, (get, set) => {
         ['transactions-root']: b.transactionsRoot,
         ['transactions-root-sha256']: b.transactionsRootSha256,
         ['txn-counter']: b.txnCounter,
+        proposer: b.proposer,
         ...(b.upgradeState
           ? {
               ['upgrade-state']: {

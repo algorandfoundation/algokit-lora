@@ -15,6 +15,8 @@ import { FromAppIdCard } from '../components/create/from-app-id-card'
 import { FromDeploymentCard } from '../components/create/from-deployment-card'
 import { asError } from '@/utils/error'
 import { useTitle } from '@/utils/use-title'
+import { Button } from '@/features/common/components/button'
+import { ArrowLeft } from 'lucide-react'
 
 export const createAppInterfacePageTitle = 'Create App Interface'
 
@@ -71,6 +73,8 @@ function CreateAppInterfaceInner() {
     state.context.roundLastValid,
   ])
 
+  const back = useCallback(() => navigate(Urls.AppLab.build({})), [navigate])
+
   useEffect(() => {
     if (state.matches({ fromAppId: 'create' }) || state.matches({ fromAppDeployment: 'create' })) {
       create()
@@ -84,6 +88,9 @@ function CreateAppInterfaceInner() {
       <div className={cn('xl:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-4')}>
         <FromAppIdCard machine={machine} />
         <FromDeploymentCard machine={machine} />
+        <Button type="button" variant="outline" className="mr-auto w-24" onClick={back} icon={<ArrowLeft size={16} />}>
+          Back
+        </Button>
       </div>
     )
   } else if (state.matches('fromAppId')) {
@@ -103,7 +110,7 @@ function CreateAppInterfaceInner() {
   return <PageLoader />
 }
 
-export function CreateAppInterface() {
+export function CreateAppInterfacePage() {
   useTitle('Create App Interface')
   return (
     <>

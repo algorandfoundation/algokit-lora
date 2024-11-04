@@ -15,6 +15,8 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const receiverLabel = 'Receiver'
 
@@ -29,12 +31,12 @@ const formData = zfd.formData(formSchema)
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildPaymentTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildPaymentTransactionResult) => void
   onCancel: () => void
 }
 
-export function PaymentTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function PaymentTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -63,7 +65,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -71,7 +73,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form
@@ -87,13 +89,13 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAddress, on
     >
       {(helper) => (
         <>
-          {helper.textField({
+          {helper.addressField({
             field: 'sender',
             label: 'Sender',
             helpText: 'Account to pay from. Sends the transaction and pays the fee',
             placeholder: ZERO_ADDRESS,
           })}
-          {helper.textField({
+          {helper.addressField({
             field: 'receiver',
             label: receiverLabel,
             helpText: 'Account to receive the amount',

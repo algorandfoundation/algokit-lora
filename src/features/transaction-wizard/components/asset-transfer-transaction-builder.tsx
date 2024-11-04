@@ -21,6 +21,8 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const receiverLabel = 'Receiver'
 
@@ -62,13 +64,13 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be transfered',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to transfer from. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'receiver',
         label: receiverLabel,
         helpText: 'Account to receive the asset',
@@ -147,12 +149,12 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAssetTransferTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildAssetTransferTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetTransferTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AssetTransferTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -183,7 +185,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -191,7 +193,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAddre
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form

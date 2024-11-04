@@ -12,6 +12,7 @@ import { AbiTupleFormItem, AbiTupleFormItemProps } from '@/features/forms/compon
 import { TransactionFormItem, TransactionFormItemProps } from './transaction-form-item'
 import { ArrayFormItem, ArrayFormItemProps } from './array-form-item'
 import { RadioGroupFormItem, RadioGroupFormItemProps } from './radio-group-form-item'
+import { AddressFieldProps, AddressFormItem, AddressOrNfdFieldSchema, OptionalAddressOrNfdFieldSchema } from './address-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -81,5 +82,13 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   radioGroupField(props: RadioGroupFormItemProps<TSchema>) {
     return <RadioGroupFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  addressField({ field, ...props }: AddressFieldProps<TSchema>) {
+    const helper = new FormFieldHelper<AddressOrNfdFieldSchema | OptionalAddressOrNfdFieldSchema>({ fieldPrefix: field })
+
+    const { field: valueField } = helper.prefixFieldProp({ field: 'value' })
+    const { field: resolvedAddressField } = helper.prefixFieldProp({ field: 'resolvedAddress' })
+    return <AddressFormItem {...props} field={valueField} resolvedAddressField={resolvedAddressField} />
   }
 }

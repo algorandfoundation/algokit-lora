@@ -21,6 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
 
 const formSchema = z
   .object({
@@ -54,11 +55,11 @@ const formSchema = z
     clawback: optionalAddressFieldSchema,
   })
   .superRefine((data, ctx) => {
-    if (data.asset.manager && data.sender && data.sender !== data.asset.manager) {
+    if (data.asset.manager && data.sender && data.sender.resolvedAddress && data.sender.resolvedAddress !== data.asset.manager) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Must be the manager account of the asset',
-        path: ['sender'],
+        path: ['sender.value'],
       })
     }
   })
@@ -78,31 +79,31 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be reconfigured',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'The manager account of the asset. Sends the transaction and pays the fee',
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'manager',
         label: 'Manager',
         helpText: "Account that can re-configure and destroy the asset. If empty, the asset can't be re-configured",
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'reserve',
         label: 'Reserve',
         helpText: "Account that holds the reserve units of the asset. If empty, this address can't be changed",
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'freeze',
         label: 'Freeze',
         helpText: "Account that can freeze the asset. If empty, assets can't be frozen and this address can't be changed",
         placeholder: ZERO_ADDRESS,
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'clawback',
         label: 'Clawback',
         helpText: "Account that can claw back the asset. If empty, assets can't be clawed back and this address can't be changed",
@@ -149,12 +150,35 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('sender', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager ?? '' : '')
+        setValue(
+          'sender',
+          loadableAssetSummary.state === 'hasData' ? asAddressOrNfd(loadableAssetSummary.data.manager ?? '') : asAddressOrNfd('')
+        )
         setValue('asset.manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-        setValue('manager', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.manager : undefined)
-        setValue('reserve', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.reserve : undefined)
-        setValue('freeze', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.freeze : undefined)
-        setValue('clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
+        setValue(
+          'manager',
+          loadableAssetSummary.state === 'hasData'
+            ? asOptionalAddressOrNfdSchema(loadableAssetSummary.data.manager)
+            : asOptionalAddressOrNfdSchema(undefined)
+        )
+        setValue(
+          'reserve',
+          loadableAssetSummary.state === 'hasData'
+            ? asOptionalAddressOrNfdSchema(loadableAssetSummary.data.reserve)
+            : asOptionalAddressOrNfdSchema(undefined)
+        )
+        setValue(
+          'freeze',
+          loadableAssetSummary.state === 'hasData'
+            ? asOptionalAddressOrNfdSchema(loadableAssetSummary.data.freeze)
+            : asOptionalAddressOrNfdSchema(undefined)
+        )
+        setValue(
+          'clawback',
+          loadableAssetSummary.state === 'hasData'
+            ? asOptionalAddressOrNfdSchema(loadableAssetSummary.data.clawback)
+            : asOptionalAddressOrNfdSchema(undefined)
+        )
         trigger()
       }
       if (initialAssetLoad) {
@@ -192,10 +216,10 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
         type: BuildableTransactionType.AssetReconfigure,
         asset: data.asset,
         sender: data.sender,
-        manager: data.manager,
-        reserve: data.reserve,
-        freeze: data.freeze,
-        clawback: data.clawback,
+        manager: asOptionalAddressOrNfd(data.manager),
+        reserve: asOptionalAddressOrNfd(data.reserve),
+        freeze: asOptionalAddressOrNfd(data.freeze),
+        clawback: asOptionalAddressOrNfd(data.clawback),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

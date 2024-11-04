@@ -55,15 +55,55 @@ function getOrCreateValueInCacheAtom<Key extends string | number, Args extends u
 export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
   createInitialValue: (get: Getter, set: Setter, ...args: Args) => Value,
   keySelector: (...args: Args) => Key,
-  initialValues: Map<Key, readonly [Atom<Value | Awaited<Value>>, number]> = new Map()
-) {
+  initialValues?: Map<Key, readonly [Atom<Value>, number]>
+): readonly [PrimitiveAtom<Map<Key, readonly [Atom<Value>, number]>>, (...params: [...args: Args, options?: Options]) => Atom<Value>]
+export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
+  createInitialValue: (get: Getter, set: Setter, ...args: Args) => Promise<Value>,
+  keySelector: (...args: Args) => Key,
+  initialValues?: Map<Key, readonly [Atom<Promise<Value>>, number]>
+): readonly [
+  PrimitiveAtom<Map<Key, readonly [Atom<Promise<Value>>, number]>>,
+  (...params: [...args: Args, options?: Options]) => Atom<Promise<Value>>,
+]
+export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
+  createInitialValue: (get: Getter, set: Setter, ...args: Args) => Value | Promise<Value>,
+  keySelector: (...args: Args) => Key,
+  initialValues: Map<Key, readonly [Atom<Value | Promise<Value>>, number]> = new Map()
+): readonly [
+  PrimitiveAtom<Map<Key, readonly [Atom<Value | Promise<Value>>, number]>>,
+  (...params: [...args: Args, options?: Options]) => Atom<Value | Promise<Value>>,
+] {
   // Note: The for unbound collections, this will grow indefinitely.
   // Stale data should be cleaned up in state-cleanup.ts
   const valuesAtom = atom(initialValues)
 
-  const valueAtom = getOrCreateValueInCacheAtom(keySelector, valuesAtom, (get, set, ...args) =>
-    atom(() => createInitialValue(get, set, ...args))
-  )
+  const valueAtom = getOrCreateValueInCacheAtom(keySelector, valuesAtom, (get, set, ...args) => {
+    const value = createInitialValue(get, set, ...args)
+
+    const removeFromCache = () => {
+      const values = get(valuesAtom)
+      values.delete(keySelector(...args))
+    }
+    if (value && typeof value === 'object' && 'then' in value) {
+      return atom(async () => {
+        try {
+          return await value
+        } catch (e) {
+          removeFromCache()
+          throw e
+        }
+      })
+    }
+
+    return atom(() => {
+      try {
+        return value
+      } catch (e) {
+        removeFromCache()
+        throw e
+      }
+    })
+  })
 
   const getValueAtom = (...params: [...args: Args, options?: Options]) => {
     return dataStore.set(valueAtom, params)

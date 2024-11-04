@@ -17,7 +17,7 @@ export function ClearCache() {
     <div>
       <h2>Data</h2>
       <div>
-        <p className="mb-2">Reset cached state and reload the app.</p>
+        <p className="mb-2 text-sm">Reset cached state and reload the app.</p>
         <Button onClick={handleClearCache} variant="outline" size="sm">
           Reset cache
         </Button>

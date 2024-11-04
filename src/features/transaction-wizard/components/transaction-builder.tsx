@@ -2,7 +2,7 @@ import algosdk from 'algosdk'
 import { useMemo, useState } from 'react'
 import { BuildableTransactionType, BuildTransactionResult } from '../models'
 import { MethodCallTransactionBuilder } from './method-call-transaction-builder'
-import { useLoadableActiveWalletAddressSnapshotAtom } from '@/features/wallet/data/active-wallet'
+import { useLoadableActiveWalletAccountSnapshotAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { cn } from '@/features/common/utils'
@@ -116,7 +116,7 @@ type Props = {
 }
 
 export function TransactionBuilder({ mode, transactionType, type, transaction, defaultValues, onSubmit, onCancel }: Props) {
-  const loadableActiveWalletAddressSnapshot = useLoadableActiveWalletAddressSnapshotAtom()
+  const loadableActiveWalletAccountSnapshot = useLoadableActiveWalletAccountSnapshotAtom()
 
   const validBuilderConfigs = useMemo(() => {
     if (transactionType !== undefined) {
@@ -135,8 +135,8 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
   }, [selectedBuilderType])
 
   return (
-    <RenderLoadable loadable={loadableActiveWalletAddressSnapshot}>
-      {(activeWalletAddressSnapshot) => (
+    <RenderLoadable loadable={loadableActiveWalletAccountSnapshot}>
+      {(activeWalletAccountSnapshot) => (
         <div>
           {!type && (
             <div className={cn('flex flex-col mb-4')}>
@@ -166,7 +166,7 @@ export function TransactionBuilder({ mode, transactionType, type, transaction, d
             transaction={transaction as any}
             onSubmit={onSubmit}
             onCancel={onCancel}
-            activeAddress={activeWalletAddressSnapshot}
+            activeAccount={activeWalletAccountSnapshot}
           />
         </div>
       )}

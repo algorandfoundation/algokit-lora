@@ -3,6 +3,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { useMemo } from 'react'
 import { atomWithRefresh, loadable } from 'jotai/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { invariant } from '@/utils/invariant'
 
 export const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
   return await dbConnection.get('app-interfaces', applicationId)
@@ -28,4 +29,17 @@ export const useAppInterfaces = () => {
     })
   }, [])
   return [useAtomValue(loadable(appInterfacesAtom)), useSetAtom(appInterfacesAtom)] as const
+}
+
+export const useAppInterface = (applicationId: ApplicationId) => {
+  const appInterfaceAtom = useMemo(() => {
+    return atomWithRefresh(async (get) => {
+      const dbConnection = await get(dbConnectionAtom)
+
+      const entity = await getAppInterface(dbConnection, applicationId)
+      invariant(entity, 'App interface not found')
+      return entity
+    })
+  }, [applicationId])
+  return [useAtomValue(loadable(appInterfaceAtom)), useSetAtom(appInterfaceAtom)] as const
 }

@@ -118,4 +118,10 @@ const syncAssociatedDataAndReturnBlockResult = async (_: Getter, set: Setter, ro
   return blockResult
 }
 
-export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache(syncAssociatedDataAndReturnBlockResult, (round) => round)
+const keySelector = (round: Round) => round
+
+export const [blockResultsAtom, getBlockResultAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<BlockResult> | BlockResult
+>(syncAssociatedDataAndReturnBlockResult, keySelector)

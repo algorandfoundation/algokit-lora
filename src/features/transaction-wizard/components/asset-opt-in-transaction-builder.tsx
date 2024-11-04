@@ -21,6 +21,8 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formSchema = {
   ...commonSchema,
@@ -58,7 +60,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
         label: <span className="flex items-center gap-1.5">Asset ID {asset && asset.name ? ` (${asset.name})` : ''}</span>,
         helpText: 'The asset to be opted in to',
       })}
-      {helper.textField({
+      {helper.addressField({
         field: 'sender',
         label: 'Sender',
         helpText: 'Account to opt in to the asset. Sends the transaction and pays the fee',
@@ -131,12 +133,12 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
 type Props = {
   mode: TransactionBuilderMode
   transaction?: BuildAssetOptInTransactionResult
-  activeAddress?: string
+  activeAccount?: ActiveWalletAccount
   onSubmit: (transaction: BuildAssetOptInTransactionResult) => void
   onCancel: () => void
 }
 
-export function AssetOptInTransactionBuilder({ mode, transaction, activeAddress, onSubmit, onCancel }: Props) {
+export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -163,7 +165,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAddress,
     }
 
     return {
-      sender: activeAddress,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },
@@ -171,7 +173,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAddress,
         setAutomatically: true,
       },
     }
-  }, [activeAddress, mode, transaction])
+  }, [activeAccount, mode, transaction])
 
   return (
     <Form

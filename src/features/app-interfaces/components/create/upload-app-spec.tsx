@@ -2,14 +2,13 @@ import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { Form } from '@/features/forms/components/form'
 import { zfd } from 'zod-form-data'
-import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
-import { readFile } from '@/utils/read-file'
-import { jsonAsArc32AppSpec, jsonAsArc4AppSpec } from '@/features/abi-methods/mappers'
+import { AppSpecStandard } from '@/features/app-interfaces/data/types'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { Button } from '@/features/common/components/button'
 import { ArrowLeft } from 'lucide-react'
+import { parseAsAppSpec } from '../../mappers'
 
 const selectAppSpecFormSchema = zfd.formData({
   file: z.instanceof(File, { message: 'Required' }).refine((file) => file.type === 'application/json', 'Only JSON files are allowed'),
@@ -68,21 +67,4 @@ export function UploadAppSpec({ machine, supportedStandards }: Props) {
       }
     </Form>
   )
-}
-
-const parseAsAppSpec = async (file: File, supportedStandards: AppSpecStandard[]): Promise<Arc32AppSpec | Arc4AppSpec> => {
-  try {
-    const content = await readFile(file)
-    const jsonData = JSON.parse(content as string)
-
-    if (supportedStandards.includes(AppSpecStandard.ARC32) && 'contract' in jsonData) {
-      return jsonAsArc32AppSpec(jsonData)
-    } else if (supportedStandards.includes(AppSpecStandard.ARC4)) {
-      return jsonAsArc4AppSpec(jsonData)
-    }
-
-    throw new Error('Not supported')
-  } catch (e) {
-    throw new Error(`The file is not a valid ${supportedStandards.join(' or ')} app spec`)
-  }
 }

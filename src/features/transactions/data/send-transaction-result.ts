@@ -10,7 +10,7 @@ import { abiMethodResolver } from '@/features/abi-methods/data'
 import { atom } from 'jotai'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
-import { AssetId, AssetResult } from '@/features/assets/data/types'
+import { AssetId } from '@/features/assets/data/types'
 import { asAssetSummary } from '@/features/assets/mappers'
 
 const asBlockTransaction = (res: algosdk.modelsv2.PendingTransactionResponse): BlockInnerTransaction => {
@@ -40,12 +40,12 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
   const now = new Date()
   const groupResolver = (groupId: GroupId, round: Round) =>
     atom(() => {
-      return Promise.resolve({
+      return {
         id: groupId,
         timestamp: now.toISOString(),
         round,
         transactionIds: result.transactions.map((txn) => txn.txID()),
-      } satisfies GroupResult)
+      } satisfies GroupResult
     })
 
   // This mapping does some approximations, which are fine for the contexts we currently use it for.
@@ -73,16 +73,17 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
 
 const assetSummaryResolver = (assetId: AssetId) =>
   atom(async (get) => {
-    const assetResult = await get(getAssetResultAtom(assetId, { skipTimestampUpdate: true })).catch(() => {
-      // It should never fail in the context we are current using this, however if it does, we return a slim asset. The may need to be expanded in the future.
-      return {
+    try {
+      const assetResult = await get(getAssetResultAtom(assetId, { skipTimestampUpdate: true }))
+      return asAssetSummary(assetResult)
+    } catch (e) {
+      return asAssetSummary({
         index: assetId,
         params: {
           creator: '',
           decimals: 0,
           total: 0,
         },
-      } satisfies AssetResult
-    })
-    return asAssetSummary(assetResult)
+      })
+    }
   })

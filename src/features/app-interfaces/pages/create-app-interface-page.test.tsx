@@ -1,15 +1,15 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { fireEvent, getByLabelText, getByText, render, RenderResult, waitFor } from '@/tests/testing-library'
+import { fireEvent, getByLabelText, getByText, render, waitFor } from '@/tests/testing-library'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
-import { CreateAppInterface } from './create-app-interface'
+import { CreateAppInterfacePage } from './create-app-interface-page'
 import { deployAppLabel } from '../components/labels'
 import { useWallet } from '@txnlab/use-wallet'
 import SampleSixAppSpec from '@/tests/test-app-specs/sample-six.arc32.json'
 import { Arc32AppSpec } from '../data/types'
 import { selectOption } from '@/tests/utils/select-option'
-import { useParams } from 'react-router-dom'
+import { getButton } from '@/tests/utils/get-button'
 
 describe('create-app-interface', () => {
   const localnet = algorandFixture()
@@ -20,14 +20,13 @@ describe('create-app-interface', () => {
 
   describe('when a wallet is connected', () => {
     beforeEach(async () => {
-      vi.mocked(useParams).mockReturnValue({})
       await setWalletAddressAndSigner(localnet)
     })
 
     it('the button to deploy the app is enabled', () => {
       return executeComponentTest(
         () => {
-          return render(<CreateAppInterface />)
+          return render(<CreateAppInterfacePage />)
         },
         async (component) => {
           await waitFor(() => {
@@ -40,10 +39,9 @@ describe('create-app-interface', () => {
 
     it('can deploy an app with template parameters', () => {
       const appSpec = SampleSixAppSpec as Arc32AppSpec
-      vi.mocked(useParams).mockReturnValue({})
       return executeComponentTest(
         () => {
-          return render(<CreateAppInterface />)
+          return render(<CreateAppInterfacePage />)
         },
         async (component, user) => {
           const deployAppButton = await getButton(component, deployAppLabel)
@@ -109,8 +107,6 @@ describe('create-app-interface', () => {
   describe('when a wallet is not connected', () => {
     beforeEach(async () => {
       const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
-      vi.mocked(useParams).mockReturnValue({})
-
       vi.mocked(useWallet).mockImplementation(() => {
         return {
           ...original.useWallet(),
@@ -124,7 +120,7 @@ describe('create-app-interface', () => {
     it('the button to deploy the app is disabled', () => {
       return executeComponentTest(
         () => {
-          return render(<CreateAppInterface />)
+          return render(<CreateAppInterfacePage />)
         },
         async (component) => {
           await waitFor(() => {
@@ -141,13 +137,5 @@ const findParentDiv = async (component: HTMLElement, label: string) => {
   return await waitFor(() => {
     const div = getByText(component, label)
     return div.parentElement!
-  })
-}
-
-const getButton = async (component: RenderResult, label: string) => {
-  return await waitFor(() => {
-    const button = component.getByRole('button', { name: label })
-    expect(button).toBeDefined()
-    return button
   })
 }

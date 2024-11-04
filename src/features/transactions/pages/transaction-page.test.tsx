@@ -84,7 +84,7 @@ import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
 import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
-import { writeAppInterface } from '@/features/app-interfaces/data'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { algod } from '@/features/common/data/algo-client'
 
 vi.mock('@/features/common/data/algo-client', async () => {
@@ -1277,7 +1277,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
 
     const applicationId = transaction['application-transaction']!['application-id']!
     const dbConnection = await myStore.get(dbConnectionAtom)
-    await writeAppInterface(dbConnection, {
+    await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
       name: 'test',
       appSpecVersions: [
@@ -1322,7 +1322,7 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
 
     const applicationId = transaction['application-transaction']!['application-id']!
     const dbConnection = await myStore.get(dbConnectionAtom)
-    await writeAppInterface(dbConnection, {
+    await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
       name: 'test',
       appSpecVersions: [

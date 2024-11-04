@@ -8,6 +8,7 @@ import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
 import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { Nfd } from '@/features/nfd/data/types'
 
 export enum BuildableTransactionType {
   // pay
@@ -54,9 +55,14 @@ export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
 }
 
+export type AddressOrNfd = {
+  value: Address | Nfd
+  resolvedAddress: Address
+}
+
 type CommonBuildTransactionResult = {
   id: string
-  sender: Address
+  sender: AddressOrNfd
   fee: {
     setAutomatically: boolean
     value?: number
@@ -107,14 +113,14 @@ export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | Placehol
 
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
-  receiver: Address
+  receiver: AddressOrNfd
   amount: number
 }
 
 export type BuildAccountCloseTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.AccountClose
-  closeRemainderTo: Address
-  receiver?: Address
+  closeRemainderTo: AddressOrNfd
+  receiver?: AddressOrNfd
   amount?: number
 }
 
@@ -126,7 +132,7 @@ export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult &
     clawback?: Address
   }
   type: BuildableTransactionType.AssetTransfer
-  receiver: Address
+  receiver: AddressOrNfd
   amount: number
 }
 
@@ -148,7 +154,7 @@ export type BuildAssetOptOutTransactionResult = CommonBuildTransactionResult & {
     clawback?: Address
   }
   type: BuildableTransactionType.AssetOptOut
-  closeRemainderTo: Address
+  closeRemainderTo: AddressOrNfd
 }
 
 export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult & {
@@ -159,8 +165,8 @@ export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult &
     clawback?: Address
   }
   type: BuildableTransactionType.AssetClawback
-  receiver: Address
-  clawbackTarget: Address
+  receiver: AddressOrNfd
+  clawbackTarget: AddressOrNfd
   amount: number
 }
 
@@ -173,10 +179,10 @@ export type BuildAssetCreateTransactionResult = CommonBuildTransactionResult & {
   url?: string
   metadataHash?: string
   defaultFrozen: boolean
-  manager?: Address
-  reserve?: Address
-  freeze?: Address
-  clawback?: Address
+  manager?: AddressOrNfd
+  reserve?: AddressOrNfd
+  freeze?: AddressOrNfd
+  clawback?: AddressOrNfd
 }
 
 export type BuildAssetReconfigureTransactionResult = CommonBuildTransactionResult & {
@@ -187,10 +193,10 @@ export type BuildAssetReconfigureTransactionResult = CommonBuildTransactionResul
     unitName?: string
     manager?: Address
   }
-  manager?: Address
-  reserve?: Address
-  freeze?: Address
-  clawback?: Address
+  manager?: AddressOrNfd
+  reserve?: AddressOrNfd
+  freeze?: AddressOrNfd
+  clawback?: AddressOrNfd
 }
 
 export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & {
@@ -207,7 +213,7 @@ export type BuildAssetFreezeTransactionResult = CommonBuildTransactionResult & {
     unitName?: string
     freeze?: Address
   }
-  freezeTarget: Address
+  freezeTarget: AddressOrNfd
   type: BuildableTransactionType.AssetFreeze
   frozen: boolean
 }

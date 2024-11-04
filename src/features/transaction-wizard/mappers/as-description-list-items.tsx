@@ -22,7 +22,6 @@ import {
 } from '../models'
 import { getAbiValue } from '@/features/abi-methods/data'
 import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AccountLink } from '@/features/accounts/components/account-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
@@ -43,6 +42,7 @@ import { Edit, PlusCircle } from 'lucide-react'
 import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
 import { AbiType } from '@/features/abi-methods/models'
+import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -89,31 +89,19 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
   return [
     {
       dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
           {
             dt: 'Close remainder to',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.closeRemainderTo}>
-                {params.closeRemainderTo}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.closeRemainderTo} />,
           },
         ]
       : []),
     {
       dt: 'Receiver',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.receiver}>
-          {params.receiver}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.receiver} />,
     },
     {
       dt: 'Amount',
@@ -137,37 +125,21 @@ const asAssetTransferTransaction = (
   return [
     {
       dt: 'Asset ID',
-      dd: (
-        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
-          {Number(params.assetId)}
-        </AssetIdLink>
-      ),
+      dd: <AssetIdLink assetId={Number(params.assetId)} />,
     },
     {
       dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     {
       dt: 'Receiver',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.receiver}>
-          {params.receiver}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.receiver} />,
     },
     ...('clawbackTarget' in params && params.clawbackTarget
       ? [
           {
             dt: 'Clawback target',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.clawbackTarget}>
-                {params.clawbackTarget}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.clawbackTarget} />,
           },
         ]
       : []),
@@ -175,11 +147,7 @@ const asAssetTransferTransaction = (
       ? [
           {
             dt: 'Close remainder to',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.closeAssetTo}>
-                {params.closeAssetTo}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.closeAssetTo} />,
           },
         ]
       : []),
@@ -203,11 +171,7 @@ const asAssetConfigTransaction = (
       ? [
           {
             dt: 'Asset ID',
-            dd: (
-              <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
-                {Number(params.assetId)}
-              </AssetIdLink>
-            ),
+            dd: <AssetIdLink assetId={Number(params.assetId)} />,
           },
         ]
       : []),
@@ -217,21 +181,13 @@ const asAssetConfigTransaction = (
     ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     ...('manager' in params && params.manager
       ? [
           {
             dt: 'Manager',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.manager}>
-                {params.manager}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.manager} />,
           },
         ]
       : []),
@@ -239,11 +195,7 @@ const asAssetConfigTransaction = (
       ? [
           {
             dt: 'Reserve',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.reserve}>
-                {params.reserve}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.reserve} />,
           },
         ]
       : []),
@@ -251,11 +203,7 @@ const asAssetConfigTransaction = (
       ? [
           {
             dt: 'Freeze',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.freeze}>
-                {params.freeze}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.freeze} />,
           },
         ]
       : []),
@@ -263,11 +211,7 @@ const asAssetConfigTransaction = (
       ? [
           {
             dt: 'Clawback',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.clawback}>
-                {params.clawback}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.clawback} />,
           },
         ]
       : []),
@@ -288,29 +232,17 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
   return [
     {
       dt: 'Asset ID',
-      dd: (
-        <AssetIdLink className="text-primary underline" assetId={Number(params.assetId)}>
-          {Number(params.assetId)}
-        </AssetIdLink>
-      ),
+      dd: <AssetIdLink assetId={Number(params.assetId)} />,
     },
     {
       dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     ...('account' in params && params.account
       ? [
           {
             dt: 'Freeze target',
-            dd: (
-              <AccountLink className="text-primary underline" address={params.account}>
-                {params.account}
-              </AccountLink>
-            ),
+            dd: <AddressOrNfdLink address={params.account} />,
           },
         ]
       : []),
@@ -330,11 +262,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
   return [
     {
       dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     {
       dt: 'Registration',
@@ -400,27 +328,15 @@ const asMethodArg = (
   }
   if (algosdk.abiTypeIsReference(type)) {
     if (type === algosdk.ABIReferenceType.account) {
-      return (
-        <AccountLink className="text-primary underline" address={arg.toString()}>
-          {arg.toString()}
-        </AccountLink>
-      )
+      return <AddressOrNfdLink address={arg.toString()} />
     }
     if (type === algosdk.ABIReferenceType.asset) {
       const assetId = Number(arg)
-      return (
-        <AssetIdLink className="text-primary underline" assetId={assetId}>
-          {assetId}
-        </AssetIdLink>
-      )
+      return <AssetIdLink assetId={assetId} />
     }
     if (type === algosdk.ABIReferenceType.application) {
       const applicationId = Number(arg)
-      return (
-        <ApplicationLink className="text-primary underline" applicationId={applicationId}>
-          {applicationId}
-        </ApplicationLink>
-      )
+      return <ApplicationLink applicationId={applicationId} />
     }
     return arg.toString()
   }
@@ -439,11 +355,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       ? [
           {
             dt: 'Application ID',
-            dd: (
-              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-                {Number(params.appId)}
-              </ApplicationLink>
-            ),
+            dd: <ApplicationLink applicationId={Number(params.appId)} />,
           },
         ]
       : []),
@@ -453,11 +365,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     },
     {
       dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     ...(transaction.args.length > 0
       ? [
@@ -491,11 +399,7 @@ const asMethodCallTransaction = (
       ? [
           {
             dt: 'Application ID',
-            dd: (
-              <ApplicationLink className="text-primary underline" applicationId={Number(params.appId)}>
-                {Number(params.appId)}
-              </ApplicationLink>
-            ),
+            dd: <ApplicationLink applicationId={Number(params.appId)} />,
           },
         ]
       : []),
@@ -506,11 +410,7 @@ const asMethodCallTransaction = (
     },
     {
       dt: 'Sender',
-      dd: (
-        <AccountLink className="text-primary underline" address={params.sender}>
-          {params.sender}
-        </AccountLink>
-      ),
+      dd: <AddressOrNfdLink address={params.sender} />,
     },
     ...(transaction.method.args.length > 0
       ? [
@@ -572,9 +472,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
-                      <AccountLink className="text-primary underline" address={address}>
-                        {address}
-                      </AccountLink>
+                      <AddressOrNfdLink address={address} />
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}
@@ -591,9 +489,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {assets.map((assetId, index, array) => (
                     <li key={index} className="truncate">
-                      <AssetIdLink className="text-primary underline" assetId={Number(assetId)}>
-                        {Number(assetId)}
-                      </AssetIdLink>
+                      <AssetIdLink assetId={Number(assetId)} />
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}
@@ -610,9 +506,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {apps?.map((appId, index, array) => (
                     <li key={index} className="truncate">
-                      <ApplicationLink className="text-primary underline" applicationId={Number(appId)}>
-                        {Number(appId)}
-                      </ApplicationLink>
+                      <ApplicationLink applicationId={Number(appId)} />
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}
@@ -634,9 +528,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                         <li key={index} className="truncate">
                           <span>[</span>
                           {box.appId > 0 ? (
-                            <ApplicationLink className="text-primary underline" applicationId={Number(box.appId)}>
-                              {Number(box.appId)}
-                            </ApplicationLink>
+                            <ApplicationLink applicationId={Number(box.appId)} />
                           ) : (
                             <AbiValue
                               abiValue={{

@@ -6,7 +6,7 @@ export const searchTransactionsMock = new SearchTransactionsMock()
 
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
-  useParams: vi.fn(),
+  useParams: vi.fn().mockReturnValue({}),
   useNavigate: vi.fn(),
 }))
 
