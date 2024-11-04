@@ -31,12 +31,12 @@ export const useCreateAppInterface = () => {
       )
       invariant(
         appSpecVersion.roundLastValid === undefined || appSpecVersion.roundLastValid >= 0,
-        'Round first valid must be greater than or equal to 0'
+        'Round last valid must be greater than or equal to 0'
       )
       if (appSpecVersion.roundFirstValid !== undefined && appSpecVersion.roundLastValid !== undefined) {
         invariant(
           appSpecVersion.roundLastValid >= appSpecVersion.roundFirstValid,
-          'Round first valid must be greater than or equal to round last valid'
+          'Round last valid must be greater than or equal to round first valid'
         )
       }
 
