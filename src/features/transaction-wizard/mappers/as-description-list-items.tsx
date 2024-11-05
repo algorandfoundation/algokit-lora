@@ -472,7 +472,9 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
-                      <AddressOrNfdLink address={address} />
+                      <AddressOrNfdLink address={address} className="inline text-primary underline">
+                        {address}
+                      </AddressOrNfdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}
@@ -489,7 +491,9 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {assets.map((assetId, index, array) => (
                     <li key={index} className="truncate">
-                      <AssetIdLink assetId={Number(assetId)} />
+                      <AssetIdLink assetId={Number(assetId)} className="inline text-primary underline">
+                        {Number(assetId)}
+                      </AssetIdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}
@@ -506,7 +510,9 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {apps?.map((appId, index, array) => (
                     <li key={index} className="truncate">
-                      <ApplicationLink applicationId={Number(appId)} />
+                      <ApplicationLink applicationId={Number(appId)} className="inline text-primary underline">
+                        {Number(appId)}
+                      </ApplicationLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
                   ))}
@@ -528,7 +534,9 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                         <li key={index} className="truncate">
                           <span>[</span>
                           {box.appId > 0 ? (
-                            <ApplicationLink applicationId={Number(box.appId)} />
+                            <ApplicationLink applicationId={Number(box.appId)} className="inline text-primary underline">
+                              {Number(box.appId)}
+                            </ApplicationLink>
                           ) : (
                             <AbiValue
                               abiValue={{
