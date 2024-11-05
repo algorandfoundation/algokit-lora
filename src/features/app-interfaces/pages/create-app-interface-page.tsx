@@ -14,6 +14,7 @@ import { useCreateAppInterface } from '../data'
 import { FromAppIdCard } from '../components/create/from-app-id-card'
 import { FromDeploymentCard } from '../components/create/from-deployment-card'
 import { asError } from '@/utils/error'
+import { useTitle } from '@/utils/use-title'
 import { Button } from '@/features/common/components/button'
 import { ArrowLeft } from 'lucide-react'
 
@@ -110,6 +111,7 @@ function CreateAppInterfaceInner() {
 }
 
 export function CreateAppInterfacePage() {
+  useTitle('Create App Interface')
   return (
     <>
       <PageTitle title={createAppInterfacePageTitle} />
