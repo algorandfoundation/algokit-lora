@@ -1,7 +1,7 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { getAllByRole, getByRole, queryAllByRole, render, waitFor } from '@/tests/testing-library'
 import { Atom, createStore } from 'jotai'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { ExplorePage } from './explore-page'
 import { latestBlocksTitle } from '@/features/blocks/components/latest-blocks'
 import { latestTransactionsTitle } from '@/features/transactions/components/latest-transactions'
@@ -16,14 +16,12 @@ import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
-import { useParams } from 'react-router-dom'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
     const myStore = createStore()
 
     it('no latest blocks are displayed', () => {
-      vi.mocked(useParams).mockReturnValue({ round: '1234' })
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
@@ -38,7 +36,6 @@ describe('explore-page', () => {
     })
 
     it('no latest transactions are displayed', () => {
-      vi.mocked(useParams).mockReturnValue({ round: '1234' })
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
@@ -67,7 +64,6 @@ describe('explore-page', () => {
     myStore.set(syncedRoundAtom, block.round)
 
     it('the processed blocks are displayed', () => {
-      vi.mocked(useParams).mockReturnValue({ round: '1234' })
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
@@ -87,7 +83,6 @@ describe('explore-page', () => {
     })
 
     it('the available transactions are displayed', () => {
-      vi.mocked(useParams).mockReturnValue({ round: '1234' })
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {
@@ -135,7 +130,6 @@ describe('explore-page', () => {
       myStore.set(transactionResultsAtom, data.transactions)
       myStore.set(blockResultsAtom, data.blocks)
       myStore.set(syncedRoundAtom, data.syncedRound)
-      vi.mocked(useParams).mockReturnValue({ round: '1234' })
 
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
@@ -162,7 +156,6 @@ describe('explore-page', () => {
       myStore.set(blockResultsAtom, data.blocks)
       myStore.set(syncedRoundAtom, data.syncedRound)
 
-      vi.mocked(useParams).mockReturnValue({ round: '1234' })
       return executeComponentTest(
         () => render(<ExplorePage />, undefined, myStore),
         async (component) => {

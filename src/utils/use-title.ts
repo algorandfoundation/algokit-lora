@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-
-const TRUNCATE_LENGTH = 10
+import { ellipseAddress } from './ellipse-address'
 
 export const setTitle = (title: string) => {
   document.title = title
@@ -14,7 +13,7 @@ export const useTitle = (pagePrefix?: string) => {
     const currentTitle = document.title
     const pageTitleParams: string[] = []
     if (urlParams.transactionId) {
-      pageTitleParams.push(`Txn:${urlParams.transactionId.slice(0, TRUNCATE_LENGTH)}`)
+      pageTitleParams.push(`Txn:${ellipseAddress(urlParams.transactionId)}`)
     }
     if (urlParams.transactionId && urlParams['*']) {
       pageTitleParams.push(`Inner:${urlParams['*']}`)
@@ -23,10 +22,10 @@ export const useTitle = (pagePrefix?: string) => {
       pageTitleParams.push(`Block:${urlParams.round}`)
     }
     if (urlParams?.groupId) {
-      pageTitleParams.push(`Group:${urlParams.groupId.slice(0, TRUNCATE_LENGTH)}`)
+      pageTitleParams.push(`Group:${ellipseAddress(urlParams.groupId)}`)
     }
     if (urlParams?.address) {
-      pageTitleParams.push(`Acct:${urlParams.address.slice(0, TRUNCATE_LENGTH)}`)
+      pageTitleParams.push(`Acct:${ellipseAddress(urlParams.address)}`)
     }
     if (urlParams?.applicationId) {
       pageTitleParams.push(`App:${urlParams.applicationId}`)
