@@ -29,10 +29,13 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
     }
     case algosdk.TransactionType.appl: {
       invariant(transactionResult['application-transaction'], 'application-transaction is not set')
+
       return {
         ...common,
         type: TransactionType.AppCall,
-        to: transactionResult['application-transaction']['application-id'],
+        to: transactionResult['application-transaction']['application-id']
+          ? transactionResult['application-transaction']['application-id']
+          : transactionResult['created-application-index']!,
         innerTransactions: transactionResult['inner-txns']?.map((t) => asTransactionSummary(t)),
       }
     }
