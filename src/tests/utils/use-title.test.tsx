@@ -27,13 +27,13 @@ const testCases: TestCase[] = [
     routePathName: 'Explore_Transaction_ById',
     routePath: '/:networkId/transaction/:transactionId',
     url: '/mainnet/transaction/CFNKY4JV5BMIRSP2SMZE634DYB22FALLURI72U6UMWZNKEBOYEMQ',
-    expectedText: 'Lora Txn:CFNKY4JV5B mainnet',
+    expectedText: 'Lora Txn:CFNK…YEMQ mainnet',
   },
   {
     routePathName: 'Explore_Transaction_ById_Inner_ById',
     routePath: '/:networkId/transaction/:transactionId/inner/*',
     url: '/mainnet/transaction/CFNKY4JV5BMIRSP2SMZE634DYB22FALLURI72U6UMWZNKEBOYEMQ/inner/1',
-    expectedText: 'Lora Txn:CFNKY4JV5B Inner:1 mainnet',
+    expectedText: 'Lora Txn:CFNK…YEMQ Inner:1 mainnet',
   },
   {
     routePathName: 'Explore_Block_ByRound',
@@ -45,13 +45,13 @@ const testCases: TestCase[] = [
     routePathName: 'Explore_Block_ByRound_Group_ById',
     routePath: '/:networkId/block/:round/group/:groupId',
     url: '/mainnet/block/43904244/group/iUE01XrzcJZ+ENIwPyjPmtaVUF5OKy8vYYOwGbdKliQ=',
-    expectedText: 'Lora Block:43904244 Group:iUE01XrzcJ mainnet',
+    expectedText: 'Lora Block:43904244 Group:iUE0…liQ= mainnet',
   },
   {
     routePathName: 'Explore_Account_ByAddress',
     routePath: '/:networkId/account/:address',
     url: '/mainnet/account/W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY',
-    expectedText: 'Lora Acct:W2IZ3EHDRW mainnet',
+    expectedText: 'Lora Acct:W2IZ…NCEY mainnet',
   },
   {
     routePathName: 'Explore_Asset_ById',
