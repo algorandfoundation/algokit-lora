@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { Label } from '@/features/common/components/label'
 import { FieldPath } from 'react-hook-form'
-import { Struct } from '@/features/app-interfaces/data/types/arc-32/application'
+import { StructFieldDefinition } from '@/features/applications/models'
 
 export type AbiTupleFormItemProps<TData extends Record<string, unknown>> = {
   field: FieldPath<TData>
@@ -9,7 +9,7 @@ export type AbiTupleFormItemProps<TData extends Record<string, unknown>> = {
   length: number
   description?: string
   createChildField: (label: string, index: number) => React.JSX.Element | undefined
-  struct?: Struct
+  structFields?: StructFieldDefinition[]
 }
 
 export function AbiTupleFormItem<TData extends Record<string, unknown>>({
@@ -17,17 +17,17 @@ export function AbiTupleFormItem<TData extends Record<string, unknown>>({
   prefix,
   length,
   createChildField,
-  struct,
+  structFields,
 }: AbiTupleFormItemProps<TData>) {
   const getLabel = useCallback(
     (index: number) => {
-      if (!struct) {
+      if (!structFields) {
         return `${prefix} ${index + 1}`
       } else {
-        return struct.elements[index][0]
+        return structFields[index].name
       }
     },
-    [prefix, struct]
+    [prefix, structFields]
   )
 
   const items = useMemo(

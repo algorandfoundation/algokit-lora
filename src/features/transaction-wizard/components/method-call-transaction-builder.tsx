@@ -15,7 +15,6 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { Path, useFormContext } from 'react-hook-form'
-import { useLoadableAbiMethodDefinitions } from '@/features/applications/data/application-method-definitions'
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
 import { DescriptionList } from '@/features/common/components/description-list'
@@ -26,11 +25,11 @@ import {
   MethodForm,
   PlaceholderTransaction,
 } from '../models'
-import { Struct } from '@/features/abi-methods/components/struct'
-import { DefaultArgument } from '@/features/abi-methods/components/default-value'
+import { StructDefinition } from '@/features/applications/components/struct-definition'
+import { DefaultArgument } from '@/features/applications/components/default-argument'
 import { asFieldInput, asMethodForm, methodArgPrefix } from '../mappers'
 import { randomGuid } from '@/utils/random-guid'
-import { TransactionBuilderMode } from '../data'
+import { TransactionBuilderMode, useLoadableArc56AppSpecWithMethodDefinitions } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { invariant } from '@/utils/invariant'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
@@ -70,24 +69,25 @@ export function MethodCallTransactionBuilder({
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? transaction.applicationId : undefined,
-        methodName: transaction.method.name,
+        methodName: transaction.methodDefinition.name,
         appSpec: transaction.appSpec,
       }
     }
 
     return {
       applicationId: _defaultValues?.applicationId !== undefined ? _defaultValues.applicationId : undefined,
-      methodName: _defaultValues?.method?.name,
+      methodName: _defaultValues?.methodDefinition?.name,
       appSpec: _defaultValues?.appSpec,
     }
-  }, [_defaultValues?.appSpec, _defaultValues?.applicationId, _defaultValues?.method?.name, mode, transaction])
+  }, [_defaultValues?.appSpec, _defaultValues?.applicationId, _defaultValues?.methodDefinition?.name, mode, transaction])
 
   const [appId, setAppId] = useState<ApplicationId | undefined>(initialValues.applicationId)
   const [methodName, setMethodName] = useState<string | undefined>(initialValues.methodName)
-  const loadableMethodDefinitions = useLoadableAbiMethodDefinitions(initialValues.appSpec, appId)
+  const loadableArc56ContractWithMethodDefinitions = useLoadableArc56AppSpecWithMethodDefinitions(initialValues.appSpec, appId)
+  // TODO: PD - handle the struct in box contract in puya
 
   const { appSpec, methodDefinitions } = useMemo(() => {
-    if (loadableMethodDefinitions.state !== 'hasData' || !loadableMethodDefinitions.data) {
+    if (loadableArc56ContractWithMethodDefinitions.state !== 'hasData' || !loadableArc56ContractWithMethodDefinitions.data) {
       return {
         appSpec: undefined,
         methodDefinitions: [],
@@ -95,20 +95,23 @@ export function MethodCallTransactionBuilder({
     }
 
     return {
-      appSpec: loadableMethodDefinitions.data.appSpec,
-      methodDefinitions: loadableMethodDefinitions.data.methods.filter((method) =>
+      appSpec: loadableArc56ContractWithMethodDefinitions.data.appSpec,
+      methodDefinitions: loadableArc56ContractWithMethodDefinitions.data.methodDefinitions.filter((method) =>
         appId === 0 ? (method.callConfig?.create ?? []).length > 0 : (method.callConfig?.call ?? []).length > 0
       ),
     }
-  }, [appId, loadableMethodDefinitions])
+  }, [appId, loadableArc56ContractWithMethodDefinitions])
 
-  const methodForm = useMemo(() => {
+  const methodDefinition = useMemo(() => {
     if (!methodName || methodDefinitions.length === 0 || !appSpec) {
       return undefined
     }
-    const methodDefinition = methodDefinitions.find((method) => method.name === methodName)
-    return methodDefinition ? asMethodForm(methodDefinition) : undefined
+    return methodDefinitions.find((method) => method.name === methodName)
   }, [appSpec, methodDefinitions, methodName])
+
+  const methodForm = useMemo(() => {
+    return methodDefinition ? asMethodForm(methodDefinition) : undefined
+  }, [methodDefinition])
 
   const formData = useMemo(() => {
     if (!methodForm) {
@@ -123,6 +126,7 @@ export function MethodCallTransactionBuilder({
 
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
+      invariant(methodDefinition, 'Method is required')
       invariant(methodForm, 'Method form is required')
 
       const methodCallTransactionId = transaction?.id ?? randomGuid()
@@ -132,7 +136,7 @@ export function MethodCallTransactionBuilder({
         if ('getAppCallArg' in arg) {
           return arg.getAppCallArg(value)
         } else {
-          if (mode === TransactionBuilderMode.Create || (transaction && values.methodName !== transaction.method.name)) {
+          if (mode === TransactionBuilderMode.Create || (transaction && values.methodName !== transaction.methodDefinition.name)) {
             return {
               id: randomGuid(),
               type: BuildableTransactionType.Placeholder,
@@ -148,7 +152,7 @@ export function MethodCallTransactionBuilder({
         id: methodCallTransactionId,
         type: BuildableTransactionType.MethodCall,
         applicationId: Number(values.applicationId),
-        method: methodForm.abiMethod,
+        methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
         sender: values.sender,
         appSpec: appSpec!,
@@ -160,14 +164,14 @@ export function MethodCallTransactionBuilder({
 
       onSubmit(methodCallTxn)
     },
-    [methodForm, transaction, appSpec, onSubmit, mode]
+    [methodDefinition, methodForm, transaction, appSpec, onSubmit, mode]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
-          const { type } = transaction.method.args[index]
+          const { type } = transaction.methodDefinition.arguments[index]
           const field = `${methodArgPrefix}-${index}${type instanceof algosdk.ABIAddressType || type === algosdk.ABIReferenceType.account ? '.value' : ''}`
           if (!algosdk.abiTypeIsTransaction(type)) {
             acc[field] = asFieldInput(type, arg as algosdk.ABIValue)
@@ -182,7 +186,7 @@ export function MethodCallTransactionBuilder({
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         onComplete: transaction.onComplete.toString(),
-        methodName: transaction.method.name,
+        methodName: transaction.methodDefinition.name,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -197,7 +201,7 @@ export function MethodCallTransactionBuilder({
       validRounds: {
         setAutomatically: true,
       },
-      methodName: _defaultValues?.method?.name,
+      methodName: _defaultValues?.methodDefinition?.name,
       applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
       onComplete: _defaultValues?.onComplete != undefined ? _defaultValues?.onComplete.toString() : undefined,
     }
@@ -309,8 +313,8 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
             : []),
           {
             dt: 'Type',
-            dd: arg.hint?.struct ? (
-              <Struct struct={arg.hint.struct} />
+            dd: arg.struct ? (
+              <StructDefinition struct={arg.struct} />
             ) : algosdk.abiTypeIsTransaction(arg.type) ? (
               <div className="flex items-center gap-1.5">
                 <span>{arg.type.toString()}</span>
@@ -325,11 +329,11 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
               arg.type.toString()
             ),
           },
-          ...(arg.hint?.defaultArgument
+          ...(arg.defaultArgument
             ? [
                 {
                   dt: 'Default',
-                  dd: <DefaultArgument defaultArgument={arg.hint.defaultArgument} />,
+                  dd: <DefaultArgument defaultArgument={arg.defaultArgument} />,
                 },
               ]
             : []),

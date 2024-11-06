@@ -12,7 +12,7 @@ export function FromDeploymentWorkflow({ machine }: Props) {
   const [state] = machine
 
   if (state.matches({ fromAppDeployment: 'appSpec' })) {
-    return <UploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32]} />
+    return <UploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC56]} />
   } else if (state.matches({ fromAppDeployment: 'appDetails' })) {
     return <DeploymentDetails machine={machine} />
   } else if (state.matches({ fromAppDeployment: 'deployment' })) {

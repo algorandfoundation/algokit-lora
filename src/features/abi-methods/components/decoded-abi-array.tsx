@@ -1,11 +1,11 @@
-import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiArrayValue as AbiArrayModel } from '@/features/abi-methods/models'
+import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
+import { DecodedAbiArray as AbiArrayModel } from '@/features/abi-methods/models'
 
 type Props = {
   array: AbiArrayModel
 }
 
-export function AbiArrayValue({ array }: Props) {
+export function DecodedAbiArray({ array }: Props) {
   if (array.multiline) {
     return (
       <>
@@ -13,7 +13,7 @@ export function AbiArrayValue({ array }: Props) {
         <ol className="pl-4">
           {array.values.map((item, index, array) => (
             <li key={index}>
-              <AbiValue abiValue={item} />
+              <DecodedAbiValue abiValue={item} />
               {index < array.length - 1 ? <span>{', '}</span> : null}
             </li>
           ))}
@@ -28,7 +28,7 @@ export function AbiArrayValue({ array }: Props) {
         <div className="inline">
           {array.values.map((item, index, array) => (
             <div className="inline" key={index}>
-              <AbiValue abiValue={item} />
+              <DecodedAbiValue abiValue={item} />
               {index < array.length - 1 ? <span>{', '}</span> : null}
             </div>
           ))}

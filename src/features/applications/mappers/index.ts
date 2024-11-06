@@ -1,23 +1,25 @@
 import {
   Application,
-  ApplicationAbiMethods,
   ApplicationGlobalStateType,
   ApplicationGlobalStateValue,
   ApplicationSummary,
   ArgumentDefinition,
-  ArgumentHint,
   MethodDefinition,
+  StructDefinition,
+  StructFieldType,
 } from '../models'
 import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
-import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
-import { isArc32AppSpec } from '@/features/common/utils'
-import { CallConfigValue } from '@algorandfoundation/algokit-utils/types/app-spec'
+import { AppSpec, Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
+import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
+import { Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { invariant } from '@/utils/invariant'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -99,138 +101,164 @@ const getValue = (bytes: string) => {
   return base64ToUtf8IfValid(bytes)
 }
 
-const callValues: CallConfigValue[] = ['ALL', 'CALL']
-const createValue: CallConfigValue[] = ['ALL', 'CREATE']
+export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
+  if (isArc56AppSpec(appSpec)) {
+    return appSpec
+  }
+  if (isArc32AppSpec(appSpec)) {
+    return arc32ToArc56(appSpec as UtiltsAppSpec)
+  }
+  if (isArc4AppSpec(appSpec)) {
+    const abiMethods = appSpec.methods.map((method) => {
+      return new algosdk.ABIMethod({
+        name: method.name,
+        desc: method.desc,
+        args: method.args,
+        returns: method.returns,
+      })
+    })
 
-export const asApplicationAbiMethods = (appSpec: Arc32AppSpec | Arc4AppSpec): ApplicationAbiMethods => {
-  const isArc32 = isArc32AppSpec(appSpec)
-  const contract = isArc32 ? appSpec.contract : appSpec
-  const abiMethods = contract.methods.map((method) => {
-    return new algosdk.ABIMethod({
+    const arc32AppSpec = {
+      // Build a basic ARC-32 app spec from the ARC-4 one
+      contract: appSpec,
+      hints: abiMethods.reduce(
+        (acc, method) => {
+          return {
+            ...acc,
+            [method.getSignature()]: {
+              call_config: {
+                no_op: 'CALL',
+                opt_in: 'CALL',
+                close_out: 'CALL',
+                update_application: 'CALL',
+                delete_application: 'CALL',
+              },
+            },
+          }
+        },
+        {} as {
+          [k: string]: Hint
+        }
+      ),
+      state: {
+        global: {
+          num_byte_slices: 0,
+          num_uints: 0,
+        },
+        local: {
+          num_byte_slices: 0,
+          num_uints: 0,
+        },
+      },
+      schema: {
+        global: {
+          declared: {},
+          reserved: {},
+        },
+        local: {
+          declared: {},
+          reserved: {},
+        },
+      },
+      bare_call_config: {},
+      source: {
+        approval: '',
+        clear: '',
+      },
+    } satisfies Arc32AppSpec
+
+    return arc32ToArc56(arc32AppSpec as UtiltsAppSpec)
+  }
+
+  throw new Error('Invalid app spec')
+}
+
+const getStructDefinition = (structName: string, structs: Record<string, StructField[]>): StructDefinition => {
+  const getStructFieldType = (structFieldType: StructField['type']): StructFieldType => {
+    if (Array.isArray(structFieldType)) {
+      return structFieldType.map((structField) => ({
+        name: structField.name,
+        type: getStructFieldType(structField.type),
+      }))
+    }
+    if (structs[structFieldType]) {
+      return structs[structFieldType].map((structField) => ({
+        name: structField.name,
+        type: getStructFieldType(structField.type),
+      }))
+    }
+    return algosdk.ABIType.from(structFieldType)
+  }
+
+  invariant(structs[structName], 'Struct not found')
+
+  const fields = structs[structName]
+  return {
+    name: structName,
+    fields: fields.map((f) => ({
+      name: f.name,
+      type: getStructFieldType(f.type),
+    })),
+  }
+}
+
+const asOnApplicationComplete = (
+  action: 'NoOp' | 'OptIn' | 'CloseOut' | 'ClearState' | 'UpdateApplication' | 'DeleteApplication'
+): algosdk.OnApplicationComplete => {
+  switch (action) {
+    case 'NoOp':
+      return algosdk.OnApplicationComplete.NoOpOC
+    case 'OptIn':
+      return algosdk.OnApplicationComplete.OptInOC
+    case 'CloseOut':
+      return algosdk.OnApplicationComplete.CloseOutOC
+    case 'ClearState':
+      return algosdk.OnApplicationComplete.ClearStateOC
+    case 'UpdateApplication':
+      return algosdk.OnApplicationComplete.UpdateApplicationOC
+    case 'DeleteApplication':
+      return algosdk.OnApplicationComplete.DeleteApplicationOC
+  }
+}
+
+export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
+  const arc56AppSpec = asArc56AppSpec(appSpec)
+  return arc56AppSpec.methods.map((method) => {
+    const abiMethod = new algosdk.ABIMethod({
       name: method.name,
       desc: method.desc,
       args: method.args,
       returns: method.returns,
     })
-  })
-  const unifiedAppSpec = isArc32
-    ? appSpec
-    : ({
-        // Build a basic ARC-32 app spec from the ARC-4 one
-        contract: contract,
-        hints: abiMethods.reduce(
-          (acc, method) => {
-            return {
-              ...acc,
-              [method.getSignature()]: {
-                call_config: {
-                  no_op: 'CALL',
-                  opt_in: 'CALL',
-                  close_out: 'CALL',
-                  update_application: 'CALL',
-                  delete_application: 'CALL',
-                },
-              },
-            }
-          },
-          {} as {
-            [k: string]: Hint
-          }
-        ),
-        state: {
-          global: {
-            num_byte_slices: 0,
-            num_uints: 0,
-          },
-          local: {
-            num_byte_slices: 0,
-            num_uints: 0,
-          },
-        },
-        schema: {
-          global: {
-            declared: {},
-            reserved: {},
-          },
-          local: {
-            declared: {},
-            reserved: {},
-          },
-        },
-        bare_call_config: {},
-      } satisfies Arc32AppSpec)
 
-  const methods = abiMethods.map((abiMethod) => {
-    const signature = abiMethod.getSignature()
-    const hint = unifiedAppSpec.hints ? unifiedAppSpec.hints[signature] : undefined
-
-    const methodArgs = abiMethod.args.map((arg) => {
-      const argHint =
-        hint &&
-        arg.name &&
-        (('structs' in hint && hint.structs?.[arg.name]) || ('default_arguments' in hint && hint.default_arguments?.[arg.name]))
-          ? ({
-              struct: hint.structs?.[arg.name],
-              defaultArgument: hint.default_arguments?.[arg.name],
-            } satisfies ArgumentHint)
-          : undefined
-
-      const argument = {
+    const methodArgs = method.args.map((arg, i) => {
+      return {
         name: arg.name,
-        description: arg.description,
-        type: arg.type,
-        hint: argHint,
+        description: arg.desc,
+        type: abiMethod.args[i].type,
+        struct: arg.struct && arc56AppSpec.structs[arg.struct] ? getStructDefinition(arg.struct, arc56AppSpec.structs) : undefined,
+        defaultArgument: arg.defaultValue,
       } satisfies ArgumentDefinition
-
-      return argument
     })
 
     return {
       name: abiMethod.name,
-      signature: signature,
+      signature: abiMethod.getSignature(),
       description: abiMethod.description,
       arguments: methodArgs,
       abiMethod: abiMethod,
-      callConfig: hint?.call_config
-        ? {
-            call: [
-              ...(callValues.includes(hint.call_config.no_op ?? 'NEVER') ? [algosdk.OnApplicationComplete.NoOpOC] : []),
-              ...(callValues.includes(hint.call_config.opt_in ?? 'NEVER') ? [algosdk.OnApplicationComplete.OptInOC] : []),
-              ...(callValues.includes(hint.call_config.close_out ?? 'NEVER') ? [algosdk.OnApplicationComplete.CloseOutOC] : []),
-              ...(callValues.includes(hint.call_config.update_application ?? 'NEVER')
-                ? [algosdk.OnApplicationComplete.UpdateApplicationOC]
-                : []),
-              ...(callValues.includes(hint.call_config.delete_application ?? 'NEVER')
-                ? [algosdk.OnApplicationComplete.DeleteApplicationOC]
-                : []),
-            ],
-            create: [
-              ...(createValue.includes(hint.call_config.no_op ?? 'NEVER') ? [algosdk.OnApplicationComplete.NoOpOC] : []),
-              ...(createValue.includes(hint.call_config.opt_in ?? 'NEVER') ? [algosdk.OnApplicationComplete.OptInOC] : []),
-              ...(createValue.includes(hint.call_config.close_out ?? 'NEVER') ? [algosdk.OnApplicationComplete.CloseOutOC] : []),
-              ...(createValue.includes(hint.call_config.update_application ?? 'NEVER')
-                ? [algosdk.OnApplicationComplete.UpdateApplicationOC]
-                : []),
-              ...(createValue.includes(hint.call_config.delete_application ?? 'NEVER')
-                ? [algosdk.OnApplicationComplete.DeleteApplicationOC]
-                : []),
-            ],
-          }
-        : undefined,
+      callConfig: {
+        call: method.actions.call.map((a) => asOnApplicationComplete(a)),
+        create: method.actions.create.map((a) => asOnApplicationComplete(a)),
+      },
       returns: {
-        ...abiMethod.returns,
-        hint:
-          hint && 'structs' in hint && hint.structs?.['output']
-            ? {
-                struct: hint.structs?.['output'],
-              }
+        description: method.returns.desc,
+        struct:
+          method.returns.struct && arc56AppSpec.structs[method.returns.struct]
+            ? getStructDefinition(method.returns.struct, arc56AppSpec.structs)
             : undefined,
+        type: abiMethod.returns.type,
       },
     } satisfies MethodDefinition
   })
-
-  return {
-    appSpec: unifiedAppSpec,
-    methods,
-  }
 }

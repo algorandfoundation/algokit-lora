@@ -31,7 +31,6 @@ import {
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Buffer } from 'buffer'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
@@ -92,7 +91,7 @@ const asPaymentTransaction = async (
 }
 
 export const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<AppCallMethodCall> => {
-  invariant(transaction.method, 'Method is required')
+  invariant(transaction.methodDefinition, 'Method is required')
   invariant(transaction.methodArgs, 'Method args are required')
 
   const args = await Promise.all(
@@ -114,7 +113,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
   return {
     sender: transaction.sender.resolvedAddress,
     appId: BigInt(transaction.applicationId),
-    method: transaction.method,
+    method: transaction.methodDefinition.abiMethod,
     args: args,
     accountReferences: transaction.accounts ?? [],
     appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
@@ -134,11 +133,11 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
   const result = await algorandClient.client
     .getAppClientById({
       appId: BigInt(transaction.applicationId),
-      appSpec: transaction.appSpec as AppSpec, // TODO: PD - convert Arc32AppSpec to AppSpec
+      appSpec: transaction.appSpec,
     })
     .createTransaction.call({
       ...params,
-      method: transaction.method.name,
+      method: transaction.methodDefinition.name,
       onComplete: transaction.onComplete,
     })
 

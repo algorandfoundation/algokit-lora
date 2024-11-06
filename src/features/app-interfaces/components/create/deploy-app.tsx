@@ -17,15 +17,16 @@ import { invariant } from '@/utils/invariant'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
 import { ArrowLeft, Parentheses, Rocket } from 'lucide-react'
 import { algorandClient } from '@/features/common/data/algo-client'
-import { isArc32AppSpec } from '@/features/common/utils'
+import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
-import { asApplicationAbiMethods } from '@/features/applications/mappers'
+import { asArc56AppSpec, asMethodDefinitions } from '@/features/applications/mappers'
 import { Arc32AppSpec, TemplateParamType } from '../../data/types'
 import { CreateOnComplete } from '@algorandfoundation/algokit-utils/types/app-factory'
 import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
@@ -57,7 +58,10 @@ const getTealTemplateParams = (templateParams: ReturnType<typeof useCreateAppInt
 
 export function DeployApp({ machine }: Props) {
   const [state, send] = machine
-  invariant(state.context.appSpec && isArc32AppSpec(state.context.appSpec), 'ARC32 app spec is required')
+  invariant(
+    state.context.appSpec && (isArc32AppSpec(state.context.appSpec) || isArc56AppSpec(state.context.appSpec)),
+    'ARC32 or ARC56 app spec is required'
+  )
   const [transaction, setTransaction] = useState<BuildAppCallTransactionResult | BuildMethodCallTransactionResult | undefined>(undefined)
   const { activeAddress } = useWallet()
 
@@ -108,9 +112,10 @@ export function DeployApp({ machine }: Props) {
 
   const deploy = useCallback(
     async (transactions: BuildTransactionResult[]) => {
-      invariant(appSpec && 'source' in appSpec, 'Only ARC32 app spec is supported')
-      invariant(appSpec.source?.approval, 'Approval program is not set')
-      invariant(appSpec.source?.clear, 'Clear program is not set')
+      const arc56AppSpec = asArc56AppSpec(appSpec)
+
+      invariant(arc56AppSpec.source?.approval, 'Approval program is not set')
+      invariant(arc56AppSpec.source?.clear, 'Clear program is not set')
       invariant(activeAddress, 'No active wallet account is available')
       const appCallTransactions = transactions.filter((t) => {
         return [BuildableTransactionType.AppCall, BuildableTransactionType.MethodCall].includes(t.type)
@@ -131,10 +136,10 @@ export function DeployApp({ machine }: Props) {
         createParams: {
           ...(await asDeployCreateParams(deployTransaction)),
           schema: {
-            localInts: appSpec.state?.local.num_uints ?? 0,
-            localByteSlices: appSpec.state?.local.num_byte_slices ?? 0,
-            globalInts: appSpec.state?.global.num_uints ?? 0,
-            globalByteSlices: appSpec.state?.global.num_byte_slices ?? 0,
+            localInts: arc56AppSpec.state.schema.local.ints ?? 0,
+            localByteSlices: arc56AppSpec.state.schema.local.bytes ?? 0,
+            globalInts: arc56AppSpec.state.schema.global.ints ?? 0,
+            globalByteSlices: arc56AppSpec.state.schema.global.bytes ?? 0,
           },
         },
         onUpdate: 'append',
@@ -165,7 +170,7 @@ export function DeployApp({ machine }: Props) {
   const openDialog = useCallback(
     async (
       type: BuildableTransactionType.AppCall | BuildableTransactionType.MethodCall,
-      appSpec?: Arc32AppSpec,
+      appSpec?: Arc32AppSpec | Arc56Contract,
       method?: MethodDefinition
     ) => {
       const createCallConfig = (method?.callConfig?.create ?? []).filter((c) => c !== algosdk.OnApplicationComplete.UpdateApplicationOC)
@@ -176,7 +181,7 @@ export function DeployApp({ machine }: Props) {
           applicationId: 0,
           ...(method && appSpec
             ? {
-                method: method.abiMethod,
+                methodDefinition: method,
                 appSpec,
                 onComplete,
               }
@@ -199,9 +204,9 @@ export function DeployApp({ machine }: Props) {
 
   const transactions = transaction ? [transaction] : []
 
-  const abiMethods = asApplicationAbiMethods(appSpec)
+  const methodDefinitions = asMethodDefinitions(appSpec)
   const deploymentOptions = useMemo(() => {
-    return abiMethods.methods
+    return methodDefinitions
       .reduce((acc, method, index) => {
         if ((method.callConfig?.create ?? []).length > 0) {
           return [
@@ -231,7 +236,7 @@ export function DeployApp({ machine }: Props) {
           </Button>
         ),
       })
-  }, [abiMethods.methods, appSpec, openDialog])
+  }, [methodDefinitions, appSpec, openDialog])
 
   return (
     <div className="duration-300 animate-in fade-in-20">

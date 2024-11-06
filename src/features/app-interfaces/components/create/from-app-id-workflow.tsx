@@ -11,7 +11,7 @@ export function FromAppIdWorkflow({ machine }: Props) {
   const [state] = machine
 
   if (state.matches({ fromAppId: 'appSpec' })) {
-    return <UploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC4]} />
+    return <UploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC4, AppSpecStandard.ARC56]} />
   } else if (state.matches({ fromAppId: 'appDetails' })) {
     return <AppDetails machine={machine} />
   }

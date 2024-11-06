@@ -1,9 +1,9 @@
-import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
 import { DecodedAbiMethodArguments } from '@/features/abi-methods/components/decoded-abi-method-arguments'
-import { AbiMethod } from '@/features/abi-methods/models'
+import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
+import { DecodedAbiMethod as DecodedAbiMethodModel } from '@/features/abi-methods/models'
 
 type Props = {
-  abiMethod: AbiMethod
+  abiMethod: DecodedAbiMethodModel
 }
 
 export function DecodedAbiMethod({ abiMethod }: Props) {

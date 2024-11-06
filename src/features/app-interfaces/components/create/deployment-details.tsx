@@ -1,7 +1,7 @@
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
 import { Label } from '@/features/common/components/label'
-import { cn, isArc32AppSpec } from '@/features/common/utils'
+import { cn, isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
@@ -18,6 +18,7 @@ import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { useLoadableAppInterfacesAtom } from '../../data'
 import { TemplateParamType } from '../../data/types'
+import { asArc56AppSpec } from '@/features/applications/mappers'
 
 export const UPDATABLE_TEMPLATE_VAR_NAME = 'UPDATABLE'
 export const DELETABLE_TEMPLATE_VAR_NAME = 'DELETABLE'
@@ -57,7 +58,7 @@ const getTemplateParamNames = (base64Program: string): string[] => {
   let tealCode = base64ToUtf8(base64Program)
   tealCode = AppManager.stripTealComments(tealCode)
 
-  const regex = /TMPL_[A-Z_]+/g
+  const regex = /TMPL_[A-Za-z_]+/g
   return Array.from(new Set([...tealCode.matchAll(regex)].flat().map((str) => str.substring(5))))
 }
 
@@ -127,9 +128,12 @@ type Props = {
 
 export function DeploymentDetails({ machine }: Props) {
   const [state, send] = machine
-  invariant(state.context.appSpec && isArc32AppSpec(state.context.appSpec), 'ARC32 app spec is required')
+  invariant(
+    state.context.appSpec && (isArc32AppSpec(state.context.appSpec) || isArc56AppSpec(state.context.appSpec)),
+    'ARC32 or ARC56 app spec is required'
+  )
 
-  const appSpec = state.context.appSpec
+  const appSpec = asArc56AppSpec(state.context.appSpec)
   const templateParamNames = useMemo(() => {
     const approvalTemplateParams = getTemplateParamNames(appSpec.source?.approval ?? '')
     const clearTemplateParams = getTemplateParamNames(appSpec.source?.clear ?? '')
@@ -138,6 +142,7 @@ export function DeploymentDetails({ machine }: Props) {
       clear: clearTemplateParams,
     }
   }, [appSpec])
+
   const unifiedTemplateParamNames = Array.from(new Set([...templateParamNames.approval, ...templateParamNames.clear])).filter(
     (x) => ![UPDATABLE_TEMPLATE_VAR_NAME, DELETABLE_TEMPLATE_VAR_NAME].includes(x)
   )
@@ -172,14 +177,14 @@ export function DeploymentDetails({ machine }: Props) {
 
   const defaultValues = useMemo(
     () => ({
-      name: state.context.name ?? appSpec.contract.name,
+      name: state.context.name ?? appSpec.name,
       version: state.context.version ?? '1.0',
       updatable: state.context.updatable !== undefined ? state.context.updatable : enableDeployTimeUpdatabilityControl ? false : undefined,
       deletable: state.context.deletable !== undefined ? state.context.deletable : enableDeployTimeDeletabilityControl ? false : undefined,
       templateParams: state.context.templateParams ?? unifiedTemplateParamNames.map(() => ({ type: TemplateParamType.String })),
     }),
     [
-      appSpec.contract.name,
+      appSpec.name,
       enableDeployTimeDeletabilityControl,
       enableDeployTimeUpdatabilityControl,
       state.context.deletable,

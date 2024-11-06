@@ -2,13 +2,13 @@
 import { z } from 'zod'
 import algosdk from 'algosdk'
 import { ApplicationId } from '@/features/applications/data/types'
-import { MethodDefinition, ArgumentDefinition } from '@/features/applications/models'
+import { MethodDefinition, ArgumentDefinition, StructDefinition } from '@/features/applications/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { Nfd } from '@/features/nfd/data/types'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export enum BuildableTransactionType {
   // pay
@@ -43,6 +43,7 @@ export type MethodForm = Omit<MethodDefinition, 'arguments'> & {
 
 export type ArgumentField = Omit<ArgumentDefinition, 'type'> & {
   type: algosdk.ABIType | algosdk.ABIReferenceType
+  structs?: StructDefinition
   path: string
   fieldSchema: z.ZodTypeAny
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
@@ -94,8 +95,8 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.MethodCall
   applicationId: ApplicationId
-  appSpec: Arc32AppSpec
-  method: algosdk.ABIMethod
+  appSpec: Arc56Contract
+  methodDefinition: MethodDefinition
   methodArgs: MethodCallArg[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
