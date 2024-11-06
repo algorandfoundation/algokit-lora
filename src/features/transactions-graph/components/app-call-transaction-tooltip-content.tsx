@@ -18,7 +18,7 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useAtomValue } from 'jotai/index'
 import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { AbiMethod } from '@/features/abi-methods/models'
+import { DecodedAbiMethod } from '@/features/abi-methods/models'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -40,7 +40,7 @@ function AppCallDescriptionList({
   abiMethod,
   isSimulated,
 }: Props & {
-  abiMethod: AbiMethod | undefined
+  abiMethod: DecodedAbiMethod | undefined
 }) {
   const items = useMemo(
     () => [

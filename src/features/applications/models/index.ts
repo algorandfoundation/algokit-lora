@@ -1,7 +1,6 @@
 import { ApplicationId } from '../data/types'
 import algosdk from 'algosdk'
-import { DefaultArgument, Struct as StructType } from '@/features/app-interfaces/data/types/arc-32/application'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -50,31 +49,32 @@ export type ApplicationBox = {
   value: string
 }
 
-export type ArgumentHint = {
-  struct?: StructType
-  defaultArgument?: DefaultArgument
+export type StructFieldType = algosdk.ABIType | StructFieldDefinition[]
+
+export type StructFieldDefinition = {
+  name: string
+  type: StructFieldType
 }
+
+export type StructDefinition = {
+  name: string
+  fields: StructFieldDefinition[]
+}
+
+export type DefaultArgument = NonNullable<Method['args'][number]['defaultValue']>
 
 export type ArgumentDefinition = {
   name?: string
   description?: string
   type: algosdk.ABIArgumentType
-  hint?: ArgumentHint
-}
-
-export type ReturnsHint = {
-  struct: StructType
+  struct?: StructDefinition
+  defaultArgument?: DefaultArgument
 }
 
 export type ReturnsDefinition = {
   description?: string
   type: algosdk.ABIReturnType
-  hint?: ReturnsHint
-}
-
-export type ApplicationAbiMethods = {
-  appSpec: Arc32AppSpec
-  methods: MethodDefinition[]
+  struct?: StructDefinition
 }
 
 export type MethodDefinition = {

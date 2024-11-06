@@ -1,43 +1,46 @@
-import { AbiMethodArgument, AbiType } from '@/features/abi-methods/models'
-import { AbiValue } from '@/features/abi-methods/components/abi-value'
+import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { useMemo, useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
+import { DecodedAbiMethodArgument, DecodedAbiType } from '@/features/abi-methods/models'
+import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 
 type Props = {
-  arguments: AbiMethodArgument[]
+  arguments: DecodedAbiMethodArgument[]
   multiline: boolean
 }
 export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline }: Props) {
-  const renderArgumentValue = useCallback((argument: AbiMethodArgument) => {
-    if (argument.type === AbiType.Transaction) {
+  const renderArgumentValue = useCallback((argument: DecodedAbiMethodArgument) => {
+    if (argument.type === DecodedAbiType.Transaction) {
       return (
         <TransactionLink className="text-primary underline" transactionId={argument.value}>
           {argument.value}
         </TransactionLink>
       )
-    } else if (argument.type === AbiType.Account) {
+    } else if (argument.type === DecodedAbiType.Account) {
       return (
         <AddressOrNfdLink className="text-primary underline" address={argument.value}>
           {argument.value}
         </AddressOrNfdLink>
       )
-    } else if (argument.type === AbiType.Application) {
+    } else if (argument.type === DecodedAbiType.Application) {
       return (
         <ApplicationLink className="text-primary underline" applicationId={argument.value}>
           {argument.value}
         </ApplicationLink>
       )
-    } else if (argument.type === AbiType.Asset) {
+    } else if (argument.type === DecodedAbiType.Asset) {
       return (
         <AssetIdLink className="text-primary underline" assetId={argument.value}>
           {argument.value}
         </AssetIdLink>
       )
+    } else if (argument.type === DecodedAbiType.Struct) {
+      return <DecodedAbiStruct struct={argument} />
     } else {
-      return <AbiValue abiValue={argument} />
+      return <DecodedAbiValue abiValue={argument} />
     }
   }, [])
 

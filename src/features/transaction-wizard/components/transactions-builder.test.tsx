@@ -7,16 +7,17 @@ import {
   PlaceholderTransaction,
 } from '../models'
 import algosdk from 'algosdk'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { MethodDefinition } from '@/features/applications/models'
 
 describe('patchTransactions', () => {
   const exampleMethodCallProperties = {
     applicationId: 1988,
-    method: {} as algosdk.ABIMethod,
+    methodDefinition: {} as MethodDefinition,
     onComplete: 0,
     sender: asAddressOrNfd('IN6X7QLOJB76VTDHWAW43OTBUGAQ22DVYBPNHLLTJ5RVOTFVTCPK3JY6RA'),
-    appSpec: {} as Arc32AppSpec,
+    appSpec: {} as Arc56Contract,
     fee: {
       setAutomatically: true,
     },

@@ -8,6 +8,7 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { UrlParams } from '@/routes/urls'
+import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -25,6 +26,7 @@ export const applicationInvalidIdMessage = 'Application Id is invalid'
 export const appInterfaceFailedToLoadMessage = 'Application Interface failed to load'
 
 export function EditAppInterfacePage() {
+  useTitle('Edit App Interface')
   const { applicationId: _applicationId } = useRequiredParam(UrlParams.ApplicationId)
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 

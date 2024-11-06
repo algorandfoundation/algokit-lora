@@ -8,7 +8,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { addressFieldSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { AddressOrNfd, ArgumentField, MethodForm, TransactionArgumentField } from '@/features/transaction-wizard/models'
-import { ArgumentDefinition, ArgumentHint, MethodDefinition } from '@/features/applications/models'
+import { ArgumentDefinition, MethodDefinition, StructFieldDefinition } from '@/features/applications/models'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const argumentPathSeparator = '-'
@@ -108,7 +108,7 @@ const getCreateField = (
   formFieldHelper: FormFieldHelper<any>,
   type: algosdk.ABIArgumentType,
   path: FieldPath<any>,
-  hint?: ArgumentHint,
+  structFields?: StructFieldDefinition[],
   options?: { prefix?: string; description?: string }
 ): React.JSX.Element | undefined => {
   if (
@@ -211,12 +211,12 @@ const getCreateField = (
           formFieldHelper,
           type.childTypes[childIndex],
           `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<any>,
-          undefined,
+          structFields && Array.isArray(structFields[childIndex].type) ? structFields[childIndex].type : undefined,
           {
             prefix: `${childPrefix} -`,
           }
         ),
-      struct: hint?.struct,
+      structFields: structFields,
     })
   }
   return undefined
@@ -249,14 +249,14 @@ const getAppCallArg = (type: algosdk.ABIArgumentType, value: unknown): algosdk.A
 }
 
 const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | TransactionArgumentField => {
-  const isArgOptional = !!arg.hint?.defaultArgument
+  const isArgOptional = !!arg.defaultArgument
   if (!algosdk.abiTypeIsTransaction(arg.type)) {
     return {
       ...arg,
       type: arg.type,
       path: argumentFieldPath(argIndex),
       createField: (helper: FormFieldHelper<any>) =>
-        getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.hint, {
+        getCreateField(helper, arg.type, argumentFieldPath(argIndex) as FieldPath<any>, arg.struct?.fields, {
           description: arg.description,
         }),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
@@ -273,6 +273,7 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
           label: 'Value',
           field: argumentFieldPath(argIndex) as FieldPath<any>,
         }),
+      struct: arg.struct,
     }
   }
 }

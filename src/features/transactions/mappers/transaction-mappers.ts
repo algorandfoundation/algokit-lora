@@ -10,10 +10,10 @@ import { asStateProofTransaction } from './state-proof-transaction-mappers'
 import { asKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { Atom } from 'jotai/index'
-import { AbiMethod } from '@/features/abi-methods/models'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { getGroupResultAtom } from '@/features/groups/data/group-result'
+import { DecodedAbiMethod } from '@/features/abi-methods/models'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
@@ -21,7 +21,7 @@ export const asTransaction = (
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
-  ) => Atom<Promise<AbiMethod | undefined>>,
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult> = getGroupResultAtom
 ) => {
   switch (transactionResult['tx-type']) {

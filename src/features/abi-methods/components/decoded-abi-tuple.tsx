@@ -1,11 +1,11 @@
-import { AbiValue } from '@/features/abi-methods/components/abi-value'
-import { AbiTupleValue as AbiTupleModel } from '@/features/abi-methods/models'
+import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
+import { DecodedAbiTuple as DecodedAbiTupleModel } from '@/features/abi-methods/models'
 
 type RenderABITupleValuesProps = {
-  tuple: AbiTupleModel
+  tuple: DecodedAbiTupleModel
 }
 
-export function AbiTupleValue({ tuple }: RenderABITupleValuesProps) {
+export function DecodedAbiTuple({ tuple }: RenderABITupleValuesProps) {
   if (tuple.multiline) {
     return (
       <>
@@ -13,7 +13,7 @@ export function AbiTupleValue({ tuple }: RenderABITupleValuesProps) {
         <ul className="pl-4">
           {tuple.values.map((item, index, array) => (
             <li key={index}>
-              <AbiValue abiValue={item} />
+              <DecodedAbiValue abiValue={item} />
               {index < array.length - 1 ? <span>{', '}</span> : null}
             </li>
           ))}
@@ -28,7 +28,7 @@ export function AbiTupleValue({ tuple }: RenderABITupleValuesProps) {
         <div className="inline">
           {tuple.values.map((item, index, array) => (
             <div className="inline" key={index}>
-              <AbiValue abiValue={item} />
+              <DecodedAbiValue abiValue={item} />
               {index < array.length - 1 ? <span>{', '}</span> : null}
             </div>
           ))}

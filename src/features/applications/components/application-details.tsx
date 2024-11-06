@@ -34,7 +34,7 @@ import { OpenJsonViewDialogButton } from '@/features/common/components/json-view
 import { Badge } from '@/features/common/components/badge'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { ApplicationProgramsButton } from './application-programs-button'
-import { useLoadableApplicationAbiMethodDefinitions } from '../data/application-method-definitions'
+import { useLoadableMethodDefinitions } from '../data/application-method-definitions'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { ApplicationMethodDefinitions } from './application-method-definitions'
 
@@ -121,7 +121,7 @@ export function ApplicationDetails({ application }: Props) {
     ]
   )
 
-  const applicationAbiMethodsLoadable = useLoadableApplicationAbiMethodDefinitions(application.id)
+  const loadableMethodDefinitions = useLoadableMethodDefinitions(application.id)
 
   return (
     <div className="space-y-4">
@@ -136,14 +136,14 @@ export function ApplicationDetails({ application }: Props) {
           </div>
         </CardContent>
       </Card>
-      <RenderLoadable loadable={applicationAbiMethodsLoadable} fallback={<></>}>
+      <RenderLoadable loadable={loadableMethodDefinitions} fallback={<></>}>
         {(applicationAbiMethods) =>
           applicationAbiMethods &&
-          applicationAbiMethods.methods.length > 0 && (
+          applicationAbiMethods.length > 0 && (
             <Card aria-label={applicationAbiMethodDefinitionsLabel}>
               <CardContent className="space-y-1">
                 <h2>{applicationAbiMethodDefinitionsLabel}</h2>
-                <ApplicationMethodDefinitions applicationId={application.id} abiMethods={applicationAbiMethods} />
+                <ApplicationMethodDefinitions applicationId={application.id} methodDefinitions={applicationAbiMethods} />
               </CardContent>
             </Card>
           )

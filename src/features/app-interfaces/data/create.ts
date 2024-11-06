@@ -1,4 +1,4 @@
-import { AppSpecVersion } from '@/features/app-interfaces/data/types'
+import { AppSpec, AppSpecVersion } from '@/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types.ts'
 import { AppInterfaceEntity, DbConnection, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { loadable, useAtomCallback } from 'jotai/utils'
@@ -7,7 +7,7 @@ import { invariant } from '@/utils/invariant'
 import { createTimestamp } from '@/features/common/data'
 import { getAppInterfaces } from '@/features/app-interfaces/data'
 import { assign, setup } from 'xstate'
-import { Arc32AppSpec, Arc4AppSpec, CreateAppInterfaceContext, TemplateParam } from './types'
+import { CreateAppInterfaceContext, TemplateParam } from './types'
 import { useMemo } from 'react'
 import { atomWithMachine } from 'jotai-xstate'
 import { atom, useAtom, useAtomValue } from 'jotai'
@@ -82,7 +82,7 @@ const createMachine = () =>
       events: {} as
         | { type: 'fromAppIdSelected'; applicationId: ApplicationId }
         | { type: 'fromAppDeploymentSelected' }
-        | { type: 'appSpecUploadCompleted'; file: File; appSpec: Arc32AppSpec | Arc4AppSpec }
+        | { type: 'appSpecUploadCompleted'; file: File; appSpec: AppSpec }
         | { type: 'appSpecUploadCancelled' }
         | {
             type: 'detailsCompleted'

@@ -54,6 +54,7 @@
     "@tauri-apps/api": "^1.5.3",
     "@txnlab/use-wallet": "2.8.2",
     "@xstate/react": "^4.1.1",
+    "algosdk": "2.9.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",

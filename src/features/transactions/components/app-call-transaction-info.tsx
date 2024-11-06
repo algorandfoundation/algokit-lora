@@ -10,11 +10,11 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { applicationIdLabel } from '@/features/applications/components/labels'
 import { abiMethodNameLabel, transactionSenderLabel } from './labels'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
-import { DecodedAbiMethod } from '@/features/abi-methods/components/decoded-abi-method'
 import { useAtomValue } from 'jotai'
 import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { AbiMethod } from '@/features/abi-methods/models'
+import { DecodedAbiMethod as DecodedAbiMethodModel } from '@/features/abi-methods/models'
+import { DecodedAbiMethod } from '@/features/abi-methods/components/decoded-abi-method'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -63,7 +63,7 @@ function AppCallDescriptionList({
   abiMethod,
 }: {
   transaction: AppCallTransaction | InnerAppCallTransaction
-  abiMethod: AbiMethod | undefined
+  abiMethod: DecodedAbiMethodModel | undefined
 }) {
   const items = useMemo(
     () => [
@@ -91,7 +91,7 @@ function AppCallTransactionTabs({
   abiMethod,
 }: {
   transaction: AppCallTransaction | InnerAppCallTransaction
-  abiMethod: AbiMethod | undefined
+  abiMethod: DecodedAbiMethodModel | undefined
 }) {
   const tabs = useMemo(
     () => [

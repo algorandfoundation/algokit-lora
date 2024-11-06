@@ -7,6 +7,7 @@ import {
   InnerAppCallTransaction,
   TransactionType,
 } from '../models'
+import { DecodedAbiMethod } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
 import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
@@ -20,7 +21,6 @@ import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 import { Atom } from 'jotai/index'
-import { AbiMethod } from '@/features/abi-methods/models'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 
@@ -47,7 +47,7 @@ const mapCommonAppCallTransactionProperties = (
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
-  ) => Atom<Promise<AbiMethod | undefined>>,
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>,
   indexPrefix?: string
 ) => {
@@ -93,7 +93,7 @@ export const asAppCallTransaction = (
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
-  ) => Atom<Promise<AbiMethod | undefined>>,
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): AppCallTransaction => {
   const commonProperties = mapCommonAppCallTransactionProperties(
@@ -118,7 +118,7 @@ export const asInnerAppCallTransaction = (
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
-  ) => Atom<Promise<AbiMethod | undefined>>,
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): InnerAppCallTransaction => {
   return {
@@ -159,7 +159,7 @@ const asInnerTransaction = (
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
-  ) => Atom<Promise<AbiMethod | undefined>>,
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
