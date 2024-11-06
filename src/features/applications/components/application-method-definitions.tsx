@@ -1,13 +1,13 @@
 import algosdk from 'algosdk'
-import { ApplicationAbiMethods, ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
+import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useCallback, useMemo, useState } from 'react'
 import { ApplicationId } from '../data/types'
 import { Button } from '@/features/common/components/button'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import { Struct } from '@/features/abi-methods/components/struct'
-import { DefaultArgument } from '@/features/abi-methods/components/default-value'
+import { StructDefinition } from '@/features/applications/components/struct-definition'
+import { DefaultArgument } from '@/features/applications/components/default-argument'
 import {
   BuildableTransactionType,
   BuildAppCallTransactionResult,
@@ -27,13 +27,13 @@ import { GroupSendResults, SendResults } from '@/features/transaction-wizard/com
 
 type Props = {
   applicationId: ApplicationId
-  abiMethods: ApplicationAbiMethods
+  methodDefinitions: MethodDefinition[]
 }
 
-export function ApplicationMethodDefinitions({ abiMethods, applicationId }: Props) {
+export function ApplicationMethodDefinitions({ methodDefinitions, applicationId }: Props) {
   return (
     <Accordion type="multiple">
-      {abiMethods.methods.map((method, index) => (
+      {methodDefinitions.map((method, index) => (
         <Method method={method} key={index} applicationId={applicationId} readonly={(method.callConfig?.call ?? []).length === 0} />
       ))}
     </Accordion>
@@ -74,7 +74,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
       transactionType: algosdk.ABITransactionType.appl,
       transaction: {
         applicationId: applicationId,
-        method: method.abiMethod,
+        methodDefinition: method,
         onComplete:
           method.callConfig && method.callConfig.call.length > 0
             ? (method.callConfig.call[0] as algosdk.OnApplicationComplete as BuildAppCallTransactionResult['onComplete'])
@@ -188,18 +188,18 @@ function Argument({ index, argument }: ArgumentProps) {
         : []),
       {
         dt: 'Type',
-        dd: argument.hint?.struct ? <Struct struct={argument.hint.struct} /> : argument.type.toString(),
+        dd: argument.struct ? <StructDefinition struct={argument.struct} /> : argument.type.toString(),
       },
-      ...(argument.hint?.defaultArgument
+      ...(argument.defaultArgument
         ? [
             {
               dt: 'Default',
-              dd: <DefaultArgument defaultArgument={argument.hint.defaultArgument} />,
+              dd: <DefaultArgument defaultArgument={argument.defaultArgument} />,
             },
           ]
         : []),
     ],
-    [argument.description, argument.hint, argument.name, argument.type]
+    [argument.description, argument.struct, argument.defaultArgument, argument.name, argument.type]
   )
 
   return (
@@ -223,10 +223,10 @@ function Returns({ returns }: { returns: ReturnsDefinition }) {
         : []),
       {
         dt: 'Type',
-        dd: returns.hint ? <Struct struct={returns.hint.struct} /> : returns.type.toString(),
+        dd: returns.struct ? <StructDefinition struct={returns.struct} /> : returns.type.toString(),
       },
     ],
-    [returns.description, returns.hint, returns.type]
+    [returns.description, returns.struct, returns.type]
   )
   return (
     <div className="space-y-2">

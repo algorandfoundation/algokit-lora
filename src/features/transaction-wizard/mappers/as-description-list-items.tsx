@@ -20,11 +20,12 @@ import {
   PlaceholderTransaction,
   TransactionPositionsInGroup,
 } from '../models'
-import { getAbiValue } from '@/features/abi-methods/data'
-import { AbiValue } from '@/features/abi-methods/components/abi-value'
+import { getAbiStructValue, getAbiValue } from '@/features/abi-methods/data'
+import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
+import { DecodedAbiType } from '@/features/abi-methods/models'
 import { TransactionType } from '@/features/transactions/models'
 import {
   asAppCallTransactionParams,
@@ -41,8 +42,9 @@ import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
 import { isBuildTransactionResult, isPlaceholderTransaction } from '../utils/transaction-result-narrowing'
 import { asAssetDisplayAmount } from '@/features/common/components/display-asset-amount'
-import { AbiType } from '@/features/abi-methods/models'
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
+import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
+import { ArgumentDefinition } from '@/features/applications/models'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -290,14 +292,14 @@ const flatten = (args: MethodCallArg[]): MethodCallArg[] => {
 }
 
 const asMethodArg = (
-  type: algosdk.ABIArgumentType,
+  argumentDefinition: ArgumentDefinition,
   argIndex: number,
   args: MethodCallArg[],
   transactionPositions: TransactionPositionsInGroup,
   onEditTransaction: (transaction: BuildTransactionResult | PlaceholderTransaction) => Promise<void>
 ) => {
   const arg = args[argIndex]
-  if (algosdk.abiTypeIsTransaction(type)) {
+  if (algosdk.abiTypeIsTransaction(argumentDefinition.type)) {
     invariant(typeof arg === 'object' && 'type' in arg, 'Transaction type args must be a transaction')
 
     const argId = arg.type === BuildableTransactionType.Fulfilled ? arg.fulfilledById : arg.id
@@ -326,15 +328,15 @@ const asMethodArg = (
       </div>
     )
   }
-  if (algosdk.abiTypeIsReference(type)) {
-    if (type === algosdk.ABIReferenceType.account) {
+  if (algosdk.abiTypeIsReference(argumentDefinition.type)) {
+    if (argumentDefinition.type === algosdk.ABIReferenceType.account) {
       return <AddressOrNfdLink address={arg.toString()} />
     }
-    if (type === algosdk.ABIReferenceType.asset) {
+    if (argumentDefinition.type === algosdk.ABIReferenceType.asset) {
       const assetId = Number(arg)
       return <AssetIdLink assetId={assetId} />
     }
-    if (type === algosdk.ABIReferenceType.application) {
+    if (argumentDefinition.type === algosdk.ABIReferenceType.application) {
       const applicationId = Number(arg)
       return <ApplicationLink applicationId={applicationId} />
     }
@@ -343,8 +345,13 @@ const asMethodArg = (
   if (arg === undefined) {
     return 'Not set'
   }
-  const abiValue = getAbiValue(type, arg as algosdk.ABIValue)
-  return <AbiValue abiValue={abiValue} />
+  if (argumentDefinition.struct) {
+    const structModel = getAbiStructValue(argumentDefinition.struct, arg as algosdk.ABIValue)
+    return <DecodedAbiStruct struct={structModel} />
+  }
+
+  const abiValue = getAbiValue(argumentDefinition.type, arg as algosdk.ABIValue)
+  return <DecodedAbiValue abiValue={abiValue} />
 }
 
 const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): DescriptionListItems => {
@@ -403,7 +410,7 @@ const asMethodCallTransaction = (
           },
         ]
       : []),
-    ...(transaction.method ? [{ dt: 'Method', dd: transaction.method.name }] : []),
+    ...(transaction.methodDefinition ? [{ dt: 'Method', dd: transaction.methodDefinition.name }] : []),
     {
       dt: 'On complete',
       dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
@@ -412,16 +419,16 @@ const asMethodCallTransaction = (
       dt: 'Sender',
       dd: <AddressOrNfdLink address={params.sender} />,
     },
-    ...(transaction.method.args.length > 0
+    ...(transaction.methodDefinition.arguments.length > 0
       ? [
           {
             dt: 'Arguments',
             dd: (
               <ol>
-                {transaction.method.args.map((arg, index) => (
+                {transaction.methodDefinition.arguments.map((arg, index) => (
                   <li key={index} className="truncate">
                     <span className="float-left mr-1.5">{arg.name ? arg.name : `Arg ${index + 1}`}: </span>
-                    {asMethodArg(arg.type, index, transaction.methodArgs!, transactionPositions, onEditTransaction)}
+                    {asMethodArg(arg, index, transaction.methodArgs!, transactionPositions, onEditTransaction)}
                   </li>
                 ))}
               </ol>
@@ -538,9 +545,9 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                               {Number(box.appId)}
                             </ApplicationLink>
                           ) : (
-                            <AbiValue
+                            <DecodedAbiValue
                               abiValue={{
-                                type: AbiType.Uint,
+                                type: DecodedAbiType.Uint,
                                 value: 0n,
                                 multiline: false,
                                 length: 1,
@@ -548,9 +555,9 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                             />
                           )}
                           <span>{', '}</span>
-                          <AbiValue
+                          <DecodedAbiValue
                             abiValue={{
-                              type: AbiType.String,
+                              type: DecodedAbiType.String,
                               value: encodedBoxName,
                               multiline: false,
                               length: encodedBoxName.length,

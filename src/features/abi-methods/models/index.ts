@@ -1,4 +1,4 @@
-export enum AbiType {
+export enum DecodedAbiType {
   String = 'String',
   Uint = 'Uint',
   Byte = 'Byte',
@@ -18,61 +18,66 @@ type RepresentationProps = {
   multiline: boolean
   length: number
 }
-export type AbiTupleValue = { type: AbiType.Tuple; values: AbiValue[] } & RepresentationProps
-export type AbiArrayValue = { type: AbiType.Array; values: AbiValue[] } & RepresentationProps
-export type AbiStructValue = {
-  type: AbiType.Struct
-  values: {
-    name: string
-    value: AbiValue
-  }[]
+export type DecodedAbiTuple = { type: DecodedAbiType.Tuple; values: DecodedAbiValue[] } & RepresentationProps
+
+export type DecodedAbiArray = { type: DecodedAbiType.Array; values: DecodedAbiValue[] } & RepresentationProps
+
+export type DecodedAbiStructFieldValue = DecodedAbiValue | DecodedAbiStructField[]
+export type DecodedAbiStructField = {
+  name: string
+  value: DecodedAbiStructFieldValue
 } & RepresentationProps
-export type AbiValue =
+export type DecodedAbiStruct = {
+  type: DecodedAbiType.Struct
+  fields: DecodedAbiStructField[]
+} & RepresentationProps
+
+export type DecodedAbiValue =
   | ({
-      type: AbiType.String
+      type: DecodedAbiType.String
       value: string
     } & RepresentationProps)
   | ({
-      type: AbiType.Uint
+      type: DecodedAbiType.Uint
       value: bigint
     } & RepresentationProps)
   | ({
-      type: AbiType.Byte
+      type: DecodedAbiType.Byte
       value: number
     } & RepresentationProps)
   | ({
-      type: AbiType.Ufixed
+      type: DecodedAbiType.Ufixed
       value: string
     } & RepresentationProps)
   | ({
-      type: AbiType.Boolean
+      type: DecodedAbiType.Boolean
       value: boolean
     } & RepresentationProps)
   | ({
-      type: AbiType.Address
+      type: DecodedAbiType.Address
       value: string
     } & RepresentationProps)
-  | AbiArrayValue
-  | AbiTupleValue
-  | AbiStructValue
+  | DecodedAbiArray
+  | DecodedAbiTuple
 
-export type AbiReferenceValue =
-  | ({ type: AbiType.Account; value: string } & RepresentationProps)
-  | ({ type: AbiType.Application; value: number } & RepresentationProps)
-  | ({ type: AbiType.Asset; value: number } & RepresentationProps)
+export type DecodedAbiReference =
+  | ({ type: DecodedAbiType.Account; value: string } & RepresentationProps)
+  | ({ type: DecodedAbiType.Application; value: number } & RepresentationProps)
+  | ({ type: DecodedAbiType.Asset; value: number } & RepresentationProps)
 
-export type AbiTransactionValue = { type: AbiType.Transaction; value: string } & RepresentationProps
+export type DecodedAbiTransaction = { type: DecodedAbiType.Transaction; value: string } & RepresentationProps
 
-export type AbiMethodArgument =
-  | ({ name: string } & AbiValue)
-  | ({ name: string } & AbiReferenceValue)
-  | ({ name: string } & AbiTransactionValue)
+export type DecodedAbiMethodArgument =
+  | ({ name: string } & DecodedAbiValue)
+  | ({ name: string } & DecodedAbiStruct)
+  | ({ name: string } & DecodedAbiReference)
+  | ({ name: string } & DecodedAbiTransaction)
 
-export type AbiMethodReturn = AbiValue | 'void'
+export type DecodedAbiMethodReturn = DecodedAbiValue | 'void' | DecodedAbiStruct
 
-export type AbiMethod = {
+export type DecodedAbiMethod = {
   name: string
   multiline: boolean
-  arguments: AbiMethodArgument[]
-  return: AbiMethodReturn
+  arguments: DecodedAbiMethodArgument[]
+  return: DecodedAbiMethodReturn
 }

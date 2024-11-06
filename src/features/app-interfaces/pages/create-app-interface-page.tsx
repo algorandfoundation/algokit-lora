@@ -1,5 +1,5 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { cn, isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
+import { cn, isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { useCreateAppInterfaceStateMachine } from '../data'
 import { FromAppIdWorkflow } from '../components/create/from-app-id-workflow'
 import { FromDeploymentWorkflow } from '../components/create/from-deployment-workflow'
@@ -17,6 +17,7 @@ import { asError } from '@/utils/error'
 import { useTitle } from '@/utils/use-title'
 import { Button } from '@/features/common/components/button'
 import { ArrowLeft } from 'lucide-react'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const createAppInterfacePageTitle = 'Create App Interface'
 
@@ -50,6 +51,12 @@ function CreateAppInterfaceInner() {
           ...common,
           appSpec: state.context.appSpec as Arc4AppSpec,
           standard: AppSpecStandard.ARC4,
+        })
+      } else if (isArc56AppSpec(state.context.appSpec)) {
+        await createAppInterface({
+          ...common,
+          appSpec: state.context.appSpec as Arc56Contract,
+          standard: AppSpecStandard.ARC56,
         })
       } else {
         throw new Error('App spec standard is not supported')

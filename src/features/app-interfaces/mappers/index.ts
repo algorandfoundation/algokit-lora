@@ -1,16 +1,36 @@
 import { readFile } from '@/utils/read-file'
 import { AppSpecStandard, AppSpecVersion, Arc32AppSpec, Arc4AppSpec } from '../data/types'
-import { jsonAsArc32AppSpec, jsonAsArc4AppSpec } from '@/features/abi-methods/mappers'
+import { jsonAsArc32AppSpec, jsonAsArc4AppSpec, jsonAsArc56AppSpec } from '@/features/abi-methods/mappers'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
-export const parseAsAppSpec = async (file: File, supportedStandards: AppSpecStandard[]): Promise<Arc32AppSpec | Arc4AppSpec> => {
+export const parseAsAppSpec = async (
+  file: File,
+  supportedStandards: AppSpecStandard[]
+): Promise<Arc32AppSpec | Arc4AppSpec | Arc56Contract> => {
   try {
     const content = await readFile(file)
     const jsonData = JSON.parse(content as string)
 
-    if (supportedStandards.includes(AppSpecStandard.ARC32) && 'contract' in jsonData) {
-      return jsonAsArc32AppSpec(jsonData)
-    } else if (supportedStandards.includes(AppSpecStandard.ARC4)) {
-      return jsonAsArc4AppSpec(jsonData)
+    if (supportedStandards.includes(AppSpecStandard.ARC32)) {
+      try {
+        return jsonAsArc32AppSpec(jsonData)
+      } catch {
+        // ignore
+      }
+    }
+    if (supportedStandards.includes(AppSpecStandard.ARC56)) {
+      try {
+        return jsonAsArc56AppSpec(jsonData)
+      } catch {
+        // ignore
+      }
+    }
+    if (supportedStandards.includes(AppSpecStandard.ARC4)) {
+      try {
+        return jsonAsArc4AppSpec(jsonData)
+      } catch {
+        // ignore
+      }
     }
 
     throw new Error('Not supported')

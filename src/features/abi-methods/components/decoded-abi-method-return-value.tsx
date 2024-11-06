@@ -1,11 +1,13 @@
-import { AbiMethodReturn } from '@/features/abi-methods/models'
-import { AbiValue } from '@/features/abi-methods/components/abi-value'
+import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
+import { DecodedAbiMethodReturn, DecodedAbiType } from '@/features/abi-methods/models'
+import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 
 type Props = {
-  return: AbiMethodReturn
+  return: DecodedAbiMethodReturn
 }
 
 export function DecodedAbiMethodReturnValue({ return: returnProp }: Props) {
   if (returnProp === 'void') return 'void'
-  return <AbiValue abiValue={returnProp} />
+  if (returnProp.type === DecodedAbiType.Struct) return <DecodedAbiStruct struct={returnProp} />
+  return <DecodedAbiValue abiValue={returnProp} />
 }
