@@ -165,7 +165,11 @@ export function TransactionsBuilder({
       } satisfies SimulateOptions
       const result = await (requireSignaturesOnSimulate
         ? (await buildComposer(transactions)).simulate(simulateConfig)
-        : (await buildComposerWithEmptySignatures(transactions)).simulate({ ...simulateConfig, allowEmptySignatures: true }))
+        : (await buildComposerWithEmptySignatures(transactions)).simulate({
+            ...simulateConfig,
+            allowEmptySignatures: true,
+            fixSigners: true,
+          }))
 
       return onSimulated?.(result)
     } catch (error) {

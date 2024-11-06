@@ -48,7 +48,6 @@ export const asAppSpecFilename = (appSpecVersion: AppSpecVersion) => {
     .replace(/[^a-zA-Z0-9._-]/g, '_')
     .toLowerCase()
 }
-;[0]
 
 export const getLatestAppSpecVersion = (appSpecVersions: AppSpecVersion[]): AppSpecVersion | undefined => {
   const noRoundLastValid = appSpecVersions.find((appSpec) => appSpec.roundLastValid === undefined)
