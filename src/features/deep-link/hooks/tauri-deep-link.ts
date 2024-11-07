@@ -1,3 +1,8 @@
+// This file was added because there was behavior with the plugin that was causing this
+// The Tauri put a PR to resolve this issue, but it has not been merged yet
+// https://github.com/tauri-apps/plugins-workspace/pull/2008
+// TODO: Remove this file when the next release of tauri plugin workspace is published
+
 // Copyright 2019-2023 Tauri Programme within The Commons Conservancy
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
