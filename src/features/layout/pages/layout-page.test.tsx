@@ -4,18 +4,12 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel, selectAccountLabel, disconnectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
 import { PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
-import { networkConfigAtom } from '@/features/network/data'
+import { networkConfigAtom, useSetSelectedNetwork } from '@/features/network/data'
 import { useNavigate } from 'react-router-dom'
 import { settingsStore } from '@/features/settings/data'
 import { getCurrent, onOpenUrl } from '@/features/deep-link/hooks/tauri-deep-link'
-import { NetworkConfigWithId } from '@/features/network/data/types'
-import { screen } from '@testing-library/react'
-
-vi.mock('@/features/deep-link/hooks/tauri-deep-link', async () => ({
-  ...(await vi.importActual('@/features/deep-link/hooks/tauri-deep-link')),
-  getCurrent: vi.fn(),
-  onOpenUrl: vi.fn(),
-}))
+import { localnetId } from '@/features/network/data/types'
+import { renderHook } from '@testing-library/react'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -254,33 +248,21 @@ describe('when rendering the layout page', () => {
       window.__TAURI_INTERNALS__ = undefined
     })
 
-    const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
-    vi.mocked(useWallet).mockImplementation(() => {
-      return {
-        ...original.useWallet(),
-      }
-    })
-    vi.doMock('@/features/network/data', async () => ({
-      ...(await vi.importActual('@/features/network/data')),
-      useNetworkConfig: vi.fn(),
-    }))
-    const { useNetworkConfig } = await import('@/features/network/data')
-    vi.mocked(useNetworkConfig).mockReturnValue({
-      id: 'localnet',
-      name: 'LocalNet',
-      walletProviders: ['pera'],
-    } as NetworkConfigWithId)
+    it('localnet should be selected', async () => {
+      renderHook(async () => {
+        const setSelectedNetwork = useSetSelectedNetwork()
+        await setSelectedNetwork(localnetId)
+      })
 
-    it.only('localnet should be selected', async () => {
       return executeComponentTest(
         () => render(<LayoutPage />),
         async (component) => {
           await waitFor(() => {
-            screen.debug(undefined, 1000000)
-            const network = component.getByText('asdf')
+            const network = component.getByText('LocalNet')
             expect(network).toBeTruthy()
             const networkConfig = settingsStore.get(networkConfigAtom)
-            expect(networkConfig.id).toBe('qwer')
+            expect(networkConfig.id).toBe(localnetId)
+            expect(network).toBeTruthy()
           })
         }
       )

@@ -133,3 +133,9 @@ vi.mock('@auth0/auth0-react', async () => {
     }),
   }
 })
+
+vi.mock('@/features/deep-link/hooks/tauri-deep-link', async () => ({
+  ...(await vi.importActual('@/features/deep-link/hooks/tauri-deep-link')),
+  getCurrent: vi.fn(),
+  onOpenUrl: vi.fn(),
+}))
