@@ -15,8 +15,9 @@ export default defineConfig({
     }),
   ],
   test: {
+    testTimeout: 20_000,
     environment: 'happy-dom',
-    setupFiles: ['src/tests/setup/clean-up-dom.ts', 'src/tests/setup/mocks/index.ts', 'fake-indexeddb/auto'],
+    setupFiles: ['src/tests/setup/mocks/index.ts', 'src/tests/setup/index.ts', 'fake-indexeddb/auto'],
     globals: true,
     globalSetup: ['src/tests/setup/setup-timezone.ts'],
     env: {
@@ -25,6 +26,14 @@ export default defineConfig({
       VITE_DISPENSER_AUTH0_AUDIENCE: 'test',
       VITE_TESTNET_DISPENSER_API_URL: 'https://test.api',
       VITE_TESTNET_DISPENSER_ADDRESS: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+      // For running tests against LocalNet
+      ALGOD_TOKEN: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      ALGOD_SERVER: 'http://localhost',
+      ALGOD_PORT: '4001',
+      KMD_PORT: '4002',
+      INDEXER_TOKEN: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+      INDEXER_SERVER: 'http://localhost',
+      INDEXER_PORT: '8980',
     },
   },
 
@@ -38,11 +47,11 @@ export default defineConfig({
     strictPort: true,
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
-      ignored: ['**/src-tauri/**'],
+      ignored: ['**/src-tauri/**', '**/*.test.tsx'],
     },
   },
 
-  // Settings for shadcb
+  // Settings for shadcn
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

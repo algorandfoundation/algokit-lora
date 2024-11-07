@@ -10,7 +10,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
-import { atom, createStore } from 'jotai'
+import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
 import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
@@ -80,12 +80,24 @@ import { base64ProgramTabLabel, tealProgramTabLabel } from '@/features/applicati
 import { transactionAmountLabel } from '../components/transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from '../components/labels'
 import { applicationIdLabel } from '@/features/applications/components/labels'
-import { algod } from '@/features/common/data/algo-client'
-import { appInterfacesAtom } from '@/features/app-interfaces/data'
 import SampleFiveAppSpec from '@/tests/test-app-specs/sample-five.arc32.json'
-import { Arc32AppSpec } from '@/features/app-interfaces/data/types'
-import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
+import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
+import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
+import { algod } from '@/features/common/data/algo-client'
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
 
 describe('transaction-page', () => {
   describe('when rendering a transaction with an invalid id', () => {
@@ -147,6 +159,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -578,6 +591,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -603,6 +617,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -636,6 +651,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -735,6 +751,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2' }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
@@ -933,6 +950,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -966,6 +984,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1027,6 +1046,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1057,6 +1077,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
@@ -1120,6 +1141,7 @@ describe('transaction-page', () => {
 
     it('should be rendered correctly', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       return executeComponentTest(
@@ -1149,6 +1171,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1185,6 +1208,7 @@ describe('transaction-page', () => {
 
     it('should be rendered with the correct data', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1217,6 +1241,7 @@ describe('when rendering a rekey transaction', () => {
 
   it('should be rendered with the correct data', () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
     const myStore = createStore()
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -1245,29 +1270,24 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
 
   it('should be rendered with the correct data', async () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
     const myStore = createStore()
+    myStore.set(genesisHashAtom, 'some-hash')
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
     const applicationId = transaction['application-transaction']!['application-id']!
-    myStore.set(
-      appInterfacesAtom,
-      new Map([
-        [
-          applicationId,
-          createAppInterfaceAtomAndTimestamp({
-            applicationId: applicationId,
-            name: 'test',
-            appSpecVersions: [
-              {
-                standard: 'ARC-32',
-                appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
-              },
-            ],
-            lastModified: createTimestamp(),
-          }),
-        ],
-      ])
-    )
+    const dbConnection = await myStore.get(dbConnectionAtom)
+    await upsertAppInterface(dbConnection, {
+      applicationId: applicationId,
+      name: 'test',
+      appSpecVersions: [
+        {
+          standard: AppSpecStandard.ARC32,
+          appSpec: SampleFiveAppSpec as unknown as Arc32AppSpec,
+        },
+      ],
+      lastModified: createTimestamp(),
+    } satisfies AppInterfaceEntity)
 
     return executeComponentTest(
       () => {
@@ -1279,10 +1299,10 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
           expect(tabList).toBeTruthy()
 
           const decodedAbiMethodTab = component.getByRole('tabpanel', { name: decodedAbiMethodTabLabel })
-          expect(decodedAbiMethodTab.getAttribute('data-state'), 'Decoded ABI Method tab should be active').toBe('active')
+          expect(decodedAbiMethodTab.getAttribute('data-state'), 'ABI Method tab should be active').toBe('active')
 
           expect(decodedAbiMethodTab.textContent).toBe(
-            'echo_address(address:  25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+            'echo_address(address: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
           )
         })
       }
@@ -1290,14 +1310,47 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
   })
 })
 
-function createAppInterfaceAtomAndTimestamp(entity: AppInterfaceEntity) {
-  return [
-    atom(
-      () => entity,
+describe('when rendering an app call transaction with ARC-4 app spec loaded', () => {
+  const transaction = transactionResultMother['testnet-6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q']().build()
+
+  it('should be rendered with the correct data', async () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+    const myStore = createStore()
+    myStore.set(genesisHashAtom, 'some-hash')
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+    const applicationId = transaction['application-transaction']!['application-id']!
+    const dbConnection = await myStore.get(dbConnectionAtom)
+    await upsertAppInterface(dbConnection, {
+      applicationId: applicationId,
+      name: 'test',
+      appSpecVersions: [
+        {
+          standard: AppSpecStandard.ARC4,
+          appSpec: SampleFiveAppSpec as unknown as Arc4AppSpec,
+        },
+      ],
+      lastModified: createTimestamp(),
+    } satisfies AppInterfaceEntity)
+
+    return executeComponentTest(
       () => {
-        return Promise.resolve()
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() => {
+          const tabList = component.getByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(tabList).toBeTruthy()
+
+          const decodedAbiMethodTab = component.getByRole('tabpanel', { name: decodedAbiMethodTabLabel })
+          expect(decodedAbiMethodTab.getAttribute('data-state'), 'ABI Method tab should be active').toBe('active')
+
+          expect(decodedAbiMethodTab.textContent).toBe(
+            'echo_address(address: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE)Returns: 25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'
+          )
+        })
       }
-    ),
-    createTimestamp(),
-  ] as const
-}
+    )
+  })
+})

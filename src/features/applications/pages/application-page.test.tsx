@@ -1,5 +1,5 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { render, waitFor } from '@/tests/testing-library'
+import { getByRole, render, waitFor, within } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import {
@@ -8,12 +8,13 @@ import {
   applicationInvalidIdMessage,
   applicationNotFoundMessage,
 } from './application-page'
-import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
+import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
 import { HttpError } from '@/tests/errors'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 import { createStore } from 'jotai'
 import { applicationResultsAtom } from '../data'
 import {
+  applicationAbiMethodDefinitionsLabel,
   applicationAccountLabel,
   applicationBoxesLabel,
   applicationCreatorAccountLabel,
@@ -25,6 +26,7 @@ import {
   applicationLocalStateByteLabel,
   applicationLocalStateUintLabel,
   applicationNameLabel,
+  applicationStateLabel,
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
@@ -32,6 +34,39 @@ import { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
+import { genesisHashAtom } from '@/features/blocks/data'
+import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
+import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
+import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { searchTransactionsMock } from '@/tests/setup/mocks'
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    algod: {
+      getApplicationByID: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
+    },
+    indexer: {
+      lookupApplications: vi.fn().mockReturnValue({
+        includeAll: vi.fn().mockReturnValue({
+          do: vi.fn().mockReturnValue({ then: vi.fn() }),
+        }),
+      }),
+      searchForApplicationBoxes: vi.fn().mockReturnValue({
+        nextToken: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            do: vi.fn().mockReturnValue({ then: vi.fn() }),
+          }),
+        }),
+      }),
+      searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+    },
+  }
+})
 
 describe('application-page', () => {
   describe('when rendering an application using an invalid application Id', () => {
@@ -81,6 +116,8 @@ describe('application-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
@@ -132,7 +169,7 @@ describe('application-page', () => {
         () => {
           return render(<ApplicationPage />, undefined, myStore)
         },
-        async (component) => {
+        async (component, user) => {
           await waitFor(async () => {
             const detailsCard = component.getByLabelText(applicationDetailsLabel)
             descriptionListAssertion({
@@ -148,10 +185,13 @@ describe('application-page', () => {
               ],
             })
 
+            const applicationStateTabList = component.getByRole('tablist', { name: applicationStateLabel })
+            expect(applicationStateTabList).toBeTruthy()
+
             // Only test the first 10 rows, should be enough
-            const globalStateCard = component.getByLabelText(applicationGlobalStateLabel)
+            const globalStateTab = component.getByRole('tabpanel', { name: applicationGlobalStateLabel })
             tableAssertion({
-              container: globalStateCard,
+              container: globalStateTab,
               rows: [
                 { cells: ['Bids', 'Uint', '0'] },
                 { cells: ['Creator', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
@@ -166,9 +206,10 @@ describe('application-page', () => {
               ],
             })
 
-            const boxesCard = component.getByLabelText(applicationBoxesLabel)
+            await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
+            const boxesTab = component.getByRole('tabpanel', { name: applicationBoxesLabel })
             tableAssertion({
-              container: boxesCard,
+              container: boxesTab,
               rows: [
                 { cells: ['AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8='] },
                 { cells: ['AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4='] },
@@ -194,6 +235,8 @@ describe('application-page', () => {
 
     it('should be rendered with the correct app name', () => {
       const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
@@ -226,6 +269,8 @@ describe('application-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
@@ -301,6 +346,75 @@ describe('application-page', () => {
 
             const refreshButton = component.getByLabelText(refreshButtonLabel)
             expect(refreshButton).toBeTruthy()
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an application that is associated with an appspec', () => {
+    const applicationResult = applicationResultMother['testnet-718348254']().build()
+
+    it('should be rendered with the correct data', async () => {
+      vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+      )
+
+      const myStore = createStore()
+      myStore.set(genesisHashAtom, 'some-hash')
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await upsertAppInterface(dbConnection, {
+        applicationId: applicationResult.id,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC32,
+            appSpec: SampleSevenAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          await waitFor(async () => {
+            const abiMethodsCard = component.getByLabelText(applicationAbiMethodDefinitionsLabel)
+            expect(abiMethodsCard).toBeTruthy()
+
+            const echoStructAccordionTrigger = component.getByRole('button', { name: 'echo_struct' })
+            await user.click(echoStructAccordionTrigger)
+
+            const echoStructAccordionPanel = component.getByRole('region', { name: 'echo_struct' })
+            expect(echoStructAccordionPanel).toBeTruthy()
+
+            const argumentsDiv = within(echoStructAccordionPanel).getByText('Arguments').parentElement
+            expect(argumentsDiv).toBeTruthy()
+
+            const argument1Div = within(argumentsDiv!).getByText('Argument 1').parentElement
+            descriptionListAssertion({
+              container: argument1Div!,
+              items: [
+                { term: 'Name', description: 'inputUser' },
+                { term: 'Type', description: 'UserStruct:name: stringid: uint64' },
+              ],
+            })
+
+            const returnDiv = within(echoStructAccordionPanel).getByText('Return').parentElement
+            expect(returnDiv).toBeTruthy()
+
+            const returnTypeDiv = within(returnDiv!).getByText('Type').parentElement
+            expect(returnTypeDiv).toBeTruthy()
+
+            descriptionListAssertion({
+              container: returnTypeDiv!,
+              items: [{ term: 'Type', description: 'UserStruct:name: stringid: uint64' }],
+            })
           })
         }
       )

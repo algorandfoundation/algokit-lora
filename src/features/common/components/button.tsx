@@ -4,6 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/features/common/utils'
 import { useCallback, useState } from 'react'
 import { Loader2 as Loader } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 const buttonVariants = cva(
   'relative inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -16,7 +17,7 @@ const buttonVariants = cva(
         ['outline-secondary']: 'border border-secondary bg-transparent text-secondary hover:bg-accent hover:text-secondary/90',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
+        link: 'text-primary underline',
         ['no-style']: '',
       },
       size: {
@@ -37,12 +38,14 @@ const buttonVariants = cva(
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean
   icon?: React.ReactNode
+  disabledReason?: string
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, children, icon, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, children, icon, disabledReason, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'
-    return (
+
+    const button = (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props}>
         {icon && (
           <div className="flex items-center gap-2">
@@ -53,6 +56,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {!icon && <>{children}</>}
       </Comp>
     )
+
+    if (props.disabled && disabledReason) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div tabIndex={0}>{button}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span>{disabledReason}</span>
+          </TooltipContent>
+        </Tooltip>
+      )
+    }
+
+    return button
   }
 )
 Button.displayName = 'Button'
@@ -61,10 +79,25 @@ export interface AsyncActionButtonProps extends React.ButtonHTMLAttributes<HTMLB
   asChild?: boolean
   onClick?: () => Promise<void>
   icon?: React.ReactNode
+  disabledReason?: string
 }
 
 const AsyncActionButton = React.forwardRef<HTMLButtonElement, AsyncActionButtonProps>(
-  ({ className, variant, size, asChild = false, children, onClick: onClickProp, disabled: disabledProp, icon, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      children,
+      onClick: onClickProp,
+      disabled: disabledProp,
+      disabledReason: disabledReasonProp,
+      icon,
+      ...props
+    },
+    ref
+  ) => {
     const [isLoading, setIsLoading] = useState(false)
 
     const onClick = useCallback(async () => {
@@ -79,9 +112,10 @@ const AsyncActionButton = React.forwardRef<HTMLButtonElement, AsyncActionButtonP
     }, [onClickProp])
 
     const disabled = disabledProp || isLoading
+    const disabledReason = !isLoading ? disabledReasonProp : undefined // If loading, that's the reason the button is disabled, so don't show the disabled reason
 
     const Comp = asChild ? Slot : 'button'
-    return (
+    const button = (
       <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} disabled={disabled} onClick={onClick} {...props}>
         {isLoading && <Loader className="size-6 animate-spin" />}
         {!isLoading && icon && (
@@ -93,6 +127,21 @@ const AsyncActionButton = React.forwardRef<HTMLButtonElement, AsyncActionButtonP
         {!isLoading && !icon && <>{children}</>}
       </Comp>
     )
+
+    if (disabled && disabledReason) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div tabIndex={0}>{button}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span>{disabledReason}</span>
+          </TooltipContent>
+        </Tooltip>
+      )
+    }
+
+    return button
   }
 )
 AsyncActionButton.displayName = 'AsyncActionButton'

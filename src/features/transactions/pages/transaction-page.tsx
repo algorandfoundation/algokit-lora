@@ -8,6 +8,7 @@ import { useLoadableTransactionAtom } from '../data'
 import { isTransactionId } from '@/utils/is-transaction-id'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -28,6 +29,7 @@ export function TransactionPage() {
   const { transactionId } = useRequiredParam(UrlParams.TransactionId)
   invariant(isTransactionId(transactionId), transactionInvalidIdMessage)
   const loadableTransaction = useLoadableTransactionAtom(transactionId)
+  useTitle()
 
   return (
     <>

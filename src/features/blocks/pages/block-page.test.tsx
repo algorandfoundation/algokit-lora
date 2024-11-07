@@ -8,7 +8,14 @@ import { HttpError } from '@/tests/errors'
 import { blockResultMother } from '@/tests/object-mother/block-result'
 import { createStore } from 'jotai'
 import { blockResultsAtom, syncedRoundAtom } from '../data'
-import { nextRoundLabel, previousRoundLabel, roundLabel, timestampLabel, transactionsLabel } from '../components/block-details'
+import {
+  nextRoundLabel,
+  previousRoundLabel,
+  proposerLabel,
+  roundLabel,
+  timestampLabel,
+  transactionsLabel,
+} from '../components/block-details'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
@@ -18,6 +25,18 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
+
+vi.mock('@/features/common/data/algo-client', async () => {
+  const original = await vi.importActual('@/features/common/data/algo-client')
+  return {
+    ...original,
+    indexer: {
+      lookupBlock: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+  }
+})
 
 describe('block-page', () => {
   describe('when rendering a block using an invalid round number', () => {
@@ -93,6 +112,38 @@ describe('block-page', () => {
       })
     })
 
+    describe('and has a proposer', () => {
+      const block = blockResultMother.blockWithoutTransactions().withRound(1644).withTimestamp(1724943091).build()
+
+      it('should be rendered with the correct data', () => {
+        vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
+        const myStore = createStore()
+        myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
+        myStore.set(syncedRoundAtom, block.round + 1)
+
+        return executeComponentTest(
+          () => render(<BlockPage />, undefined, myStore),
+          async (component) => {
+            await waitFor(() =>
+              descriptionListAssertion({
+                container: component.container,
+                items: [
+                  { term: roundLabel, description: block.round.toString() },
+                  { term: timestampLabel, description: 'Thu, 29 August 2024 14:51:31' },
+                  { term: transactionsLabel, description: '0' },
+                  { term: previousRoundLabel, description: (block.round - 1).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                  { term: proposerLabel, description: block.proposer ?? '' },
+                ],
+              })
+            )
+            const transactionsRow = getAllByRole(component.container, 'row')[1]
+            expect(transactionsRow.textContent).toBe('No results.')
+          }
+        )
+      })
+    })
+
     describe('and has transactions', () => {
       const asset = assetResultMother['mainnet-312769']().build()
       const transactionResult1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
@@ -102,9 +153,10 @@ describe('block-page', () => {
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
+
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
-        myStore.set(transactionResultsAtom, new Map(transactionResults.map((x) => [x.id, createReadOnlyAtomAndTimestamp(x)])))
+        myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
         myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
         myStore.set(syncedRoundAtom, block.round + 1)
 

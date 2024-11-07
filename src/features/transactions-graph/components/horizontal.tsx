@@ -47,7 +47,7 @@ const colorClassMap = {
 function Circle({ className, text }: { className?: string; text?: string | number }) {
   return (
     <div
-      className={cn('inline-flex size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem]', className)}
+      className={cn('inline-flex relative size-5 items-center justify-center overflow-hidden rounded-full border text-[0.6rem]', className)}
     >
       {text}
     </div>
@@ -86,7 +86,7 @@ function VectorLabelText({ type }: { type: LabelType }) {
 
 function AppCallAbiMethodName({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
   return (
-    <RenderAsyncAtom atom={transaction.abiMethod} fallback={null}>
+    <RenderAsyncAtom atom={transaction.abiMethod} fallback={''}>
       {(abiMethod) => {
         return abiMethod ? <div className="overflow-x-hidden text-ellipsis">{abiMethod.name}</div> : null
       }}
@@ -152,10 +152,12 @@ const RenderTransactionVector = fixedForwardRef(
     {
       transaction,
       vector,
+      bgClassName,
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
       vector: Vector
+      bgClassName: string
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -172,7 +174,10 @@ const RenderTransactionVector = fixedForwardRef(
         ref={ref}
         {...rest}
       >
-        <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.fromAccountIndex : vector.toAccountIndex} />
+        <Circle
+          className={cn(colorClass.border, bgClassName)}
+          text={vector.direction === 'leftToRight' ? vector.fromAccountIndex : vector.toAccountIndex}
+        />
         <div
           style={{
             width: `calc(${(100 - 100 / (vector.toVerticalIndex - vector.fromVerticalIndex + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
@@ -180,7 +185,11 @@ const RenderTransactionVector = fixedForwardRef(
           }}
           className="relative"
         >
-          {vector.direction === 'rightToLeft' && <PointerLeft className="absolute left-0 top-0" />}
+          {vector.direction === 'rightToLeft' && (
+            <span className="absolute left-0 top-0">
+              <PointerLeft />
+            </span>
+          )}
           <div
             className={cn(colorClass.border)}
             style={{
@@ -189,14 +198,21 @@ const RenderTransactionVector = fixedForwardRef(
               margin: vector.direction === 'leftToRight' ? '0 1px 0 0' : '0 0 0 1px',
             }}
           ></div>
-          {vector.direction === 'leftToRight' && <PointerRight className="absolute right-0 top-0" />}
+          {vector.direction === 'leftToRight' && (
+            <span className="absolute right-0 top-0">
+              <PointerRight />
+            </span>
+          )}
         </div>
         <div className="absolute flex max-w-[35%] justify-center ">
-          <div className={cn('z-20 bg-card p-0.5 text-xs text-center w-full')}>
+          <div className={cn('z-20 p-0.5 text-xs text-center w-full', bgClassName)}>
             <VectorLabel transaction={transaction} vector={vector} />
           </div>
         </div>
-        <Circle className={colorClass.border} text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex} />
+        <Circle
+          className={cn(colorClass.border, bgClassName)}
+          text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex}
+        />
       </div>
     )
   }
@@ -206,10 +222,12 @@ const RenderTransactionSelfLoop = fixedForwardRef(
     {
       transaction,
       loop,
+      bgClassName,
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
       loop: SelfLoop
+      bgClassName: string
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -226,7 +244,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
         }}
       >
         <Circle
-          className={cn(colorClass.border, 'z-10')}
+          className={cn(colorClass.border, 'z-10', bgClassName)}
           text={loop.fromAccountIndex === loop.toAccountIndex ? loop.fromAccountIndex : undefined}
         />
         <div
@@ -247,7 +265,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
           }}
         ></div>
         <div className={cn('absolute flex w-1/2 justify-center text-xs')}>
-          <div className={cn('z-20 bg-card p-0.5 text-xs text-center')}>
+          <div className={cn('z-20 p-0.5 text-xs text-center', bgClassName)}>
             <SelfLoopLabel transaction={transaction} loop={loop} />
           </div>
         </div>
@@ -260,10 +278,12 @@ const RenderTransactionPoint = fixedForwardRef(
     {
       transaction,
       point,
+      bgClassName,
       ...rest
     }: {
       transaction: Transaction | InnerTransaction
       point: Point
+      bgClassName: string
     },
     ref?: React.LegacyRef<HTMLDivElement>
   ) => {
@@ -280,7 +300,7 @@ const RenderTransactionPoint = fixedForwardRef(
           gridColumnEnd: point.fromVerticalIndex + 3,
         }}
       >
-        <Circle className={colorClass.border} />
+        <Circle className={cn(colorClass.border, bgClassName)} />
       </div>
     )
   }
@@ -289,15 +309,17 @@ const RenderTransactionPoint = fixedForwardRef(
 type Props = {
   horizontal: HorizontalModel
   verticals: Vertical[]
+  bgClassName: string
+  isSimulated: boolean
 }
-export function Horizontal({ horizontal, verticals }: Props) {
+export function Horizontal({ horizontal, verticals, bgClassName, isSimulated }: Props) {
   const { transaction, representation, ancestors, isSubHorizontal } = horizontal
 
   return (
     <>
       <div className={cn('p-0 relative')}>
         <ConnectionsFromAncestorsToAncestorsNextSiblings ancestors={ancestors} />
-        {!isSubHorizontal && <HorizontalTitle horizontal={horizontal} />}
+        {!isSubHorizontal && <HorizontalTitle horizontal={horizontal} isSimulated={isSimulated} />}
         {isSubHorizontal && <SubHorizontalTitle horizontal={horizontal} />}
       </div>
       {verticals.map((_, index) => {
@@ -316,24 +338,38 @@ export function Horizontal({ horizontal, verticals }: Props) {
 
         if (index === representation.fromVerticalIndex)
           return (
-            <Tooltip key={index} delayDuration={400}>
+            <Tooltip key={index}>
               <TooltipTrigger asChild>
                 {representation.type === RepresentationType.Vector ? (
-                  <RenderTransactionVector key={index} vector={representation} transaction={transaction} />
+                  <RenderTransactionVector key={index} vector={representation} transaction={transaction} bgClassName={bgClassName} />
                 ) : representation.type === RepresentationType.SelfLoop ? (
-                  <RenderTransactionSelfLoop key={index} loop={representation} transaction={transaction} />
+                  <RenderTransactionSelfLoop key={index} loop={representation} transaction={transaction} bgClassName={bgClassName} />
                 ) : representation.type === RepresentationType.Point ? (
-                  <RenderTransactionPoint key={index} point={representation} transaction={transaction} />
+                  <RenderTransactionPoint key={index} point={representation} transaction={transaction} bgClassName={bgClassName} />
                 ) : null}
               </TooltipTrigger>
               <TooltipContent>
-                {transaction.type === TransactionType.Payment && <PaymentTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetTransfer && <AssetTransferTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AppCall && <AppCallTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetConfig && <AssetConfigTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.AssetFreeze && <AssetFreezeTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.KeyReg && <KeyRegTransactionTooltipContent transaction={transaction} />}
-                {transaction.type === TransactionType.StateProof && <StateProofTransactionTooltipContent transaction={transaction} />}
+                {transaction.type === TransactionType.Payment && (
+                  <PaymentTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AssetTransfer && (
+                  <AssetTransferTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AppCall && (
+                  <AppCallTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AssetConfig && (
+                  <AssetConfigTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.AssetFreeze && (
+                  <AssetFreezeTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.KeyReg && (
+                  <KeyRegTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.StateProof && (
+                  <StateProofTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
               </TooltipContent>
             </Tooltip>
           )

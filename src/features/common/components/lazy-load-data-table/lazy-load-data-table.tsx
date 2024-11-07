@@ -5,6 +5,7 @@ import { LazyLoadDataTablePagination } from './lazy-load-data-table-pagination'
 import { Loader2 as Loader } from 'lucide-react'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { ViewModelPage } from '../../data/lazy-load-pagination'
+import { cn } from '../../utils'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -57,7 +58,7 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
         <Table className="border-b">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-t bg-muted/50">
+              <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -94,7 +95,9 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
                   {...(row.getCanExpand() ? { className: 'cursor-pointer', onClick: row.getToggleExpandedHandler() } : {})}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))}

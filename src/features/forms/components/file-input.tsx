@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { ReactElement, useCallback, useRef } from 'react'
 import { useFileDrop } from '@/features/forms/hooks/use-file-drop'
 import { cn } from '@/features/common/utils'
 import { UploadIcon } from 'lucide-react'
@@ -9,9 +9,11 @@ export type FileInputProps = {
   disabled?: boolean
   value?: File
   onChange: (value: File) => void
+  helpText?: string | ReactElement
+  fieldName: string
 }
 
-export function FileInput({ accept, placeholder, value, disabled, onChange }: FileInputProps) {
+export function FileInput({ accept, placeholder, value, disabled, onChange, fieldName }: FileInputProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const onFilesAdded = useCallback(
@@ -34,36 +36,39 @@ export function FileInput({ accept, placeholder, value, disabled, onChange }: Fi
   }, [])
 
   return (
-    <div className={cn('min-h-24 flex justify-center border rounded', dragging && 'bg-muted')} {...events} onClick={handleClick}>
-      <div className="flex flex-col items-center justify-center gap-2">
-        {(() => {
-          if (value) {
-            return <span className="text-sm">{value.name}</span>
-          } else if (placeholder) {
-            return (
-              <>
-                <UploadIcon />
-                <span className="mx-2 text-center text-sm">{placeholder}</span>
-              </>
-            )
-          } else {
-            return (
-              <>
-                <UploadIcon />
-                <>&nbsp;</>
-              </>
-            )
-          }
-        })()}
-      </div>
+    <>
       <input
         ref={inputRef}
         type={'file'}
+        id={fieldName}
         className="sr-only"
         onChange={(e) => onFilesAdded(Array.from(e.target.files ?? []))}
         disabled={disabled}
         accept={accept}
       />
-    </div>
+      <div className={cn('min-h-24 flex justify-center border rounded', dragging && 'bg-muted')} {...events} onClick={handleClick}>
+        <div className="flex flex-col items-center justify-center gap-2">
+          {(() => {
+            if (value) {
+              return <span className="text-sm">{value.name}</span>
+            } else if (placeholder) {
+              return (
+                <>
+                  <UploadIcon />
+                  <span className="mx-2 text-center text-sm">{placeholder}</span>
+                </>
+              )
+            } else {
+              return (
+                <>
+                  <UploadIcon />
+                  <>&nbsp;</>
+                </>
+              )
+            }
+          })()}
+        </div>
+      </div>
+    </>
   )
 }

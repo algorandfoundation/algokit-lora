@@ -6,7 +6,7 @@ import {
   transactionRekeyToLabel,
   transactionTypeLabel,
 } from '@/features/transactions/components/transaction-info'
-import { TransactionLink } from '@/features/transactions/components/transaction-link'
+import { asTransactionLinkTextComponent, TransactionLink } from '@/features/transactions/components/transaction-link'
 import { abiMethodNameLabel, transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { applicationIdLabel } from '@/features/applications/components/labels'
@@ -18,14 +18,19 @@ import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { useAtomValue } from 'jotai/index'
 import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { AbiMethod } from '@/features/abi-methods/models'
+import { DecodedAbiMethod } from '@/features/abi-methods/models'
 
-export function AppCallTransactionTooltipContent({ transaction }: { transaction: AppCallTransaction | InnerAppCallTransaction }) {
+type Props = {
+  transaction: AppCallTransaction | InnerAppCallTransaction
+  isSimulated: boolean
+}
+
+export function AppCallTransactionTooltipContent({ transaction, isSimulated }: Props) {
   const loadableAbiMethod = useAtomValue(loadable(transaction.abiMethod))
 
   return (
     <RenderLoadable loadable={loadableAbiMethod}>
-      {(abiMethod) => <AppCallDescriptionList transaction={transaction} abiMethod={abiMethod} />}
+      {(abiMethod) => <AppCallDescriptionList transaction={transaction} abiMethod={abiMethod} isSimulated={isSimulated} />}
     </RenderLoadable>
   )
 }
@@ -33,15 +38,15 @@ export function AppCallTransactionTooltipContent({ transaction }: { transaction:
 function AppCallDescriptionList({
   transaction,
   abiMethod,
-}: {
-  transaction: AppCallTransaction | InnerAppCallTransaction
-  abiMethod: AbiMethod | undefined
+  isSimulated,
+}: Props & {
+  abiMethod: DecodedAbiMethod | undefined
 }) {
   const items = useMemo(
     () => [
       {
         dt: transactionIdLabel,
-        dd: <TransactionLink transactionId={transaction.id} />,
+        dd: isSimulated ? asTransactionLinkTextComponent(transaction.id, true) : <TransactionLink transactionId={transaction.id} />,
       },
       {
         dt: transactionTypeLabel,
@@ -69,7 +74,7 @@ function AppCallDescriptionList({
           ]
         : []),
     ],
-    [transaction, abiMethod]
+    [isSimulated, transaction, abiMethod]
   )
 
   return (

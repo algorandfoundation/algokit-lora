@@ -44,7 +44,7 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
         <Table className="border-b">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-t bg-muted/50">
+              <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -65,7 +65,9 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
                   {...(row.getCanExpand() ? { onClick: row.getToggleExpandedHandler() } : {})}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id} className={cn(cell.column.columnDef.meta?.className)}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))

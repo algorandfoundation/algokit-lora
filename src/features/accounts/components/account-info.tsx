@@ -15,16 +15,20 @@ import {
   accountBalanceLabel,
   accountInformationLabel,
   accountMinBalanceLabel,
+  accountNfdLabel,
   accountRekeyedToLabel,
 } from './labels'
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 
 type Props = {
   account: Account
 }
 
 export function AccountInfo({ account }: Props) {
+  const loadableNfd = useLoadableReverseLookupNfdResult(account.address, true)
+
   const accountInfoItems = useMemo(() => {
     const items = [
       {
@@ -36,6 +40,18 @@ export function AccountInfo({ account }: Props) {
           </div>
         ),
       },
+      ...(loadableNfd.state === 'hasData' && loadableNfd.data !== null
+        ? [
+            {
+              dt: accountNfdLabel,
+              dd: (
+                <div className="flex items-center">
+                  <span className="truncate">{loadableNfd.data.name}</span>
+                </div>
+              ),
+            },
+          ]
+        : []),
       {
         dt: accountBalanceLabel,
         dd: <DisplayAlgo amount={account.balance} />,
@@ -84,6 +100,7 @@ export function AccountInfo({ account }: Props) {
     account.totalApplicationsCreated,
     account.totalApplicationsOptedIn,
     account.rekeyedTo,
+    loadableNfd,
   ])
   return (
     <Card aria-label={accountInformationLabel}>

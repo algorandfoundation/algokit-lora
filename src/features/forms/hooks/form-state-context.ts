@@ -1,9 +1,12 @@
 import { createContext } from 'react'
+import { z } from 'zod'
 
-const FormStateContext = createContext<{
+export const FormStateContext = createContext<{
   submitting: boolean
+  schema: z.ZodTypeAny | undefined
 }>({
   submitting: false,
+  schema: undefined,
 })
 
 export const FormStateContextProvider = FormStateContext.Provider

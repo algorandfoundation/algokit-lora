@@ -8,6 +8,7 @@ import { useLoadableBlock } from '../data'
 import { isInteger } from '@/utils/is-integer'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
+import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -25,6 +26,7 @@ export const blockInvalidRoundMessage = 'Round is invalid'
 export const blockFailedToLoadMessage = 'Block failed to load'
 
 export function BlockPage() {
+  useTitle()
   const { round: _round } = useRequiredParam(UrlParams.Round)
   invariant(isInteger(_round), blockInvalidRoundMessage)
   const round = parseInt(_round, 10)

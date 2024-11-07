@@ -2,16 +2,27 @@ import { cn } from '@/features/common/utils'
 import { TransactionLink } from './transaction-link'
 import { Card, CardContent } from '@/features/common/components/card'
 import { ellipseId } from '@/utils/ellipse-id'
-import { ellipseAddress } from '@/utils/ellipse-address'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ArrowRightLeft, Info } from 'lucide-react'
 import { Badge } from '@/features/common/components/badge'
 import { TransactionSummary } from '@/features/transactions/models'
+import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
+import { ellipseAddress } from '@/utils/ellipse-address'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
 
 export const latestTransactionsTitle = 'Latest Transactions'
 
 type Props = {
   latestTransactions: TransactionSummary[]
+}
+
+function TransactionAddress({ address }: { address: string }) {
+  const loadableNfd = useLoadableReverseLookupNfdResult(address)
+  return (
+    <RenderLoadable loadable={loadableNfd} fallback={ellipseAddress(address)}>
+      {(nfd) => (nfd ? nfd.name : ellipseAddress(address))}
+    </RenderLoadable>
+  )
 }
 
 export function LatestTransactions({ latestTransactions }: Props) {
@@ -32,10 +43,15 @@ export function LatestTransactions({ latestTransactions }: Props) {
                     <h3 className={cn('leading-none mb-2 tracking-wide')}>{ellipseId(transaction.id)}</h3>
                     <DescriptionList
                       items={[
-                        { dt: 'From:', dd: ellipseAddress(transaction.from) },
+                        { dt: 'From:', dd: <TransactionAddress address={transaction.from} /> },
                         {
                           dt: 'To:',
-                          dd: transaction.to && typeof transaction.to === 'string' ? ellipseAddress(transaction.to) : transaction.to,
+                          dd:
+                            transaction.to && typeof transaction.to === 'string' ? (
+                              <TransactionAddress address={transaction.to} />
+                            ) : (
+                              transaction.to
+                            ),
                         },
                       ]}
                     />

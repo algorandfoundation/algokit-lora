@@ -7,6 +7,7 @@ import {
   InnerAppCallTransaction,
   TransactionType,
 } from '../models'
+import { DecodedAbiMethod } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
 import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
@@ -20,7 +21,8 @@ import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 import { Atom } from 'jotai/index'
-import { AbiMethod } from '@/features/abi-methods/models'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
+import { Round } from '@/features/blocks/data/types'
 
 const opUpPrograms = [
   'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
@@ -42,7 +44,11 @@ const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>,
+  abiMethodResolver: (
+    transactionResult: TransactionResult,
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>,
   indexPrefix?: string
 ) => {
   invariant(transactionResult['application-transaction'], 'application-transaction is not set')
@@ -53,7 +59,7 @@ const mapCommonAppCallTransactionProperties = (
     onCompletion === AppCallOnComplete.Delete &&
     opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
     opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
-  const abiMethod = abiMethodResolver(transactionResult)
+  const abiMethod = abiMethodResolver(transactionResult, groupResolver)
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
@@ -73,7 +79,7 @@ const mapCommonAppCallTransactionProperties = (
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
-        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver, abiMethodResolver)
+        return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver, abiMethodResolver, groupResolver)
       }) ?? [],
     onCompletion,
     logs: transactionResult['logs'] ?? [],
@@ -84,9 +90,19 @@ const mapCommonAppCallTransactionProperties = (
 export const asAppCallTransaction = (
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
+  abiMethodResolver: (
+    transactionResult: TransactionResult,
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): AppCallTransaction => {
-  const commonProperties = mapCommonAppCallTransactionProperties(transactionResult.id, transactionResult, assetResolver, abiMethodResolver)
+  const commonProperties = mapCommonAppCallTransactionProperties(
+    transactionResult.id,
+    transactionResult,
+    assetResolver,
+    abiMethodResolver,
+    groupResolver
+  )
 
   return {
     id: transactionResult.id,
@@ -99,11 +115,22 @@ export const asInnerAppCallTransaction = (
   index: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
+  abiMethodResolver: (
+    transactionResult: TransactionResult,
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ): InnerAppCallTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),
-    ...mapCommonAppCallTransactionProperties(networkTransactionId, transactionResult, assetResolver, abiMethodResolver, `${index}`),
+    ...mapCommonAppCallTransactionProperties(
+      networkTransactionId,
+      transactionResult,
+      assetResolver,
+      abiMethodResolver,
+      groupResolver,
+      `${index}`
+    ),
   }
 }
 
@@ -129,7 +156,11 @@ const asInnerTransaction = (
   index: string,
   transactionResult: TransactionResult,
   assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
-  abiMethodResolver: (transactionResult: TransactionResult) => Atom<Promise<AbiMethod | undefined>>
+  abiMethodResolver: (
+    transactionResult: TransactionResult,
+    groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
+  ) => Atom<Promise<DecodedAbiMethod | undefined>>,
+  groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ) => {
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
@@ -138,7 +169,7 @@ const asInnerTransaction = (
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
-    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, abiMethodResolver)
+    return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, abiMethodResolver, groupResolver)
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)

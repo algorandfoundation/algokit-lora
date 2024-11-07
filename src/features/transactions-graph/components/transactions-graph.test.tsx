@@ -16,8 +16,11 @@ import { atom } from 'jotai'
 import { invariant } from '@/utils/invariant'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { Atom } from 'jotai/index'
-import { AbiMethod } from '@/features/abi-methods/models'
 import { setTimeout } from 'timers/promises'
+import { GroupId, GroupResult } from '@/features/groups/data/types'
+import { Round } from '@/features/blocks/data/types'
+import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { DecodedAbiMethod } from '@/features/abi-methods/models'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -40,7 +43,7 @@ describe('payment-transaction-graph', () => {
       const model = asPaymentTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
-        () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+        () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-graph.${transactionResult.id}.html`
@@ -69,7 +72,7 @@ describe('asset-transfer-transaction-graph', () => {
         const transaction = asAssetTransferTransaction(transactionResult, assetResolver)
         const graphData = asTransactionsGraphData([transaction])
         return executeComponentTest(
-          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
             expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
@@ -121,10 +124,15 @@ describe('application-call-graph', () => {
       it('should match snapshot', () => {
         vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
 
-        const model = asAppCallTransaction(transactionResult, createAssetResolver(assetResults), createAbiMethodResolver())
+        const model = asAppCallTransaction(
+          transactionResult,
+          createAssetResolver(assetResults),
+          createAbiMethodResolver(),
+          createGroupResolver()
+        )
         const graphData = asTransactionsGraphData([model])
         return executeComponentTest(
-          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
             // Sleep to make sure the ABI method is loaded
             await setTimeout(10)
@@ -146,11 +154,10 @@ describe('key-reg-graph', () => {
   ])('when rendering transaction $transactionResult.id', ({ transactionResult }: { transactionResult: TransactionResult }) => {
     it('should match snapshot', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
-
       const model = asKeyRegTransaction(transactionResult)
       const graphData = asTransactionsGraphData([model])
       return executeComponentTest(
-        () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+        () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
           expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/key-reg-graph.${transactionResult.id}.html`
@@ -228,7 +235,7 @@ describe('group-graph', () => {
         const graphData = asTransactionsGraphData(group.transactions)
 
         return executeComponentTest(
-          () => render(<TransactionsGraph transactionsGraphData={graphData} />),
+          () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
             // Sleep to make sure the ABI method is loaded
             await setTimeout(10)
@@ -251,6 +258,12 @@ const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) =
 
 const createAbiMethodResolver =
   () =>
-  (_: TransactionResult): Atom<Promise<AbiMethod | undefined>> => {
+  (_: TransactionResult): Atom<Promise<DecodedAbiMethod | undefined>> => {
     return atom(() => Promise.resolve(undefined))
+  }
+
+const createGroupResolver =
+  () =>
+  (_: GroupId, __: Round): AsyncMaybeAtom<GroupResult> => {
+    return atom(() => undefined as unknown as GroupResult)
   }

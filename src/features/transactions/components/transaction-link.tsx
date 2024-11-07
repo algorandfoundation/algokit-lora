@@ -13,6 +13,16 @@ type Props = PropsWithChildren<{
   showCopyButton?: boolean
 }>
 
+export function asTransactionLinkTextComponent(transactionId: string, showFullTransactionId: boolean = false) {
+  return showFullTransactionId ? (
+    transactionId
+  ) : (
+    <abbr className="tracking-wide text-primary" title={transactionId}>
+      {ellipseId(transactionId)}
+    </abbr>
+  )
+}
+
 export function TransactionLink({ transactionId, short = false, className, children, showCopyButton }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
 
@@ -22,15 +32,7 @@ export function TransactionLink({ transactionId, short = false, className, child
       urlTemplate={Urls.Explore.Transaction.ById}
       urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
     >
-      {children ? (
-        children
-      ) : short ? (
-        <abbr className="tracking-wide" title={transactionId}>
-          {ellipseId(transactionId)}
-        </abbr>
-      ) : (
-        transactionId
-      )}
+      {children ? children : asTransactionLinkTextComponent(transactionId, !short)}
     </TemplatedNavLink>
   )
 

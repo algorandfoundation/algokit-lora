@@ -10,6 +10,7 @@ import { is404 } from '@/utils/error'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useSplatParam } from '@/features/common/hooks/use-splat-param'
+import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
@@ -34,6 +35,7 @@ export function InnerTransactionPage() {
   invariant(isValidInnerTransactionId(innerTransactionId), `Invalid inner transaction id: ${innerTransactionId}`)
 
   const loadableTransaction = useLoadableInnerTransactionAtom(transactionId, innerTransactionId)
+  useTitle()
 
   return (
     <>

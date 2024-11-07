@@ -1,10 +1,11 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithDefault, atomWithStorage } from 'jotai/utils'
+import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
 import { useCallback } from 'react'
-import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId } from './types'
+import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
 import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
+import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
 
 export { localnetId, testnetId, mainnetId, fnetId } from './types'
 export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
@@ -59,6 +60,18 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
     },
     walletProviders: [PROVIDER_ID.LUTE],
   },
+  [betanetId]: {
+    name: 'BetaNet',
+    indexer: {
+      server: 'https://betanet-idx.algonode.cloud/',
+      port: 443,
+    },
+    algod: {
+      server: 'https://betanet-api.algonode.cloud/',
+      port: 443,
+    },
+    walletProviders: [PROVIDER_ID.LUTE],
+  },
   [testnetId]: {
     name: 'TestNet',
     indexer: {
@@ -74,6 +87,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       url: config.testNetDispenserApiUrl,
       address: config.testNetDispenserAddress,
     },
+    nfdApiUrl: 'https://api.testnet.nf.domains',
   },
   [mainnetId]: {
     name: 'MainNet',
@@ -86,6 +100,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       port: 443,
     },
     walletProviders: nonLocalnetWalletProviders,
+    nfdApiUrl: 'https://api.nf.domains',
   },
 }
 
@@ -202,9 +217,8 @@ export const useDeleteCustomNetworkConfig = () => {
   )
 }
 
-const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, undefined, { getOnInit: true })
-
-export const selectedNetworkAtomId = atomWithDefault((get) => {
+const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, createAtomStorageWithoutSubscription(), { getOnInit: true })
+export const selectedNetworkAtomId = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)
 
@@ -257,9 +271,16 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
   const config = networkConfigs[id]
 
   // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
-  if (selectedNetworkId === localnetId) {
+  if (config.walletProviders.includes(PROVIDER_ID.MNEMONIC)) {
     clearAccounts(PROVIDER_ID.MNEMONIC)
   }
+
+  // This clears a connected KMD wallet after a page reload, as the chosen wallet isn't stored in the wallet provider state.
+  // We can revisit if this is required in the future when upgrading to useWallet v3.
+  if (config.walletProviders.includes(PROVIDER_ID.KMD)) {
+    clearAccounts(PROVIDER_ID.KMD)
+  }
+
   // This clears accounts for all wallet providers that are not configured
   supportedWalletProviders.forEach((providerId) => {
     if (!config.walletProviders.includes(providerId)) {
@@ -310,7 +331,7 @@ export const useSetSelectedNetwork = () => {
       }
       setStorageNetwork(selectedNetwork)
       // Refresh selected network atom value
-      settingsStore.set(selectedNetworkAtomId, selectedNetwork)
+      settingsStore.set(selectedNetworkAtomId)
     },
     [providers, setStorageNetwork]
   )

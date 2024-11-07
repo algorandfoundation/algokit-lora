@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/feat
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
-import { useNetworkConfig } from '@/features/network/data'
+import { localnetId, useNetworkConfig } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
@@ -20,6 +20,10 @@ import { walletDialogOpenAtom } from '../data/wallet-dialog'
 import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
+import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { Urls } from '@/routes/urls'
+import { useNavigate } from 'react-router-dom'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -38,7 +42,7 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="hidden w-36 md:flex" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
+    <Button className="flex w-40" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
       {connectWalletLabel}
     </Button>
   )
@@ -68,11 +72,11 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
     },
     [activeProvider]
   )
-
+  const loadableNfd = useLoadableReverseLookupNfdResult(activeAddress)
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="hidden w-36 md:flex" variant="outline">
+        <Button className="flex w-40 p-2" variant="outline">
           {activeProvider &&
             ([PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC].includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -83,15 +87,17 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
                 className={cn('size-6 rounded object-contain mr-2')}
               />
             ))}
-          <abbr title={activeAddress} className="no-underline">
-            {ellipseAddress(activeAddress)}
+          <abbr title={activeAddress} className="truncate no-underline">
+            <RenderLoadable loadable={loadableNfd} fallback={ellipseAddress(activeAddress)}>
+              {(nfd) => (nfd ? nfd.name : ellipseAddress(activeAddress))}
+            </RenderLoadable>
           </abbr>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-56 border p-2" onOpenAutoFocus={preventDefault}>
+      <PopoverContent align="end" className="w-52 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
           {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1">{ellipseAddress(connectedActiveAccounts[0].address, 6)}</abbr>
+            <abbr className="ml-1 text-sm">{ellipseAddress(connectedActiveAccounts[0].address)}</abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">
@@ -132,6 +138,7 @@ export function ConnectWalletButton() {
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
   const networkConfig = useNetworkConfig()
   const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
+  const navigate = useNavigate()
 
   let button = <></>
 
@@ -158,7 +165,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="hidden w-36 md:flex" variant="outline" disabled>
+      <Button className="flex w-40" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>
@@ -194,6 +201,21 @@ export function ConnectWalletButton() {
           ) : (
             <ProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
           )
+        )}
+        {networkConfig.id === localnetId && (
+          <div className="flex flex-col gap-2">
+            <span className="inline-flex justify-center text-sm">OR</span>
+            <Button
+              variant="link"
+              onClick={() => {
+                setDialogOpen(false)
+                navigate({ pathname: Urls.Fund.build({}), search: '?create=true' })
+              }}
+              className="mb-0.5 h-auto p-0"
+            >
+              Create a funded dev account
+            </Button>
+          </div>
         )}
       </>
     )

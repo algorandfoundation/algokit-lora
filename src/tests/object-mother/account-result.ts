@@ -279,4 +279,29 @@ export const accountResultMother = {
       'total-created-assets': 984393,
     })
   },
+  ['mainnet-DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU']: () => {
+    return new AccountResultBuilder({
+      address: 'DHMCHBN4W5MBO72C3L3ZP6GGJHQ4OR6SW2EP3VDEJ5VHT4MERQLCTVW6PU',
+      amount: 1915706350,
+      'amount-without-pending-rewards': 1915706350,
+      'apps-local-state': [],
+      'apps-total-schema': {
+        'num-byte-slice': 0,
+        'num-uint': 0,
+      },
+      assets: [],
+      'created-apps': [],
+      'created-assets': [],
+      'min-balance': 100000,
+      'pending-rewards': 0,
+      'reward-base': 218288,
+      rewards: 19424,
+      round: 43483662,
+      status: AccountStatus.Offline,
+      'total-apps-opted-in': 0,
+      'total-assets-opted-in': 0,
+      'total-created-apps': 0,
+      'total-created-assets': 0,
+    } satisfies AccountResult)
+  },
 }

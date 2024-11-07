@@ -14,17 +14,19 @@ import { invariant } from '@/utils/invariant'
 import { isAddress } from '@/utils/is-address'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { RenderInlineLoadable } from '@/features/common/components/render-inline-loadable'
+import { numberSchema } from '@/features/forms/data/common'
 
-const receiverAddressLabel = 'Receiver Address'
+const receiverAddressLabel = 'Receiver address'
 const amountLabel = 'Amount'
 
 type Props = {
   onCreateReceiver?: () => Promise<Address>
   onSubmit: (receiver: Address, amount: AlgoAmount) => Promise<void>
   limit?: Loadable<Promise<AlgoAmount>>
+  defaultReceiver?: string
 }
 
-export function FundAccountForm({ onCreateReceiver, onSubmit, limit }: Props) {
+export function FundAccountForm({ onCreateReceiver, onSubmit, limit, defaultReceiver }: Props) {
   const fundAccount = useCallback(
     async (values: z.infer<typeof fundFormSchema>) => {
       const receiver = onCreateReceiver ? await onCreateReceiver() : values.receiver
@@ -40,10 +42,24 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit }: Props) {
       receiver: zfd
         .text()
         .optional()
-        .refine((value) => (value ? isAddress(value) : true), {
-          message: 'Invalid address',
+        .superRefine((receiver, ctx) => {
+          if (onCreateReceiver) {
+            return
+          }
+
+          if (!receiver) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Required',
+            })
+          } else if (!isAddress(receiver)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'Invalid address',
+            })
+          }
         }),
-      amount: zfd.numeric(
+      amount: numberSchema(
         z
           .number({ required_error: 'Required', invalid_type_error: 'Required' })
           .min(0.1)
@@ -52,11 +68,12 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit }: Props) {
           })
       ),
     })
-  }, [limit])
+  }, [limit, onCreateReceiver])
 
   return (
     <Form
       schema={fundFormSchema}
+      defaultValues={{ receiver: defaultReceiver, amount: '' as unknown as undefined }}
       onSubmit={fundAccount}
       formAction={
         <FormActions>
@@ -86,7 +103,7 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit }: Props) {
                 <RenderInlineLoadable loadable={limit}>{(limit) => limit.algos}</RenderInlineLoadable>&nbsp;ALGO available
               </span>
             ) : undefined,
-            decimalScale: 5,
+            decimalScale: 6,
             thousandSeparator: true,
           })}
         </>

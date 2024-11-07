@@ -80,6 +80,22 @@ export default {
           DEFAULT: 'rgb(var(--error) / <alpha-value>)',
           foreground: 'rgb(var(--error-foreground) / <alpha-value>)',
         },
+        ['abi-string']: {
+          DEFAULT: 'rgb(var(--payment) / <alpha-value>)',
+          foreground: 'rgb(var(--payment-foreground) / <alpha-value>)',
+        },
+        ['abi-number']: {
+          DEFAULT: 'rgb(var(--state-proof) / <alpha-value>)',
+          foreground: 'rgb(var(--state-proof-foreground) / <alpha-value>)',
+        },
+        ['abi-bool']: {
+          DEFAULT: 'rgb(var(--asset-freeze) / <alpha-value>)',
+          foreground: 'rgb(var(--asset-freeze-foreground) / <alpha-value>)',
+        },
+        ['abi-keys']: {
+          DEFAULT: 'rgb(var(--application-call) / <alpha-value>)',
+          foreground: 'rgb(var(--application-call-foreground) / <alpha-value>)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

@@ -5,11 +5,13 @@ import { LatestTransactions } from '@/features/transactions/components/latest-tr
 import { Switch } from '@/features/common/components/switch'
 import { Label } from '@/features/common/components/label'
 import { useLiveExplorer } from '@/features/explore/data/live-explorer'
+import { useTitle } from '@/utils/use-title'
 
 export const explorePageTitle = 'Explore'
 
 export function ExplorePage() {
   const { showLiveUpdates, setShowLiveUpdates, latestTransactions, latestBlocks } = useLiveExplorer()
+  useTitle('Explore')
 
   return (
     <>

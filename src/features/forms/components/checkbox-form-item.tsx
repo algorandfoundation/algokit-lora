@@ -1,5 +1,5 @@
 import { Controller, FieldPath } from 'react-hook-form'
-import { ValidationErrorOrHelpMessage } from '@/features/forms/components/validation-error-or-help-message'
+import { HintText } from '@/features/forms/components/hint-text'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { useFormFieldError } from '@/features/forms/hooks/use-form-field-error'
 import { Label } from '@/features/common/components/label'
@@ -10,22 +10,24 @@ export interface CheckboxFormItemProps<TSchema extends Record<string, unknown>> 
   field: FieldPath<TSchema>
   label: string
   disabled?: boolean
+  helpText?: string | React.ReactElement
 }
 
 export function CheckboxFormItem<TSchema extends Record<string, unknown>>({
   className,
   field,
   label,
+  helpText,
   ...rest
 }: CheckboxFormItemProps<TSchema>) {
   const error = useFormFieldError(field)
 
   return (
-    <>
-      <Controller
-        name={field}
-        render={({ field: { value, onChange } }) => (
-          <div className={cn('ml-0.5 flex items-center space-x-2', className)}>
+    <Controller
+      name={field}
+      render={({ field: { value, onChange } }) => (
+        <div className={cn('grid', className)}>
+          <div className="ml-0.5 flex items-center space-x-2">
             <Checkbox id={field} name={field} checked={value} onCheckedChange={onChange} {...rest} />
             {label && (
               <Label htmlFor={field} aria-invalid={Boolean(error)}>
@@ -33,9 +35,9 @@ export function CheckboxFormItem<TSchema extends Record<string, unknown>>({
               </Label>
             )}
           </div>
-        )}
-      />
-      <ValidationErrorOrHelpMessage errorText={error?.message} />
-    </>
+          <HintText errorText={error?.message} helpText={helpText} />
+        </div>
+      )}
+    />
   )
 }

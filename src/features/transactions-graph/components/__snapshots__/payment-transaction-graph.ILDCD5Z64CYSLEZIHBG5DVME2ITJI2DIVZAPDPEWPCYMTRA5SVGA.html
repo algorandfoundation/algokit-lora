@@ -1,6 +1,7 @@
 <div>
   <div
-    id="visual-transactions"
+    aria-label="Visual representation of transactions"
+    class="w-min bg-card"
   >
     <div
       class="relative grid"
@@ -10,34 +11,32 @@
       <div
         class="p-2 flex justify-center"
       >
-        <span
-          class="text-l font-semibold"
+        <div
+          class="text-l font-semibold w-full"
         >
           <div
             class="grid text-center"
           >
             <div
-              class="flex gap-0.5 items-center justify-center"
+              class="flex gap-0.5 items-center justify-center overflow-hidden"
             >
               <div
                 class="shrink-0 basis-4"
               />
-              <div>
-                <div
-                  class="flex items-center"
+              <div
+                class="flex items-center overflow-hidden"
+              >
+                <a
+                  class="text-primary underline truncate"
+                  href="/localnet/account/TDV4LF2HO7NWHQPDQWTQWXWXKZ4W6N7UA2N6GJ6PKP6WSP6J2YIPUCQNHM"
                 >
-                  <a
-                    class="text-primary underline"
-                    href="/localnet/account/TDV4LF2HO7NWHQPDQWTQWXWXKZ4W6N7UA2N6GJ6PKP6WSP6J2YIPUCQNHM"
+                  <abbr
+                    class="tracking-wide"
+                    title="TDV4LF2HO7NWHQPDQWTQWXWXKZ4W6N7UA2N6GJ6PKP6WSP6J2YIPUCQNHM"
                   >
-                    <abbr
-                      class="tracking-wide"
-                      title="TDV4LF2HO7NWHQPDQWTQWXWXKZ4W6N7UA2N6GJ6PKP6WSP6J2YIPUCQNHM"
-                    >
-                      TDV4…QNHM
-                    </abbr>
-                  </a>
-                </div>
+                    TDV4…QNHM
+                  </abbr>
+                </a>
               </div>
               <div
                 class="shrink-0 basis-4"
@@ -50,13 +49,13 @@
               </div>
             </div>
           </div>
-        </span>
+        </div>
       </div>
       <div
         class="p-2 flex justify-center"
       >
-        <span
-          class="text-l font-semibold"
+        <div
+          class="text-l font-semibold w-full"
         />
       </div>
     </div>
@@ -111,7 +110,7 @@
                 href="/localnet/transaction/ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA"
               >
                 <abbr
-                  class="tracking-wide"
+                  class="tracking-wide text-primary"
                   title="ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA"
                 >
                   ILDCD5Z…
@@ -127,7 +126,7 @@
         style="grid-column-start: 2; grid-column-end: 4;"
       >
         <div
-          class="inline-flex size-5 items-center justify-center overflow-hidden rounded-full border bg-card text-[0.6rem] border-payment z-10"
+          class="inline-flex relative size-5 items-center justify-center overflow-hidden rounded-full border text-[0.6rem] border-payment z-10 bg-card"
         >
           1
         </div>
@@ -161,7 +160,7 @@
           class="absolute flex w-1/2 justify-center text-xs"
         >
           <div
-            class="z-20 bg-card p-0.5 text-xs text-center"
+            class="z-20 p-0.5 text-xs text-center bg-card"
           >
             <span>
               Payment
@@ -195,5 +194,40 @@
         </div>
       </div>
     </div>
+  </div>
+  <div
+    class="sticky bottom-0 left-full z-50 flex size-0 overflow-visible"
+  >
+    <button
+      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-transparent hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 absolute bottom-1 right-0 w-32"
+      id="download-transactions-visual"
+    >
+      <svg
+        class="lucide lucide-download mr-2 size-4"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+        />
+        <polyline
+          points="7 10 12 15 17 10"
+        />
+        <line
+          x1="12"
+          x2="12"
+          y1="15"
+          y2="3"
+        />
+      </svg>
+      Download
+    </button>
   </div>
 </div>

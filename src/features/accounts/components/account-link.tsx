@@ -1,50 +1,17 @@
-import { CopyButton } from '@/features/common/components/copy-button'
-import { cn } from '@/features/common/utils'
-import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
-import { Urls } from '@/routes/urls'
-import { ellipseAddress } from '@/utils/ellipse-address'
-import { fixedForwardRef } from '@/utils/fixed-forward-ref'
-import { PropsWithChildren } from 'react'
-import { useSelectedNetwork } from '@/features/network/data'
+import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
+import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { AddressOrNfdLink, AddressOrNfdLinkProps } from './address-or-nfd-link'
 
-type Props = PropsWithChildren<{
-  address: string
-  short?: boolean
-  className?: string
-  showCopyButton?: boolean
-}>
+export type Props = Omit<AddressOrNfdLinkProps, 'nfd'>
 
-export const AccountLink = fixedForwardRef(
-  ({ address, short, className, children, showCopyButton, ...rest }: Props, ref?: React.LegacyRef<HTMLAnchorElement>) => {
-    const [selectedNetwork] = useSelectedNetwork()
+export const AccountLink = ({ address, ...rest }: Props) => {
+  const loadableNfd = useLoadableReverseLookupNfdResult(address)
 
-    const link = (
-      <TemplatedNavLink
-        className={cn(!children && 'text-primary underline', !children && !short && 'truncate', className)}
-        urlTemplate={Urls.Explore.Account.ByAddress}
-        urlParams={{ address, networkId: selectedNetwork }}
-        ref={ref}
-        {...rest}
-      >
-        {children ? (
-          children
-        ) : short ? (
-          <abbr className="tracking-wide" title={address}>
-            {ellipseAddress(address)}
-          </abbr>
-        ) : (
-          address
-        )}
-      </TemplatedNavLink>
-    )
-
-    return children ? (
-      link
-    ) : (
-      <div className="flex items-center">
-        {link}
-        {showCopyButton && <CopyButton value={address} />}
-      </div>
-    )
-  }
-)
+  return (
+    <>
+      <RenderLoadable loadable={loadableNfd} fallback={<AddressOrNfdLink address={address} {...rest} />}>
+        {(nfd) => <AddressOrNfdLink address={address} nfd={nfd?.name ?? undefined} {...rest} />}
+      </RenderLoadable>
+    </>
+  )
+}

@@ -1,21 +1,13 @@
 import { Asset } from '@/features/assets/models'
-import { useWallet } from '@txnlab/use-wallet'
 import { useCallback, useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai/index'
-import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 import { loadable, useAtomCallback } from 'jotai/utils'
-import algosdk from 'algosdk'
-import { getTransactionParams, sendTransaction } from '@algorandfoundation/algokit-utils'
-import { algod, algorandClient } from '@/features/common/data/algo-client'
+import { algorandClient } from '@/features/common/data/algo-client'
 import { toast } from 'react-toastify'
 import { asError } from '@/utils/error'
 
-// Gives approx 90 seconds to approve the transaction
-const transactionValidityWindow = 30
-
 export const useAssetOptInOut = (asset: Asset) => {
-  const { signer } = useWallet()
-
   const status = useMemo(() => {
     return atom(async (get) => {
       const activeAccount = await get(activeWalletAccountAtom)
@@ -44,52 +36,28 @@ export const useAssetOptInOut = (asset: Asset) => {
         if (!activeAccount) {
           return
         }
-        const suggestedParams = await getTransactionParams(undefined, algod)
-        const transactionParams = {
-          ...suggestedParams,
-          lastRound: suggestedParams.firstRound + transactionValidityWindow,
-        }
 
-        const transaction = algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-          from: activeAccount.address,
-          to: activeAccount.address,
-          assetIndex: asset.id,
-          amount: 0,
-          rekeyTo: undefined,
-          revocationTarget: undefined,
-          closeRemainderTo: activeAccount.address,
-          suggestedParams: transactionParams,
-        })
-
-        const signerAccount = {
-          addr: activeAccount.address,
-          signer,
-        }
         try {
-          const { confirmation } = await sendTransaction(
-            {
-              transaction,
-              from: signerAccount,
-              sendParams: {
-                maxRoundsToWaitForConfirmation: transactionValidityWindow,
-              },
-            },
-            algod
-          )
-
-          if (confirmation!.confirmedRound) {
+          const sendResult = await algorandClient.send.assetOptOut({
+            ensureZeroBalance: true,
+            assetId: BigInt(asset.id),
+            sender: activeAccount.address,
+          })
+          if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-out successful')
             set(activeWalletAccountAtom)
           } else {
             toast.error(
-              confirmation!.poolError ? `Failed to opt-out of asset due to ${confirmation!.poolError}` : 'Failed to opt-out of asset'
+              sendResult.confirmation.poolError
+                ? `Failed to opt-out of asset due to ${sendResult.confirmation.poolError}`
+                : 'Failed to opt-out of asset'
             )
           }
         } catch (error) {
           errorHandler(error)
         }
       },
-      [asset.id, signer]
+      [asset.id]
     )
   )
 
@@ -106,8 +74,6 @@ export const useAssetOptInOut = (asset: Asset) => {
           const sendResult = await algorandClient.send.assetOptIn({
             assetId: BigInt(asset.id),
             sender: activeAccount.address,
-            signer,
-            validityWindow: transactionValidityWindow,
           })
           if (sendResult.confirmation.confirmedRound) {
             toast.success('Asset opt-in successful')
@@ -123,7 +89,7 @@ export const useAssetOptInOut = (asset: Asset) => {
           errorHandler(error)
         }
       },
-      [asset.id, signer]
+      [asset.id]
     )
   )
 

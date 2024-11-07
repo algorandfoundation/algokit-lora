@@ -2,7 +2,7 @@ import { Address } from '@/features/accounts/data/types'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { NetworkConfig } from '@/features/network/data/types'
 import { TransactionId } from '@/features/transactions/data/types'
-import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet-account'
+import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 import { invariant } from '@/utils/invariant'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
@@ -10,7 +10,6 @@ import { Auth0ContextInterface, useAuth0 } from '@auth0/auth0-react'
 import { atom, useAtomValue } from 'jotai'
 import { atomWithRefresh, loadable, useAtomCallback } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
-import { useWallet } from '@txnlab/use-wallet'
 
 type DispenserApiErrorResponse =
   | {
@@ -89,7 +88,7 @@ const fund = async (dispenserUrl: string, token: string, receiver: Address, amou
     },
     body: JSON.stringify({
       receiver,
-      amount: amount.microAlgos,
+      amount: Number(amount.microAlgos), // This conversion is needed as stringify doesn't handle bigint
     }),
     signal: AbortSignal && 'timeout' in AbortSignal ? AbortSignal.timeout(20_000) : undefined,
   })
@@ -148,7 +147,6 @@ const useRefundStatusAtom = () => {
 
 export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddress }: NonNullable<NetworkConfig['dispenserApi']>) => {
   const { getAccessTokenSilently } = useAuth0()
-  const { signer } = useWallet()
 
   const fundLimitAtom = useFundLimitAtom(dispenserApiUrl, getAccessTokenSilently)
 
@@ -179,8 +177,6 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
           sender: activeAccount.address,
           receiver: dispenserAddress,
           amount,
-          signer,
-          validityWindow: 30, // Gives approx 90 seconds to approve the transaction
         })
 
         if (!sendResult.confirmation.confirmedRound) {
@@ -189,7 +185,7 @@ export const useDispenserApi = ({ url: dispenserApiUrl, address: dispenserAddres
 
         await refund(dispenserApiUrl, token, sendResult.transaction.txID())
       },
-      [dispenserAddress, dispenserApiUrl, getAccessTokenSilently, signer]
+      [dispenserAddress, dispenserApiUrl, getAccessTokenSilently]
     )
   )
 

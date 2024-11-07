@@ -3,11 +3,13 @@ import { useAppInterfaces } from '@/features/app-interfaces/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { AppInterfaces } from '@/features/app-interfaces/components/app-interfaces'
+import { useTitle } from '@/utils/use-title'
 
 export const appLabPageTitle = 'App Lab'
 
 export function AppLab() {
   const [appInterfaces, refreshAppInterfaces] = useAppInterfaces()
+  useTitle('App Lab')
 
   return (
     <>

@@ -17,6 +17,7 @@ import { syncedRoundAtom } from '@/features/blocks/data'
 import { createApplicationSummaryAtom } from '@/features/applications/data/application-summary'
 import { useSelectedNetwork } from '@/features/network/data'
 import { getTransactionResultAtom } from '@/features/transactions/data'
+import { getNfdResultAtom, isNfd } from '@/features/nfd/data'
 
 const handle404 = (e: Error) => {
   if (is404(e)) {
@@ -41,12 +42,25 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
     const results: SearchResult[] = []
 
     if (isAddress(term)) {
+      const nfdAtom = getNfdResultAtom({ address: term, resolveNow: true })
+      const nfd = await get(nfdAtom)
       results.push({
         type: SearchResultType.Account,
         id: term,
-        label: ellipseAddress(term),
+        label: `${ellipseAddress(term)}${nfd ? ` (${nfd.name})` : ''}`,
         url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
+    } else if (isNfd(term)) {
+      const nfdAtom = getNfdResultAtom({ nfd: term })
+      const nfd = await get(nfdAtom)
+      if (nfd && isAddress(nfd.depositAccount)) {
+        results.push({
+          type: SearchResultType.Account,
+          id: nfd.depositAccount,
+          label: `${ellipseAddress(nfd.depositAccount)} (${nfd.name})`,
+          url: Urls.Explore.Account.ByAddress.build({ address: nfd.depositAccount, networkId: selectedNetwork }),
+        })
+      }
     } else if (isTransactionId(term)) {
       const transactionAtom = getTransactionResultAtom(term)
       const transaction = await handleErrorInAsyncMaybeAtom(get(transactionAtom), handle404)

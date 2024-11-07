@@ -1,10 +1,10 @@
 import { DBSchema, IDBPDatabase, IDBPTransaction, openDB, StoreNames } from 'idb'
-import { AppSpecVersion } from 'src/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { atom } from 'jotai/index'
 import { selectedNetworkAtomId } from '@/features/network/data'
 import { settingsStore } from '@/features/settings/data'
+import { AppSpecStandard, AppSpecVersion } from '@/features/app-interfaces/data/types'
 
 interface LoraDBSchemaV1 extends DBSchema {
   'applications-app-specs': {
@@ -64,12 +64,21 @@ const dbMigrations = [
     for (const key of keys) {
       const item = await v1Store.get(key)
       if (item && item.length > 0) {
-        newItems.push({
-          applicationId: Number(key),
-          name: item[0].appSpec.contract.name,
-          appSpecVersions: [...item],
-          lastModified: Date.now(),
-        })
+        if (item[0].standard === AppSpecStandard.ARC32) {
+          newItems.push({
+            applicationId: Number(key),
+            name: item[0].appSpec.contract.name,
+            appSpecVersions: [...item],
+            lastModified: Date.now(),
+          })
+        } else if (item[0].standard === AppSpecStandard.ARC4) {
+          newItems.push({
+            applicationId: Number(key),
+            name: item[0].appSpec.name,
+            appSpecVersions: [...item],
+            lastModified: Date.now(),
+          })
+        }
       }
     }
 
