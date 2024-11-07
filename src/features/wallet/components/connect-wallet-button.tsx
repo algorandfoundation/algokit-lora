@@ -42,7 +42,7 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
   }, [onConnect, setDialogOpen])
 
   return (
-    <Button className="hidden w-36 md:flex" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
+    <Button className="flex w-40" variant="outline" onClick={connect} aria-label={connectWalletLabel}>
       {connectWalletLabel}
     </Button>
   )
@@ -76,7 +76,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button className="hidden w-40 p-2 md:flex" variant="outline">
+        <Button className="flex w-40 p-2" variant="outline">
           {activeProvider &&
             ([PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC].includes(activeProvider.metadata.id) ? (
               <Wallet className={cn('size-6 rounded object-contain mr-2')} />
@@ -165,7 +165,7 @@ export function ConnectWalletButton() {
 
   if (!isReady) {
     button = (
-      <Button className="hidden w-36 md:flex" variant="outline" disabled>
+      <Button className="flex w-40" variant="outline" disabled>
         <Loader className="mr-2 size-4 animate-spin" />
         Loading
       </Button>
