@@ -5,12 +5,11 @@ import { getCurrent, onOpenUrl } from './tauri-deep-link'
 
 export function useDeepLink() {
   const navigate = useNavigate()
+  const setSelectedNetwork = useSetSelectedNetwork()
   const [currentUrl, setCurrentUrl] = useState<string | null>(null)
   const networkConfigs = useNetworkConfigs()
   const [selectedNetwork] = useSelectedNetwork()
   const networks = Object.keys(networkConfigs)
-
-  const setSelectedNetwork = useSetSelectedNetwork()
 
   const onDeepLink = useCallback(
     (urls: string[]) => {
@@ -45,7 +44,6 @@ export function useDeepLink() {
     const unlisten = onOpenUrl((urls) => {
       onDeepLink(urls)
     })
-
     // Cleanup deep link listener
     return () => {
       unlisten.then((f) => f())
