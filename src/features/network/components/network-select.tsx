@@ -8,7 +8,11 @@ import { Urls } from '@/routes/urls'
 
 const settingsUrl = Urls.Settings.build({})
 
-export function NetworkSelect() {
+type NetworkSelectProps = {
+  showLabel?: boolean
+}
+
+export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
   const networkConfigs = useNetworkConfigs()
   const navigate = useNavigate()
@@ -26,9 +30,11 @@ export function NetworkSelect() {
 
   return (
     <div className={cn('flex w-48 flex-col')}>
-      <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
-        Active network
-      </Label>
+      {showLabel && (
+        <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
+          Active network
+        </Label>
+      )}
       <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
         <SelectTrigger id="network">
           <SelectValue placeholder="Select network" />

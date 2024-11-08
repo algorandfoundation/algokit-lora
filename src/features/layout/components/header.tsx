@@ -6,6 +6,7 @@ import { Search } from '@/features/search/components/search'
 import { useNetworkConfig } from '@/features/network/data'
 import { ConnectWalletButton } from '@/features/wallet/components/connect-wallet-button'
 import { Urls } from '@/routes/urls'
+import { NetworkSelect } from '@/features/network/components/network-select'
 
 type Props = {
   className?: string
@@ -24,9 +25,10 @@ export function Header({ className }: Props) {
         <Search />
       </div>
       <div className={cn('flex items-center gap-4 ml-auto overflow-hidden')}>
-        <TemplatedNavLink urlTemplate={Urls.Settings} className="ml-2 truncate">
+        <NetworkSelect showLabel={false} />
+        {/* <TemplatedNavLink urlTemplate={Urls.Settings} className="ml-2 truncate">
           {networkConfig.name}
-        </TemplatedNavLink>
+        </TemplatedNavLink> */}
         <ConnectWalletButton />
       </div>
     </header>

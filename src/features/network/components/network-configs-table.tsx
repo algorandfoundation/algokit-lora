@@ -16,13 +16,15 @@ import { CreateNetworkConfigForm } from '@/features/network/components/create-ne
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { Pencil, Plus, Trash, RotateCcw, Power, CircleCheck } from 'lucide-react'
+import { Pencil, Plus, Trash, RotateCcw, Plug, CircleCheck } from 'lucide-react'
 import { useRefreshDataProviderToken } from '@/features/common/data'
 import { Description } from '@radix-ui/react-dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
+
+const ICON_BUTTON_SIZE = 24
 
 export function NetworkConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
@@ -67,15 +69,6 @@ export function NetworkConfigsTable() {
 
 const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   {
-    id: 'activate',
-    header: '',
-    accessorFn: (item) => item,
-    cell: (cell) => {
-      const networkConfig = cell.getValue<NetworkConfigWithId>()
-      return <ActivateButton networkConfig={networkConfig} />
-    },
-  },
-  {
     header: 'Name',
     accessorFn: (item) => item.name,
   },
@@ -90,9 +83,19 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
   },
   {
+    id: 'activate',
+    header: '',
+    meta: { className: `w-[${ICON_BUTTON_SIZE}px]` },
+    accessorFn: (item) => item,
+    cell: (cell) => {
+      const networkConfig = cell.getValue<NetworkConfigWithId>()
+      return <ActivateButton networkConfig={networkConfig} />
+    },
+  },
+  {
     id: 'edit',
     header: '',
-    meta: { className: 'w-24' },
+    meta: { className: `w-[${ICON_BUTTON_SIZE}px]` },
     accessorFn: (item) => item,
     cell: (cell) => {
       const networkConfig = cell.getValue<NetworkConfigWithId>()
@@ -102,7 +105,7 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   {
     id: 'delete',
     header: '',
-    meta: { className: 'w-28' },
+    meta: { className: `w-[${ICON_BUTTON_SIZE}px]` },
     accessorFn: (item) => item,
     cell: (cell) => {
       const networkConfig = cell.getValue<NetworkConfigWithId>()
@@ -133,9 +136,14 @@ function EditNetworkButton({ networkConfig }: ButtonProps) {
 
   return (
     <>
-      <Button variant="outline" onClick={openDialog} icon={<Pencil size={16} />}>
-        Edit
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" onClick={openDialog} size="icon" icon={<Pencil size={ICON_BUTTON_SIZE} />} />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{`Edit ${networkConfig.name}`}</p>
+        </TooltipContent>
+      </Tooltip>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <Description hidden={true}>Edit a network</Description>
@@ -166,16 +174,21 @@ function DeleteNetworkButton({ networkConfig }: ButtonProps) {
   }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, selectedNetwork, setSelectedNetwork])
 
   return (
-    <ConfirmButton
-      variant="destructive"
-      onConfirm={deleteNetwork}
-      dialogHeaderText="Delete Network?"
-      dialogContent={<div>Are you sure you want to delete '{networkConfig.name}'?</div>}
-      icon={<Trash size={16} />}
-      className="w-24"
-    >
-      Delete
-    </ConfirmButton>
+    <Tooltip>
+      <TooltipTrigger>
+        <ConfirmButton
+          variant="destructive"
+          onConfirm={deleteNetwork}
+          dialogHeaderText="Delete Network?"
+          dialogContent={<div>Are you sure you want to delete '{networkConfig.name}'?</div>}
+          size="icon"
+          icon={<Trash size={ICON_BUTTON_SIZE} />}
+        />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{`Delete ${networkConfig.name}`}</p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -197,17 +210,22 @@ function ResetNetworkButton({ networkConfig, settingsHaveChanged }: ResetNetwork
   }, [deleteNetworkConfig, networkConfig.id, networkConfig.name, refreshDataProviderToken, selectedNetwork])
 
   return (
-    <ConfirmButton
-      variant="destructive"
-      onConfirm={resetNetworkToDefaults}
-      dialogHeaderText="Reset Network?"
-      dialogContent={<div>Are you sure you want to reset '{networkConfig.name}' to the default settings?</div>}
-      icon={<RotateCcw size={16} />}
-      className="w-24"
-      disabled={!settingsHaveChanged}
-    >
-      Reset
-    </ConfirmButton>
+    <Tooltip>
+      <TooltipTrigger>
+        <ConfirmButton
+          variant="outline"
+          onConfirm={resetNetworkToDefaults}
+          dialogHeaderText="Reset Network?"
+          dialogContent={<div>Are you sure you want to reset '{networkConfig.name}' to the default settings?</div>}
+          size="icon"
+          icon={<RotateCcw size={ICON_BUTTON_SIZE} />}
+          disabled={!settingsHaveChanged}
+        />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>{`Reset ${networkConfig.name}`}</p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -218,11 +236,15 @@ function ActivateButton({ networkConfig }: ButtonProps) {
   return (
     <>
       {isNetworkActive ? (
-        <Button variant="ghost" size="icon" className="pointer-events-none text-primary" icon={<CircleCheck size={24} />} />
+        <Button variant="ghost" size="icon" className="pointer-events-none text-primary" icon={<CircleCheck size={ICON_BUTTON_SIZE} />} />
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" icon={<Power size={24} onClick={() => setSelectedNetwork(networkConfig.id)} />} />
+            <Button
+              variant="outline"
+              size="icon"
+              icon={<Plug size={ICON_BUTTON_SIZE} onClick={() => setSelectedNetwork(networkConfig.id)} />}
+            />
           </TooltipTrigger>
           <TooltipContent>
             <p>{`Activate ${networkConfig.name}`}</p>
