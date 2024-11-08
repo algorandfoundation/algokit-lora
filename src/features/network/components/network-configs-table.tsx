@@ -16,9 +16,10 @@ import { CreateNetworkConfigForm } from '@/features/network/components/create-ne
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { Pencil, Plus, Trash, RotateCcw } from 'lucide-react'
+import { Pencil, Plus, Trash, RotateCcw, Power, CircleCheck } from 'lucide-react'
 import { useRefreshDataProviderToken } from '@/features/common/data'
 import { Description } from '@radix-ui/react-dialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
@@ -66,6 +67,15 @@ export function NetworkConfigsTable() {
 
 const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   {
+    id: 'activate',
+    header: '',
+    accessorFn: (item) => item,
+    cell: (cell) => {
+      const networkConfig = cell.getValue<NetworkConfigWithId>()
+      return <ActivateButton networkConfig={networkConfig} />
+    },
+  },
+  {
     header: 'Name',
     accessorFn: (item) => item.name,
   },
@@ -107,10 +117,6 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
         <DeleteNetworkButton networkConfig={networkConfig} />
       )
     },
-  },
-  {
-    id: 'activate',
-    header: '',
   },
 ]
 
@@ -202,5 +208,27 @@ function ResetNetworkButton({ networkConfig, settingsHaveChanged }: ResetNetwork
     >
       Reset
     </ConfirmButton>
+  )
+}
+
+function ActivateButton({ networkConfig }: ButtonProps) {
+  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+  const isNetworkActive = selectedNetwork === networkConfig.id
+
+  return (
+    <>
+      {isNetworkActive ? (
+        <Button variant="ghost" size="icon" className="pointer-events-none text-primary" icon={<CircleCheck size={24} />} />
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="icon" icon={<Power size={24} onClick={() => setSelectedNetwork(networkConfig.id)} />} />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{`Activate ${networkConfig.name}`}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </>
   )
 }
