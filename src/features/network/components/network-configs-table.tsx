@@ -108,6 +108,10 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
       )
     },
   },
+  {
+    id: 'activate',
+    header: '',
+  },
 ]
 
 type ButtonProps = {
