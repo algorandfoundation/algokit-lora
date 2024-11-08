@@ -1,22 +1,27 @@
 [package]
 name = "algokit-lora"
-version = "0.0.0"
-description = "A Tauri App"
-authors = ["you"]
+version = "0.1.0"
+description = "algokit-lora"
+authors = ["algorand-foundation"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+name = "tauri_app_lib"
+crate-type = ["lib", "cdylib", "staticlib"]
+
 [build-dependencies]
-tauri-build = { version = "1", features = [] }
+tauri-build = { version = "2.0.0", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = ["shell-open"] }
+tauri = { version = "2.0.0", features = [] }
+tauri-plugin-shell = "2.0.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri-plugin-deep-link = "=0.1.2"
+tauri-plugin-deep-link = "2.0.0"
 
-[features]
-# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
-custom-protocol = ["tauri/custom-protocol"]
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2.0.0"
+tauri-plugin-cli = "2.0.0"
 
