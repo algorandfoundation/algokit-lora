@@ -17,9 +17,7 @@
       },
       "actions": {
         "create": [],
-        "call": [
-          "NoOp"
-        ]
+        "call": ["NoOp"]
       }
     },
     {
@@ -30,9 +28,7 @@
       },
       "actions": {
         "create": [],
-        "call": [
-          "OptIn"
-        ]
+        "call": ["OptIn"]
       }
     },
     {
@@ -42,17 +38,12 @@
         "type": "void"
       },
       "actions": {
-        "create": [
-          "NoOp"
-        ],
+        "create": ["NoOp"],
         "call": []
       }
     }
   ],
-  "arcs": [
-    4,
-    56
-  ],
+  "arcs": [4, 56],
   "structs": {
     "{ foo: uint16; bar: uint16 }": [
       {
@@ -171,833 +162,461 @@
         {
           "teal": 15,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            1,
-            2
-          ]
+          "pc": [1, 2]
         },
         {
           "teal": 16,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            3
-          ]
+          "pc": [3]
         },
         {
           "teal": 17,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            4,
-            5
-          ]
+          "pc": [4, 5]
         },
         {
           "teal": 18,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            6
-          ]
+          "pc": [6]
         },
         {
           "teal": 19,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            7,
-            8
-          ]
+          "pc": [7, 8]
         },
         {
           "teal": 20,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            9
-          ]
+          "pc": [9]
         },
         {
           "teal": 21,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            10,
-            11,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            30,
-            31,
-            32,
-            33,
-            34,
-            35
-          ]
+          "pc": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
         },
         {
           "teal": 25,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
           "errorMessage": "The requested action is not implemented in this contract. Are you using the correct OnComplete? Did you set your app ID?",
-          "pc": [
-            36
-          ]
+          "pc": [36]
         },
         {
           "teal": 30,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            37,
-            38,
-            39,
-            40,
-            41,
-            42
-          ]
+          "pc": [37, 38, 39, 40, 41, 42]
         },
         {
           "teal": 33,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            43,
-            44,
-            45
-          ]
+          "pc": [43, 44, 45]
         },
         {
           "teal": 34,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            46
-          ]
+          "pc": [46]
         },
         {
           "teal": 35,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            47
-          ]
+          "pc": [47]
         },
         {
           "teal": 36,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            48,
-            49
-          ]
+          "pc": [48, 49]
         },
         {
           "teal": 37,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            50
-          ]
+          "pc": [50]
         },
         {
           "teal": 40,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
           "errorMessage": "argument 0 (inputs) for foo must be a ((uint64,uint64),(uint64,uint64))",
-          "pc": [
-            51
-          ]
+          "pc": [51]
         },
         {
           "teal": 43,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            52,
-            53,
-            54
-          ]
+          "pc": [52, 53, 54]
         },
         {
           "teal": 44,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            55
-          ]
+          "pc": [55]
         },
         {
           "teal": 45,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            56
-          ]
+          "pc": [56]
         },
         {
           "teal": 46,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            57
-          ]
+          "pc": [57]
         },
         {
           "teal": 47,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            58
-          ]
+          "pc": [58]
         },
         {
           "teal": 51,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            59,
-            60,
-            61
-          ]
+          "pc": [59, 60, 61]
         },
         {
           "teal": 56,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            62,
-            63
-          ]
+          "pc": [62, 63]
         },
         {
           "teal": 57,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            64,
-            65,
-            66
-          ]
+          "pc": [64, 65, 66]
         },
         {
           "teal": 58,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            67
-          ]
+          "pc": [67]
         },
         {
           "teal": 59,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            68,
-            69
-          ]
+          "pc": [68, 69]
         },
         {
           "teal": 60,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            70,
-            71,
-            72
-          ]
+          "pc": [70, 71, 72]
         },
         {
           "teal": 61,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            73
-          ]
+          "pc": [73]
         },
         {
           "teal": 62,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            74
-          ]
+          "pc": [74]
         },
         {
           "teal": 63,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
-          "pc": [
-            75,
-            76,
-            77
-          ]
+          "pc": [75, 76, 77]
         },
         {
           "teal": 67,
           "source": "examples/arc56_test/arc56_test.algo.ts:30",
           "errorMessage": "subtract.a must be greater than subtract.b",
-          "pc": [
-            78
-          ]
+          "pc": [78]
         },
         {
           "teal": 72,
           "source": "examples/arc56_test/arc56_test.algo.ts:32",
-          "pc": [
-            79,
-            80,
-            81,
-            82,
-            83,
-            84,
-            85,
-            86,
-            87,
-            88,
-            89
-          ]
+          "pc": [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89]
         },
         {
           "teal": 73,
           "source": "examples/arc56_test/arc56_test.algo.ts:32",
-          "pc": [
-            90
-          ]
+          "pc": [90]
         },
         {
           "teal": 74,
           "source": "examples/arc56_test/arc56_test.algo.ts:32",
-          "pc": [
-            91
-          ]
+          "pc": [91]
         },
         {
           "teal": 78,
           "source": "examples/arc56_test/arc56_test.algo.ts:33",
-          "pc": [
-            92,
-            93,
-            94,
-            95,
-            96,
-            97,
-            98,
-            99
-          ]
+          "pc": [92, 93, 94, 95, 96, 97, 98, 99]
         },
         {
           "teal": 79,
           "source": "examples/arc56_test/arc56_test.algo.ts:33",
-          "pc": [
-            100,
-            101,
-            102,
-            103,
-            104,
-            105
-          ]
+          "pc": [100, 101, 102, 103, 104, 105]
         },
         {
           "teal": 80,
           "source": "examples/arc56_test/arc56_test.algo.ts:33",
-          "pc": [
-            106
-          ]
+          "pc": [106]
         },
         {
           "teal": 87,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            107,
-            108
-          ]
+          "pc": [107, 108]
         },
         {
           "teal": 88,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            109,
-            110,
-            111
-          ]
+          "pc": [109, 110, 111]
         },
         {
           "teal": 89,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            112
-          ]
+          "pc": [112]
         },
         {
           "teal": 90,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            113,
-            114
-          ]
+          "pc": [113, 114]
         },
         {
           "teal": 91,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            115,
-            116,
-            117
-          ]
+          "pc": [115, 116, 117]
         },
         {
           "teal": 92,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            118
-          ]
+          "pc": [118]
         },
         {
           "teal": 93,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            119
-          ]
+          "pc": [119]
         },
         {
           "teal": 94,
           "source": "examples/arc56_test/arc56_test.algo.ts:36",
-          "pc": [
-            120
-          ]
+          "pc": [120]
         },
         {
           "teal": 95,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            121,
-            122
-          ]
+          "pc": [121, 122]
         },
         {
           "teal": 96,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            123,
-            124,
-            125
-          ]
+          "pc": [123, 124, 125]
         },
         {
           "teal": 97,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            126
-          ]
+          "pc": [126]
         },
         {
           "teal": 98,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            127,
-            128
-          ]
+          "pc": [127, 128]
         },
         {
           "teal": 99,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            129,
-            130,
-            131
-          ]
+          "pc": [129, 130, 131]
         },
         {
           "teal": 100,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            132
-          ]
+          "pc": [132]
         },
         {
           "teal": 101,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            133
-          ]
+          "pc": [133]
         },
         {
           "teal": 102,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            134
-          ]
+          "pc": [134]
         },
         {
           "teal": 103,
           "source": "examples/arc56_test/arc56_test.algo.ts:37",
-          "pc": [
-            135
-          ]
+          "pc": [135]
         },
         {
           "teal": 104,
           "source": "examples/arc56_test/arc56_test.algo.ts:29",
-          "pc": [
-            136
-          ]
+          "pc": [136]
         },
         {
           "teal": 109,
           "source": "examples/arc56_test/arc56_test.algo.ts:41",
-          "pc": [
-            137,
-            138,
-            139
-          ]
+          "pc": [137, 138, 139]
         },
         {
           "teal": 110,
           "source": "examples/arc56_test/arc56_test.algo.ts:41",
-          "pc": [
-            140
-          ]
+          "pc": [140]
         },
         {
           "teal": 111,
           "source": "examples/arc56_test/arc56_test.algo.ts:41",
-          "pc": [
-            141
-          ]
+          "pc": [141]
         },
         {
           "teal": 115,
           "source": "examples/arc56_test/arc56_test.algo.ts:41",
-          "pc": [
-            142,
-            143,
-            144
-          ]
+          "pc": [142, 143, 144]
         },
         {
           "teal": 119,
           "source": "examples/arc56_test/arc56_test.algo.ts:42",
-          "pc": [
-            145,
-            146
-          ]
+          "pc": [145, 146]
         },
         {
           "teal": 120,
           "source": "examples/arc56_test/arc56_test.algo.ts:42",
-          "pc": [
-            147,
-            148,
-            149,
-            150,
-            151,
-            152,
-            153,
-            154,
-            155,
-            156
-          ]
+          "pc": [147, 148, 149, 150, 151, 152, 153, 154, 155, 156]
         },
         {
           "teal": 121,
           "source": "examples/arc56_test/arc56_test.algo.ts:42",
-          "pc": [
-            157
-          ]
+          "pc": [157]
         },
         {
           "teal": 122,
           "source": "examples/arc56_test/arc56_test.algo.ts:42",
-          "pc": [
-            158
-          ]
+          "pc": [158]
         },
         {
           "teal": 126,
           "source": "examples/arc56_test/arc56_test.algo.ts:43",
-          "pc": [
-            159,
-            160
-          ]
+          "pc": [159, 160]
         },
         {
           "teal": 127,
           "source": "examples/arc56_test/arc56_test.algo.ts:43",
-          "pc": [
-            161,
-            162,
-            163,
-            164,
-            165,
-            166
-          ]
+          "pc": [161, 162, 163, 164, 165, 166]
         },
         {
           "teal": 128,
           "source": "examples/arc56_test/arc56_test.algo.ts:43",
-          "pc": [
-            167,
-            168,
-            169,
-            170,
-            171,
-            172,
-            173
-          ]
+          "pc": [167, 168, 169, 170, 171, 172, 173]
         },
         {
           "teal": 129,
           "source": "examples/arc56_test/arc56_test.algo.ts:43",
-          "pc": [
-            174
-          ]
+          "pc": [174]
         },
         {
           "teal": 133,
           "source": "examples/arc56_test/arc56_test.algo.ts:44",
-          "pc": [
-            175
-          ]
+          "pc": [175]
         },
         {
           "teal": 134,
           "source": "examples/arc56_test/arc56_test.algo.ts:44",
-          "pc": [
-            176
-          ]
+          "pc": [176]
         },
         {
           "teal": 135,
           "source": "examples/arc56_test/arc56_test.algo.ts:44",
-          "pc": [
-            177
-          ]
+          "pc": [177]
         },
         {
           "teal": 136,
           "source": "examples/arc56_test/arc56_test.algo.ts:44",
-          "pc": [
-            178
-          ]
+          "pc": [178]
         },
         {
           "teal": 137,
           "source": "examples/arc56_test/arc56_test.algo.ts:44",
-          "pc": [
-            179,
-            180,
-            181,
-            182,
-            183,
-            184,
-            185
-          ]
+          "pc": [179, 180, 181, 182, 183, 184, 185]
         },
         {
           "teal": 138,
           "source": "examples/arc56_test/arc56_test.algo.ts:44",
-          "pc": [
-            186
-          ]
+          "pc": [186]
         },
         {
           "teal": 145,
           "source": "examples/arc56_test/arc56_test.algo.ts:45",
           "pc": [
-            187,
-            188,
-            189,
-            190,
-            191,
-            192,
-            193,
-            194,
-            195,
-            196,
-            197,
-            198,
-            199,
-            200,
-            201,
-            202,
-            203,
-            204,
-            205,
-            206,
-            207,
-            208,
-            209,
-            210,
-            211,
-            212,
-            213,
-            214,
-            215,
-            216,
-            217,
-            218,
-            219,
-            220,
-            221
+            187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211,
+            212, 213, 214, 215, 216, 217, 218, 219, 220, 221
           ]
         },
         {
           "teal": 146,
           "source": "examples/arc56_test/arc56_test.algo.ts:47",
-          "pc": [
-            222,
-            223,
-            224,
-            225,
-            226,
-            227,
-            228,
-            229,
-            230,
-            231,
-            232,
-            233,
-            234,
-            235,
-            236,
-            237,
-            238,
-            239
-          ]
+          "pc": [222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239]
         },
         {
           "teal": 147,
           "source": "examples/arc56_test/arc56_test.algo.ts:45",
-          "pc": [
-            240
-          ]
+          "pc": [240]
         },
         {
           "teal": 148,
           "source": "examples/arc56_test/arc56_test.algo.ts:41",
-          "pc": [
-            241
-          ]
+          "pc": [241]
         },
         {
           "teal": 151,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            242
-          ]
+          "pc": [242]
         },
         {
           "teal": 152,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            243
-          ]
+          "pc": [243]
         },
         {
           "teal": 155,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            244,
-            245,
-            246,
-            247,
-            248,
-            249
-          ]
+          "pc": [244, 245, 246, 247, 248, 249]
         },
         {
           "teal": 156,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            250,
-            251,
-            252
-          ]
+          "pc": [250, 251, 252]
         },
         {
           "teal": 157,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            253,
-            254,
-            255,
-            256
-          ]
+          "pc": [253, 254, 255, 256]
         },
         {
           "teal": 160,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
           "errorMessage": "this contract does not implement the given ABI method for create NoOp",
-          "pc": [
-            257
-          ]
+          "pc": [257]
         },
         {
           "teal": 163,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            258,
-            259,
-            260,
-            261,
-            262,
-            263
-          ]
+          "pc": [258, 259, 260, 261, 262, 263]
         },
         {
           "teal": 164,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            264,
-            265,
-            266
-          ]
+          "pc": [264, 265, 266]
         },
         {
           "teal": 165,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            267,
-            268,
-            269,
-            270
-          ]
+          "pc": [267, 268, 269, 270]
         },
         {
           "teal": 168,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
           "errorMessage": "this contract does not implement the given ABI method for call NoOp",
-          "pc": [
-            271
-          ]
+          "pc": [271]
         },
         {
           "teal": 171,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            272,
-            273,
-            274,
-            275,
-            276,
-            277
-          ]
+          "pc": [272, 273, 274, 275, 276, 277]
         },
         {
           "teal": 172,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            278,
-            279,
-            280
-          ]
+          "pc": [278, 279, 280]
         },
         {
           "teal": 173,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
-          "pc": [
-            281,
-            282,
-            283,
-            284
-          ]
+          "pc": [281, 282, 283, 284]
         },
         {
           "teal": 176,
           "source": "examples/arc56_test/arc56_test.algo.ts:11",
           "errorMessage": "this contract does not implement the given ABI method for call OptIn",
-          "pc": [
-            285
-          ]
+          "pc": [285]
         }
       ],
       "pcOffsetMethod": "cblocks"

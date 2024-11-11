@@ -22,6 +22,7 @@ import {
   DecodedAbiType,
   DecodedAbiValue,
 } from '@/features/abi-methods/models'
+import { bigIntToFixedPointDecimalString } from '../mappers'
 
 const MAX_LINE_LENGTH = 20
 
@@ -295,7 +296,7 @@ export const getAbiValue = (abiType: algosdk.ABIType, abiValue: algosdk.ABIValue
     }
   }
   if (abiType instanceof algosdk.ABIUfixedType) {
-    const stringValue = bigintToString(abiValue as bigint, abiType.precision)
+    const stringValue = bigIntToFixedPointDecimalString(abiValue as bigint, abiType.precision)
     return {
       type: DecodedAbiType.Ufixed,
       value: stringValue,
@@ -392,11 +393,4 @@ const isValidAppSpecVersion = (appSpec: AppSpecVersion, round: Round) => {
   const roundFirstValid = appSpec.roundFirstValid ?? -1
   const roundLastValid = appSpec.roundLastValid ?? Number.MAX_SAFE_INTEGER
   return roundFirstValid <= round && round <= roundLastValid
-}
-
-const bigintToString = (value: bigint, decimalScale: number): string => {
-  const valueString = value.toString()
-  const numberString = valueString.slice(0, valueString.length - decimalScale)
-  const fractionString = valueString.slice(valueString.length - decimalScale)
-  return `${numberString}.${fractionString}`
 }

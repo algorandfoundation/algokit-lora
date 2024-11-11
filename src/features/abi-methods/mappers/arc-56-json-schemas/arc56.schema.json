@@ -24,6 +24,9 @@
                 "type": "string"
               }
             },
+            "required": [
+              "type"
+            ],
             "type": "object"
           },
           "type": "array"
@@ -37,6 +40,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "name",
+        "args"
+      ],
       "type": "object"
     },
     "Method": {
@@ -48,7 +55,14 @@
             "call": {
               "description": "OnCompletes this method allows when appID !== 0",
               "items": {
-                "enum": ["ClearState", "CloseOut", "DeleteApplication", "NoOp", "OptIn", "UpdateApplication"],
+                "enum": [
+                  "ClearState",
+                  "CloseOut",
+                  "DeleteApplication",
+                  "NoOp",
+                  "OptIn",
+                  "UpdateApplication"
+                ],
                 "type": "string"
               },
               "type": "array"
@@ -56,7 +70,11 @@
             "create": {
               "description": "OnCompletes this method allows when appID === 0",
               "items": {
-                "enum": ["DeleteApplication", "NoOp", "OptIn"],
+                "enum": [
+                  "DeleteApplication",
+                  "NoOp",
+                  "OptIn"
+                ],
                 "type": "string"
               },
               "type": "array"
@@ -86,7 +104,12 @@
                   },
                   "source": {
                     "description": "Where the default value is coming from\n- box: The data key signifies the box key to read the value from\n- global: The data key signifies the global state key to read the value from\n- local: The data key signifies the local state key to read the value from (for the sender)\n- literal: the value is a literal and should be passed directly as the argument",
-                    "enum": ["box", "global", "literal", "local"],
+                    "enum": [
+                      "box",
+                      "global",
+                      "literal",
+                      "local"
+                    ],
                     "type": "string"
                   },
                   "type": {
@@ -94,6 +117,10 @@
                     "type": "string"
                   }
                 },
+                "required": [
+                  "source",
+                  "data"
+                ],
                 "type": "object"
               },
               "desc": {
@@ -113,6 +140,9 @@
                 "type": "string"
               }
             },
+            "required": [
+              "type"
+            ],
             "type": "object"
           },
           "type": "array"
@@ -180,6 +210,11 @@
                   "type": "number"
                 }
               },
+              "required": [
+                "key",
+                "readBytes",
+                "writeBytes"
+              ],
               "type": "object"
             },
             "innerTransactionCount": {
@@ -205,16 +240,28 @@
               "type": "string"
             }
           },
+          "required": [
+            "type"
+          ],
           "type": "object"
         }
       },
+      "required": [
+        "name",
+        "args",
+        "returns",
+        "actions"
+      ],
       "type": "object"
     },
     "ProgramSourceInfo": {
       "properties": {
         "pcOffsetMethod": {
           "description": "How the program counter offset is calculated\n- none: The pc values in sourceInfo are not offset\n- cblocks: The pc values in sourceInfo are offset by the PC of the first op following the last cblock at the top of the program",
-          "enum": ["cblocks", "none"],
+          "enum": [
+            "cblocks",
+            "none"
+          ],
           "type": "string"
         },
         "sourceInfo": {
@@ -225,6 +272,10 @@
           "type": "array"
         }
       },
+      "required": [
+        "pcOffsetMethod",
+        "sourceInfo"
+      ],
       "type": "object"
     },
     "SourceInfo": {
@@ -249,6 +300,9 @@
           "type": "number"
         }
       },
+      "required": [
+        "pc"
+      ],
       "type": "object"
     },
     "StorageKey": {
@@ -271,6 +325,11 @@
           "type": "string"
         }
       },
+      "required": [
+        "key",
+        "keyType",
+        "valueType"
+      ],
       "type": "object"
     },
     "StorageMap": {
@@ -293,6 +352,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "keyType",
+        "valueType"
+      ],
       "type": "object"
     },
     "StructField": {
@@ -317,13 +380,17 @@
           "description": "The type of the struct field's value"
         }
       },
+      "required": [
+        "name",
+        "type"
+      ],
       "type": "object"
     }
   },
   "description": "Describes the entire contract. This interface is an extension of the interface described in ARC-4",
   "properties": {
     "arcs": {
-      "description": "The ARCs used and/or supported by this contract. All contracts implicity support ARC4 and ARC56",
+      "description": "The ARCs used and/or supported by this contract. All contracts implicitly support ARC4 and ARC56",
       "items": {
         "type": "number"
       },
@@ -335,7 +402,14 @@
         "call": {
           "description": "OnCompletes this method allows when appID !== 0",
           "items": {
-            "enum": ["ClearState", "CloseOut", "DeleteApplication", "NoOp", "OptIn", "UpdateApplication"],
+            "enum": [
+              "ClearState",
+              "CloseOut",
+              "DeleteApplication",
+              "NoOp",
+              "OptIn",
+              "UpdateApplication"
+            ],
             "type": "string"
           },
           "type": "array"
@@ -343,12 +417,20 @@
         "create": {
           "description": "OnCompletes this method allows when appID === 0",
           "items": {
-            "enum": ["DeleteApplication", "NoOp", "OptIn"],
+            "enum": [
+              "DeleteApplication",
+              "NoOp",
+              "OptIn"
+            ],
             "type": "string"
           },
           "type": "array"
         }
       },
+      "required": [
+        "create",
+        "call"
+      ],
       "type": "object"
     },
     "byteCode": {
@@ -363,6 +445,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "approval",
+        "clear"
+      ],
       "type": "object"
     },
     "compilerInfo": {
@@ -370,7 +456,10 @@
       "properties": {
         "compiler": {
           "description": "The name of the compiler",
-          "enum": ["algod", "puya"],
+          "enum": [
+            "algod",
+            "puya"
+          ],
           "type": "string"
         },
         "compilerVersion": {
@@ -392,6 +481,10 @@
           "type": "object"
         }
       },
+      "required": [
+        "compiler",
+        "compilerVersion"
+      ],
       "type": "object"
     },
     "desc": {
@@ -424,9 +517,12 @@
             "type": "number"
           }
         },
+        "required": [
+          "appID"
+        ],
         "type": "object"
       },
-      "description": "Optional object listing the contract instances across different networks.\nThe key is the base64 genesis hash of the network, and the value contains\ninformation about the deployed contract in the network indicated by the\nkey. A key containing the human-readable name of the network MAY be\nincluded, but the corresponding genesis hash key MUST also be define",
+      "description": "Optional object listing the contract instances across different networks.\nThe key is the base64 genesis hash of the network, and the value contains\ninformation about the deployed contract in the network indicated by the\nkey. A key containing the human-readable name of the network MAY be\nincluded, but the corresponding genesis hash key MUST also be defined",
       "type": "object"
     },
     "scratchVariables": {
@@ -439,6 +535,10 @@
             "type": "string"
           }
         },
+        "required": [
+          "slot",
+          "type"
+        ],
         "type": "object"
       },
       "description": "The scratch variables used during runtime",
@@ -456,6 +556,10 @@
           "type": "string"
         }
       },
+      "required": [
+        "approval",
+        "clear"
+      ],
       "type": "object"
     },
     "sourceInfo": {
@@ -470,6 +574,10 @@
           "description": "Clear program information"
         }
       },
+      "required": [
+        "approval",
+        "clear"
+      ],
       "type": "object"
     },
     "state": {
@@ -496,6 +604,11 @@
               "type": "object"
             }
           },
+          "required": [
+            "box",
+            "global",
+            "local"
+          ],
           "type": "object"
         },
         "maps": {
@@ -520,6 +633,11 @@
               "type": "object"
             }
           },
+          "required": [
+            "box",
+            "global",
+            "local"
+          ],
           "type": "object"
         },
         "schema": {
@@ -534,6 +652,10 @@
                   "type": "number"
                 }
               },
+              "required": [
+                "bytes",
+                "ints"
+              ],
               "type": "object"
             },
             "local": {
@@ -545,12 +667,25 @@
                   "type": "number"
                 }
               },
+              "required": [
+                "bytes",
+                "ints"
+              ],
               "type": "object"
             }
           },
+          "required": [
+            "global",
+            "local"
+          ],
           "type": "object"
         }
       },
+      "required": [
+        "keys",
+        "maps",
+        "schema"
+      ],
       "type": "object"
     },
     "structs": {
@@ -560,7 +695,7 @@
         },
         "type": "array"
       },
-      "description": "Named structs use by the application. Each struct field appears in the same order as ABI encoding.",
+      "description": "Named structs used by the application. Each struct field appears in the same order as ABI encoding.",
       "type": "object"
     },
     "templateVariables": {
@@ -571,15 +706,26 @@
             "type": "string"
           },
           "value": {
-            "description": "If given, the the base64 encoded value used for the given app/program",
+            "description": "If given, the base64 encoded value used for the given app/program",
             "type": "string"
           }
         },
+        "required": [
+          "type"
+        ],
         "type": "object"
       },
-      "description": "A mapping of template variable names as they appear in the teal (not including TMPL_ prefix) to their respecive types and values (if applicable)",
+      "description": "A mapping of template variable names as they appear in the TEAL (not including TMPL_ prefix) to their respecive types and values (if applicable)",
       "type": "object"
     }
   },
+  "required": [
+    "arcs",
+    "name",
+    "structs",
+    "methods",
+    "state",
+    "bareActions"
+  ],
   "type": "object"
 }

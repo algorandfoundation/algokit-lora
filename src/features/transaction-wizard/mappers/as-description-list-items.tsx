@@ -328,6 +328,9 @@ const asMethodArg = (
       </div>
     )
   }
+  if (arg === undefined) {
+    return 'Not set'
+  }
   if (algosdk.abiTypeIsReference(argumentDefinition.type)) {
     if (argumentDefinition.type === algosdk.ABIReferenceType.account) {
       return <AddressOrNfdLink address={arg.toString()} />
@@ -341,9 +344,6 @@ const asMethodArg = (
       return <ApplicationLink applicationId={applicationId} />
     }
     return arg.toString()
-  }
-  if (arg === undefined) {
-    return 'Not set'
   }
   if (argumentDefinition.struct) {
     const structModel = getAbiStructValue(argumentDefinition.struct, arg as algosdk.ABIValue)

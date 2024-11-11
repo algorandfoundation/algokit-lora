@@ -1,3 +1,5 @@
+import { AddressOrNfd } from '@/features/transaction-wizard/models'
+
 export enum DecodedAbiType {
   String = 'String',
   Uint = 'Uint',
@@ -81,3 +83,10 @@ export type DecodedAbiMethod = {
   arguments: DecodedAbiMethodArgument[]
   return: DecodedAbiMethodReturn
 }
+
+export type DynamicArrayFormItemValue = {
+  id: string
+  child: FormItemValue
+}
+
+export type FormItemValue = string | boolean | bigint | number | AddressOrNfd | FormItemValue[] | DynamicArrayFormItemValue[]

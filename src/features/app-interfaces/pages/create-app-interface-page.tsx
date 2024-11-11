@@ -92,7 +92,7 @@ function CreateAppInterfaceInner() {
 
   if (state.matches('createAppInterface')) {
     return (
-      <div className={cn('xl:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-4')}>
+      <div className={cn('relative xl:w-3/4 grid grid-cols-1 lg:grid-cols-2 gap-4')}>
         <FromAppIdCard machine={machine} />
         <FromDeploymentCard machine={machine} />
         <Button type="button" variant="outline" className="mr-auto w-24" onClick={back} icon={<ArrowLeft size={16} />}>
@@ -102,13 +102,13 @@ function CreateAppInterfaceInner() {
     )
   } else if (state.matches('fromAppId')) {
     return (
-      <div className="xl:w-3/4">
+      <div className="relative xl:w-3/4">
         <FromAppIdWorkflow machine={machine} />
       </div>
     )
   } else if (state.matches('fromAppDeployment')) {
     return (
-      <div className="xl:w-3/4">
+      <div className="relative xl:w-3/4">
         <FromDeploymentWorkflow machine={machine} />
       </div>
     )
