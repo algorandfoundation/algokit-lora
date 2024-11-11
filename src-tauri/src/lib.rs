@@ -10,11 +10,11 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_cli::init())
         .setup(|_app| {
-            dbg!(std::env::args());
+            dbg!(std::env::args().collect::<Vec<_>>());
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
-                app.deep_link().register_all()?;
+                _app.deep_link().register_all()?;
             }
             Ok(())
         })

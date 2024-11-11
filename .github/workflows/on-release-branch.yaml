@@ -1,0 +1,84 @@
+name: On Release Branch
+
+on:
+  push:
+    branches:
+      - release/*
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CN_APPLICATION: 'algokit-lora'
+
+jobs:
+  check-release:
+    name: Check Release Branch
+    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
+    with:
+      working-directory: .
+      node-version: 20.x
+      audit-script: npm run audit
+      compile-script: npm run check-types
+      test-script: npm run test
+      pre-test-script: |
+        pipx install algokit
+        algokit localnet start
+        npx --yes wait-on tcp:4001 -t 30000
+
+  draft:
+    needs: check-release
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: create draft release
+        uses: crabnebula-dev/cloud-release@v0
+        with:
+          command: release draft ${{ env.CN_APPLICATION }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
+
+  build:
+    needs: draft
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - name: Install stable toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+      - name: install Linux dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.1
+      - name: build tauri app
+        run: |
+          npm ci
+          npm run tauri build
+      - name: upload assets
+        uses: crabnebula-dev/cloud-release@v0
+        with:
+          command: release upload ${{ env.CN_APPLICATION }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
+          path: ./src-tauri
+
+  publish:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: publish release
+        uses: crabnebula-dev/cloud-release@v0
+        with:
+          command: release publish ${{ env.CN_APPLICATION }} --framework tauri
+          api-key: ${{ secrets.CN_API_KEY }}
