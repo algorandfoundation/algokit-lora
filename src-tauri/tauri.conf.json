@@ -1,6 +1,6 @@
 {
-  "productName": "algokit-lora",
-  "version": "0.1.0",
+  "productName": "Algokit Lora",
+  "version": "0.2.0",
   "identifier": "algokit-lora.algorand-foundation",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "algokit-lora",
+        "title": "Algokit Lora",
         "width": 1400,
         "height": 800
       }
@@ -23,7 +23,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [
+    "macOS": {
+      "signingIdentity": "-"
+    },
+      "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
