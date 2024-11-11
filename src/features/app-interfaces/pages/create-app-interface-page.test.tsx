@@ -10,7 +10,8 @@ import SampleSixAppSpec from '@/tests/test-app-specs/sample-six.arc32.json'
 import { Arc32AppSpec } from '../data/types'
 import { selectOption } from '@/tests/utils/select-option'
 import { getButton } from '@/tests/utils/get-button'
-import Arc56TestAppSpec from '@/tests/test-app-specs/arc56_test.arc56.json'
+import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
+import Arc56TestAppSpecSampleTwo from '@/tests/test-app-specs/arc56/sample-two.json'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { getByRole } from '@testing-library/react'
 
@@ -107,7 +108,7 @@ describe('create-app-interface', () => {
     })
 
     it('can deploy an app from ARC-56 app spec with template parameters', () => {
-      const appSpec = Arc56TestAppSpec as Arc56Contract
+      const appSpec = Arc56TestAppSpecSampleOne as Arc56Contract
       return executeComponentTest(
         () => {
           return render(<CreateAppInterfacePage />)
@@ -132,7 +133,6 @@ describe('create-app-interface', () => {
           })
 
           const someStringTemplateParamDiv = await findParentDiv(component.container, 'someNumber')
-          await selectOption(someStringTemplateParamDiv, user, /Type/, 'Number')
           const someStringInput = getByLabelText(someStringTemplateParamDiv, /Value/)
           fireEvent.input(someStringInput, {
             target: { value: '1000' },
@@ -143,6 +143,55 @@ describe('create-app-interface', () => {
 
           const createApplication = await waitFor(async () => {
             const div = component.getByText('createApplication').parentElement!
+            return getByRole(div, 'button', { name: 'Call' })
+          })
+          await user.click(createApplication)
+
+          const addTransactionButton = await getButton(component, 'Add')
+          await user.click(addTransactionButton)
+
+          const deployButton = await getButton(component, 'Deploy')
+          await user.click(deployButton)
+
+          await waitFor(() => {
+            const errorMessage = component.queryByRole('alert', { name: 'error-message' })
+            expect(errorMessage).toBeNull()
+          })
+        }
+      )
+    })
+
+    it('can deploy an app from ARC-56 app spec with default template parameters', () => {
+      const appSpec = Arc56TestAppSpecSampleTwo as Arc56Contract
+      return executeComponentTest(
+        () => {
+          return render(<CreateAppInterfacePage />)
+        },
+        async (component, user) => {
+          const deployAppButton = await getButton(component, deployAppLabel)
+          await user.click(deployAppButton)
+
+          const appSpecFileInput = await component.findByLabelText(/JSON app spec file/)
+          await user.upload(appSpecFileInput, new File([JSON.stringify(appSpec)], 'app.json', { type: 'application/json' }))
+
+          const uploadAppSpecButton = await getButton(component, 'Next')
+          await user.click(uploadAppSpecButton)
+
+          const versionInput = await waitFor(() => {
+            const input = component.getByLabelText(/Version/)
+            expect(input).toBeDefined()
+            return input!
+          })
+          fireEvent.input(versionInput, {
+            target: { value: '1.0.0' },
+          })
+
+          // No need to enter any default values, just click Next
+          const completeAppDetailsButton = await getButton(component, 'Next')
+          await user.click(completeAppDetailsButton)
+
+          const createApplication = await waitFor(async () => {
+            const div = component.getByText('create').parentElement!
             return getByRole(div, 'button', { name: 'Call' })
           })
           await user.click(createApplication)

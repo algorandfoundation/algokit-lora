@@ -173,7 +173,7 @@ export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {
   throw new Error('Invalid app spec')
 }
 
-const getStructDefinition = (structName: string, structs: Record<string, StructField[]>): StructDefinition => {
+export const getStructDefinition = (structName: string, structs: Record<string, StructField[]>): StructDefinition => {
   const getStructFieldType = (structFieldType: StructField['type']): StructFieldType => {
     if (Array.isArray(structFieldType)) {
       return structFieldType.map((structField) => ({

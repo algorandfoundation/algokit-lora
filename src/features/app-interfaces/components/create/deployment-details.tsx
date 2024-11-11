@@ -1,7 +1,6 @@
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
-import { Label } from '@/features/common/components/label'
-import { cn, isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
+import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
@@ -17,39 +16,15 @@ import { useDebounce } from 'use-debounce'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { useLoadableAppInterfacesAtom } from '../../data'
-import { TemplateParamType } from '../../data/types'
 import { asArc56AppSpec } from '@/features/applications/mappers'
+import { TealAVMTypeTemplateParamFieldValue, TealTemplateParamField, TealUnknownTypeTemplateParamFieldValue } from '../../models'
+import { asTealTemplateParamField } from '@/features/app-interfaces/mappers'
+import { getTemplateParamDefinition } from '../../utils/get-template-param-field-definition'
+import { ABITypeTemplateParam, TemplateParamType, UnknownTypeTemplateParam } from '../../data/types'
+import { FormItemValue } from '@/features/abi-methods/models'
 
 export const UPDATABLE_TEMPLATE_VAR_NAME = 'UPDATABLE'
 export const DELETABLE_TEMPLATE_VAR_NAME = 'DELETABLE'
-
-const templateParamSchema = z.object({
-  type: z.nativeEnum(TemplateParamType),
-  value: zfd.text(),
-})
-const schema = zfd.formData(
-  z
-    .object({
-      name: zfd.text(),
-      appInterfaceExists: z.boolean().optional(),
-      version: zfd.text(),
-      updatable: z.boolean().optional(),
-      deletable: z.boolean().optional(),
-      templateParams: z.array(templateParamSchema),
-    })
-    .superRefine((schema, ctx) => {
-      if (schema.appInterfaceExists === true) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'App interface with this name already exists',
-          path: ['name'],
-        })
-      }
-    })
-)
-
-type DeployAppFormData = z.infer<typeof schema>
-type TemplateParamFields = DeployAppFormData['templateParams']
 
 const getTemplateParamNames = (base64Program: string): string[] => {
   if (!base64Program) {
@@ -58,24 +33,33 @@ const getTemplateParamNames = (base64Program: string): string[] => {
   let tealCode = base64ToUtf8(base64Program)
   tealCode = AppManager.stripTealComments(tealCode)
 
-  const regex = /TMPL_[A-Za-z_]+/g
+  const regex = /TMPL_[A-Za-z_0-9]+/g
   return Array.from(new Set([...tealCode.matchAll(regex)].flat().map((str) => str.substring(5))))
 }
+
+const baseShape = {
+  name: zfd.text(),
+  appInterfaceExists: z.boolean().optional(),
+  version: zfd.text(),
+  updatable: z.boolean().optional(),
+  deletable: z.boolean().optional(),
+}
+const baseFormSchema = zfd.formData(baseShape)
 
 type FormInnerProps = {
   enableDeployTimeUpdatabilityControl: boolean
   enableDeployTimeDeletabilityControl: boolean
-  unifiedTemplateParamNames: string[]
-  helper: FormFieldHelper<z.infer<typeof schema>>
+  templateParamFields: TealTemplateParamField[]
+  helper: FormFieldHelper<z.infer<typeof baseFormSchema>>
 }
 
 function FormInner({
   enableDeployTimeUpdatabilityControl,
   enableDeployTimeDeletabilityControl,
-  unifiedTemplateParamNames,
+  templateParamFields,
   helper,
 }: FormInnerProps) {
-  const formCtx = useFormContext<z.infer<typeof schema>>()
+  const formCtx = useFormContext<z.infer<typeof baseFormSchema>>()
   const { setValue, trigger } = formCtx
   const loadableAppInterfaces = useLoadableAppInterfacesAtom()
   const appInterfaceNameFieldValue = formCtx.watch('name')
@@ -114,9 +98,8 @@ function FormInner({
           label: 'Deletable',
         })}
       <Fieldset legend="Template Params">
-        {unifiedTemplateParamNames.length === 0 && <span className="text-sm">No template params.</span>}
-        {unifiedTemplateParamNames.length > 0 &&
-          unifiedTemplateParamNames.map((name, index) => <TemplateParamForm key={index} name={name} index={index} />)}
+        {templateParamFields.length === 0 && <span className="text-sm">No template params.</span>}
+        {templateParamFields.length > 0 && templateParamFields.map((field) => <div key={field.path}>{field.createField(helper)}</div>)}
       </Fieldset>
     </>
   )
@@ -149,57 +132,98 @@ export function DeploymentDetails({ machine }: Props) {
   const enableDeployTimeUpdatabilityControl = templateParamNames.approval.includes(UPDATABLE_TEMPLATE_VAR_NAME)
   const enableDeployTimeDeletabilityControl = templateParamNames.approval.includes(DELETABLE_TEMPLATE_VAR_NAME)
 
+  const templateParamFields = useMemo(() => {
+    const templateParamDefinitions = unifiedTemplateParamNames.map((p) => getTemplateParamDefinition(appSpec, p))
+    return templateParamDefinitions.map((p) =>
+      asTealTemplateParamField({
+        name: p.name,
+        type: p.type,
+        struct: p.struct,
+        defaultValue: p.defaultValue,
+      })
+    )
+  }, [appSpec, unifiedTemplateParamNames])
+
+  const formSchema = useMemo(() => {
+    const shape = templateParamFields.reduce((acc, field) => {
+      return {
+        ...acc,
+        [field.path]: field.fieldSchema,
+      }
+    }, baseShape)
+
+    const zodObject = z.object(shape).superRefine((schema, ctx) => {
+      if (schema.appInterfaceExists === true) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'App interface with this name already exists',
+          path: ['name'],
+        })
+      }
+    })
+
+    return zfd.formData(zodObject)
+  }, [templateParamFields])
+
   const next = useCallback(
-    (values: z.infer<typeof schema>) => {
+    (values: z.infer<typeof formSchema>) => {
+      const templateParamValues = templateParamFields.map((f) => {
+        const value = values[f.path as keyof z.infer<typeof formSchema>]
+        return f.toTemplateParam(value as (TealUnknownTypeTemplateParamFieldValue & TealAVMTypeTemplateParamFieldValue) & FormItemValue)
+      })
+
       send({
         type: 'detailsCompleted',
         name: values.name,
         version: values.version,
         updatable: values.updatable,
         deletable: values.deletable,
-        templateParams: unifiedTemplateParamNames.map((name, index) => {
-          const type = values.templateParams[index].type
-          const value = values.templateParams[index].value
-          return {
-            name,
-            type,
-            value,
-          }
-        }),
+        templateParams: templateParamValues,
       })
     },
-    [send, unifiedTemplateParamNames]
+    [send, templateParamFields]
   )
 
   const back = useCallback(() => {
     send({ type: 'detailsCancelled' })
   }, [send])
 
-  const defaultValues = useMemo(
-    () => ({
+  const defaultValues = useMemo(() => {
+    const commonValues = {
       name: state.context.name ?? appSpec.name,
       version: state.context.version ?? '1.0',
       updatable: state.context.updatable !== undefined ? state.context.updatable : enableDeployTimeUpdatabilityControl ? false : undefined,
       deletable: state.context.deletable !== undefined ? state.context.deletable : enableDeployTimeDeletabilityControl ? false : undefined,
-      templateParams: state.context.templateParams ?? unifiedTemplateParamNames.map(() => ({ type: TemplateParamType.String })),
-    }),
-    [
-      appSpec.name,
-      enableDeployTimeDeletabilityControl,
-      enableDeployTimeUpdatabilityControl,
-      state.context.deletable,
-      state.context.name,
-      state.context.templateParams,
-      state.context.updatable,
-      state.context.version,
-      unifiedTemplateParamNames,
-    ]
-  )
+    }
+
+    return templateParamFields.reduce((acc, field, index) => {
+      return {
+        ...acc,
+        [field.path]: state.context.templateParams
+          ? field.fromTemplateParam(state.context.templateParams[index] as UnknownTypeTemplateParam & ABITypeTemplateParam)
+          : 'defaultValue' in field
+            ? field.defaultValue
+            : {
+                type: TemplateParamType.String,
+              },
+      }
+    }, commonValues)
+  }, [
+    appSpec.name,
+    enableDeployTimeDeletabilityControl,
+    enableDeployTimeUpdatabilityControl,
+    state.context.deletable,
+    state.context.name,
+    state.context.templateParams,
+    state.context.updatable,
+    state.context.version,
+    templateParamFields,
+  ])
 
   return (
     <Form
       className="duration-300 animate-in fade-in-20"
-      schema={schema}
+      schema={formSchema}
       onSubmit={next}
       defaultValues={defaultValues}
       formAction={
@@ -215,57 +239,10 @@ export function DeploymentDetails({ machine }: Props) {
         <FormInner
           enableDeployTimeUpdatabilityControl={enableDeployTimeUpdatabilityControl}
           enableDeployTimeDeletabilityControl={enableDeployTimeDeletabilityControl}
-          unifiedTemplateParamNames={unifiedTemplateParamNames}
+          templateParamFields={templateParamFields}
           helper={helper}
         />
       )}
     </Form>
-  )
-}
-
-type TemplateParamFormProps = {
-  className?: string
-  name: string
-  index: number
-}
-
-function TemplateParamForm({ className, name, index }: TemplateParamFormProps) {
-  const { watch } = useFormContext<DeployAppFormData>()
-  const helper = new FormFieldHelper<TemplateParamFields[number]>({ fieldPrefix: `templateParams.${index}` })
-
-  const type = watch(`templateParams.${index}.type`)
-  const helpText = useMemo(() => {
-    switch (type) {
-      case TemplateParamType.String:
-        return 'A string value'
-      case TemplateParamType.Number:
-        return 'A number value'
-      case TemplateParamType.Uint8Array:
-        return 'A Base64 encoded Uint8Array value'
-    }
-  }, [type])
-
-  return (
-    <div className="space-y-2">
-      <Label>{name}</Label>
-      <div className={cn('grid gap-2 grid-cols-[200px_1fr]', className)}>
-        {helper.selectField({
-          field: 'type',
-          label: 'Type',
-          className: 'content-start',
-          options: [
-            { value: TemplateParamType.String, label: 'String' },
-            { value: TemplateParamType.Number, label: 'Number' },
-            { value: TemplateParamType.Uint8Array, label: 'Uint8Array' },
-          ],
-        })}
-        {helper.textField({
-          field: 'value',
-          label: 'Value',
-          className: 'content-start',
-          helpText: helpText,
-        })}
-      </div>
-    </div>
   )
 }

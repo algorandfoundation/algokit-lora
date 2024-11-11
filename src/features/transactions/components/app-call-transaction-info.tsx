@@ -38,6 +38,7 @@ export const decodedAbiMethodTabLabel = 'ABI Method'
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 
+// TODO: PD - handle state deltas
 export function AppCallTransactionInfo({ transaction }: Props) {
   const loadableAbiMethod = useAtomValue(loadable(transaction.abiMethod))
 

@@ -38,6 +38,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { FormItemValue } from '@/features/abi-methods/models'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -134,7 +135,7 @@ export function MethodCallTransactionBuilder({
       const methodArgs = methodForm.arguments.map((arg, index) => {
         const value = values[`${methodArgPrefix}-${index}` as keyof z.infer<typeof formData>]
         if ('getAppCallArg' in arg) {
-          return arg.getAppCallArg(value)
+          return arg.getAppCallArg(value as FormItemValue)
         } else {
           if (mode === TransactionBuilderMode.Create || (transaction && values.methodName !== transaction.methodDefinition.name)) {
             return {
