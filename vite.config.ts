@@ -35,6 +35,8 @@ export default defineConfig({
       INDEXER_SERVER: 'http://localhost',
       INDEXER_PORT: '8980',
     },
+    disableConsoleIntercept: false,
+    reporters: 'basic',
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

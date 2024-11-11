@@ -237,9 +237,27 @@ const getTableColumns = ({
     id: 'actions',
     meta: { className: 'w-14' },
     cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
-          <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
+      <DropdownMenu
+        onOpenChange={() => {
+          console.log('here!!')
+        }}
+      >
+        <DropdownMenuTrigger
+          aria-label={transactionActionsLabel}
+          asChild
+          onClick={() => {
+            console.log('clicked!!')
+          }}
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            className="px-2.5"
+            icon={<EllipsisVertical size={16} />}
+            onClick={() => {
+              console.log('clicked!!')
+            }}
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
           <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
@@ -337,9 +355,21 @@ const getSubTransactionsTableColumns = ({
     meta: { className: 'w-14' },
     cell: ({ row }) =>
       row.original.type !== BuildableTransactionType.Placeholder ? (
-        <DropdownMenu>
+        <DropdownMenu
+          onOpenChange={() => {
+            console.log('HERE!!!')
+          }}
+        >
           <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
-            <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
+            <Button
+              variant="outline"
+              size="sm"
+              className="px-2.5"
+              icon={<EllipsisVertical size={16} />}
+              onClick={() => {
+                console.log('CLICKED!!')
+              }}
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" side="right">
             <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
