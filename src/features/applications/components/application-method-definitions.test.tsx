@@ -201,9 +201,11 @@ describe('application-method-definitions', () => {
 
               // Edit the transaction
               const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
-              const foo = await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel }))
-              await user.click(foo)
-              console.log('HERE')
+              // const fooBtn = await within(transactionGroupTable).findByRole('button', { name: 'Foo' })
+              // user.click(fooBtn)
+
+              const actionsBtn = await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel })
+              await user.click(actionsBtn)
               await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
@@ -1900,7 +1902,7 @@ const addItemIntoDynamicArray = async (parentComponent: HTMLElement, user: UserE
 
 const expandMethodAccordion = async (component: RenderResult, user: UserEvent, methodName: string) => {
   return waitFor(async () => {
-    const accordionTrigger = component.getByRole('button', { name: methodName })
+    const accordionTrigger = component.getAllByRole('button', { name: methodName })[0]
     await user.click(accordionTrigger)
 
     return component.getByRole('region', { name: methodName })

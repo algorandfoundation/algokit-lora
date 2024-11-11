@@ -109,7 +109,10 @@ export function TransactionsTable({
 }: Props) {
   const transactionPositions = useMemo(() => calculatePositions(data), [data])
 
-  const columns = getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds, transactionPositions })
+  const columns = useMemo(
+    () => getTableColumns({ onEditTransaction, onEditResources, onDelete, nonDeletableTransactionIds, transactionPositions }),
+    [nonDeletableTransactionIds, onDelete, onEditResources, onEditTransaction, transactionPositions]
+  )
 
   const table = useReactTable({
     data,
@@ -237,42 +240,37 @@ const getTableColumns = ({
     id: 'actions',
     meta: { className: 'w-14' },
     cell: ({ row }) => (
-      <DropdownMenu
-        onOpenChange={() => {
-          console.log('here!!')
-        }}
-      >
-        <DropdownMenuTrigger
-          aria-label={transactionActionsLabel}
-          asChild
-          onClick={() => {
-            console.log('clicked!!')
+      <>
+        <DropdownMenu
+          onOpenChange={() => {
+            console.log('here!!')
           }}
         >
-          <Button
-            variant="outline"
-            size="sm"
-            className="px-2.5"
-            icon={<EllipsisVertical size={16} />}
-            onClick={() => {
-              console.log('clicked!!')
-            }}
-          />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right">
-          <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
-          {(row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall) && (
-            <DropdownMenuItem
-              onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
-            >
-              Edit Resources
+          <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
+            <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" side="right">
+            <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>
+            {(row.original.type === BuildableTransactionType.AppCall || row.original.type === BuildableTransactionType.MethodCall) && (
+              <DropdownMenuItem
+                onClick={() => onEditResources(row.original as BuildAppCallTransactionResult | BuildMethodCallTransactionResult)}
+              >
+                Edit Resources
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem onClick={() => onDelete(row.original)} disabled={nonDeletableTransactionIds.includes(row.original.id)}>
+              Delete
             </DropdownMenuItem>
-          )}
-          <DropdownMenuItem onClick={() => onDelete(row.original)} disabled={nonDeletableTransactionIds.includes(row.original.id)}>
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button
+          onClick={() => {
+            console.log('asd')
+          }}
+        >
+          Foo
+        </Button>
+      </>
     ),
   },
 ]

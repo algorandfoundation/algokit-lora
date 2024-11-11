@@ -32,11 +32,13 @@ type Props = {
 
 export function ApplicationMethodDefinitions({ methodDefinitions, applicationId }: Props) {
   return (
-    <Accordion type="multiple">
-      {methodDefinitions.map((method, index) => (
-        <Method method={method} key={index} applicationId={applicationId} readonly={(method.callConfig?.call ?? []).length === 0} />
-      ))}
-    </Accordion>
+    <>
+      <Accordion type="multiple">
+        {methodDefinitions.map((method, index) => (
+          <Method method={method} key={index} applicationId={applicationId} readonly={(method.callConfig?.call ?? []).length === 0} />
+        ))}
+      </Accordion>
+    </>
   )
 }
 
