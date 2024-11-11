@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - release/*
+  pull_request:
   workflow_dispatch:
 
 concurrency:
@@ -59,9 +60,10 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.1
+          sudo apt-get install -y webkit2gtk-4.1          
       - name: build tauri app
         run: |
+          mv .env.sample .env
           npm ci
           npm run tauri build
       - name: upload assets
