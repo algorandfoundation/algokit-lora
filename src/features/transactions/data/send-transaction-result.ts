@@ -17,8 +17,8 @@ const asBlockTransaction = (res: algosdk.modelsv2.PendingTransactionResponse): B
   return {
     txn: res.txn.txn,
     sgnr: res.txn.sgnr,
-    caid: res.txn.txn.caid,
-    apid: res.txn.txn.apid,
+    caid: res.assetIndex !== undefined ? Number(res.assetIndex) : res.txn.txn.caid,
+    apid: res.applicationIndex !== undefined ? Number(res.applicationIndex) : res.txn.txn.apid,
     aca: res.assetClosingAmount,
     ca: res.closingAmount !== undefined ? Number(res.closingAmount) : undefined,
     dt: {

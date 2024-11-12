@@ -95,12 +95,16 @@ export function GroupSendResults({ transactionGraph, transactionGraphBgClassName
           </Button>
         )}
         <h4>Transaction Visual</h4>
-        <TransactionsGraph
-          transactionsGraphData={transactionGraph}
-          downloadable={false}
-          bgClassName={transactionGraphBgClassName}
-          isSimulated={!!simulateResponse}
-        />
+        <div className="grid">
+          <div className="overflow-y-auto">
+            <TransactionsGraph
+              transactionsGraphData={transactionGraph}
+              downloadable={false}
+              bgClassName={transactionGraphBgClassName}
+              isSimulated={!!simulateResponse}
+            />
+          </div>
+        </div>
       </div>
       {sentAppCalls.length > 0 && (
         <div className="mt-2 space-y-2">

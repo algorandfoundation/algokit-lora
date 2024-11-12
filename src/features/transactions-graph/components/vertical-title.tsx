@@ -32,7 +32,7 @@ function AssociatedAccountTitleWrapper({ type, accountAddress, accountNumber }: 
   )
 }
 
-export function VerticalTitle({ vertical }: { vertical: Vertical }) {
+export function VerticalTitle({ vertical, isSimulated }: { vertical: Vertical; isSimulated: boolean }) {
   return (
     <div className={cn('text-l font-semibold w-full')}>
       {vertical.type === 'Account' && (
@@ -48,7 +48,11 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
       {vertical.type === 'Application' && (
         <div className={cn('grid text-center')}>
           <TitleWrapper>
-            <ApplicationLink applicationId={vertical.applicationId} />
+            {isSimulated ? (
+              <span className="text-primary">{vertical.applicationId}</span>
+            ) : (
+              <ApplicationLink applicationId={vertical.applicationId} />
+            )}
           </TitleWrapper>
           <TitleWrapper
             leftComponent={<LinkIcon size={16} className={'text-primary'} />}
@@ -63,12 +67,12 @@ export function VerticalTitle({ vertical }: { vertical: Vertical }) {
       )}
       {vertical.type === 'Asset' && (
         <TitleWrapper>
-          <AssetIdLink assetId={vertical.assetId} />
+          {isSimulated ? <span className="text-primary">{vertical.assetId}</span> : <AssetIdLink assetId={vertical.assetId} />}
         </TitleWrapper>
       )}
       {vertical.type === 'OpUp' && (
         <TitleWrapper>
-          <label className={'text-primary'}>OpUp</label>
+          <span className="text-primary">OpUp</span>
         </TitleWrapper>
       )}
     </div>

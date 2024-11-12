@@ -67,7 +67,7 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
           <div>{/* The first header cell is empty */}</div>
           {verticals.map((vertical, index) => (
             <div className={cn('p-2 flex justify-center')} key={index}>
-              <VerticalTitle vertical={vertical} />
+              <VerticalTitle vertical={vertical} isSimulated={isSimulated} />
             </div>
           ))}
         </div>
