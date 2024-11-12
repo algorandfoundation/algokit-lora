@@ -23,6 +23,7 @@ import {
   DecodedAbiValue,
 } from '@/features/abi-methods/models'
 import { bigIntToFixedPointDecimalString } from '../mappers'
+import { getLatestAppSpecVersion } from '@/features/app-interfaces/mappers'
 
 const MAX_LINE_LENGTH = 20
 
@@ -60,9 +61,9 @@ const createMethodDefinitionAtom = (transaction: TransactionResult): Atom<Promis
     const appInterface = await get(createAppInterfaceAtom(transaction['application-transaction']['application-id']))
     if (!appInterface) return undefined
 
-    const appSpecVersion = appInterface.appSpecVersions.find((appSpecVersion) =>
-      isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!)
-    )
+    const appSpecVersion = transaction['confirmed-round']
+      ? appInterface.appSpecVersions.find((appSpecVersion) => isValidAppSpecVersion(appSpecVersion, transaction['confirmed-round']!))
+      : getLatestAppSpecVersion(appInterface.appSpecVersions)
     const transactionArgs = transaction['application-transaction']['application-args'] ?? []
     if (transactionArgs.length && appSpecVersion) {
       const methods = asMethodDefinitions(appSpecVersion.appSpec)
