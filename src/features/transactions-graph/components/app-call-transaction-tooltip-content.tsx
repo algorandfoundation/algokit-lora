@@ -59,7 +59,7 @@ function AppCallDescriptionList({
       },
       {
         dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} />,
+        dd: isSimulated ? transaction.applicationId : <ApplicationLink applicationId={transaction.applicationId} />,
       },
       {
         dt: transactionFeeLabel,

@@ -38,7 +38,7 @@ export function AssetConfigTransactionTooltipContent({ transaction, isSimulated 
       },
       {
         dt: assetLabel,
-        dd: <AssetIdLink assetId={transaction.assetId} />,
+        dd: isSimulated ? transaction.assetId : <AssetIdLink assetId={transaction.assetId} />,
       },
       {
         dt: transactionFeeLabel,
