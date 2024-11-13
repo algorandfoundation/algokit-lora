@@ -20,7 +20,7 @@ import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mapp
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-const formSchema = z
+export const formSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,

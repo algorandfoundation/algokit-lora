@@ -260,3 +260,6 @@ export type BuildTransactionResult =
   | BuildKeyRegistrationTransactionResult
 
 export type TransactionPositionsInGroup = Map<string, number>
+
+// Base transaction type for search params. Must have type property.
+export type BaseSearchParamTransaction = { type: string } & Record<string, string>
