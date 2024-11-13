@@ -14,29 +14,27 @@ const keyRegistrationFormSchema = _keyRegistrationFormSchema.innerType().extend(
   online: z.boolean(),
 })
 
-const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction): BuildKeyRegistrationTransactionResult => {
-  return {
-    id: randomGuid(),
-    type: BuildableTransactionType.KeyRegistration,
-    sender: {
-      value: params.sender,
-      resolvedAddress: params.sender,
-    },
-    online: Boolean(params.votekey),
-    fee: params.fee ? { setAutomatically: false, value: Number(params.fee) } : { setAutomatically: true },
-    voteKey: params.votekey,
-    selectionKey: params.selkey,
-    voteFirstValid: params.votefst ? BigInt(params.votefst) : undefined,
-    voteLastValid: params.votelst ? BigInt(params.votelst) : undefined,
-    voteKeyDilution: params.votekd ? BigInt(params.votekd) : undefined,
-    stateProofKey: params.sprfkey,
-    validRounds: {
-      setAutomatically: true,
-      firstValid: undefined,
-      lastValid: undefined,
-    },
-  }
-}
+const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction): BuildKeyRegistrationTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.KeyRegistration,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  online: Boolean(params.votekey),
+  fee: params.fee ? { setAutomatically: false, value: Number(params.fee) } : { setAutomatically: true },
+  voteKey: params.votekey,
+  selectionKey: params.selkey,
+  voteFirstValid: params.votefst ? BigInt(params.votefst) : undefined,
+  voteLastValid: params.votelst ? BigInt(params.votelst) : undefined,
+  voteKeyDilution: params.votekd ? BigInt(params.votekd) : undefined,
+  stateProofKey: params.sprfkey,
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+})
 
 export function transformSearchParamsTransactions(searchParamTransactions: BaseSearchParamTransaction[]) {
   const transactionsFromSearchParams: BuildTransactionResult[] = []
