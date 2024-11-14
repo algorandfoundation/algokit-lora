@@ -24,6 +24,9 @@ import { asTransactionFromSendResult } from '@/features/transactions/data/send-t
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
 import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { GroupSendResults, SendResults } from '@/features/transaction-wizard/components/group-send-results'
+import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
+import { algorandClient } from '@/features/common/data/algo-client'
+import { asError } from '@/utils/error'
 
 type Props = {
   applicationId: ApplicationId
@@ -100,10 +103,30 @@ function Method({ method, applicationId, readonly }: MethodProps) {
   const sendTransactions = useCallback(
     async (transactions: BuildTransactionResult[]) => {
       const composer = await buildComposer(transactions)
+      try {
+        const result = await composer.send()
+        renderTransactionResults(result)
+      } catch (e: unknown) {
+        // TODO: NC - It's possible that any one of the AppCalls in the transaction group caused the failure, so it's not to correct to assume it was the main transaction.
+        // TODO: NC - This needs to be added to transaction wizard
+        // TODO: NC - This needs to be added into the simulate methods (transaction wizard and app lab).
+        if (!transaction?.appSpec) {
+          throw e
+        }
+
+        const program = await algorandClient.app.getById(BigInt(transaction.applicationId))
+
+        const error = AppClient.exposeLogicError(asError(e), transaction?.appSpec, {
+          isClearStateProgram: transaction.onComplete === algosdk.OnApplicationComplete.ClearStateOC,
+          program: program.approvalProgram,
+        })
+
+        throw error
+      }
       const result = await composer.send()
       renderTransactionResults(result)
     },
-    [renderTransactionResults]
+    [renderTransactionResults, transaction?.appSpec, transaction?.applicationId, transaction?.onComplete]
   )
 
   const renderSimulateResult = useCallback(
