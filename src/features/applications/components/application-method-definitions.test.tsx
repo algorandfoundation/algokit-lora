@@ -199,10 +199,14 @@ describe('application-method-definitions', () => {
               const addButton = await waitFor(() => component.getByRole('button', { name: 'Add' }))
               await user.click(addButton)
 
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
+
               // Edit the transaction
               const transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Switch to echo_bytes method and save
@@ -401,12 +405,15 @@ describe('application-method-definitions', () => {
 
               // Save the payment transaction
               await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the payment transaction
               transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
               firstBodyRow = within(transactionGroupTable).getAllByRole('row')[1]
-              await user.click(await waitFor(() => within(firstBodyRow).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(firstBodyRow).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
 
               formDialog = component.getByRole('dialog')
               amountInput = await within(formDialog).findByLabelText(/Amount/)
@@ -520,12 +527,15 @@ describe('application-method-definitions', () => {
 
               // Save the payment transaction
               await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the app call transaction
               transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
               firstBodyRow = within(transactionGroupTable).getAllByRole('row')[2]
-              await user.click(await waitFor(() => within(firstBodyRow).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(firstBodyRow).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
 
               formDialog = component.getByRole('dialog')
               const noteInput = await within(formDialog).findByLabelText(/Note/)
@@ -638,12 +648,15 @@ describe('application-method-definitions', () => {
 
               // Save the payment transaction
               await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the app call transaction
               transactionGroupTable = await waitFor(() => within(addMethodPanel).getByLabelText(transactionGroupTableLabel))
               firstBodyRow = within(transactionGroupTable).getAllByRole('row')[2]
-              await user.click(await waitFor(() => within(firstBodyRow).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(firstBodyRow).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
 
               formDialog = component.getByRole('dialog')
               await selectOption(formDialog.parentElement!, user, /Method/, 'add')
@@ -773,11 +786,14 @@ describe('application-method-definitions', () => {
                 const requiredValidationMessages = component.queryAllByText('Required')
                 expect(requiredValidationMessages.length).toBe(0)
               })
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the transaction
               const transactionGroupTable = await waitFor(() => within(echoBytesPanel).getByLabelText(transactionGroupTableLabel))
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Input the new byte array in base64
@@ -982,11 +998,14 @@ describe('application-method-definitions', () => {
                 return addButton!
               })
               await user.click(addButton)
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the transaction
               const transactionGroupTable = await waitFor(() => within(echoArrayPanel).getByLabelText(transactionGroupTableLabel))
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Check the existing values
@@ -1167,11 +1186,14 @@ describe('application-method-definitions', () => {
                 return addButton!
               })
               await user.click(addButton)
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the transaction
               const transactionGroupTable = await waitFor(() => within(echoDynamicArrayPanel).getByLabelText(transactionGroupTableLabel))
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Check the existing values
@@ -1386,11 +1408,14 @@ describe('application-method-definitions', () => {
                 return addButton!
               })
               await user.click(addButton)
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the transaction
               const transactionGroupTable = await within(methodPanel).findByLabelText(transactionGroupTableLabel)
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Verify the existing values
@@ -1561,11 +1586,14 @@ describe('application-method-definitions', () => {
                 return addButton!
               })
               await user.click(addButton)
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the transaction
               const transactionGroupTable = await within(methodPanel).findByLabelText(transactionGroupTableLabel)
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Verify the existing values
@@ -1806,11 +1834,14 @@ describe('application-method-definitions', () => {
                 return addButton!
               })
               await user.click(addButton)
+              await waitFor(() => {
+                expect(component.queryByRole('dialog')).not.toBeInTheDocument()
+              })
 
               // Edit the transaction
               const transactionGroupTable = await within(methodPanel).findByLabelText(transactionGroupTableLabel)
-              await user.click(await waitFor(() => within(transactionGroupTable).getByRole('button', { name: transactionActionsLabel })))
-              await user.click(await component.findByRole('menuitem', { name: 'Edit' }, { timeout: 2_000 }))
+              await user.click(await within(transactionGroupTable).findByRole('button', { name: transactionActionsLabel }))
+              await user.click(await component.findByRole('menuitem', { name: 'Edit' }))
               formDialog = component.getByRole('dialog')
 
               // Verify the existing values
