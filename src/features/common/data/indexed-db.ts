@@ -41,7 +41,7 @@ export const dbConnectionAtom = atom(async (get) => {
         for (const migration of migrationsToRun) {
           await migration(anyDb, anyTransaction)
         }
-      } catch (e) {
+      } catch {
         // Need to abort the transaction here, so that the database version doesn't get updated to the new version
         transaction.abort()
       }

@@ -44,6 +44,7 @@ const baseShape = {
   updatable: z.boolean().optional(),
   deletable: z.boolean().optional(),
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const baseFormSchema = zfd.formData(baseShape)
 
 type FormInnerProps = {

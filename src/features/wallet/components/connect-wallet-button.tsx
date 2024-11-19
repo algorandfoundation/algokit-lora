@@ -38,7 +38,9 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
 
   const connect = useCallback(() => {
     setDialogOpen(true)
-    onConnect && onConnect()
+    if (onConnect) {
+      onConnect()
+    }
   }, [onConnect, setDialogOpen])
 
   return (

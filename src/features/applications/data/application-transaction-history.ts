@@ -34,7 +34,7 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
           })
           return next
         })
-      } catch (e) {
+      } catch {
         // Ignore any errors as there is nothing to sync
       }
     })()

@@ -76,7 +76,7 @@ const assetSummaryResolver = (assetId: AssetId) =>
     try {
       const assetResult = await get(getAssetResultAtom(assetId, { skipTimestampUpdate: true }))
       return asAssetSummary(assetResult)
-    } catch (e) {
+    } catch {
       return asAssetSummary({
         index: assetId,
         params: {

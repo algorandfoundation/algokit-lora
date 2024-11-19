@@ -39,7 +39,7 @@ const performNfdReverseLookup = async (addresses: Address[], nfdApiUrl: string):
         caAlgo: result.caAlgo ?? [],
       } satisfies NfdResult
     })
-  } catch (e: unknown) {
+  } catch {
     return []
   }
 }
@@ -140,7 +140,7 @@ const performNfdForwardLookup = async (nfd: Nfd, nfdApiUrl: string): Promise<Nfd
       depositAccount: body.depositAccount,
       caAlgo: body.caAlgo ?? [],
     } satisfies NfdResult
-  } catch (e: unknown) {
+  } catch {
     return null
   }
 }

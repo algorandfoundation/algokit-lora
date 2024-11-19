@@ -29,7 +29,9 @@ export const createLoraKmdDevAccount = async (kmd: algosdk.Kmd): Promise<Address
   const walletHandle = (await kmd.initWalletHandle(wallet.id, '')).wallet_handle_token as string | undefined
   invariant(walletHandle, 'Failed to connect to the lora KMD dev wallet')
   const generateKeyResponse = (await kmd.generateKey(walletHandle)) as GenerateKeyResponse
-  walletHandle && (await kmd.releaseWalletHandle(walletHandle))
+  if (walletHandle) {
+    await kmd.releaseWalletHandle(walletHandle)
+  }
   invariant(generateKeyResponse.address, 'Failed to create dev account in KMD')
   return generateKeyResponse.address
 }
