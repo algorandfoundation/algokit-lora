@@ -46,14 +46,15 @@ As part of this evaluation we came up with several design goals, which are:
 - Monitor and inspect real-time transactions related to an asset, account, or application with the live transaction view.
 - Review historical transactions related to an asset, account, or application through the historical transaction view.
 - Access detailed asset information and metadata when the asset complies with one of the ASA ARCs.
+- Connected to your Algorand wallet and perform context specific actions.
+- Fund an account in LocalNet or TestNet.
+- Visually deploy, populate, simulate and call an app by uploading an ARC-4, ARC-32 or ARC-56 app spec via App lab.
+- Craft, simulate and send transaction groups using Transaction wizard.
 - Seamless integration into the existing AlgoKit ecosystem.
 
 ## Roadmap
 
-- App studio, allowing developers to manage their apps.
 - Installable app with tighter AlgoKit tooling integration.
-- Learn about Algorand concepts as you're exploring data.
-- More to be revealed later...
 
 ## Contributing
 
