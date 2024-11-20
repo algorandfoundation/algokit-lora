@@ -1,5 +1,7 @@
-import { algorandClient } from '@/features/common/data/algo-client'
+import { getApplicationResultAtom } from '@/features/applications/data'
+import { dataStore } from '@/features/common/data/data-store'
 import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
 import algosdk from 'algosdk'
@@ -70,18 +72,18 @@ export const parseSimulateAbiMethodError = async (e: unknown, transactions: Buil
 }
 
 const parseErrorForTransaction = async (e: unknown, groupIndex: number, transaction: BuildMethodCallTransactionResult) => {
-  const program = await algorandClient.app.getById(BigInt(transaction.applicationId))
+  const applicationResult = await dataStore.get(getApplicationResultAtom(transaction.applicationId))
   const logicError = AppClient.exposeLogicError(
     asError(e),
     transaction.appSpec,
     transaction.onComplete === algosdk.OnApplicationComplete.ClearStateOC
       ? {
           isClearStateProgram: true,
-          program: program.clearStateProgram,
+          program: base64ToBytes(applicationResult.params['clear-state-program']),
         }
       : {
           isClearStateProgram: false,
-          program: program.approvalProgram,
+          program: base64ToBytes(applicationResult.params['approval-program']),
         }
   )
 
@@ -94,7 +96,7 @@ const parseErrorForTransaction = async (e: unknown, groupIndex: number, transact
 }
 
 const extractErrorMessage = (errorString: string): string | undefined => {
-  const regex = /Runtime error when executing .+ in transaction .+: (.+)$/
+  const regex = /Runtime error.+: (.+)$/
   const match = errorString.match(regex)
   return match?.[1] || undefined
 }
