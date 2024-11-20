@@ -13,7 +13,7 @@ export function FundErrorPage() {
     <>
       <PageTitle title={fundPageTitle} />
       <div>
-        {networkConfig.dispenserApi && <DispenserApiUserInfo />}
+        {networkConfig.dispenserApi && <DispenserApiUserInfo selectedNetwork={networkConfig.id} />}
         <p>Error: {error.message}</p>
       </div>
     </>

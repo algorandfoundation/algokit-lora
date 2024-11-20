@@ -122,6 +122,11 @@ export const routes = evalTemplates([
             ],
           },
           {
+            template: Urls.Network.Fund,
+            errorElement: <FundErrorPage />,
+            element: <FundPage />,
+          },
+          {
             template: Urls.Network.Explore.Tx,
             element: <RedirectPage from={Urls.Network.Explore.Tx} to={Urls.Network.Explore.Transaction} />,
           },
@@ -145,11 +150,6 @@ export const routes = evalTemplates([
         element: <SettingsPage />,
       },
       {
-        template: Urls.Fund,
-        errorElement: <FundErrorPage />,
-        element: <FundPage />,
-      },
-      {
         template: Urls.FundAuthCallback,
         errorElement: <FundErrorPage />,
         element: <FundAuthCallbackPage />,
@@ -169,6 +169,10 @@ export const routes = evalTemplates([
       {
         template: Urls.AppLab,
         element: <RedirectPage from={Urls.AppLab} to={Urls.Network.AppLab} />,
+      },
+      {
+        template: Urls.Fund,
+        element: <RedirectPage from={Urls.Fund} to={Urls.Network.Fund} />,
       },
     ],
   },

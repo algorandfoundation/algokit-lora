@@ -94,6 +94,12 @@ describe('redirect page', () => {
       to: Urls.Network.AppLab,
       toPath: Urls.Network.AppLab.build({ networkId: 'localnet' }),
     },
+    {
+      from: Urls.Fund,
+      fromPath: Urls.Fund.build({}),
+      to: Urls.Network.Fund,
+      toPath: Urls.Network.Fund.build({ networkId: 'localnet' }),
+    },
   ])('when the url is $txUrl', ({ from, fromPath, to, toPath }) => {
     afterEach(() => {
       localStorage.clear()

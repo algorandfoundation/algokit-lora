@@ -30,7 +30,7 @@ export function LeftSideBarMenu({ className }: Props) {
     { urlTemplate: Urls.Network.Explore, icon: <Telescope />, text: 'Explore' },
     { urlTemplate: Urls.Network.AppLab, icon: <FlaskConical />, text: 'App Lab' },
     { urlTemplate: Urls.Network.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
-    { urlTemplate: Urls.Fund, icon: <Coins />, text: 'Fund' },
+    { urlTemplate: Urls.Network.Fund, icon: <Coins />, text: 'Fund' },
   ]
   const isExploreUrl = useMemo(() => {
     const explorePaths = Object.values(Urls.Network.Explore)

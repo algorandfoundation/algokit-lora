@@ -28,9 +28,9 @@ export function LayoutPage({ children }: Props) {
 
   const navigateToCorrectRoute = useCallback(
     (appState?: AppState) => {
-      navigate(appState?.returnTo ?? Urls.Fund.build({}))
+      navigate(appState?.returnTo ?? Urls.Network.Fund.build({ networkId: networkConfig.id }))
     },
-    [navigate]
+    [navigate, networkConfig.id]
   )
 
   const inner = (
