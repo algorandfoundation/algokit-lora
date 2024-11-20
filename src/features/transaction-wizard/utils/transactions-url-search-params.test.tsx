@@ -54,7 +54,7 @@ describe('Render transactions page with search params', () => {
       const votekd = 100
       const votekey = 'UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI'
       const votelst = 11300
-      const fee = 2000
+      const fee = 2_000_000
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'keyreg',
@@ -78,7 +78,7 @@ describe('Render transactions page with search params', () => {
       expect(screen.getByText(votekd.toString())).toBeInTheDocument()
       expect(screen.getByText('UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI=')).toBeInTheDocument()
       expect(screen.getByText(votelst.toString())).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(screen.getByText('2')).toBeInTheDocument()
     })
 
     it('should render online key registration with url encoded values', () => {
@@ -89,7 +89,7 @@ describe('Render transactions page with search params', () => {
       const votekd = 100
       const votekey = 'UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI='
       const votelst = 11300
-      const fee = 2000
+      const fee = 2_000_000
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'keyreg',
@@ -111,7 +111,7 @@ describe('Render transactions page with search params', () => {
       expect(screen.getByText(votekd.toString())).toBeInTheDocument()
       expect(screen.getByText(votekey)).toBeInTheDocument()
       expect(screen.getByText(votelst.toString())).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(screen.getByText('2')).toBeInTheDocument()
     })
   })
 })
