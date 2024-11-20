@@ -56,13 +56,14 @@ export const Urls = {
     TransactionWizard: UrlTemplate`/transaction-wizard`,
     TxWizard: UrlTemplate`/tx-wizard`,
     TxnWizard: UrlTemplate`/txn-wizard`,
-  }),
-  AppLab: UrlTemplate`/app-lab`.extend({
-    Create: UrlTemplate`/create`,
-    Edit: UrlTemplate`/edit`.extend({
-      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+    AppLab: UrlTemplate`/app-lab`.extend({
+      Create: UrlTemplate`/create`,
+      Edit: UrlTemplate`/edit`.extend({
+        ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+      }),
     }),
   }),
+  AppLab: UrlTemplate`/app-lab`,
   Settings: UrlTemplate`/settings`,
   Fund: UrlTemplate`/fund`,
   FundAuthCallback: UrlTemplate`/fund/auth-callback`, // This is intentionally not a nested route, as there is no need

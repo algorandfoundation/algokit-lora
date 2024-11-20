@@ -88,6 +88,12 @@ describe('redirect page', () => {
       to: Urls.Network.TransactionWizard,
       toPath: Urls.Network.TransactionWizard.build({ networkId: 'localnet' }),
     },
+    {
+      from: Urls.AppLab,
+      fromPath: Urls.AppLab.build({}),
+      to: Urls.Network.AppLab,
+      toPath: Urls.Network.AppLab.build({ networkId: 'localnet' }),
+    },
   ])('when the url is $txUrl', ({ from, fromPath, to, toPath }) => {
     afterEach(() => {
       localStorage.clear()

@@ -102,6 +102,26 @@ export const routes = evalTemplates([
             element: <TransactionWizardPage />,
           },
           {
+            template: Urls.Network.AppLab,
+            children: [
+              {
+                template: Urls.Network.AppLab,
+                errorElement: <ErrorPage title={appLabPageTitle} />,
+                element: <AppLab />,
+              },
+              {
+                template: Urls.Network.AppLab.Create,
+                errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
+                element: <CreateAppInterfacePage />,
+              },
+              {
+                template: Urls.Network.AppLab.Edit.ById,
+                errorElement: <ErrorPage title={editAppInterfacePageTitle} />,
+                element: <EditAppInterfacePage />,
+              },
+            ],
+          },
+          {
             template: Urls.Network.Explore.Tx,
             element: <RedirectPage from={Urls.Network.Explore.Tx} to={Urls.Network.Explore.Transaction} />,
           },
@@ -116,26 +136,6 @@ export const routes = evalTemplates([
           {
             template: Urls.Network.TxnWizard,
             element: <RedirectPage from={Urls.Network.TxnWizard} to={Urls.Network.TransactionWizard} />,
-          },
-        ],
-      },
-      {
-        template: Urls.AppLab,
-        children: [
-          {
-            template: Urls.AppLab,
-            errorElement: <ErrorPage title={appLabPageTitle} />,
-            element: <AppLab />,
-          },
-          {
-            template: Urls.AppLab.Create,
-            errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
-            element: <CreateAppInterfacePage />,
-          },
-          {
-            template: Urls.AppLab.Edit.ById,
-            errorElement: <ErrorPage title={editAppInterfacePageTitle} />,
-            element: <EditAppInterfacePage />,
           },
         ],
       },
@@ -165,6 +165,10 @@ export const routes = evalTemplates([
       {
         template: Urls.TxnWizard,
         element: <RedirectPage from={Urls.TxnWizard} to={Urls.Network.TransactionWizard} />,
+      },
+      {
+        template: Urls.AppLab,
+        element: <RedirectPage from={Urls.AppLab} to={Urls.Network.AppLab} />,
       },
     ],
   },
