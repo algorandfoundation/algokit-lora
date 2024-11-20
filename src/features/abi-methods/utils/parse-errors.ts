@@ -71,10 +71,19 @@ export const parseSimulateAbiMethodError = async (e: unknown, transactions: Buil
 
 const parseErrorForTransaction = async (e: unknown, groupIndex: number, transaction: BuildMethodCallTransactionResult) => {
   const program = await algorandClient.app.getById(BigInt(transaction.applicationId))
-  const logicError = AppClient.exposeLogicError(asError(e), transaction.appSpec, {
-    isClearStateProgram: transaction.onComplete === algosdk.OnApplicationComplete.ClearStateOC,
-    program: program.clearStateProgram,
-  })
+  const logicError = AppClient.exposeLogicError(
+    asError(e),
+    transaction.appSpec,
+    transaction.onComplete === algosdk.OnApplicationComplete.ClearStateOC
+      ? {
+          isClearStateProgram: true,
+          program: program.clearStateProgram,
+        }
+      : {
+          isClearStateProgram: false,
+          program: program.approvalProgram,
+        }
+  )
 
   const tealErrorMessage = extractErrorMessage(logicError.message)
   if (!tealErrorMessage) {
