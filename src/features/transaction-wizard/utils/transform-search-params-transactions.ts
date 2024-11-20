@@ -4,13 +4,15 @@ import {
   BuildKeyRegistrationTransactionResult,
   BuildTransactionResult,
 } from '../models'
-import { formSchema as _keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
+import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
+import algosdk from 'algosdk'
+import { microAlgo } from '@algorandfoundation/algokit-utils'
 
 // This is a workaround to make the online field a boolean instead of a string.
 // A string type is used in the form schema because of the value of radio buttons cant be boolean
-const keyRegistrationFormSchema = _keyRegistrationFormSchema.innerType().extend({
+const keyRegFormSchema = keyRegistrationFormSchema.innerType().extend({
   online: z.boolean(),
 })
 
@@ -22,7 +24,7 @@ const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction)
     resolvedAddress: params.sender,
   },
   online: Boolean(params.votekey),
-  fee: params.fee ? { setAutomatically: false, value: Number(params.fee) } : { setAutomatically: true },
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
   voteKey: params.votekey,
   selectionKey: params.selkey,
   voteFirstValid: params.votefst ? BigInt(params.votefst) : undefined,
@@ -41,9 +43,9 @@ export function transformSearchParamsTransactions(searchParamTransactions: BaseS
   const errors: string[] = []
   for (const [index, searchParamTransaction] of searchParamTransactions.entries()) {
     try {
-      if (searchParamTransaction.type === 'keyreg') {
+      if (searchParamTransaction.type === algosdk.TransactionType.keyreg) {
         const keyRegTransaction = transformKeyRegistrationTransaction(searchParamTransaction)
-        keyRegistrationFormSchema.parse(keyRegTransaction)
+        keyRegFormSchema.parse(keyRegTransaction)
         transactionsFromSearchParams.push(keyRegTransaction)
       }
       // TODO: Add other transaction types

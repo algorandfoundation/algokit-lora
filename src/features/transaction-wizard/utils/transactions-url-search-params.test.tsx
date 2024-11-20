@@ -33,6 +33,7 @@ describe('Render transactions page with search params', () => {
   })
   describe('key registration search params', () => {
     beforeEach(() => {})
+
     it('should render offline key registration', () => {
       const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
       renderTxnsWizardPageWithSearchParams({
@@ -44,15 +45,16 @@ describe('Render transactions page with search params', () => {
       expect(screen.getByText('Offline')).toBeInTheDocument()
       expect(screen.getByText(sender)).toBeInTheDocument()
     })
-    it('should render online key registration', () => {
+
+    it('should render online key registration with url safe values', () => {
       const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
-      const selkey = '-lfw-Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c='
+      const selkey = '-lfw-Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c'
       const sprfkey = '3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W_iy_JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg'
       const votefst = 1300
       const votekd = 100
       const votekey = 'UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI'
       const votelst = 11300
-      const fee = 2000000
+      const fee = 2000
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'keyreg',
@@ -68,13 +70,48 @@ describe('Render transactions page with search params', () => {
       })
       expect(screen.getByText('Online')).toBeInTheDocument()
       expect(screen.getByText(sender)).toBeInTheDocument()
-      //   expect(screen.getByText(selkey)).toBeInTheDocument()
-      //   expect(screen.getByText(sprfkey)).toBeInTheDocument()
+      expect(screen.getByText('+lfw+Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c=')).toBeInTheDocument()
+      expect(
+        screen.getByText('3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W/iy/JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg==')
+      ).toBeInTheDocument()
       expect(screen.getByText(votefst.toString())).toBeInTheDocument()
       expect(screen.getByText(votekd.toString())).toBeInTheDocument()
-      //   expect(screen.getByText(votekey)).toBeInTheDocument()
+      expect(screen.getByText('UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI=')).toBeInTheDocument()
       expect(screen.getByText(votelst.toString())).toBeInTheDocument()
-      expect(screen.getByText(fee.toString())).toBeInTheDocument()
+      expect(screen.getByText('0.002')).toBeInTheDocument()
+    })
+
+    it('should render online key registration with url encoded values', () => {
+      const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
+      const selkey = '+lfw+Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c='
+      const sprfkey = '3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W/iy/JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg=='
+      const votefst = 1300
+      const votekd = 100
+      const votekey = 'UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI='
+      const votelst = 11300
+      const fee = 2000
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'keyreg',
+          'sender[0]': sender,
+          'selkey[0]': selkey,
+          'sprfkey[0]': sprfkey,
+          'votefst[0]': votefst.toString(),
+          'votekd[0]': votekd.toString(),
+          'votekey[0]': votekey,
+          'votelst[0]': votelst.toString(),
+          'fee[0]': fee.toString(),
+        }),
+      })
+      expect(screen.getByText('Online')).toBeInTheDocument()
+      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(screen.getByText(selkey)).toBeInTheDocument()
+      expect(screen.getByText(sprfkey)).toBeInTheDocument()
+      expect(screen.getByText(votefst.toString())).toBeInTheDocument()
+      expect(screen.getByText(votekd.toString())).toBeInTheDocument()
+      expect(screen.getByText(votekey)).toBeInTheDocument()
+      expect(screen.getByText(votelst.toString())).toBeInTheDocument()
+      expect(screen.getByText('0.002')).toBeInTheDocument()
     })
   })
 })
