@@ -26,7 +26,7 @@ export const AddressOrNfdLink = fixedForwardRef(
     const link = (
       <TemplatedNavLink
         className={cn(!children && 'text-primary underline', !children && 'truncate', className)}
-        urlTemplate={Urls.Explore.Account.ByAddress}
+        urlTemplate={Urls.Network.Explore.Account.ByAddress}
         urlParams={{ address, networkId: selectedNetwork }}
         ref={ref}
         {...rest}

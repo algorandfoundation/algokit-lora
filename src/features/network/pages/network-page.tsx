@@ -29,7 +29,7 @@ export function NetworkPage({ children }: Props) {
     } else if (networkId !== selectedNetwork) {
       // When a user changes the network, their history will contain routes for the previous network.
       // This handles navigating the user to the explore page for the selected network, so they don't get 404s when navigating through history.
-      navigate(Urls.Explore.build({ networkId: selectedNetwork }), { replace: true })
+      navigate(Urls.Network.Explore.build({ networkId: selectedNetwork }), { replace: true })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [networkId, selectedNetwork])

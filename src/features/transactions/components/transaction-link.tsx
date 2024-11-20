@@ -29,7 +29,7 @@ export function TransactionLink({ transactionId, short = false, className, child
   const link = (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline inline', !children && !short && 'truncate', className)}
-      urlTemplate={Urls.Explore.Transaction.ById}
+      urlTemplate={Urls.Network.Explore.Transaction.ById}
       urlParams={{ transactionId: transactionId, networkId: selectedNetwork }}
     >
       {children ? children : asTransactionLinkTextComponent(transactionId, !short)}

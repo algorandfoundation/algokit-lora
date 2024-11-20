@@ -10,7 +10,7 @@ const renderTxnsWizardPageWithSearchParams = ({ searchParams }: { searchParams: 
   const router = createMemoryRouter(
     [
       {
-        path: '/transaction-wizard',
+        path: '/localnet/transaction-wizard',
         element: (
           <TooltipProvider>
             <TransactionWizardPage />
@@ -19,7 +19,7 @@ const renderTxnsWizardPageWithSearchParams = ({ searchParams }: { searchParams: 
       },
     ],
     {
-      initialEntries: [`/transaction-wizard?${urlSearchParams}`],
+      initialEntries: [`/localnet/transaction-wizard?${urlSearchParams}`],
     }
   )
   return render(<RouterProvider router={router} />)

@@ -48,7 +48,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         type: SearchResultType.Account,
         id: term,
         label: `${ellipseAddress(term)}${nfd ? ` (${nfd.name})` : ''}`,
-        url: Urls.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
+        url: Urls.Network.Explore.Account.ByAddress.build({ address: term, networkId: selectedNetwork }),
       })
     } else if (isNfd(term)) {
       const nfdAtom = getNfdResultAtom({ nfd: term })
@@ -58,7 +58,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
           type: SearchResultType.Account,
           id: nfd.depositAccount,
           label: `${ellipseAddress(nfd.depositAccount)} (${nfd.name})`,
-          url: Urls.Explore.Account.ByAddress.build({ address: nfd.depositAccount, networkId: selectedNetwork }),
+          url: Urls.Network.Explore.Account.ByAddress.build({ address: nfd.depositAccount, networkId: selectedNetwork }),
         })
       }
     } else if (isTransactionId(term)) {
@@ -69,7 +69,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
           type: SearchResultType.Transaction,
           id: term,
           label: ellipseId(term),
-          url: Urls.Explore.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
+          url: Urls.Network.Explore.Transaction.ById.build({ transactionId: term, networkId: selectedNetwork }),
         })
       }
     } else if (isInteger(term)) {
@@ -81,7 +81,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
             type: SearchResultType.Block,
             id: id,
             label: id.toString(),
-            url: Urls.Explore.Block.ByRound.build({ round: id.toString(), networkId: selectedNetwork }),
+            url: Urls.Network.Explore.Block.ByRound.build({ round: id.toString(), networkId: selectedNetwork }),
           })
         }
 
@@ -99,7 +99,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
               type: SearchResultType.Asset,
               id: id,
               label: asset.name ? `${id} (${asset.name})` : id.toString(),
-              url: Urls.Explore.Asset.ById.build({ assetId: id.toString(), networkId: selectedNetwork }),
+              url: Urls.Network.Explore.Asset.ById.build({ assetId: id.toString(), networkId: selectedNetwork }),
             })
           }
 
@@ -108,7 +108,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
               type: SearchResultType.Application,
               id: id,
               label: id.toString(),
-              url: Urls.Explore.Application.ById.build({ applicationId: id.toString(), networkId: selectedNetwork }),
+              url: Urls.Network.Explore.Application.ById.build({ applicationId: id.toString(), networkId: selectedNetwork }),
             })
           }
         } catch (e) {

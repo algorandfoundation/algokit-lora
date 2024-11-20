@@ -20,7 +20,7 @@ export function GroupLink({ round, groupId, short = false, className, children }
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline', !children && !short && 'truncate', className)}
-      urlTemplate={Urls.Explore.Block.ByRound.Group.ById}
+      urlTemplate={Urls.Network.Explore.Block.ByRound.Group.ById}
       urlParams={{ round: round.toString(), groupId: encodeURIComponent(groupId), networkId: selectedNetwork }}
     >
       {children ? (

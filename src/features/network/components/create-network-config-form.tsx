@@ -20,7 +20,7 @@ type Props = {
 }
 // Include all parent routes, so it's not possible to have a route collision.
 export const disallowedNetworkIds = Object.values(Urls)
-  .filter((t) => t !== Urls.Index && t !== Urls.Explore)
+  .filter((t) => t !== Urls.Index && t !== Urls.Network)
   .map((t) => {
     // We don't use the networkId here, it's simply to keep the type system happy
     return t.build({ networkId: '_' }).replace('/', '')

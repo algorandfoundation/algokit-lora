@@ -17,7 +17,7 @@ export function Header({ className }: Props) {
   return (
     <header className={cn('bg-card text-card-foreground flex h-20 px-4 justify-start border-b', className)}>
       <div className={cn('flex items-baseline gap-4')}>
-        <TemplatedNavLink urlTemplate={Urls.Explore} urlParams={{ networkId: networkConfig.id }} className="self-center">
+        <TemplatedNavLink urlTemplate={Urls.Network.Explore} urlParams={{ networkId: networkConfig.id }} className="self-center">
           <SvgLoraLight className="block dark:hidden" />
           <SvgLoraDark className="hidden dark:block" />
         </TemplatedNavLink>
