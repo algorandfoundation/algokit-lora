@@ -1,6 +1,5 @@
 module.exports = {
   svgoConfig: {
-    plugins: [
-    ],
+    plugins: [],
   },
 }

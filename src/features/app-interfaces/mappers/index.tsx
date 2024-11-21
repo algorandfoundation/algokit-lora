@@ -73,7 +73,7 @@ export const parseAsAppSpec = async (
     }
 
     throw new Error('Not supported')
-  } catch (e) {
+  } catch {
     throw new Error(`The file is not a valid ${supportedStandards.join(' or ')} app spec`)
   }
 }

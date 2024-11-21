@@ -31,7 +31,7 @@ import React from 'react'
 import { asAlgosdkTransactionType } from '../mappers/as-algosdk-transaction-type'
 import { buildComposer, buildComposerWithEmptySignatures } from '../data/common'
 import { asAbiTransactionType } from '../mappers'
-import AlgoKitComposer, { SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
+import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features/abi-methods/utils/parse-errors'
@@ -42,7 +42,7 @@ const connectWalletMessage = 'Please connect a wallet'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
-export type SimulateResult = Awaited<ReturnType<AlgoKitComposer['simulate']>>
+export type SimulateResult = Awaited<ReturnType<TransactionComposer['simulate']>>
 
 type Props = {
   defaultTransactions?: BuildTransactionResult[]

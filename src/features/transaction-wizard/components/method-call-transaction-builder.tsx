@@ -47,6 +47,7 @@ const appCallFormSchema = {
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const baseFormData = zfd.formData(appCallFormSchema)
 
 type Props = {

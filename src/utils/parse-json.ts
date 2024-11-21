@@ -4,7 +4,7 @@ export function parseJson(maybeJson: string) {
     if (json && typeof json === 'object') {
       return json
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
 }

@@ -9,7 +9,6 @@ const SvgClaw = (props: SVGProps<SVGSVGElement>) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="lucide lucide-paw-print"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
