@@ -7,6 +7,7 @@ import { Button } from '@/features/common/components/button'
 import { ArrowLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Urls } from '@/routes/urls'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -15,8 +16,9 @@ type Props = {
 
 export function EditAppInterface({ appInterface, refreshAppInterface }: Props) {
   const navigate = useNavigate()
+  const [selectedNetwork] = useSelectedNetwork()
 
-  const back = useCallback(() => navigate(Urls.AppLab.build({})), [navigate])
+  const back = useCallback(() => navigate(Urls.Network.AppLab.build({ networkId: selectedNetwork })), [navigate, selectedNetwork])
 
   const items = useMemo(() => {
     return [

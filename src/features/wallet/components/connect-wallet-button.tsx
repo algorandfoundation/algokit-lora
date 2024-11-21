@@ -209,7 +209,7 @@ export function ConnectWalletButton() {
               variant="link"
               onClick={() => {
                 setDialogOpen(false)
-                navigate({ pathname: Urls.Fund.build({}), search: '?create=true' })
+                navigate({ pathname: Urls.Network.Fund.build({ networkId: networkConfig.id }), search: '?create=true' })
               }}
               className="mb-0.5 h-auto p-0"
             >

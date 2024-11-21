@@ -39,7 +39,7 @@ export const routes = evalTemplates([
         errorElement: <ErrorPage title={explorePageTitle} />,
       },
       {
-        template: Urls.Explore,
+        template: Urls.Network,
         errorElement: <ErrorPage />,
         element: (
           <NetworkPage>
@@ -48,81 +48,99 @@ export const routes = evalTemplates([
         ),
         children: [
           {
-            template: Urls.Explore,
+            template: Urls.Network.Explore,
             element: <ExplorePage />,
             errorElement: <ErrorPage title={explorePageTitle} />,
           },
           {
-            template: Urls.Explore.Transaction.ById,
+            template: Urls.Network.Explore.Transaction.ById,
             errorElement: <ErrorPage title={transactionPageTitle} />,
             children: [
               {
-                template: Urls.Explore.Transaction.ById,
+                template: Urls.Network.Explore.Transaction.ById,
                 element: <TransactionPage />,
               },
               {
-                template: Urls.Explore.Transaction.ById.Inner.ById,
+                template: Urls.Network.Explore.Transaction.ById.Inner.ById,
                 element: <InnerTransactionPage />,
               },
             ],
           },
           {
-            template: Urls.Explore.Block.ByRound,
+            template: Urls.Network.Explore.Block.ByRound,
             children: [
               {
-                template: Urls.Explore.Block.ByRound,
+                template: Urls.Network.Explore.Block.ByRound,
                 errorElement: <ErrorPage title={blockPageTitle} />,
                 element: <BlockPage />,
               },
               {
-                template: Urls.Explore.Block.ByRound.Group.ById,
+                template: Urls.Network.Explore.Block.ByRound.Group.ById,
                 errorElement: <ErrorPage title={groupPageTitle} />,
                 element: <GroupPage />,
               },
             ],
           },
           {
-            template: Urls.Explore.Account.ByAddress,
+            template: Urls.Network.Explore.Account.ByAddress,
             element: <AccountPage />,
             errorElement: <ErrorPage title={accountPageTitle} />,
           },
           {
-            template: Urls.Explore.Asset.ById,
+            template: Urls.Network.Explore.Asset.ById,
             element: <AssetPage />,
             errorElement: <ErrorPage title={assetPageTitle} />,
           },
           {
-            template: Urls.Explore.Application.ById,
+            template: Urls.Network.Explore.Application.ById,
             errorElement: <ErrorPage title={applicationPageTitle} />,
             element: <ApplicationPage />,
           },
           {
-            template: Urls.Explore.Tx,
-            element: <RedirectPage from={Urls.Explore.Tx} to={Urls.Explore.Transaction} />,
+            template: Urls.Network.TransactionWizard,
+            errorElement: <ErrorPage title={transactionWizardPageTitle} />,
+            element: <TransactionWizardPage />,
           },
           {
-            template: Urls.Explore.Txn,
-            element: <RedirectPage from={Urls.Explore.Txn} to={Urls.Explore.Transaction} />,
+            template: Urls.Network.AppLab,
+            children: [
+              {
+                template: Urls.Network.AppLab,
+                errorElement: <ErrorPage title={appLabPageTitle} />,
+                element: <AppLab />,
+              },
+              {
+                template: Urls.Network.AppLab.Create,
+                errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
+                element: <CreateAppInterfacePage />,
+              },
+              {
+                template: Urls.Network.AppLab.Edit.ById,
+                errorElement: <ErrorPage title={editAppInterfacePageTitle} />,
+                element: <EditAppInterfacePage />,
+              },
+            ],
           },
-        ],
-      },
-      {
-        template: Urls.AppLab,
-        children: [
           {
-            template: Urls.AppLab,
-            errorElement: <ErrorPage title={appLabPageTitle} />,
-            element: <AppLab />,
+            template: Urls.Network.Fund,
+            errorElement: <FundErrorPage />,
+            element: <FundPage />,
           },
           {
-            template: Urls.AppLab.Create,
-            errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
-            element: <CreateAppInterfacePage />,
+            template: Urls.Network.Explore.Tx,
+            element: <RedirectPage from={Urls.Network.Explore.Tx} to={Urls.Network.Explore.Transaction} />,
           },
           {
-            template: Urls.AppLab.Edit.ById,
-            errorElement: <ErrorPage title={editAppInterfacePageTitle} />,
-            element: <EditAppInterfacePage />,
+            template: Urls.Network.Explore.Txn,
+            element: <RedirectPage from={Urls.Network.Explore.Txn} to={Urls.Network.Explore.Transaction} />,
+          },
+          {
+            template: Urls.Network.TxWizard,
+            element: <RedirectPage from={Urls.Network.TxWizard} to={Urls.Network.TransactionWizard} />,
+          },
+          {
+            template: Urls.Network.TxnWizard,
+            element: <RedirectPage from={Urls.Network.TxnWizard} to={Urls.Network.TransactionWizard} />,
           },
         ],
       },
@@ -132,27 +150,29 @@ export const routes = evalTemplates([
         element: <SettingsPage />,
       },
       {
-        template: Urls.Fund,
-        errorElement: <FundErrorPage />,
-        element: <FundPage />,
-      },
-      {
         template: Urls.FundAuthCallback,
         errorElement: <FundErrorPage />,
         element: <FundAuthCallbackPage />,
       },
       {
         template: Urls.TransactionWizard,
-        errorElement: <ErrorPage title={transactionWizardPageTitle} />,
-        element: <TransactionWizardPage />,
+        element: <RedirectPage from={Urls.TransactionWizard} to={Urls.Network.TransactionWizard} />,
       },
       {
         template: Urls.TxWizard,
-        element: <RedirectPage from={Urls.TxWizard} to={Urls.TransactionWizard} />,
+        element: <RedirectPage from={Urls.TxWizard} to={Urls.Network.TransactionWizard} />,
       },
       {
         template: Urls.TxnWizard,
-        element: <RedirectPage from={Urls.TxnWizard} to={Urls.TransactionWizard} />,
+        element: <RedirectPage from={Urls.TxnWizard} to={Urls.Network.TransactionWizard} />,
+      },
+      {
+        template: Urls.AppLab,
+        element: <RedirectPage from={Urls.AppLab} to={Urls.Network.AppLab} />,
+      },
+      {
+        template: Urls.Fund,
+        element: <RedirectPage from={Urls.Fund} to={Urls.Network.Fund} />,
       },
     ],
   },

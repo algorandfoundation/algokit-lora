@@ -9,7 +9,7 @@ export function IndexPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    navigate(Urls.Explore.build({ networkId: selectedNetwork }))
+    navigate(Urls.Network.Explore.build({ networkId: selectedNetwork }))
   }, [navigate, selectedNetwork])
 
   return <Loader className="size-10 animate-spin" />

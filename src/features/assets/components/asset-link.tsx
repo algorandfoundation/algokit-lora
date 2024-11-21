@@ -37,7 +37,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
   const link = (
     <TemplatedNavLink
       className={cn(!props.children && 'text-primary underline truncate', props.className)}
-      urlTemplate={Urls.Explore.Asset.ById}
+      urlTemplate={Urls.Network.Explore.Asset.ById}
       urlParams={{ assetId: props.assetId.toString(), networkId: selectedNetwork }}
     >
       {props.children ? props.children : props.assetId}

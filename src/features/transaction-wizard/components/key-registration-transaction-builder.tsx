@@ -20,7 +20,7 @@ import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mapp
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-const formSchema = z
+export const keyRegistrationFormSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
@@ -78,7 +78,7 @@ const formSchema = z
       }
     }
   })
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(keyRegistrationFormSchema)
 
 const registrationOptions = [
   { value: 'true', label: onlineKeyRegistrationLabel },

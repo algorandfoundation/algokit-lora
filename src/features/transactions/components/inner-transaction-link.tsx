@@ -25,7 +25,7 @@ export function InnerTransactionLink({ networkTransactionId, innerTransactionId,
   return (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline tracking-tight', className)}
-      urlTemplate={Urls.Explore.Transaction.ById.Inner.ById}
+      urlTemplate={Urls.Network.Explore.Transaction.ById.Inner.ById}
       urlParams={{ networkId: selectedNetwork, transactionId: networkTransactionId, splat: innerTransactionId }}
     >
       {children ? children : asInnerTransactionLinkText(networkTransactionId, innerTransactionId, showFullTransactionId)}

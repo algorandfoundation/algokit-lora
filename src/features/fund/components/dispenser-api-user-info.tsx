@@ -3,16 +3,20 @@ import { Urls } from '@/routes/urls'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useCallback } from 'react'
 
-export function DispenserApiUserInfo() {
+type Props = {
+  selectedNetwork: string
+}
+
+export function DispenserApiUserInfo({ selectedNetwork }: Props) {
   const { isAuthenticated, user, logout } = useAuth0()
 
   const logOut = useCallback(async () => {
     await logout({
       logoutParams: {
-        returnTo: `${window.location.origin}${Urls.Fund.build({})}`,
+        returnTo: `${window.location.origin}${Urls.Network.Fund.build({ networkId: selectedNetwork })}`,
       },
     })
-  }, [logout])
+  }, [logout, selectedNetwork])
 
   if (!isAuthenticated) {
     return undefined

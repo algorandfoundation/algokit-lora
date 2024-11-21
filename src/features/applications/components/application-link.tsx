@@ -18,7 +18,7 @@ export function ApplicationLink({ applicationId, className, showCopyButton, chil
   const link = (
     <TemplatedNavLink
       className={cn(!children && 'text-primary underline truncate', className)}
-      urlTemplate={Urls.Explore.Application.ById}
+      urlTemplate={Urls.Network.Explore.Application.ById}
       urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
     >
       {children ? children : applicationId}

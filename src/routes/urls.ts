@@ -17,47 +17,54 @@ const strippableUrlParams = Object.values(UrlParams)
   .map((param) => `:${param.replace(':string', '')}`)
   .concat('*')
 
-export const stripUrlParams = (url: string) => {
+export const stripUrlParams = (url: string, selectedNetwork: string) => {
   return strippableUrlParams.reduce((acc, param) => {
-    return acc.replace(`/${param}`, '')
+    return acc.replace(`/${param}`, param === ':networkId' ? `/${selectedNetwork}` : '')
   }, url)
 }
 
 export const Urls = {
   Index: UrlTemplate`/`,
-  Explore: UrlTemplate`/${UrlParams.NetworkId}`.extend({
-    Transaction: UrlTemplate`/transaction`.extend({
-      ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
-        Inner: UrlTemplate`/inner`.extend({
-          ById: UrlTemplate`/${UrlParams.Splat}`,
+  Network: UrlTemplate`/${UrlParams.NetworkId}`.extend({
+    Explore: UrlTemplate``.extend({
+      Transaction: UrlTemplate`/transaction`.extend({
+        ById: UrlTemplate`/${UrlParams.TransactionId}`.extend({
+          Inner: UrlTemplate`/inner`.extend({
+            ById: UrlTemplate`/${UrlParams.Splat}`,
+          }),
         }),
       }),
-    }),
-    Tx: UrlTemplate`/tx/*`,
-    Txn: UrlTemplate`/txn/*`,
-    Block: UrlTemplate`/block`.extend({
-      ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
-        Group: UrlTemplate`/group`.extend({
-          ById: UrlTemplate`/${UrlParams.GroupId}`,
+      Tx: UrlTemplate`/tx/*`,
+      Txn: UrlTemplate`/txn/*`,
+      Block: UrlTemplate`/block`.extend({
+        ByRound: UrlTemplate`/${UrlParams.Round}`.extend({
+          Group: UrlTemplate`/group`.extend({
+            ById: UrlTemplate`/${UrlParams.GroupId}`,
+          }),
         }),
       }),
+      Account: UrlTemplate`/account`.extend({
+        ByAddress: UrlTemplate`/${UrlParams.Address}`,
+      }),
+      Asset: UrlTemplate`/asset`.extend({
+        ById: UrlTemplate`/${UrlParams.AssetId}`,
+      }),
+      Application: UrlTemplate`/application`.extend({
+        ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+      }),
     }),
-    Account: UrlTemplate`/account`.extend({
-      ByAddress: UrlTemplate`/${UrlParams.Address}`,
+    TransactionWizard: UrlTemplate`/transaction-wizard`,
+    TxWizard: UrlTemplate`/tx-wizard`,
+    TxnWizard: UrlTemplate`/txn-wizard`,
+    AppLab: UrlTemplate`/app-lab`.extend({
+      Create: UrlTemplate`/create`,
+      Edit: UrlTemplate`/edit`.extend({
+        ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+      }),
     }),
-    Asset: UrlTemplate`/asset`.extend({
-      ById: UrlTemplate`/${UrlParams.AssetId}`,
-    }),
-    Application: UrlTemplate`/application`.extend({
-      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
-    }),
+    Fund: UrlTemplate`/fund`,
   }),
-  AppLab: UrlTemplate`/app-lab`.extend({
-    Create: UrlTemplate`/create`,
-    Edit: UrlTemplate`/edit`.extend({
-      ById: UrlTemplate`/${UrlParams.ApplicationId}`,
-    }),
-  }),
+  AppLab: UrlTemplate`/app-lab`,
   Settings: UrlTemplate`/settings`,
   Fund: UrlTemplate`/fund`,
   FundAuthCallback: UrlTemplate`/fund/auth-callback`, // This is intentionally not a nested route, as there is no need

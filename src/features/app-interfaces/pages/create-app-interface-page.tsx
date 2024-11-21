@@ -18,12 +18,14 @@ import { useTitle } from '@/utils/use-title'
 import { Button } from '@/features/common/components/button'
 import { ArrowLeft } from 'lucide-react'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { useSelectedNetwork } from '@/features/network/data'
 
 export const createAppInterfacePageTitle = 'Create App Interface'
 
 function CreateAppInterfaceInner() {
   const navigate = useNavigate()
   const createAppInterface = useCreateAppInterface()
+  const [selectedNetwork] = useSelectedNetwork()
   const machine = useCreateAppInterfaceStateMachine()
   const [state, send] = machine
 
@@ -80,15 +82,15 @@ function CreateAppInterfaceInner() {
     state.context.roundLastValid,
   ])
 
-  const back = useCallback(() => navigate(Urls.AppLab.build({})), [navigate])
+  const back = useCallback(() => navigate(Urls.Network.AppLab.build({ networkId: selectedNetwork })), [navigate, selectedNetwork])
 
   useEffect(() => {
     if (state.matches({ fromAppId: 'create' }) || state.matches({ fromAppDeployment: 'create' })) {
       create()
     } else if (state.matches('finished')) {
-      navigate(Urls.AppLab.build({}))
+      navigate(Urls.Network.AppLab.build({ networkId: selectedNetwork }))
     }
-  }, [create, navigate, state])
+  }, [create, navigate, selectedNetwork, state])
 
   if (state.matches('createAppInterface')) {
     return (

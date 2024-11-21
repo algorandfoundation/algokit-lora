@@ -10,6 +10,7 @@ export interface TemplatedNavLinkProps<TTemplateParams> {
   urlParams?: Partial<TTemplateParams>
   children?: ReactNode
   ref?: React.LegacyRef<HTMLAnchorElement>
+  end?: boolean
 }
 
 export const TemplatedNavLink = fixedForwardRef(

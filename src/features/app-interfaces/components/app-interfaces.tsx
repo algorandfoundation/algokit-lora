@@ -8,6 +8,7 @@ import { Plus } from 'lucide-react'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApplicationId } from '@/features/applications/data/types'
+import { useSelectedNetwork } from '@/features/network/data'
 
 type Props = {
   appInterfaces: AppInterfaceEntity[]
@@ -15,16 +16,17 @@ type Props = {
 }
 export function AppInterfaces({ appInterfaces, refreshAppInterfaces }: Props) {
   const navigate = useNavigate()
+  const [selectedNetwork] = useSelectedNetwork()
 
   const createAppInterface = useCallback(() => {
-    navigate(Urls.AppLab.Create.build({}))
-  }, [navigate])
+    navigate(Urls.Network.AppLab.Create.build({ networkId: selectedNetwork }))
+  }, [navigate, selectedNetwork])
 
   const editAppInterface = useCallback(
     (appId: ApplicationId) => () => {
-      navigate(Urls.AppLab.Edit.ById.build({ applicationId: appId.toString() }))
+      navigate(Urls.Network.AppLab.Edit.ById.build({ networkId: selectedNetwork, applicationId: appId.toString() }))
     },
-    [navigate]
+    [navigate, selectedNetwork]
   )
 
   return (

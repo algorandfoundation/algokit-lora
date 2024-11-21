@@ -3,11 +3,11 @@ import { Urls } from '@/routes/urls'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/features/common/components/navigation-menu'
 import { cn } from '@/features/common/utils'
 import { Button } from '@/features/common/components/button'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
 import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, FlaskConical } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
 import SvgWizard from '@/features/common/components/icons/wizard'
 
@@ -23,14 +23,21 @@ const navLinkClassName = cn(
 export function LeftSideBarMenu({ className }: Props) {
   const [selectedNetwork] = useSelectedNetwork()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [layout, setLayout] = useLayout()
 
   const menuItems = [
-    { urlTemplate: Urls.Explore, icon: <Telescope />, text: 'Explore' },
-    { urlTemplate: Urls.AppLab, icon: <FlaskConical />, text: 'App Lab' },
-    { urlTemplate: Urls.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
-    { urlTemplate: Urls.Fund, icon: <Coins />, text: 'Fund' },
+    { urlTemplate: Urls.Network.Explore, icon: <Telescope />, text: 'Explore' },
+    { urlTemplate: Urls.Network.AppLab, icon: <FlaskConical />, text: 'App Lab' },
+    { urlTemplate: Urls.Network.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
+    { urlTemplate: Urls.Network.Fund, icon: <Coins />, text: 'Fund' },
   ]
-  const [layout, setLayout] = useLayout()
+  const isExploreUrl = useMemo(() => {
+    const explorePaths = Object.values(Urls.Network.Explore)
+      .filter((x) => typeof x === 'object')
+      .map((url) => url.build({ networkId: selectedNetwork }).replace('/*', ''))
+    return explorePaths.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`))
+  }, [location.pathname, selectedNetwork])
 
   const toggleLeftSideBar = useCallback(
     () => setLayout((prev) => ({ ...prev, isLeftSideBarExpanded: !prev.isLeftSideBarExpanded })),
@@ -72,7 +79,8 @@ export function LeftSideBarMenu({ className }: Props) {
                 <TemplatedNavLink
                   urlTemplate={menuItem.urlTemplate}
                   urlParams={{ networkId: selectedNetwork }}
-                  className={navLinkClassName}
+                  className={cn(navLinkClassName, menuItem.text === menuItems[0].text && isExploreUrl && 'active')}
+                  end={true}
                 >
                   <div className={navIconClassName}>{menuItem.icon}</div>
                   <span className={navTextClassName}>{menuItem.text}</span>

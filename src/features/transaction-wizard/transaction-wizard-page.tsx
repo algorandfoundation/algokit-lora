@@ -10,6 +10,7 @@ import { AppCallTransaction, TransactionType } from '../transactions/models'
 import { GroupSendResults, SendResults } from './components/group-send-results'
 import algosdk from 'algosdk'
 import { useTitle } from '@/utils/use-title'
+import { useTransactionSearchParamsBuilder } from './utils/use-transaction-search-params-builder'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
@@ -17,6 +18,7 @@ export const sendButtonLabel = 'Send'
 
 export function TransactionWizardPage() {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
+  const searchParamsTransactions = useTransactionSearchParamsBuilder()
   useTitle('Transaction Wizard')
 
   const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
@@ -56,6 +58,7 @@ export function TransactionWizardPage() {
       <div className="space-y-6">
         <p>Create and send transactions to the selected network using a connected wallet.</p>
         <TransactionsBuilder
+          defaultTransactions={searchParamsTransactions}
           title={<h2 className="pb-0">{transactionGroupLabel}</h2>}
           onSendTransactions={sendTransactions}
           onSimulated={renderSimulateResult}

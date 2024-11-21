@@ -1,6 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { FundAccountForm } from './fund-account-form'
-import { NetworkConfig } from '@/features/network/data/types'
+import { NetworkConfigWithId } from '@/features/network/data/types'
 import { invariant } from '@/utils/invariant'
 import { useDispenserApi } from '../data/dispenser-api'
 import { DispenserApiUserInfo } from './dispenser-api-user-info'
@@ -11,7 +11,7 @@ import { useLoadableActiveWalletAccountSnapshotAtom } from '@/features/wallet/da
 import { PageLoader } from '@/features/common/components/page-loader'
 
 type Props = {
-  networkConfig: NetworkConfig
+  networkConfig: NetworkConfigWithId
 }
 
 export function DispenserApiLoggedIn({ networkConfig }: Props) {
@@ -23,7 +23,7 @@ export function DispenserApiLoggedIn({ networkConfig }: Props) {
     <RenderLoadable loadable={loadableActiveWalletAccountSnapshot} fallback={<PageLoader />}>
       {(activeWalletAccountSnapshot) => (
         <div className="flex flex-col gap-4 overflow-hidden xl:w-1/2">
-          <DispenserApiUserInfo />
+          <DispenserApiUserInfo selectedNetwork={networkConfig.id} />
           <Accordion type="single" collapsible defaultValue="fund">
             <AccordionItem value="fund">
               <AccordionTrigger>Fund an existing {networkConfig.name} account</AccordionTrigger>
