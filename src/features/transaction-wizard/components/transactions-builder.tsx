@@ -34,6 +34,7 @@ import { asAbiTransactionType } from '../mappers'
 import AlgoKitComposer, { SimulateOptions } from '@algorandfoundation/algokit-utils/types/composer'
 import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
+import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features/abi-methods/utils/parse-errors'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -143,10 +144,11 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       await onSendTransactions(transactions)
-    } catch (error) {
+    } catch (err) {
       // eslint-disable-next-line no-console
-      console.error(error)
-      setErrorMessage(asError(error).message)
+      console.error(err)
+      const error = await parseCallAbiMethodError(err, transactions)
+      setErrorMessage(error.message)
     }
   }, [activeAddress, onSendTransactions, transactions])
 
@@ -172,10 +174,11 @@ export function TransactionsBuilder({
           }))
 
       return onSimulated?.(result)
-    } catch (error) {
+    } catch (err) {
       // eslint-disable-next-line no-console
-      console.error(error)
-      setErrorMessage(asError(error).message)
+      console.error(err)
+      const error = await parseSimulateAbiMethodError(err, transactions)
+      setErrorMessage(error.message)
     }
   }, [onSimulated, requireSignaturesOnSimulate, transactions])
 
