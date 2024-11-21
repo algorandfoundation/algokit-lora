@@ -28,7 +28,7 @@ export const keyRegistrationFormSchema = z
     voteKey: z.string().optional(),
     selectionKey: z.string().optional(),
     stateProofKey: z.string().optional(),
-    voteFirstValid: bigIntSchema(z.bigint().min(1n).optional()),
+    voteFirstValid: bigIntSchema(z.bigint().min(0n).optional()),
     voteLastValid: bigIntSchema(z.bigint().min(1n).optional()),
     voteKeyDilution: bigIntSchema(z.bigint().min(1n).optional()),
   })

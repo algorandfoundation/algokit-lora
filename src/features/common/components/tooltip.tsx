@@ -5,8 +5,9 @@ import { cn } from '@/features/common/utils'
 
 const TooltipProvider = TooltipPrimitive.Provider
 
-const Tooltip = TooltipPrimitive.Root
-Tooltip.defaultProps = { ...Tooltip.defaultProps, delayDuration: 400 }
+const Tooltip = ({ delayDuration = 400, ...props }: TooltipPrimitive.TooltipProps) => (
+  <TooltipPrimitive.Root delayDuration={delayDuration} {...props} />
+)
 
 const TooltipTrigger = TooltipPrimitive.Trigger
 
