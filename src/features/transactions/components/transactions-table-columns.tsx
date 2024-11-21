@@ -11,6 +11,7 @@ import { TransactionTo } from './transaction-to'
 import { BlockLink } from '@/features/blocks/components/block-link'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { DateFormatted } from '@/features/common/components/date-formatted'
+import { TransactionTypeBadge } from './transaction-type-badge'
 
 const indentationWidth = 12
 
@@ -99,6 +100,7 @@ const toColumn: ColumnDef<Transaction | InnerTransaction> = {
 const typeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Type',
   accessorFn: (transaction) => transaction.type,
+  cell: (c) => <TransactionTypeBadge transactionType={c.getValue<TransactionType>()} />,
 }
 const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionAmountLabel,
