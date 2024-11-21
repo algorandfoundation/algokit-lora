@@ -44,14 +44,14 @@ const baseShape = {
   updatable: z.boolean().optional(),
   deletable: z.boolean().optional(),
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const baseFormSchema = zfd.formData(baseShape)
+
+type BaseForm = ReturnType<typeof z.object<typeof baseShape>>
 
 type FormInnerProps = {
   enableDeployTimeUpdatabilityControl: boolean
   enableDeployTimeDeletabilityControl: boolean
   templateParamFields: TealTemplateParamField[]
-  helper: FormFieldHelper<z.infer<typeof baseFormSchema>>
+  helper: FormFieldHelper<z.infer<BaseForm>>
 }
 
 function FormInner({
@@ -60,7 +60,7 @@ function FormInner({
   templateParamFields,
   helper,
 }: FormInnerProps) {
-  const formCtx = useFormContext<z.infer<typeof baseFormSchema>>()
+  const formCtx = useFormContext<z.infer<BaseForm>>()
   const { setValue, trigger } = formCtx
   const loadableAppInterfaces = useLoadableAppInterfacesAtom()
   const appInterfaceNameFieldValue = formCtx.watch('name')

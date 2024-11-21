@@ -9,8 +9,6 @@ const SvgClaw = (props: SVGProps<SVGSVGElement>) => (
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
-    // eslint-disable-next-line tailwindcss/no-custom-classname
-    className="lucide lucide-paw-print"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
