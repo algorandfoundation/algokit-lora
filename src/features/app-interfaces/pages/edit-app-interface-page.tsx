@@ -3,7 +3,7 @@ import { EditAppInterface } from '../components/edit/edit-app-interface'
 import { useAppInterface } from '../data'
 import { invariant } from '@/utils/invariant'
 import { isInteger } from '@/utils/is-integer'
-import { is404 } from '@/utils/error'
+import { is404, StatusError } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
@@ -12,7 +12,15 @@ import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(appInterfaceNotFoundMessage)
+    const error = new Error(appInterfaceNotFoundMessage) as StatusError
+    error.status = 404
+    return error
+  }
+  // This is needed because the App interface not found doesn't return a 404 status code
+  if (e.message.includes('App interface not found')) {
+    const error = new Error(appInterfaceNotFoundMessage) as StatusError
+    error.status = 404
+    return error
   }
 
   // eslint-disable-next-line no-console

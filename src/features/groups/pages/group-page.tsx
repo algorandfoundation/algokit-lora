@@ -1,7 +1,7 @@
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { UrlParams } from '@/routes/urls'
 import { useLoadableGroup } from '../data'
-import { is404 } from '@/utils/error'
+import { is404, StatusError } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { GroupDetails } from '../components/group-details'
 import { invariant } from '@/utils/invariant'
@@ -17,7 +17,9 @@ export const groupFailedToLoadMessage = 'Transaction group failed to load'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(groupNotFoundMessage)
+    const error = new Error(groupNotFoundMessage) as StatusError
+    error.status = 404
+    return error
   }
 
   // eslint-disable-next-line no-console

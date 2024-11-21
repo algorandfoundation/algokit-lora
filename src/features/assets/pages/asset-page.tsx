@@ -3,7 +3,7 @@ import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { isInteger } from '@/utils/is-integer'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { is404 } from '@/utils/error'
+import { is404, StatusError } from '@/utils/error'
 import { AssetDetails } from '../components/asset-details'
 import { useLoadableAsset } from '../data'
 import { useCallback } from 'react'
@@ -13,7 +13,9 @@ import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(assetNotFoundMessage)
+    const error = new Error(assetNotFoundMessage) as StatusError
+    error.status = 404
+    return error
   }
 
   // eslint-disable-next-line no-console

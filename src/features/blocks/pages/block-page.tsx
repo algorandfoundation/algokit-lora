@@ -3,7 +3,7 @@ import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { BlockDetails } from '../components/block-details'
-import { is404 } from '@/utils/error'
+import { is404, StatusError } from '@/utils/error'
 import { useLoadableBlock } from '../data'
 import { isInteger } from '@/utils/is-integer'
 import { PageTitle } from '@/features/common/components/page-title'
@@ -12,7 +12,9 @@ import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(blockNotFoundMessage)
+    const error = new Error(blockNotFoundMessage) as StatusError
+    error.status = 404
+    return error
   }
 
   // eslint-disable-next-line no-console

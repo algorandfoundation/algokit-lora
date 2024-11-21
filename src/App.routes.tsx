@@ -54,7 +54,7 @@ export const routes = evalTemplates([
           },
           {
             template: Urls.Network.Explore.Transaction.ById,
-            errorElement: <ErrorPage title={transactionPageTitle} />,
+            errorElement: <ErrorPage title={transactionPageTitle} redirectUrl={Urls.Network.Explore} />,
             children: [
               {
                 template: Urls.Network.Explore.Transaction.ById,
@@ -71,12 +71,12 @@ export const routes = evalTemplates([
             children: [
               {
                 template: Urls.Network.Explore.Block.ByRound,
-                errorElement: <ErrorPage title={blockPageTitle} />,
+                errorElement: <ErrorPage title={blockPageTitle} redirectUrl={Urls.Network.Explore} />,
                 element: <BlockPage />,
               },
               {
                 template: Urls.Network.Explore.Block.ByRound.Group.ById,
-                errorElement: <ErrorPage title={groupPageTitle} />,
+                errorElement: <ErrorPage title={groupPageTitle} redirectUrl={Urls.Network.Explore} />,
                 element: <GroupPage />,
               },
             ],
@@ -84,21 +84,21 @@ export const routes = evalTemplates([
           {
             template: Urls.Network.Explore.Account.ByAddress,
             element: <AccountPage />,
-            errorElement: <ErrorPage title={accountPageTitle} />,
+            errorElement: <ErrorPage title={accountPageTitle} redirectUrl={Urls.Network.Explore} />,
           },
           {
             template: Urls.Network.Explore.Asset.ById,
             element: <AssetPage />,
-            errorElement: <ErrorPage title={assetPageTitle} />,
+            errorElement: <ErrorPage title={assetPageTitle} redirectUrl={Urls.Network.Explore} />,
           },
           {
             template: Urls.Network.Explore.Application.ById,
-            errorElement: <ErrorPage title={applicationPageTitle} />,
+            errorElement: <ErrorPage title={applicationPageTitle} redirectUrl={Urls.Network.Explore} />,
             element: <ApplicationPage />,
           },
           {
             template: Urls.Network.TransactionWizard,
-            errorElement: <ErrorPage title={transactionWizardPageTitle} />,
+            errorElement: <ErrorPage title={transactionWizardPageTitle} redirectUrl={Urls.Network.TransactionWizard} />,
             element: <TransactionWizardPage />,
           },
           {
@@ -116,7 +116,7 @@ export const routes = evalTemplates([
               },
               {
                 template: Urls.Network.AppLab.Edit.ById,
-                errorElement: <ErrorPage title={editAppInterfacePageTitle} />,
+                errorElement: <ErrorPage title={editAppInterfacePageTitle} redirectUrl={Urls.Network.AppLab} />,
                 element: <EditAppInterfacePage />,
               },
             ],
