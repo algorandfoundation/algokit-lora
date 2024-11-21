@@ -4,11 +4,11 @@ import { Card, CardContent } from '@/features/common/components/card'
 import { ellipseId } from '@/utils/ellipse-id'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { ArrowRightLeft, Info } from 'lucide-react'
-import { Badge } from '@/features/common/components/badge'
 import { TransactionSummary } from '@/features/transactions/models'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { TransactionTypeBadge } from './transaction-type-badge'
 
 export const latestTransactionsTitle = 'Latest Transactions'
 
@@ -56,9 +56,7 @@ export function LatestTransactions({ latestTransactions }: Props) {
                       ]}
                     />
                   </div>
-                  <Badge className="ml-auto truncate" variant={transaction.type}>
-                    {transaction.type}
-                  </Badge>
+                  <TransactionTypeBadge transactionType={transaction.type} />
                 </TransactionLink>
               </li>
             ))}
