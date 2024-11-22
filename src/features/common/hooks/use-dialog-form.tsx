@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '../components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, MediumSizeDialogBody } from '../components/dialog'
+import { Description } from '@radix-ui/react-dialog'
 
 export type DialogBodyProps<TDataIn, TDataOut> = {
   data: TDataIn
@@ -34,8 +35,11 @@ export function useDialogForm<TDataIn, TDataOut>({ dialogHeader, dialogBody: Dia
   const dialog = (
     <Dialog open={isOpen} onOpenChange={(open) => (open ? setIsOpen(true) : handleCancel())} modal={true}>
       <DialogContent className="bg-card">
+        <Description hidden={true}>{dialogHeader}</Description>
         <DialogHeader className="flex-row items-center space-y-0">
-          <h2 className="pb-0">{dialogHeader}</h2>
+          <DialogTitle asChild>
+            <h2 className="pb-0">{dialogHeader}</h2>
+          </DialogTitle>
         </DialogHeader>
         <MediumSizeDialogBody>
           {dialogData && <DialogBodyComponent onSubmit={handleSubmit} onCancel={handleCancel} data={dialogData} />}

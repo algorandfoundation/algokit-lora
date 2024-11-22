@@ -57,7 +57,7 @@ const useActiveWalletAccountSnapshotAtom = () => {
     )
     const snapshotActiveAccountEffect = atomEffect((get, set) => {
       ;(async () => {
-        const activeWalletAccount = await get.peek(activeWalletAccountAtom)
+        const activeWalletAccount = await get(activeWalletAccountAtom)
         set(activeAccountAtom, activeWalletAccount)
       })()
     })

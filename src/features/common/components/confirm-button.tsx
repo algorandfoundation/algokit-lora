@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react'
 import { Button, ButtonProps } from '@/features/common/components/button'
-import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, SmallSizeDialogBody } from '@/features/common/components/dialog'
 import { CancelButton } from '@/features/forms/components/cancel-button'
+import { Description } from '@radix-ui/react-dialog'
 
 interface Props extends Omit<ButtonProps, 'onClick'> {
   dialogHeaderText: string
@@ -28,8 +29,11 @@ export function ConfirmButton({ children, dialogHeaderText, dialogContent, onCon
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
+          <Description hidden={true}>Confirm action</Description>
           <DialogHeader>
-            <h2 className="pb-0">{dialogHeaderText}</h2>
+            <DialogTitle asChild>
+              <h2>{dialogHeaderText}</h2>
+            </DialogTitle>
           </DialogHeader>
           <SmallSizeDialogBody>
             {dialogContent}

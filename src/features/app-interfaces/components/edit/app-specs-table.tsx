@@ -5,7 +5,7 @@ import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { AppSpecStandard, AppSpecVersion } from '../../data/types'
 import { useCallback, useMemo, useState } from 'react'
 import { Download, Pencil, Plus, Trash } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { asJson } from '@/utils/as-json'
 import { AddAppSpecForm } from './add-app-spec-form'
@@ -14,6 +14,7 @@ import { useDeleteAppSpec } from '../../data/update'
 import { toast } from 'react-toastify'
 import { EditAppSpecForm } from './edit-app-spec-form'
 import { asAppSpecFilename } from '../../mappers'
+import { Description } from '@radix-ui/react-dialog'
 
 const appSpecsLabel = 'App Specs'
 
@@ -142,8 +143,11 @@ function AddAppSpecButton({ applicationId, onSuccess }: AddAppSpecButtonProps) {
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
+          <Description hidden={true}>Add an app spec</Description>
           <DialogHeader className="flex-row items-center space-y-0">
-            <h2 className="pb-0">Add App Spec</h2>
+            <DialogTitle asChild>
+              <h2>Add App Spec</h2>
+            </DialogTitle>
           </DialogHeader>
           <MediumSizeDialogBody>
             <AddAppSpecForm applicationId={applicationId} onSuccess={complete} />
@@ -180,8 +184,11 @@ function EditAppSpecButton({ applicationId, appSpecIndex, appSpec, onSuccess }: 
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
+          <Description hidden={true}>Edit an app spec</Description>
           <DialogHeader className="flex-row items-center space-y-0">
-            <h2 className="pb-0">Edit App Spec</h2>
+            <DialogTitle asChild>
+              <h2>Edit App Spec</h2>
+            </DialogTitle>
           </DialogHeader>
           <MediumSizeDialogBody>
             <EditAppSpecForm applicationId={applicationId} appSpec={appSpec} appSpecIndex={appSpecIndex} onSuccess={complete} />

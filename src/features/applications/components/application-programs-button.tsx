@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Button } from '@/features/common/components/button'
-import { Dialog, DialogContent, DialogTrigger, MediumSizeDialogBody } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { Application } from '../models'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { useProgramTeal } from '../data/program-teal'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
+import { Description } from '@radix-ui/react-dialog'
 
 type Props = {
   application: Application
@@ -27,8 +28,13 @@ export function ApplicationProgramsButton({ application }: Props) {
         <Button variant="outline">View Programs</Button>
       </DialogTrigger>
       <DialogContent>
+        <Description hidden={true}>Program information</Description>
+        <DialogHeader>
+          <DialogTitle asChild>
+            <h2>Programs</h2>
+          </DialogTitle>
+        </DialogHeader>
         <MediumSizeDialogBody>
-          <h2>Programs</h2>
           <Tabs
             defaultValue={approvalBase64ProgramTabId}
             onValueChange={(activeTab) => {

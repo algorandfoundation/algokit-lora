@@ -46,7 +46,7 @@ const formSchema = {
         })
       }
     }),
-  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 }
 
 const formData = zfd.formData(formSchema)

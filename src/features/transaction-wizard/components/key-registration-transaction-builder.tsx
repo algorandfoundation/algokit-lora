@@ -55,7 +55,7 @@ export const keyRegistrationFormSchema = z
           path: ['stateProofKey'],
         })
       }
-      if (!schema.voteFirstValid) {
+      if (schema.voteFirstValid === undefined) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: requiredMessage,
@@ -69,6 +69,7 @@ export const keyRegistrationFormSchema = z
           path: ['voteLastValid'],
         })
       }
+      // TODO: NC - Add validation to ensure first is less than last
       if (!schema.voteKeyDilution) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
