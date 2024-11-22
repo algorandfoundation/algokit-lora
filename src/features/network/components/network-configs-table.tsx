@@ -9,7 +9,7 @@ import {
 import { trimCharacterFromEnd } from '@/utils/trim-character-from-end'
 import { DataTable } from '@/features/common/components/data-table'
 import { Button } from '@/features/common/components/button'
-import { Dialog, DialogContent, DialogHeader, MediumSizeDialogBody } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { useCallback, useMemo, useState } from 'react'
 import { EditNetworkConfigForm } from '@/features/network/components/edit-network-config-form'
 import { CreateNetworkConfigForm } from '@/features/network/components/create-network-config-form'
@@ -18,6 +18,7 @@ import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/network/data/types'
 import { Pencil, Plus, Trash, RotateCcw } from 'lucide-react'
 import { useRefreshDataProviderToken } from '@/features/common/data'
+import { Description } from '@radix-ui/react-dialog'
 
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
@@ -47,8 +48,11 @@ export function NetworkConfigsTable() {
       <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
         {createNetworkConfigDialogOpen && (
           <DialogContent className="bg-card" aria-label={createNetworkConfigDialogLabel}>
+            <Description hidden={true}>Create a network</Description>
             <DialogHeader className="flex-row items-center space-y-0">
-              <h2 className="pb-0">{createNetworkConfigDialogLabel}</h2>
+              <DialogTitle asChild>
+                <h2>{createNetworkConfigDialogLabel}</h2>
+              </DialogTitle>
             </DialogHeader>
             <MediumSizeDialogBody>
               <CreateNetworkConfigForm onSuccess={() => setCreateNetworkConfigDialogOpen(false)} />
@@ -124,8 +128,11 @@ function EditNetworkButton({ networkConfig }: ButtonProps) {
       </Button>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
+          <Description hidden={true}>Edit a network</Description>
           <DialogHeader className="flex-row items-center space-y-0">
-            <h2 className="pb-0">Edit Network</h2>
+            <DialogTitle asChild>
+              <h2>Edit Network</h2>
+            </DialogTitle>
           </DialogHeader>
           <MediumSizeDialogBody>
             <EditNetworkConfigForm networkConfig={networkConfig} onSuccess={() => setDialogOpen(false)} />

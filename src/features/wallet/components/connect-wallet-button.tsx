@@ -1,7 +1,7 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
 import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
-import { Dialog, DialogContent, DialogHeader, SmallSizeDialogBody } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, SmallSizeDialogBody } from '@/features/common/components/dialog'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
@@ -24,6 +24,7 @@ import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Urls } from '@/routes/urls'
 import { useNavigate } from 'react-router-dom'
+import { Description } from '@radix-ui/react-dialog'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -227,8 +228,11 @@ export function ConnectWalletButton() {
       {button}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card" onOpenAutoFocus={preventDefault}>
+          <Description hidden={true}>Choose a wallet provider</Description>
           <DialogHeader>
-            <h2 className="pb-0">Wallet Providers</h2>
+            <DialogTitle asChild>
+              <h2>Wallet Providers</h2>
+            </DialogTitle>
           </DialogHeader>
           <SmallSizeDialogBody className="flex flex-col space-y-4">{walletProviders}</SmallSizeDialogBody>
         </DialogContent>

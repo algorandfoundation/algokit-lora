@@ -6,8 +6,9 @@ import { ApplicationBox } from '../models'
 import { ApplicationId } from '../data/types'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { useLoadableApplicationBox } from '../data/application-boxes'
-import { Dialog, DialogContent, DialogHeader, DialogTrigger, MediumSizeDialogBody } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
+import { Description } from '@radix-ui/react-dialog'
 
 type Props = { applicationId: ApplicationId; boxName: string }
 
@@ -23,8 +24,11 @@ export function ApplicationBoxDetailsDialog({ applicationId, boxName }: Props) {
         <label className={cn('text-primary underline cursor-pointer')}>{decodedBoxName}</label>
       </DialogTrigger>
       <DialogContent>
+        <Description hidden={true}>Box information</Description>
         <DialogHeader>
-          <h2 className="pb-0">{dialogTitle}</h2>
+          <DialogTitle asChild>
+            <h2>{dialogTitle}</h2>
+          </DialogTitle>
         </DialogHeader>
         <MediumSizeDialogBody>
           <InternalDialogContent applicationId={applicationId} boxName={boxName} />
