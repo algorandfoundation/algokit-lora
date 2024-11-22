@@ -27,6 +27,7 @@ import {
   AssetDestroyParams,
   AssetFreezeParams,
   AssetTransferParams,
+  OfflineKeyRegistrationParams,
   OnlineKeyRegistrationParams,
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
@@ -295,36 +296,39 @@ const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransaction
   return await algorandClient.createTransaction.assetFreeze(params)
 }
 
-export const asKeyRegistrationTransactionParams = (transaction: BuildKeyRegistrationTransactionResult): OnlineKeyRegistrationParams => {
+export const asKeyRegistrationTransactionParams = (
+  transaction: BuildKeyRegistrationTransactionResult
+): OnlineKeyRegistrationParams | OfflineKeyRegistrationParams => {
+  if (transaction.online) {
+    invariant(transaction.voteKey, 'Vote key is required')
+    invariant(transaction.selectionKey, 'Selection key is required')
+    invariant(transaction.stateProofKey, 'State proof key is required')
+
+    return {
+      sender: transaction.sender.resolvedAddress,
+      voteKey: Uint8Array.from(Buffer.from(transaction.voteKey, 'base64')),
+      selectionKey: Uint8Array.from(Buffer.from(transaction.selectionKey, 'base64')),
+      stateProofKey: Uint8Array.from(Buffer.from(transaction.stateProofKey, 'base64')),
+      voteFirst: transaction.voteFirstValid ? transaction.voteFirstValid : 0n,
+      voteLast: transaction.voteLastValid ? transaction.voteLastValid : 0n,
+      voteKeyDilution: transaction.voteKeyDilution ? transaction.voteKeyDilution : 0n,
+      note: transaction.note,
+      ...asFee(transaction.fee),
+      ...asValidRounds(transaction.validRounds),
+    }
+  }
+
   return {
     sender: transaction.sender.resolvedAddress,
-    voteKey: transaction.voteKey ? Uint8Array.from(Buffer.from(transaction.voteKey, 'base64')) : (undefined as unknown as Uint8Array),
-    selectionKey: transaction.selectionKey
-      ? Uint8Array.from(Buffer.from(transaction.selectionKey, 'base64'))
-      : (undefined as unknown as Uint8Array),
-    stateProofKey: transaction.stateProofKey
-      ? Uint8Array.from(Buffer.from(transaction.stateProofKey, 'base64'))
-      : (undefined as unknown as Uint8Array),
-    voteFirst: transaction.voteFirstValid ? transaction.voteFirstValid : 0n,
-    voteLast: transaction.voteLastValid ? transaction.voteLastValid : 0n,
-    voteKeyDilution: transaction.voteKeyDilution ? transaction.voteKeyDilution : 0n,
-    note: transaction.note,
-    ...asFee(transaction.fee),
-    ...asValidRounds(transaction.validRounds),
   }
 }
 
 const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTransactionResult): Promise<algosdk.Transaction> => {
   const params = asKeyRegistrationTransactionParams(transaction)
-  const txn = await algorandClient.createTransaction.onlineKeyRegistration(params)
 
-  if (!transaction.online) {
-    txn.voteFirst = undefined as unknown as number
-    txn.voteLast = undefined as unknown as number
-    txn.voteKeyDilution = undefined as unknown as number
-  }
-
-  return txn
+  return await ('voteKey' in params
+    ? algorandClient.createTransaction.onlineKeyRegistration(params)
+    : algorandClient.createTransaction.offlineKeyRegistration(params))
 }
 
 const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>

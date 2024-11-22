@@ -270,12 +270,16 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
       dt: 'Registration',
       dd: transaction.online ? onlineKeyRegistrationLabel : offlineKeyRegistrationLabel,
     },
-    ...(params.voteKey ? [{ dt: 'Voting key', dd: Buffer.from(params.voteKey).toString('base64') }] : []),
-    ...(params.selectionKey ? [{ dt: 'Selection key', dd: Buffer.from(params.selectionKey).toString('base64') }] : []),
-    ...(params.stateProofKey ? [{ dt: 'State proof key', dd: Buffer.from(params.stateProofKey).toString('base64') }] : []),
-    ...(params.voteFirst ? [{ dt: 'First voting round', dd: params.voteFirst }] : []),
-    ...(params.voteLast ? [{ dt: 'Last voting round', dd: params.voteLast }] : []),
-    ...(params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
+    ...('voteKey' in params && params.voteKey ? [{ dt: 'Voting key', dd: Buffer.from(params.voteKey).toString('base64') }] : []),
+    ...('selectionKey' in params && params.selectionKey
+      ? [{ dt: 'Selection key', dd: Buffer.from(params.selectionKey).toString('base64') }]
+      : []),
+    ...('stateProofKey' in params && params.stateProofKey
+      ? [{ dt: 'State proof key', dd: Buffer.from(params.stateProofKey).toString('base64') }]
+      : []),
+    ...('voteFirst' in params && params.voteFirst !== undefined ? [{ dt: 'First voting round', dd: params.voteFirst }] : []),
+    ...('voteLast' in params && params.voteLast ? [{ dt: 'Last voting round', dd: params.voteLast }] : []),
+    ...('voteKeyDilution' in params && params.voteKeyDilution ? [{ dt: 'Vote key dilution', dd: params.voteKeyDilution }] : []),
     ...asFeeItem(params.staticFee),
     ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
     ...asNoteItem(params.note),
