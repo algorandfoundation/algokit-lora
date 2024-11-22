@@ -37,7 +37,7 @@ const liveExplorerAtomsBuilder = () => {
               const transactionSummaries = await Promise.all(
                 block.transactionIds.map(async (transactionId) => {
                   const transactionResultAtom = getTransactionResultAtom(transactionId, { skipTimestampUpdate: true })
-                  const transactionResult = await get.peek(transactionResultAtom)
+                  const transactionResult = await get(transactionResultAtom)
                   return asTransactionSummary(transactionResult)
                 })
               )
@@ -48,11 +48,11 @@ const liveExplorerAtomsBuilder = () => {
         )
       ).filter(isDefined)
 
-      const latestTransactionIds = get.peek(latestTransactionIdsAtom)
+      const latestTransactionIds = get(latestTransactionIdsAtom)
       const latestTransactionSummaries = await Promise.all(
         latestTransactionIds.slice(0, maxTransactionsToDisplay).map(async ([transactionId]) => {
           const transactionResultAtom = getTransactionResultAtom(transactionId, { skipTimestampUpdate: true })
-          const transactionResult = await get.peek(transactionResultAtom)
+          const transactionResult = await get(transactionResultAtom)
           return asTransactionSummary(transactionResult)
         })
       )

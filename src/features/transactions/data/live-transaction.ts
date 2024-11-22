@@ -26,7 +26,7 @@ export const useLiveTransactions = (filter: (transactionResult: TransactionResul
           }
 
           const transactionResultAtom = getTransactionResultAtom(transactionId, { skipTimestampUpdate: true })
-          const transactionResult = await get.peek(transactionResultAtom)
+          const transactionResult = await get(transactionResultAtom)
           if (filter(transactionResult)) {
             newTransactions.push(await get(createTransactionAtom(transactionResult)))
           }
