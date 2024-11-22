@@ -98,7 +98,7 @@ export const routes = evalTemplates([
           },
           {
             template: Urls.Network.TransactionWizard,
-            errorElement: <ErrorPage title={transactionWizardPageTitle} redirectUrl={Urls.Network.TransactionWizard} />,
+            errorElement: <ErrorPage title={transactionWizardPageTitle} />,
             element: <TransactionWizardPage />,
           },
           {

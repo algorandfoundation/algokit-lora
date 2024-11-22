@@ -26,6 +26,12 @@ export function NetworkPage({ children }: Props) {
     if (currentNetworkId === selectedNetwork) {
       return
     }
+    if (currentNetworkId === wildcardNetworkRoute) {
+      setSelectedNetwork(selectedNetwork)
+      const newUrl = pathname.replace(selectedNetwork, currentNetworkId)
+      navigate(newUrl, { replace: true })
+      return
+    }
 
     setSelectedNetwork(currentNetworkId)
     const newUrl = pathname.replace(selectedNetwork, currentNetworkId)

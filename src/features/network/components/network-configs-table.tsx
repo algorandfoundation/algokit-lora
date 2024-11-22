@@ -24,7 +24,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
 
-const ICON_BUTTON_SIZE = 24
+const ICON_BUTTON_SIZE = 18
 
 export function NetworkConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
@@ -83,41 +83,29 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
   },
   {
-    id: 'activate',
-    header: '',
-    meta: { className: `w-[${ICON_BUTTON_SIZE}px]` },
+    id: 'actions',
+    header: 'Actions',
     accessorFn: (item) => item,
     cell: (cell) => {
-      const networkConfig = cell.getValue<NetworkConfigWithId>()
-      return <ActivateButton networkConfig={networkConfig} />
-    },
-  },
-  {
-    id: 'edit',
-    header: '',
-    meta: { className: `w-[${ICON_BUTTON_SIZE}px]` },
-    accessorFn: (item) => item,
-    cell: (cell) => {
-      const networkConfig = cell.getValue<NetworkConfigWithId>()
-      return <EditNetworkButton networkConfig={networkConfig} />
-    },
-  },
-  {
-    id: 'delete',
-    header: '',
-    meta: { className: `w-[${ICON_BUTTON_SIZE}px]` },
-    accessorFn: (item) => item,
-    cell: (cell) => {
+      const activateNetworkConfig = cell.getValue<NetworkConfigWithId>()
+      const editNetworkConfig = cell.getValue<NetworkConfigWithId>()
+      // Edit and Delete buttons
       const networkConfig = cell.getValue<NetworkConfigWithId>()
       const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
       const settingsHaveChanged = isBuiltInNetwork
         ? JSON.stringify({ id: networkConfig.id, ...defaultNetworkConfigs[networkConfig.id] }) !== JSON.stringify(networkConfig)
         : false
-
-      return isBuiltInNetwork ? (
+      const ResetOrDeleteButton = isBuiltInNetwork ? (
         <ResetNetworkButton networkConfig={networkConfig} settingsHaveChanged={settingsHaveChanged} />
       ) : (
         <DeleteNetworkButton networkConfig={networkConfig} />
+      )
+      return (
+        <div className="flex items-center gap-2">
+          <ActivateButton networkConfig={activateNetworkConfig} />
+          <EditNetworkButton networkConfig={editNetworkConfig} />
+          {ResetOrDeleteButton}
+        </div>
       )
     },
   },

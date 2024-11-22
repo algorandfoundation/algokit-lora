@@ -26,9 +26,6 @@ export function Header({ className }: Props) {
       </div>
       <div className={cn('flex items-center gap-4 ml-auto overflow-hidden')}>
         <NetworkSelect showLabel={false} />
-        {/* <TemplatedNavLink urlTemplate={Urls.Settings} className="ml-2 truncate">
-          {networkConfig.name}
-        </TemplatedNavLink> */}
         <ConnectWalletButton />
       </div>
     </header>

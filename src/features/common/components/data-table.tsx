@@ -48,8 +48,10 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
                 {headerGroup.headers.map((header) => {
+                  // meta.className is used to set the class name for the header cell if it exists
+                  const className = header.column.columnDef.meta?.className
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className={cn(className)}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   )

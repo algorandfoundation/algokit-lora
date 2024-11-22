@@ -29,14 +29,14 @@ export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
   )
 
   return (
-    <div className={cn('flex flex-col')}>
+    <div className={cn('flex flex-col ml-2')}>
       {showLabel && (
         <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
           Active network
         </Label>
       )}
       <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
-        <SelectTrigger id="network" className="w-fit min-w-32">
+        <SelectTrigger id="network" className="w-fit min-w-32 ">
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
         <SelectContent className={cn('bg-card text-card-foreground w-fit')}>
