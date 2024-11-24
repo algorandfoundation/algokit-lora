@@ -2,7 +2,7 @@ import { invariant } from '@/utils/invariant'
 import { UrlParams } from '../../../routes/urls'
 import { useRequiredParam } from '../../common/hooks/use-required-param'
 import { isAddress } from '@/utils/is-address'
-import { is404, StatusError } from '@/utils/error'
+import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Account } from '../models'
 import { useLoadableAccount } from '../data'
@@ -18,9 +18,8 @@ export const accountFailedToLoadMessage = 'Account failed to load'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    const error = new Error(accountInvalidAddressMessage) as StatusError
-    error.status = 404
-    return error
+    e.message = accountInvalidAddressMessage
+    return e
   }
 
   // eslint-disable-next-line no-console

@@ -84,7 +84,7 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
   },
   {
     id: 'actions',
-    header: 'Actions',
+    header: '',
     accessorFn: (item) => item,
     cell: (cell) => {
       const activateNetworkConfig = cell.getValue<NetworkConfigWithId>()

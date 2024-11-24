@@ -6,7 +6,7 @@ import { useLoadableInnerTransactionAtom } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { isValidInnerTransactionId } from '../utils/is-valid-inner-transaction-id'
 import { isTransactionId } from '@/utils/is-transaction-id'
-import { is404, StatusError } from '@/utils/error'
+import { is404 } from '@/utils/error'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useSplatParam } from '@/features/common/hooks/use-splat-param'
@@ -14,9 +14,8 @@ import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    const error = new Error(transactionNotFoundMessage) as StatusError
-    error.status = 404
-    return error
+    e.message = transactionNotFoundMessage
+    return e
   }
 
   // eslint-disable-next-line no-console

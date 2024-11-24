@@ -32,7 +32,6 @@ export function NetworkPage({ children }: Props) {
       navigate(newUrl, { replace: true })
       return
     }
-
     setSelectedNetwork(currentNetworkId)
     const newUrl = pathname.replace(selectedNetwork, currentNetworkId)
     navigate(newUrl, { replace: true })

@@ -5,7 +5,7 @@ import { isInteger } from '@/utils/is-integer'
 import { useLoadableApplication } from '../data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { ApplicationDetails } from '../components/application-details'
-import { is404, StatusError } from '@/utils/error'
+import { is404 } from '@/utils/error'
 import { useCallback } from 'react'
 import { PageTitle } from '@/features/common/components/page-title'
 import { PageLoader } from '@/features/common/components/page-loader'
@@ -13,9 +13,8 @@ import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    const error = new Error(applicationNotFoundMessage) as StatusError
-    error.status = 404
-    return error
+    e.message = applicationNotFoundMessage
+    return e
   }
 
   // eslint-disable-next-line no-console

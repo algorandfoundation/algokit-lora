@@ -10,7 +10,7 @@ type NetworkSelectProps = {
 }
 
 export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
-  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+  const [selectedNetwork] = useSelectedNetwork()
   const networkConfigs = useNetworkConfigs()
   const { networkId: currentNetworkId } = useParams()
   const navigate = useNavigate()
@@ -19,29 +19,28 @@ export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
   const handleNetworkChange = useCallback(
     (newNetworkId: string) => {
       const currentPath = location.pathname
-      setSelectedNetwork(newNetworkId)
       if (currentNetworkId) {
         const newUrl = currentPath.replace(currentNetworkId, newNetworkId)
         navigate(newUrl)
       }
     },
-    [currentNetworkId, location.pathname, navigate, setSelectedNetwork]
+    [currentNetworkId, location.pathname, navigate]
   )
 
   return (
-    <div className={cn('flex flex-col ml-2')}>
+    <div className={cn('flexflex-col ml-2')}>
       {showLabel && (
         <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
           Active network
         </Label>
       )}
       <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
-        <SelectTrigger id="network" className="w-fit min-w-32 ">
+        <SelectTrigger id="network" className="max-w-48">
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
-        <SelectContent className={cn('bg-card text-card-foreground w-fit')}>
+        <SelectContent className={cn('bg-card text-card-foreground max-w-48')}>
           {Object.entries(networkConfigs).map(([id, config]) => (
-            <SelectItem key={id} value={id}>
+            <SelectItem key={id} value={id} className="truncate">
               {config.name}
             </SelectItem>
           ))}

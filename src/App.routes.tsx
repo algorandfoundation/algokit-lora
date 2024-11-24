@@ -21,7 +21,8 @@ import { AppLab, appLabPageTitle } from './features/app-lab/pages/app-lab'
 import { TransactionWizardPage, transactionWizardPageTitle } from './features/transaction-wizard/transaction-wizard-page'
 import { RedirectPage } from './features/common/pages/redirect-page'
 import { CreateAppInterfacePage, createAppInterfacePageTitle } from './features/app-interfaces/pages/create-app-interface-page'
-import { EditAppInterfacePage, editAppInterfacePageTitle } from './features/app-interfaces/pages/edit-app-interface-page'
+import { EditAppInterfacePage } from './features/app-interfaces/pages/edit-app-interface-page'
+import { editAppInterfacePageTitle } from './features/app-interfaces/pages/labels'
 
 export const routes = evalTemplates([
   {
