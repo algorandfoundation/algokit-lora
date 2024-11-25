@@ -73,21 +73,24 @@ export function LeftSideBarMenu({ className }: Props) {
               </button>
             </NavigationMenuLink>
           </NavigationMenuItem>
-          {menuItems.map((menuItem, index) => (
-            <NavigationMenuItem key={index}>
-              <NavigationMenuLink asChild>
-                <TemplatedNavLink
-                  urlTemplate={menuItem.urlTemplate}
-                  urlParams={{ networkId: selectedNetwork }}
-                  className={cn(navLinkClassName, menuItem.text === menuItems[0].text && isExploreUrl && 'active')}
-                  end={true}
-                >
-                  <div className={navIconClassName}>{menuItem.icon}</div>
-                  <span className={navTextClassName}>{menuItem.text}</span>
-                </TemplatedNavLink>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-          ))}
+          {menuItems.map((menuItem, index) => {
+            const isExploreMenuItem = menuItem.text === menuItems[0].text
+            return (
+              <NavigationMenuItem key={index}>
+                <NavigationMenuLink asChild>
+                  <TemplatedNavLink
+                    urlTemplate={menuItem.urlTemplate}
+                    urlParams={{ networkId: selectedNetwork }}
+                    className={cn(navLinkClassName, isExploreMenuItem && isExploreUrl && 'active')}
+                    end={isExploreMenuItem}
+                  >
+                    <div className={navIconClassName}>{menuItem.icon}</div>
+                    <span className={navTextClassName}>{menuItem.text}</span>
+                  </TemplatedNavLink>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )
+          })}
         </NavigationMenuList>
       </NavigationMenu>
       <div className="mb-4 mt-auto">
