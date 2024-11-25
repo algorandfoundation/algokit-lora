@@ -22,7 +22,7 @@ export function ErrorPage({ title, redirectUrl }: ErrorPageProps) {
         <div className="mt-4">
           <p>Are you sure you have the correct network selected?</p>
           <Link to={redirectUrl.build({ networkId: selectedNetwork })} className="text-primary hover:underline">
-            Go to main feature page
+            Explore Network
           </Link>
         </div>
       )}
