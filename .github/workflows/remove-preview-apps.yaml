@@ -6,7 +6,7 @@ on:
 
 jobs:
   delete-preview-deployment:
-    runs-on: x64
+    runs-on: ubuntu-latest
     steps:
       - name: Get branch name
         id: get-branch
@@ -18,17 +18,17 @@ jobs:
       - name: Print branch name
         run: echo "Branch name is ${{ steps.get-branch.outputs.branch }}"
 
-      # - name: Delete Cloudflare Pages preview deployments
-      #   run: |
-      #     DEPLOY_BRANCH="${{ steps.get-branch.outputs.branch }}"
-      #     deployment_ids=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/pages/projects/${{ github.event.repository.name }}/deployments" \
-      #       -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-      #       -H "Content-Type: application/json" \
-      #       | jq -r --arg DEPLOY_BRANCH "$DEPLOY_BRANCH" '.result[] | select(.deployment_trigger.metadata.branch == $DEPLOY_BRANCH) | .id')
+      - name: Delete Cloudflare Pages preview deployments
+        run: |
+          DEPLOY_BRANCH="${{ steps.get-branch.outputs.branch }}"
+          deployment_ids=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/pages/projects/${{ github.event.repository.name }}/deployments" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            | jq -r --arg DEPLOY_BRANCH "$DEPLOY_BRANCH" '.result[] | select(.deployment_trigger.metadata.branch == $DEPLOY_BRANCH) | .id')
 
-      #     for deployment_id in $deployment_ids; do
-      #       echo "Deleting deployment $deployment_id"
-      #       curl -s -X DELETE "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/pages/projects/${{ github.event.repository.name }}/deployments/$deployment_id?force=true" \
-      #         -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-      #         -H "Content-Type: application/json"
-      #     done
+          for deployment_id in $deployment_ids; do
+            echo "Deleting deployment $deployment_id"
+            curl -s -X DELETE "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/pages/projects/${{ github.event.repository.name }}/deployments/$deployment_id?force=true" \
+              -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+              -H "Content-Type: application/json"
+          done
