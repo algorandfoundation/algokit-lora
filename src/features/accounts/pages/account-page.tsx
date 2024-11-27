@@ -18,7 +18,8 @@ export const accountFailedToLoadMessage = 'Account failed to load'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(accountInvalidAddressMessage)
+    e.message = accountInvalidAddressMessage
+    return e
   }
 
   // eslint-disable-next-line no-console

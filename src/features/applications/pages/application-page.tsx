@@ -13,7 +13,8 @@ import { useTitle } from '@/utils/use-title'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(applicationNotFoundMessage)
+    e.message = applicationNotFoundMessage
+    return e
   }
 
   // eslint-disable-next-line no-console

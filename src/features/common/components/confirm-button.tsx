@@ -3,30 +3,47 @@ import { Button, ButtonProps } from '@/features/common/components/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, SmallSizeDialogBody } from '@/features/common/components/dialog'
 import { CancelButton } from '@/features/forms/components/cancel-button'
 import { Description } from '@radix-ui/react-dialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip'
 
 interface Props extends Omit<ButtonProps, 'onClick'> {
   dialogHeaderText: string
   dialogContent: React.ReactNode
   onConfirm: () => void
+  tooltipContent?: React.ReactNode
 }
 
-export function ConfirmButton({ children, dialogHeaderText, dialogContent, onConfirm: onConfirmProp, ...props }: Props) {
+export function ConfirmButton({ children, dialogHeaderText, dialogContent, tooltipContent, onConfirm: onConfirmProp, ...props }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
 
   const openDialog = useCallback(() => {
     setDialogOpen(true)
   }, [setDialogOpen])
 
+  const closeDialog = useCallback(() => {
+    setDialogOpen(false)
+  }, [setDialogOpen])
+
   const onConfirm = useCallback(() => {
     onConfirmProp?.()
-    setDialogOpen(false)
-  }, [onConfirmProp, setDialogOpen])
+    closeDialog()
+  }, [closeDialog, onConfirmProp])
+
+  const ActionButton = (
+    <Button variant="outline" onClick={openDialog} {...props}>
+      {children}
+    </Button>
+  )
 
   return (
     <>
-      <Button variant="outline" onClick={openDialog} {...props}>
-        {children}
-      </Button>
+      {tooltipContent ? (
+        <Tooltip>
+          <TooltipTrigger asChild>{ActionButton}</TooltipTrigger>
+          <TooltipContent>{tooltipContent}</TooltipContent>
+        </Tooltip>
+      ) : (
+        ActionButton
+      )}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <Description hidden={true}>Confirm action</Description>
@@ -38,8 +55,8 @@ export function ConfirmButton({ children, dialogHeaderText, dialogContent, onCon
           <SmallSizeDialogBody>
             {dialogContent}
             <div className="mt-4 flex justify-end gap-2">
-              <CancelButton onClick={() => setDialogOpen(false)} className="w-28" />
-              <Button variant="default" onClick={onConfirm}>
+              <CancelButton onClick={closeDialog} className="w-28" />
+              <Button variant="default" onClick={onConfirm} className="w-28">
                 Confirm
               </Button>
             </div>

@@ -1,5 +1,5 @@
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
-import { UrlParams, Urls } from '@/routes/urls'
+import { UrlParams } from '@/routes/urls'
 import { useNetworkConfigs, useSelectedNetwork } from '@/features/network/data'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
@@ -11,28 +11,31 @@ type Props = {
 const wildcardNetworkRoute = '_'
 
 export function NetworkPage({ children }: Props) {
-  const { networkId } = useRequiredParam(UrlParams.NetworkId)
+  const { networkId: currentNetworkId } = useRequiredParam(UrlParams.NetworkId)
   const networkConfigs = useNetworkConfigs()
 
-  if (!(networkId in networkConfigs) && networkId !== wildcardNetworkRoute) {
-    throw new Error(`"${networkId}" is not a valid network.`)
+  if (!(currentNetworkId in networkConfigs) && currentNetworkId !== wildcardNetworkRoute) {
+    throw new Error(`"${currentNetworkId}" is not a valid network.`)
   }
 
   const navigate = useNavigate()
-  const [selectedNetwork] = useSelectedNetwork()
+  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
   const { pathname, search, hash } = useLocation()
 
   useEffect(() => {
-    if (networkId === wildcardNetworkRoute) {
-      // Handle the wildcard network route
-      navigate(pathname.replace(wildcardNetworkRoute, selectedNetwork) + search + hash, { replace: true })
-    } else if (networkId !== selectedNetwork) {
-      // When a user changes the network, their history will contain routes for the previous network.
-      // This handles navigating the user to the explore page for the selected network, so they don't get 404s when navigating through history.
-      navigate(Urls.Network.Explore.build({ networkId: selectedNetwork }), { replace: true })
+    if (currentNetworkId === selectedNetwork) {
+      return
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [networkId, selectedNetwork])
+    if (currentNetworkId === wildcardNetworkRoute) {
+      // Handle the wildcard network route
+      // NOTE: /_/fund is whitelisted inside auth0 for testnet funding, as we don't know all possible networks ids in advance
+      navigate(pathname.replace(wildcardNetworkRoute, selectedNetwork) + search + hash, { replace: true })
+      return
+    }
+    setSelectedNetwork(currentNetworkId)
+    const newUrl = pathname.replace(selectedNetwork, currentNetworkId)
+    navigate(newUrl, { replace: true })
+  }, [currentNetworkId, hash, navigate, pathname, search, selectedNetwork, setSelectedNetwork])
 
   return children
 }

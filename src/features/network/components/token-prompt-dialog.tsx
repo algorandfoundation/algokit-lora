@@ -18,7 +18,7 @@ export function TokenPromptDialog() {
           </DialogTitle>
         </DialogHeader>
         <MediumSizeDialogBody className="flex flex-col space-y-4">
-          <Alert className="rounded-md" variant="default">
+          <Alert className="break-all rounded-md" variant="default">
             Please supply the tokens for {networkConfig.name} or switch networks.
           </Alert>
           <NetworkSelect />

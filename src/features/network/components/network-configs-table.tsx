@@ -16,12 +16,15 @@ import { CreateNetworkConfigForm } from '@/features/network/components/create-ne
 import { ConfirmButton } from '@/features/common/components/confirm-button'
 import { toast } from 'react-toastify'
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { Pencil, Plus, Trash, RotateCcw } from 'lucide-react'
+import { Pencil, Plus, Trash, RotateCcw, Plug, CircleCheck } from 'lucide-react'
 import { useRefreshDataProviderToken } from '@/features/common/data'
 import { Description } from '@radix-ui/react-dialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 export const networkConfigsTableLabel = 'Network Configs'
 export const createNetworkConfigDialogLabel = 'Create Network'
+
+const ICON_BUTTON_SIZE = 18
 
 export function NetworkConfigsTable() {
   const [createNetworkConfigDialogOpen, setCreateNetworkConfigDialogOpen] = useState(false)
@@ -80,31 +83,30 @@ const tableColumns: ColumnDef<NetworkConfigWithId>[] = [
     accessorFn: (item) => `${trimCharacterFromEnd(item.indexer.server, '/')}:${item.indexer.port}`,
   },
   {
-    id: 'edit',
+    id: 'actions',
     header: '',
-    meta: { className: 'w-24' },
+    meta: { className: 'flex' },
     accessorFn: (item) => item,
     cell: (cell) => {
-      const networkConfig = cell.getValue<NetworkConfigWithId>()
-      return <EditNetworkButton networkConfig={networkConfig} />
-    },
-  },
-  {
-    id: 'delete',
-    header: '',
-    meta: { className: 'w-28' },
-    accessorFn: (item) => item,
-    cell: (cell) => {
+      const activateNetworkConfig = cell.getValue<NetworkConfigWithId>()
+      const editNetworkConfig = cell.getValue<NetworkConfigWithId>()
+      // Edit and Delete buttons
       const networkConfig = cell.getValue<NetworkConfigWithId>()
       const isBuiltInNetwork = networkConfig.id in defaultNetworkConfigs
       const settingsHaveChanged = isBuiltInNetwork
         ? JSON.stringify({ id: networkConfig.id, ...defaultNetworkConfigs[networkConfig.id] }) !== JSON.stringify(networkConfig)
         : false
-
-      return isBuiltInNetwork ? (
+      const ResetOrDeleteButton = isBuiltInNetwork ? (
         <ResetNetworkButton networkConfig={networkConfig} settingsHaveChanged={settingsHaveChanged} />
       ) : (
         <DeleteNetworkButton networkConfig={networkConfig} />
+      )
+      return (
+        <div className="ml-auto flex items-center gap-2">
+          <ActivateButton networkConfig={activateNetworkConfig} />
+          <EditNetworkButton networkConfig={editNetworkConfig} />
+          {ResetOrDeleteButton}
+        </div>
       )
     },
   },
@@ -123,9 +125,14 @@ function EditNetworkButton({ networkConfig }: ButtonProps) {
 
   return (
     <>
-      <Button variant="outline" onClick={openDialog} icon={<Pencil size={16} />}>
-        Edit
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" onClick={openDialog} size="icon" icon={<Pencil size={ICON_BUTTON_SIZE} />} title="Edit" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{`Edit ${networkConfig.name}`}</p>
+        </TooltipContent>
+      </Tooltip>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <Description hidden={true}>Edit a network</Description>
@@ -160,12 +167,12 @@ function DeleteNetworkButton({ networkConfig }: ButtonProps) {
       variant="destructive"
       onConfirm={deleteNetwork}
       dialogHeaderText="Delete Network?"
-      dialogContent={<div>Are you sure you want to delete '{networkConfig.name}'?</div>}
-      icon={<Trash size={16} />}
-      className="w-24"
-    >
-      Delete
-    </ConfirmButton>
+      dialogContent={<p className="truncate">Are you sure you want to delete '{networkConfig.name}'?</p>}
+      size="icon"
+      icon={<Trash size={ICON_BUTTON_SIZE} />}
+      title="Delete"
+      tooltipContent={<p>Delete {networkConfig.name}</p>}
+    />
   )
 }
 
@@ -188,15 +195,48 @@ function ResetNetworkButton({ networkConfig, settingsHaveChanged }: ResetNetwork
 
   return (
     <ConfirmButton
-      variant="destructive"
+      variant="outline"
       onConfirm={resetNetworkToDefaults}
       dialogHeaderText="Reset Network?"
-      dialogContent={<div>Are you sure you want to reset '{networkConfig.name}' to the default settings?</div>}
-      icon={<RotateCcw size={16} />}
-      className="w-24"
+      dialogContent={<p className="truncate">Are you sure you want to reset '{networkConfig.name}' to the default settings?</p>}
+      size="icon"
+      icon={<RotateCcw size={ICON_BUTTON_SIZE} />}
       disabled={!settingsHaveChanged}
-    >
-      Reset
-    </ConfirmButton>
+      title="Reset"
+      tooltipContent={<p>{`Reset ${networkConfig.name}`}</p>}
+    />
+  )
+}
+
+function ActivateButton({ networkConfig }: ButtonProps) {
+  const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
+  const isNetworkActive = selectedNetwork === networkConfig.id
+
+  return (
+    <>
+      {isNetworkActive ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="pointer-events-none text-primary"
+          icon={<CircleCheck size={ICON_BUTTON_SIZE} />}
+          title="Active"
+        />
+      ) : (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              icon={<Plug size={ICON_BUTTON_SIZE} onClick={() => setSelectedNetwork(networkConfig.id)} />}
+              title="Activate"
+            />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{`Activate ${networkConfig.name}`}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </>
   )
 }

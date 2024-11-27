@@ -17,7 +17,8 @@ export const groupFailedToLoadMessage = 'Transaction group failed to load'
 
 const transformError = (e: Error) => {
   if (is404(e)) {
-    return new Error(groupNotFoundMessage)
+    e.message = groupNotFoundMessage
+    return e
   }
 
   // eslint-disable-next-line no-console

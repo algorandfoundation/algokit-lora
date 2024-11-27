@@ -3,27 +3,30 @@ import { EditAppInterface } from '../components/edit/edit-app-interface'
 import { useAppInterface } from '../data'
 import { invariant } from '@/utils/invariant'
 import { isInteger } from '@/utils/is-integer'
-import { is404 } from '@/utils/error'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { UrlParams } from '@/routes/urls'
 import { useTitle } from '@/utils/use-title'
+import {
+  appInterfaceFailedToLoadMessage,
+  appInterfaceNotFoundMessage,
+  applicationInvalidIdMessage,
+  editAppInterfacePageTitle,
+} from './labels'
 
-const transformError = (e: Error) => {
-  if (is404(e)) {
-    return new Error(appInterfaceNotFoundMessage)
+const transformError = (e: Error & { status?: number }) => {
+  // This is needed because the App interface not found doesn't return a 404 status code
+  if (e.message.includes(appInterfaceNotFoundMessage)) {
+    e.message = appInterfaceNotFoundMessage
+    e.status = 404
+    return e
   }
 
   // eslint-disable-next-line no-console
   console.error(e)
   return new Error(appInterfaceFailedToLoadMessage)
 }
-
-export const editAppInterfacePageTitle = 'Edit App Interface'
-export const appInterfaceNotFoundMessage = 'Application Interface not found'
-export const applicationInvalidIdMessage = 'Application Id is invalid'
-export const appInterfaceFailedToLoadMessage = 'Application Interface failed to load'
 
 export function EditAppInterfacePage() {
   useTitle('Edit App Interface')

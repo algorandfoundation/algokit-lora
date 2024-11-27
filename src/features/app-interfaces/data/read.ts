@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { atomWithRefresh, loadable } from 'jotai/utils'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { invariant } from '@/utils/invariant'
+import { appInterfaceNotFoundMessage } from '../pages/labels'
 
 export const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
   return await dbConnection.get('app-interfaces', applicationId)
@@ -37,7 +38,7 @@ export const useAppInterface = (applicationId: ApplicationId) => {
       const dbConnection = await get(dbConnectionAtom)
 
       const entity = await getAppInterface(dbConnection, applicationId)
-      invariant(entity, 'App interface not found')
+      invariant(entity, appInterfaceNotFoundMessage)
       return entity
     })
   }, [applicationId])
