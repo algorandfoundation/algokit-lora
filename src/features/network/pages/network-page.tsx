@@ -20,22 +20,22 @@ export function NetworkPage({ children }: Props) {
 
   const navigate = useNavigate()
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
-  const { pathname } = useLocation()
+  const { pathname, search, hash } = useLocation()
 
   useEffect(() => {
     if (currentNetworkId === selectedNetwork) {
       return
     }
     if (currentNetworkId === wildcardNetworkRoute) {
-      setSelectedNetwork(selectedNetwork)
-      const newUrl = pathname.replace(selectedNetwork, currentNetworkId)
-      navigate(newUrl, { replace: true })
+      // Handle the wildcard network route
+      // NOTE: /_/fund is whitelisted inside auth0 for testnet funding, as we don't know all possible networks ids in advance
+      navigate(pathname.replace(wildcardNetworkRoute, selectedNetwork) + search + hash, { replace: true })
       return
     }
     setSelectedNetwork(currentNetworkId)
     const newUrl = pathname.replace(selectedNetwork, currentNetworkId)
     navigate(newUrl, { replace: true })
-  }, [currentNetworkId, navigate, pathname, selectedNetwork, setSelectedNetwork])
+  }, [currentNetworkId, hash, navigate, pathname, search, selectedNetwork, setSelectedNetwork])
 
   return children
 }
