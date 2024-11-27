@@ -29,20 +29,20 @@ export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
   )
 
   return (
-    <div className={cn('flexflex-col ml-2')}>
+    <div className={cn('flex flex-col')}>
       {showLabel && (
         <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
           Active network
         </Label>
       )}
       <Select onValueChange={handleNetworkChange} value={selectedNetwork}>
-        <SelectTrigger id="network" className="max-w-48">
+        <SelectTrigger id="network" className={cn(!showLabel && 'w-28 lg:w-40', showLabel && 'w-48')}>
           <SelectValue placeholder="Select network" />
         </SelectTrigger>
-        <SelectContent className={cn('bg-card text-card-foreground max-w-48')}>
+        <SelectContent className={cn('bg-card text-card-foreground')}>
           {Object.entries(networkConfigs).map(([id, config]) => (
-            <SelectItem key={id} value={id} className="truncate">
-              {config.name}
+            <SelectItem key={id} value={id}>
+              <div className="max-w-48 truncate">{config.name}</div>
             </SelectItem>
           ))}
         </SelectContent>

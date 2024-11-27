@@ -15,6 +15,7 @@ import { toast } from 'react-toastify'
 import { EditAppSpecForm } from './edit-app-spec-form'
 import { asAppSpecFilename } from '../../mappers'
 import { Description } from '@radix-ui/react-dialog'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 const appSpecsLabel = 'App Specs'
 
@@ -45,42 +46,28 @@ export function AppSpecsTable({ appInterface, refreshAppInterface }: Props) {
         header: 'Last valid round',
         accessorFn: (item) => item.roundLastValid,
       },
-
       {
-        id: 'download',
+        id: 'actions',
         header: '',
-        meta: { className: 'w-24' },
-        accessorFn: (item) => item,
-        cell: (cell) => {
-          const appSpec = cell.getValue<AppSpecVersion>()
-          return <DownloadAppSpecButton appSpec={appSpec} />
-        },
-      },
-      {
-        id: 'edit',
-        header: '',
-        meta: { className: 'w-24' },
+        meta: { className: 'flex' },
         accessorFn: (item) => item,
         cell: (cell) => {
           const appSpec = cell.getValue<AppSpecVersion>()
           return (
-            <EditAppSpecButton
-              applicationId={appInterface.applicationId}
-              appSpecIndex={cell.row.index}
-              appSpec={appSpec}
-              onSuccess={refreshAppInterface}
-            />
-          )
-        },
-      },
-      {
-        id: 'delete',
-        header: '',
-        meta: { className: 'w-28' },
-        accessorFn: (item) => item,
-        cell: (cell) => {
-          return (
-            <DeleteAppSpecButton applicationId={appInterface.applicationId} appSpecIndex={cell.row.index} onSuccess={refreshAppInterface} />
+            <div className="ml-auto flex items-center gap-2">
+              <DownloadAppSpecButton appSpec={appSpec} />
+              <EditAppSpecButton
+                applicationId={appInterface.applicationId}
+                appSpecIndex={cell.row.index}
+                appSpec={appSpec}
+                onSuccess={refreshAppInterface}
+              />
+              <DeleteAppSpecButton
+                applicationId={appInterface.applicationId}
+                appSpecIndex={cell.row.index}
+                onSuccess={refreshAppInterface}
+              />
+            </div>
           )
         },
       },
@@ -113,9 +100,14 @@ function DownloadAppSpecButton({ appSpec }: DownloadAppSpecButton) {
   }, [appSpec])
 
   return (
-    <Button variant="outline" onClick={downloadAppSpec} icon={<Download size={16} />}>
-      Download
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="outline" size="icon" onClick={downloadAppSpec} icon={<Download size={18} />} title="Download" />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Download App Spec</p>
+      </TooltipContent>
+    </Tooltip>
   )
 }
 
@@ -179,9 +171,14 @@ function EditAppSpecButton({ applicationId, appSpecIndex, appSpec, onSuccess }: 
 
   return (
     <>
-      <Button variant="outline" onClick={openDialog} icon={<Pencil size={16} />}>
-        Edit
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="outline" size="icon" onClick={openDialog} icon={<Pencil size={18} />} title="Edit" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Edit App Spec</p>
+        </TooltipContent>
+      </Tooltip>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         <DialogContent className="bg-card">
           <Description hidden={true}>Edit an app spec</Description>
@@ -219,11 +216,11 @@ function DeleteAppSpecButton({ applicationId, appSpecIndex, onSuccess }: DeleteA
       variant="destructive"
       onConfirm={deleteExistingAppSpec}
       dialogHeaderText="Delete Network?"
-      dialogContent={<div>Are you sure you want to delete the app spec?</div>}
-      icon={<Trash size={16} />}
-      className="w-24"
-    >
-      Delete
-    </ConfirmButton>
+      dialogContent={<p className="truncate">Are you sure you want to delete the app spec?</p>}
+      icon={<Trash size={18} />}
+      size="icon"
+      title="Delete"
+      tooltipContent={<p>Delete App Spec</p>}
+    />
   )
 }

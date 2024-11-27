@@ -10,6 +10,7 @@ import { AppSpecStandard } from '../data/types'
 import { Button } from '@/features/common/components/button'
 import { Pencil } from 'lucide-react'
 import { getLatestAppSpecVersion } from '../mappers'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -52,7 +53,14 @@ export function AppInterfaceCard({ appInterface, onEdit, onDelete }: Props) {
           <div className="flex items-center gap-2">
             <p>Modified: {dateFormatter.asShortDate(new Date(appInterface.lastModified))}</p>
             <div className="ml-auto flex gap-2">
-              <Button size="sm" variant="outline" icon={<Pencil size={16} />} onClick={onEdit} />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="icon" variant="outline" icon={<Pencil size={18} />} onClick={onEdit} title="Edit" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit App Interface</p>
+                </TooltipContent>
+              </Tooltip>
               <DeleteAppInterfaceButton appInterface={appInterface} onDelete={onDelete} />
             </div>
           </div>

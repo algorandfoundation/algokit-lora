@@ -24,7 +24,7 @@ export function Header({ className }: Props) {
         </TemplatedNavLink>
         <Search />
       </div>
-      <div className={cn('flex items-center gap-4 ml-auto overflow-hidden')}>
+      <div className={cn('flex items-center gap-2 ml-auto overflow-hidden pl-1')}>
         <NetworkSelect showLabel={false} />
         <ConnectWalletButton />
       </div>
