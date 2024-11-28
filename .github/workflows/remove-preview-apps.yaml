@@ -15,16 +15,38 @@ jobs:
           REPO: ${{ github.repository }}
           PR_NO: ${{ github.event.pull_request.number }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Print branch name
-        run: echo "Branch name is ${{ steps.get-branch.outputs.branch }}"
 
       - name: Delete Cloudflare Pages preview deployments
         run: |
-          DEPLOY_BRANCH="${{ steps.get-branch.outputs.branch }}"
-          deployment_ids=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/pages/projects/${{ github.event.repository.name }}/deployments" \
-            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            | jq -r --arg DEPLOY_BRANCH "$DEPLOY_BRANCH" '.result[] | select(.deployment_trigger.metadata.branch == $DEPLOY_BRANCH) | .id')
+          deployment_ids=$(
+          ACCOUNT_ID=${{ secrets.CF_ACCOUNT_ID }} \
+          AUTH_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} \
+          PROJECT=${{ github.event.repository.name }} \
+          DEPLOY_BRANCH="${{ steps.get-branch.outputs.branch }}" \
+            bash -c '
+              PAGE=1
+              DEPLOYMENT_IDS=""
+              
+              while true; do
+                response=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/pages/projects/$PROJECT/deployments?page=$PAGE" \
+                  -H "Authorization: Bearer $AUTH_TOKEN" \
+                  -H "Content-Type: application/json")
+                
+                page_ids=$(echo "$response" | jq -r --arg DEPLOY_BRANCH "$DEPLOY_BRANCH" '"'"'.result[] | select(.deployment_trigger.metadata.branch == $DEPLOY_BRANCH) | .id'"'"')
+                DEPLOYMENT_IDS+=" $page_ids"
+                
+                count=$(echo "$response" | jq -r .result_info.count)
+                
+                if [ "$count" -eq "0" ]; then
+                  break
+                fi
+                
+                PAGE=$((PAGE + 1))
+              done
+              
+              echo "$DEPLOYMENT_IDS" | xargs
+            '
+          )
 
           for deployment_id in $deployment_ids; do
             echo "Deleting deployment $deployment_id"
