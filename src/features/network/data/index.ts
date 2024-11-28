@@ -217,7 +217,9 @@ export const useDeleteCustomNetworkConfig = () => {
   )
 }
 
-const storedSelectedNetworkIdAtom = atomWithStorage('network', localnetId, createAtomStorageWithoutSubscription(), { getOnInit: true })
+export const storedSelectedNetworkIdAtom = atomWithStorage('network', mainnetId, createAtomStorageWithoutSubscription(), {
+  getOnInit: true,
+})
 export const selectedNetworkAtomId = atomWithRefresh((get) => {
   const networkId = window.location.pathname.split('/')[1]
   const networkConfigs = get(networkConfigsAtom)
@@ -264,9 +266,9 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
 
   let id = selectedNetworkId
   if (!(selectedNetworkId in networkConfigs)) {
-    id = localnetId
+    id = mainnetId
     // eslint-disable-next-line no-console
-    console.warn(`Unknown network: ${selectedNetworkId}, fallback to ${defaultNetworkConfigs.localnet.name}`)
+    console.warn(`Unknown network: ${selectedNetworkId}, fallback to ${defaultNetworkConfigs.mainnet.name}`)
   }
   const config = networkConfigs[id]
 
