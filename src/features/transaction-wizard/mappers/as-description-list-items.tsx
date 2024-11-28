@@ -20,7 +20,7 @@ import {
   PlaceholderTransaction,
   TransactionPositionsInGroup,
 } from '../models'
-import { getAbiStructValue, getAbiValue } from '@/features/abi-methods/data'
+import { asDecodedAbiStruct, asDecodedAbiValue } from '@/features/abi-methods/mappers'
 import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
 import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { ApplicationLink } from '@/features/applications/components/application-link'
@@ -350,11 +350,11 @@ const asMethodArg = (
     return arg.toString()
   }
   if (argumentDefinition.struct) {
-    const structModel = getAbiStructValue(argumentDefinition.struct, arg as algosdk.ABIValue)
+    const structModel = asDecodedAbiStruct(argumentDefinition.struct, arg as algosdk.ABIValue)
     return <DecodedAbiStruct struct={structModel} />
   }
 
-  const abiValue = getAbiValue(argumentDefinition.type, arg as algosdk.ABIValue)
+  const abiValue = asDecodedAbiValue(argumentDefinition.type, arg as algosdk.ABIValue)
   return <DecodedAbiValue abiValue={abiValue} />
 }
 

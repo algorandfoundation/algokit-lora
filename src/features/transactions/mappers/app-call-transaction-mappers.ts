@@ -9,7 +9,6 @@ import {
 } from '../models'
 import { DecodedAbiMethod } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
-import { asGlobalStateDelta, asLocalStateDelta } from './state-delta-mappers'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
@@ -23,6 +22,8 @@ import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 import { Atom } from 'jotai/index'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
+import { globalStateDeltaResolver } from '../data/global-state-delta-resolver'
+import { localStateDeltaResolver } from '../data/local-state-delta-resolver'
 
 const opUpPrograms = [
   'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
@@ -73,8 +74,8 @@ const mapCommonAppCallTransactionProperties = (
     applicationAccounts: transactionResult['application-transaction'].accounts ?? [],
     foreignApps: transactionResult['application-transaction']['foreign-apps'] ?? [],
     foreignAssets: transactionResult['application-transaction']['foreign-assets'] ?? [],
-    globalStateDeltas: asGlobalStateDelta(transactionResult['global-state-delta']),
-    localStateDeltas: asLocalStateDelta(transactionResult['local-state-delta']),
+    globalStateDeltas: globalStateDeltaResolver(transactionResult),
+    localStateDeltas: localStateDeltaResolver(transactionResult),
     innerTransactions:
       transactionResult['inner-txns']?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction

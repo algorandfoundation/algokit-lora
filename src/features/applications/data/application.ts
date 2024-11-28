@@ -1,11 +1,12 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { asApplication } from '../mappers'
+import { asApplication, asArc56AppSpec } from '../mappers'
 import { useMemo } from 'react'
 import { atomWithRefresh, loadable } from 'jotai/utils'
 import { ApplicationId } from './types'
 import { applicationResultsAtom, getApplicationResultAtom } from './application-result'
 import { getApplicationMetadataResultAtom } from './application-metadata'
 import { atomEffect } from 'jotai-effect'
+import { createAppSpecAtom } from './application-method-definitions'
 
 const createApplicationAtoms = (applicationId: ApplicationId) => {
   const isStaleAtom = atom(false)
@@ -19,8 +20,9 @@ const createApplicationAtoms = (applicationId: ApplicationId) => {
     atomWithRefresh(async (get) => {
       const applicationResult = await get(getApplicationResultAtom(applicationId))
       const applicationMetadata = await get(getApplicationMetadataResultAtom(applicationResult))
+      const appSpec = await get(createAppSpecAtom(applicationId))
       get(detectIsStaleEffect)
-      return asApplication(applicationResult, applicationMetadata)
+      return asApplication(applicationResult, applicationMetadata, appSpec ? asArc56AppSpec(appSpec) : undefined)
     }),
     isStaleAtom,
   ] as const

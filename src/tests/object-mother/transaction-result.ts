@@ -3450,4 +3450,226 @@ export const transactionResultMother = {
       ],
     } as unknown as TransactionResult)
   },
+  // This transaction was made by calling method "foo" of the Arc56TestAppSpecSampleOne app spec
+  'localnet-AIIGV5XLUCNTLDOBBSFXDGCLBOM6WIE42OMTADUAFBD3PHK6JL4Q': () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': ['OW1VDg==', 'AAAAAAAAAAEAAAAAAAAAAQAAAAAAAAAEAAAAAAAAAAI='],
+        'application-id': 3771,
+        'foreign-apps': [],
+        'foreign-assets': [],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'noop',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 2708,
+      fee: 1000,
+      'first-valid': 2707,
+      'genesis-hash': 'x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8=',
+      'genesis-id': 'dockernet-v1',
+      'global-state-delta': [
+        {
+          key: 'Z2xvYmFsS2V5',
+          value: {
+            action: 2,
+            uint: 1234,
+          },
+        },
+        {
+          key: 'cAADZm9v',
+          value: {
+            action: 1,
+            bytes: 'AA0AJQ==',
+            uint: 0,
+          },
+        },
+      ],
+      id: 'AIIGV5XLUCNTLDOBBSFXDGCLBOM6WIE42OMTADUAFBD3PHK6JL4Q',
+      'intra-round-offset': 0,
+      'last-valid': 3707,
+      logs: ['FR98dQAAAAAAAAACAAAAAAAAAAI='],
+      'receiver-rewards': 0,
+      'round-time': 1731017755,
+      sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'l9mhSOySNKefxFx/cSQDNmUBJlh6+fXO4k5DFbfNrVEh7IfhMsiO2Gy/w6Q0Of114/m/oAf3yKhz0BCQR3IvBA==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
+  // This transaction was made by calling method "optInToApplication" of the Arc56TestAppSpecSampleOne app spec
+  'localnet-Z64TMG3BMEVRM2CSJDEHBB7NAPI5B3HZJZEZZ7DJDPN5WOBYTMFA': () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': ['AaOj/w=='],
+        'application-id': 3771,
+        'foreign-apps': [],
+        'foreign-assets': [],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'optin',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 2710,
+      fee: 1000,
+      'first-valid': 2709,
+      'genesis-hash': 'x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8=',
+      'genesis-id': 'dockernet-v1',
+      id: 'Z64TMG3BMEVRM2CSJDEHBB7NAPI5B3HZJZEZZ7DJDPN5WOBYTMFA',
+      'intra-round-offset': 0,
+      'last-valid': 3709,
+      'local-state-delta': [
+        {
+          address: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+          delta: [
+            {
+              key: 'bG9jYWxLZXk=',
+              value: {
+                action: 2,
+                uint: 1234,
+              },
+            },
+            {
+              key: 'cGZvbw==',
+              value: {
+                action: 1,
+                bytes: 'AANiYXI=',
+                uint: 0,
+              },
+            },
+          ],
+        },
+      ],
+      'receiver-rewards': 0,
+      'round-time': 1731017805,
+      sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'h20ruo3JVtSZ5z/KJOHi7qySEmlfM3yWL2xtTBfWl23vnfI8/M1CTeGvAWmQqyxZdZ5NpmuiSoCdqZHRERngAw==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
+  // This transaction was made by calling method "foo" of the Arc56TestAppSpecSampleThree app spec
+  'localnet-B65NVNGK6E6K2E2F4K2M5HRKB4VPPZMJLS55UKWLN6O2XPT2NSTA': () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': ['OW1VDg==', 'AAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAM='],
+        'application-id': 5103,
+        'foreign-apps': [],
+        'foreign-assets': [],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'noop',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 3999,
+      fee: 1000,
+      'first-valid': 3998,
+      'genesis-hash': 'x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8=',
+      'genesis-id': 'dockernet-v1',
+      'global-state-delta': [
+        {
+          key: 'AANmb28=',
+          value: {
+            action: 1,
+            bytes: 'AA0AJQ==',
+            uint: 0,
+          },
+        },
+      ],
+      id: 'B65NVNGK6E6K2E2F4K2M5HRKB4VPPZMJLS55UKWLN6O2XPT2NSTA',
+      'intra-round-offset': 0,
+      'last-valid': 4998,
+      logs: ['FR98dQAAAAAAAAADAAAAAAAAAAE='],
+      'receiver-rewards': 0,
+      'round-time': 1731050030,
+      sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+      'sender-rewards': 0,
+      signature: {
+        sig: '3xZ3KcpEUDVtAlcwoAmwadmRw8FRigjKAjvq8Jhuq/xYVn3+T8oYDuVGJJL/wfZmjrHj76dxxsyxB5Qv/3TXAQ==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
+  // This transaction was made by calling method "optInToApplication" of the Arc56TestAppSpecSampleThree app spec
+  'localnet-UUVFBB6FV46RDM66RJSLVP4JIDIM75JSQSURJECEJNUXKMY3XVWQ': () => {
+    return new TransactionResultBuilder({
+      'application-transaction': {
+        accounts: [],
+        'application-args': ['AaOj/w=='],
+        'application-id': 5103,
+        'foreign-apps': [],
+        'foreign-assets': [],
+        'global-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 0,
+          'num-uint': 0,
+        },
+        'on-completion': 'optin',
+      },
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 4001,
+      fee: 1000,
+      'first-valid': 4000,
+      'genesis-hash': 'x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8=',
+      'genesis-id': 'dockernet-v1',
+      id: 'UUVFBB6FV46RDM66RJSLVP4JIDIM75JSQSURJECEJNUXKMY3XVWQ',
+      'intra-round-offset': 0,
+      'last-valid': 5000,
+      'local-state-delta': [
+        {
+          address: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+          delta: [
+            {
+              key: 'Zm9v',
+              value: {
+                action: 1,
+                bytes: 'AANiYXI=',
+                uint: 0,
+              },
+            },
+          ],
+        },
+      ],
+      'receiver-rewards': 0,
+      'round-time': 1731050080,
+      sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'S0PatEjdnWBvi2T5i5CLuId4sBpEGkWP5gW9Gm4Cj/wb6c9FxLa22kUV+K0gFWIPRzvMPKNqgJvdLyyz/h8pDg==',
+      },
+      'tx-type': 'appl',
+    } as unknown as TransactionResult)
+  },
 }

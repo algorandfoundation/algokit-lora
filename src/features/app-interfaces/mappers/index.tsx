@@ -13,22 +13,18 @@ import {
 import {
   abiTypeToFormItem,
   abiTypeToFormFieldSchema,
-  formItemValueToABIValue,
+  abiFormItemValueToABIValue,
   jsonAsArc32AppSpec,
   jsonAsArc4AppSpec,
   jsonAsArc56AppSpec,
-  bigIntToFixedPointDecimalString,
   avmTypeToFormFieldSchema,
   avmTypeToFormItem,
+  asAbiFormItemValue,
 } from '@/features/abi-methods/mappers'
 import { Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import algosdk from 'algosdk'
 import { StructDefinition } from '@/features/applications/models'
-import {
-  TealUnknownTypeTemplateParamFieldValue,
-  TealTemplateParamField,
-  TealAVMTypeTemplateParamFieldValue,
-} from '@/features/app-interfaces/models'
+import { TealUnknownTypeTemplateParamFieldValue, TealTemplateParamField } from '@/features/app-interfaces/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { FieldPath } from 'react-hook-form'
 import { z } from 'zod'
@@ -36,11 +32,7 @@ import { zfd } from 'zod-form-data'
 import { TemplateParamForm } from '../components/create/template-param-form'
 import { Label } from '@/features/common/components/label'
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
-import { FormItemValue } from '@/features/abi-methods/models'
-import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { base64ToUtf8 } from '@/utils/base64-to-utf8'
-import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
+import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
 
 export const parseAsAppSpec = async (
   file: File,
@@ -115,7 +107,7 @@ export const asTealTemplateParamField = ({
   name: string
   type?: algosdk.ABIType | AVMType
   struct?: StructDefinition
-  defaultValue?: FormItemValue | TealAVMTypeTemplateParamFieldValue
+  defaultValue?: AbiFormItemValue | AvmValue
 }): TealTemplateParamField => {
   if (!type) {
     return {
@@ -160,14 +152,14 @@ export const asTealTemplateParamField = ({
           </>
         )
       },
-      toTemplateParam: (value: TealAVMTypeTemplateParamFieldValue) =>
+      toTemplateParam: (value: AvmValue) =>
         ({
           name: name,
           value: value,
         }) satisfies AVMTypeTemplateParam,
       fromTemplateParam: (templateParam: AVMTypeTemplateParam) =>
         type === 'AVMUint64' ? BigInt(templateParam.value) : templateParam.value,
-      defaultValue: defaultValue as TealAVMTypeTemplateParamFieldValue,
+      defaultValue: defaultValue as AvmValue,
     }
   }
 
@@ -185,61 +177,13 @@ export const asTealTemplateParamField = ({
         </>
       )
     },
-    toTemplateParam: (value: FormItemValue): ABITypeTemplateParam => ({
+    toTemplateParam: (value: AbiFormItemValue): ABITypeTemplateParam => ({
       name: name,
       abiType: type,
-      value: formItemValueToABIValue(type, value),
+      value: abiFormItemValueToABIValue(type, value),
     }),
-    fromTemplateParam: (templateParam: ABITypeTemplateParam): FormItemValue => asFormItemValue(templateParam.abiType, templateParam.value),
-    defaultValue: defaultValue as FormItemValue,
+    fromTemplateParam: (templateParam: ABITypeTemplateParam): AbiFormItemValue =>
+      asAbiFormItemValue(templateParam.abiType, templateParam.value),
+    defaultValue: defaultValue as AbiFormItemValue,
   }
-}
-
-export const asTealAVMTypeTemplateParamFieldValue = (type: AVMType, base64Value: string): TealAVMTypeTemplateParamFieldValue => {
-  if (type === 'AVMUint64') {
-    return algosdk.ABIType.from('uint64').decode(base64ToBytes(base64Value)) as bigint
-  }
-  if (type === 'AVMString') {
-    return base64ToUtf8(base64Value)
-  }
-  if (type === 'AVMBytes') {
-    return base64Value
-  }
-  throw new Error(`Unknown type ${type}`)
-}
-
-export const asFormItemValue = (type: algosdk.ABIType, value: algosdk.ABIValue): FormItemValue => {
-  if (type instanceof algosdk.ABITupleType) {
-    const childTypes = type.childTypes
-    return (value as algosdk.ABIValue[]).map((v, index) => asFormItemValue(childTypes[index], v))
-  }
-  if (type instanceof algosdk.ABIArrayStaticType || type instanceof algosdk.ABIArrayDynamicType) {
-    const childType = type.childType
-    if (childType instanceof algosdk.ABIByteType) {
-      // Treat bytes arrays as strings
-      return uint8ArrayToBase64(value as Uint8Array)
-    } else {
-      return (value as algosdk.ABIValue[]).map((v) => asFormItemValue(childType, v))
-    }
-  }
-  if (type instanceof algosdk.ABIAddressType) {
-    return asAddressOrNfd(value as string)
-  }
-  if (type instanceof algosdk.ABIAddressType || type instanceof algosdk.ABIStringType) {
-    return value as string
-  }
-  if (type instanceof algosdk.ABIBoolType) {
-    return value as boolean
-  }
-  if (type instanceof algosdk.ABIUintType) {
-    return value as bigint
-  }
-  if (type instanceof algosdk.ABIUfixedType) {
-    return bigIntToFixedPointDecimalString(value as bigint, type.precision)
-  }
-  if (type instanceof algosdk.ABIByteType) {
-    return value as number
-  }
-
-  throw new Error(`Unknown type ${type}`)
 }

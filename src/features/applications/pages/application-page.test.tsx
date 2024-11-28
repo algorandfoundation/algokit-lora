@@ -40,6 +40,9 @@ import { upsertAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
+import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -187,10 +190,11 @@ describe('application-page', () => {
 
             const applicationStateTabList = component.getByRole('tablist', { name: applicationStateLabel })
             expect(applicationStateTabList).toBeTruthy()
-
             // Only test the first 10 rows, should be enough
-            const globalStateTab = component.getByRole('tabpanel', { name: applicationGlobalStateLabel })
-            tableAssertion({
+            const globalStateTab = await component.findByRole('tabpanel', {
+              name: applicationGlobalStateLabel,
+            })
+            await tableAssertion({
               container: globalStateTab,
               rows: [
                 { cells: ['Bids', 'Uint', '0'] },
@@ -207,8 +211,8 @@ describe('application-page', () => {
             })
 
             await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
-            const boxesTab = component.getByRole('tabpanel', { name: applicationBoxesLabel })
-            tableAssertion({
+            const boxesTab = await component.findByRole('tabpanel', { name: applicationBoxesLabel })
+            await tableAssertion({
               container: boxesTab,
               rows: [
                 { cells: ['AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8='] },
@@ -353,9 +357,8 @@ describe('application-page', () => {
   })
 
   describe('when rendering an application that is associated with an appspec', () => {
-    const applicationResult = applicationResultMother['testnet-718348254']().build()
-
     it('should be rendered with the correct data', async () => {
+      const applicationResult = applicationResultMother['testnet-718348254']().build()
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
         Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
@@ -418,6 +421,145 @@ describe('application-page', () => {
           })
         }
       )
+    })
+
+    describe('when the application has global states and boxes', () => {
+      it('should be rendered with the correct data', async () => {
+        const applicationResult = applicationResultMother['localnet-3771']().build()
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+        vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+          Promise.resolve(
+            new indexerModels.BoxesResponse({
+              applicationId: 3771,
+              boxes: [
+                new modelsv2.BoxDescriptor({
+                  name: 'Ym94S2V5',
+                }),
+                new modelsv2.BoxDescriptor({
+                  name: 'cAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAD',
+                }),
+              ],
+              nextToken: 'b64:cAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAD',
+            })
+          )
+        )
+        vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+          Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        )
+
+        const myStore = createStore()
+        myStore.set(genesisHashAtom, 'some-hash')
+        myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+        const dbConnection = await myStore.get(dbConnectionAtom)
+        await upsertAppInterface(dbConnection, {
+          applicationId: applicationResult.id,
+          name: 'test',
+          appSpecVersions: [
+            {
+              standard: AppSpecStandard.ARC56,
+              appSpec: Arc56TestAppSpecSampleOne as Arc56Contract,
+            },
+          ],
+          lastModified: createTimestamp(),
+        } satisfies AppInterfaceEntity)
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const applicationStateTabList = await component.findByRole('tablist', { name: applicationStateLabel })
+            expect(applicationStateTabList).toBeTruthy()
+
+            const globalStateTab = await component.findByRole('tabpanel', {
+              name: applicationGlobalStateLabel,
+            })
+            await tableAssertion({
+              container: globalStateTab,
+              rows: [
+                { cells: ['globalKey', 'TypeKeyValue"globalKey"', '1234'] },
+                { cells: ['globalMap', 'TypeMap KeyAppSpec PrefixpValue"foo"', '{foo: 13, bar: 37}'] },
+              ],
+            })
+
+            await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
+            const boxesTab = await component.findByRole('tabpanel', { name: applicationBoxesLabel })
+            await tableAssertion({
+              container: boxesTab,
+              rows: [
+                { cells: ['boxKey', 'TypeKeyValue"boxKey"', 'View'] },
+                { cells: ['boxMap', 'TypeMap KeyAppSpec PrefixpValue{add: {a: 1, b: 2}, subtract: {a: 4, b: 3}}', 'View'] },
+              ],
+            })
+          }
+        )
+      })
+    })
+
+    describe('when the application has global states and boxes without prefix', () => {
+      it('should be rendered with the correct data', async () => {
+        const applicationResult = applicationResultMother['localnet-5103']().build()
+        vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
+        vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+          Promise.resolve(
+            new indexerModels.BoxesResponse({
+              applicationId: 5103,
+              boxes: [
+                new modelsv2.BoxDescriptor({
+                  name: 'AAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAM=',
+                }),
+              ],
+              nextToken: '"b64:AAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAM=',
+            })
+          )
+        )
+        vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+          Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        )
+
+        const myStore = createStore()
+        myStore.set(genesisHashAtom, 'some-hash')
+        myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+        const dbConnection = await myStore.get(dbConnectionAtom)
+        await upsertAppInterface(dbConnection, {
+          applicationId: applicationResult.id,
+          name: 'test',
+          appSpecVersions: [
+            {
+              standard: AppSpecStandard.ARC56,
+              appSpec: Arc56TestAppSpecSampleThree as Arc56Contract,
+            },
+          ],
+          lastModified: createTimestamp(),
+        } satisfies AppInterfaceEntity)
+
+        return executeComponentTest(
+          () => {
+            return render(<ApplicationPage />, undefined, myStore)
+          },
+          async (component, user) => {
+            const applicationStateTabList = await component.findByRole('tablist', { name: applicationStateLabel })
+            expect(applicationStateTabList).toBeTruthy()
+
+            const globalStateTab = await component.findByRole('tabpanel', {
+              name: applicationGlobalStateLabel,
+            })
+            await tableAssertion({
+              container: globalStateTab,
+              rows: [{ cells: ['globalMap', 'TypeMap KeyValue"foo"', '{foo: 13, bar: 37}'] }],
+            })
+
+            await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
+            const boxesTab = await component.findByRole('tabpanel', { name: applicationBoxesLabel })
+            await tableAssertion({
+              container: boxesTab,
+              rows: [{ cells: ['boxMap', 'TypeMap KeyValue{add: {a: 1, b: 2}, subtract: {a: 4, b: 3}}', 'View'] }],
+            })
+          }
+        )
+      })
     })
   })
 })

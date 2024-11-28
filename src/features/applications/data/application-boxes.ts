@@ -1,14 +1,19 @@
 import { ApplicationId } from './types'
 import { useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai'
-import { ApplicationBox, ApplicationBoxSummary } from '../models'
+import { Application, ApplicationBox, BoxDescriptor } from '../models'
 import { Buffer } from 'buffer'
 import { loadable } from 'jotai/utils'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 import { indexer } from '@/features/common/data/algo-client'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { asBoxDescriptor } from '../mappers'
+import { base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 
-const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?: string) => {
+const getApplicationBoxNames = async (applicationId: ApplicationId, appSpec?: Arc56Contract, nextPageToken?: string) => {
   const results = await indexer
     .searchForApplicationBoxes(applicationId)
     .nextToken(nextPageToken ?? '')
@@ -16,17 +21,17 @@ const getApplicationBoxes = async (applicationId: ApplicationId, nextPageToken?:
     .do()
 
   return {
-    boxes: results.boxes.map((box) => ({ name: Buffer.from(box.name).toString('base64') })) satisfies ApplicationBoxSummary[],
+    boxes: results.boxes.map((box) => asBoxDescriptor(Buffer.from(box.name).toString('base64'), appSpec)),
     nextPageToken: results.nextToken,
   } as const
 }
 
-const getApplicationBox = (applicationId: ApplicationId, boxName: string) =>
-  indexer.lookupApplicationBoxByIDandName(applicationId, Buffer.from(boxName, 'base64')).do()
+const getApplicationBox = (applicationId: ApplicationId, base64BoxName: string) =>
+  indexer.lookupApplicationBoxByIDandName(applicationId, Buffer.from(base64BoxName, 'base64')).do()
 
-const createApplicationBoxResultsAtom = (applicationId: ApplicationId, nextPageToken?: string) => {
+const createApplicationBoxResultsAtom = (applicationId: ApplicationId, appSpec?: Arc56Contract, nextPageToken?: string) => {
   return atom(async () => {
-    const { boxes, nextPageToken: newNextPageToken } = await getApplicationBoxes(applicationId, nextPageToken)
+    const { boxes, nextPageToken: newNextPageToken } = await getApplicationBoxNames(applicationId, appSpec, nextPageToken)
 
     return {
       items: boxes,
@@ -35,22 +40,28 @@ const createApplicationBoxResultsAtom = (applicationId: ApplicationId, nextPageT
   })
 }
 
-export const useApplicationBox = (applicationId: ApplicationId, boxName: string) => {
+export const useApplicationBox = (application: Application, boxDescriptor: BoxDescriptor) => {
   return useMemo(() => {
     return atom(async () => {
-      const box = await getApplicationBox(applicationId, boxName)
-      return box.get_obj_for_encoding(false) as ApplicationBox
+      const result = await getApplicationBox(application.id, boxDescriptor.base64Name)
+      const box = result.get_obj_for_encoding(false) as ApplicationBox
+
+      if (application.appSpec && 'valueType' in boxDescriptor) {
+        return asDecodedAbiStorageValue(application.appSpec, boxDescriptor.valueType, base64ToBytes(box.value))
+      } else {
+        return base64ToUtf8IfValid(box.value)
+      }
     })
-  }, [applicationId, boxName])
+  }, [application, boxDescriptor])
 }
 
-export const useLoadableApplicationBox = (applicationId: ApplicationId, boxName: string) => {
-  return useAtomValue(loadable(useApplicationBox(applicationId, boxName)))
+export const useLoadableApplicationBox = (application: Application, boxDescriptor: BoxDescriptor) => {
+  return useAtomValue(loadable(useApplicationBox(application, boxDescriptor)))
 }
 
-export const createLoadableApplicationBoxesPage = (applicationId: ApplicationId) => {
+export const createLoadableApplicationBoxesPage = (application: Application) => {
   return createLoadableViewModelPageAtom({
-    fetchRawData: (nextPageToken?: string) => createApplicationBoxResultsAtom(applicationId, nextPageToken),
+    fetchRawData: (nextPageToken?: string) => createApplicationBoxResultsAtom(application.id, application.appSpec, nextPageToken),
     createViewModelPageAtom: (rawDataPage) => atom(() => rawDataPage),
   })
 }

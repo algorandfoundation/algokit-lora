@@ -9,7 +9,7 @@ import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
 import { Nfd } from '@/features/nfd/data/types'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { FormItemValue } from '@/features/abi-methods/models'
+import { AbiFormItemValue } from '@/features/abi-methods/models'
 
 export enum BuildableTransactionType {
   // pay
@@ -48,7 +48,7 @@ export type ArgumentField = Omit<ArgumentDefinition, 'type'> & {
   path: string
   fieldSchema: z.ZodTypeAny
   createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-  getAppCallArg: (arg?: FormItemValue) => algosdk.ABIValue | undefined
+  getAppCallArg: (arg?: AbiFormItemValue) => algosdk.ABIValue | undefined
 }
 
 export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {

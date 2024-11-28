@@ -12,7 +12,7 @@ describe('settings-page', () => {
         () => render(<SettingsPage />),
         async (component) => {
           const networkConfigsTable = await component.findByRole('table', { name: networkConfigsTableLabel })
-          tableAssertion({
+          await tableAssertion({
             container: networkConfigsTable,
             rows: [
               { cells: ['LocalNet', 'http://localhost:4001', 'http://localhost:8980'] },
@@ -52,7 +52,7 @@ describe('settings-page', () => {
           })
 
           const networkConfigsTable = await component.findByRole('table', { name: networkConfigsTableLabel })
-          tableAssertion({
+          await tableAssertion({
             container: networkConfigsTable,
             rows: [
               { cells: ['LocalNet', 'http://localhost:4001', 'http://localhost:8980'] },

@@ -98,6 +98,74 @@ export const applicationResultMother = {
       },
     })
   },
+  // This app is associated with the Arc56 sample-one app spec
+  'localnet-3771': () => {
+    return new ApplicationResultBuilder({
+      id: 3771,
+      params: {
+        'approval-program':
+          'CiACAdIJJgEGYm94S2V5MRgUgQYLMRkIjQwA3gDsAAAAAAAAAAAA0AAAAAAAAAAAAAAAgAQVH3x1NhoBSRWBIBJEiAAEULAiQ4oBAYv/VxAIF4v/VxgIFwxBAAEAgAlnbG9iYWxLZXkjZ4AGcAADZm9vgAQADQAlZ4v/VwAIF4v/VwgIFwgWi/9XEAgXi/9XGAgXCRZQiYgAAiJDigAAMQCACGxvY2FsS2V5I2YxAIAEcGZvb4AFAANiYXJmKEm8SIAFAANiYXq/gCFwAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAOAEAAAAAAAAAADAAAAAAAAAAG/iSJDgAS4RHs2NhoAjgH/8QCABDltVQ42GgCOAf8WAIAEAaOj/zYaAI4B/2wA',
+        'clear-state-program': 'Cg==',
+        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        'global-state': [
+          toTealKeyValue({
+            key: 'Z2xvYmFsS2V5',
+            value: {
+              bytes: '',
+              type: 2,
+              uint: 1234,
+            },
+          }),
+          toTealKeyValue({
+            key: 'cAADZm9v',
+            value: {
+              bytes: 'AA0AJQ==',
+              type: 1,
+              uint: 0,
+            },
+          }),
+        ],
+        'global-state-schema': {
+          'num-byte-slice': 37,
+          'num-uint': 1,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 13,
+          'num-uint': 1,
+        },
+      },
+    })
+  },
+  // This app is associated with the Arc56 sample-three app spec
+  'localnet-5103': () => {
+    return new ApplicationResultBuilder({
+      id: 5103,
+      params: {
+        'approval-program':
+          'CiABATEYFIEGCzEZCI0MALQAwgAAAAAAAAAAAKYAAAAAAAAAAAAAAIAEFR98dTYaAUkVgSASRIgABFCwIkOKAQGL/1cQCBeL/1cYCBcMQQABAIAFAANmb2+ABAANACVni/9XAAgXi/9XCAgXCBaL/1cQCBeL/1cYCBcJFlCJiAACIkOKAAAxAIADZm9vgAUAA2JhcmaAIAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAADgBAAAAAAAAAAAwAAAAAAAAABv4kiQ4AEuER7NjYaAI4B//EAgAQ5bVUONhoAjgH/QACABAGjo/82GgCOAf+IAA==',
+        'clear-state-program': 'Cg==',
+        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
+        'global-state': [
+          toTealKeyValue({
+            key: 'AANmb28=',
+            value: {
+              bytes: 'AA0AJQ==',
+              type: 1,
+              uint: 0,
+            },
+          }),
+        ],
+        'global-state-schema': {
+          'num-byte-slice': 37,
+          'num-uint': 0,
+        },
+        'local-state-schema': {
+          'num-byte-slice': 13,
+          'num-uint': 0,
+        },
+      },
+    })
+  },
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>

@@ -165,7 +165,7 @@ export function ApplicationDetails({ application }: Props) {
               <ApplicationGlobalStateTable application={application} />
             </OverflowAutoTabsContent>
             <OverflowAutoTabsContent value={applicationBoxesTabId}>
-              <ApplicationBoxes applicationId={application.id} />
+              <ApplicationBoxes application={application} />
             </OverflowAutoTabsContent>
           </Tabs>
         </CardContent>

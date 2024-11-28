@@ -11,7 +11,7 @@ import {
   abiReferenceTypeToFormFieldSchema,
   abiTypeToFormItem,
   abiTypeToFormFieldSchema,
-  formItemValueToABIValue,
+  abiFormItemValueToABIValue,
 } from '@/features/abi-methods/mappers'
 
 const argumentPathSeparator = '-'
@@ -67,7 +67,7 @@ const asField = (arg: ArgumentDefinition, argIndex: number): ArgumentField | Tra
           }
         ),
       fieldSchema: getFieldSchema(arg.type, isArgOptional),
-      getAppCallArg: (value) => (value !== undefined ? formItemValueToABIValue(arg.type, value) : undefined),
+      getAppCallArg: (value) => (value !== undefined ? abiFormItemValueToABIValue(arg.type, value) : undefined),
     }
   } else {
     return {

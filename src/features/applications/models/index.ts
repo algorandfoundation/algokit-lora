@@ -1,6 +1,7 @@
 import { ApplicationId } from '../data/types'
 import algosdk from 'algosdk'
-import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { DecodedAbiStorageKey, DecodedAbiStorageKeyType, DecodedAbiStorageValue } from '@/features/abi-methods/models'
 
 export type ApplicationSummary = {
   id: ApplicationId
@@ -15,9 +16,10 @@ export type Application = {
   localStateSchema?: ApplicationStateSchema
   approvalProgram: string
   clearStateProgram: string
-  globalState?: Map<string, ApplicationGlobalStateValue>
+  globalState?: GlobalState[]
   json: string
   isDeleted: boolean
+  appSpec?: Arc56Contract
 }
 
 export type ApplicationStateSchema = {
@@ -25,24 +27,43 @@ export type ApplicationStateSchema = {
   numUint: number
 }
 
-export type ApplicationGlobalStateValue =
+export type GlobalState = RawGlobalState | DecodedGlobalState
+export type RawGlobalState =
   | {
-      type: ApplicationGlobalStateType.Bytes
+      key: string
+      type: RawGlobalStateType.Bytes
       value: string
     }
   | {
-      type: ApplicationGlobalStateType.Uint
+      key: string
+      type: RawGlobalStateType.Uint
       value: number | bigint
     }
 
-export enum ApplicationGlobalStateType {
+export type DecodedGlobalState = {
+  key: DecodedAbiStorageKey
+  value: DecodedAbiStorageValue
+}
+
+export enum RawGlobalStateType {
   Bytes = 'Bytes',
   Uint = 'Uint',
 }
 
-export type ApplicationBoxSummary = {
+export type BoxDescriptor = RawBoxDescriptor | DecodedBoxDescriptor
+
+export type RawBoxDescriptor = {
+  base64Name: string
   name: string
 }
+
+export type DecodedBoxDescriptor = {
+  base64Name: string
+  name: string
+  prefix?: string
+  valueType: string
+  type: DecodedAbiStorageKeyType
+} & DecodedAbiStorageValue
 
 export type ApplicationBox = {
   name: string

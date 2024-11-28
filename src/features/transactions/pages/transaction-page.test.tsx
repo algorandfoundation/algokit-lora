@@ -86,6 +86,9 @@ import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/ind
 import { genesisHashAtom } from '@/features/blocks/data'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { algod } from '@/features/common/data/algo-client'
+import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -201,7 +204,7 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             rows: [
               {
@@ -547,7 +550,7 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             rows: [
               {
@@ -704,7 +707,7 @@ describe('transaction-page', () => {
 
           await user.click(getByRole(detailsTabList, 'tab', { name: globalStateDeltaTabLabel }))
           const globalStateDeltaTab = component.getByRole('tabpanel', { name: globalStateDeltaTabLabel })
-          tableAssertion({
+          await tableAssertion({
             container: globalStateDeltaTab,
             rows: [
               {
@@ -728,7 +731,7 @@ describe('transaction-page', () => {
           await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTabLabel }))
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
 
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             rows: [
               { cells: ['', 'KMNBSQ4…', 'Tjo3cLO…', 'W2IZ…NCEY', '971368268', 'Application Call', ''] },
@@ -807,7 +810,7 @@ describe('transaction-page', () => {
 
           await user.click(getByRole(detailsTabList, 'tab', { name: localStateDeltaTabLabel }))
           const localStateDeltaTab = component.getByRole('tabpanel', { name: localStateDeltaTabLabel })
-          tableAssertion({
+          await tableAssertion({
             container: localStateDeltaTab,
             rows: [
               {
@@ -825,7 +828,7 @@ describe('transaction-page', () => {
           const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
           await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTabLabel }))
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             rows: [
               { cells: ['', 'inner/2', 'aWpPwlo…', 'AACC…EN4A', '1002541853', 'Application Call', ''] },
@@ -1028,7 +1031,7 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             rows: [
               {
@@ -1118,7 +1121,7 @@ describe('transaction-page', () => {
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             rows: [
               {
@@ -1352,5 +1355,213 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
         })
       }
     )
+  })
+})
+
+describe('when rendering an app call transaction with ARC-56 app spec loaded', () => {
+  describe('when the transaction has global state delta data', () => {
+    const transaction = transactionResultMother['localnet-AIIGV5XLUCNTLDOBBSFXDGCLBOM6WIE42OMTADUAFBD3PHK6JL4Q']().build()
+    const myStore = createStore()
+
+    beforeEach(async () => {
+      myStore.set(genesisHashAtom, 'some-hash')
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      const applicationId = transaction['application-transaction']!['application-id']!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await upsertAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC56,
+            appSpec: Arc56TestAppSpecSampleOne as unknown as Arc56Contract,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+    })
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const detailsTabList = await component.findByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: globalStateDeltaTabLabel }))
+          const globalStateDeltaTab = component.getByRole('tabpanel', { name: globalStateDeltaTabLabel })
+
+          await tableAssertion({
+            container: globalStateDeltaTab,
+            rows: [
+              {
+                cells: ['globalKey', 'TypeKeyValue"globalKey"', 'Set', '1234'],
+              },
+              {
+                cells: ['globalMap', 'TypeMap KeyAppSpec PrefixpValue"foo"', 'Set', '{foo: 13, bar: 37}'],
+              },
+            ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when the transaction has local state delta data', () => {
+    const transaction = transactionResultMother['localnet-Z64TMG3BMEVRM2CSJDEHBB7NAPI5B3HZJZEZZ7DJDPN5WOBYTMFA']().build()
+    const myStore = createStore()
+
+    beforeEach(async () => {
+      myStore.set(genesisHashAtom, 'some-hash')
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      const applicationId = transaction['application-transaction']!['application-id']!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await upsertAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC56,
+            appSpec: Arc56TestAppSpecSampleOne as unknown as Arc56Contract,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+    })
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const detailsTabList = await component.findByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: localStateDeltaTabLabel }))
+          const globalStateDeltaTab = component.getByRole('tabpanel', { name: localStateDeltaTabLabel })
+
+          await tableAssertion({
+            container: globalStateDeltaTab,
+            rows: [
+              {
+                cells: ['25M5…MTOE', 'localKey', 'TypeKeyValue"localKey"', 'Set', '1234'],
+              },
+              {
+                cells: ['25M5…MTOE', 'localMap', 'TypeMap KeyAppSpec PrefixpValue"foo"', 'Set', '"bar"'],
+              },
+            ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when the transaction has global state delta data (no prefix)', () => {
+    const transaction = transactionResultMother['localnet-B65NVNGK6E6K2E2F4K2M5HRKB4VPPZMJLS55UKWLN6O2XPT2NSTA']().build()
+    const myStore = createStore()
+
+    beforeEach(async () => {
+      myStore.set(genesisHashAtom, 'some-hash')
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      const applicationId = transaction['application-transaction']!['application-id']!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await upsertAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC56,
+            appSpec: Arc56TestAppSpecSampleThree as unknown as Arc56Contract,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+    })
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const detailsTabList = await component.findByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: globalStateDeltaTabLabel }))
+          const globalStateDeltaTab = component.getByRole('tabpanel', { name: globalStateDeltaTabLabel })
+
+          await tableAssertion({
+            container: globalStateDeltaTab,
+            rows: [
+              {
+                cells: ['globalMap', 'TypeMap KeyValue"foo"', 'Set', '{foo: 13, bar: 37}'],
+              },
+            ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when the transaction has local state delta data (no prefix)', () => {
+    const transaction = transactionResultMother['localnet-UUVFBB6FV46RDM66RJSLVP4JIDIM75JSQSURJECEJNUXKMY3XVWQ']().build()
+    const myStore = createStore()
+
+    beforeEach(async () => {
+      myStore.set(genesisHashAtom, 'some-hash')
+      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+      const applicationId = transaction['application-transaction']!['application-id']!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await upsertAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC56,
+            appSpec: Arc56TestAppSpecSampleThree as unknown as Arc56Contract,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+    })
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+
+      return executeComponentTest(
+        () => {
+          return render(<TransactionPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const detailsTabList = await component.findByRole('tablist', { name: appCallTransactionDetailsLabel })
+          expect(detailsTabList).toBeTruthy()
+
+          await user.click(getByRole(detailsTabList, 'tab', { name: localStateDeltaTabLabel }))
+          const globalStateDeltaTab = component.getByRole('tabpanel', { name: localStateDeltaTabLabel })
+
+          await tableAssertion({
+            container: globalStateDeltaTab,
+            rows: [
+              {
+                cells: ['25M5…MTOE', 'localMap', 'TypeMap KeyValue"foo"', 'Set', '"bar"'],
+              },
+            ],
+          })
+        }
+      )
+    })
   })
 })
