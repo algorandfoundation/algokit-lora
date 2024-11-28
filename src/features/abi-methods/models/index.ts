@@ -1,4 +1,7 @@
+import { StructDefinition } from '@/features/applications/models'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
+import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import algosdk from 'algosdk'
 
 export enum DecodedAbiType {
   String = 'String',
@@ -86,7 +89,51 @@ export type DecodedAbiMethod = {
 
 export type DynamicArrayFormItemValue = {
   id: string
-  child: FormItemValue
+  child: AbiFormItemValue
 }
 
-export type FormItemValue = string | boolean | bigint | number | AddressOrNfd | FormItemValue[] | DynamicArrayFormItemValue[]
+export type AbiFormItemValue = string | boolean | bigint | number | AddressOrNfd | AbiFormItemValue[] | DynamicArrayFormItemValue[]
+
+export type AvmValue = bigint | string
+
+export enum DecodedAvmType {
+  String = 'String',
+  Uint = 'Uint',
+  Bytes = 'Bytes',
+}
+
+export type DecodedAvmValue =
+  | {
+      type: DecodedAvmType.Uint
+      value: bigint
+    }
+  | {
+      type: DecodedAvmType.String | DecodedAvmType.Bytes
+      value: string
+    }
+
+export type DecodedAbiStorageValue =
+  | {
+      avmType: AVMType
+      value: DecodedAvmValue
+    }
+  | {
+      abiType: algosdk.ABIType
+      value: DecodedAbiValue
+    }
+  | {
+      abiType: algosdk.ABIType
+      struct: StructDefinition
+      value: DecodedAbiStruct
+    }
+
+export enum DecodedAbiStorageKeyType {
+  Key = 'Key',
+  MapKey = 'Map Key',
+}
+
+export type DecodedAbiStorageKey = {
+  name: string
+  prefix?: string
+  type: DecodedAbiStorageKeyType
+} & DecodedAbiStorageValue

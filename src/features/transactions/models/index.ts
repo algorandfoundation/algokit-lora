@@ -5,7 +5,7 @@ import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { GroupId } from '@/features/groups/data/types'
 import { Atom } from 'jotai/index'
-import { DecodedAbiMethod } from '@/features/abi-methods/models'
+import { DecodedAbiMethod, DecodedAbiStorageKey, DecodedAbiStorageValue } from '@/features/abi-methods/models'
 
 export type CommonTransactionProperties = {
   type: TransactionType
@@ -112,20 +112,37 @@ export type Logicsig = {
   logic: string
 }
 
-export type GlobalStateDelta = {
+export type RawGlobalStateDelta = {
   key: string
   type: 'Bytes' | 'Uint'
   action: 'Set' | 'Delete'
   value: string
 }
 
-export type LocalStateDelta = {
+export type DecodedGlobalStateDelta = {
+  key: DecodedAbiStorageKey
+  value: DecodedAbiStorageValue
+  action: 'Set' | 'Delete'
+}
+
+export type GlobalStateDelta = RawGlobalStateDelta | DecodedGlobalStateDelta
+
+export type RawLocalStateDelta = {
   address: Address
   key: string
   type: 'Bytes' | 'Uint'
   action: 'Set' | 'Delete'
   value: string
 }
+
+export type DecodedLocalStateDelta = {
+  address: Address
+  key: DecodedAbiStorageKey
+  value: DecodedAbiStorageValue
+  action: 'Set' | 'Delete'
+}
+
+export type LocalStateDelta = RawLocalStateDelta | DecodedLocalStateDelta
 
 export enum AppCallTransactionSubType {
   Create = 'Create',
@@ -140,8 +157,8 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   foreignApps: number[]
   foreignAssets: number[]
   applicationAccounts: Address[]
-  globalStateDeltas: GlobalStateDelta[]
-  localStateDeltas: LocalStateDelta[]
+  globalStateDeltas: Atom<Promise<GlobalStateDelta[]>>
+  localStateDeltas: Atom<Promise<LocalStateDelta[]>>
   innerTransactions: InnerTransaction[]
   onCompletion: AppCallOnComplete
   logs: string[]

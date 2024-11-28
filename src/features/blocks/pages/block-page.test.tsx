@@ -179,7 +179,7 @@ describe('block-page', () => {
             const rows = getAllByRole(component.container, 'row')
             expect(rows.length).toBe(3)
 
-            tableAssertion({
+            await tableAssertion({
               container: component.container,
               rows: [
                 {

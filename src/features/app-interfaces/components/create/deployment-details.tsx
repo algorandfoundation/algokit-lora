@@ -17,11 +17,11 @@ import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { useLoadableAppInterfacesAtom } from '../../data'
 import { asArc56AppSpec } from '@/features/applications/mappers'
-import { TealAVMTypeTemplateParamFieldValue, TealTemplateParamField, TealUnknownTypeTemplateParamFieldValue } from '../../models'
+import { TealTemplateParamField, TealUnknownTypeTemplateParamFieldValue } from '../../models'
 import { asTealTemplateParamField } from '@/features/app-interfaces/mappers'
 import { getTemplateParamDefinition } from '../../utils/get-template-param-field-definition'
 import { ABITypeTemplateParam, TemplateParamType, UnknownTypeTemplateParam } from '../../data/types'
-import { FormItemValue } from '@/features/abi-methods/models'
+import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
 
 export const UPDATABLE_TEMPLATE_VAR_NAME = 'UPDATABLE'
 export const DELETABLE_TEMPLATE_VAR_NAME = 'DELETABLE'
@@ -170,7 +170,7 @@ export function DeploymentDetails({ machine }: Props) {
     (values: z.infer<typeof formSchema>) => {
       const templateParamValues = templateParamFields.map((f) => {
         const value = values[f.path as keyof z.infer<typeof formSchema>]
-        return f.toTemplateParam(value as (TealUnknownTypeTemplateParamFieldValue & TealAVMTypeTemplateParamFieldValue) & FormItemValue)
+        return f.toTemplateParam(value as (TealUnknownTypeTemplateParamFieldValue & AvmValue) & AbiFormItemValue)
       })
 
       send({

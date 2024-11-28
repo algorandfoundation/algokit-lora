@@ -131,7 +131,7 @@ describe('group-page', () => {
           await user.click(getByRole(groupVisualTabList, 'tab', { name: groupVisualTableLabel }))
           const tableViewTab = component.getByRole('tabpanel', { name: groupVisualTableLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
-          tableAssertion({
+          await tableAssertion({
             container: tableViewTab,
             // This table has 10+ row, we only test the first 2 rows
             rows: [

@@ -11,7 +11,7 @@ import {
   AVMTypeTemplateParam,
 } from '@/features/app-interfaces/data/types'
 import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { FormItemValue } from '@/features/abi-methods/models'
+import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
 
 export type TealTemplateParamField =
   | {
@@ -28,9 +28,9 @@ export type TealTemplateParamField =
       type: AVMType
       fieldSchema: z.ZodTypeAny
       createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-      toTemplateParam: (value: TealAVMTypeTemplateParamFieldValue) => AVMTypeTemplateParam
-      fromTemplateParam: (templateParam: AVMTypeTemplateParam) => TealAVMTypeTemplateParamFieldValue
-      defaultValue?: TealAVMTypeTemplateParamFieldValue
+      toTemplateParam: (value: AvmValue) => AVMTypeTemplateParam
+      fromTemplateParam: (templateParam: AVMTypeTemplateParam) => AvmValue
+      defaultValue?: AvmValue
     }
   | {
       name: string
@@ -39,18 +39,17 @@ export type TealTemplateParamField =
       struct?: StructDefinition
       fieldSchema: z.ZodTypeAny
       createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-      toTemplateParam: (value: FormItemValue) => ABITypeTemplateParam
-      fromTemplateParam: (templateParam: ABITypeTemplateParam) => FormItemValue
-      defaultValue?: FormItemValue
+      toTemplateParam: (value: AbiFormItemValue) => ABITypeTemplateParam
+      fromTemplateParam: (templateParam: ABITypeTemplateParam) => AbiFormItemValue
+      defaultValue?: AbiFormItemValue
     }
 
 export type TealTemplateParamDefinition = {
   name: string
   type?: algosdk.ABIType | AVMType
   struct?: StructDefinition
-  defaultValue?: FormItemValue | TealAVMTypeTemplateParamFieldValue
+  defaultValue?: AbiFormItemValue | AvmValue
 }
 
 export type TealUnknownTypeTemplateParamFieldValue = { type: TemplateParamType; value: string }
-export type TealAVMTypeTemplateParamFieldValue = bigint | string
-export type TealTemplateParamFieldValue = FormItemValue | TealUnknownTypeTemplateParamFieldValue | TealAVMTypeTemplateParamFieldValue
+export type TealTemplateParamFieldValue = AbiFormItemValue | TealUnknownTypeTemplateParamFieldValue | AvmValue

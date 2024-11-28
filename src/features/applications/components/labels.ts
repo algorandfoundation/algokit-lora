@@ -20,8 +20,8 @@ export const applicationGlobalStateTabId = 'global-state'
 export const applicationBoxesLabel = 'Box'
 export const applicationBoxesTabId = 'boxes'
 
-export const applicationBoxNameLabel = 'Box Name'
-export const applicationBoxValueLabel = 'Box Value'
+export const applicationBoxNameLabel = 'Name'
+export const applicationBoxValueLabel = 'Value'
 
 export const applicationTransactionsLabel = 'Activity'
 export const applicationLiveTransactionsTabId = 'live-transactions'

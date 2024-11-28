@@ -18,9 +18,17 @@ interface DataTableProps<TData, TValue> {
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
   ariaLabel?: string
+  hidePagination?: boolean
 }
 
-export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExpanded, ariaLabel }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  getSubRows,
+  subRowsExpanded,
+  ariaLabel,
+  hidePagination,
+}: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
   const table = useReactTable({
     data,
@@ -84,7 +92,7 @@ export function DataTable<TData, TValue>({ columns, data, getSubRows, subRowsExp
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {!hidePagination && <DataTablePagination table={table} />}
     </div>
   )
 }

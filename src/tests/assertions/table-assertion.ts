@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { getAllByRole } from '../testing-library'
+import { getAllByRole, within } from '../testing-library'
 
 export type TableAssertionInput = {
   container: HTMLElement
@@ -11,8 +11,11 @@ export type TableRowAssertion = {
   cells: string[]
 }
 
-export const tableAssertion = ({ container, rows, matchRowCount }: TableAssertionInput) => {
-  const tableBody = container.querySelector('tbody')
+export const tableAssertion = async ({ container, rows, matchRowCount }: TableAssertionInput) => {
+  const rowGroups = await within(container).findAllByRole('rowgroup')
+  expect(rowGroups.length, 'Expected thead and tbody').toBe(2)
+
+  const tableBody = rowGroups[1]
   expect(tableBody, 'tbody not found').toBeTruthy()
   const tableRows = getAllByRole(tableBody!, 'row')
 

@@ -1,3 +1,4 @@
+import { AvmValue } from '@/features/abi-methods/models'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { AbiContract as Arc4AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { ApplicationId } from '@/features/applications/data/types'
@@ -47,7 +48,7 @@ export type UnknownTypeTemplateParam = {
 }
 export type AVMTypeTemplateParam = {
   name: string
-  value: string | bigint
+  value: AvmValue
 }
 export type ABITypeTemplateParam = {
   name: string

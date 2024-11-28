@@ -1,5 +1,12 @@
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
-import { AppCallTransaction, GlobalStateDelta, InnerAppCallTransaction, LocalStateDelta } from '../models'
+import {
+  AppCallTransaction,
+  GlobalStateDelta,
+  InnerAppCallTransaction,
+  LocalStateDelta,
+  RawGlobalStateDelta,
+  RawLocalStateDelta,
+} from '../models'
 import { cn } from '@/features/common/utils'
 import { useMemo } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
@@ -15,6 +22,9 @@ import { loadable } from 'jotai/utils'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { DecodedAbiMethod as DecodedAbiMethodModel } from '@/features/abi-methods/models'
 import { DecodedAbiMethod } from '@/features/abi-methods/components/decoded-abi-method'
+import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
+import { DecodedAbiStorageValue } from '@/features/abi-methods/components/decoded-abi-storage-value'
+import { DecodedAbiStorageKey } from '@/features/abi-methods/components/decoded-abi-storage-key'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction
@@ -38,7 +48,6 @@ export const decodedAbiMethodTabLabel = 'ABI Method'
 export const appCallTransactionDetailsLabel = 'App Call Transaction Details'
 export const onCompletionLabel = 'On Completion'
 
-// TODO: PD - handle state deltas
 export function AppCallTransactionInfo({ transaction }: Props) {
   const loadableAbiMethod = useAtomValue(loadable(transaction.abiMethod))
 
@@ -203,7 +212,7 @@ function ForeignAssets({ transaction }: Props) {
   )
 }
 
-export const globalStateDeltaTableColumns: ColumnDef<GlobalStateDelta>[] = [
+const rawGlobalStateDeltaTableColumns: ColumnDef<RawGlobalStateDelta>[] = [
   {
     accessorKey: 'key',
     header: 'Key',
@@ -222,11 +231,68 @@ export const globalStateDeltaTableColumns: ColumnDef<GlobalStateDelta>[] = [
   },
 ]
 
+const decodedGlobalStateDeltaTableColumns: ColumnDef<GlobalStateDelta>[] = [
+  {
+    header: 'Key',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const key = c.getValue<GlobalStateDelta>().key
+
+      if (typeof key === 'string') {
+        return key
+      }
+
+      return key.name
+    },
+  },
+  {
+    header: 'Decoded Key',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const key = c.getValue<GlobalStateDelta>().key
+
+      if (typeof key === 'string') {
+        return undefined
+      }
+
+      return <DecodedAbiStorageKey storageKey={key} />
+    },
+  },
+  {
+    accessorKey: 'action',
+    header: 'Action',
+  },
+  {
+    header: 'Value',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const globalState = c.getValue<GlobalStateDelta>()
+
+      if ('type' in globalState) {
+        return globalState.value.toString()
+      }
+
+      return <DecodedAbiStorageValue value={globalState.value} />
+    },
+  },
+]
+
 function GlobalStateDeltas({ transaction }: Props) {
-  return <DataTable columns={globalStateDeltaTableColumns} data={transaction.globalStateDeltas} />
+  return <RenderAsyncAtom atom={transaction.globalStateDeltas}>{(data) => <GlobalStateTable data={data} />}</RenderAsyncAtom>
 }
 
-export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
+function GlobalStateTable({ data }: { data: GlobalStateDelta[] }) {
+  const component = useMemo(() => {
+    if (data.every((item) => 'type' in item)) {
+      return <DataTable columns={rawGlobalStateDeltaTableColumns} data={data} />
+    }
+    return <DataTable columns={decodedGlobalStateDeltaTableColumns} data={data} />
+  }, [data])
+
+  return component
+}
+
+const rawLocalStateDeltaTableColumns: ColumnDef<RawLocalStateDelta>[] = [
   {
     accessorKey: 'address',
     header: 'Address',
@@ -250,6 +316,68 @@ export const localStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
   },
 ]
 
+const decodedLocalStateDeltaTableColumns: ColumnDef<LocalStateDelta>[] = [
+  {
+    accessorKey: 'address',
+    header: 'Address',
+    cell: (c) => <AccountLink address={c.getValue<string>()} short={true} />,
+  },
+  {
+    header: 'Key',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const key = c.getValue<LocalStateDelta>().key
+
+      if (typeof key === 'string') {
+        return key
+      }
+
+      return key.name
+    },
+  },
+  {
+    header: 'Decoded Key',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const key = c.getValue<LocalStateDelta>().key
+
+      if (typeof key === 'string') {
+        return undefined
+      }
+
+      return <DecodedAbiStorageKey storageKey={key} />
+    },
+  },
+  {
+    accessorKey: 'action',
+    header: 'Action',
+  },
+  {
+    header: 'Value',
+    accessorFn: (item) => item,
+    cell: (c) => {
+      const localState = c.getValue<LocalStateDelta>()
+
+      if ('type' in localState) {
+        return localState.value.toString()
+      }
+
+      return <DecodedAbiStorageValue value={localState.value} />
+    },
+  },
+]
+
 function LocalStateDeltas({ transaction }: Props) {
-  return <DataTable columns={localStateDeltaTableColumns} data={transaction.localStateDeltas} />
+  return <RenderAsyncAtom atom={transaction.localStateDeltas}>{(data) => <LocalStateTable data={data} />}</RenderAsyncAtom>
+}
+
+function LocalStateTable({ data }: { data: LocalStateDelta[] }) {
+  const component = useMemo(() => {
+    if (data.every((item) => 'type' in item)) {
+      return <DataTable columns={rawLocalStateDeltaTableColumns} data={data} />
+    }
+    return <DataTable columns={decodedLocalStateDeltaTableColumns} data={data} />
+  }, [data])
+
+  return component
 }
