@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
 import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, FlaskConical } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
 import SvgWizard from '@/features/common/components/icons/wizard'
 
@@ -94,6 +94,7 @@ export function LeftSideBarMenu({ className }: Props) {
         </NavigationMenuList>
       </NavigationMenu>
       <div className="mb-4 mt-auto">
+        <NavLink to="/fund/auth-callback?code=foo&state=bar">Foo</NavLink>
         <ThemeToggle navTextClassName={navTextClassName} />
         <TemplatedNavLink urlTemplate={Urls.Settings} className={navLinkClassName}>
           <div className={navIconClassName}>

@@ -1,15 +1,23 @@
 import { useCallback } from 'react'
 import { Button } from '@/features/common/components/button'
 import { useAuth0 } from '@auth0/auth0-react'
+import { open } from '@tauri-apps/plugin-shell'
 
 export const dispenserApiLoginButtonLabel = 'log in to fund your account'
 
 export function DispenserApiLoggedOut() {
-  const { loginWithPopup } = useAuth0()
+  const { loginWithRedirect } = useAuth0()
 
   const logIn = useCallback(async () => {
-    await loginWithPopup()
-  }, [loginWithPopup])
+    await loginWithRedirect({
+      appState: {
+        returnTo: '/fund',
+      },
+      openUrl: async (url) => {
+        await open(url)
+      },
+    })
+  }, [loginWithRedirect])
 
   return (
     <div>

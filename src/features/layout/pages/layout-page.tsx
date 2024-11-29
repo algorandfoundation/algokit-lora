@@ -16,7 +16,8 @@ type Props = {
   children?: ReactNode
 }
 
-const callbackUrl = `${window.location.origin}${Urls.FundAuthCallback.build({})}`
+const callbackUrl = `algokit-lora:/${Urls.FundAuthCallback.build({})}`
+// const callbackUrl = `${window.location.origin}${Urls.FundAuthCallback.build({})}`
 const scope = 'openid email'
 
 export function LayoutPage({ children }: Props) {
@@ -64,3 +65,5 @@ export function LayoutPage({ children }: Props) {
     inner
   )
 }
+
+// tauri://localhost/fund/auth-callback?code=Tjuaj_kKDKpUw8KvUYDEJxiv1--M0ej3EaJjKpfKLOx6Z&state=Q09nQ2trdlpQYnMyd0JqcW91Q1Q4T0wyUEstZ3JBNGNya25JbTNDb1RQaQ%3D%3D

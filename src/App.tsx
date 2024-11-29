@@ -16,3 +16,10 @@ function App() {
 }
 
 export default App
+
+// TODO: PD - make this a dialog
+// if (window.__TAURI_INTERNALS__) {
+//   window.prompt = (message: string | undefined) => {
+//     throw new Error('foo')
+//   }
+// }

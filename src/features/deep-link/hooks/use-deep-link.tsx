@@ -32,6 +32,7 @@ export function useDeepLink() {
   useEffect(() => {
     // Only run useEffect if you are within a TAURI instance
     if (!window.__TAURI_INTERNALS__) return
+
     // If the currentUrl is falsy then the deeplink opened the app
     if (!currentUrl) {
       getCurrent().then((current) => {
