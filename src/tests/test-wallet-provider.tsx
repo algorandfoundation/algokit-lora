@@ -1,7 +1,6 @@
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { PROVIDER_ID, useInitializeProviders } from '@txnlab/use-wallet'
-import { PropsWithChildren } from 'react'
-import algosdk from 'algosdk'
+import { WalletId, WalletManager } from '@txnlab/use-wallet'
+import { PropsWithChildren, useMemo } from 'react'
 import { WalletProviderInner } from '@/features/common/components/wallet-provider-inner'
 
 type Props = PropsWithChildren<{
@@ -9,15 +8,15 @@ type Props = PropsWithChildren<{
 }>
 
 export function TestWalletProvider({ networkConfig, children }: Props) {
-  const options = {
-    providers: [PROVIDER_ID.MNEMONIC], // Providers are mocked. This is just to satisfy NonEmptyArray.
-    nodeConfig: {
-      network: networkConfig.id,
-      nodeServer: networkConfig.algod.server,
-      nodePort: networkConfig.algod.port,
-    },
-    algosdkStatic: algosdk,
-  } as Parameters<typeof useInitializeProviders>[0]
+  const walletManager = useMemo(() => {
+    return new WalletManager({
+      wallets: [WalletId.MNEMONIC], // Providers are mocked. This is just to satisfy NonEmptyArray.
+      algod: {
+        baseServer: networkConfig.algod.server,
+        port: networkConfig.algod.port,
+      },
+    })
+  }, [networkConfig.algod.port, networkConfig.algod.server])
 
-  return <WalletProviderInner initOptions={options}>{children}</WalletProviderInner>
+  return <WalletProviderInner walletManager={walletManager}>{children}</WalletProviderInner>
 }

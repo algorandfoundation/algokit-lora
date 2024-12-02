@@ -5,7 +5,7 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
 import { CreateAppInterfacePage } from './create-app-interface-page'
 import { deployAppLabel } from '../components/labels'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 import SampleSixAppSpec from '@/tests/test-app-specs/sample-six.arc32.json'
 import { Arc32AppSpec } from '../data/types'
 import { selectOption } from '@/tests/utils/select-option'
@@ -213,14 +213,12 @@ describe('create-app-interface', () => {
 
   describe('when a wallet is not connected', () => {
     beforeEach(async () => {
-      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet-react')
       vi.mocked(useWallet).mockImplementation(() => {
         return {
           ...original.useWallet(),
-          activeAddress: undefined,
-          isActive: false,
-          isReady: true,
-        }
+          activeAddress: null,
+        } satisfies ReturnType<typeof useWallet>
       })
     })
 

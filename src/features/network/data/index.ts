@@ -1,31 +1,31 @@
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
-import { clearAccounts, PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
+import { WalletId } from '@txnlab/use-wallet-react'
 import { useCallback } from 'react'
 import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
 import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
 import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
+import { useDisconnectAllWallets } from '@/features/wallet/hooks/use-disconnect-all-wallets'
 
 export { localnetId, testnetId, mainnetId, fnetId } from './types'
-export const localnetWalletProviders = [PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC, PROVIDER_ID.LUTE]
-export const nonLocalnetWalletProviders = [PROVIDER_ID.DEFLY, PROVIDER_ID.DAFFI, PROVIDER_ID.PERA, PROVIDER_ID.EXODUS, PROVIDER_ID.LUTE]
-const supportedWalletProviders = Array.from(new Set([...localnetWalletProviders, ...nonLocalnetWalletProviders]))
-export const allWalletProviderNames: Record<PROVIDER_ID, string> = {
+export const localnetWalletIds = [WalletId.KMD, WalletId.MNEMONIC, WalletId.LUTE]
+export const nonLocalnetWalletIds = [WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS, WalletId.LUTE]
+export const allWalletProviderNames: Record<WalletId, string> = {
   kmd: 'KMD',
   mnemonic: 'MNEMONIC',
   defly: 'Defly',
-  daffi: 'Daffi',
   pera: 'Pera',
   exodus: 'Exodus',
   lute: 'Lute',
   // The below providers aren't used
   custom: 'Custom',
-  myalgo: 'My Algo',
-  algosigner: 'Algo Signer',
   kibisis: 'Kibisis',
   walletconnect: 'Wallet Connect',
   magic: 'Magic',
+  liquid: 'Liquid',
+  'pera-beta': 'Pera Beta',
+  biatec: 'Biatec',
 }
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
@@ -46,7 +46,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       port: 4002,
       token: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
     },
-    walletProviders: localnetWalletProviders,
+    walletIds: localnetWalletIds,
   },
   [fnetId]: {
     name: 'FNet',
@@ -58,7 +58,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       server: 'https://fnet-api.4160.nodely.io/',
       port: 443,
     },
-    walletProviders: [PROVIDER_ID.LUTE],
+    walletIds: [WalletId.LUTE],
   },
   [betanetId]: {
     name: 'BetaNet',
@@ -70,7 +70,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       server: 'https://betanet-api.algonode.cloud/',
       port: 443,
     },
-    walletProviders: [PROVIDER_ID.LUTE],
+    walletIds: [WalletId.LUTE],
   },
   [testnetId]: {
     name: 'TestNet',
@@ -82,7 +82,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       server: 'https://testnet-api.algonode.cloud/',
       port: 443,
     },
-    walletProviders: nonLocalnetWalletProviders,
+    walletIds: nonLocalnetWalletIds,
     dispenserApi: {
       url: config.testNetDispenserApiUrl,
       address: config.testNetDispenserAddress,
@@ -99,7 +99,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       server: 'https://mainnet-api.algonode.cloud/',
       port: 443,
     },
-    walletProviders: nonLocalnetWalletProviders,
+    walletIds: nonLocalnetWalletIds,
     nfdApiUrl: 'https://api.nf.domains',
   },
 }
@@ -272,24 +272,6 @@ export const networkConfigAtom = atom<NetworkConfigWithId>((get) => {
   }
   const config = networkConfigs[id]
 
-  // This clears a connected mnemonic wallet after a page reload, as the mnemonic is not stored and cannot be used to sign transactions.
-  if (config.walletProviders.includes(PROVIDER_ID.MNEMONIC)) {
-    clearAccounts(PROVIDER_ID.MNEMONIC)
-  }
-
-  // This clears a connected KMD wallet after a page reload, as the chosen wallet isn't stored in the wallet provider state.
-  // We can revisit if this is required in the future when upgrading to useWallet v3.
-  if (config.walletProviders.includes(PROVIDER_ID.KMD)) {
-    clearAccounts(PROVIDER_ID.KMD)
-  }
-
-  // This clears accounts for all wallet providers that are not configured
-  supportedWalletProviders.forEach((providerId) => {
-    if (!config.walletProviders.includes(providerId)) {
-      clearAccounts(providerId)
-    }
-  })
-
   const networkTokens = id in networksPromptedTokens ? networksPromptedTokens[id] : undefined
 
   return {
@@ -317,24 +299,16 @@ export const useSelectedNetwork = () => {
 }
 
 export const useSetSelectedNetwork = () => {
-  const { providers } = useWallet()
+  const disconnectAllWallets = useDisconnectAllWallets()
   const setStorageNetwork = useSetAtom(storedSelectedNetworkIdAtom, { store: settingsStore })
 
   return useCallback(
     async (selectedNetwork: string) => {
-      if (providers) {
-        await Promise.all(
-          providers.map(async (provider) => {
-            if (provider.isConnected) {
-              await provider.disconnect()
-            }
-          })
-        )
-      }
+      disconnectAllWallets()
       setStorageNetwork(selectedNetwork)
       // Refresh selected network atom value
       settingsStore.set(selectedNetworkAtomId)
     },
-    [providers, setStorageNetwork]
+    [disconnectAllWallets, setStorageNetwork]
   )
 }
