@@ -5,14 +5,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { Fieldset } from '@/features/forms/components/fieldset'
 import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/edit-network-config-form-schema'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
-import { PROVIDER_ID } from '@txnlab/use-wallet'
+import { WalletId } from '@txnlab/use-wallet-react'
 import {
   allWalletProviderNames,
   defaultNetworkConfigs,
   localnetId,
-  localnetWalletProviders,
+  localnetWalletIds,
   mainnetId,
-  nonLocalnetWalletProviders,
+  nonLocalnetWalletIds,
   testnetId,
 } from '@/features/network/data'
 
@@ -30,16 +30,16 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   const { setValue, watch, unregister } = useFormContext<z.infer<typeof editNetworkConfigFormSchema>>()
   const [kmdRequired, setKmdRequired] = useState(false)
 
-  const walletProviders = watch('walletProviders')
+  const walletIds = watch('walletIds')
   useEffect(() => {
-    const isKmdRequired = (walletProviders ?? []).includes(PROVIDER_ID.KMD)
+    const isKmdRequired = (walletIds ?? []).includes(WalletId.KMD)
 
     setKmdRequired(isKmdRequired)
     if (!isKmdRequired) {
       setValue('kmd', undefined)
       unregister('kmd')
     }
-  }, [setValue, unregister, walletProviders])
+  }, [setValue, unregister, walletIds])
 
   const algodPromptForToken = watch('algod.promptForToken')
   useEffect(() => {
@@ -65,10 +65,10 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
   return (
     <>
       {helper.multiSelectField({
-        label: 'Wallet providers',
-        field: 'walletProviders',
+        label: 'Wallets',
+        field: 'walletIds',
         options: supportedWalletProviders,
-        placeholder: 'Select wallet providers',
+        placeholder: 'Select wallets',
       })}
       <Fieldset legend="Algod">
         {helper.textField({
@@ -150,13 +150,13 @@ export function NetworkFormInner({ networkId, helper }: FormInnerProps) {
 
 const getSupportedWalletProviderOptions = (networkId?: string) => {
   if (networkId === localnetId) {
-    return localnetWalletProviders.map((provider) => ({
+    return localnetWalletIds.map((provider) => ({
       value: provider,
       label: allWalletProviderNames[provider],
     }))
   }
 
-  const nonLocalnetWalletProviderOptions = nonLocalnetWalletProviders.map((provider) => ({
+  const nonLocalnetWalletProviderOptions = nonLocalnetWalletIds.map((provider) => ({
     value: provider,
     label: allWalletProviderNames[provider],
   }))
@@ -166,5 +166,5 @@ const getSupportedWalletProviderOptions = (networkId?: string) => {
   }
 
   // For custom network
-  return nonLocalnetWalletProviderOptions.concat({ value: PROVIDER_ID.KMD, label: allWalletProviderNames[PROVIDER_ID.KMD] })
+  return nonLocalnetWalletProviderOptions.concat({ value: WalletId.KMD, label: allWalletProviderNames[WalletId.KMD] })
 }

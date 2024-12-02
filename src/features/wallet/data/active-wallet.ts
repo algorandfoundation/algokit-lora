@@ -19,14 +19,12 @@ export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccou
   }
 })
 
-export const useSetActiveWalletState = (isReady: boolean, activeAddress: string | undefined, signer: algosdk.TransactionSigner) => {
+export const useSetActiveWalletState = (activeAddress: string | undefined, signer: algosdk.TransactionSigner) => {
   const setActiveWalletAddress = useSetAtom(activeWalletAddressAtom)
   useEffect(() => {
-    if (isReady) {
-      setActiveWalletAddress(activeAddress)
-      algorandClient.setDefaultSigner(signer)
-    }
-  }, [setActiveWalletAddress, activeAddress, isReady, signer])
+    setActiveWalletAddress(activeAddress)
+    algorandClient.setDefaultSigner(signer)
+  }, [setActiveWalletAddress, activeAddress, signer])
 }
 
 const getActiveWalletAccount = async (address: string) => {

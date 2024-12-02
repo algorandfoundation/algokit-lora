@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { useCreateAppInterfaceStateMachine } from '../../data'
 import { Card, CardContent } from '@/features/common/components/card'
 import { Button } from '@/features/common/components/button'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { deployAppLabel } from '../labels'
 
 type Props = {

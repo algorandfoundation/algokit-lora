@@ -1,10 +1,10 @@
 import { Button } from '@/features/common/components/button'
 import { cn } from '@/features/common/utils'
-import { Account, PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, SmallSizeDialogBody } from '@/features/common/components/dialog'
+import { WalletAccount, WalletId, Wallet, useWallet } from '@txnlab/use-wallet-react'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { Loader2 as Loader, CircleMinus, Wallet } from 'lucide-react'
+import { CircleMinus, Wallet as WalletIcon } from 'lucide-react'
 import { localnetId, useNetworkConfig } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
@@ -12,12 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/features/common/components/label'
 import { asError } from '@/utils/error'
 import { toast } from 'react-toastify'
-import { useRefreshAvailableKmdWallets } from '../data/kmd'
+import { useRefreshAvailableKmdWallets } from '../data/kmd-wallets'
 import { useAtom, useSetAtom } from 'jotai'
-import { ProviderConnectButton } from './provider-connect-button'
-import { KmdProviderConnectButton } from './kmd-provider-connect-button'
+import { WalletConnectButton } from './wallet-connect-button'
+import { KmdWalletConnectButton } from './kmd-wallet-connect-button'
 import { walletDialogOpenAtom } from '../data/wallet-dialog'
-import { clearAvailableWallets } from '../utils/clear-available-wallets'
 import { useDisconnectWallet } from '../hooks/use-disconnect-wallet'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
@@ -25,6 +24,7 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Urls } from '@/routes/urls'
 import { useNavigate } from 'react-router-dom'
 import { Description } from '@radix-ui/react-dialog'
+import { useDisconnectAllWallets } from '../hooks/use-disconnect-all-wallets'
 
 export const connectWalletLabel = 'Connect Wallet'
 export const disconnectWalletLabel = 'Disconnect Wallet'
@@ -53,40 +53,41 @@ function ConnectWallet({ onConnect }: ConnectWalletProps) {
 
 type ConnectedWalletProps = {
   activeAddress: string
-  providers: Provider[] | null
-  connectedActiveAccounts: Account[]
+  wallets: Wallet[] | null
+  activeWalletAccounts: WalletAccount[]
 }
 
 const preventDefault = (e: Event) => {
   e.preventDefault()
 }
 
-function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: ConnectedWalletProps) {
-  const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
-  const disconnectWallet = useDisconnectWallet(activeProvider)
+function ConnectedWallet({ activeAddress, activeWalletAccounts, wallets }: ConnectedWalletProps) {
+  const activeWallet = useMemo(() => wallets?.find((w) => w.isActive), [wallets])
+  const disconnectWallet = useDisconnectWallet(activeWallet)
+  const disconnectAllWallets = useDisconnectAllWallets()
 
   const switchAccount = useCallback(
     (address: string) => {
-      if (activeProvider) {
-        activeProvider.setActiveAccount(address)
+      if (activeWallet) {
+        activeWallet.setActiveAccount(address)
       } else {
-        clearAvailableWallets()
+        disconnectAllWallets()
       }
     },
-    [activeProvider]
+    [activeWallet, disconnectAllWallets]
   )
   const loadableNfd = useLoadableReverseLookupNfdResult(activeAddress)
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button className="flex w-40 p-2" variant="outline">
-          {activeProvider &&
-            ([PROVIDER_ID.KMD, PROVIDER_ID.MNEMONIC].includes(activeProvider.metadata.id) ? (
-              <Wallet className={cn('size-6 rounded object-contain mr-2')} />
+          {activeWallet &&
+            ([WalletId.KMD, WalletId.MNEMONIC].includes(activeWallet.id as WalletId) ? (
+              <WalletIcon className={cn('size-6 rounded object-contain mr-2')} />
             ) : (
               <img
-                src={activeProvider.metadata.icon}
-                alt={`${activeProvider.metadata.name} icon`}
+                src={activeWallet.metadata.icon}
+                alt={`${activeWallet.metadata.name} icon`}
                 className={cn('size-6 rounded object-contain mr-2')}
               />
             ))}
@@ -99,8 +100,8 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
       </PopoverTrigger>
       <PopoverContent align="end" className="w-52 border p-2" onOpenAutoFocus={preventDefault}>
         <div className={cn('flex items-center')}>
-          {connectedActiveAccounts.length === 1 ? (
-            <abbr className="ml-1 text-sm">{ellipseAddress(connectedActiveAccounts[0].address)}</abbr>
+          {activeWalletAccounts.length === 1 ? (
+            <abbr className="ml-1 text-sm">{ellipseAddress(activeWalletAccounts[0].address)}</abbr>
           ) : (
             <>
               <Label hidden={true} htmlFor="account">
@@ -111,7 +112,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent className={cn('bg-card text-card-foreground')}>
-                  {connectedActiveAccounts.map((account) => (
+                  {activeWalletAccounts.map((account) => (
                     <SelectItem key={account.address} value={account.address}>
                       {ellipseAddress(account.address)}
                     </SelectItem>
@@ -137,7 +138,7 @@ function ConnectedWallet({ activeAddress, connectedActiveAccounts, providers }: 
 }
 
 export function ConnectWalletButton() {
-  const { activeAddress, connectedActiveAccounts, providers, isReady } = useWallet()
+  const { activeAddress, activeWalletAccounts, wallets } = useWallet()
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
   const networkConfig = useNetworkConfig()
   const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
@@ -145,18 +146,18 @@ export function ConnectWalletButton() {
 
   let button = <></>
 
-  const [availableProviderIds, availableProviders] = useMemo(() => {
-    return [providers?.map((p) => p.metadata.id) ?? [], providers ?? []] as const
-  }, [providers])
+  const [availableWalletIds, availableWallets] = useMemo(() => {
+    return [wallets?.map((w) => w.id) ?? [], wallets ?? []] as const
+  }, [wallets])
 
-  const selectProvider = useCallback(
-    (provider: Provider) => async () => {
+  const selectWallet = useCallback(
+    (wallet: Wallet) => async () => {
       setTimeout(() => setDialogOpen(false), 1000)
       try {
-        if (provider.isConnected) {
-          provider.setActiveProvider()
+        if (wallet.isConnected) {
+          wallet.setActive()
         } else {
-          await provider.connect(undefined, true)
+          await wallet.connect()
         }
       } catch (e: unknown) {
         const error = asError(e)
@@ -166,17 +167,10 @@ export function ConnectWalletButton() {
     [setDialogOpen]
   )
 
-  if (!isReady) {
-    button = (
-      <Button className="flex w-40" variant="outline" disabled>
-        <Loader className="mr-2 size-4 animate-spin" />
-        Loading
-      </Button>
-    )
-  } else if (activeAddress) {
-    button = <ConnectedWallet activeAddress={activeAddress} connectedActiveAccounts={connectedActiveAccounts} providers={providers} />
+  if (activeAddress) {
+    button = <ConnectedWallet activeAddress={activeAddress} activeWalletAccounts={activeWalletAccounts ?? []} wallets={wallets} />
   } else {
-    if (availableProviderIds.includes(PROVIDER_ID.KMD)) {
+    if (availableWalletIds.includes(WalletId.KMD)) {
       button = <ConnectWallet onConnect={refreshAvailableKmdWallets} />
     } else {
       button = <ConnectWallet />
@@ -184,25 +178,14 @@ export function ConnectWalletButton() {
   }
 
   let walletProviders = <p>No wallet providers available</p>
-  if (!isReady) {
+  if (!activeAddress && availableWallets.length > 0) {
     walletProviders = (
       <>
-        {networkConfig.walletProviders.map((providerId) => (
-          // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
-          <div className="h-10" key={`placeholder-${providerId}`}>
-            &nbsp;
-          </div>
-        ))}
-      </>
-    )
-  } else if (!activeAddress && availableProviders.length > 0) {
-    walletProviders = (
-      <>
-        {availableProviders.map((provider) =>
-          provider.metadata.id === PROVIDER_ID.KMD ? (
-            <KmdProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
+        {availableWallets.map((wallet) =>
+          wallet.id === WalletId.KMD ? (
+            <KmdWalletConnectButton key={`wallet-${wallet.id}`} wallet={wallet} onConnect={selectWallet(wallet)} />
           ) : (
-            <ProviderConnectButton key={`provider-${provider.metadata.id}`} provider={provider} onConnect={selectProvider(provider)} />
+            <WalletConnectButton key={`wallet-${wallet.id}`} wallet={wallet} onConnect={selectWallet(wallet)} />
           )
         )}
         {networkConfig.id === localnetId && (

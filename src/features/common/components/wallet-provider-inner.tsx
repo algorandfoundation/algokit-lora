@@ -1,25 +1,22 @@
-import { useInitializeProviders, useWallet } from '@txnlab/use-wallet'
 import { PropsWithChildren } from 'react'
-import { WalletProvider as UseWalletProvider } from '@txnlab/use-wallet'
 import { useSetActiveWalletState } from '@/features/wallet/data/active-wallet'
+import { useWallet, WalletManager, WalletProvider } from '@txnlab/use-wallet-react'
 
 type Props = PropsWithChildren<{
-  initOptions: Parameters<typeof useInitializeProviders>[0]
+  walletManager: WalletManager
 }>
 
 function SetActiveWalletState({ children }: PropsWithChildren) {
-  const { activeAddress, isReady, signer } = useWallet()
-  useSetActiveWalletState(isReady, activeAddress, signer)
+  const { activeAddress, transactionSigner } = useWallet()
+  useSetActiveWalletState(activeAddress ?? undefined, transactionSigner)
 
   return <>{children}</>
 }
 
-export function WalletProviderInner({ initOptions, children }: Props) {
-  const walletProviders = useInitializeProviders(initOptions)
-
+export function WalletProviderInner({ walletManager, children }: Props) {
   return (
-    <UseWalletProvider value={walletProviders}>
+    <WalletProvider manager={walletManager}>
       <SetActiveWalletState>{children}</SetActiveWalletState>
-    </UseWalletProvider>
+    </WalletProvider>
   )
 }

@@ -10,7 +10,7 @@ import { editNetworkConfigFormSchema } from '@/features/settings/form-schemas/ed
 import { NetworkFormInner } from '@/features/network/components/network-form-inner'
 import { asStorableServiceConfig } from '@/features/settings/mappers'
 import { NetworkConfigWithId } from '@/features/network/data/types'
-import { PROVIDER_ID } from '@txnlab/use-wallet'
+import { WalletId } from '@txnlab/use-wallet-react'
 import { useRefreshDataProviderToken } from '@/features/common/data'
 import { Alert } from '@/features/common/components/alert'
 import { tokenStorageText } from '@/features/network/components/labels'
@@ -28,10 +28,10 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
     (values: z.infer<typeof editNetworkConfigFormSchema>) => {
       setCustomNetworkConfig(networkConfig.id, {
         name: networkConfig.name,
-        walletProviders: values.walletProviders ?? [],
+        walletIds: values.walletIds ?? [],
         indexer: asStorableServiceConfig(values.indexer),
         algod: asStorableServiceConfig(values.algod),
-        kmd: (values.walletProviders ?? []).includes(PROVIDER_ID.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
+        kmd: (values.walletIds ?? []).includes(WalletId.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
       })
 
       toast.success(`${networkConfig.name} has been updated`)
@@ -48,7 +48,7 @@ export function EditNetworkConfigForm({ networkConfig, onSuccess }: Props) {
       indexer: networkConfig.indexer,
       algod: networkConfig.algod,
       kmd: networkConfig.kmd,
-      walletProviders: networkConfig.walletProviders,
+      walletIds: networkConfig.walletIds,
     }),
     [networkConfig]
   )

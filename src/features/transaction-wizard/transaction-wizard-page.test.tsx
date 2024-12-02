@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, vitest, it, vi } from 'vitest'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, render, waitFor, within } from '@/tests/testing-library'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { algo } from '@algorandfoundation/algokit-utils'
 import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
 import { selectOption } from '@/tests/utils/select-option'
@@ -19,14 +19,12 @@ describe('transaction-wizard-page', () => {
 
   describe('when a wallet is not connected', () => {
     beforeEach(async () => {
-      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet-react')
       vi.mocked(useWallet).mockImplementation(() => {
         return {
           ...original.useWallet(),
-          activeAddress: undefined,
-          isActive: false,
-          isReady: true,
-        }
+          activeAddress: null,
+        } satisfies ReturnType<typeof useWallet>
       })
     })
 

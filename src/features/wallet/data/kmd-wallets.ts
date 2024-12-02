@@ -1,9 +1,7 @@
 import { kmd } from '@/features/common/data/algo-client'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { atomWithRefresh, loadable } from 'jotai/utils'
 import { KmdWalletResult } from '../types/kmd'
-
-export const defaultKmdWallet = 'unencrypted-default-wallet'
 
 const getKmdWalletsResult = () => {
   if (!kmd) {
@@ -24,12 +22,6 @@ const getKmdWalletsResult = () => {
 const availableKmdWalletsAtom = atomWithRefresh((_get) => {
   return getKmdWalletsResult()
 })
-
-export const selectedKmdWalletAtom = atom<string | undefined>(undefined)
-
-export const useSelectedKmdWallet = () => {
-  return useAtomValue(selectedKmdWalletAtom)
-}
 
 export const useLoadableAvailableKmdWallets = () => {
   return useAtomValue(loadable(availableKmdWalletsAtom))

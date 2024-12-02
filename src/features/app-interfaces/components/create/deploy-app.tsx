@@ -7,7 +7,7 @@ import {
   BuildMethodCallTransactionResult,
   BuildTransactionResult,
 } from '@/features/transaction-wizard/models'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import algosdk from 'algosdk'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
