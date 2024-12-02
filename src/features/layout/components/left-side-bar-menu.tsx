@@ -94,7 +94,6 @@ export function LeftSideBarMenu({ className }: Props) {
         </NavigationMenuList>
       </NavigationMenu>
       <div className="mb-4 mt-auto">
-        <NavLink to="/fund/auth-callback?code=foo&state=bar">Foo</NavLink>
         <ThemeToggle navTextClassName={navTextClassName} />
         <TemplatedNavLink urlTemplate={Urls.Settings} className={navLinkClassName}>
           <div className={navIconClassName}>

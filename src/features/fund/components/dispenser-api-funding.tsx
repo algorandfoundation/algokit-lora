@@ -11,9 +11,6 @@ type Props = {
 export function DispenserApiFunding({ networkConfig }: Props) {
   const { isLoading, isAuthenticated } = useAuth0()
   return (
-    <>
-      <span>DispenserApiFunding</span>
-      {isLoading ? <PageLoader /> : isAuthenticated ? <DispenserApiLoggedIn networkConfig={networkConfig} /> : <DispenserApiLoggedOut />}
-    </>
+    <>{isLoading ? <PageLoader /> : isAuthenticated ? <DispenserApiLoggedIn networkConfig={networkConfig} /> : <DispenserApiLoggedOut />}</>
   )
 }

@@ -6,18 +6,22 @@ import { open } from '@tauri-apps/plugin-shell'
 export const dispenserApiLoginButtonLabel = 'log in to fund your account'
 
 export function DispenserApiLoggedOut() {
-  const { loginWithRedirect } = useAuth0()
+  const { loginWithRedirect, loginWithPopup } = useAuth0()
 
   const logIn = useCallback(async () => {
-    await loginWithRedirect({
-      appState: {
-        returnTo: '/fund',
-      },
-      openUrl: async (url) => {
-        await open(url)
-      },
-    })
-  }, [loginWithRedirect])
+    if (window.__TAURI_INTERNALS__) {
+      await loginWithRedirect({
+        appState: {
+          returnTo: '/fund',
+        },
+        openUrl: async (url) => {
+          await open(url)
+        },
+      })
+    } else {
+      await loginWithPopup()
+    }
+  }, [loginWithRedirect, loginWithPopup])
 
   return (
     <div>

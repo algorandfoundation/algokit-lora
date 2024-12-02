@@ -16,8 +16,9 @@ type Props = {
   children?: ReactNode
 }
 
-const callbackUrl = `algokit-lora:/${Urls.FundAuthCallback.build({})}`
-// const callbackUrl = `${window.location.origin}${Urls.FundAuthCallback.build({})}`
+const callbackUrl = window.__TAURI_INTERNALS__
+  ? `algokit-lora:/${Urls.FundAuthCallback.build({})}`
+  : `${window.location.origin}${Urls.FundAuthCallback.build({})}`
 const scope = 'openid email'
 
 export function LayoutPage({ children }: Props) {
