@@ -4,7 +4,7 @@ import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dial
 import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
 import { algod } from '@/features/common/data/algo-client'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { invariant } from '@/utils/invariant'
 import {
   BuildableTransactionType,

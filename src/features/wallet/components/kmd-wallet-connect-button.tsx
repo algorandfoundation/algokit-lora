@@ -1,29 +1,30 @@
 import { Button } from '@/features/common/components/button'
-import { Provider } from '@txnlab/use-wallet'
+import { Wallet } from '@txnlab/use-wallet-react'
 import { cn } from '@/features/common/utils'
-import { Loader2 as Loader, Wallet } from 'lucide-react'
-import { defaultKmdWallet, selectedKmdWalletAtom, useLoadableAvailableKmdWallets } from '../data/kmd'
+import { Loader2 as Loader, Wallet as WalletIcon } from 'lucide-react'
+import { defaultKmdWallet, selectedKmdWalletAtom } from '../data/selected-kmd-wallet'
 import { useAtom } from 'jotai'
 import { useCallback } from 'react'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { Label } from '@/features/common/components/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
-import { ProviderConnectButton } from './provider-connect-button'
+import { WalletConnectButton } from './wallet-connect-button'
+import { useLoadableAvailableKmdWallets } from '../data/kmd-wallets'
 
 type Props = {
-  provider: Provider
+  wallet: Wallet
   onConnect: () => Promise<void>
   className?: string
 }
 
-export function KmdProviderConnectButton({ provider, onConnect }: Props) {
+export function KmdWalletConnectButton({ wallet, onConnect }: Props) {
   const loadableAvailableKmdWallets = useLoadableAvailableKmdWallets()
   const [selectedKmdWallet, setSelectedKmdWallet] = useAtom(selectedKmdWalletAtom)
 
   const disabledKmdButton = (
     <Button disabled={true} className={'ml-auto'}>
-      <Wallet className={cn('size-6 rounded object-contain mr-2')} />
-      <span className="ml-1">Connect {provider.metadata.name}</span>
+      <WalletIcon className={cn('size-6 rounded object-contain mr-2')} />
+      <span className="ml-1">Connect {wallet.metadata.name}</span>
     </Button>
   )
 
@@ -69,7 +70,7 @@ export function KmdProviderConnectButton({ provider, onConnect }: Props) {
               ))}
             </SelectContent>
           </Select>
-          <ProviderConnectButton provider={provider} onConnect={onConnect} />
+          <WalletConnectButton wallet={wallet} onConnect={onConnect} />
         </div>
       )}
     </RenderLoadable>

@@ -3,13 +3,14 @@ import { fireEvent, render, waitFor } from '@/tests/testing-library'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { LayoutPage } from '@/features/layout/pages/layout-page'
 import { connectWalletLabel, selectAccountLabel, disconnectWalletLabel } from '@/features/wallet/components/connect-wallet-button'
-import { PROVIDER_ID, Provider, useWallet } from '@txnlab/use-wallet'
+import { NetworkId, Wallet, WalletId, useWallet } from '@txnlab/use-wallet-react'
 import { networkConfigAtom, useSetSelectedNetwork } from '@/features/network/data'
 import { useNavigate } from 'react-router-dom'
 import { settingsStore } from '@/features/settings/data'
 import { getCurrent, onOpenUrl } from '@/features/deep-link/hooks/tauri-deep-link'
 import { localnetId } from '@/features/network/data/types'
 import { renderHook } from '@testing-library/react'
+import algosdk from 'algosdk'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -44,15 +45,12 @@ describe('when rendering the layout page', () => {
 
   describe('and the wallet is connected', () => {
     it('the wallet address is shown', async () => {
-      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+      const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet-react')
       vi.mocked(useWallet).mockImplementation(() => {
         return {
           ...original.useWallet(),
           activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
-          status: 'active',
-          isActive: true,
-          isReady: true,
-        }
+        } satisfies ReturnType<typeof useWallet>
       })
 
       await executeComponentTest(
@@ -70,27 +68,22 @@ describe('when rendering the layout page', () => {
     })
     describe('and there is more than one account', () => {
       it('the account switcher should be shown', async () => {
-        const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
+        const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet-react')
         vi.mocked(useWallet).mockImplementation(() => {
           return {
             ...original.useWallet(),
             activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
-            status: 'active',
-            isActive: true,
-            isReady: true,
-            connectedActiveAccounts: [
+            activeWalletAccounts: [
               {
-                providerId: PROVIDER_ID.PERA,
                 address: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
                 name: 'Account 1',
               },
               {
-                providerId: PROVIDER_ID.PERA,
                 address: 'SOMEOTHERADDRESS',
                 name: 'Account 2',
               },
             ],
-          }
+          } satisfies ReturnType<typeof useWallet>
         })
 
         await executeComponentTest(
@@ -111,28 +104,29 @@ describe('when rendering the layout page', () => {
 
     describe('and the user disconnects the wallet', () => {
       it('the wallet should be disconnected', async () => {
-        const original = await vi.importActual<{ useWallet: () => ReturnType<typeof useWallet> }>('@txnlab/use-wallet')
         const disconnect = vi.fn()
         vi.mocked(useWallet).mockImplementation(() => {
           return {
-            ...original.useWallet(),
-            activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
-            status: 'active',
-            isActive: true,
-            isReady: true,
-            providers: [
+            wallets: [
               {
                 disconnect,
                 isActive: true,
+                id: WalletId.PERA,
+                isConnected: true,
                 metadata: {
-                  id: PROVIDER_ID.PERA,
                   name: 'Pera',
                   icon: 'someicon.png',
-                  isWalletConnect: true,
                 },
-              } as unknown as Provider,
-            ],
-          }
+              },
+            ] as unknown as Wallet[],
+            activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
+            algodClient: {} as unknown as algosdk.Algodv2,
+            activeNetwork: NetworkId.LOCALNET,
+            setActiveNetwork: vi.fn(),
+            setAlgodClient: vi.fn(),
+            signTransactions: vi.fn(),
+            transactionSigner: vi.fn(),
+          } as unknown as ReturnType<typeof useWallet>
         })
         await executeComponentTest(
           () => render(<LayoutPage />, undefined),

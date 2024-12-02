@@ -1,12 +1,12 @@
 import { Button } from '@/features/common/components/button'
-import { useWallet } from '@txnlab/use-wallet'
+import { useWallet } from '@txnlab/use-wallet-react'
 import { useDisconnectWallet } from '@/features/wallet/hooks/use-disconnect-wallet'
 import { useMemo } from 'react'
 
 export function ClearCache() {
-  const { providers } = useWallet()
-  const activeProvider = useMemo(() => providers?.find((p) => p.isActive), [providers])
-  const disconnectWallet = useDisconnectWallet(activeProvider)
+  const { wallets } = useWallet()
+  const activeWallet = useMemo(() => wallets?.find((p) => p.isActive), [wallets])
+  const disconnectWallet = useDisconnectWallet(activeWallet)
 
   const handleClearCache = async () => {
     await disconnectWallet()

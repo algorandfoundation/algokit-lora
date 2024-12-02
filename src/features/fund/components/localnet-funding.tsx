@@ -3,7 +3,7 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { createLoraKmdDevAccount, loraKmdDevWalletName } from '../utils/kmd'
-import { PROVIDER_ID, useWallet } from '@txnlab/use-wallet'
+import { WalletId, useWallet } from '@txnlab/use-wallet-react'
 import { useCallback, useState } from 'react'
 import { Address } from '@/features/accounts/data/types'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -36,21 +36,21 @@ export function LocalnetFunding() {
   const create = queryParams.get('create') === 'true'
   const activeItem = create ? fundNewAccountAccordionId : fundExistingAccountAccordionId
 
-  const { providers } = useWallet()
-  const activeProvider = providers?.find((p) => p.isActive)
+  const { wallets } = useWallet()
+  const activeWallet = wallets?.find((p) => p.isActive)
   const loadableActiveWalletAccountSnapshot = useLoadableActiveWalletAccountSnapshotAtom()
 
   const [createdAddress, setCreatedAddress] = useState<Address | undefined>(undefined)
 
   const createLocalnetAccount = useCallback(async () => {
     const address = await createLoraKmdDevAccount(algorandClient.client.kmd)
-    if (activeProvider && activeProvider.metadata.id === PROVIDER_ID.KMD) {
+    if (activeWallet && activeWallet.metadata.name === WalletId.KMD) {
       // Force connect to refresh the list of wallets and accounts available.
-      await activeProvider.connect()
+      await activeWallet.connect()
     }
     setCreatedAddress(address)
     return address
-  }, [activeProvider])
+  }, [activeWallet])
 
   return (
     <RenderLoadable loadable={loadableActiveWalletAccountSnapshot} fallback={<PageLoader />}>

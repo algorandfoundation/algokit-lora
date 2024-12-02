@@ -9,7 +9,7 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { NetworkFormInner } from '@/features/network/components/network-form-inner'
 import { asStorableServiceConfig } from '@/features/settings/mappers'
 import { createNetworkConfigFormSchema } from '@/features/settings/form-schemas/create-network-config-form-schema'
-import { PROVIDER_ID } from '@txnlab/use-wallet'
+import { WalletId } from '@txnlab/use-wallet-react'
 import { replaceAll } from '@/utils/replace-all'
 import { tokenStorageText } from '@/features/network/components/labels'
 import { Alert } from '@/features/common/components/alert'
@@ -45,10 +45,10 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
 
       setCustomNetworkConfig(networkId, {
         name: values.name,
-        walletProviders: values.walletProviders,
+        walletIds: values.walletIds,
         indexer: asStorableServiceConfig(values.indexer),
         algod: asStorableServiceConfig(values.algod),
-        kmd: values.walletProviders.includes(PROVIDER_ID.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
+        kmd: values.walletIds.includes(WalletId.KMD) && values.kmd ? asStorableServiceConfig(values.kmd) : undefined,
       })
       toast.success(`${values.name} has been created`)
     },
@@ -61,7 +61,7 @@ export function CreateNetworkConfigForm({ onSuccess }: Props) {
       onSubmit={createNetwork}
       onSuccess={onSuccess}
       defaultValues={{
-        walletProviders: [],
+        walletIds: [],
       }}
       formAction={
         <FormActions>
