@@ -7,7 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
 import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, FlaskConical } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
 import SvgWizard from '@/features/common/components/icons/wizard'
 
