@@ -20,7 +20,9 @@ const callbackUrl = window.__TAURI_INTERNALS__
   ? `algokit-lora:/${Urls.FundAuthCallback.build({})}`
   : `${window.location.origin}${Urls.FundAuthCallback.build({})}`
 const scope = 'openid email'
-const sessionCheckExpiryDays = window.__TAURI_INTERNALS__ ? -1 : 1
+// Set to -1 to force Auth0 to not store the session in cookies
+// It means every time the user visits, they will have to login again
+const sessionCheckExpiryDays = -1
 
 export function LayoutPage({ children }: Props) {
   useDeepLink()
