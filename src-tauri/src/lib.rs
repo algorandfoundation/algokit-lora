@@ -3,6 +3,8 @@ use tauri::{AppHandle, Emitter, Manager};
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             show_window(app, args);
         }))
@@ -14,7 +16,7 @@ pub fn run() {
             #[cfg(any(target_os = "linux", all(debug_assertions, windows)))]
             {
                 use tauri_plugin_deep_link::DeepLinkExt;
-                app.deep_link().register_all()?;
+                _app.deep_link().register_all()?;
             }
             Ok(())
         })

@@ -7,3 +7,4 @@ export const ZERO_ADDRESS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 //     the response size of fetching 100 items is 180Kb (Gzipped), which is ok.
 //     if we up it to 200, the response is 400Kb and can cause performance issues.
 export const DEFAULT_FETCH_SIZE = 200
+export const LORA_URI_SCHEME = 'algokit-lora'

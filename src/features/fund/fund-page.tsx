@@ -17,7 +17,7 @@ export function FundPage() {
     ) : networkConfig.dispenserApi ? (
       <DispenserApiFunding networkConfig={networkConfig} />
     ) : (
-      'Funding is not available on this network.'
+      fundingNotAvailableMessage
     )
 
   return (

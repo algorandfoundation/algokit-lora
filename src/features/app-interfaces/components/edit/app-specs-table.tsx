@@ -16,6 +16,7 @@ import { EditAppSpecForm } from './edit-app-spec-form'
 import { asAppSpecFilename } from '../../mappers'
 import { Description } from '@radix-ui/react-dialog'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/components/tooltip'
+import { downloadFile } from '@/features/common/download-file'
 
 const appSpecsLabel = 'App Specs'
 
@@ -90,13 +91,9 @@ type DownloadAppSpecButton = {
 }
 
 function DownloadAppSpecButton({ appSpec }: DownloadAppSpecButton) {
-  const downloadAppSpec = useCallback(() => {
+  const downloadAppSpec = useCallback(async () => {
     const file = new Blob([asJson(appSpec.appSpec)], { type: 'application/json' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(file)
-    link.setAttribute('download', asAppSpecFilename(appSpec))
-    // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
-    link.click()
+    await downloadFile(asAppSpecFilename(appSpec), file)
   }, [appSpec])
 
   return (
