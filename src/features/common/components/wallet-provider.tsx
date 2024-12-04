@@ -3,6 +3,8 @@ import { WalletProviderInner } from './wallet-provider-inner'
 import { defaultKmdWallet, useSelectedKmdWallet } from '@/features/wallet/data/selected-kmd-wallet'
 import { NetworkConfigWithId } from '@/features/network/data/types'
 import { NetworkId, SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnlab/use-wallet-react'
+import { DialogBodyProps, useDialogForm } from '../hooks/use-dialog-form'
+import { PromptForm } from './promp-form'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfigWithId
@@ -10,6 +12,12 @@ type Props = PropsWithChildren<{
 
 export function WalletProvider({ networkConfig, children }: Props) {
   const selectedKmdWallet = useSelectedKmdWallet()
+  const { open: openPromptDialog, dialog: promptDialog } = useDialogForm({
+    dialogHeader: 'TODO:',
+    dialogBody: (props: DialogBodyProps<{ message: string }, string | null>) => (
+      <PromptForm message={props.data?.message} type="password" onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    ),
+  })
 
   const key = `${networkConfig.id}-${selectedKmdWallet ?? ''}`
 
@@ -24,6 +32,10 @@ export function WalletProvider({ networkConfig, children }: Props) {
               baseServer: networkConfig.kmd.server,
               token: networkConfig.kmd.token ?? '',
               port: String(networkConfig.kmd.port),
+              promptForPassword: async () => {
+                const password = await openPromptDialog({ message: 'Enter KMD Password' })
+                return password ?? ''
+              },
             },
           } satisfies WalletIdConfig<WalletId.KMD>)
         } else if ([WalletId.MNEMONIC, WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS].includes(id)) {
@@ -43,7 +55,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
       },
       [] as unknown as SupportedWallet[]
     )
-  }, [networkConfig.kmd, networkConfig.walletIds, selectedKmdWallet])
+  }, [networkConfig.kmd, networkConfig.walletIds, selectedKmdWallet, openPromptDialog])
 
   const walletManager = useMemo(() => {
     return new WalletManager({
@@ -60,8 +72,11 @@ export function WalletProvider({ networkConfig, children }: Props) {
 
   return (
     // The key prop is super important it governs if the provider is reinitialized
-    <WalletProviderInner key={key} walletManager={walletManager}>
-      {children}
-    </WalletProviderInner>
+    <>
+      <WalletProviderInner key={key} walletManager={walletManager}>
+        {children}
+      </WalletProviderInner>
+      {promptDialog}
+    </>
   )
 }
