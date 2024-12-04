@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, MediumSizeDialogBody } from '../components/dialog'
 import { Description } from '@radix-ui/react-dialog'
 
@@ -48,14 +48,16 @@ export function useDialogForm<TDataIn, TDataOut>({ dialogHeader, dialogBody: Dia
     </Dialog>
   )
 
+  const open = useCallback((dialogData: TDataIn) => {
+    setIsOpen(true)
+    setDialogData(dialogData)
+    return new Promise<TDataOut | undefined>((resolve) => {
+      setResolvePromise(() => resolve)
+    })
+  }, [])
+
   return {
-    open: (dialogData: TDataIn) => {
-      setIsOpen(true)
-      setDialogData(dialogData)
-      return new Promise<TDataOut | undefined>((resolve) => {
-        setResolvePromise(() => resolve)
-      })
-    },
+    open,
     dialog,
   }
 }
