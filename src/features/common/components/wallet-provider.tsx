@@ -12,8 +12,14 @@ type Props = PropsWithChildren<{
 
 export function WalletProvider({ networkConfig, children }: Props) {
   const selectedKmdWallet = useSelectedKmdWallet()
-  const { open: openPromptDialog, dialog: promptDialog } = useDialogForm({
-    dialogHeader: 'TODO:',
+  const { open: openKmdPasswordDialog, dialog: kmdPasswordDialog } = useDialogForm({
+    dialogHeader: 'Connect KMD Wallet',
+    dialogBody: (props: DialogBodyProps<{ message: string }, string | null>) => (
+      <PromptForm message={props.data?.message} type="password" onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    ),
+  })
+  const { open: openMnemonicPasswordDialog, dialog: mnemonicPasswordDialog } = useDialogForm({
+    dialogHeader: 'Connect Mnemonic Wallet',
     dialogBody: (props: DialogBodyProps<{ message: string }, string | null>) => (
       <PromptForm message={props.data?.message} type="password" onSubmit={props.onSubmit} onCancel={props.onCancel} />
     ),
@@ -33,12 +39,28 @@ export function WalletProvider({ networkConfig, children }: Props) {
               token: networkConfig.kmd.token ?? '',
               port: String(networkConfig.kmd.port),
               promptForPassword: async () => {
-                const password = await openPromptDialog({ message: 'Enter KMD Password' })
-                return password ?? ''
+                const password = await openKmdPasswordDialog({ message: 'Enter KMD Password' })
+                if (password === undefined || password == null) {
+                  throw new Error('No password provided')
+                }
+                return password
               },
             },
           } satisfies WalletIdConfig<WalletId.KMD>)
-        } else if ([WalletId.MNEMONIC, WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS].includes(id)) {
+        } else if (id === WalletId.MNEMONIC) {
+          acc.push({
+            id,
+            options: {
+              promptForMnemonic: async () => {
+                const passphrase = await openMnemonicPasswordDialog({ message: 'Enter 25-word mnemonic passphrase' })
+                if (passphrase === undefined || passphrase == null) {
+                  throw new Error('No passphrase provided')
+                }
+                return passphrase
+              },
+            },
+          })
+        } else if ([WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS].includes(id)) {
           acc.push(id)
         } else if (id === WalletId.LUTE) {
           acc.push({
@@ -55,7 +77,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
       },
       [] as unknown as SupportedWallet[]
     )
-  }, [networkConfig.kmd, networkConfig.walletIds, selectedKmdWallet, openPromptDialog])
+  }, [networkConfig.kmd, networkConfig.walletIds, selectedKmdWallet, openKmdPasswordDialog])
 
   const walletManager = useMemo(() => {
     return new WalletManager({
@@ -76,7 +98,8 @@ export function WalletProvider({ networkConfig, children }: Props) {
       <WalletProviderInner key={key} walletManager={walletManager}>
         {children}
       </WalletProviderInner>
-      {promptDialog}
+      {kmdPasswordDialog}
+      {mnemonicPasswordDialog}
     </>
   )
 }
