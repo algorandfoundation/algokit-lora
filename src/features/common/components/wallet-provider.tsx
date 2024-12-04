@@ -77,7 +77,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
       },
       [] as unknown as SupportedWallet[]
     )
-  }, [networkConfig.kmd, networkConfig.walletIds, selectedKmdWallet, openKmdPasswordDialog])
+  }, [networkConfig.walletIds, networkConfig.kmd, selectedKmdWallet, openKmdPasswordDialog, openMnemonicPasswordDialog])
 
   const walletManager = useMemo(() => {
     return new WalletManager({
