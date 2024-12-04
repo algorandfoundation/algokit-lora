@@ -75,7 +75,6 @@ jobs:
       release-tag: ${{ steps.create-release-action.outputs.release-tag }}
       release-id: ${{ steps.create-release-action.outputs.release-id }}
 
-  # TODO: VITE_ tokens need to be replaced after building, but before bundling the Tauri app
   build-tauri:
     name: Build Tauri app
     needs:
@@ -84,7 +83,7 @@ jobs:
     strategy:
       matrix:
         # macos-14 is the Apple Silicon M1 runner
-        platform: [ubuntu-20.04, windows-latest, 'macos-12', 'macos-14']
+        platform: [ubuntu-22.04, windows-latest, 'macos-12', 'macos-14']
     if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
@@ -102,6 +101,22 @@ jobs:
 
       - name: Install npm dependencies
         run: npm install
+
+      - name: Create .env file
+        run: |
+          sed -E -n 's/(VITE_[A-Z0-9_]+)=(.*)/\1="{{\1}}"/p' .env.sample > .env
+
+      - name: Substitute environment variables
+        uses: bluwy/substitute-string-action@v3
+        with:
+          _input-file: '.env'
+          _format-key: '{{key}}'
+          _output-file: '.env'
+          VITE_DISPENSER_AUTH0_DOMAIN: dispenser-prod.eu.auth0.com
+          VITE_DISPENSER_AUTH0_CLIENT_ID: Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
+          VITE_DISPENSER_AUTH0_AUDIENCE: api-prod-dispenser-user
+          VITE_TESTNET_DISPENSER_API_URL: https://api.dispenser.algorandfoundation.tools
+          VITE_TESTNET_DISPENSER_ADDRESS: Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
 
       - name: Build for Linux
         id: build-linux
