@@ -7,6 +7,7 @@ import html2canvas from 'html2canvas-pro'
 import { useCallback, useRef } from 'react'
 import { Button } from '@/features/common/components/button'
 import { Download } from 'lucide-react'
+import { downloadFile } from '@/features/common/download-file'
 
 type Props = {
   transactionsGraphData: TransactionsGraphData
@@ -45,12 +46,12 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
         })
       },
     })
-    const dataUrl = canvas.toDataURL()
-    const link = document.createElement('a')
-    link.href = dataUrl
-    link.setAttribute('download', transactionsGraphData.filename)
-    // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
-    link.click()
+
+    canvas.toBlob(async (blob) => {
+      if (blob) {
+        await downloadFile(transactionsGraphData.filename, blob)
+      }
+    })
   }, [transactionsGraphData.filename])
 
   const bgClassName = _bgClassName ?? 'bg-card'

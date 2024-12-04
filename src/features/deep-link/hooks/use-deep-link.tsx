@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNetworkConfigs, useSelectedNetwork, useSetSelectedNetwork } from '@/features/network/data'
 import { getCurrent, onOpenUrl } from './tauri-deep-link'
+import { LORA_URI_SCHEME } from '@/features/common/constants'
 
 export function useDeepLink() {
   const navigate = useNavigate()
@@ -14,7 +15,7 @@ export function useDeepLink() {
   const onDeepLink = useCallback(
     (urls: string[]) => {
       const url = urls[0]
-      const deepLinkRegex = /^algokit-lora:\/\//
+      const deepLinkRegex = new RegExp(`^${LORA_URI_SCHEME}://`)
       const match = url.match(deepLinkRegex)
       if (match) {
         const newUrl = `/${url.replace(deepLinkRegex, '')}`
@@ -32,6 +33,7 @@ export function useDeepLink() {
   useEffect(() => {
     // Only run useEffect if you are within a TAURI instance
     if (!window.__TAURI_INTERNALS__) return
+
     // If the currentUrl is falsy then the deeplink opened the app
     if (!currentUrl) {
       getCurrent().then((current) => {

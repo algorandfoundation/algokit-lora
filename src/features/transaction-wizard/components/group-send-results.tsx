@@ -2,6 +2,7 @@ import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/d
 import { Button } from '@/features/common/components/button'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { downloadFile } from '@/features/common/download-file'
 import { TransactionsGraph, TransactionsGraphData } from '@/features/transactions-graph'
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
@@ -73,15 +74,11 @@ const buildSimulateTraceFilename = (simulateResponse: algosdk.modelsv2.SimulateR
 }
 
 export function GroupSendResults({ transactionGraph, transactionGraphBgClassName, sentAppCalls, simulateResponse }: Props) {
-  const downloadSimulateTrace = useCallback(() => {
+  const downloadSimulateTrace = useCallback(async () => {
     if (!simulateResponse) return
 
     const file = new Blob([asJson(simulateResponse.get_obj_for_encoding())], { type: 'application/json' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(file)
-    link.setAttribute('download', buildSimulateTraceFilename(simulateResponse))
-    // TODO: This approach won't work in Tauri, so we'll need to handle with Tauri's APIs
-    link.click()
+    await downloadFile(buildSimulateTraceFilename(simulateResponse), file)
   }, [simulateResponse])
 
   return (

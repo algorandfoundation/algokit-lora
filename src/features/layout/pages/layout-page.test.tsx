@@ -11,6 +11,7 @@ import { getCurrent, onOpenUrl } from '@/features/deep-link/hooks/tauri-deep-lin
 import { localnetId } from '@/features/network/data/types'
 import { renderHook } from '@testing-library/react'
 import algosdk from 'algosdk'
+import { LORA_URI_SCHEME } from '@/features/common/constants'
 
 describe('when rendering the layout page', () => {
   describe('and the wallet is not connected', () => {
@@ -149,7 +150,7 @@ describe('when rendering the layout page', () => {
   describe('and the user opens a deep link to mainnet', () => {
     beforeAll(() => {
       window.__TAURI_INTERNALS__ = {}
-      vi.mocked(getCurrent).mockResolvedValue(['algokit-lora://mainnet'])
+      vi.mocked(getCurrent).mockResolvedValue([`${LORA_URI_SCHEME}://mainnet`])
     })
     afterAll(() => {
       window.__TAURI_INTERNALS__ = undefined
@@ -176,7 +177,7 @@ describe('when rendering the layout page', () => {
 
     describe('then they open another deep link to testnet', () => {
       beforeAll(() => {
-        vi.mocked(getCurrent).mockResolvedValue(['algokit-lora://testnet'])
+        vi.mocked(getCurrent).mockResolvedValue([`${LORA_URI_SCHEME}://testnet`])
       })
       afterAll(() => {
         window.__TAURI_INTERNALS__ = undefined
@@ -207,7 +208,7 @@ describe('when rendering the layout page', () => {
     beforeAll(() => {
       window.__TAURI_INTERNALS__ = {}
       vi.mocked(getCurrent).mockResolvedValue([
-        'algokit-lora://mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1',
+        `${LORA_URI_SCHEME}://mainnet/transaction/JC4VRVWOA7ZQX6OJX5GCAPJVAEEQB3Q4MYWJXVJC7LCNH6HW62WQ/inner/41-1`,
       ])
       vi.mocked(onOpenUrl).mockResolvedValue(vi.fn())
     })
