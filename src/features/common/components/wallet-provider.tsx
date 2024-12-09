@@ -3,6 +3,8 @@ import { WalletProviderInner } from './wallet-provider-inner'
 import { defaultKmdWallet, useSelectedKmdWallet } from '@/features/wallet/data/selected-kmd-wallet'
 import { NetworkConfigWithId } from '@/features/network/data/types'
 import { NetworkId, SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnlab/use-wallet-react'
+import { DialogBodyProps, useDialogForm } from '../hooks/use-dialog-form'
+import { PromptForm } from './prompt-form'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfigWithId
@@ -10,6 +12,18 @@ type Props = PropsWithChildren<{
 
 export function WalletProvider({ networkConfig, children }: Props) {
   const selectedKmdWallet = useSelectedKmdWallet()
+  const { open: openKmdPasswordDialog, dialog: kmdPasswordDialog } = useDialogForm({
+    dialogHeader: 'Connect KMD Wallet',
+    dialogBody: (props: DialogBodyProps<{ message: string }, string | null>) => (
+      <PromptForm message={props.data?.message} type="password" onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    ),
+  })
+  const { open: openMnemonicDialog, dialog: mnemonicDialog } = useDialogForm({
+    dialogHeader: 'Connect Mnemonic Wallet',
+    dialogBody: (props: DialogBodyProps<{ message: string }, string | null>) => (
+      <PromptForm message={props.data?.message} type="password" onSubmit={props.onSubmit} onCancel={props.onCancel} />
+    ),
+  })
 
   const key = `${networkConfig.id}-${selectedKmdWallet ?? ''}`
 
@@ -24,9 +38,29 @@ export function WalletProvider({ networkConfig, children }: Props) {
               baseServer: networkConfig.kmd.server,
               token: networkConfig.kmd.token ?? '',
               port: String(networkConfig.kmd.port),
+              promptForPassword: async () => {
+                const password = await openKmdPasswordDialog({ message: 'Enter KMD Password' })
+                if (password == null) {
+                  throw new Error('No password provided')
+                }
+                return password
+              },
             },
           } satisfies WalletIdConfig<WalletId.KMD>)
-        } else if ([WalletId.MNEMONIC, WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS].includes(id)) {
+        } else if (id === WalletId.MNEMONIC) {
+          acc.push({
+            id,
+            options: {
+              promptForMnemonic: async () => {
+                const passphrase = await openMnemonicDialog({ message: 'Enter 25-word mnemonic passphrase' })
+                if (!passphrase) {
+                  throw new Error('No passphrase provided')
+                }
+                return passphrase
+              },
+            },
+          })
+        } else if ([WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS].includes(id)) {
           acc.push(id)
         } else if (id === WalletId.LUTE) {
           acc.push({
@@ -43,7 +77,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
       },
       [] as unknown as SupportedWallet[]
     )
-  }, [networkConfig.kmd, networkConfig.walletIds, selectedKmdWallet])
+  }, [networkConfig.walletIds, networkConfig.kmd, selectedKmdWallet, openKmdPasswordDialog, openMnemonicDialog])
 
   const walletManager = useMemo(() => {
     return new WalletManager({
@@ -60,8 +94,12 @@ export function WalletProvider({ networkConfig, children }: Props) {
 
   return (
     // The key prop is super important it governs if the provider is reinitialized
-    <WalletProviderInner key={key} walletManager={walletManager}>
-      {children}
-    </WalletProviderInner>
+    <>
+      <WalletProviderInner key={key} walletManager={walletManager}>
+        {children}
+      </WalletProviderInner>
+      {kmdPasswordDialog}
+      {mnemonicDialog}
+    </>
   )
 }
