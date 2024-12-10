@@ -27,8 +27,11 @@ export type TransactionResult = Omit<
   assetTransferTransaction?: Omit<algosdk.indexerModels.TransactionAssetTransfer, 'getEncodingSchema' | 'toEncodingData'>
   applicationTransaction?: Omit<
     algosdk.indexerModels.TransactionApplication,
-    'getEncodingSchema' | 'toEncodingData' | 'globalStateSchema' | 'localStateSchema'
+    'getEncodingSchema' | 'toEncodingData' | 'globalStateSchema' | 'localStateSchema' | 'applicationId'
   > & {
+    // TODO: PD - review this
+    // algod returns undefined for application-id when creating an application
+    applicationId?: bigint
     globalStateSchema?: Omit<algosdk.indexerModels.StateSchema, 'getEncodingSchema' | 'toEncodingData'>
     localStateSchema?: Omit<algosdk.indexerModels.StateSchema, 'getEncodingSchema' | 'toEncodingData'>
   }
