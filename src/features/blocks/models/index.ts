@@ -2,15 +2,16 @@ import { Address } from '@/features/accounts/data/types'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { TransactionsSummary } from '@/features/common/models'
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
+import { Round } from '../data/types'
 
 export type CommonBlockProperties = {
-  round: number
+  round: Round
   timestamp: string
   transactionsSummary: TransactionsSummary
 }
 
 export type Block = CommonBlockProperties & {
-  previousRound?: number
+  previousRound?: Round
   nextRound: AsyncMaybeAtom<number>
   transactions: Transaction[]
   json: string

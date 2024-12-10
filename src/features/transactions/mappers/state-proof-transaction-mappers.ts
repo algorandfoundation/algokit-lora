@@ -1,4 +1,4 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { InnerStateProofTransaction, StateProofTransaction, TransactionType } from '../models'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 

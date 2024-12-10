@@ -17,12 +17,7 @@ export type TransactionResult = Omit<
   | 'assetFreezeTransaction'
   | 'keyregTransaction'
 > & {
-  signature?: Omit<algosdk.indexerModels.TransactionSignature, 'getEncodingSchema' | 'toEncodingData' | 'multisig' | 'logicsig'> & {
-    multisig?: Omit<algosdk.indexerModels.TransactionSignatureMultisig, 'getEncodingSchema' | 'toEncodingData' | 'subsignature'> & {
-      subsignature?: Omit<algosdk.indexerModels.TransactionSignatureMultisigSubsignature, 'getEncodingSchema' | 'toEncodingData'>[]
-    }
-    logicsig?: Omit<algosdk.indexerModels.TransactionSignatureLogicsig, 'getEncodingSchema' | 'toEncodingData'>
-  }
+  signature?: TransactionSignature
   paymentTransaction?: Omit<algosdk.indexerModels.TransactionPayment, 'getEncodingSchema' | 'toEncodingData'>
   assetTransferTransaction?: Omit<algosdk.indexerModels.TransactionAssetTransfer, 'getEncodingSchema' | 'toEncodingData'>
   applicationTransaction?: Omit<
@@ -42,7 +37,7 @@ export type TransactionResult = Omit<
   localStateDelta?: AccountStateDelta[]
   globalStateDelta?: EvalDeltaKeyValue[]
   assetFreezeTransaction?: Omit<algosdk.indexerModels.TransactionAssetFreeze, 'getEncodingSchema' | 'toEncodingData'>
-  keyregTransaction?: Omit<algosdk.indexerModels.TransactionKeyreg, 'getEncodingSchema' | 'toEncodingData'>
+  keyregTransaction?: TransactionKeyreg
 }
 
 export type EvalDeltaKeyValue = Omit<algosdk.indexerModels.EvalDeltaKeyValue, 'getEncodingSchema' | 'toEncodingData' | 'value'> & {
@@ -54,3 +49,15 @@ export type AccountStateDelta = Omit<algosdk.indexerModels.AccountStateDelta, 'g
 }
 
 export type EvalDelta = Omit<algosdk.indexerModels.EvalDelta, 'getEncodingSchema' | 'toEncodingData'>
+
+export type TransactionSignature = Omit<
+  algosdk.indexerModels.TransactionSignature,
+  'getEncodingSchema' | 'toEncodingData' | 'multisig' | 'logicsig'
+> & {
+  multisig?: Omit<algosdk.indexerModels.TransactionSignatureMultisig, 'getEncodingSchema' | 'toEncodingData' | 'subsignature'> & {
+    subsignature?: Omit<algosdk.indexerModels.TransactionSignatureMultisigSubsignature, 'getEncodingSchema' | 'toEncodingData'>[]
+  }
+  logicsig?: Omit<algosdk.indexerModels.TransactionSignatureLogicsig, 'getEncodingSchema' | 'toEncodingData'>
+}
+
+export type TransactionKeyreg = Omit<algosdk.indexerModels.TransactionKeyreg, 'getEncodingSchema' | 'toEncodingData'>

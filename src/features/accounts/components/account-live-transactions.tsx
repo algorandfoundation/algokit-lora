@@ -1,5 +1,5 @@
 import { LiveTransactionsTable } from '@/features/transactions/components/live-transactions-table'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { useCallback } from 'react'
 import { Address } from '../data/types'
 import { getAddressesForTransaction } from '../utils/get-account-address-for-transactions'

@@ -1,4 +1,4 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { TransactionSummary, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import algosdk from 'algosdk'

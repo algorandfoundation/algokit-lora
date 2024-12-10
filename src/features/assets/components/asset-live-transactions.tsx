@@ -1,7 +1,7 @@
 import { AssetId } from '../data/types'
 import { useCallback } from 'react'
 import { LiveTransactionsTable } from '@/features/transactions/components/live-transactions-table'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { getAssetIdsForTransaction } from '@/features/transactions/utils/get-asset-ids-for-transaction'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { getAssetTransactionsTableSubRows } from '../utils/get-asset-transactions-table-sub-rows'

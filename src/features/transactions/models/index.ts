@@ -10,7 +10,7 @@ import { ApplicationId } from '@/features/applications/data/types'
 
 export type CommonTransactionProperties = {
   type: TransactionType
-  confirmedRound: number
+  confirmedRound: bigint
   roundTime: number
   group?: GroupId
   fee: AlgoAmount
@@ -63,7 +63,7 @@ export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   subType: AssetTransferTransactionSubType | undefined
   receiver: Address
-  amount: number | bigint
+  amount: bigint
   closeRemainder?: CloseAssetRemainder
   assetId: AssetId
   asset: AsyncMaybeAtom<AssetSummary>
@@ -103,9 +103,9 @@ export type Singlesig = {
 
 export type Multisig = {
   type: SignatureType.Multi
-  version: number
-  threshold: number
-  subsigners: Address[]
+  version?: number
+  threshold?: number
+  subsigners?: Address[]
 }
 
 export type Logicsig = {
@@ -155,8 +155,8 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   isOpUp: boolean
   applicationId: ApplicationId
   applicationArgs: string[]
-  foreignApps: number[]
-  foreignAssets: number[]
+  foreignApps: ApplicationId[]
+  foreignAssets: AssetId[]
   applicationAccounts: Address[]
   globalStateDeltas: Atom<Promise<GlobalStateDelta[]>>
   localStateDeltas: Atom<Promise<LocalStateDelta[]>>
@@ -200,7 +200,7 @@ export type InnerTransaction =
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
   subType: AssetConfigTransactionSubType
-  assetId: number
+  assetId: AssetId
   url?: string
   name?: string
   total?: number | bigint
@@ -229,7 +229,7 @@ export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetFreeze
   subType: undefined
   address: Address
-  assetId: number
+  assetId: AssetId
   asset: AsyncMaybeAtom<AssetSummary>
   freezeStatus: AssetFreezeStatus
 }
@@ -258,9 +258,9 @@ export type BaseKeyRegTransaction = CommonTransactionProperties & {
   subType: KeyRegTransactionSubType
   nonParticipation?: boolean
   selectionParticipationKey?: string
-  voteFirstValid?: number
-  voteKeyDilution?: number
-  voteLastValid?: number
+  voteFirstValid?: bigint
+  voteKeyDilution?: bigint
+  voteLastValid?: bigint
   voteParticipationKey?: string
   stateProofKey?: string
 }

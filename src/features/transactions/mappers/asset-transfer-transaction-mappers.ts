@@ -1,4 +1,4 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import {
   AssetTransferTransaction,
   AssetTransferTransactionSubType,
@@ -11,16 +11,17 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { AssetId } from '@/features/assets/data/types'
 
 const mapSubType = (transactionResult: TransactionResult) => {
-  invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
-  const assetTransfer = transactionResult['asset-transfer-transaction']
+  invariant(transactionResult.assetTransferTransaction, 'asset-transfer-transaction is not set')
+  const assetTransfer = transactionResult.assetTransferTransaction
 
-  if (assetTransfer['close-to']) {
+  if (assetTransfer.closeTo) {
     return AssetTransferTransactionSubType.OptOut
   }
 
-  if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0) {
+  if (transactionResult.sender === assetTransfer.receiver && assetTransfer.amount === 0n) {
     return AssetTransferTransactionSubType.OptIn
   }
 
@@ -35,11 +36,11 @@ const mapSubType = (transactionResult: TransactionResult) => {
 
 const mapCommonAssetTransferTransactionProperties = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>
 ) => {
-  invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+  invariant(transactionResult.assetTransferTransaction, 'asset-transfer-transaction is not set')
 
-  const assetId = transactionResult['asset-transfer-transaction']['asset-id']
+  const assetId = transactionResult.assetTransferTransaction.assetId
   const asset = assetResolver(assetId)
 
   return {
@@ -48,24 +49,24 @@ const mapCommonAssetTransferTransactionProperties = (
     subType: mapSubType(transactionResult),
     assetId,
     asset,
-    receiver: transactionResult['asset-transfer-transaction'].receiver,
-    amount: transactionResult['asset-transfer-transaction'].amount,
-    closeRemainder: transactionResult['asset-transfer-transaction']['close-to']
+    receiver: transactionResult.assetTransferTransaction.receiver,
+    amount: transactionResult.assetTransferTransaction.amount,
+    closeRemainder: transactionResult.assetTransferTransaction.closeTo
       ? {
-          to: transactionResult['asset-transfer-transaction']['close-to'],
-          amount: transactionResult['asset-transfer-transaction']['close-amount'] ?? 0,
+          to: transactionResult.assetTransferTransaction.closeTo,
+          amount: transactionResult.assetTransferTransaction.closeAmount ?? 0,
         }
       : undefined,
-    clawbackFrom: transactionResult['asset-transfer-transaction'].sender,
+    clawbackFrom: transactionResult.assetTransferTransaction.sender,
   } satisfies BaseAssetTransferTransaction
 }
 
 export const asAssetTransferTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: bigint) => AsyncMaybeAtom<AssetSummary>
 ): AssetTransferTransaction => {
   return {
-    id: transactionResult.id,
+    id: transactionResult.id!,
     ...mapCommonAssetTransferTransactionProperties(transactionResult, assetResolver),
   }
 }
@@ -74,7 +75,7 @@ export const asInnerAssetTransferTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>
+  assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>
 ): InnerAssetTransferTransaction => {
   return {
     ...asInnerTransactionId(networkTransactionId, index),

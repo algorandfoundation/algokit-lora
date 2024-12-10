@@ -1,6 +1,6 @@
 import { Atom, atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { loadable } from 'jotai/utils'
 import { TransactionId } from './types'
 import { asTransaction } from '../mappers/transaction-mappers'

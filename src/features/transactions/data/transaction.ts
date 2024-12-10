@@ -1,12 +1,12 @@
 import { Atom, atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { loadable } from 'jotai/utils'
 import { TransactionId } from './types'
 import { asTransaction } from '../mappers/transaction-mappers'
 import { getTransactionResultAtom } from './transaction-result'
 import { assetSummaryResolver } from '@/features/assets/data/asset-summary'
 import { abiMethodResolver } from '@/features/abi-methods/data'
+import { TransactionResult } from './types'
 
 export const createTransactionsAtom = (transactionResults: TransactionResult[]) => {
   return atom(() => {

@@ -31,7 +31,7 @@ export function AssetPage() {
   const { assetId: _assetId } = useRequiredParam(UrlParams.AssetId)
   invariant(isInteger(_assetId), assetInvalidIdMessage)
 
-  const assetId = parseInt(_assetId, 10)
+  const assetId = BigInt(parseInt(_assetId, 10))
   const [loadableAsset, refreshAsset, isStale] = useLoadableAsset(assetId)
   useTitle()
 
