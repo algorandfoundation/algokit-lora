@@ -99,7 +99,7 @@ describe('explore-page', () => {
             const transactionCard1 = transactionCards[0]
             expect(getByRole(transactionCard1, 'heading').textContent).toBe(ellipseId(transactionResult1.id))
             expect(transactionCard1.textContent).toContain(`From:${ellipseAddress(transactionResult1.sender)}`)
-            expect(transactionCard1.textContent).toContain(`To:${ellipseAddress(transactionResult1.receiver)}`)
+            expect(transactionCard1.textContent).toContain(`To:${ellipseAddress(transactionResult1.paymentTransaction!.receiver)}`)
             expect(transactionCards[0].textContent).toContain('Payment')
           })
         }
@@ -119,11 +119,11 @@ describe('explore-page', () => {
         return {
           syncedRound: block.round > acc.syncedRound ? block.round : acc.syncedRound,
           blocks: new Map([...acc.blocks, [block.round, createReadOnlyAtomAndTimestamp(block)]]),
-          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)] as const)]),
+          transactions: new Map([...acc.transactions, ...transactions.map((t) => [t.id!, createReadOnlyAtomAndTimestamp(t)] as const)]),
         }
       },
       {
-        syncedRound: 0,
+        syncedRound: 0n,
         blocks: new Map<Round, readonly [Atom<BlockResult>, number]>(),
         transactions: new Map<TransactionId, readonly [Atom<TransactionResult>, number]>(),
       }

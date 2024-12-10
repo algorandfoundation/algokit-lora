@@ -11,12 +11,18 @@ export function TestWalletProvider({ networkConfig, children }: Props) {
   const walletManager = useMemo(() => {
     return new WalletManager({
       wallets: [WalletId.MNEMONIC], // Providers are mocked. This is just to satisfy NonEmptyArray.
-      algod: {
-        baseServer: networkConfig.algod.server,
-        port: networkConfig.algod.port,
+      networks: {
+        [networkConfig.id]: {
+          name: networkConfig.name,
+          algod: {
+            baseServer: networkConfig.algod.server,
+            port: networkConfig.algod.port,
+            token: networkConfig.algod.token ?? '',
+          },
+        },
       },
     })
-  }, [networkConfig.algod.port, networkConfig.algod.server])
+  }, [networkConfig.algod.port, networkConfig.algod.server, networkConfig.algod.token, networkConfig.id, networkConfig.name])
 
   return <WalletProviderInner walletManager={walletManager}>{children}</WalletProviderInner>
 }

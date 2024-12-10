@@ -77,7 +77,8 @@ export function GroupSendResults({ transactionGraph, transactionGraphBgClassName
   const downloadSimulateTrace = useCallback(async () => {
     if (!simulateResponse) return
 
-    const file = new Blob([asJson(simulateResponse.get_obj_for_encoding())], { type: 'application/json' })
+    // TODO: PD - test
+    const file = new Blob([asJson(simulateResponse.toEncodingData())], { type: 'application/json' })
     await downloadFile(buildSimulateTraceFilename(simulateResponse), file)
   }, [simulateResponse])
 

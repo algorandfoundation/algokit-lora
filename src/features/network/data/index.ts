@@ -15,6 +15,7 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   kmd: 'KMD',
   mnemonic: 'MNEMONIC',
   defly: 'Defly',
+  'defly-web': 'Defly Web',
   pera: 'Pera',
   exodus: 'Exodus',
   lute: 'Lute',

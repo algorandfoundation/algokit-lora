@@ -201,10 +201,12 @@ export function TransactionsBuilder({
           const transactionWithResources = transactionsWithResources[i]
           if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
             const resources = {
-              accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
-              assets: transactionWithResources.txn.appForeignAssets ?? [],
-              applications: transactionWithResources.txn.appForeignApps ?? [],
-              boxes: transactionWithResources.txn.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ?? [],
+              accounts: transactionWithResources.txn.applicationCall?.accounts.map((account) => account.toString()) ?? [],
+              assets: transactionWithResources.txn.applicationCall?.foreignAssets.map((a) => a) ?? [],
+              applications: transactionWithResources.txn.applicationCall?.foreignApps.map((a) => a) ?? [],
+              boxes:
+                transactionWithResources.txn.applicationCall?.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ??
+                [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }

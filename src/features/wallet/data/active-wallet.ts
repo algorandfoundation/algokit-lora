@@ -33,9 +33,7 @@ const getActiveWalletAccount = async (address: string) => {
 
   return {
     address: address,
-    // In algosdk, the asset ID has type bigint | number
-    // but in lora, we use number only
-    assetHolding: new Map(assetHolding.map((asset) => [Number(asset.assetId), { amount: asset.amount }])),
+    assetHolding: new Map(assetHolding.map((asset) => [asset.assetId, { amount: asset.amount }])),
     algoHolding: {
       amount: accountInformation.balance.microAlgo,
     },

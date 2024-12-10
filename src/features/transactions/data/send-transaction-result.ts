@@ -16,11 +16,11 @@ import { asAssetSummary } from '@/features/assets/mappers'
 const asBlockTransaction = (res: algosdk.modelsv2.PendingTransactionResponse): BlockInnerTransaction => {
   return {
     txn: res.txn.txn,
-    sgnr: res.txn.sgnr,
-    caid: res.assetIndex !== undefined ? Number(res.assetIndex) : res.txn.txn.caid,
-    apid: res.applicationIndex !== undefined ? Number(res.applicationIndex) : res.txn.txn.apid,
+    sgnr: res.txn.sgnr?.publicKey,
+    caid: res.assetIndex,
+    apid: res.applicationIndex,
     aca: res.assetClosingAmount,
-    ca: res.closingAmount !== undefined ? Number(res.closingAmount) : undefined,
+    ca: res.closingAmount,
     dt: {
       // We don't use gd or ld in this context, so don't need to map.
       gd: {},
@@ -50,19 +50,22 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
 
   // This mapping does some approximations, which are fine for the contexts we currently use it for.
   return result.confirmations.map((confirmation, i) => {
+    invariant(confirmation.txn.txn.genesisHash, 'Genesis hash is required')
+    invariant(confirmation.txn.txn.genesisID, 'Genesis ID is required')
+
     const txnResult = getIndexerTransactionFromAlgodTransaction({
       blockTransaction: asBlockTransaction(confirmation),
       roundOffset: 0,
       roundIndex: 0,
-      genesisHash: confirmation.txn.txn.gh,
-      genesisId: confirmation.txn.txn.gen,
+      genesisHash: Buffer.from(confirmation.txn.txn.genesisHash),
+      genesisId: confirmation.txn.txn.genesisID,
       roundNumber: Number(confirmation.confirmedRound ?? 0),
       roundTimestamp: Math.floor(now.getTime() / 1000),
       transaction: result.transactions[i],
       logs: confirmation.logs,
-      createdAssetId: confirmation.assetIndex !== undefined ? Number(confirmation.assetIndex) : undefined,
-      createdAppId: confirmation.applicationIndex !== undefined ? Number(confirmation.applicationIndex) : undefined,
-      closeAmount: confirmation.closingAmount != undefined ? Number(confirmation.closingAmount) : undefined,
+      createdAssetId: confirmation.assetIndex,
+      createdAppId: confirmation.applicationIndex,
+      closeAmount: confirmation.closingAmount,
       assetCloseAmount: confirmation.assetClosingAmount,
     })
 
@@ -82,7 +85,7 @@ const assetSummaryResolver = (assetId: AssetId) =>
         params: {
           creator: '',
           decimals: 0,
-          total: 0,
+          total: 0n,
         },
       })
     }

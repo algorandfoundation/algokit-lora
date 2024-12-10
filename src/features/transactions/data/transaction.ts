@@ -18,7 +18,7 @@ export const createTransactionsAtom = (transactionResults: TransactionResult[]) 
 
 export const createTransactionAtom = (transactionResult: TransactionResult | Atom<TransactionResult | Promise<TransactionResult>>) => {
   return atom(async (get) => {
-    const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
+    const txn = 'read' in transactionResult ? await get(transactionResult) : transactionResult
     return asTransaction(txn, assetSummaryResolver, abiMethodResolver)
   })
 }

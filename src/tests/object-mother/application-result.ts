@@ -1,5 +1,5 @@
 import { ApplicationResultBuilder, applicationResultBuilder } from '../builders/application-result-builder'
-import { modelsv2 } from 'algosdk'
+import algosdk, { base64ToBytes, modelsv2 } from 'algosdk'
 
 export const applicationResultMother = {
   basic: () => {
@@ -7,13 +7,14 @@ export const applicationResultMother = {
   },
   'mainnet-80441968': () => {
     return new ApplicationResultBuilder({
-      id: 80441968,
+      id: 80441968n,
       params: {
-        'approval-program':
-          'AiAIAAUEAgEKkE5kJhMDYmlkBWRyYWluB0NyZWF0b3IGRXNjcm93Bldpbm5lcgNQb3QEQmlkcwpSb3VuZEJlZ2luCFJvdW5kRW5kBVByaWNlCk11bHRpcGxpZXIFVGltZXIKVGltZXJGaXJzdAtUaW1lclNlY29uZAlGZWVzRmlyc3QKRmVlc1NlY29uZAhEaXZpZGVuZANCaWQERmVlczEYIhJAAC4xGSMSQACTMRkkEkAApDEZJRJAALoxGSEEEkAAtyg2GgASQADQKTYaABJAAbIAMRshBRJAAAEAKjEAZys2GgBnJwQxAGcnBSJnJwYiZycHMgdnJwgyBzYaARcIZycJNhoCF2cnCjYaAxdnJws2GgQXZycMNhoFF2cnDTYaBhdnJw42GgcXZycPNhoIF2cnEDYaCRdnIQRDQgGBMQAqZBJAAAEAJwVkIhJAAAEAIQRDQgFpMQAqZBJAAAEAMRshBBJAAAEAKzYaAGchBENCAUwiQ0IBRzIHJwdkDzIHJwhkDhBAAAEAIicRImYiJxIiZiEEQ0IBJjIEJRIzAQgnCWQSMwEIJwlkJw5kCBIRMwEIJwlkJw9kCBIREDMAACpkEhAzAQcrZBIQMwEQIQQSEEAAAQAnBScFZCcJZAgnBWQnCWQIJxBkCyEGCglnJwQzAQBnJwknCWQnCWQnCmQLIQcKCGchBCcRIQQnEWInCWQIZjMBCCcJZBJBAAonCCcIZCcLZAhnMwEIJwlkJw5kCBJBABghBCcSIQQnEmInDmQIZicIJwhkJwxkCGczAQgnCWQnD2QIEkEAGCEEJxIhBCcSYicPZAhmJwgnCGQnDWQIZycGJwZkIQQIZyEEQ0IAPDIEJRJAAAEAMwAAKmQSQAABADMBACtkEkAAAQAzAQgiEkAAAQAzAQcyAxJAAAEAMwEJKmQSQAABACEEQw==',
-        'clear-state-program': 'AiABASJD',
-        creator: '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA',
-        'global-state': [
+        approvalProgram: base64ToBytes(
+          'AiAIAAUEAgEKkE5kJhMDYmlkBWRyYWluB0NyZWF0b3IGRXNjcm93Bldpbm5lcgNQb3QEQmlkcwpSb3VuZEJlZ2luCFJvdW5kRW5kBVByaWNlCk11bHRpcGxpZXIFVGltZXIKVGltZXJGaXJzdAtUaW1lclNlY29uZAlGZWVzRmlyc3QKRmVlc1NlY29uZAhEaXZpZGVuZANCaWQERmVlczEYIhJAAC4xGSMSQACTMRkkEkAApDEZJRJAALoxGSEEEkAAtyg2GgASQADQKTYaABJAAbIAMRshBRJAAAEAKjEAZys2GgBnJwQxAGcnBSJnJwYiZycHMgdnJwgyBzYaARcIZycJNhoCF2cnCjYaAxdnJws2GgQXZycMNhoFF2cnDTYaBhdnJw42GgcXZycPNhoIF2cnEDYaCRdnIQRDQgGBMQAqZBJAAAEAJwVkIhJAAAEAIQRDQgFpMQAqZBJAAAEAMRshBBJAAAEAKzYaAGchBENCAUwiQ0IBRzIHJwdkDzIHJwhkDhBAAAEAIicRImYiJxIiZiEEQ0IBJjIEJRIzAQgnCWQSMwEIJwlkJw5kCBIRMwEIJwlkJw9kCBIREDMAACpkEhAzAQcrZBIQMwEQIQQSEEAAAQAnBScFZCcJZAgnBWQnCWQIJxBkCyEGCglnJwQzAQBnJwknCWQnCWQnCmQLIQcKCGchBCcRIQQnEWInCWQIZjMBCCcJZBJBAAonCCcIZCcLZAhnMwEIJwlkJw5kCBJBABghBCcSIQQnEmInDmQIZicIJwhkJwxkCGczAQgnCWQnD2QIEkEAGCEEJxIhBCcSYicPZAhmJwgnCGQnDWQIZycGJwZkIQQIZyEEQ0IAPDIEJRJAAAEAMwAAKmQSQAABADMBACtkEkAAAQAzAQgiEkAAAQAzAQcyAxJAAAEAMwEJKmQSQAABACEEQw=='
+        ),
+        clearStateProgram: base64ToBytes('AiABASJD'),
+        creator: algosdk.Address.fromString('24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'),
+        globalState: [
           toTealKeyValue({ key: 'Qmlkcw==', value: { bytes: '', type: 2, uint: 0 } }),
           toTealKeyValue({ key: 'VGltZXI=', value: { bytes: '', type: 2, uint: 20 } }),
           toTealKeyValue({ key: 'RGl2aWRlbmQ=', value: { bytes: '', type: 2, uint: 5 } }),
@@ -30,20 +31,21 @@ export const applicationResultMother = {
           toTealKeyValue({ key: 'UHJpY2U=', value: { bytes: '', type: 2, uint: 1000000 } }),
           toTealKeyValue({ key: 'Um91bmRFbmQ=', value: { bytes: '', type: 2, uint: 1607905675 } }),
         ],
-        'global-state-schema': { 'num-byte-slice': 3, 'num-uint': 12 },
-        'local-state-schema': { 'num-byte-slice': 0, 'num-uint': 2 },
+        globalStateSchema: { numByteSlice: 3, numUint: 12 },
+        localStateSchema: { numByteSlice: 0, numUint: 2 },
       },
     })
   },
   'mainnet-1196727051': () => {
     return new ApplicationResultBuilder({
-      id: 1196727051,
+      id: 1196727051n,
       params: {
-        'approval-program':
-          'CSAEAAEGAiYJDG5mdGlja2V0X2FwcAABAA9tYW5hZ2VyX2FkZHJlc3MBAQQuU0kZBGg0o6oSbWV0aG9kX3Blcm1pc3Npb25zB2FpcmxpbmUxGyISQAEtNhoAgAThNZDwEkABETYaAIAEnNbuoRJAAPU2GgCABF5iYz4SQADZNhoAgAS2olF1EkAAvTYaAIAE+Qj2KRJAAKE2GgCABB0UDY4SQACFNhoAgATG43mkEkAAaTYaACcFEkAAUTYaAIAEnvUJRhJAADU2GgCABE+i3akSQAAZNhoAJwYSQAABADEZIhIxGCITEESIBBYjQzEZIhIxGCITEESIA+wjQzEZIhIxGCITEESIA7IjQzEZIhIxGCITEESIA34jQzEZIhIxGCITEESIA0wjQzEZIhIxGCITEESIAxAjQzEZIhIxGCISEESIAuAjQzEZIhIxGCITEESIArcjQzEZIhIxGCITEESIApcjQzEZIhIxGCITEESIAncjQzEZIhIxGCITEESIAlcjQzEZIxJAADYxGSUSQAAlMRmBBBJAABMxGYEFEkAAAQAxGCITRIgAViNDMRgiE0SIAEEjQzEYIhNEiABSI0MxGCITRIgAQyNDigIBi/4yCGFAAAQiQgAbi/4iJwdjNQE1ADQBQAAHIov/U0IABTQAQv/1iYoAADEAMgkSRCNDigAAMQAyCRJEI0OKAAAjQ4oAACNDigEAMQAyCRJEK4v/wBxniYoBADEAK2QSRLEkshAjshmL/8AyshgisgGziYoBADEAK2QSRLEkshAlshmL/8AyshgisgGziYoCADEAK2QSRIv+wBwnB4v/ZomKAgGL/icIZBJAAAqL/ov/iP9JQgABI4mKAwAoi/7AMmcri/1nJwiL/2cjQ4oFADEAIoj/y0SxJLIQKGSyGIAEWOGHaLIai/uyGov8shqL/bIai/6yGov/shoisgGziYoDADEAJIj/mESxJLIQKGSyGIv/wByyHIv+wDCyMIAErnlpMLIai/2yGiqyGicEshoisgGziYoDADEAgQOI/2FEsSSyEChkshiL/sAcshyL/8AcshyL/cAwsjAnBbIaKrIaJwSyGoABArIaIrIBs4mKBAAxAIEFiP8nRLEkshAoZLIYi/zAMLIwgAQ7tliRshoqshqL/bIai/4WVwQAshqL/7IaIrIBs4mKAgAxAIEEiP7uRLEkshAoZLIYi/7AMLIwgARMfzwNshoqshoqIov/VrIaIrIBs4mKAwAxACWI/r9EsSSyEChkshiL/8AcshyL/sAwsjAnBrIai/2yGiqyGicEshoisgGziYoAACI2GgEiVYwAiwCI/i2JigAAIjYaASJVjACLAIj+LImKAAAiNhoBIlWMAIsAiP42iYoAACJJNhoBIlWMADYaAheMAYsAiwGI/jeJigAAKSIpNhoBjAA2GgIiVYwBNhoDjAKLAIsBiwKI/kGJigAAKUcENhoBjAA2GgKMATYaA4wCNhoEjAM2GgWMBIsAiwGLAosDiwSI/iiJigAAKSJJNhoBjAA2GgIiVYwBNhoDIlWMAosAiwGLAoj+OImKAAAiRwI2GgEiVYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/kmJigAAIikiKTYaASJVjAA2GgKMATYaAyJajAI2GgSMA4sAiwGLAosDiP5YiYoAACJJNhoBIlWMADYaAiJVjAGLAIsBiP52iYoAACkiSTYaAYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/oOJ',
-        'clear-state-program': 'CYEAQw==',
-        creator: '52MVNW6FNW7L6W7IAKSROD5FYZGZNLVKT6WUWNUFEE3DT737RYIIL2YQ3Y',
-        'global-state': [
+        approvalProgram: base64ToBytes(
+          'CSAEAAEGAiYJDG5mdGlja2V0X2FwcAABAA9tYW5hZ2VyX2FkZHJlc3MBAQQuU0kZBGg0o6oSbWV0aG9kX3Blcm1pc3Npb25zB2FpcmxpbmUxGyISQAEtNhoAgAThNZDwEkABETYaAIAEnNbuoRJAAPU2GgCABF5iYz4SQADZNhoAgAS2olF1EkAAvTYaAIAE+Qj2KRJAAKE2GgCABB0UDY4SQACFNhoAgATG43mkEkAAaTYaACcFEkAAUTYaAIAEnvUJRhJAADU2GgCABE+i3akSQAAZNhoAJwYSQAABADEZIhIxGCITEESIBBYjQzEZIhIxGCITEESIA+wjQzEZIhIxGCITEESIA7IjQzEZIhIxGCITEESIA34jQzEZIhIxGCITEESIA0wjQzEZIhIxGCITEESIAxAjQzEZIhIxGCISEESIAuAjQzEZIhIxGCITEESIArcjQzEZIhIxGCITEESIApcjQzEZIhIxGCITEESIAncjQzEZIhIxGCITEESIAlcjQzEZIxJAADYxGSUSQAAlMRmBBBJAABMxGYEFEkAAAQAxGCITRIgAViNDMRgiE0SIAEEjQzEYIhNEiABSI0MxGCITRIgAQyNDigIBi/4yCGFAAAQiQgAbi/4iJwdjNQE1ADQBQAAHIov/U0IABTQAQv/1iYoAADEAMgkSRCNDigAAMQAyCRJEI0OKAAAjQ4oAACNDigEAMQAyCRJEK4v/wBxniYoBADEAK2QSRLEkshAjshmL/8AyshgisgGziYoBADEAK2QSRLEkshAlshmL/8AyshgisgGziYoCADEAK2QSRIv+wBwnB4v/ZomKAgGL/icIZBJAAAqL/ov/iP9JQgABI4mKAwAoi/7AMmcri/1nJwiL/2cjQ4oFADEAIoj/y0SxJLIQKGSyGIAEWOGHaLIai/uyGov8shqL/bIai/6yGov/shoisgGziYoDADEAJIj/mESxJLIQKGSyGIv/wByyHIv+wDCyMIAErnlpMLIai/2yGiqyGicEshoisgGziYoDADEAgQOI/2FEsSSyEChkshiL/sAcshyL/8AcshyL/cAwsjAnBbIaKrIaJwSyGoABArIaIrIBs4mKBAAxAIEFiP8nRLEkshAoZLIYi/zAMLIwgAQ7tliRshoqshqL/bIai/4WVwQAshqL/7IaIrIBs4mKAgAxAIEEiP7uRLEkshAoZLIYi/7AMLIwgARMfzwNshoqshoqIov/VrIaIrIBs4mKAwAxACWI/r9EsSSyEChkshiL/8AcshyL/sAwsjAnBrIai/2yGiqyGicEshoisgGziYoAACI2GgEiVYwAiwCI/i2JigAAIjYaASJVjACLAIj+LImKAAAiNhoBIlWMAIsAiP42iYoAACJJNhoBIlWMADYaAheMAYsAiwGI/jeJigAAKSIpNhoBjAA2GgIiVYwBNhoDjAKLAIsBiwKI/kGJigAAKUcENhoBjAA2GgKMATYaA4wCNhoEjAM2GgWMBIsAiwGLAosDiwSI/iiJigAAKSJJNhoBjAA2GgIiVYwBNhoDIlWMAosAiwGLAoj+OImKAAAiRwI2GgEiVYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/kmJigAAIikiKTYaASJVjAA2GgKMATYaAyJajAI2GgSMA4sAiwGLAosDiP5YiYoAACJJNhoBIlWMADYaAiJVjAGLAIsBiP52iYoAACkiSTYaAYwANhoCIlWMATYaAyJVjAKLAIsBiwKI/oOJ'
+        ),
+        clearStateProgram: base64ToBytes('CYEAQw=='),
+        creator: algosdk.Address.fromString('52MVNW6FNW7L6W7IAKSROD5FYZGZNLVKT6WUWNUFEE3DT737RYIIL2YQ3Y'),
+        globalState: [
           toTealKeyValue({
             key: 'bWFuYWdlcl9hZGRyZXNz',
             value: {
@@ -69,31 +71,31 @@ export const applicationResultMother = {
             },
           }),
         ],
-        'global-state-schema': {
-          'num-byte-slice': 2,
-          'num-uint': 1,
+        globalStateSchema: {
+          numByteSlice: 2,
+          numUint: 1,
         },
-        'local-state-schema': {
-          'num-byte-slice': 0,
-          'num-uint': 1,
+        localStateSchema: {
+          numByteSlice: 0,
+          numUint: 1,
         },
       },
     })
   },
   'testnet-718348254': () => {
     return new ApplicationResultBuilder({
-      id: 718348254,
+      id: 718348254n,
       params: {
-        'approval-program': 'CiABATEbQQAmgASlPlpBNhoAjgEAAQAxGRREMRhENhoBiAAVgAQVH3x1TFCwIkMxGRREMRgURCJDigEBi/+J',
-        'clear-state-program': 'CoEBQw==',
-        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
-        'global-state-schema': {
-          'num-byte-slice': 0,
-          'num-uint': 0,
+        approvalProgram: base64ToBytes('CiABATEbQQAmgASlPlpBNhoAjgEAAQAxGRREMRhENhoBiAAVgAQVH3x1TFCwIkMxGRREMRgURCJDigEBi/+J'),
+        clearStateProgram: base64ToBytes('CoEBQw=='),
+        creator: algosdk.Address.fromString('25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'),
+        globalStateSchema: {
+          numByteSlice: 0,
+          numUint: 0,
         },
-        'local-state-schema': {
-          'num-byte-slice': 0,
-          'num-uint': 0,
+        localStateSchema: {
+          numByteSlice: 0,
+          numUint: 0,
         },
       },
     })
@@ -101,13 +103,14 @@ export const applicationResultMother = {
   // This app is associated with the Arc56 sample-one app spec
   'localnet-3771': () => {
     return new ApplicationResultBuilder({
-      id: 3771,
+      id: 3771n,
       params: {
-        'approval-program':
-          'CiACAdIJJgEGYm94S2V5MRgUgQYLMRkIjQwA3gDsAAAAAAAAAAAA0AAAAAAAAAAAAAAAgAQVH3x1NhoBSRWBIBJEiAAEULAiQ4oBAYv/VxAIF4v/VxgIFwxBAAEAgAlnbG9iYWxLZXkjZ4AGcAADZm9vgAQADQAlZ4v/VwAIF4v/VwgIFwgWi/9XEAgXi/9XGAgXCRZQiYgAAiJDigAAMQCACGxvY2FsS2V5I2YxAIAEcGZvb4AFAANiYXJmKEm8SIAFAANiYXq/gCFwAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAOAEAAAAAAAAAADAAAAAAAAAAG/iSJDgAS4RHs2NhoAjgH/8QCABDltVQ42GgCOAf8WAIAEAaOj/zYaAI4B/2wA',
-        'clear-state-program': 'Cg==',
-        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
-        'global-state': [
+        approvalProgram: base64ToBytes(
+          'CiACAdIJJgEGYm94S2V5MRgUgQYLMRkIjQwA3gDsAAAAAAAAAAAA0AAAAAAAAAAAAAAAgAQVH3x1NhoBSRWBIBJEiAAEULAiQ4oBAYv/VxAIF4v/VxgIFwxBAAEAgAlnbG9iYWxLZXkjZ4AGcAADZm9vgAQADQAlZ4v/VwAIF4v/VwgIFwgWi/9XEAgXi/9XGAgXCRZQiYgAAiJDigAAMQCACGxvY2FsS2V5I2YxAIAEcGZvb4AFAANiYXJmKEm8SIAFAANiYXq/gCFwAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAOAEAAAAAAAAAADAAAAAAAAAAG/iSJDgAS4RHs2NhoAjgH/8QCABDltVQ42GgCOAf8WAIAEAaOj/zYaAI4B/2wA'
+        ),
+        clearStateProgram: base64ToBytes('Cg=='),
+        creator: algosdk.Address.fromString('25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'),
+        globalState: [
           toTealKeyValue({
             key: 'Z2xvYmFsS2V5',
             value: {
@@ -125,13 +128,13 @@ export const applicationResultMother = {
             },
           }),
         ],
-        'global-state-schema': {
-          'num-byte-slice': 37,
-          'num-uint': 1,
+        globalStateSchema: {
+          numByteSlice: 37,
+          numUint: 1,
         },
-        'local-state-schema': {
-          'num-byte-slice': 13,
-          'num-uint': 1,
+        localStateSchema: {
+          numByteSlice: 13,
+          numUint: 1,
         },
       },
     })
@@ -139,13 +142,14 @@ export const applicationResultMother = {
   // This app is associated with the Arc56 sample-three app spec
   'localnet-5103': () => {
     return new ApplicationResultBuilder({
-      id: 5103,
+      id: 5103n,
       params: {
-        'approval-program':
-          'CiABATEYFIEGCzEZCI0MALQAwgAAAAAAAAAAAKYAAAAAAAAAAAAAAIAEFR98dTYaAUkVgSASRIgABFCwIkOKAQGL/1cQCBeL/1cYCBcMQQABAIAFAANmb2+ABAANACVni/9XAAgXi/9XCAgXCBaL/1cQCBeL/1cYCBcJFlCJiAACIkOKAAAxAIADZm9vgAUAA2JhcmaAIAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAADgBAAAAAAAAAAAwAAAAAAAAABv4kiQ4AEuER7NjYaAI4B//EAgAQ5bVUONhoAjgH/QACABAGjo/82GgCOAf+IAA==',
-        'clear-state-program': 'Cg==',
-        creator: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',
-        'global-state': [
+        approvalProgram: base64ToBytes(
+          'CiABATEYFIEGCzEZCI0MALQAwgAAAAAAAAAAAKYAAAAAAAAAAAAAAIAEFR98dTYaAUkVgSASRIgABFCwIkOKAQGL/1cQCBeL/1cYCBcMQQABAIAFAANmb2+ABAANACVni/9XAAgXi/9XCAgXCBaL/1cQCBeL/1cYCBcJFlCJiAACIkOKAAAxAIADZm9vgAUAA2JhcmaAIAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAADgBAAAAAAAAAAAwAAAAAAAAABv4kiQ4AEuER7NjYaAI4B//EAgAQ5bVUONhoAjgH/QACABAGjo/82GgCOAf+IAA=='
+        ),
+        clearStateProgram: base64ToBytes('Cg=='),
+        creator: algosdk.Address.fromString('25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE'),
+        globalState: [
           toTealKeyValue({
             key: 'AANmb28=',
             value: {
@@ -155,13 +159,13 @@ export const applicationResultMother = {
             },
           }),
         ],
-        'global-state-schema': {
-          'num-byte-slice': 37,
-          'num-uint': 0,
+        globalStateSchema: {
+          numByteSlice: 37,
+          numUint: 0,
         },
-        'local-state-schema': {
-          'num-byte-slice': 13,
-          'num-uint': 0,
+        localStateSchema: {
+          numByteSlice: 13,
+          numUint: 0,
         },
       },
     })
