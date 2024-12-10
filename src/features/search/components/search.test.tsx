@@ -46,7 +46,7 @@ describe('search', () => {
     myStore.set(blockResultsAtom, new Map([[blockResult.round, createReadOnlyAtomAndTimestamp(blockResult)]]))
     myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
     myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
-    myStore.set(transactionResultsAtom, new Map([[transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult)]]))
+    myStore.set(transactionResultsAtom, new Map([[transactionResult.id!, createReadOnlyAtomAndTimestamp(transactionResult)]]))
 
     describe.each([
       {
@@ -56,8 +56,8 @@ describe('search', () => {
       },
       {
         type: SearchResultType.Transaction,
-        id: transactionResult.id,
-        label: `${transactionResult.id.substring(0, 7)}…`,
+        id: transactionResult.id!,
+        label: `${transactionResult.id!.substring(0, 7)}…`,
       },
       {
         type: SearchResultType.Account,

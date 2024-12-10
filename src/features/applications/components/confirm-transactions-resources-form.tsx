@@ -10,11 +10,12 @@ import { zfd } from 'zod-form-data'
 import { ApplicationId } from '../data/types'
 import { randomGuid } from '@/utils/random-guid'
 import { isAddress } from '@/utils/is-address'
+import { AssetId } from '@/features/assets/data/types'
 
 export type TransactionResources = {
   accounts: Address[]
-  assets: number[]
-  applications: number[]
+  assets: AssetId[]
+  applications: ApplicationId[]
   boxes: (readonly [ApplicationId, string])[]
 }
 
@@ -37,8 +38,8 @@ const formSchema = zfd.formData({
       )
       .max(4)
   ),
-  assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })).max(8)),
-  applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })).max(8)),
+  assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.bigint().min(0n)) })).max(8)),
+  applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.bigint().min(0n)) })).max(8)),
   boxes: zfd.repeatable(
     z.array(z.object({ id: z.string(), applicationId: numberSchema(z.bigint().min(0n)), boxName: zfd.text(z.string().optional()) })).max(8)
   ),

@@ -98,7 +98,7 @@ export function MethodCallTransactionBuilder({
     return {
       appSpec: loadableArc56ContractWithMethodDefinitions.data.appSpec,
       methodDefinitions: loadableArc56ContractWithMethodDefinitions.data.methodDefinitions.filter((method) =>
-        appId === 0 ? (method.callConfig?.create ?? []).length > 0 : (method.callConfig?.call ?? []).length > 0
+        appId === 0n ? (method.callConfig?.create ?? []).length > 0 : (method.callConfig?.call ?? []).length > 0
       ),
     }
   }, [appId, loadableArc56ContractWithMethodDefinitions])
@@ -152,7 +152,7 @@ export function MethodCallTransactionBuilder({
       const methodCallTxn = {
         id: methodCallTransactionId,
         type: BuildableTransactionType.MethodCall,
-        applicationId: Number(values.applicationId),
+        applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
         sender: values.sender,
@@ -247,7 +247,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
   const methodName = watch('methodName')
 
   useEffect(() => {
-    onAppIdChanged(Number(appId))
+    onAppIdChanged(appId)
   }, [appId, onAppIdChanged])
 
   useEffect(() => {

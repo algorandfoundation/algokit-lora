@@ -8,11 +8,11 @@ import { asLocalStateDelta } from '../mappers/state-delta-mappers'
 
 export const localStateDeltaResolver = (transaction: TransactionResult): Atom<Promise<LocalStateDelta[]>> => {
   return atom(async (get) => {
-    if (transaction['tx-type'] !== AlgoSdkTransactionType.appl || !transaction['application-transaction']?.['application-id']) {
+    if (transaction.txType !== AlgoSdkTransactionType.appl || !transaction.applicationTransaction?.applicationId) {
       return []
     }
 
-    const appSpec = await get(createAppSpecAtom(transaction['application-transaction']?.['application-id']))
-    return asLocalStateDelta(transaction['local-state-delta'], appSpec ? asArc56AppSpec(appSpec) : undefined)
+    const appSpec = await get(createAppSpecAtom(transaction.applicationTransaction?.applicationId))
+    return asLocalStateDelta(transaction.localStateDelta, appSpec ? asArc56AppSpec(appSpec) : undefined)
   })
 }

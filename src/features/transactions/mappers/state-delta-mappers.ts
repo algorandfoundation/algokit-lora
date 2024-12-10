@@ -1,5 +1,5 @@
 import algosdk, { encodeAddress } from 'algosdk'
-import { AccountStateDelta, EvalDelta, EvalDeltaKeyValue, StateDelta } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AccountStateDelta, EvalDelta, EvalDeltaKeyValue } from '@/features/transactions/data/types'
 import isUtf8 from 'isutf8'
 import {
   DecodedGlobalStateDelta,
@@ -18,7 +18,7 @@ import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { Address } from '@/features/accounts/data/types'
 
-export const asGlobalStateDelta = (stateDelta: StateDelta | undefined, appSpec?: Arc56Contract): GlobalStateDelta[] => {
+export const asGlobalStateDelta = (stateDelta: EvalDeltaKeyValue[] | undefined, appSpec?: Arc56Contract): GlobalStateDelta[] => {
   if (!stateDelta) {
     return []
   }

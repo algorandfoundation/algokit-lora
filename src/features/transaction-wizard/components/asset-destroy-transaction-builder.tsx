@@ -31,7 +31,7 @@ const formSchema = {
   ...senderFieldSchema,
   asset: z
     .object({
-      id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(1)),
+      id: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
       decimals: z.number().optional(),
       manager: z.string().optional(),
     })
@@ -99,7 +99,7 @@ function FormInner({ helper }: FormInnerProps) {
   const formCtx = useFormContext<z.infer<typeof formData>>()
 
   const assetIdFieldValue = formCtx.watch('asset.id') // This actually comes back as a string value, so we convert below
-  const [assetId] = useDebounce(assetIdFieldValue ? Number(assetIdFieldValue) : undefined, 500)
+  const [assetId] = useDebounce(assetIdFieldValue ? BigInt(assetIdFieldValue) : undefined, 500)
 
   if (assetId) {
     return <FormFieldsWithAssetInfo helper={helper} formCtx={formCtx} assetId={assetId} />

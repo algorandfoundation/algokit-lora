@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
 import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction, asTransaction } from '../../transactions/mappers'
-import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAssetSummary } from '@/features/assets/mappers/asset-summary'
@@ -21,6 +20,8 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { DecodedAbiMethod } from '@/features/abi-methods/models'
+import { AssetResult } from '@/features/assets/data/types'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -250,7 +251,7 @@ describe('group-graph', () => {
   )
 })
 
-const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {
+const createAssetResolver = (assetResults: AssetResult[]) => (assetId: bigint) => {
   const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)
   return atom(() => asAssetSummary(assetResult))

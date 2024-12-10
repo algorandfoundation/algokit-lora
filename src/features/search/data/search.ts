@@ -73,7 +73,7 @@ const createSearchAtoms = (store: JotaiStore, selectedNetwork: string) => {
         })
       }
     } else if (isInteger(term)) {
-      const id = parseInt(term, 10)
+      const id = BigInt(parseInt(term, 10))
       if (id >= 0) {
         const syncedRound = store.get(syncedRoundAtom)
         if (!syncedRound || syncedRound >= id) {

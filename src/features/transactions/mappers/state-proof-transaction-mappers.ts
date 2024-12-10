@@ -4,7 +4,7 @@ import { asInnerTransactionId, mapCommonTransactionProperties } from './transact
 
 export const asStateProofTransaction = (transactionResult: TransactionResult): StateProofTransaction => {
   return {
-    id: transactionResult.id,
+    id: transactionResult.id!,
     type: TransactionType.StateProof,
     subType: undefined,
     ...mapCommonTransactionProperties(transactionResult),

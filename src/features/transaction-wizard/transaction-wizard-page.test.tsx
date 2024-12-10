@@ -143,7 +143,7 @@ describe('transaction-wizard-page', () => {
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
             expect(result.transaction.sender).toBe(testAccount.addr)
-            expect(result.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
               {
                 "amount": 500000,
                 "close-amount": 0,
@@ -248,7 +248,7 @@ describe('transaction-wizard-page', () => {
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
             expect(result.transaction.sender).toBe(testAccount.addr)
-            expect(result.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
               {
                 "amount": 0,
                 "close-amount": 9999000,

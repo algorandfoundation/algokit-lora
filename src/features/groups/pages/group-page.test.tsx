@@ -86,7 +86,7 @@ describe('group-page', () => {
     const group = groupResultMother
       .groupWithTransactions(transactionResults)
       .withId('/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=')
-      .withRound(36591812)
+      .withRound(36591812n)
       .withTimestamp('2024-03-01T01:07:53Z')
       .build()
 
@@ -95,7 +95,7 @@ describe('group-page', () => {
 
       const myStore = createStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
-      myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
+      myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id!, createReadOnlyAtomAndTimestamp(t)])))
       myStore.set(
         assetResultsAtom,
         new Map([
