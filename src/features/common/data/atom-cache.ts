@@ -7,7 +7,7 @@ export const createReadOnlyAtomAndTimestamp = <T>(value: T) => {
   return [atom(() => value), createTimestamp()] as const
 }
 
-function getOrCreateValueInCacheAtom<Key extends string | number, Args extends unknown[], Value>(
+function getOrCreateValueInCacheAtom<Key extends string | number | bigint, Args extends unknown[], Value>(
   keySelector: (...args: Args) => Key,
   cacheAtom: PrimitiveAtom<Map<Key, readonly [Value, number]>>,
   createValue: (get: Getter, set: Setter, ...args: Args) => Value
@@ -52,7 +52,7 @@ function getOrCreateValueInCacheAtom<Key extends string | number, Args extends u
  * @param initialValues The initial value of the atom (parent atom)
  * @returns A tuple containing the values atom and a function to get the value atom for a given key
  */
-export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
+export function readOnlyAtomCache<Args extends unknown[], Key extends string | number | bigint, Value>(
   createInitialValue: (get: Getter, set: Setter, ...args: Args) => Value,
   keySelector: (...args: Args) => Key,
   initialValues?: Map<Key, readonly [Atom<Value>, number]>
@@ -65,7 +65,7 @@ export function readOnlyAtomCache<Args extends unknown[], Key extends string | n
   PrimitiveAtom<Map<Key, readonly [Atom<Promise<Value>>, number]>>,
   (...params: [...args: Args, options?: Options]) => Atom<Promise<Value>>,
 ]
-export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
+export function readOnlyAtomCache<Args extends unknown[], Key extends string | number | bigint, Value>(
   createInitialValue: (get: Getter, set: Setter, ...args: Args) => Value | Promise<Value>,
   keySelector: (...args: Args) => Key,
   initialValues: Map<Key, readonly [Atom<Value | Promise<Value>>, number]> = new Map()

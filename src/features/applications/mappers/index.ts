@@ -15,7 +15,6 @@ import {
 } from '../models'
 import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
-import { Buffer } from 'buffer'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson } from '@/utils/as-json'
 import { AppSpec, Arc32AppSpec } from '@/features/app-interfaces/data/types'
@@ -29,6 +28,8 @@ import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
+import { ZERO_ADDRESS } from '@/features/common/constants'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -44,30 +45,30 @@ export const asApplication = (
   return {
     id: application.id,
     name: metadata?.name,
-    creator: application.params.creator,
-    account: getApplicationAddress(application.id),
-    globalStateSchema: application.params['global-state-schema']
+    creator: application.params.creator?.toString() ?? ZERO_ADDRESS,
+    account: getApplicationAddress(application.id).toString(),
+    globalStateSchema: application.params.globalStateSchema
       ? {
-          numByteSlice: application.params['global-state-schema']['num-byte-slice'],
-          numUint: application.params['global-state-schema']['num-uint'],
+          numByteSlice: application.params.globalStateSchema.numByteSlice,
+          numUint: application.params.globalStateSchema.numUint,
         }
       : undefined,
-    localStateSchema: application.params['local-state-schema']
+    localStateSchema: application.params.localStateSchema
       ? {
-          numByteSlice: application.params['local-state-schema']['num-byte-slice'],
-          numUint: application.params['local-state-schema']['num-uint'],
+          numByteSlice: application.params.localStateSchema.numByteSlice,
+          numUint: application.params.localStateSchema.numUint,
         }
       : undefined,
-    approvalProgram: application.params['approval-program'],
-    clearStateProgram: application.params['clear-state-program'],
-    globalState: asGlobalStateValue(application.params['global-state'], appSpec),
+    approvalProgram: uint8ArrayToBase64(application.params.approvalProgram),
+    clearStateProgram: uint8ArrayToBase64(application.params.clearStateProgram),
+    globalState: asGlobalStateValue(application.params.globalState, appSpec),
     isDeleted: application.deleted ?? false,
     json: asJson(application),
     appSpec,
   }
 }
 
-export const asGlobalStateValue = (globalState: ApplicationResult['params']['global-state'], appSpec?: Arc56Contract): GlobalState[] => {
+export const asGlobalStateValue = (globalState: ApplicationResult['params']['globalState'], appSpec?: Arc56Contract): GlobalState[] => {
   if (!globalState) {
     return []
   }
@@ -81,22 +82,19 @@ export const asGlobalStateValue = (globalState: ApplicationResult['params']['glo
     })
 }
 
-const asRawGlobalKey = (key: string): string => {
-  const buffer = Buffer.from(key, 'base64')
-
-  if (isUtf8(buffer)) {
-    return buffer.toString()
+const asRawGlobalKey = (key: Uint8Array): string => {
+  if (isUtf8(key)) {
+    return key.toString()
   } else {
-    return key
+    return uint8ArrayToBase64(key)
   }
 }
 
-const asRawGlobalValue = (bytes: string) => {
-  const buf = Buffer.from(bytes, 'base64')
-  if (buf.length === 32) {
-    return encodeAddress(new Uint8Array(buf))
+const asRawGlobalValue = (bytes: Uint8Array) => {
+  if (bytes.length === 32) {
+    return encodeAddress(bytes)
   }
-  return base64ToUtf8IfValid(bytes)
+  return base64ToUtf8IfValid(uint8ArrayToBase64(bytes))
 }
 
 const getRawGlobalState = (state: modelsv2.TealKeyValue): RawGlobalState => {
@@ -118,7 +116,8 @@ const getRawGlobalState = (state: modelsv2.TealKeyValue): RawGlobalState => {
 }
 
 const asGlobalState = (state: modelsv2.TealKeyValue, appSpec?: Arc56Contract): GlobalState => {
-  const { key, value } = state
+  const { key: keyBytes, value } = state
+  const key = uint8ArrayToBase64(keyBytes)
 
   if (!appSpec) {
     return getRawGlobalState(state)
@@ -202,7 +201,7 @@ const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value:
     } satisfies DecodedAbiStorageValue
   }
 
-  return asDecodedAbiStorageValue(appSpec, type, base64ToBytes(value.bytes))
+  return asDecodedAbiStorageValue(appSpec, type, value.bytes)
 }
 
 export const asArc56AppSpec = (appSpec: AppSpec): Arc56Contract => {

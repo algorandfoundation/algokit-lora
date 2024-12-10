@@ -28,13 +28,13 @@ export function DecodedAbiMethodArguments({ arguments: argumentsProp, multiline 
     } else if (argument.type === DecodedAbiType.Application) {
       return (
         <ApplicationLink className="text-primary underline" applicationId={argument.value}>
-          {argument.value}
+          {argument.value.toString()}
         </ApplicationLink>
       )
     } else if (argument.type === DecodedAbiType.Asset) {
       return (
         <AssetIdLink className="text-primary underline" assetId={argument.value}>
-          {argument.value}
+          {argument.value.toString()}
         </AssetIdLink>
       )
     } else if (argument.type === DecodedAbiType.Struct) {

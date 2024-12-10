@@ -63,7 +63,7 @@ export type BlocksExtract = {
   groupResults: GroupResult[]
 }
 
-export type Round = number
+export type Round = bigint
 
 export enum SubscriberState {
   NotStarted = 'NotStarted',

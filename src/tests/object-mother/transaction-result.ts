@@ -1,7 +1,6 @@
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
 import algosdk, { TransactionType } from 'algosdk'
 import { AssetResult } from '@/features/assets/data/types'
-import { utf8ToUint8Array } from '@/utils/utf8-to-uint8-array'
 import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
@@ -27,16 +26,16 @@ export const transactionResultMother = {
         multisig: {
           subsignature: [
             {
-              publicKey: utf8ToUint8Array('hYkIN+Iyt2675q+XuYwoAzwR8B0P17WTUFGYn456E4o='),
-              signature: utf8ToUint8Array('eBLuSsmbqXTtKcoDpI88t7CNyQ7ggJ8ZMGjpy+hLWnvjNi938/5U6Eb25Dmes0WLkCxnDZG7gsj3YIDmZfFLAA=='),
+              publicKey: base64ToBytes('hYkIN+Iyt2675q+XuYwoAzwR8B0P17WTUFGYn456E4o='),
+              signature: base64ToBytes('eBLuSsmbqXTtKcoDpI88t7CNyQ7ggJ8ZMGjpy+hLWnvjNi938/5U6Eb25Dmes0WLkCxnDZG7gsj3YIDmZfFLAA=='),
             },
             {
-              publicKey: utf8ToUint8Array('5ChQFEXiHWTeXoJCRymNn8rmEAJAxpaigu4wIgcaODU='),
-              signature: utf8ToUint8Array('45ndEdxV115jUGBmqt4WSjcBDg847CiPlE0w5omziLftSRzOtJSd5zrF1zkHOa1B1GJV4AE8E2qriMIbifnYBw=='),
+              publicKey: base64ToBytes('5ChQFEXiHWTeXoJCRymNn8rmEAJAxpaigu4wIgcaODU='),
+              signature: base64ToBytes('45ndEdxV115jUGBmqt4WSjcBDg847CiPlE0w5omziLftSRzOtJSd5zrF1zkHOa1B1GJV4AE8E2qriMIbifnYBw=='),
             },
             {
-              publicKey: utf8ToUint8Array('RjQ91+zvYumrPm9UOEMN+GnlHW+0gliRCCV2b6KOlwk='),
-              signature: utf8ToUint8Array('LbmMSdKaqD/s9M1ldNAvLYGRMwxWdVPbl4i2zBVKwRnrRLM1Ape9zWMAxX1yJGxk/mAKGa9lZwAfQUlyus58Cw=='),
+              publicKey: base64ToBytes('RjQ91+zvYumrPm9UOEMN+GnlHW+0gliRCCV2b6KOlwk='),
+              signature: base64ToBytes('LbmMSdKaqD/s9M1ldNAvLYGRMwxWdVPbl4i2zBVKwRnrRLM1Ape9zWMAxX1yJGxk/mAKGa9lZwAfQUlyus58Cw=='),
             },
           ],
           threshold: 3,
@@ -48,7 +47,7 @@ export const transactionResultMother = {
     return transactionResultBuilder()
       .paymentTransaction()
       .withSignature({
-        logicsig: { logic: utf8ToUint8Array('CIEBQw==') },
+        logicsig: { logic: base64ToBytes('CIEBQw==') },
       })
   },
   assetConfig: () => {
@@ -78,7 +77,7 @@ export const transactionResultMother = {
       genesisId: 'mainnet-v1.0',
       intraRoundOffset: 86,
       lastValid: 36571176n,
-      note: utf8ToUint8Array('MTM0MDI4MzIxNDIxMjQ3NzQ6NjM5NDYxOTE2MDI4MzUwNzcxMg=='),
+      note: base64ToBytes('MTM0MDI4MzIxNDIxMjQ3NzQ6NjM5NDYxOTE2MDI4MzUwNzcxMg=='),
       paymentTransaction: {
         amount: 236070000n,
         closeAmount: 0n,
@@ -109,7 +108,7 @@ export const transactionResultMother = {
       group: base64ToBytes('5HGmi2n3M2zk/mzPEFkLnNomDu/jvwHs1k+bCZzIbNs='),
       intraRoundOffset: 26,
       lastValid: 34676052n,
-      note: utf8ToUint8Array('aXBmczovL2JhZnliZWlhZGg2bGVia3A0d3l6dHZnNDRhdHp4aXg0NmduNWZ6bnJnN2tlNGEyd200NXNpazJ6d3Zt'),
+      note: base64ToBytes('aXBmczovL2JhZnliZWlhZGg2bGVia3A0d3l6dHZnNDRhdHp4aXg0NmduNWZ6bnJnN2tlNGEyd200NXNpazJ6d3Zt'),
       paymentTransaction: {
         amount: 0n,
         closeAmount: 0n,
@@ -122,7 +121,7 @@ export const transactionResultMother = {
       signature: {
         logicsig: {
           args: [],
-          logic: utf8ToUint8Array(
+          logic: base64ToBytes(
             'BiACAQAyBIECEjMAECISEDMBECISEEAAAQAzABAiEjMAAIAgmuynOZoqgz+a/xcbx+bwgMhYYxATBclcyl1ZYTKM4XQSEDMABzMBABIQMwAgMgMSEDMACTIDEhAzARAiEjMBCCMSEDMBADMBBxIQMwEFVwAHgAdpcGZzOi8vEhAzAQEjEhAzASAyAxIQMwEJMgMSEBBD'
           ),
         },
@@ -150,7 +149,7 @@ export const transactionResultMother = {
       id: 'JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA',
       intraRoundOffset: 114,
       lastValid: 37352570n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'AEYAcgBhAGMAYwB0AGEAbAAgAEEAbABlAHIAdAA6ACAAQQBjAHQAaQB2AGUAIABQAGwAYQB5AGUAcgAgAFIAZQB3AGEAcgBkAC4AIABUAGgAYQBuAGsAcwAgAGYAbwByACAAcABsAGEAeQBpAG4AZwAh'
       ),
       receiverRewards: 0n,
@@ -211,7 +210,7 @@ export const transactionResultMother = {
       id: '563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA',
       intraRoundOffset: 0,
       lastValid: 6325488n,
-      note: utf8ToUint8Array('MTU4ODAxMjcyNjU5OTgzNDM2OA=='),
+      note: base64ToBytes('MTU4ODAxMjcyNjU5OTgzNDM2OA=='),
       receiverRewards: 0n,
       roundTime: 1588015047,
       sender: 'SMO6HD4QPUGP2PI5HVE6SXQPBXGXOHB6HFKXY4RMUWM56S7BVDK2U7ALKU',
@@ -272,7 +271,7 @@ export const transactionResultMother = {
       id: 'VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ',
       intraRoundOffset: 9,
       lastValid: 39051089n,
-      note: utf8ToUint8Array('VHJhbnNmZXIgNSBhc3NldHMgd2l0IGlkICQ2NDIzMjc0MzU='),
+      note: base64ToBytes('VHJhbnNmZXIgNSBhc3NldHMgd2l0IGlkICQ2NDIzMjc0MzU='),
       receiverRewards: 0n,
       roundTime: 1713177404,
       sender: 'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY',
@@ -827,7 +826,7 @@ export const transactionResultMother = {
       intraRoundOffset: 111,
       lastValid: 36591814n,
       lease: base64ToBytes('Gvgsil8YwDJH4I9KsGqx4t0GkPqJxFpLldBGIq1klAI='),
-      note: utf8ToUint8Array('AAHOu8yhPy8SoRmmHsKmDSPsAL5Cap8uJ47IkmHXVYavS26egWoIW7hGSsWoByA='),
+      note: base64ToBytes('AAHOu8yhPy8SoRmmHsKmDSPsAL5Cap8uJ47IkmHXVYavS26egWoIW7hGSsWoByA='),
       receiverRewards: 0n,
       rekeyTo: algosdk.Address.fromString('GEAW6VVQY2QPYKEI6HAHAH3MNQNMXYOVKYVVI3B7X72CPW74HRVYXWGITU'),
       roundTime: 1709251673,
@@ -852,7 +851,7 @@ export const transactionResultMother = {
       id: 'U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A',
       intraRoundOffset: 0,
       lastValid: 6355623n,
-      note: utf8ToUint8Array('fSaN7lZKDoU='),
+      note: base64ToBytes('fSaN7lZKDoU='),
       receiverRewards: 0n,
       roundTime: 1588143174,
       sender: 'MBX2M6J44LQ22L3FROYRBKUAG4FWENPSLPTI7EBR4ECQ2APDMI6XTENHWQ',
@@ -895,7 +894,7 @@ export const transactionResultMother = {
       id: 'ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ',
       intraRoundOffset: 152,
       lastValid: 38186486n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGEgdmVyaWZpYWJseSBhdXRoZW50aWMgZGlnaXRhbCBoaXN0b3JpY2FsIGFydGlmYWN0IG1pbnRlZCBieSBUaGUgRGF0YSBIaXN0b3J5IE11c2V1bS4gSXQgcmVwcmVzZW50cyBhIE1hZ25pdHVkZSA1LjIgZWFydGhxdWFrZSB3aXRoIElEIHVzNjAwMG10NDAgd2hpY2ggaGFzIGFuIGVwaWNlbnRyZSAxNCBrbSBTIG9mIEh1YWxpZW4gQ2l0eSwgVGFpd2FuIGFuZCBvY2N1cnJlZCBhdCBUdWUsIDIzIEFwciAyMDI0IDAyOjIxOjAwIEdNVC4gVGhlIHZlcmlmaWVkIHNvdXJjZSBvZiB0aGlzIGRhdGEgYXJ0aWZhY3Qgd2FzIHRoZSBVbml0ZWQgU3RhdGVzIEdlb2xvZ2ljYWwgU3VydmV5IChVU0dTKS4gRm9yIG1vcmUgaW5mb3JtYXRpb24gdmlzaXQgaHR0cHM6Ly9kYXRhaGlzdG9yeS5vcmcvLiIsImV4dGVybmFsX3VybCI6Imh0dHBzOi8vbXVzZXVtLmRhdGFoaXN0b3J5Lm9yZy9ldmVudC9RVUFLRS91czYwMDBtdDQwIiwicHJvcGVydGllcyI6eyJtYWduaXR1ZGUiOjUuMiwiY2xhc3MiOiJNNSIsImRlcHRoIjoxMCwibGF0aXR1ZGUiOjIzLjg0MywibG9uZ2l0dWRlIjoxMjEuNTksInBsYWNlIjoiMTQga20gUyBvZiBIdWFsaWVuIENpdHksIFRhaXdhbiIsInNvdXJjZSI6IlVTR1MiLCJzdWJUeXBlIjoiZWFydGhxdWFrZSIsInRpbWUiOiIyMDI0LTA0LTIzVDAyOjIxOjAwLjcwNVoiLCJ0eXBlIjoicXVha2UiLCJ1cmwiOiJodHRwczovL2VhcnRocXVha2UudXNncy5nb3YvZWFydGhxdWFrZXMvZXZlbnRwYWdlL3VzNjAwMG10NDAifSwibWltZV90eXBlIjoiaW1hZ2UvcG5nIiwiaWQiOiJ1czYwMDBtdDQwIiwidGl0bGUiOiJNIDUuMiAtIDE0IGttIFMgb2YgSHVhbGllbiBDaXR5LCBUYWl3YW4ifQ=='
       ),
       receiverRewards: 0n,
@@ -933,7 +932,7 @@ export const transactionResultMother = {
       id: 'GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ',
       intraRoundOffset: 1,
       lastValid: 37545842n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGEgdmVyaWZpYWJseSBhdXRoZW50aWMgZGlnaXRhbCBoaXN0b3JpY2FsIGFydGlmYWN0IG1pbnRlZCBieSBUaGUgRGF0YSBIaXN0b3J5IE11c2V1bS4gSXQgcmVwcmVzZW50cyBhIE1hZ25pdHVkZSA1LjMgZWFydGhxdWFrZSB3aXRoIElEIHVzNzAwMG05NzYgd2hpY2ggaGFzIGFuIGVwaWNlbnRyZSBub3J0aGVybiBFYXN0IFBhY2lmaWMgUmlzZSBhbmQgb2NjdXJyZWQgYXQgTW9uLCAwMSBBcHIgMjAyNCAxNDo0NToxNiBHTVQuIFRoZSB2ZXJpZmllZCBzb3VyY2Ugb2YgdGhpcyBkYXRhIGFydGlmYWN0IHdhcyB0aGUgVW5pdGVkIFN0YXRlcyBHZW9sb2dpY2FsIFN1cnZleSAoVVNHUykuIEZvciBtb3JlIGluZm9ybWF0aW9uIHZpc2l0IGh0dHBzOi8vZGF0YWhpc3Rvcnkub3JnLy4iLCJleHRlcm5hbF91cmwiOiJodHRwczovL211c2V1bS5kYXRhaGlzdG9yeS5vcmcvZXZlbnQvUVVBS0UvdXM3MDAwbTk3NiIsInByb3BlcnRpZXMiOnsibWFnbml0dWRlIjo1LjMsImNsYXNzIjoiTTUiLCJkZXB0aCI6MTAsImxhdGl0dWRlIjo4LjI1MSwibG9uZ2l0dWRlIjotMTAzLjIyNiwicGxhY2UiOiJub3J0aGVybiBFYXN0IFBhY2lmaWMgUmlzZSIsInNvdXJjZSI6IlVTR1MiLCJzdWJUeXBlIjoiZWFydGhxdWFrZSIsInRpbWUiOiIyMDI0LTA0LTAxVDE0OjQ1OjE2LjEwOVoiLCJ0eXBlIjoicXVha2UiLCJ1cmwiOiJodHRwczovL2VhcnRocXVha2UudXNncy5nb3YvZWFydGhxdWFrZXMvZXZlbnRwYWdlL3VzNzAwMG05NzYifSwibWltZV90eXBlIjoiaW1hZ2UvcG5nIiwiaWQiOiJ1czcwMDBtOTc2IiwidGl0bGUiOiJNIDUuMyAtIG5vcnRoZXJuIEVhc3QgUGFjaWZpYyBSaXNlIn0='
       ),
       receiverRewards: 0n,
@@ -966,7 +965,7 @@ export const transactionResultMother = {
       id: '2XFGVOHMFYLAWBHOSIOI67PBT5LDRHBTD3VLX5EYBDTFNVKMCJIA',
       intraRoundOffset: 2,
       lastValid: 37464562n,
-      note: utf8ToUint8Array('TkZUIGZyZWV6ZWQgYnkgbG9mdHkuYWk='),
+      note: base64ToBytes('TkZUIGZyZWV6ZWQgYnkgbG9mdHkuYWk='),
       receiverRewards: 0n,
       roundTime: 1711760608,
       sender: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY',
@@ -1005,21 +1004,21 @@ export const transactionResultMother = {
         multisig: {
           subsignature: [
             {
-              publicKey: utf8ToUint8Array('P+fQ/gdoJi7pTv/S3MekXkpd5DM2RJrCptJKWdlq8F0='),
+              publicKey: base64ToBytes('P+fQ/gdoJi7pTv/S3MekXkpd5DM2RJrCptJKWdlq8F0='),
             },
             {
-              publicKey: utf8ToUint8Array('HOYGvU9QYLrIFiFhfl7bfnniDrPvyJcRmxRYkyhvK4E='),
+              publicKey: base64ToBytes('HOYGvU9QYLrIFiFhfl7bfnniDrPvyJcRmxRYkyhvK4E='),
             },
             {
-              publicKey: utf8ToUint8Array('SGDOx7hcSmrIEZl4a77IuiEGbTweO6kETsRr8P7h0pM='),
+              publicKey: base64ToBytes('SGDOx7hcSmrIEZl4a77IuiEGbTweO6kETsRr8P7h0pM='),
               signature: base64ToBytes('PoAKqk3najREZpATvsXMjIRa0I2zOokENzVolJjZbBjQ/0XsvCStmlOJGeTwiVVqzlE8Tuta54kNGBxY5nFADg=='),
             },
             {
-              publicKey: utf8ToUint8Array('viR3l2ZLIYcnf3w7bbAhk5K5Z+6fim831WJD49vYgYE='),
+              publicKey: base64ToBytes('viR3l2ZLIYcnf3w7bbAhk5K5Z+6fim831WJD49vYgYE='),
               signature: base64ToBytes('S4HJ72sVodTVoaIxTrbaSDYqNYGJuMA7rnw40TXuFQu5YxQIJoJa2bVdjhWqpHNmtq/6jYwQulyXXKsUX7VeAQ=='),
             },
             {
-              publicKey: utf8ToUint8Array('BFK+wNJWcHgFylbjjNeXjAoT5vHxYJ/TYE/gAP6px1Y='),
+              publicKey: base64ToBytes('BFK+wNJWcHgFylbjjNeXjAoT5vHxYJ/TYE/gAP6px1Y='),
               signature: base64ToBytes('T51Fk4+EdtrzNCHAOK75HaZq3Fp74KgwHWyCMhTW56B2abFaDOnA3Elk6iF8U97tWHJXYMMRjDUGxyPOue+0CQ=='),
             },
           ],
@@ -1057,25 +1056,25 @@ export const transactionResultMother = {
         multisig: {
           subsignature: [
             {
-              publicKey: utf8ToUint8Array('bNQS50I46qXriRN2xx0xMaDdGPPBNSHqgT1LaQonZDI='),
+              publicKey: base64ToBytes('bNQS50I46qXriRN2xx0xMaDdGPPBNSHqgT1LaQonZDI='),
               signature: base64ToBytes('GSD4t8GW9kRQkf3NpDw2knLdO3TnpXtQlrWxuvPddR+Yt7wKZDMBFAZDqZmgzSgyoWC2w9w4T22o/hxnb10OAA=='),
             },
             {
-              publicKey: utf8ToUint8Array('vZE4jUasfWO75z9ihbXgQfvD8XX+wd/+U6Lw9hBLP4o='),
+              publicKey: base64ToBytes('vZE4jUasfWO75z9ihbXgQfvD8XX+wd/+U6Lw9hBLP4o='),
             },
             {
-              publicKey: utf8ToUint8Array('il9Q7WCNQHqZx9dHkbUzaT12II+QzowXJ03vx5BCUe8='),
+              publicKey: base64ToBytes('il9Q7WCNQHqZx9dHkbUzaT12II+QzowXJ03vx5BCUe8='),
               signature: base64ToBytes('FKvfwstu9ndvrVNdXWXUngfqXTc5xPL8u15Vw/sk55jMw1BtgUB2Zt+0Xg2/+MfbfWhSNCB8MdHP853sytU/AA=='),
             },
             {
-              publicKey: utf8ToUint8Array('oAw2AOZcYeJMnNxEeRbU1uPrNefVMevvqQsikxniQrs='),
+              publicKey: base64ToBytes('oAw2AOZcYeJMnNxEeRbU1uPrNefVMevvqQsikxniQrs='),
             },
             {
-              publicKey: utf8ToUint8Array('JXgbR4xQGD0G1+qMRNsJ7JvojVY7xww5ZC3cLkK7N0Y='),
+              publicKey: base64ToBytes('JXgbR4xQGD0G1+qMRNsJ7JvojVY7xww5ZC3cLkK7N0Y='),
               signature: base64ToBytes('krGtp1YgxiRE8+eS1mzGZhL9FIoHyaS6sEtAr6pLVjInKUXu5djHExSJewNtcMD8Cfap1qLeokTigYnqy/piCw=='),
             },
             {
-              publicKey: utf8ToUint8Array('xwI8Y6cpL67araO5O3Tqsxpq963vq7M48KA3XwJy2CA='),
+              publicKey: base64ToBytes('xwI8Y6cpL67araO5O3Tqsxpq963vq7M48KA3XwJy2CA='),
             },
           ],
           threshold: 3,
@@ -1150,7 +1149,7 @@ export const transactionResultMother = {
       id: '4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA',
       intraRoundOffset: 3,
       lastValid: 38395151n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJUaGlzIGlzIGFuIGFscGhhIGRhdGEgYXJ0aWZhY3QgbWludGVkIGJ5IFRoZSBEYXRhIEhpc3RvcnkgTXVzZXVtLiBJdCByZXByZXNlbnRzIGEgQ2xhc3MgTTEuNiBzb2xhciBmbGFyZS4gVGhlIHZlcmlmaWVkIHNvdXJjZSBvZiB0aGlzIGRhdGEgYXJ0aWZhY3Qgd2FzIHRoZSBOYXRpb25hbCBPY2VhbmljIGFuZCBBdG1vc3BoZXJpYyBBZG1pbmlzdHJhdGlvbiAoTk9BQSkuIEZvciBtb3JlIGluZm9ybWF0aW9uIHZpc2l0IGh0dHBzOi8vZGF0YWhpc3Rvcnkub3JnLy4iLCJleHRlcm5hbF91cmwiOiJodHRwczovL211c2V1bS5kYXRhaGlzdG9yeS5vcmcvZXZlbnQvU09MRkxBUkUvU0NRQ1NPIiwicHJvcGVydGllcyI6eyJzYXRlbGxpdGUiOiJHT0VTLTE2Iiwic291cmNlIjoiTk9BQSIsImJlZ2luVGltZSI6IjIwMjQtMDQtMzBUMDA6NDY6MDBaIiwiYmVnaW5DbGFzcyI6IkMxLjEiLCJwZWFrQ2xhc3MiOiJNMS42IiwicGVha1RpbWUiOiIyMDI0LTA0LTMwVDAxOjE0OjAwWiIsInBlYWtYcmF5Rmx1eCI6IjEuNjQxMTBlLTUgV23igbvCsiIsImVuZFRpbWUiOiIyMDI0LTA0LTMwVDAxOjMxOjAwWiIsImVuZENsYXNzIjoiQzguMyIsInR5cGUiOiJzb2xhciIsInN1YlR5cGUiOiJmbGFyZSJ9LCJtaW1lX3R5cGUiOiJ2aWRlby9tcDQiLCJpZCI6IlNDUUNTTyIsInRpdGxlIjoiQ2xhc3MgTTEuNiBzb2xhciBmbGFyZSB0aGF0IHBlYWtlZCBhdCBUdWUsIDMwIEFwciAyMDI0IDAxOjE0OjAwIEdNVCJ9'
       ),
       receiverRewards: 0n,
@@ -1193,7 +1192,7 @@ export const transactionResultMother = {
       id: 'P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ',
       intraRoundOffset: 164,
       lastValid: 23111798n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'eyJzdGFuZGFyZCI6ImFyYzY5IiwiZGVzY3JpcHRpb24iOiJCYWQgQnVubnkgU29jaWV0eSAjNTg3IiwibWltZV90eXBlIjoiaW1hZ2Uvd2VicCIsInByb3BlcnRpZXMiOnsiQmFja2dyb3VuZCI6IlJlZCIsIlNraW4iOiJQaW5rIiwiRWFyIjoiTXVsdGljb2xvciIsIkJvZHkiOiJPcmFuZ2UgSmFja2V0IiwiTW91dGgiOiJKb2ludCIsIk5vc2UiOiJBY2lkIiwiRXllcyI6IlJhdmUiLCJIZWFkIjoiUmluZyJ9fQ=='
       ),
       receiverRewards: 0n,
@@ -1234,7 +1233,7 @@ export const transactionResultMother = {
       id: 'A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q',
       intraRoundOffset: 0,
       lastValid: 6355269n,
-      note: utf8ToUint8Array('l8EIBYWlyQw='),
+      note: base64ToBytes('l8EIBYWlyQw='),
       receiverRewards: 0n,
       roundTime: 1588141633,
       sender: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
@@ -1270,7 +1269,7 @@ export const transactionResultMother = {
       id: 'HTGK2WBVXTOHV7X5ER3QT3JH2NQSZU43KEMSTHXMJO5D2E3ROT6Q',
       intraRoundOffset: 0,
       lastValid: 6355477n,
-      note: utf8ToUint8Array('dnuPOsrNYeM='),
+      note: base64ToBytes('dnuPOsrNYeM='),
       receiverRewards: 0n,
       roundTime: 1588142543,
       sender: 'YA2XBMS34J27VKLIWJQ5AWU7FJASZ6PUNICQOB4PJ2NW4CAX5AHB7RVGMY',
@@ -1384,7 +1383,7 @@ export const transactionResultMother = {
       id: 'XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ',
       intraRoundOffset: 18,
       lastValid: 32219000n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'QUxHT0tJVF9ERVBMT1lFUjpqeyJuYW1lIjogImNyeXB0b2xlc3MtSklVSzRZQU8yR1U3VVgzNkpISDM1S1dJNEFKM1BERVlTUlE3NVBDSkpLUjVVQlg2UlE2WTVVWlNKUSIsICJ2ZXJzaW9uIjogInYxLjAiLCAiZGVsZXRhYmxlIjogbnVsbCwgInVwZGF0YWJsZSI6IG51bGx9'
       ),
       receiverRewards: 0n,
@@ -1899,7 +1898,7 @@ export const transactionResultMother = {
           firstValid: 40821408n,
           intraRoundOffset: 2,
           lastValid: 40822408n,
-          note: utf8ToUint8Array('dmFsaWRhdG9yIHJld2FyZA=='),
+          note: base64ToBytes('dmFsaWRhdG9yIHJld2FyZA=='),
           paymentTransaction: {
             amount: 117150n,
             closeAmount: 0n,
@@ -2707,7 +2706,7 @@ export const transactionResultMother = {
       ],
       intraRoundOffset: 1141,
       lastValid: 40213726n,
-      note: utf8ToUint8Array('QWxnb01hcnQvdjE6ansidCI6InR0YXgiLCJzIjpbImFyYzIiXX0='),
+      note: base64ToBytes('QWxnb01hcnQvdjE6ansidCI6InR0YXgiLCJzIjpbImFyYzIiXX0='),
       receiverRewards: 0n,
       roundTime: 1719677865,
       sender: 'X6MNR4AVJQEMJRHAPZ6F4O4SVDIYN67ZRMD2O3ULPY4QFMANQNZOEYHODE',
@@ -2770,7 +2769,7 @@ export const transactionResultMother = {
       id: 'W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA',
       intraRoundOffset: 6,
       lastValid: 26721940n,
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'eyJzdGFuZGFyZCI6ImFyYzY5IiwiYXR0cmlidXRlcyI6W3sidHJhaXRfdHlwZSI6ImJhY2tncm91bmQiLCJ2YWx1ZSI6ImJsdWUifSx7InRyYWl0X3R5cGUiOiJlcXVpcG1lbnQiLCJ2YWx1ZSI6ImJsYW5rIn0seyJ0cmFpdF90eXBlIjoic2tpbnRvbmUiLCJ2YWx1ZSI6InRhbm5lZCBza2luIn0seyJ0cmFpdF90eXBlIjoibmVjayIsInZhbHVlIjoiYmxhbmsifSx7InRyYWl0X3R5cGUiOiJjbG90aGluZyIsInZhbHVlIjoiYmx1ZSBua3MgaG9vZHkgd2l0aCBtIHZlc3QifSx7InRyYWl0X3R5cGUiOiJoYWlyIiwidmFsdWUiOiJyZWQgbG9uZyBib2IgY3V0In0seyJ0cmFpdF90eXBlIjoiaGVhZHNldCIsInZhbHVlIjoiYyBsaW5rIn0seyJ0cmFpdF90eXBlIjoibW91dGgiLCJ2YWx1ZSI6InNtb2tpbmcgbW91dGgifV19'
       ),
       receiverRewards: 0n,
@@ -3477,7 +3476,7 @@ export const transactionResultMother = {
       intraRoundOffset: 0,
       genesisHash: base64ToBytes('OFOY5kr3N/IpXmQ3RPI/pfJjbdGhOVO2t5YHtC4npZ0='),
       genesisId: 'dockernet-v1',
-      note: utf8ToUint8Array(
+      note: base64ToBytes(
         'QUxHT0tJVF9ERVBMT1lFUjpqeyJuYW1lIjogIkF1Y3Rpb24iLCAidmVyc2lvbiI6ICJ2MS4wIiwgImRlbGV0YWJsZSI6IG51bGwsICJ1cGRhdGFibGUiOiBudWxsfQ=='
       ),
       lease: new Uint8Array(),

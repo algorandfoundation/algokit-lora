@@ -78,9 +78,9 @@ describe('account-page', () => {
   describe('when rendering an account', () => {
     const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
     const assetResults = new Map([
-      [924268058, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
-      [1010208883, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
-      [1096015467, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
+      [924268058n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
     ])
 
     it('should be rendered with the correct data', () => {
@@ -128,12 +128,12 @@ describe('account-page', () => {
   describe('when rendering an account with assets and applications', () => {
     const accountResult = accountResultMother['mainnet-ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA']().build()
     const assetResults = new Map([
-      [1336655079, createReadOnlyAtomAndTimestamp(accountResult.createdAssets![0])],
-      [1284444444, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1284444444']().build())],
-      [1162292622, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1162292622']().build())],
-      [1294765516, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1294765516']().build())],
-      [1355858325, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1355858325']().build())],
-      [1355898842, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1355898842']().build())],
+      [1336655079n, createReadOnlyAtomAndTimestamp(accountResult.createdAssets![0])],
+      [1284444444n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1284444444']().build())],
+      [1162292622n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1162292622']().build())],
+      [1294765516n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1294765516']().build())],
+      [1355858325n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1355858325']().build())],
+      [1355898842n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1355898842']().build())],
     ])
 
     it('should be rendered with the correct data', () => {
@@ -226,9 +226,9 @@ describe('account-page', () => {
   describe('when rendering an account that becomes stale', () => {
     const accountResult = accountResultMother['mainnet-BIQXAK67KSCKN3EJXT4S3RVXUBFOLZ45IQOBTSOQWOSR4LLULBTD54S5IA']().build()
     const assetResults = new Map([
-      [924268058, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
-      [1010208883, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
-      [1096015467, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
+      [924268058n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-924268058']().build())],
+      [1010208883n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1010208883']().build())],
+      [1096015467n, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1096015467']().build())],
     ])
 
     it('should be rendered with the refresh button', () => {

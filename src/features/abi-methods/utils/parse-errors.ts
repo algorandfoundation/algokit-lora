@@ -1,7 +1,6 @@
 import { getApplicationResultAtom } from '@/features/applications/data'
 import { dataStore } from '@/features/common/data/data-store'
 import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
-import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
 import algosdk from 'algosdk'
@@ -79,11 +78,11 @@ const parseErrorForTransaction = async (e: unknown, groupIndex: number, transact
     transaction.onComplete === algosdk.OnApplicationComplete.ClearStateOC
       ? {
           isClearStateProgram: true,
-          program: base64ToBytes(applicationResult.params['clear-state-program']),
+          program: applicationResult.params.clearStateProgram,
         }
       : {
           isClearStateProgram: false,
-          program: base64ToBytes(applicationResult.params['approval-program']),
+          program: applicationResult.params.approvalProgram,
         }
   )
 
