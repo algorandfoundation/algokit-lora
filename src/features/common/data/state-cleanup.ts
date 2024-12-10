@@ -41,7 +41,7 @@ const stateCleanupEffect = atomEffect((get, set) => {
 })
 
 const createExpiredDataRemover = (get: Getter, set: Setter, expiredTimestamp: number) => {
-  return <Key extends string | number, Value>(resultsAtom: PrimitiveAtom<Map<Key, readonly [Value, number]>>) => {
+  return <Key extends string | number | bigint, Value>(resultsAtom: PrimitiveAtom<Map<Key, readonly [Value, number]>>) => {
     const keysToRemove: Key[] = []
     const results = get(resultsAtom)
     results.forEach(([_, timestamp], key) => {

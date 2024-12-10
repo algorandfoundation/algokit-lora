@@ -1,6 +1,6 @@
 import { Transaction, TransactionSummary } from '@/features/transactions/models'
 import { Block, BlockSummary, CommonBlockProperties } from '../models'
-import { BlockResult } from '../data/types'
+import { BlockResult, Round } from '../data/types'
 import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asJson } from '@/utils/as-json'
@@ -22,7 +22,7 @@ export const asBlock = (
   block: BlockResult,
   transactions: Transaction[],
   transactionResults: TransactionResult[],
-  nextRound: AsyncMaybeAtom<number>
+  nextRound: AsyncMaybeAtom<Round>
 ): Block => {
   const { transactionIds: _, ...rest } = block
 

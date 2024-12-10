@@ -6,70 +6,70 @@ import { microAlgos } from '@algorandfoundation/algokit-utils'
 
 export const asTransactionSummary = (transactionResult: TransactionResult): TransactionSummary => {
   const common = {
-    id: transactionResult.id,
+    id: transactionResult.id!,
     from: transactionResult.sender,
     fee: microAlgos(transactionResult.fee),
   }
 
-  switch (transactionResult['tx-type']) {
+  switch (transactionResult.txType) {
     case algosdk.TransactionType.pay:
-      invariant(transactionResult['payment-transaction'], 'payment-transaction is not set')
+      invariant(transactionResult.paymentTransaction, 'payment-transaction is not set')
       return {
         ...common,
         type: TransactionType.Payment,
-        to: transactionResult['payment-transaction']['receiver'],
+        to: transactionResult.paymentTransaction.receiver,
       }
     case algosdk.TransactionType.axfer: {
-      invariant(transactionResult['asset-transfer-transaction'], 'asset-transfer-transaction is not set')
+      invariant(transactionResult.assetTransferTransaction, 'asset-transfer-transaction is not set')
       return {
         ...common,
         type: TransactionType.AssetTransfer,
-        to: transactionResult['asset-transfer-transaction']['receiver'],
+        to: transactionResult.assetTransferTransaction.receiver,
       }
     }
     case algosdk.TransactionType.appl: {
-      invariant(transactionResult['application-transaction'], 'application-transaction is not set')
+      invariant(transactionResult.applicationTransaction, 'application-transaction is not set')
 
       return {
         ...common,
         type: TransactionType.AppCall,
-        to: transactionResult['application-transaction']['application-id']
-          ? transactionResult['application-transaction']['application-id']
-          : transactionResult['created-application-index']!,
-        innerTransactions: transactionResult['inner-txns']?.map((t) => asTransactionSummary(t)),
+        to: transactionResult.applicationTransaction.applicationId
+          ? transactionResult.applicationTransaction.applicationId
+          : transactionResult.createdApplicationIndex!,
+        innerTransactions: transactionResult.innerTxns?.map((t) => asTransactionSummary(t)),
       }
     }
     case algosdk.TransactionType.acfg: {
-      invariant(transactionResult['asset-config-transaction'], 'asset-config-transaction is not set')
+      invariant(transactionResult.assetConfigTransaction, 'asset-config-transaction is not set')
       return {
         ...common,
         type: TransactionType.AssetConfig,
-        to: transactionResult['asset-config-transaction']['asset-id'] ?? transactionResult['created-asset-index'],
+        to: transactionResult.assetConfigTransaction.assetId ?? transactionResult.createdAssetIndex,
       }
     }
     case algosdk.TransactionType.afrz: {
-      invariant(transactionResult['asset-freeze-transaction'], 'asset-freeze-transaction is not set')
+      invariant(transactionResult.assetFreezeTransaction, 'asset-freeze-transaction is not set')
       return {
         ...common,
         type: TransactionType.AssetFreeze,
-        to: transactionResult['asset-freeze-transaction']['asset-id'],
+        to: transactionResult.assetFreezeTransaction.assetId,
       }
     }
     case algosdk.TransactionType.stpf: {
-      invariant(transactionResult['state-proof-transaction'], 'state-proof-transaction is not set')
+      invariant(transactionResult.stateProofTransaction, 'state-proof-transaction is not set')
       return {
         ...common,
         type: TransactionType.StateProof,
       }
     }
     case algosdk.TransactionType.keyreg: {
-      invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
+      invariant(transactionResult.keyregTransaction, 'keyreg-transaction is not set')
       return {
         ...common,
         type: TransactionType.KeyReg,
       }
     }
     default:
-      throw new Error(`Unknown Transaction type ${transactionResult['tx-type']}`)
+      throw new Error(`Unknown Transaction type ${transactionResult.txType}`)
   }
 }

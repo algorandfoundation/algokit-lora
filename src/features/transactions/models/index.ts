@@ -86,7 +86,7 @@ export type Transaction =
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type' | 'fee'> & {
   id: string
   from: Address
-  to?: Address | number
+  to?: Address | number | bigint
   innerTransactions?: TransactionSummary[]
 }
 

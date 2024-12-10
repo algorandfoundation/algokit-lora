@@ -3,9 +3,10 @@ import { TemplatedNavLink } from '@/features/routing/components/templated-nav-li
 import { Urls } from '@/routes/urls'
 import { PropsWithChildren } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
+import { Round } from '../data/types'
 
 type Props = PropsWithChildren<{
-  round: number
+  round: Round
   className?: string
 }>
 
@@ -18,7 +19,7 @@ export function BlockLink({ round, className, children }: Props) {
       urlTemplate={Urls.Network.Explore.Block.ByRound}
       urlParams={{ round: round.toString(), networkId: selectedNetwork }}
     >
-      {children ? children : round}
+      {children ? children : round.toString()}
     </TemplatedNavLink>
   )
 }
