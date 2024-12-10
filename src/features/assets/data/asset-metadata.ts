@@ -49,8 +49,8 @@ const createAssetMetadataResult = async (
 
     if (metadataUrl) {
       const gatewayMetadataUrl = replaceIpfsWithGatewayIfNeeded(metadataUrl)
-      const response = await fetch(gatewayMetadataUrl)
       try {
+        const response = await fetch(gatewayMetadataUrl)
         const { localization: _localization, ...metadata } = await response.json()
         arc3MetadataResult = {
           metadata_url: gatewayMetadataUrl,
@@ -78,7 +78,8 @@ const createAssetMetadataResult = async (
             }
           }
         } else {
-          throw error
+          // eslint-disable-next-line no-console
+          console.error('failed to fetch asset metadata')
         }
       }
     }
