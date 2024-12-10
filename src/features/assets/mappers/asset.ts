@@ -12,7 +12,7 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
-    defaultFrozen: assetResult.params['default-frozen'] ?? false,
+    defaultFrozen: assetResult.params.defaultFrozen ?? false,
     url: assetResult.params.url,
     type: asType(assetResult),
     standardsUsed: asStandardsUsed(assetResult, metadataResult),
@@ -133,7 +133,7 @@ const asType = (assetResult: AssetResult): AssetType => {
     return AssetType.Deleted
   }
 
-  if (assetResult.params.total === 1 && assetResult.params.decimals === 0) {
+  if (assetResult.params.total === 1n && assetResult.params.decimals === 0) {
     return AssetType.PureNonFungible
   }
   // Check for fractional non-fungible

@@ -211,8 +211,8 @@ const subscriberAtom = atom(null, (get, set) => {
             }
           : undefined),
         timestamp: b.timestamp,
-        transactionsRoot: b.transactionsRoot,
-        transactionsRootSha256: b.transactionsRootSha256,
+        transactionsRoot: base64ToBytes(b.transactionsRoot),
+        transactionsRootSha256: base64ToBytes(b.transactionsRootSha256),
         txnCounter: Number(b.txnCounter),
         proposer: b.proposer,
         ...(b.upgradeState

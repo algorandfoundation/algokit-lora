@@ -7,6 +7,7 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { indexer } from '@/features/common/data/algo-client'
 import { TransactionResult } from '@/features/transactions/data/types'
+import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -48,17 +49,18 @@ export const accumulateGroupsFromTransaction = (
   // Inner transactions can be part of a group, just like regular transactions.
   // In this scenario we add the root transaction id to the group, as inner transactions don't have ids on the network.
   flattenTransactionResult(transaction).forEach((txn) => {
-    if (txn.group) {
-      const group: GroupResult = acc.get(txn.group) ?? {
-        id: txn.group,
+    const groupUtf8 = txn.group ? uint8ArrayToUtf8(txn.group) : undefined
+    if (groupUtf8) {
+      const group: GroupResult = acc.get(groupUtf8) ?? {
+        id: groupUtf8,
         round,
         timestamp: new Date(roundTime * 1000).toISOString(),
         transactionIds: [],
       }
       if (!group.transactionIds.find((id) => id === transaction.id)) {
-        group.transactionIds.push(transaction.id)
+        group.transactionIds.push(transaction.id!)
       }
-      acc.set(txn.group, group)
+      acc.set(groupUtf8, group)
     }
   })
 }
@@ -68,7 +70,7 @@ export const addStateExtractedFromBlocksAtom = atom(
   (get, set, blockResults: BlockResult[], transactionResults: TransactionResult[], groupResults: GroupResult[]) => {
     if (transactionResults.length > 0) {
       const currentTransactionResults = get(transactionResultsAtom)
-      const transactionResultsToAdd = transactionResults.filter((t) => !currentTransactionResults.has(t.id))
+      const transactionResultsToAdd = transactionResults.filter((t) => !currentTransactionResults.has(t.id!))
       set(transactionResultsAtom, (prev) => {
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
