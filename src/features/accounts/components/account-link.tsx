@@ -5,7 +5,7 @@ import { AddressOrNfdLink, AddressOrNfdLinkProps } from './address-or-nfd-link'
 export type Props = Omit<AddressOrNfdLinkProps, 'nfd'>
 
 export const AccountLink = ({ address, ...rest }: Props) => {
-  const loadableNfd = useLoadableReverseLookupNfdResult(address)
+  const loadableNfd = useLoadableReverseLookupNfdResult(address.toString())
 
   return (
     <>

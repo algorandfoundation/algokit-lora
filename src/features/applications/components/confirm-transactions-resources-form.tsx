@@ -40,7 +40,7 @@ const formSchema = zfd.formData({
   assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.number().min(0)) })).max(8)),
   applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)) })).max(8)),
   boxes: zfd.repeatable(
-    z.array(z.object({ id: z.string(), applicationId: numberSchema(z.number().min(0)), boxName: zfd.text(z.string().optional()) })).max(8)
+    z.array(z.object({ id: z.string(), applicationId: numberSchema(z.bigint().min(0n)), boxName: zfd.text(z.string().optional()) })).max(8)
   ),
 })
 

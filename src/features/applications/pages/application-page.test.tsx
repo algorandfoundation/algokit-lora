@@ -30,7 +30,7 @@ import {
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
-import { modelsv2, indexerModels } from 'algosdk'
+import algosdk, { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
@@ -165,7 +165,7 @@ describe('application-page', () => {
         )
       )
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        Promise.resolve(new algosdk.indexerModels.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
       )
 
       return executeComponentTest(
@@ -245,7 +245,13 @@ describe('application-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [transactionResult], nextToken: '' })
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [transactionResult] as algosdk.indexerModels.Transaction[],
+            nextToken: '',
+          })
+        )
       )
 
       return executeComponentTest(
@@ -319,7 +325,13 @@ describe('application-page', () => {
         )
       )
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [],
+            nextToken: '',
+          })
+        )
       )
 
       return executeComponentTest(
@@ -361,7 +373,13 @@ describe('application-page', () => {
       const applicationResult = applicationResultMother['testnet-718348254']().build()
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [],
+            nextToken: '',
+          })
+        )
       )
 
       const myStore = createStore()
@@ -444,7 +462,13 @@ describe('application-page', () => {
           )
         )
         vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-          Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+          Promise.resolve(
+            new algosdk.indexerModels.TransactionsResponse({
+              currentRound: 123n,
+              transactions: [],
+              nextToken: '',
+            })
+          )
         )
 
         const myStore = createStore()
@@ -515,7 +539,13 @@ describe('application-page', () => {
           )
         )
         vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-          Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+          Promise.resolve(
+            new algosdk.indexerModels.TransactionsResponse({
+              currentRound: 123n,
+              transactions: [],
+              nextToken: '',
+            })
+          )
         )
 
         const myStore = createStore()

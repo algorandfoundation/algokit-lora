@@ -57,7 +57,7 @@ export function AssetDetails({ asset }: Props) {
         dd: (
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center overflow-hidden">
-              <span className="truncate">{asset.id}</span>
+              <span className="truncate">{asset.id.toString()}</span>
               <CopyButton value={asset.id.toString()} />
             </div>
             {asset.standardsUsed.map((s, i) => (
@@ -162,7 +162,7 @@ export function AssetDetails({ asset }: Props) {
         </Card>
         <AssetMedia asset={asset} />
       </div>
-      {asset.id !== 0 && (
+      {asset.id !== 0n && (
         <>
           <Card>
             <CardContent className={cn('space-y-1')}>

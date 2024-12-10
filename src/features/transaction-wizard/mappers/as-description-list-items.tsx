@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk, { Address } from 'algosdk'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
   BuildableTransactionType,
@@ -127,7 +127,7 @@ const asAssetTransferTransaction = (
   return [
     {
       dt: 'Asset ID',
-      dd: <AssetIdLink assetId={Number(params.assetId)} />,
+      dd: <AssetIdLink assetId={params.assetId} />,
     },
     {
       dt: 'Sender',
@@ -173,7 +173,7 @@ const asAssetConfigTransaction = (
       ? [
           {
             dt: 'Asset ID',
-            dd: <AssetIdLink assetId={Number(params.assetId)} />,
+            dd: <AssetIdLink assetId={params.assetId} />,
           },
         ]
       : []),
@@ -234,7 +234,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
   return [
     {
       dt: 'Asset ID',
-      dd: <AssetIdLink assetId={Number(params.assetId)} />,
+      dd: <AssetIdLink assetId={params.assetId} />,
     },
     {
       dt: 'Sender',
@@ -340,11 +340,11 @@ const asMethodArg = (
       return <AddressOrNfdLink address={arg.toString()} />
     }
     if (argumentDefinition.type === algosdk.ABIReferenceType.asset) {
-      const assetId = Number(arg)
+      const assetId = BigInt(arg.toString())
       return <AssetIdLink assetId={assetId} />
     }
     if (argumentDefinition.type === algosdk.ABIReferenceType.application) {
-      const applicationId = Number(arg)
+      const applicationId = BigInt(arg.toString())
       return <ApplicationLink applicationId={applicationId} />
     }
     return arg.toString()
@@ -366,7 +366,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       ? [
           {
             dt: 'Application ID',
-            dd: <ApplicationLink applicationId={Number(params.appId)} />,
+            dd: <ApplicationLink applicationId={params.appId} />,
           },
         ]
       : []),
@@ -410,7 +410,7 @@ const asMethodCallTransaction = (
       ? [
           {
             dt: 'Application ID',
-            dd: <ApplicationLink applicationId={Number(params.appId)} />,
+            dd: <ApplicationLink applicationId={params.appId} />,
           },
         ]
       : []),
@@ -469,7 +469,12 @@ const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
       ]
     : []
 
-const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[], boxes?: CommonAppCallParams['boxReferences']) => {
+const asResourcesItem = (
+  accounts?: (string | Address)[],
+  assets?: bigint[],
+  apps?: bigint[],
+  boxes?: CommonAppCallParams['boxReferences']
+) => {
   return [
     {
       dt: 'Resources',
@@ -484,7 +489,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
                       <AddressOrNfdLink address={address} className="inline text-primary underline">
-                        {address}
+                        {typeof address === 'string' ? address : address.toString()}
                       </AddressOrNfdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
@@ -502,7 +507,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {assets.map((assetId, index, array) => (
                     <li key={index} className="truncate">
-                      <AssetIdLink assetId={Number(assetId)} className="inline text-primary underline">
+                      <AssetIdLink assetId={assetId} className="inline text-primary underline">
                         {Number(assetId)}
                       </AssetIdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
@@ -521,7 +526,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                 <ol className="pl-4">
                   {apps?.map((appId, index, array) => (
                     <li key={index} className="truncate">
-                      <ApplicationLink applicationId={Number(appId)} className="inline text-primary underline">
+                      <ApplicationLink applicationId={appId} className="inline text-primary underline">
                         {Number(appId)}
                       </ApplicationLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
@@ -545,7 +550,7 @@ const asResourcesItem = (accounts?: string[], assets?: bigint[], apps?: bigint[]
                         <li key={index} className="truncate">
                           <span>[</span>
                           {box.appId > 0 ? (
-                            <ApplicationLink applicationId={Number(box.appId)} className="inline text-primary underline">
+                            <ApplicationLink applicationId={box.appId} className="inline text-primary underline">
                               {Number(box.appId)}
                             </ApplicationLink>
                           ) : (

@@ -1,12 +1,12 @@
 import { ApplicationId } from '../data/types'
 import { useCallback } from 'react'
 import { LiveTransactionsTable } from '@/features/transactions/components/live-transactions-table'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
 import { Transaction, InnerTransaction } from '@/features/transactions/models'
 import { getApplicationTransactionsTableSubRows } from '../utils/get-application-transactions-table-sub-rows'
 import { transactionsTableColumns } from '@/features/transactions/components/transactions-table-columns'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 type Props = {
   applicationId: ApplicationId
@@ -17,7 +17,7 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     (transactionResult: TransactionResult) => {
       const flattenedTransactionResults = flattenTransactionResult(transactionResult)
       return flattenedTransactionResults.some(
-        (txn) => txn['tx-type'] === AlgoSdkTransactionType.appl && txn['application-transaction']?.['application-id'] === applicationId
+        (txn) => txn.txType === AlgoSdkTransactionType.appl && txn.applicationTransaction?.applicationId === applicationId
       )
     },
     [applicationId]

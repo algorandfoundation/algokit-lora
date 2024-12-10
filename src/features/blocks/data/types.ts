@@ -1,60 +1,60 @@
 import { Address } from '@/features/accounts/data/types'
 import { GroupResult } from '@/features/groups/data/types'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 // Matches the data returned from indexer
 export type BlockResult = {
-  round: number
+  round: bigint
   timestamp: number
-  ['genesis-id']: string
-  ['genesis-hash']: string
-  ['previous-block-hash']?: string
-  seed: string
+  genesisId: string
+  genesisHash: Uint8Array
+  previousBlockHash: Uint8Array
+  seed: Uint8Array
   rewards?: BlockRewards
-  ['txn-counter']: number
-  ['transactions-root']: string
-  ['transactions-root-sha256']: string
-  ['upgrade-state']?: BlockUpgradeState
+  txnCounter: number
+  transactionsRoot: Uint8Array
+  transactionsRootSha256: Uint8Array
+  upgradeState?: BlockUpgradeState
   transactionIds: string[]
-  ['state-proof-tracking']?: BlockStateProofTracking[]
-  ['upgrade-vote']?: BlockUpgradeVote
-  ['participation-updates']?: ParticipationUpdates
+  stateProofTracking?: StateProofTracking[]
+  upgradeVote?: BlockUpgradeVote
+  participationUpdates?: ParticipationUpdates
   proposer?: Address
 }
 
 export type BlockRewards = {
-  ['fee-sink']: string
-  ['rewards-level']: number
-  ['rewards-calculation-round']: number
-  ['rewards-pool']: string
-  ['rewards-residue']: number
-  ['rewards-rate']: number
+  feeSink: string
+  rewardsCalculationRound: number | bigint
+  rewardsLevel: number | bigint
+  rewardsPool: string
+  rewardsRate: number | bigint
+  rewardsResidue: number | bigint
 }
 
 export type BlockUpgradeState = {
-  ['current-protocol']: string
-  ['next-protocol']?: string
-  ['next-protocol-approvals']?: number
-  ['next-protocol-vote-before']?: number
-  ['next-protocol-switch-on']?: number
+  currentProtocol: string
+  nextProtocol?: string
+  nextProtocolApprovals?: number | bigint
+  nextProtocolSwitchOn?: number | bigint
+  nextProtocolVoteBefore?: number | bigint
 }
 
-export type BlockStateProofTracking = {
-  ['next-round']?: number
-  ['online-total-weight']?: number
-  type?: number
-  ['voters-commitment']?: string
+export type StateProofTracking = {
+  nextRound?: number | bigint
+  onlineTotalWeight?: number | bigint
+  type?: number | bigint
+  votersCommitment?: string | Uint8Array
 }
 
 export interface BlockUpgradeVote {
-  ['upgrade-approve']?: boolean
-  ['upgrade-delay']?: number | bigint
-  ['upgrade-propose']?: string
+  upgradeApprove?: boolean
+  upgradeDelay?: number | bigint
+  upgradePropose?: string
 }
 
 export interface ParticipationUpdates {
-  ['absent-participation-accounts']?: string[]
-  ['expired-participation-accounts']?: string[]
+  absentParticipationAccounts?: string[]
+  expiredParticipationAccounts?: string[]
 }
 
 export type BlocksExtract = {

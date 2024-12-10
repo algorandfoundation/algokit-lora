@@ -4,7 +4,7 @@ import { useAtomCallback } from 'jotai/utils'
 import { useCallback } from 'react'
 
 const deleteAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
-  await dbConnection.delete('app-interfaces', applicationId)
+  await dbConnection.delete('app-interfaces', Number(applicationId))
 }
 
 export const useDeleteAppInterface = (applicationId: ApplicationId) => {

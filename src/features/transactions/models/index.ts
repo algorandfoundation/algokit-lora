@@ -6,6 +6,7 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { GroupId } from '@/features/groups/data/types'
 import { Atom } from 'jotai/index'
 import { DecodedAbiMethod, DecodedAbiStorageKey, DecodedAbiStorageValue } from '@/features/abi-methods/models'
+import { ApplicationId } from '@/features/applications/data/types'
 
 export type CommonTransactionProperties = {
   type: TransactionType
@@ -152,7 +153,7 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.AppCall
   subType: AppCallTransactionSubType | undefined
   isOpUp: boolean
-  applicationId: number
+  applicationId: ApplicationId
   applicationArgs: string[]
   foreignApps: number[]
   foreignAssets: number[]

@@ -89,6 +89,7 @@ import { algod } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
+import { DisassembleResponse } from 'node_modules/algosdk/dist/types/client/v2/algod/models/types'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -148,23 +149,23 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother
       .payment()
       .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
-      ['withConfirmed-round'](36570178)
-      ['withRound-time'](1709189521)
+      .withConfirmedRound(36570178n)
+      .withRoundTime(1709189521)
       .withSender('M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM')
-      ['withPayment-transaction']({
-        amount: 236070000,
+      .withPaymentTransaction({
+        amount: 236070000n,
         receiver: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
-        'close-amount': 345071234,
-        'close-remainder-to': 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+        closeAmount: 345071234n,
+        closeRemainderTo: 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
       })
-      .withFee(1000)
+      .withFee(1000n)
       .build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -176,13 +177,13 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Payment' },
                 { term: transactionTimestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
                 { term: transactionBlockLabel, description: '36570178' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: transaction.sender },
-                { term: transactionReceiverLabel, description: transaction['payment-transaction']!.receiver },
+                { term: transactionReceiverLabel, description: transaction.paymentTransaction!.receiver },
                 { term: transactionAmountLabel, description: '236.07' },
                 { term: transactionCloseRemainderToLabel, description: 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ' },
                 { term: transactionCloseRemainderAmountLabel, description: '345.071234' },
@@ -221,12 +222,12 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother.multisig().build()
 
     beforeEach(() => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
     })
 
     it('should show the multisig information', () => {
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -262,12 +263,12 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother.logicsig().build()
 
     beforeEach(() => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
     })
 
     it('should show 2 tabs with the logicsig base64 as default', () => {
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -289,10 +290,10 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
+      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve(new DisassembleResponse({ result: teal })))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -318,12 +319,12 @@ describe('transaction-page', () => {
     describe('and the note is text', () => {
       const note = 'Здравейте, world!'
       const base64Note = Buffer.from(note).toString('base64')
-      const transaction = transactionBuilder.withNote(base64Note).build()
+      const transaction = transactionBuilder.withNote(Buffer.from(note)).build()
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       beforeEach(() => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
       })
 
       it('should show 2 tabs with the note base64 as default', () => {
@@ -368,12 +369,12 @@ describe('transaction-page', () => {
       const jsonNote = { hello: 'world' }
       const note = JSON.stringify(jsonNote)
       const base64Note = Buffer.from(note).toString('base64')
-      const transaction = transactionBuilder.withNote(base64Note).build()
+      const transaction = transactionBuilder.withNote(Buffer.from(note)).build()
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       beforeEach(() => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
       })
 
       it('should show 3 tabs with the note json as default', () => {
@@ -434,13 +435,13 @@ describe('transaction-page', () => {
 
     describe('and the note is arc-2 formatted', () => {
       const note = 'algoCityTemp:j{"city":"Singapore","temp":35}'
-      const base64Note = Buffer.from(note).toString('base64')
+      const base64Note = Buffer.from(note)
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       beforeEach(() => {
-        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+        vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
       })
 
       it('should show 3 tabs with the note arc-2 as default', () => {
@@ -507,9 +508,9 @@ describe('transaction-page', () => {
     const asset = assetResultMother['mainnet-140479105']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
@@ -523,7 +524,7 @@ describe('transaction-page', () => {
           descriptionListAssertion({
             container: component.container,
             items: [
-              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionIdLabel, description: transaction.id! },
               { term: transactionTypeLabel, description: 'Asset TransferOpt-out' },
               { term: transactionTimestampLabel, description: 'Thu, 20 July 2023 19:08:03' },
               { term: transactionBlockLabel, description: '30666726' },
@@ -568,9 +569,9 @@ describe('transaction-page', () => {
     const asset = assetResultMother['mainnet-312769']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
@@ -593,10 +594,10 @@ describe('transaction-page', () => {
     const asset = assetResultMother['testnet-210971834']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
@@ -619,10 +620,10 @@ describe('transaction-page', () => {
     const asset = assetResultMother['testnet-642327435']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
@@ -635,7 +636,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Asset TransferClawback' },
                 { term: transactionSenderLabel, description: 'ATJJRFAQVMD3YVX47HZLK2GRNKZLS3YDRLJ62JJPLUCZPDJE7QPQZDTVGY' },
                 { term: transactionReceiverLabel, description: 'ATSGPNTPGMJ2U3GQRSEXA2OZGFPMKPO66NNPIKFD4LHETHYIYRIRIN6GJE' },
@@ -653,10 +654,10 @@ describe('transaction-page', () => {
     const asset = assetResultMother['mainnet-971381860']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
         new Map([
@@ -676,7 +677,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Application Call' },
                 { term: transactionTimestampLabel, description: 'Fri, 01 March 2024 00:07:53' },
                 { term: transactionBlockLabel, description: '36591812' },
@@ -753,10 +754,10 @@ describe('transaction-page', () => {
     ]
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2' }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id!, '*': '2' }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
         new Map([
@@ -884,9 +885,9 @@ describe('transaction-page', () => {
     ]
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id, '*': '2/1' }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id!, '*': '2/1' }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
         new Map([
@@ -918,12 +919,12 @@ describe('transaction-page', () => {
   describe('when rendering an app call transaction that has no foreign assets but has an inner asset transfer transaction', () => {
     const asset = assetResultMother['mainnet-312769']().build()
     const innerAssetTransferTransaction = transactionResultMother.transfer(asset).build()
-    const transaction = transactionResultMother.appCall()['withInner-txns']([innerAssetTransferTransaction]).build()
+    const transaction = transactionResultMother.appCall().withInnerTxns([innerAssetTransferTransaction]).build()
 
     it('should be rendered without error', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(
         assetResultsAtom,
         new Map([
@@ -940,7 +941,7 @@ describe('transaction-page', () => {
           await waitFor(() => {
             descriptionListAssertion({
               container: component.container,
-              items: [{ term: transactionIdLabel, description: transaction.id }],
+              items: [{ term: transactionIdLabel, description: transaction.id! }],
             })
           })
         }
@@ -952,10 +953,10 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -967,7 +968,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Asset ConfigDestroy' },
                 { term: transactionTimestampLabel, description: 'Wed, 29 April 2020 06:52:54' },
                 { term: transactionBlockLabel, description: '6354625' },
@@ -986,10 +987,10 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother['mainnet-ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -1001,7 +1002,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Asset ConfigCreate' },
                 { term: transactionTimestampLabel, description: 'Tue, 23 April 2024 02:42:13' },
                 { term: transactionBlockLabel, description: '38185488' },
@@ -1048,10 +1049,10 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -1063,7 +1064,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Asset ConfigReconfigure' },
                 { term: transactionTimestampLabel, description: 'Mon, 01 April 2024 18:05:37' },
               ],
@@ -1079,10 +1080,10 @@ describe('transaction-page', () => {
     const asset = assetResultMother['mainnet-1707148495']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
       return executeComponentTest(
@@ -1096,7 +1097,7 @@ describe('transaction-page', () => {
           descriptionListAssertion({
             container: component.container,
             items: [
-              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionIdLabel, description: transaction.id! },
               { term: transactionTypeLabel, description: 'Asset Freeze' },
               { term: transactionTimestampLabel, description: 'Sat, 30 March 2024 01:03:28' },
               { term: transactionBlockLabel, description: '37463564' },
@@ -1135,18 +1136,13 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a state proof transaction', () => {
-    const transaction = transactionResultMother
-      .stateProof()
-      ['withRound-time'](1696316292)
-      ['withConfirmed-round'](32563331)
-      .withFee(0)
-      .build()
+    const transaction = transactionResultMother.stateProof().withRoundTime(1696316292).withConfirmedRound(32563331n).withFee(0n).build()
 
     it('should be rendered correctly', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
       return executeComponentTest(
         () => {
           return render(<TransactionPage />, undefined, myStore)
@@ -1156,7 +1152,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'State Proof' },
                 { term: transactionTimestampLabel, description: 'Tue, 03 October 2023 06:58:12' },
                 { term: transactionBlockLabel, description: '32563331' },
@@ -1173,10 +1169,10 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -1187,7 +1183,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Key RegistrationOnlineMultisig' },
                 { term: transactionTimestampLabel, description: 'Mon, 17 June 2019 20:53:10' },
                 { term: transactionBlockLabel, description: '107358' },
@@ -1210,10 +1206,10 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother['mainnet-BABZ5DOKAN7IP6FJ5PZSP2NRQU5OFRPZ7WIS2A3DRXCWEMVEM3PQ']().build()
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       const myStore = createStore()
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
       return executeComponentTest(
         () => {
@@ -1224,7 +1220,7 @@ describe('transaction-page', () => {
             descriptionListAssertion({
               container: component.container,
               items: [
-                { term: transactionIdLabel, description: transaction.id },
+                { term: transactionIdLabel, description: transaction.id! },
                 { term: transactionTypeLabel, description: 'Key RegistrationOfflineMultisig' },
               ],
             })
@@ -1243,10 +1239,10 @@ describe('when rendering a rekey transaction', () => {
   const transaction = transactionResultMother['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']().build()
 
   it('should be rendered with the correct data', () => {
-    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
     const myStore = createStore()
-    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+    myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
     return executeComponentTest(
       () => {
@@ -1257,7 +1253,7 @@ describe('when rendering a rekey transaction', () => {
           descriptionListAssertion({
             container: component.container,
             items: [
-              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionIdLabel, description: transaction.id! },
               { term: transactionTypeLabel, description: 'PaymentRekey' },
               { term: transactionRekeyToLabel, description: 'QUANSC2GTZQ7GL5CA42CMOYIX2LHJ2E7QD2ZDZKQJG2WAKGWOYBMNADHSA' },
             ],
@@ -1272,13 +1268,13 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
   const transaction = transactionResultMother['testnet-6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q']().build()
 
   it('should be rendered with the correct data', async () => {
-    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
     const myStore = createStore()
     myStore.set(genesisHashAtom, 'some-hash')
-    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+    myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-    const applicationId = transaction['application-transaction']!['application-id']!
+    const applicationId = transaction.applicationTransaction!.applicationId!
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
@@ -1317,13 +1313,13 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
   const transaction = transactionResultMother['testnet-6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q']().build()
 
   it('should be rendered with the correct data', async () => {
-    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
     const myStore = createStore()
     myStore.set(genesisHashAtom, 'some-hash')
-    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+    myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-    const applicationId = transaction['application-transaction']!['application-id']!
+    const applicationId = transaction.applicationTransaction!.applicationId!
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
@@ -1365,9 +1361,9 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
 
     beforeEach(async () => {
       myStore.set(genesisHashAtom, 'some-hash')
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1383,7 +1379,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
     })
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       return executeComponentTest(
         () => {
@@ -1418,9 +1414,9 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
 
     beforeEach(async () => {
       myStore.set(genesisHashAtom, 'some-hash')
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1436,7 +1432,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
     })
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       return executeComponentTest(
         () => {
@@ -1471,9 +1467,9 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
 
     beforeEach(async () => {
       myStore.set(genesisHashAtom, 'some-hash')
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1489,7 +1485,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
     })
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       return executeComponentTest(
         () => {
@@ -1521,9 +1517,9 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
 
     beforeEach(async () => {
       myStore.set(genesisHashAtom, 'some-hash')
-      myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+      myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1539,7 +1535,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
     })
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id! }))
 
       return executeComponentTest(
         () => {

@@ -1,12 +1,12 @@
 import { atom, Getter, Setter } from 'jotai'
 import { createReadOnlyAtomAndTimestamp, readOnlyAtomCache } from '@/features/common/data'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { indexer } from '@/features/common/data/algo-client'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -18,7 +18,7 @@ export const getBlockAndExtractData = async (round: Round) => {
       const [transactionIds, groupResults] = ((transactions ?? []) as TransactionResult[]).reduce(
         (acc, t) => {
           // Accumulate transactions
-          acc[0].push(t.id)
+          acc[0].push(t.id!)
 
           // Accumulate group results
           accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
@@ -42,7 +42,7 @@ export const getBlockAndExtractData = async (round: Round) => {
 export const accumulateGroupsFromTransaction = (
   acc: Map<GroupId, GroupResult>,
   transaction: TransactionResult,
-  round: number,
+  round: bigint,
   roundTime: number
 ) => {
   // Inner transactions can be part of a group, just like regular transactions.
@@ -72,7 +72,7 @@ export const addStateExtractedFromBlocksAtom = atom(
       set(transactionResultsAtom, (prev) => {
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
-          if (!next.has(transactionResult.id)) {
+          if (transactionResult.id && !next.has(transactionResult.id)) {
             next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
           }
         })

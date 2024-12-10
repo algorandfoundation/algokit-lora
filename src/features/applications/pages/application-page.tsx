@@ -31,7 +31,7 @@ export function ApplicationPage() {
   const { applicationId: _applicationId } = useRequiredParam(UrlParams.ApplicationId)
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 
-  const applicationId = parseInt(_applicationId, 10)
+  const applicationId = BigInt(parseInt(_applicationId, 10))
   const [loadableApplication, refreshApplication, isStale] = useLoadableApplication(applicationId)
   useTitle()
 

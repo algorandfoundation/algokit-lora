@@ -42,7 +42,7 @@ describe('application-method-definitions', () => {
       const myStore = getTestStore()
       await setWalletAddressAndSigner(localnet)
       const { app } = await deploySmartContract(localnet, Arc32TestContractAppSpec as AppSpec)
-      appId = Number(app.appId)
+      appId = app.appId
 
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
@@ -330,7 +330,7 @@ describe('application-method-definitions', () => {
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+              expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
                 {
                   "amount": 500000,
                   "close-amount": 0,
@@ -452,7 +452,7 @@ describe('application-method-definitions', () => {
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+              expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
                 {
                   "amount": 600000,
                   "close-amount": 0,
@@ -578,7 +578,7 @@ describe('application-method-definitions', () => {
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
               expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
+              expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
                 {
                   "amount": 500000,
                   "close-amount": 0,
@@ -1657,13 +1657,13 @@ describe('application-method-definitions', () => {
 
       const { appId: _, ...params } = await asMethodCallParams({
         id: randomGuid(),
-        applicationId: 1988,
+        applicationId: 1988n,
         type: BuildableTransactionType.MethodCall,
         appSpec: Arc56TestContractAppSpec as Arc56Contract,
         methodDefinition: asMethodDefinitions(Arc56TestContractAppSpec).find((m) => m.name === 'createApplication')!,
         onComplete: 0,
         methodArgs: [],
-        sender: asAddressOrNfd(localnet.context.testAccount.addr),
+        sender: asAddressOrNfd(localnet.context.testAccount.addr.toString()),
         fee: {
           setAutomatically: true,
         },
@@ -1691,7 +1691,7 @@ describe('application-method-definitions', () => {
         },
         populateAppCallResources: true,
       })
-      appId = Number(app.appId)
+      appId = app.appId
 
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {

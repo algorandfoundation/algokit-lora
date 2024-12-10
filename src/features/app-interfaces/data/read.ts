@@ -7,7 +7,7 @@ import { invariant } from '@/utils/invariant'
 import { appInterfaceNotFoundMessage } from '../pages/labels'
 
 export const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
-  return await dbConnection.get('app-interfaces', applicationId)
+  return await dbConnection.get('app-interfaces', Number(applicationId))
 }
 export const getAppInterfaces = async (dbConnection: DbConnection) => {
   return await dbConnection.getAll('app-interfaces')
