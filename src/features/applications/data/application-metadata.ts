@@ -1,13 +1,13 @@
 import { readOnlyAtomCache } from '@/features/common/data'
 import { ApplicationMetadataResult, ApplicationResult } from './types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { TransactionType } from 'algosdk'
-import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { parseArc2 } from '@/features/transactions/mappers'
 import { parseJson } from '@/utils/parse-json'
 import { indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
+import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 
 const getApplicationMetadataResult = async (
   _: Getter,
@@ -24,10 +24,10 @@ const getApplicationMetadataResult = async (
 
   const creationTransaction = transactionResults
     .flatMap((txn) => flattenTransactionResult(txn))
-    .find((txn) => txn['tx-type'] === TransactionType.appl && txn['created-application-index'] === applicationResult.id)
+    .find((txn) => txn.txType === TransactionType.appl && txn.createdApplicationIndex === applicationResult.id)
   if (!creationTransaction) return null
 
-  const text = base64ToUtf8(creationTransaction.note ?? '')
+  const text = uint8ArrayToUtf8(creationTransaction.note ?? new Uint8Array())
 
   const maybeArc2 = parseArc2(text)
   if (maybeArc2 && maybeArc2.format === 'j') {

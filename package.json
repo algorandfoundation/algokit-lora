@@ -24,8 +24,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-subscriber": "^2.1.0",
-    "@algorandfoundation/algokit-utils": "^7.0.0",
+    "@algorandfoundation/algokit-subscriber": "file://../algokit-subscriber-ts/algorandfoundation-algokit-subscriber-1.0.0.tgz",
+    "@algorandfoundation/algokit-utils": "^8.0.2-beta.1",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.1.6",
     "@daffiwallet/connect": "^1.0.3",
@@ -57,10 +57,10 @@
     "@tauri-apps/plugin-dialog": "^2.0.1",
     "@tauri-apps/plugin-fs": "^2.0.2",
     "@tauri-apps/plugin-shell": "^2.0.1",
-    "@txnlab/use-wallet": "^3.11.0",
-    "@txnlab/use-wallet-react": "^3.11.0",
+    "@txnlab/use-wallet": "^4.0.0-beta.3",
+    "@txnlab/use-wallet-react": "^4.0.0-beta.3",
     "@xstate/react": "^4.1.1",
-    "algosdk": "2.9.0",
+    "algosdk": "3.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
@@ -195,6 +195,7 @@
   },
   "overrides": {
     "ws@>7.0.0 <7.5.9": "7.5.10",
-    "path-to-regexp@>= 0.2.0 <8.0.0": "8.0.0"
+    "path-to-regexp@>= 0.2.0 <8.0.0": "8.0.0",
+    "algosdk": "3.0.0"
   }
 }

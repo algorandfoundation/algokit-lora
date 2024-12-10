@@ -1,14 +1,15 @@
-import { TransactionId } from './types'
-import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
+import { TransactionId, TransactionResult } from './types'
 import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 
 const getTransactionResult = (_: Getter, __: Setter, transactionId: TransactionId) =>
-  lookupTransactionById(transactionId, indexer).then((result) => {
-    return result.transaction
-  })
+  indexer
+    .lookupTransactionByID(transactionId)
+    .do()
+    .then((result) => {
+      return result.transaction as TransactionResult
+    })
 
 const keySelector = (transactionId: TransactionId) => transactionId
 

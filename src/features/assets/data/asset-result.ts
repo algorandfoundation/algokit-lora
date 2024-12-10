@@ -6,18 +6,18 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
 
-export const algoAssetResult = {
-  index: 0,
-  'created-at-round': 0,
+export const algoAssetResult: AssetResult = {
+  index: 0n,
+  createdAtRound: 0n,
   params: {
     creator: ZERO_ADDRESS,
     decimals: 6,
     total: 10_000_000_000_000_000n,
     name: 'ALGO',
-    'unit-name': 'ALGO',
+    unitName: 'ALGO',
     url: 'https://www.algorand.foundation',
   },
-} as AssetResult
+}
 
 const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
   try {

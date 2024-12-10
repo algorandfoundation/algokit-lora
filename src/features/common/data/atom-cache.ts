@@ -57,7 +57,7 @@ export function readOnlyAtomCache<Args extends unknown[], Key extends string | n
   keySelector: (...args: Args) => Key,
   initialValues?: Map<Key, readonly [Atom<Value>, number]>
 ): readonly [PrimitiveAtom<Map<Key, readonly [Atom<Value>, number]>>, (...params: [...args: Args, options?: Options]) => Atom<Value>]
-export function readOnlyAtomCache<Args extends unknown[], Key extends string | number, Value>(
+export function readOnlyAtomCache<Args extends unknown[], Key extends string | number | bigint, Value>(
   createInitialValue: (get: Getter, set: Setter, ...args: Args) => Promise<Value>,
   keySelector: (...args: Args) => Key,
   initialValues?: Map<Key, readonly [Atom<Promise<Value>>, number]>

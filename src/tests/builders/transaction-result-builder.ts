@@ -1,19 +1,9 @@
-import {
-  DataBuilder,
-  dossierProxy,
-  randomElement,
-  randomNumber,
-  randomString,
-  randomDateBetween,
-  randomNumberBetween,
-} from '@makerx/ts-dossier'
-import {
-  ApplicationTransactionResult,
-  AssetResult,
-  StateProofTransactionResult,
-  TransactionResult,
-} from '@algorandfoundation/algokit-utils/types/indexer'
+import { DataBuilder, dossierProxy, randomElement, randomString, randomDateBetween } from '@makerx/ts-dossier'
 import algosdk from 'algosdk'
+import { TransactionResult } from '@/features/transactions/data/types'
+import { randomBigInt, randomBigIntBetween } from '@/utils/random-bigint'
+import { AssetResult } from '@/features/assets/data/types'
+import { utf8ToUint8Array } from '@/utils/utf8-to-uint8-array'
 
 export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   constructor(initialState?: TransactionResult) {
@@ -23,52 +13,52 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
         ? initialState
         : {
             id: randomString(52, 52).toUpperCase(),
-            'tx-type': randomElement(Object.values(algosdk.TransactionType)),
-            'last-valid': randomNumber(),
-            'first-valid': randomNumber(),
-            fee: randomNumberBetween(1_000, 100_000),
+            txType: randomElement(Object.values(algosdk.TransactionType)),
+            lastValid: randomBigInt(),
+            firstValid: randomBigInt(),
+            fee: randomBigIntBetween(1_000n, 100_000n),
             sender: randomString(52, 52),
-            'confirmed-round': randomNumber(),
-            'round-time': Math.floor(randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000),
+            confirmedRound: randomBigInt(),
+            roundTime: Math.floor(randomDateBetween(new Date(now.getTime() - 123456789), now).getTime() / 1000),
             signature: {
-              sig: randomString(88, 88),
+              sig: utf8ToUint8Array(randomString(88, 88)),
             },
           }
     )
   }
 
   public paymentTransaction() {
-    this.thing['tx-type'] = algosdk.TransactionType.pay
-    this.thing['payment-transaction'] = {
-      amount: randomNumberBetween(10_000, 23_6070_000),
+    this.thing.txType = algosdk.TransactionType.pay
+    this.thing.paymentTransaction = {
+      amount: randomBigIntBetween(10_000n, 23_6070_000n),
       receiver: randomString(52, 52),
     }
     return this
   }
 
   public transferTransaction(asset: AssetResult) {
-    this.thing['tx-type'] = algosdk.TransactionType.axfer
-    this.thing['asset-transfer-transaction'] = {
-      amount: randomNumberBetween(10_000, 23_6070_000),
-      'asset-id': asset.index,
-      'close-amount': 0,
+    this.thing.txType = algosdk.TransactionType.axfer
+    this.thing.assetTransferTransaction = {
+      amount: randomBigIntBetween(10_000n, 23_6070_000n),
+      assetId: asset.index,
+      closeAmount: 0n,
       receiver: randomString(52, 52),
     }
     return this
   }
 
   public appCallTransaction() {
-    this.thing['tx-type'] = algosdk.TransactionType.appl
-    this.thing['application-transaction'] = {
-      'application-id': randomNumber(),
-    } as ApplicationTransactionResult
+    this.thing.txType = algosdk.TransactionType.appl
+    this.thing.applicationTransaction = {
+      applicationId: randomBigInt(),
+    } as TransactionResult['applicationTransaction']
     return this
   }
 
   public stateProofTransaction() {
-    this.thing['tx-type'] = algosdk.TransactionType.stpf
+    this.thing.txType = algosdk.TransactionType.stpf
     // HACK: do this because the type StateProofTransactionResult is very big
-    this.thing['state-proof-transaction'] = {} as StateProofTransactionResult
+    this.thing.stateProofTransaction = {} as TransactionResult['stateProofTransaction']
     return this
   }
 }
