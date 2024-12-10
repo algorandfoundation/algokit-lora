@@ -128,7 +128,7 @@ describe('account-page', () => {
   describe('when rendering an account with assets and applications', () => {
     const accountResult = accountResultMother['mainnet-ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA']().build()
     const assetResults = new Map([
-      [1336655079, createReadOnlyAtomAndTimestamp(accountResult['created-assets']![0])],
+      [1336655079, createReadOnlyAtomAndTimestamp(accountResult.createdAssets![0])],
       [1284444444, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1284444444']().build())],
       [1162292622, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1162292622']().build())],
       [1294765516, createReadOnlyAtomAndTimestamp(assetResultMother['mainnet-1294765516']().build())],

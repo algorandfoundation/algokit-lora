@@ -6,8 +6,8 @@ import { parseArc2 } from '@/features/transactions/mappers'
 import { parseJson } from '@/utils/parse-json'
 import { indexer } from '@/features/common/data/algo-client'
 import { Getter, Setter } from 'jotai/index'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 const getApplicationMetadataResult = async (
   _: Getter,

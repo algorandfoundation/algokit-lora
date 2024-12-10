@@ -1,12 +1,13 @@
 import { Address } from '../data/types'
 import { createReadOnlyAtomAndTimestamp } from '@/features/common/data'
-import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { createTransactionsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { atom } from 'jotai'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 import { indexer } from '@/features/common/data/algo-client'
+import algosdk from 'algosdk'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 const getAccountTransactionResults = async (address: Address, nextPageToken?: string) => {
   const results = (await indexer
@@ -14,7 +15,7 @@ const getAccountTransactionResults = async (address: Address, nextPageToken?: st
     .address(address)
     .nextToken(nextPageToken ?? '')
     .limit(DEFAULT_FETCH_SIZE)
-    .do()) as TransactionSearchResults
+    .do()) as algosdk.indexerModels.TransactionsResponse
   return {
     transactionResults: results.transactions,
     nextPageToken: results.nextToken,
@@ -28,7 +29,7 @@ const createSyncEffect = (transactionResults: TransactionResult[]) => {
         set(transactionResultsAtom, (prev) => {
           const next = new Map(prev)
           transactionResults.forEach((transactionResult) => {
-            if (!next.has(transactionResult.id)) {
+            if (transactionResult.id && !next.has(transactionResult.id)) {
               next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
             }
           })
