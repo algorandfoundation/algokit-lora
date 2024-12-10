@@ -35,7 +35,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
   const assetResults = get(assetResultsAtom)
   const applicationResults = get(applicationResultsAtom)
 
-  const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
+  const assetsToAdd = (accountResult.createdAssets ?? []).filter((a) => !assetResults.has(a.index))
   if (assetsToAdd.length > 0) {
     set(assetResultsAtom, (prev) => {
       const next = new Map(prev)
@@ -47,7 +47,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
       return next
     })
   }
-  const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
+  const applicationsToAdd = (accountResult.createdApps ?? []).filter((a) => !applicationResults.has(a.id))
   if (applicationsToAdd.length > 0) {
     set(applicationResultsAtom, (prev) => {
       const next = new Map(prev)

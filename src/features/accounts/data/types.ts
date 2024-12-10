@@ -1,42 +1,45 @@
-import { ApplicationResult } from '@/features/applications/data/types'
-import { NoStringIndex } from '@/features/common/data/types'
-import {
-  AssetHolding as IndexerAssetHolding,
-  AssetResult as IndexerAssetResult,
-  AppLocalState as IndexerAppLocalState,
-  AccountResult as IndexerAccountResult,
-  SignatureType,
-} from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationResult, ApplicationStateSchema } from '@/features/applications/data/types'
+import { AssetResult } from '@/features/assets/data/types'
+import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
+import algosdk from 'algosdk'
 
 export type Address = string
 
-export type AppLocalState = Omit<IndexerAppLocalState, 'closed-out-at-round' | 'deleted' | 'opted-in-at-round'>
-export type AssetHoldingResult = Omit<IndexerAssetHolding, 'deleted' | 'opted-in-at-round' | 'opted-out-at-round'>
-export type AssetResult = {
-  index: number
-  params: IndexerAssetResult['params']
+export type AppLocalState = Omit<
+  algosdk.indexerModels.ApplicationLocalState,
+  'getEncodingSchema' | 'toEncodingData' | 'closedOutAtRound' | 'deleted' | 'optedInAtRound' | 'schema'
+> & {
+  schema: ApplicationStateSchema
 }
+export type AssetHoldingResult = Omit<
+  algosdk.indexerModels.AssetHolding,
+  'getEncodingSchema' | 'toEncodingData' | 'deleted' | 'optedInAtRound' | 'optedOutAtRound'
+>
 
 export type AccountResult = Omit<
-  NoStringIndex<IndexerAccountResult>,
-  | 'closed-at-round'
-  | 'created-at-round'
+  algosdk.indexerModels.Account,
+  | 'getEncodingSchema'
+  | 'toEncodingData'
+  | 'closedAtRound'
+  | 'createdAtRound'
   | 'deleted'
-  | 'apps-local-state'
+  | 'appsLocalState'
   | 'assets'
-  | 'created-apps'
-  | 'created-assets'
-  | 'min-balance'
-  | 'total-box-bytes'
-  | 'total-boxes'
-  | 'sig-type'
+  | 'createdApps'
+  | 'createdAssets'
+  | 'sigType'
+  | 'appsTotalSchema'
+  | 'totalBoxBytes'
+  | 'totalBoxes'
+  | 'minBalance'
 > & {
-  'apps-local-state'?: AppLocalState[]
+  appsLocalState?: AppLocalState[]
   assets?: AssetHoldingResult[]
-  'created-apps'?: ApplicationResult[]
-  'created-assets'?: AssetResult[]
-  'min-balance': number
-  'total-box-bytes'?: number
-  'total-boxes'?: number
-  'sig-type'?: SignatureType
+  createdApps?: ApplicationResult[]
+  createdAssets?: AssetResult[]
+  sigType?: SignatureType
+  appsTotalSchema?: ApplicationStateSchema
+  totalBoxBytes?: number
+  totalBoxes?: number
+  minBalance: bigint
 }

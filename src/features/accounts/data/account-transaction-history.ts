@@ -17,7 +17,7 @@ const getAccountTransactionResults = async (address: Address, nextPageToken?: st
     .do()) as TransactionSearchResults
   return {
     transactionResults: results.transactions,
-    nextPageToken: results['next-token'],
+    nextPageToken: results.nextToken,
   } as const
 }
 
