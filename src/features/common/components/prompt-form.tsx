@@ -32,7 +32,7 @@ export function PromptForm({ message, type, onSubmit, onCancel }: Props) {
       formAction={
         <FormActions>
           <CancelButton onClick={onCancel} className="w-28" />
-          <SubmitButton className="w-28">Save</SubmitButton>
+          <SubmitButton className="w-28">OK</SubmitButton>
         </FormActions>
       }
     >
