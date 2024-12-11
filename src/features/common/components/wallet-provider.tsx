@@ -82,7 +82,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
   const walletManager = useMemo(() => {
     return new WalletManager({
       wallets: wallets,
-      // TODO: PD - test
+      defaultNetwork: networkConfig.id,
       networks: {
         [networkConfig.id]: {
           name: networkConfig.name,
@@ -92,6 +92,9 @@ export function WalletProvider({ networkConfig, children }: Props) {
             token: networkConfig.algod.token ?? '',
           },
         },
+      },
+      options: {
+        resetNetwork: true,
       },
     })
   }, [networkConfig.algod.port, networkConfig.algod.server, networkConfig.algod.token, networkConfig.id, networkConfig.name, wallets])

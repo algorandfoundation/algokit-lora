@@ -46,6 +46,7 @@ export const asTransaction = (
     case algosdk.TransactionType.keyreg: {
       return asKeyRegTransaction(transactionResult)
     }
+    // TODO: PD - fix calling method call
     default:
       throw new Error(`Unknown transaction type ${transactionResult.txType}`)
   }

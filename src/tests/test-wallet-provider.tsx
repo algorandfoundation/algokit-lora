@@ -21,6 +21,10 @@ export function TestWalletProvider({ networkConfig, children }: Props) {
           },
         },
       },
+      defaultNetwork: networkConfig.id,
+      options: {
+        resetNetwork: true,
+      },
     })
   }, [networkConfig.algod.port, networkConfig.algod.server, networkConfig.algod.token, networkConfig.id, networkConfig.name])
 
