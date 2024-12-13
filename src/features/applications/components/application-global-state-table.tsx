@@ -76,6 +76,6 @@ const rawTableColumns: ColumnDef<RawGlobalState>[] = [
   {
     header: 'Value',
     accessorFn: (item) => item,
-    cell: (c) => c.getValue<RawGlobalState>().value,
+    cell: (c) => c.getValue<RawGlobalState>().value.toString(),
   },
 ]
