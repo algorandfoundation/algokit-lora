@@ -2,7 +2,18 @@ import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { atomWithDefault, atomWithRefresh, atomWithStorage } from 'jotai/utils'
 import { WalletId } from '@txnlab/use-wallet-react'
 import { useCallback } from 'react'
-import { NetworkConfig, NetworkConfigWithId, NetworkId, NetworkTokens, localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
+import {
+  NetworkConfig,
+  NetworkConfigWithId,
+  NetworkId,
+  NetworkTokens,
+  localnetId,
+  testnetId,
+  mainnetId,
+  fnetId,
+  betanetId,
+  StoredNetworkConfig,
+} from './types'
 import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
 import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
@@ -113,8 +124,24 @@ export const temporaryLocalNetSearchParams = {
   kmdPort: 'kmd_port',
 }
 
-const customNetworkConfigsAtom = atomWithStorage<Record<NetworkId, NetworkConfig>>('network-configs', {}, undefined, {
+const storedCustomNetworkConfigsAtom = atomWithStorage<Record<NetworkId, StoredNetworkConfig>>('network-configs', {}, undefined, {
   getOnInit: true,
+})
+const customNetworkConfigsAtom = atom<Record<NetworkId, NetworkConfig>>((get) => {
+  // Handles converting any old schema stored network configs to the new schema.
+  const storedCustomNetworkConfigs = get(storedCustomNetworkConfigsAtom)
+  return Object.fromEntries(
+    Object.entries(storedCustomNetworkConfigs).map(([id, config]) => {
+      const { walletIds, walletProviders, ...rest } = config
+      return [
+        id,
+        {
+          ...rest,
+          walletIds: walletIds ?? walletProviders ?? [],
+        },
+      ] satisfies [NetworkId, NetworkConfig]
+    })
+  )
 })
 
 export const temporaryLocalNetConfigAtom = atomWithDefault<NetworkConfig | undefined>(() => {
@@ -187,7 +214,7 @@ export const useNetworkConfigs = () => {
 }
 
 export const useSetCustomNetworkConfig = () => {
-  const setCustomNetworkConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
+  const setCustomNetworkConfigs = useSetAtom(storedCustomNetworkConfigsAtom, { store: settingsStore })
 
   return useCallback(
     (id: NetworkId, networkConfig: NetworkConfig) => {
@@ -201,7 +228,7 @@ export const useSetCustomNetworkConfig = () => {
 }
 
 export const useDeleteCustomNetworkConfig = () => {
-  const setCustomNetworkConfigs = useSetAtom(customNetworkConfigsAtom, { store: settingsStore })
+  const setCustomNetworkConfigs = useSetAtom(storedCustomNetworkConfigsAtom, { store: settingsStore })
   const setTemporaryLocalNetConfig = useSetAtom(temporaryLocalNetConfigAtom, { store: settingsStore })
   return useCallback(
     (id: NetworkId) => {
