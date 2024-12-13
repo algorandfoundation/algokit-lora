@@ -125,8 +125,6 @@ describe('account-page', () => {
     })
   })
 
-  // TODO: PD - Invalid decoded StateProof: [object Object]
-
   describe('when rendering an account with assets and applications', () => {
     const accountResult = accountResultMother['mainnet-ORANGESCU7XMR2TFXSFTOHCUHNP6OYEPIKZW3JZANTCDHVQYMGQFYFIDDA']().build()
     const assetResults = new Map([
