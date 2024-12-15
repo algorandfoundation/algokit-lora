@@ -18,25 +18,15 @@ const shouldCreateKmdClient = (config: NetworkConfig) => {
 const networkConfig = settingsStore.get(networkConfigAtom)
 
 export let indexer = ClientManager.getIndexerClient(networkConfig.indexer)
-indexer.setIntEncoding(algosdk.IntDecoding.MIXED)
-
 export let algod = ClientManager.getAlgodClient(networkConfig.algod)
-algod.setIntEncoding(algosdk.IntDecoding.MIXED)
-
 export let kmd: algosdk.Kmd | undefined = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
-kmd?.setIntEncoding(algosdk.IntDecoding.MIXED)
 
 export let algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
 
 export const updateClientConfig = (networkConfig: NetworkConfigWithId) => {
   indexer = ClientManager.getIndexerClient(networkConfig.indexer)
-  indexer.setIntEncoding(algosdk.IntDecoding.MIXED)
-
   algod = ClientManager.getAlgodClient(networkConfig.algod)
-  algod.setIntEncoding(algosdk.IntDecoding.MIXED)
-
   kmd = shouldCreateKmdClient(networkConfig) ? ClientManager.getKmdClient(networkConfig.kmd!) : undefined
-  kmd?.setIntEncoding(algosdk.IntDecoding.MIXED)
 
   algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
   if (networkConfig.id !== localnetId) {
