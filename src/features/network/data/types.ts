@@ -16,6 +16,13 @@ export type ServiceConfig = {
 
 export type NetworkId = typeof localnetId | typeof testnetId | typeof mainnetId | typeof fnetId | typeof betanetId | string
 
+// These type are used when storing custom network configuration in local storage.
+// Any changes to the keys must be handled in a way which avoids breaking previously stored configurations.
+// The StoredNetworkConfig exists for this reason.
+export type StoredNetworkConfig = Omit<NetworkConfig, 'walletIds'> & {
+  walletIds?: WalletId[]
+  walletProviders?: WalletId[]
+}
 export type NetworkConfig = {
   name: string
   indexer: ServiceConfig
