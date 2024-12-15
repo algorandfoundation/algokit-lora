@@ -63,6 +63,7 @@ export const Urls = {
       }),
     }),
     Fund: UrlTemplate`/fund`,
+    Heatmap: UrlTemplate`/heatmap`,
   }),
   AppLab: UrlTemplate`/app-lab`,
   Settings: UrlTemplate`/settings`,

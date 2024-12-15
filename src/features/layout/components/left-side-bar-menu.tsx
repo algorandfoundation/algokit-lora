@@ -5,7 +5,7 @@ import { cn } from '@/features/common/utils'
 import { Button } from '@/features/common/components/button'
 import { useCallback, useMemo } from 'react'
 import { useSelectedNetwork } from '@/features/network/data'
-import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, FlaskConical } from 'lucide-react'
+import { Telescope, Settings, PanelLeftClose, PanelLeftOpen, ArrowLeft, Coins, FlaskConical, BarChart2 } from 'lucide-react'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useLayout } from '@/features/settings/data'
@@ -31,6 +31,7 @@ export function LeftSideBarMenu({ className }: Props) {
     { urlTemplate: Urls.Network.AppLab, icon: <FlaskConical />, text: 'App Lab' },
     { urlTemplate: Urls.Network.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
     { urlTemplate: Urls.Network.Fund, icon: <Coins />, text: 'Fund' },
+    { urlTemplate: Urls.Network.Heatmap, icon: <BarChart2 />, text: 'Heatmap' },
   ]
   const isExploreUrl = useMemo(() => {
     const explorePaths = Object.values(Urls.Network.Explore)
