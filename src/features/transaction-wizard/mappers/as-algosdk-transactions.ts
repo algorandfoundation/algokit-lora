@@ -332,7 +332,7 @@ const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTra
 }
 
 const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
-  !fee.setAutomatically && fee.value ? { staticFee: algos(fee.value) } : undefined
+  !fee.setAutomatically && fee.value != null ? { staticFee: algos(fee.value) } : undefined
 
 const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid

@@ -38,7 +38,7 @@ export function TransactionBuilderFeeField() {
             ),
             field: feeValuePath,
             placeholder: '0.001',
-            helpText: 'Min 0.001 ALGO',
+            helpText: 'Min 0 ALGO',
             decimalScale: 6,
             thousandSeparator: true,
             required: true,

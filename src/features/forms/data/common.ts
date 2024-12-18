@@ -6,7 +6,7 @@ export const bigIntSchema = <TSchema extends z.ZodTypeAny>(schema: TSchema) => {
     z.coerce
       .string()
       .optional()
-      .transform((val) => (val ? BigInt(val) : undefined))
+      .transform((val) => (val != null ? BigInt(val) : undefined))
       .pipe(schema)
   )
 }
@@ -16,6 +16,6 @@ export const numberSchema = <TSchema extends z.ZodTypeAny>(schema: TSchema) =>
     z.coerce
       .string()
       .optional()
-      .transform((val) => (val ? Number(val) : undefined))
+      .transform((val) => (val != null ? Number(val) : undefined))
       .pipe(schema)
   )

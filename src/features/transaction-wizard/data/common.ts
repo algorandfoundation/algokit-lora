@@ -56,10 +56,10 @@ export const feeFieldSchema = {
   fee: z
     .object({
       setAutomatically: z.boolean(),
-      value: numberSchema(z.number().min(0.001).optional()),
+      value: numberSchema(z.number().min(0).optional()),
     })
     .superRefine((fee, ctx) => {
-      if (!fee.setAutomatically && !fee.value) {
+      if (!fee.setAutomatically && fee.value == null) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: requiredMessage,
