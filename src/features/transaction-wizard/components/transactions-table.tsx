@@ -228,7 +228,7 @@ const getTableColumns = ({
       return (
         <DescriptionList
           items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
-          dtClassName="w-[9.5rem] truncate"
+          dtClassName="w-[10rem] truncate"
         />
       )
     },
@@ -322,7 +322,7 @@ const getSubTransactionsTableColumns = ({
           ) : (
             <DescriptionList
               items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
-              dtClassName="w-[9.5rem] truncate"
+              dtClassName="w-[10rem] truncate"
             />
           )}
           <div className="absolute -bottom-2 right-1/2 z-10">
