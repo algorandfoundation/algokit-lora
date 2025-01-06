@@ -28,7 +28,7 @@ const formSchema = z
     ...senderFieldSchema,
     closeRemainderTo: addressFieldSchema,
     receiver: optionalAddressFieldSchema,
-    amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001).optional()),
+    amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).optional()),
   })
   .superRefine((data, ctx) => {
     if (data.amount && data.amount > 0 && (!data.receiver || !data.receiver.resolvedAddress)) {
@@ -39,7 +39,7 @@ const formSchema = z
       })
     }
 
-    if (data.receiver && data.receiver.resolvedAddress && !data.amount) {
+    if (data.receiver && data.receiver.resolvedAddress && data.amount == undefined) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Required',
