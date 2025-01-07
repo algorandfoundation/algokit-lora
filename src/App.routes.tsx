@@ -23,6 +23,7 @@ import { RedirectPage } from './features/common/pages/redirect-page'
 import { CreateAppInterfacePage, createAppInterfacePageTitle } from './features/app-interfaces/pages/create-app-interface-page'
 import { EditAppInterfacePage } from './features/app-interfaces/pages/edit-app-interface-page'
 import { editAppInterfacePageTitle } from './features/app-interfaces/pages/labels'
+import Heatmap from './features/Heatmap/Heatmap'
 
 export const routes = evalTemplates([
   {
@@ -101,6 +102,52 @@ export const routes = evalTemplates([
             template: Urls.Network.TransactionWizard,
             errorElement: <ErrorPage title={transactionWizardPageTitle} />,
             element: <TransactionWizardPage />,
+          },
+          {
+            template: Urls.Network.AppLab,
+            children: [
+              {
+                template: Urls.Network.AppLab,
+                errorElement: <ErrorPage title={appLabPageTitle} />,
+                element: <AppLab />,
+              },
+              {
+                template: Urls.Network.AppLab.Create,
+                errorElement: <ErrorPage title={createAppInterfacePageTitle} />,
+                element: <CreateAppInterfacePage />,
+              },
+              {
+                template: Urls.Network.AppLab.Edit.ById,
+                errorElement: <ErrorPage title={editAppInterfacePageTitle} redirectUrl={Urls.Network.AppLab} />,
+                element: <EditAppInterfacePage />,
+              },
+            ],
+          },
+          {
+            template: Urls.Network.Fund,
+            errorElement: <FundErrorPage />,
+            element: <FundPage />,
+          },
+          {
+            template: Urls.Network.Explore.Tx,
+            element: <RedirectPage from={Urls.Network.Explore.Tx} to={Urls.Network.Explore.Transaction} />,
+          },
+          {
+            template: Urls.Network.Explore.Txn,
+            element: <RedirectPage from={Urls.Network.Explore.Txn} to={Urls.Network.Explore.Transaction} />,
+          },
+          {
+            template: Urls.Network.TxWizard,
+            element: <RedirectPage from={Urls.Network.TxWizard} to={Urls.Network.TransactionWizard} />,
+          },
+          {
+            template: Urls.Network.TxnWizard,
+            element: <RedirectPage from={Urls.Network.TxnWizard} to={Urls.Network.TransactionWizard} />,
+          },
+          {
+            template: Urls.Network.Heatmap,
+            errorElement: <ErrorPage />,
+            element: <Heatmap />,
           },
           {
             template: Urls.Network.AppLab,
