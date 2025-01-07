@@ -1,5 +1,5 @@
 import algosdk from 'algosdk'
-import { bigIntSchema } from '@/features/forms/data/common'
+import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { senderFieldSchema, commonSchema, onCompleteFieldSchema, onCompleteOptions } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -22,6 +22,7 @@ const formData = zfd.formData({
   ...senderFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
   args: zfd.repeatableOfType(
     z.object({
       id: z.string(),
@@ -47,11 +48,12 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         type: BuildableTransactionType.AppCall,
         applicationId: Number(values.applicationId),
         sender: values.sender,
+        onComplete: Number(values.onComplete),
+        extraProgramPages: values.extraProgramPages,
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),
         note: values.note,
-        onComplete: Number(values.onComplete),
       })
     },
     [onSubmit, transaction?.id]
@@ -63,6 +65,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
         sender: transaction.sender,
         onComplete: transaction.onComplete.toString(),
+        extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -116,6 +119,13 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
             label: 'Sender',
             helpText: 'Account to call from. Sends the transaction and pays the fee',
           })}
+          {defaultValues.applicationId === 0n &&
+            helper.numberField({
+              field: 'extraProgramPages',
+              label: 'Extra program pages',
+              helpText:
+                'Number of additional pages allocated to the approval and clear state programs. If empty this will be calculated automatically',
+            })}
           {helper.arrayField({
             field: 'args',
             label: 'Arguments',

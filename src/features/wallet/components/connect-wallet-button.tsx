@@ -137,6 +137,8 @@ function ConnectedWallet({ activeAddress, activeWalletAccounts, wallets }: Conne
   )
 }
 
+const walletsWithLocalPrompt = [WalletId.KMD.toString(), WalletId.MNEMONIC.toString()]
+
 export function ConnectWalletButton() {
   const { activeAddress, activeWalletAccounts, wallets } = useWallet()
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
@@ -152,7 +154,14 @@ export function ConnectWalletButton() {
 
   const selectWallet = useCallback(
     (wallet: Wallet) => async () => {
-      setTimeout(() => setDialogOpen(false), 1000)
+      if (walletsWithLocalPrompt.includes(wallet.id)) {
+        // The connect dialog for wallet providers handled locally is opened immediately, so the selection dialog should be closed immediately.
+        setDialogOpen(false)
+      } else {
+        // Externally handled connect dialogs have an opening delay, hence the selection dialog should remain open until the connect dialog is visible.
+        setTimeout(() => setDialogOpen(false), 1000)
+      }
+
       try {
         if (wallet.isConnected) {
           wallet.setActive()

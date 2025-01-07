@@ -21,7 +21,7 @@ import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { asArc56AppSpec, asMethodDefinitions } from '@/features/applications/mappers'
 import { Arc32AppSpec, TemplateParamType } from '../../data/types'
-import { CreateOnComplete } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { CreateOnComplete, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
@@ -71,23 +71,23 @@ export function DeployApp({ machine }: Props) {
 
   const appSpec = state.context.appSpec
 
-  const asDeployCreateParams = async (
-    transaction: BuildTransactionResult
-  ): Promise<(AppClientMethodCallParams & CreateOnComplete) | (AppClientBareCallParams & CreateOnComplete)> => {
+  const asDeployCreateParams = async (transaction: BuildTransactionResult) => {
     if (transaction.type === BuildableTransactionType.MethodCall) {
       const { appId: _, ...params } = await asMethodCallParams(transaction)
       return {
         ...params,
         method: params.method.name,
         onComplete: params.onComplete,
-      } satisfies AppClientMethodCallParams & CreateOnComplete
+        extraProgramPages: transaction.extraProgramPages,
+      } satisfies AppClientMethodCallParams & CreateOnComplete & CreateSchema
     } else if (transaction.type === BuildableTransactionType.AppCall) {
       const { appId: _, ...params } = asAppCallTransactionParams(transaction)
       invariant(params.onComplete !== algosdk.OnApplicationComplete.ClearStateOC, 'Clear state is not supported for app creates')
       return {
         ...params,
         onComplete: params.onComplete,
-      } satisfies AppClientBareCallParams & CreateOnComplete
+        extraProgramPages: transaction.extraProgramPages,
+      } satisfies AppClientBareCallParams & CreateOnComplete & CreateSchema
     }
     throw new Error('Invalid transaction type')
   }

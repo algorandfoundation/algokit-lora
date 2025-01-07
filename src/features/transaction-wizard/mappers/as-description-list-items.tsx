@@ -378,6 +378,14 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       dt: 'Sender',
       dd: <AddressOrNfdLink address={params.sender} />,
     },
+    ...(transaction.extraProgramPages !== undefined
+      ? [
+          {
+            dt: 'Extra program pages',
+            dd: transaction.extraProgramPages,
+          },
+        ]
+      : []),
     ...(transaction.args.length > 0
       ? [
           {
@@ -423,6 +431,14 @@ const asMethodCallTransaction = (
       dt: 'Sender',
       dd: <AddressOrNfdLink address={params.sender} />,
     },
+    ...(transaction.extraProgramPages !== undefined
+      ? [
+          {
+            dt: 'Extra program pages',
+            dd: transaction.extraProgramPages,
+          },
+        ]
+      : []),
     ...(transaction.methodDefinition.arguments.length > 0
       ? [
           {
