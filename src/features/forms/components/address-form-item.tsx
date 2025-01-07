@@ -49,10 +49,10 @@ export function AddressFormItem({ field, resolvedAddressField, label, ...props }
   useEffect(() => {
     if (value && isAddress(value)) {
       setAddress(value)
-    } else if (value && !isAddress(value) && !isNfd(value)) {
+    } else if ((!value && resolvedAddress) || (value && !isAddress(value) && !isNfd(value))) {
       setAddress('')
     }
-  }, [setAddress, value])
+  }, [resolvedAddress, setAddress, value])
 
   return (
     <>

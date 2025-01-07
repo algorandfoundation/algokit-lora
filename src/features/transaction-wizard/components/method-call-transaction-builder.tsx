@@ -1,5 +1,5 @@
 import algosdk from 'algosdk'
-import { bigIntSchema } from '@/features/forms/data/common'
+import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
   onCompleteFieldSchema,
@@ -46,6 +46,7 @@ const appCallFormSchema = {
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
+  extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const baseFormData = zfd.formData(appCallFormSchema)
@@ -156,6 +157,7 @@ export function MethodCallTransactionBuilder({
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
         sender: values.sender,
+        extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,
         fee: values.fee,
@@ -188,6 +190,7 @@ export function MethodCallTransactionBuilder({
         sender: transaction.sender,
         onComplete: transaction.onComplete.toString(),
         methodName: transaction.methodDefinition.name,
+        extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -387,6 +390,13 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         label: 'Sender',
         helpText: 'Account to call from. Sends the transaction and pays the fee',
       })}
+      {appId === 0n &&
+        helper.numberField({
+          field: 'extraProgramPages',
+          label: 'Extra program pages',
+          helpText:
+            'Number of additional pages allocated to the approval and clear state programs. If empty this will be calculated automatically',
+        })}
       {abiMethodArgs.map((arg, index) => (
         <div key={`${methodName}-arg-${index}`} className="relative space-y-1.5 text-sm [&_label]:mt-1.5">
           <h5 className="text-primary">{`Argument ${index + 1}`}</h5>
