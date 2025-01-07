@@ -40,6 +40,6 @@ export const updateClientConfig = (networkConfig: NetworkConfigWithId) => {
 
   algorandClient = AlgorandClient.fromClients({ algod, indexer, kmd })
   if (networkConfig.id !== localnetId) {
-    algorandClient.setDefaultValidityWindow(30)
+    algorandClient.setDefaultValidityWindow(200)
   }
 }
