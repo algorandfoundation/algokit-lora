@@ -5,10 +5,13 @@ import { NetworkConfigWithId } from '@/features/network/data/types'
 import { SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '../hooks/use-dialog-form'
 import { PromptForm } from './prompt-form'
+import { loraKmdDevWalletName } from '@/features/fund/utils/kmd'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfigWithId
 }>
+
+const kmdWalletsWithoutAPassword = [loraKmdDevWalletName, defaultKmdWallet]
 
 export function WalletProvider({ networkConfig, children }: Props) {
   const selectedKmdWallet = useSelectedKmdWallet()
@@ -31,14 +34,18 @@ export function WalletProvider({ networkConfig, children }: Props) {
     return networkConfig.walletIds.reduce(
       (acc, id) => {
         if (id === WalletId.KMD && networkConfig.kmd) {
+          const wallet = selectedKmdWallet ?? defaultKmdWallet
           acc.push({
             id,
             options: {
-              wallet: selectedKmdWallet ?? defaultKmdWallet,
+              wallet,
               baseServer: networkConfig.kmd.server,
               token: networkConfig.kmd.token ?? '',
               port: String(networkConfig.kmd.port),
               promptForPassword: async () => {
+                if (kmdWalletsWithoutAPassword.includes(wallet)) {
+                  return ''
+                }
                 const password = await openKmdPasswordDialog({ message: 'Enter KMD Password' })
                 if (password == null) {
                   throw new Error('No password provided')

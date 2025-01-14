@@ -15,7 +15,7 @@ import { executeComponentTest } from '@/tests/test-component'
 import { useParams } from 'react-router-dom'
 import { fireEvent, getByText, render, RenderResult, waitFor, within } from '@/tests/testing-library'
 import { UserEvent } from '@testing-library/user-event'
-import { sendButtonLabel } from '@/features/transaction-wizard/components/transactions-builder'
+import { addTransactionLabel, sendButtonLabel } from '@/features/transaction-wizard/components/transactions-builder'
 import { algo } from '@algorandfoundation/algokit-utils'
 import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/transaction-wizard/components/labels'
 import { selectOption } from '@/tests/utils/select-option'
@@ -250,6 +250,156 @@ describe('application-method-definitions', () => {
                 "FR98dQACAgI=",
               ]
             `)
+            }
+          )
+        })
+        it('fee can be set to zero and the transaction should fail', async () => {
+          const myStore = getTestStore()
+          vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+          return executeComponentTest(
+            () => {
+              return render(<ApplicationPage />, undefined, myStore)
+            },
+            async (component, user) => {
+              const addMethodPanel = await expandMethodAccordion(component, user, 'add')
+
+              // Open the build transaction dialog
+              const callButton = await waitFor(() => {
+                const addTransactionButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+                expect(addTransactionButton).not.toBeDisabled()
+                return addTransactionButton!
+              })
+              await user.click(callButton)
+
+              // Fill the form
+              const formDialog = component.getByRole('dialog')
+
+              const arg1Input = await getArgInput(formDialog, 'Argument 1')
+              fireEvent.input(arg1Input, {
+                target: { value: '1' },
+              })
+
+              const arg2Input = await getArgInput(formDialog, 'Argument 2')
+              fireEvent.input(arg2Input, {
+                target: { value: '2' },
+              })
+
+              await setCheckbox(formDialog, user, 'Set fee automatically', false)
+              const feeInput = await within(formDialog).findByLabelText(/Fee/)
+              fireEvent.input(feeInput, {
+                target: { value: '0' },
+              })
+
+              await user.click(await component.findByRole('button', { name: 'Add' }))
+
+              await waitFor(() => {
+                const requiredValidationMessages = within(formDialog).queryAllByText('Required')
+                expect(requiredValidationMessages.length).toBe(0)
+              })
+
+              // Send the transaction
+              await user.click(await component.findByRole('button', { name: sendButtonLabel }))
+
+              const errorMessage = await component.findByText(
+                'Network request error. Received status 400 (Bad Request): txgroup had 0 in fees, which is less than the minimum 1 * 1000'
+              )
+              expect(errorMessage).toBeInTheDocument()
+            }
+          )
+        })
+        it('fee can be be shared between transactions', async () => {
+          const myStore = getTestStore()
+          vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+          return executeComponentTest(
+            () => {
+              return render(<ApplicationPage />, undefined, myStore)
+            },
+            async (component, user) => {
+              const addMethodPanel = await expandMethodAccordion(component, user, 'add')
+
+              // Open the build transaction dialog
+              const callButton = await waitFor(() => {
+                const addTransactionButton = within(addMethodPanel).getByRole('button', { name: 'Call' })
+                expect(addTransactionButton).not.toBeDisabled()
+                return addTransactionButton!
+              })
+              await user.click(callButton)
+
+              // Fill the form
+              const addTxnFormDialog = component.getByRole('dialog')
+
+              const arg1Input = await getArgInput(addTxnFormDialog, 'Argument 1')
+              fireEvent.input(arg1Input, {
+                target: { value: '1' },
+              })
+
+              const arg2Input = await getArgInput(addTxnFormDialog, 'Argument 2')
+              fireEvent.input(arg2Input, {
+                target: { value: '2' },
+              })
+
+              await setCheckbox(addTxnFormDialog, user, 'Set fee automatically', false)
+              const feeInput = await within(addTxnFormDialog).findByLabelText(/Fee/)
+              fireEvent.input(feeInput, {
+                target: { value: '0' },
+              })
+
+              await user.click(await component.findByRole('button', { name: 'Add' }))
+
+              await waitFor(() => {
+                const requiredValidationMessages = within(addTxnFormDialog).queryAllByText('Required')
+                expect(requiredValidationMessages.length).toBe(0)
+              })
+
+              // Add a payment transaction with 0.002 fee to cover the previous transaction
+              await user.click(await component.findByRole('button', { name: addTransactionLabel }))
+
+              const paymentTxnFormDialog = component.getByRole('dialog')
+
+              fireEvent.input(within(paymentTxnFormDialog).getByLabelText(/Receiver/), {
+                target: { value: localnet.context.testAccount.addr },
+              })
+
+              fireEvent.input(within(paymentTxnFormDialog).getByLabelText(/Amount to pay/), { target: { value: '1' } })
+
+              await setCheckbox(paymentTxnFormDialog, user, 'Set fee automatically', false)
+              fireEvent.input(await within(paymentTxnFormDialog).findByLabelText(/Fee/), {
+                target: { value: '0.002' },
+              })
+
+              await user.click(await component.findByRole('button', { name: 'Add' }))
+
+              // Send the transaction
+              await user.click(await component.findByRole('button', { name: sendButtonLabel }))
+
+              // Check the result
+              const resultsDiv = await waitFor(
+                () => {
+                  return component.getByText(groupSendResultsLabel).parentElement!
+                },
+                { timeout: 10_000 }
+              )
+
+              const transactionId = await waitFor(
+                () => {
+                  const transactionLink = within(resultsDiv)
+                    .getAllByRole('link')
+                    .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                  return transactionLink.getAttribute('href')!.split('/').pop()!
+                },
+                { timeout: 10_000 }
+              )
+
+              const result = await localnet.context.waitForIndexerTransaction(transactionId)
+              expect(result.transaction.sender).toBe(localnet.context.testAccount.addr)
+              expect(result.transaction.fee).toBe(0)
+              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
+              [
+                "FR98dQAAAAAAAAAD",
+              ]
+              `)
             }
           )
         })
@@ -1971,4 +2121,13 @@ const getStructArgInput = async (parentComponent: HTMLElement, argName: string, 
   })
 
   return within(fieldDiv).getByLabelText(/Value/)
+}
+
+const setCheckbox = async (parentComponent: HTMLElement, user: UserEvent, label: string, checked: boolean) => {
+  const wrapperDiv = within(parentComponent).getByLabelText(label).parentElement!
+  const btn = within(wrapperDiv).getByRole('checkbox')
+  const isChecked = btn.getAttribute('aria-checked') === 'true'
+  if (isChecked !== checked) {
+    await user.click(btn)
+  }
 }

@@ -80,6 +80,7 @@ type CommonBuildTransactionResult = {
 export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.AppCall
   applicationId: ApplicationId
+  extraProgramPages?: number
   args: string[]
   accounts?: Address[]
   foreignAssets?: AssetId[]
@@ -98,6 +99,7 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   applicationId: ApplicationId
   appSpec: Arc56Contract
   methodDefinition: MethodDefinition
+  extraProgramPages?: number
   methodArgs: MethodCallArg[]
   accounts?: Address[]
   foreignAssets?: AssetId[]

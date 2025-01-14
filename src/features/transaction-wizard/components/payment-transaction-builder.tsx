@@ -24,7 +24,7 @@ const formSchema = {
   ...commonSchema,
   ...senderFieldSchema,
   ...receiverFieldSchema,
-  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0.000001)),
+  amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 }
 const formData = zfd.formData(formSchema)
 

@@ -83,7 +83,7 @@ export function LocalnetFunding() {
                   </AccountLink>
                   &nbsp;was created.
                   <br />
-                  You can use this account by connecting to the KMD '{loraKmdDevWalletName}' wallet and supplying an empty password.
+                  You can use this account by connecting to the KMD '{loraKmdDevWalletName}' wallet.
                 </p>
               )}
             </AccordionContent>
