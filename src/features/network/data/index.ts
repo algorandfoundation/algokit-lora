@@ -36,7 +36,6 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   walletconnect: 'Wallet Connect',
   magic: 'Magic',
   liquid: 'Liquid',
-  'pera-beta': 'Pera Beta',
   biatec: 'Biatec',
 }
 

@@ -138,7 +138,7 @@ const subscriberAtom = atom(null, (get, set) => {
                 ?.filter((bc) => {
                   const isAssetOptIn =
                     bc.amount === 0n &&
-                    bc.assetId !== 0 &&
+                    bc.assetId !== 0n &&
                     bc.roles.includes(BalanceChangeRole.Sender) &&
                     bc.roles.includes(BalanceChangeRole.Receiver)
                   const isNonZeroAmount = bc.amount !== 0n // Can either be negative (decreased balance) or positive (increased balance)
