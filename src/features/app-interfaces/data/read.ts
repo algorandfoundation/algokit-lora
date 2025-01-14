@@ -7,10 +7,21 @@ import { invariant } from '@/utils/invariant'
 import { appInterfaceNotFoundMessage } from '../pages/labels'
 
 export const getAppInterface = async (dbConnection: DbConnection, applicationId: ApplicationId) => {
-  return await dbConnection.get('app-interfaces', Number(applicationId))
+  const entity = await dbConnection.get('app-interfaces', applicationId.toString())
+  if (!entity) {
+    return undefined
+  }
+  return {
+    ...entity,
+    applicationId: BigInt(entity.applicationId),
+  }
 }
 export const getAppInterfaces = async (dbConnection: DbConnection) => {
-  return await dbConnection.getAll('app-interfaces')
+  const entities = await dbConnection.getAll('app-interfaces')
+  return entities.map((entity) => ({
+    ...entity,
+    applicationId: BigInt(entity.applicationId),
+  }))
 }
 
 export const createAppInterfaceAtom = (applicationId: ApplicationId) => {

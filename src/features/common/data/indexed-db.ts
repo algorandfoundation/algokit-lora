@@ -13,6 +13,20 @@ interface LoraDBSchemaV1 extends DBSchema {
   }
 }
 
+export type AppInterfaceEntityV2 = {
+  applicationId: ApplicationId
+  name: string
+  appSpecVersions: AppSpecVersion[]
+  lastModified: number
+}
+
+export type AppInterfaceEntityV3 = {
+  applicationId: string
+  name: string
+  appSpecVersions: AppSpecVersion[]
+  lastModified: number
+}
+
 export type AppInterfaceEntity = {
   applicationId: ApplicationId
   name: string
@@ -23,7 +37,14 @@ export type AppInterfaceEntity = {
 interface LoraDBSchemaV2 extends DBSchema {
   'app-interfaces': {
     key: number
-    value: AppInterfaceEntity
+    value: AppInterfaceEntityV2
+  }
+}
+
+interface LoraDBSchemaV3 extends DBSchema {
+  'app-interfaces': {
+    key: string
+    value: AppInterfaceEntityV3
   }
 }
 
@@ -31,7 +52,7 @@ export const dbConnectionAtom = atom(async (get) => {
   const networkId = settingsStore.get(selectedNetworkAtomId)
   const genesisHash = await get(genesisHashAtom)
 
-  return await openDB<LoraDBSchemaV2>(`${networkId}-${genesisHash}`, 2, {
+  return await openDB<LoraDBSchemaV3>(`${networkId}-${genesisHash}`, 3, {
     async upgrade(db, oldVersion, newVersion, transaction) {
       // Casting to DBSchema to trick TypeScript
       const anyDb = db as unknown as IDBPDatabase<DBSchema>
@@ -59,7 +80,7 @@ const dbMigrations = [
     const v1Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV1, StoreNames<LoraDBSchemaV1>[], 'versionchange'>
     const v1Store = v1Transaction.objectStore('applications-app-specs')
 
-    const newItems: AppInterfaceEntity[] = []
+    const newItems: AppInterfaceEntityV2[] = []
     const keys = await v1Store.getAllKeys()
     for (const key of keys) {
       const item = await v1Store.get(key)
@@ -96,6 +117,29 @@ const dbMigrations = [
       await v2Store.put(newItem)
     }
   },
+  async (db: IDBPDatabase<DBSchema>, transaction: IDBPTransaction<DBSchema, StoreNames<DBSchema>[], 'versionchange'>) => {
+    const v2Db = db as unknown as IDBPDatabase<LoraDBSchemaV2>
+    const v2Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV2, StoreNames<LoraDBSchemaV2>[], 'versionchange'>
+    const v2Store = v2Transaction.objectStore('app-interfaces')
+
+    const newItems = (await v2Store.getAll()).map((item) => ({
+      ...item,
+      applicationId: item.applicationId.toString(),
+    }))
+    v2Db.deleteObjectStore('app-interfaces')
+
+    const v3Db = db as unknown as IDBPDatabase<LoraDBSchemaV3>
+    v3Db.createObjectStore('app-interfaces', {
+      keyPath: 'applicationId',
+    })
+
+    const v3Transaction = transaction as unknown as IDBPTransaction<LoraDBSchemaV3, StoreNames<LoraDBSchemaV3>[], 'versionchange'>
+    const v3Store = v3Transaction.objectStore('app-interfaces')
+
+    for (const newItem of newItems) {
+      await v3Store.put(newItem)
+    }
+  },
 ]
 
-export type DbConnection = IDBPDatabase<LoraDBSchemaV2>
+export type DbConnection = IDBPDatabase<LoraDBSchemaV3>
