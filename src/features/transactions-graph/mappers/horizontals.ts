@@ -6,6 +6,7 @@ import {
   AssetFreezeTransaction,
   AssetTransferTransaction,
   AssetTransferTransactionSubType,
+  HeartbeatTransaction,
   InnerAppCallTransaction,
   InnerAssetConfigTransaction,
   InnerAssetFreezeTransaction,
@@ -90,6 +91,8 @@ const getTransactionRepresentations = (
       return getPaymentTransactionRepresentations(transaction, verticals, parent)
     case TransactionType.StateProof:
       return getStateProofTransactionRepresentations(transaction, verticals)
+    case TransactionType.Heartbeat:
+      return getHeartbeatTransactionRepresentations(transaction, verticals) // TODO: HB - Confirm this is the representation we want
   }
 }
 
@@ -294,6 +297,21 @@ const getStateProofTransactionRepresentations = (transaction: StateProofTransact
       type: RepresentationType.Point,
       label: {
         type: LabelType.StateProof,
+      },
+    },
+  ]
+}
+
+const getHeartbeatTransactionRepresentations = (transaction: HeartbeatTransaction, verticals: Vertical[]): Representation[] => {
+  const from = calculateFromWithoutParent(transaction.sender, verticals)
+
+  return [
+    {
+      fromVerticalIndex: from.verticalId,
+      fromAccountIndex: from.accountNumber,
+      type: RepresentationType.Point,
+      label: {
+        type: LabelType.Heartbeat,
       },
     },
   ]

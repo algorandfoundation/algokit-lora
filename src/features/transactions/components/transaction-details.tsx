@@ -30,6 +30,8 @@ export function TransactionDetails({ transaction }: Props) {
         <StateProofTransactionDetails transaction={transaction} />
       ) : transaction.type === TransactionType.KeyReg ? (
         <KeyRegTransactionDetails transaction={transaction} />
+      ) : transaction.type === TransactionType.Heartbeat ? (
+        <p>TODO: HB - HEARTBEAT DATA</p>
       ) : undefined}
     </div>
   )

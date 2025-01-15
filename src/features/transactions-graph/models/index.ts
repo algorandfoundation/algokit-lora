@@ -43,6 +43,7 @@ export enum LabelType {
   KeyReg = 'KeyReg',
   StateProof = 'StateProof',
   Clawback = 'Clawback',
+  Heartbeat = 'Heartbeat',
 }
 
 export type Label =
@@ -73,6 +74,7 @@ export type Label =
   | { type: LabelType.AssetFreeze }
   | { type: LabelType.KeyReg }
   | { type: LabelType.StateProof }
+  | { type: LabelType.Heartbeat }
 
 export type Vector = {
   type: RepresentationType.Vector
