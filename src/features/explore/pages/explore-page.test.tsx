@@ -57,7 +57,7 @@ describe('explore-page', () => {
       .withGroup(base64ToBytes('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg='))
       .build()
     const transactionResults = [transactionResult1]
-    const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
+    const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618n).build()
     const myStore = createStore()
     myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
     myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id!, createReadOnlyAtomAndTimestamp(t)])))

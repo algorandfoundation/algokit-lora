@@ -5,7 +5,7 @@ import { TransactionResult } from '@/features/transactions/data/types'
 // Matches the data returned from indexer
 export type BlockResult = {
   round: bigint
-  timestamp: number
+  timestamp: bigint
   genesisId: string
   genesisHash: Uint8Array
   previousBlockHash: Uint8Array

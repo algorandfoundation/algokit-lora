@@ -9,7 +9,27 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { asAssetSummary } from '@/features/assets/mappers'
-import { TransactionResult } from './types'
+import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
+import algosdk, { SignedTxnWithAD } from 'algosdk'
+
+const asSignedTxnWithAD = (res: algosdk.modelsv2.PendingTransactionResponse): SignedTxnWithAD => {
+  return new SignedTxnWithAD({
+    signedTxn: new algosdk.SignedTransaction({
+      txn: res.txn.txn,
+      sgnr: res.txn.sgnr,
+    }),
+    applyData: new algosdk.ApplyData({
+      configAsset: res.assetIndex,
+      applicationID: res.applicationIndex,
+      closingAmount: res.closingAmount,
+      assetClosingAmount: res.assetClosingAmount,
+      evalDelta: new algosdk.EvalDelta({
+        logs: res.logs,
+        innerTxns: res.innerTxns?.map((inner) => asSignedTxnWithAD(inner)),
+      }),
+    }),
+  })
+}
 
 export const asTransactionFromSendResult = (result: SendTransactionResults): Transaction[] => {
   if (!result.confirmations || result.confirmations.length === 0 || result.transactions.length === 0) {
@@ -29,15 +49,27 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
     })
 
   // This mapping does some approximations, which are fine for the contexts we currently use it for.
-  return result.confirmations.map((confirmation) => {
+  return result.confirmations.map((confirmation, i) => {
     invariant(confirmation.txn.txn.genesisHash, 'Genesis hash is required')
     invariant(confirmation.txn.txn.genesisID, 'Genesis ID is required')
 
     // TODO: PD - test
-    const txnResult = {
-      ...confirmation.txn.txn,
-      sender: confirmation.txn.txn.sender.toString(),
-    } satisfies TransactionResult
+    const txnResult = getIndexerTransactionFromAlgodTransaction({
+      signedTxnWithAD: asSignedTxnWithAD(confirmation),
+      rootIntraRoundOffset: 0,
+      intraRoundOffset: 0,
+      transactionId: confirmation.txn.txn.txID(),
+      genesisHash: Buffer.from(confirmation.txn.txn.genesisHash),
+      genesisId: confirmation.txn.txn.genesisID,
+      roundNumber: confirmation.confirmedRound ?? 0n,
+      roundTimestamp: BigInt(Math.floor(now.getTime() / 1000)),
+      transaction: result.transactions[i],
+      logs: confirmation.logs,
+      createdAssetId: confirmation.assetIndex,
+      createdAppId: confirmation.applicationIndex,
+      closeAmount: confirmation.closingAmount,
+      assetCloseAmount: confirmation.assetClosingAmount,
+    })
 
     const transaction = asTransaction(txnResult, assetSummaryResolver, abiMethodResolver, groupResolver)
     return transaction

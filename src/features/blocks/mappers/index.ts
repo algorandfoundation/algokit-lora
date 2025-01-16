@@ -9,7 +9,7 @@ import { TransactionResult } from '@/features/transactions/data/types'
 const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
   return {
     round: block.round,
-    timestamp: new Date(block.timestamp * 1000).toISOString(),
+    timestamp: new Date(Number(block.timestamp) * 1000).toISOString(),
     transactionsSummary: asTransactionsSummary(transactions),
   }
 }

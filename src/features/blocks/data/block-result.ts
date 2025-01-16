@@ -32,6 +32,7 @@ export const getBlockAndExtractData = async (round: Round) => {
       return [
         {
           ...block,
+          timestamp: BigInt(block.timestamp),
           transactionIds,
         } as BlockResult,
         (transactions ?? []) as TransactionResult[],

@@ -1,5 +1,5 @@
 import { Atom, atom } from 'jotai'
-import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
+import algosdk, { ABIReferenceType, bytesToBase64, TransactionType } from 'algosdk'
 import { Round } from '@/features/blocks/data/types'
 import { AppSpecVersion } from '@/features/app-interfaces/data/types'
 import { TransactionId, TransactionResult } from '@/features/transactions/data/types'
@@ -58,7 +58,7 @@ const createMethodDefinitionAtom = (transaction: TransactionResult): Atom<Promis
     if (transactionArgs.length && appSpecVersion) {
       const methods = asMethodDefinitions(appSpecVersion.appSpec)
       return methods.find((m) => {
-        return m.abiMethod.getSelector() === transactionArgs[0]
+        return bytesToBase64(m.abiMethod.getSelector()) === bytesToBase64(transactionArgs[0])
       })
     }
     return undefined

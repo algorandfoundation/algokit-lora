@@ -84,7 +84,7 @@ describe('block-page', () => {
 
   describe('when rendering a block that exists', () => {
     describe('and has no transactions', () => {
-      const block = blockResultMother.blockWithoutTransactions().withRound(12345n).withTimestamp(1719284618).build()
+      const block = blockResultMother.blockWithoutTransactions().withRound(12345n).withTimestamp(1719284618n).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
@@ -115,7 +115,7 @@ describe('block-page', () => {
     })
 
     describe('and has a proposer', () => {
-      const block = blockResultMother.blockWithoutTransactions().withRound(1644n).withTimestamp(1724943091).build()
+      const block = blockResultMother.blockWithoutTransactions().withRound(1644n).withTimestamp(1724943091n).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
@@ -154,7 +154,7 @@ describe('block-page', () => {
         .build()
       const transactionResult2 = transactionResultMother.transfer(asset).build()
       const transactionResults = [transactionResult1, transactionResult2]
-      const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
+      const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618n).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
