@@ -196,7 +196,6 @@ export type InnerTransaction =
   | InnerAssetConfigTransaction
   | InnerAssetFreezeTransaction
   | InnerKeyRegTransaction
-  | InnerStateProofTransaction
 
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
@@ -252,8 +251,6 @@ export type StateProofTransaction = CommonTransactionProperties & {
   id: string
 }
 
-export type InnerStateProofTransaction = Omit<StateProofTransaction, 'id'> & InnerTransactionId
-
 export type BaseKeyRegTransaction = CommonTransactionProperties & {
   type: TransactionType.KeyReg
   subType: KeyRegTransactionSubType
@@ -281,6 +278,5 @@ export type HeartbeatTransaction = CommonTransactionProperties & {
   type: TransactionType.Heartbeat
   subType: undefined
   id: string
+  address: Address
 }
-
-export type InnerHeartbeatTransaction = Omit<HeartbeatTransaction, 'id'> & InnerTransactionId

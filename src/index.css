@@ -59,6 +59,7 @@
     --key-registration: 107 94 9;
     --key-registration-foreground: 255 255 255;
 
+    /* TODO: HB - Pick the light mode colours */
     --heartbeat: 107 94 9;
     --heartbeat-foreground: 255 255 255;
 
@@ -127,6 +128,7 @@
     --key-registration: 164 144 20;
     --key-registration-foreground: 0 19 36;
 
+    /* TODO: HB - Pick the dark mode colours */
     --heartbeat: 164 144 20;
     --heartbeat-foreground: 0 19 36;
 

@@ -18,7 +18,6 @@ import { asInnerAssetConfigTransaction } from './asset-config-transaction-mapper
 import { asInnerAssetFreezeTransaction } from './asset-freeze-transaction-mappers'
 import { asInnerKeyRegTransaction } from './key-reg-transaction-mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
-import { asInnerStateProofTransaction } from './state-proof-transaction-mappers'
 import { Atom } from 'jotai/index'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
@@ -180,10 +179,6 @@ const asInnerTransaction = (
   }
   if (transactionResult['tx-type'] === AlgoSdkTransactionType.keyreg) {
     return asInnerKeyRegTransaction(networkTransactionId, index, transactionResult)
-  }
-  // I don't believe it's possible to have an inner stpf transaction, handling just in case.
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.stpf) {
-    return asInnerStateProofTransaction(networkTransactionId, index, transactionResult)
   }
 
   throw new Error(`Unsupported inner transaction type: ${transactionResult['tx-type']}`)

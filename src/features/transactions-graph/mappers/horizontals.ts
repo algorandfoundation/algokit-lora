@@ -92,7 +92,7 @@ const getTransactionRepresentations = (
     case TransactionType.StateProof:
       return getStateProofTransactionRepresentations(transaction, verticals)
     case TransactionType.Heartbeat:
-      return getHeartbeatTransactionRepresentations(transaction, verticals) // TODO: HB - Confirm this is the representation we want
+      return getHeartbeatTransactionRepresentations(transaction, verticals)
   }
 }
 

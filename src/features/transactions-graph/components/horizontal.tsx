@@ -19,6 +19,7 @@ import { StateProofTransactionTooltipContent } from './state-proof-transaction-t
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
 import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
+import { HeartbeatTransactionTooltipContent } from './heartbeat-transaction-tooltip-content'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -371,6 +372,9 @@ export function Horizontal({ horizontal, verticals, bgClassName, isSimulated }: 
                 )}
                 {transaction.type === TransactionType.StateProof && (
                   <StateProofTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.Heartbeat && (
+                  <HeartbeatTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
                 )}
               </TooltipContent>
             </Tooltip>

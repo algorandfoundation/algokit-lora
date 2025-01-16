@@ -46,8 +46,7 @@ export const asTransaction = (
     case algosdk.TransactionType.keyreg: {
       return asKeyRegTransaction(transactionResult)
     }
-    case 'hb' as algosdk.TransactionType: {
-      // TODO: HB - Replace with algosdk.TransactionType.heartbeat when available
+    case algosdk.TransactionType.hb: {
       return asHeartbeatTransaction(transactionResult)
     }
     default:
