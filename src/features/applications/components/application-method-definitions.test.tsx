@@ -27,6 +27,7 @@ import { randomGuid } from '@/utils/random-guid'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
 import { BuildableTransactionType } from '@/features/transaction-wizard/models'
 import { asMethodDefinitions } from '@/features/applications/mappers'
+import { bytesToBase64 } from 'algosdk'
 
 describe('application-method-definitions', () => {
   const localnet = algorandFixture()
@@ -160,12 +161,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAAD",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAAD')
             }
           )
         })
@@ -244,12 +241,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQACAgI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQACAgI=')
             }
           )
         })
@@ -393,13 +386,9 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(localnet.context.testAccount.addr)
-              expect(result.transaction.fee).toBe(0)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAAD",
-              ]
-              `)
+              expect(result.transaction.sender).toBe(localnet.context.testAccount.addr.toString())
+              expect(result.transaction.fee).toBe(0n)
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAAD')
             }
           )
         })
@@ -479,12 +468,13 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
-              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
+              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                {
-                  "amount": 500000,
-                  "close-amount": 0,
-                  "receiver": "${testAccount2.addr}",
+                TransactionPayment {
+                  "amount": 500000n,
+                  "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -500,12 +490,8 @@ describe('application-method-definitions', () => {
               )
 
               const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
-              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
-                [
-                  "FR98dQAAAAAAB6Eg",
-                ]
-              `)
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(appCallTransaction.transaction.logs![0])).toBe('FR98dQAAAAAAB6Eg')
             }
           )
         })
@@ -601,12 +587,13 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
-              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
+              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                {
-                  "amount": 600000,
-                  "close-amount": 0,
-                  "receiver": "${testAccount2.addr}",
+                TransactionPayment {
+                  "amount": 600000n,
+                  "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -622,12 +609,8 @@ describe('application-method-definitions', () => {
               )
 
               const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
-              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
-                [
-                  "FR98dQAAAAAACSfA",
-                ]
-              `)
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(appCallTransaction.transaction.logs![0])).toBe('FR98dQAAAAAACSfA')
             }
           )
         })
@@ -727,12 +710,13 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
-              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
+              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
               expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-                {
-                  "amount": 500000,
-                  "close-amount": 0,
-                  "receiver": "${testAccount2.addr}",
+                TransactionPayment {
+                  "amount": 500000n,
+                  "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -748,8 +732,8 @@ describe('application-method-definitions', () => {
               )
 
               const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
-              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(appCallTransaction.transaction.note).toBe('aGVsbG8gd29ybGQh')
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(appCallTransaction.transaction.note!)).toBe('aGVsbG8gd29ybGQh')
             }
           )
         })
@@ -893,12 +877,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQABAQ==",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQABAQ==')
             }
           )
         })
@@ -983,12 +963,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQACAgI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQACAgI=')
             }
           )
         })
@@ -1096,12 +1072,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAE",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAE')
             }
           )
         })
@@ -1203,12 +1175,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAs",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAs')
             }
           )
         })
@@ -1284,12 +1252,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQADAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAD",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQADAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAD')
             }
           )
         })
@@ -1391,12 +1355,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAEAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAQ=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAEAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAQ=')
             }
           )
         })
@@ -1489,12 +1449,10 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAEAC4AAgAEABYAAgAAAAAAAAABAAAAAAAAAAIAAgAAAAAAAAADAAAAAAAAAAQABAAWAAIAAAAAAAAABQAAAAAAAAAGAAVIZWxsbw==",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe(
+                'FR98dQAEAC4AAgAEABYAAgAAAAAAAAABAAAAAAAAAAIAAgAAAAAAAAADAAAAAAAAAAQABAAWAAIAAAAAAAAABQAAAAAAAAAGAAVIZWxsbw=='
+              )
             }
           )
         })
@@ -1625,12 +1583,10 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAEAD4AAgAEAB4AAwAAAAAAAAABAAAAAAAAAAIAAAAAAAAACwADAAAAAAAAAAMAAAAAAAAABAAAAAAAAAAWAAQAHgADAAAAAAAAAAUAAAAAAAAABgAAAAAAAAAhAAVIZWxsbw==",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe(
+                'FR98dQAEAD4AAgAEAB4AAwAAAAAAAAABAAAAAAAAAAIAAAAAAAAACwADAAAAAAAAAAMAAAAAAAAABAAAAAAAAAAWAAQAHgADAAAAAAAAAAUAAAAAAAAABgAAAAAAAAAhAAVIZWxsbw=='
+              )
             }
           )
         })
@@ -1695,12 +1651,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dYA=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dYA=')
             }
           )
         })
@@ -1787,12 +1739,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQA=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQA=')
             }
           )
         })
@@ -1932,12 +1880,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAADAAAAAAAAAAI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAADAAAAAAAAAAI=')
             }
           )
         })
@@ -2048,12 +1992,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAAGAAAAAAAAAAI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(bytesToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAAGAAAAAAAAAAI=')
             }
           )
         })
