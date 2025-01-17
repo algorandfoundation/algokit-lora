@@ -63,6 +63,53 @@ export const transactionResultMother = {
         },
       })
   },
+  ['mainnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ']: () => {
+    return new TransactionResultBuilder({
+      id: 'HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 34675056,
+      fee: 1000,
+      'first-valid': 34675052,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      'intra-round-offset': 26,
+      'last-valid': 34676052,
+      'heartbeat-transaction': {
+        'hb-address': 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW',
+      },
+      'receiver-rewards': 0,
+      'round-time': 1703439471,
+      sender: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'HEARTBEATSIGNATURE123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ==',
+      },
+      'tx-type': TransactionType.hb,
+    })
+  },
+  'localnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ': () => {
+    return new TransactionResultBuilder({
+      'confirmed-round': 1000,
+      fee: 1000,
+      'first-valid': 995,
+      'genesis-hash': 'x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8=',
+      'genesis-id': 'dockernet-v1',
+      'heartbeat-transaction': {
+        'hb-address': 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW',
+      },
+      id: 'HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+      'last-valid': 1995,
+      'round-time': 1234567890,
+      sender: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW',
+      'tx-type': TransactionType.hb,
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'intra-round-offset': 0,
+      'receiver-rewards': 0,
+      'sender-rewards': 0,
+    })
+  },
   ['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']: () => {
     return new TransactionResultBuilder({
       id: 'FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ',

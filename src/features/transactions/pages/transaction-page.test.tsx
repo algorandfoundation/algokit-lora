@@ -89,6 +89,7 @@ import { algod } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
+import { heartbeatAddressLabel } from '../components/heartbeat-transaction-info'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -1563,5 +1564,44 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
         }
       )
     })
+  })
+})
+
+describe.only('when rendering a heartbeat transaction', () => {
+  const transaction = transactionResultMother['localnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ']().build()
+
+  it('should be rendered with the correct data', () => {
+    vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
+    const myStore = createStore()
+    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+
+    return executeComponentTest(
+      () => {
+        return render(<TransactionPage />, undefined, myStore)
+      },
+      async (component) => {
+        await waitFor(() => {
+          descriptionListAssertion({
+            container: component.container,
+            items: [
+              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionTypeLabel, description: 'Heartbeat' },
+              { term: transactionTimestampLabel, description: expect.any(String) },
+              { term: transactionBlockLabel, description: expect.any(String) },
+              { term: transactionFeeLabel, description: '0.001' },
+              { term: transactionSenderLabel, description: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW' },
+              { term: heartbeatAddressLabel, description: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW' },
+            ],
+          })
+        })
+
+        const viewTransactionTabList = component.getByRole('tablist', { name: transactionDetailsLabel })
+        expect(viewTransactionTabList).toBeTruthy()
+        expect(
+          component.getByRole('tabpanel', { name: transactionVisualGraphTabLabel }).getAttribute('data-state'),
+          'Visual tab should be active'
+        ).toBe('active')
+      }
+    )
   })
 })

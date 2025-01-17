@@ -71,6 +71,14 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
     this.thing['state-proof-transaction'] = {} as StateProofTransactionResult
     return this
   }
+
+  public heartbeatTransaction() {
+    this.thing['tx-type'] = algosdk.TransactionType.hb
+    this.thing['heartbeat-transaction'] = {
+      'hb-address': randomString(52, 52),
+    }
+    return this
+  }
 }
 
 export const transactionResultBuilder = dossierProxy<TransactionResultBuilder, TransactionResult>(TransactionResultBuilder)

@@ -12,7 +12,6 @@ export const asHeartbeatTransaction = (transactionResult: TransactionResult): He
     type: TransactionType.Heartbeat,
     subType: undefined,
     address: heartbeat['hb-address'],
-    // TODO: HB - Map only the data we want to show
     ...mapCommonTransactionProperties(transactionResult),
   }
 }

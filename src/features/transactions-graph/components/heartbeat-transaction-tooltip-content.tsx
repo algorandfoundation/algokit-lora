@@ -20,8 +20,6 @@ type Props = {
   isSimulated: boolean
 }
 
-// TODO: HB - Present the tooltip data we want to show
-
 export function HeartbeatTransactionTooltipContent({ transaction, isSimulated }: Props) {
   const items = useMemo(
     () => [
