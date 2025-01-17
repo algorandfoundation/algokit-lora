@@ -82,7 +82,7 @@ describe('resolving ABI method', () => {
         {
           name: 'asset',
           type: DecodedAbiType.Asset,
-          value: 705457144,
+          value: 705457144n,
           length: 9,
           multiline: false,
         },
@@ -349,7 +349,7 @@ describe('resolving ABI method', () => {
         {
           name: 'asset',
           type: DecodedAbiType.Asset,
-          value: 705457144,
+          value: 705457144n,
           length: 9,
           multiline: false,
         },
@@ -363,7 +363,7 @@ describe('resolving ABI method', () => {
         {
           name: 'application',
           type: DecodedAbiType.Application,
-          value: 705410358,
+          value: 705410358n,
           length: 9,
           multiline: false,
         },

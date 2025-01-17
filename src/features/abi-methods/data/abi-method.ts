@@ -160,7 +160,7 @@ const getMethodReturn = (transaction: TransactionResult, methodDefinition: Metho
 
   const abiType = algosdk.ABIType.from(methodDefinition.returns.type.toString())
   // The first 4 bytes are SHA512_256 hash of the string "return"
-  const bytes = transaction.logs.slice(-1)[0].subarray(4)
+  const bytes = Uint8Array.from(transaction.logs.slice(-1)[0].subarray(4))
   const abiValue = abiType.decode(bytes)
 
   if (methodDefinition.returns.struct) {
