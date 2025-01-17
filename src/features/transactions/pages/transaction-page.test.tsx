@@ -89,7 +89,7 @@ import { algod } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
-import { DisassembleResponse } from 'node_modules/algosdk/dist/types/client/v2/algod/models/types'
+import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -290,7 +290,9 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve(new DisassembleResponse({ result: teal })))
+      vi.mocked(algod.disassemble('').do).mockImplementation(() =>
+        Promise.resolve(new algosdk.modelsv2.DisassembleResponse({ result: teal }))
+      )
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))

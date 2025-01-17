@@ -142,11 +142,12 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-              {
-                "amount": 500000,
-                "close-amount": 0,
+              TransactionPayment {
+                "amount": 500000n,
+                "closeAmount": 0n,
+                "closeRemainderTo": undefined,
                 "receiver": "${testAccount2.addr}",
               }
             `)
@@ -247,12 +248,12 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-              {
-                "amount": 0,
-                "close-amount": 9999000,
-                "close-remainder-to": "${testAccount2.addr}",
+              TransactionPayment {
+                "amount": 0n,
+                "closeAmount": 9999000n,
+                "closeRemainderTo": "${testAccount2.addr}",
                 "receiver": "${testAccount.addr}",
               }
             `)

@@ -195,7 +195,7 @@ describe('block-page', () => {
                     ellipseAddress(transactionResult1.sender),
                     ellipseAddress(transactionResult1.paymentTransaction?.receiver),
                     'Payment',
-                    ((transactionResult1.paymentTransaction?.amount ?? 0n) / BigInt(1e6)).toString(),
+                    (Number(transactionResult1.paymentTransaction!.amount) / 1e6).toString(),
                   ],
                 },
                 {
@@ -206,7 +206,7 @@ describe('block-page', () => {
                     ellipseAddress(transactionResult2.sender),
                     ellipseAddress(transactionResult2.assetTransferTransaction?.receiver),
                     'Asset Transfer',
-                    `${(transactionResult2.assetTransferTransaction?.amount ?? 0n) / BigInt(1e6)}USDt`,
+                    `${Number(transactionResult2.assetTransferTransaction!.amount) / 1e6}USDt`,
                   ],
                 },
               ],

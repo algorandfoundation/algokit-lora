@@ -83,8 +83,10 @@ export const asGlobalStateValue = (globalState: ApplicationResult['params']['glo
 }
 
 const asRawGlobalKey = (key: Uint8Array): string => {
-  if (isUtf8(key)) {
-    return key.toString()
+  const buffer = Buffer.from(key)
+
+  if (isUtf8(buffer)) {
+    return buffer.toString()
   } else {
     return uint8ArrayToBase64(key)
   }
