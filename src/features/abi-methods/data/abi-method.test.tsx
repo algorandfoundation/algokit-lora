@@ -48,7 +48,7 @@ describe('resolving ABI method', () => {
         {
           name: 'asset',
           type: DecodedAbiType.Asset,
-          value: 705457144,
+          value: 705457144n,
           length: 9,
           multiline: false,
         },
