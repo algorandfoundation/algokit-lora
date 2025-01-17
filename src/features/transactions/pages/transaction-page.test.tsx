@@ -12,7 +12,6 @@ import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
-import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
@@ -85,11 +84,12 @@ import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-inter
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
-import { algod } from '@/features/common/data/algo-client'
+import { algod, indexer } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import algosdk from 'algosdk'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -97,6 +97,11 @@ vi.mock('@/features/common/data/algo-client', async () => {
     ...original,
     algod: {
       disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+    indexer: {
+      lookupTransactionByID: vi.fn().mockReturnValue({
         do: vi.fn(),
       }),
     },
@@ -120,7 +125,9 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(lookupTransactionById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupTransactionByID('8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+        Promise.reject(new HttpError('boom', 404))
+      )
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -134,7 +141,9 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(lookupTransactionById).mockImplementation(() => Promise.reject({}))
+      vi.mocked(indexer.lookupTransactionByID('7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+        Promise.reject({})
+      )
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -283,7 +292,7 @@ describe('transaction-page', () => {
 
           const base64Tab = component.getByRole('tabpanel', { name: base64ProgramTabLabel })
           expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active')
-          expect(base64Tab.textContent).toBe(transaction.signature!.logicsig!.logic)
+          expect(base64Tab.textContent).toBe(uint8ArrayToBase64(transaction.signature!.logicsig!.logic))
         }
       )
     })
@@ -480,7 +489,7 @@ describe('transaction-page', () => {
             })
             const base64Tab = component.getByRole('tabpanel', { name: base64NoteTabLabel })
             await waitFor(() => expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active'))
-            expect(base64Tab.textContent).toBe(base64Note)
+            expect(base64Tab.textContent).toBe(uint8ArrayToBase64(base64Note))
           }
         )
       })

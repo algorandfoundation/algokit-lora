@@ -1,11 +1,12 @@
 import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from '../models'
 import { invariant } from '@/utils/invariant'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
-import { asJson } from '@/utils/as-json'
 import { TransactionResult, TransactionSignature } from '@/features/transactions/data/types'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import algosdk from 'algosdk'
 import { isDefined } from '@/utils/is-defined'
+import { normaliseAlgoSdkData } from '@/utils/as-json'
+import { asJson } from '@/utils/as-json'
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
   invariant(transactionResult.confirmedRound !== undefined, 'confirmed-round is not set')
@@ -19,7 +20,7 @@ export const mapCommonTransactionProperties = (transactionResult: TransactionRes
     sender: transactionResult.sender,
     signature: transformSignature(transactionResult.signature),
     note: transactionResult.note ? uint8ArrayToBase64(transactionResult.note) : undefined,
-    json: asJson(transactionResult),
+    json: asJson(normaliseAlgoSdkData(transactionResult)),
     rekeyTo: transactionResult.rekeyTo?.toString(),
   }
 }

@@ -3434,7 +3434,7 @@ export const transactionResultMother = {
       id: '6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q',
       intraRoundOffset: 1,
       lastValid: 42671899n,
-      logs: [base64ToBytes('FR98dddZ0M9DYwg918KwyYVJpCmfe/IBQhonIEu9403Q05GiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=')],
+      logs: [base64ToBytes('FR98dddZ0M9DYwg918KwyYVJpCmfe/IBQhonIEu9403Q05Gi')],
       receiverRewards: 0n,
       roundTime: 1723101171,
       sender: '25M5BT2DMMED3V6CWDEYKSNEFGPXX4QBIINCOICLXXRU3UGTSGRMF3MTOE',

@@ -3,7 +3,7 @@ import { Block, BlockSummary, CommonBlockProperties } from '../models'
 import { BlockResult, Round } from '../data/types'
 import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
-import { asJson } from '@/utils/as-json'
+import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { TransactionResult } from '@/features/transactions/data/types'
 
 const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
@@ -31,11 +31,13 @@ export const asBlock = (
     previousRound: block.round > 0 ? block.round - 1n : undefined,
     nextRound,
     transactions,
-    json: asJson({
-      ...rest,
-      ...(!rest.upgradeVote ? { upgradeVote: { upgradeApprove: false, upgradeDelay: 0 } } : undefined), // Match how indexer handles an undefined upgrade-vote
-      transactions: transactionResults,
-    }),
+    json: asJson(
+      normaliseAlgoSdkData({
+        ...rest,
+        ...(!rest.upgradeVote ? { upgradeVote: { upgradeApprove: false, upgradeDelay: 0 } } : undefined), // Match how indexer handles an undefined upgrade-vote
+        transactions: transactionResults,
+      })
+    ),
     proposer: block.proposer,
   }
 }

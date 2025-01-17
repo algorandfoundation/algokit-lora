@@ -51,6 +51,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
     this.thing.txType = algosdk.TransactionType.appl
     this.thing.applicationTransaction = {
       applicationId: randomBigInt(),
+      onCompletion: 'noop',
     } as TransactionResult['applicationTransaction']
     return this
   }

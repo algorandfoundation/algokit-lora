@@ -3,7 +3,7 @@ import { AccountResult, AssetHoldingResult } from '../data/types'
 import { Account, AccountAssetSummary, AssetHolding } from '../models'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
-import { asJson } from '@/utils/as-json'
+import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { AssetId, AssetResult } from '@/features/assets/data/types'
 
 export const asAccount = (accountResult: AccountResult, assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>): Account => {
@@ -24,7 +24,7 @@ export const asAccount = (accountResult: AccountResult, assetResolver: (assetId:
     totalAssetsOptedIn: accountResult.totalAssetsOptedIn,
     assetsOpted,
     rekeyedTo: accountResult.authAddr?.toString(),
-    json: asJson(accountResult),
+    json: asJson(normaliseAlgoSdkData(accountResult)),
   }
 }
 

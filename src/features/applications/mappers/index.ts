@@ -16,7 +16,7 @@ import {
 import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
-import { asJson } from '@/utils/as-json'
+import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { AppSpec, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
@@ -63,7 +63,7 @@ export const asApplication = (
     clearStateProgram: uint8ArrayToBase64(application.params.clearStateProgram),
     globalState: asGlobalStateValue(application.params.globalState, appSpec),
     isDeleted: application.deleted ?? false,
-    json: asJson(application),
+    json: asJson(normaliseAlgoSdkData(application)),
     appSpec,
   }
 }

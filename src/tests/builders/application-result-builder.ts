@@ -11,7 +11,7 @@ export class ApplicationResultBuilder extends DataBuilder<ApplicationResult> {
         : {
             id: randomBigInt(),
             params: {
-              creator: algosdk.Address.fromString(randomString(52, 52)),
+              creator: algosdk.Address.zeroAddress(),
               approvalProgram: base64ToBytes(randomString(10, 100)),
               clearStateProgram: base64ToBytes(randomString(10, 100)),
               globalState: [],
