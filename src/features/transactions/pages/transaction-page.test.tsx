@@ -1567,7 +1567,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
   })
 })
 
-describe.only('when rendering a heartbeat transaction', () => {
+describe('when rendering a heartbeat transaction', () => {
   const transaction = transactionResultMother['localnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ']().build()
 
   it('should be rendered with the correct data', () => {
@@ -1586,8 +1586,8 @@ describe.only('when rendering a heartbeat transaction', () => {
             items: [
               { term: transactionIdLabel, description: transaction.id },
               { term: transactionTypeLabel, description: 'Heartbeat' },
-              { term: transactionTimestampLabel, description: expect.any(String) },
-              { term: transactionBlockLabel, description: expect.any(String) },
+              { term: transactionTimestampLabel, description: 'Sun, 24 December 2023 17:37:51' },
+              { term: transactionBlockLabel, description: '1000' },
               { term: transactionFeeLabel, description: '0.001' },
               { term: transactionSenderLabel, description: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW' },
               { term: heartbeatAddressLabel, description: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW' },

@@ -11,8 +11,6 @@ type Props = {
 
 export const heartbeatAddressLabel = 'Address'
 
-// TODO: HB - Present the data we want to show
-
 export function HeartbeatTransactionInfo({ transaction }: Props) {
   const items = useMemo(
     () => [
