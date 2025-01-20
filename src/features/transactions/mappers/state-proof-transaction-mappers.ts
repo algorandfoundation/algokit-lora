@@ -10,15 +10,3 @@ export const asStateProofTransaction = (transactionResult: TransactionResult): S
     ...mapCommonTransactionProperties(transactionResult),
   }
 }
-
-export const asInnerStateProofTransaction = (
-  networkTransactionId: string,
-  index: string,
-  transactionResult: TransactionResult
-): InnerStateProofTransaction => {
-  const { id: _id, ...rest } = asStateProofTransaction(transactionResult)
-  return {
-    ...asInnerTransactionId(networkTransactionId, index),
-    ...rest,
-  }
-}

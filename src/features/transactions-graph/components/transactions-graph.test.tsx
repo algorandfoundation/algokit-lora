@@ -251,6 +251,28 @@ describe('group-graph', () => {
   )
 })
 
+describe('heartbeat-transaction-graph', () => {
+  describe.each([
+    {
+      transactionResult: transactionResultMother['mainnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ']().build(),
+    },
+  ])('when rendering transaction $transactionResult.id', ({ transactionResult }: { transactionResult: TransactionResult }) => {
+    it('should match snapshot', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
+      const model = asHeartbeatTransaction(transactionResult)
+      const graphData = asTransactionsGraphData([model])
+      return executeComponentTest(
+        () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
+        async (component) => {
+          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+            `__snapshots__/heartbeat-transaction-graph.${transactionResult.id}.html`
+          )
+        }
+      )
+    })
+  })
+})
+
 const createAssetResolver = (assetResults: AssetResult[]) => (assetId: bigint) => {
   const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)

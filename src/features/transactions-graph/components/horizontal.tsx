@@ -19,6 +19,7 @@ import { StateProofTransactionTooltipContent } from './state-proof-transaction-t
 import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
 import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
+import { HeartbeatTransactionTooltipContent } from './heartbeat-transaction-tooltip-content'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -42,6 +43,7 @@ const colorClassMap = {
   [TransactionType.AssetFreeze]: { border: 'border-asset-freeze', text: 'text-asset-freeze' },
   [TransactionType.KeyReg]: { border: 'border-key-registration', text: 'text-key-registration' },
   [TransactionType.StateProof]: { border: 'border-state-proof', text: 'text-state-proof' },
+  [TransactionType.Heartbeat]: { border: 'border-heartbeat', text: 'text-heartbeat' },
 }
 
 function Circle({ className, text }: { className?: string; text?: string | number }) {
@@ -81,6 +83,7 @@ function VectorLabelText({ type }: { type: LabelType }) {
   if (type === LabelType.KeyReg) return <span>Key Reg</span>
   if (type === LabelType.StateProof) return <span>State Proof</span>
   if (type === LabelType.Clawback) return <span>Clawback</span>
+  if (type === LabelType.Heartbeat) return <span>Heartbeat</span>
   return undefined
 }
 
@@ -369,6 +372,9 @@ export function Horizontal({ horizontal, verticals, bgClassName, isSimulated }: 
                 )}
                 {transaction.type === TransactionType.StateProof && (
                   <StateProofTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
+                )}
+                {transaction.type === TransactionType.Heartbeat && (
+                  <HeartbeatTransactionTooltipContent transaction={transaction} isSimulated={isSimulated} />
                 )}
               </TooltipContent>
             </Tooltip>

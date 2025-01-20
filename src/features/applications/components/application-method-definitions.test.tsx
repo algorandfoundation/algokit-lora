@@ -33,7 +33,7 @@ describe('application-method-definitions', () => {
   const localnet = algorandFixture()
   let appId: ApplicationId
 
-  beforeEach(localnet.beforeEach, 10e6)
+  beforeEach(localnet.newScope, 10e6)
   afterEach(() => {
     vitest.clearAllMocks()
   })

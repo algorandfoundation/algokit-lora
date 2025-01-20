@@ -12,7 +12,7 @@ import { groupSendResultsLabel } from './components/group-send-results'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
-  beforeEach(localnet.beforeEach, 10e6)
+  beforeEach(localnet.newScope, 10e6)
   afterEach(() => {
     vitest.clearAllMocks()
   })

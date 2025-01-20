@@ -69,6 +69,13 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         type: TransactionType.KeyReg,
       }
     }
+    case algosdk.TransactionType.hb: {
+      invariant(transactionResult['heartbeat-transaction'], 'heartbeat-transaction is not set')
+      return {
+        ...common,
+        type: TransactionType.Heartbeat,
+      }
+    }
     default:
       throw new Error(`Unknown Transaction type ${transactionResult.txType}`)
   }

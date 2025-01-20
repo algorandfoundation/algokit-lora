@@ -7,6 +7,7 @@ import { AssetFreezeTransactionDetails } from './asset-freeze-transaction-detail
 import { StateProofTransactionDetails } from './state-proof-transaction-details'
 import { KeyRegTransactionDetails } from './key-reg-transaction-details'
 import { TransactionInfo } from './transaction-info'
+import { HeartbeatTransactionDetails } from './heartbeat-transaction-details'
 
 type Props = {
   transaction: Transaction | InnerTransaction
@@ -30,6 +31,8 @@ export function TransactionDetails({ transaction }: Props) {
         <StateProofTransactionDetails transaction={transaction} />
       ) : transaction.type === TransactionType.KeyReg ? (
         <KeyRegTransactionDetails transaction={transaction} />
+      ) : transaction.type === TransactionType.Heartbeat ? (
+        <HeartbeatTransactionDetails transaction={transaction} />
       ) : undefined}
     </div>
   )

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/features/common/utils'
-import { CircleDollarSign, SquareArrowRight, Bolt, Snowflake, ShieldCheck, Key, Parentheses } from 'lucide-react'
+import { CircleDollarSign, SquareArrowRight, Bolt, Snowflake, ShieldCheck, Key, Parentheses, HeartPulse } from 'lucide-react'
 import { TransactionType } from '@/features/transactions/models'
 
 const badgeVariants = cva(
@@ -20,6 +20,7 @@ const badgeVariants = cva(
         [TransactionType.AssetFreeze]: 'border-transparent bg-asset-freeze text-primary-foreground',
         [TransactionType.StateProof]: 'border-transparent bg-state-proof text-primary-foreground',
         [TransactionType.KeyReg]: 'border-transparent bg-key-registration text-primary-foreground',
+        [TransactionType.Heartbeat]: 'border-transparent bg-heartbeat text-primary-foreground',
       },
     },
     defaultVariants: {
@@ -40,6 +41,7 @@ const transactionTypeBadgeIcon = new Map([
   [TransactionType.AssetFreeze.toString(), <Snowflake className={iconClasses} />],
   [TransactionType.StateProof.toString(), <ShieldCheck className={iconClasses} />],
   [TransactionType.KeyReg.toString(), <Key className={iconClasses} />],
+  [TransactionType.Heartbeat.toString(), <HeartPulse className={iconClasses} />],
 ])
 
 function Badge({ className, variant, children, ...props }: BadgeProps) {

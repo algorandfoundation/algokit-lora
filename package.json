@@ -59,7 +59,7 @@
     "@txnlab/use-wallet": "^4.0.0-beta.4",
     "@txnlab/use-wallet-react": "^4.0.0-beta.4",
     "@xstate/react": "^4.1.1",
-    "algosdk": "3.0.0",
+    "algosdk": "3.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",
