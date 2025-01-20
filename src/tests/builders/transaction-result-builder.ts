@@ -1,5 +1,5 @@
 import { DataBuilder, dossierProxy, randomElement, randomString, randomDateBetween } from '@makerx/ts-dossier'
-import algosdk from 'algosdk'
+import algosdk, { base64ToBytes } from 'algosdk'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { randomBigInt, randomBigIntBetween } from '@/utils/random-bigint'
 import { AssetResult } from '@/features/assets/data/types'
@@ -64,14 +64,14 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   }
 
   public heartbeatTransaction() {
-    this.thing['tx-type'] = algosdk.TransactionType.hb
-    this.thing['heartbeat-transaction'] = {
-      'hb-address': randomString(52, 52),
-      'hb-key-dilution': randomNumberBetween(1000, 10000),
-      'hb-proof': {},
-      'hb-seed': randomString(52, 52),
-      'hb-vote-id': randomString(52, 52),
-    }
+    this.thing.txType = algosdk.TransactionType.hb
+    this.thing.heartbeatTransaction = new algosdk.indexerModels.TransactionHeartbeat({
+      hbAddress: randomString(52, 52),
+      hbKeyDilution: randomBigIntBetween(1000n, 10000n),
+      hbProof: new algosdk.indexerModels.HbProofFields({}),
+      hbSeed: base64ToBytes(randomString(52, 52)),
+      hbVoteId: base64ToBytes(randomString(52, 52)),
+    })
     return this
   }
 }

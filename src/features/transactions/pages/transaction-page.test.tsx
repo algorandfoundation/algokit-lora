@@ -1583,7 +1583,7 @@ describe('when rendering a heartbeat transaction', () => {
   it('should be rendered with the correct data', () => {
     vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
     const myStore = createStore()
-    myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
+    myStore.set(transactionResultsAtom, new Map([[transaction.id!, createReadOnlyAtomAndTimestamp(transaction)]]))
 
     return executeComponentTest(
       () => {
@@ -1594,7 +1594,7 @@ describe('when rendering a heartbeat transaction', () => {
           descriptionListAssertion({
             container: component.container,
             items: [
-              { term: transactionIdLabel, description: transaction.id },
+              { term: transactionIdLabel, description: transaction.id! },
               { term: transactionTypeLabel, description: 'Heartbeat' },
               { term: transactionTimestampLabel, description: 'Sun, 24 December 2023 17:37:51' },
               { term: transactionBlockLabel, description: '1000' },

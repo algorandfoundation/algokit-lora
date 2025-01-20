@@ -70,7 +70,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
       }
     }
     case algosdk.TransactionType.hb: {
-      invariant(transactionResult['heartbeat-transaction'], 'heartbeat-transaction is not set')
+      invariant(transactionResult.heartbeatTransaction, 'heartbeat-transaction is not set')
       return {
         ...common,
         type: TransactionType.Heartbeat,

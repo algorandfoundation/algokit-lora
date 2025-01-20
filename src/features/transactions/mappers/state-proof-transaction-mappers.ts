@@ -1,6 +1,6 @@
 import { TransactionResult } from '@/features/transactions/data/types'
-import { InnerStateProofTransaction, StateProofTransaction, TransactionType } from '../models'
-import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
+import { StateProofTransaction, TransactionType } from '../models'
+import { mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 
 export const asStateProofTransaction = (transactionResult: TransactionResult): StateProofTransaction => {
   return {

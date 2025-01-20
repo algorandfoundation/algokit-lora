@@ -2,7 +2,13 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { describe, expect, it, vi } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
-import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction, asTransaction } from '../../transactions/mappers'
+import {
+  asAppCallTransaction,
+  asAssetTransferTransaction,
+  asHeartbeatTransaction,
+  asPaymentTransaction,
+  asTransaction,
+} from '../../transactions/mappers'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAssetSummary } from '@/features/assets/mappers/asset-summary'
