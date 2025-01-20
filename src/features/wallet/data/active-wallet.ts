@@ -6,14 +6,12 @@ import { Address } from '@/features/accounts/data/types'
 import { useEffect, useMemo } from 'react'
 import { atomEffect } from 'jotai-effect'
 import algosdk from 'algosdk'
-import { getNfdResultAtom } from '@/features/nfd/data/nfd-result'
 
 const activeWalletAddressAtom = atom<Promise<Address | undefined> | (Address | undefined)>(new Promise<Address | undefined>(() => {}))
 export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccount | undefined>>(async (get) => {
   const activeWalletAddress = await get(activeWalletAddressAtom)
   if (activeWalletAddress) {
-    const nfdResult = await get(getNfdResultAtom({ address: activeWalletAddress, resolveNow: true }))
-    return { nfd: nfdResult?.name ?? null, ...(await getActiveWalletAccount(activeWalletAddress)) }
+    return { nfd: null, ...(await getActiveWalletAccount(activeWalletAddress)) }
   } else {
     return undefined
   }
