@@ -2,7 +2,13 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { describe, expect, it, vi } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, prettyDOM } from '@/tests/testing-library'
-import { asAppCallTransaction, asAssetTransferTransaction, asPaymentTransaction, asTransaction } from '../../transactions/mappers'
+import {
+  asAppCallTransaction,
+  asAssetTransferTransaction,
+  asPaymentTransaction,
+  asTransaction,
+  asHeartbeatTransaction,
+} from '../../transactions/mappers'
 import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
@@ -248,6 +254,28 @@ describe('group-graph', () => {
       })
     }
   )
+})
+
+describe('heartbeat-transaction-graph', () => {
+  describe.each([
+    {
+      transactionResult: transactionResultMother['mainnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ']().build(),
+    },
+  ])('when rendering transaction $transactionResult.id', ({ transactionResult }: { transactionResult: TransactionResult }) => {
+    it('should match snapshot', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ transactionId: transactionResult.id }))
+      const model = asHeartbeatTransaction(transactionResult)
+      const graphData = asTransactionsGraphData([model])
+      return executeComponentTest(
+        () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
+        async (component) => {
+          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+            `__snapshots__/heartbeat-transaction-graph.${transactionResult.id}.html`
+          )
+        }
+      )
+    })
+  })
 })
 
 const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {

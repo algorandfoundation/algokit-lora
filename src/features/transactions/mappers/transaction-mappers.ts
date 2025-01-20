@@ -14,6 +14,7 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { getGroupResultAtom } from '@/features/groups/data/group-result'
 import { DecodedAbiMethod } from '@/features/abi-methods/models'
+import { asHeartbeatTransaction } from './heartbeat-transaction-mappers'
 
 export const asTransaction = (
   transactionResult: TransactionResult,
@@ -44,6 +45,9 @@ export const asTransaction = (
     }
     case algosdk.TransactionType.keyreg: {
       return asKeyRegTransaction(transactionResult)
+    }
+    case algosdk.TransactionType.hb: {
+      return asHeartbeatTransaction(transactionResult)
     }
     default:
       throw new Error(`Unknown transaction type ${transactionResult['tx-type']}`)

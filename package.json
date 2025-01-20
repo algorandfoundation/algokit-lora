@@ -24,7 +24,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-subscriber": "^2.1.0",
+    "@algorandfoundation/algokit-subscriber": "^2.2.0",
     "@algorandfoundation/algokit-utils": "^7.0.0",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.1.6",
@@ -60,7 +60,7 @@
     "@txnlab/use-wallet": "^3.11.0",
     "@txnlab/use-wallet-react": "^3.11.0",
     "@xstate/react": "^4.1.1",
-    "algosdk": "2.9.0",
+    "algosdk": "2.10.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",

@@ -20,7 +20,7 @@ describe('application-page on localnet', () => {
       vitest.clearAllMocks()
     })
 
-    beforeEach(localnet.beforeEach, 10e6)
+    beforeEach(localnet.newScope, 10e6)
     afterEach(() => {
       vitest.clearAllMocks()
     })

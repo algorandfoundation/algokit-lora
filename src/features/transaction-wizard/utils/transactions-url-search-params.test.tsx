@@ -27,7 +27,7 @@ const renderTxnsWizardPageWithSearchParams = ({ searchParams }: { searchParams: 
 
 describe('Render transactions page with search params', () => {
   const localnet = algorandFixture()
-  beforeEach(localnet.beforeEach, 10e6)
+  beforeEach(localnet.newScope, 10e6)
   afterEach(() => {
     vitest.clearAllMocks()
   })

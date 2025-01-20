@@ -59,6 +59,9 @@
     --key-registration: 107 94 9;
     --key-registration-foreground: 255 255 255;
 
+    --heartbeat: 222 204 0;
+    --heartbeat-foreground: 255 255 255;
+
     --error: 203 69 83;
     --error-foreground: 255 255 255;
 
@@ -123,6 +126,9 @@
 
     --key-registration: 164 144 20;
     --key-registration-foreground: 0 19 36;
+
+    --heartbeat: 255 234 0;
+    --heartbeat-foreground: 255 255 255;
 
     --error: 203 69 83;
     --error-foreground: 255 255 255;

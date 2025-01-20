@@ -28,6 +28,7 @@ export enum TransactionType {
   AssetFreeze = 'Asset Freeze',
   StateProof = 'State Proof',
   KeyReg = 'Key Registration',
+  Heartbeat = 'Heartbeat',
 }
 
 export enum AssetTransferTransactionSubType {
@@ -81,6 +82,7 @@ export type Transaction =
   | AssetFreezeTransaction
   | StateProofTransaction
   | KeyRegTransaction
+  | HeartbeatTransaction
 
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type' | 'fee'> & {
   id: string
@@ -194,7 +196,6 @@ export type InnerTransaction =
   | InnerAssetConfigTransaction
   | InnerAssetFreezeTransaction
   | InnerKeyRegTransaction
-  | InnerStateProofTransaction
 
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
@@ -250,8 +251,6 @@ export type StateProofTransaction = CommonTransactionProperties & {
   id: string
 }
 
-export type InnerStateProofTransaction = Omit<StateProofTransaction, 'id'> & InnerTransactionId
-
 export type BaseKeyRegTransaction = CommonTransactionProperties & {
   type: TransactionType.KeyReg
   subType: KeyRegTransactionSubType
@@ -274,3 +273,10 @@ export type KeyRegTransaction = BaseKeyRegTransaction & {
 }
 
 export type InnerKeyRegTransaction = BaseKeyRegTransaction & InnerTransactionId
+
+export type HeartbeatTransaction = CommonTransactionProperties & {
+  type: TransactionType.Heartbeat
+  subType: undefined
+  id: string
+  address: Address
+}

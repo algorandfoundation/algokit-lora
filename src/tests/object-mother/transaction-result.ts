@@ -63,6 +63,73 @@ export const transactionResultMother = {
         },
       })
   },
+  ['mainnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ']: () => {
+    return new TransactionResultBuilder({
+      id: 'HEARTBEATHS44RJ4BQ6HOMWZCGOJW5WWOQ5CR7XHSZHFP2ZQCDOA',
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'confirmed-round': 34675056,
+      fee: 1000,
+      'first-valid': 34675052,
+      'genesis-hash': 'wGHE2Pwdvd7S12BL5FaOP20EGYesN73ktiC1qzkkit8=',
+      'genesis-id': 'mainnet-v1.0',
+      'intra-round-offset': 26,
+      'last-valid': 34676052,
+      'heartbeat-transaction': {
+        'hb-address': '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E',
+        'hb-key-dilution': 1001,
+        'hb-proof': {
+          'hb-pk': '6BDFpmMdLXhssJ9fCdVdnClCHe69LqnD70jik+AHANM=',
+          'hb-pk1sig': 'IxENwM5zMaRkpeD/Iey3hunGVyVVV7c8c9b/p30ISn4t7NeRDwduAJtrL0IN29b32+Iw+aRDxSCDCZQfXGG3Ag==',
+          'hb-pk2': 'EMBIuwJ9FOl7dce/JBgUJloa1DQwCIv+aVN6bxO4AF0=',
+          'hb-pk2sig': 'Uj5lV61RtbCl0WjmeX+6AKAX93unmpjXxw7QST+np0VQhiei0qcp0feKj1oz8tEJScB/vHtvQM4uC8yNELBMCQ==',
+          'hb-sig': 'NGIPT/Q+2EaBkU/wPOK0bJrQdc2TNj08IaZRZxrL4tJnq1vT87p6m2kF5wYyrPK4cdhhaw4pK7lxPOlKQ+YHAg==',
+        },
+        'hb-seed': 'OU1+MWj4jCD4xstyaYpS/6ec7aHxqaQpdJO1h3e3Uu0=',
+        'hb-vote-id': 'wibDDqw0IqhBTI4Kz7bBGC1KU4rpjVyLH75aXWnQ8Q8=',
+      },
+      'receiver-rewards': 0,
+      'round-time': 1703439471,
+      sender: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW',
+      'sender-rewards': 0,
+      signature: {
+        sig: 'HEARTBEATSIGNATURE123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ==',
+      },
+      'tx-type': TransactionType.hb,
+    })
+  },
+  'localnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ': () => {
+    return new TransactionResultBuilder({
+      'confirmed-round': 1000,
+      fee: 1000,
+      'first-valid': 34675052,
+      'genesis-hash': 'x9maOhZVCNkkZCgV6CcLpxd1ZgIgHwuAfg6fdG2FJo8=',
+      'genesis-id': 'dockernet-v1',
+      'heartbeat-transaction': {
+        'hb-address': '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E',
+        'hb-key-dilution': 1001,
+        'hb-proof': {
+          'hb-pk': '6BDFpmMdLXhssJ9fCdVdnClCHe69LqnD70jik+AHANM=',
+          'hb-pk1sig': 'IxENwM5zMaRkpeD/Iey3hunGVyVVV7c8c9b/p30ISn4t7NeRDwduAJtrL0IN29b32+Iw+aRDxSCDCZQfXGG3Ag==',
+          'hb-pk2': 'EMBIuwJ9FOl7dce/JBgUJloa1DQwCIv+aVN6bxO4AF0=',
+          'hb-pk2sig': 'Uj5lV61RtbCl0WjmeX+6AKAX93unmpjXxw7QST+np0VQhiei0qcp0feKj1oz8tEJScB/vHtvQM4uC8yNELBMCQ==',
+          'hb-sig': 'NGIPT/Q+2EaBkU/wPOK0bJrQdc2TNj08IaZRZxrL4tJnq1vT87p6m2kF5wYyrPK4cdhhaw4pK7lxPOlKQ+YHAg==',
+        },
+        'hb-seed': 'OU1+MWj4jCD4xstyaYpS/6ec7aHxqaQpdJO1h3e3Uu0=',
+        'hb-vote-id': 'wibDDqw0IqhBTI4Kz7bBGC1KU4rpjVyLH75aXWnQ8Q8=',
+      },
+      id: 'HEARTBEATHS44RJ4BQ6HOMWZCGOJW5WWOQ5CR7XHSZHFP2ZQCDOA',
+      'last-valid': 34676052,
+      'round-time': 1703439471,
+      sender: 'GAU5WA6DT2EPFS6LKOA333BQP67NXIHZ7JPOOHMZWJDPZRL4XMHDDDUCKA',
+      'tx-type': TransactionType.hb,
+      'close-rewards': 0,
+      'closing-amount': 0,
+      'intra-round-offset': 0,
+      'receiver-rewards': 0,
+      'sender-rewards': 0,
+    })
+  },
   ['mainnet-FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ']: () => {
     return new TransactionResultBuilder({
       id: 'FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ',
