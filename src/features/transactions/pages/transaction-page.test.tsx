@@ -1589,8 +1589,8 @@ describe('when rendering a heartbeat transaction', () => {
               { term: transactionTimestampLabel, description: 'Sun, 24 December 2023 17:37:51' },
               { term: transactionBlockLabel, description: '1000' },
               { term: transactionFeeLabel, description: '0.001' },
-              { term: transactionSenderLabel, description: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW' },
-              { term: heartbeatAddressLabel, description: 'HEARTBEATADDRESS123456789ABCDEFGHIJKLMNOPQRSTUVW' },
+              { term: transactionSenderLabel, description: 'GAU5WA6DT2EPFS6LKOA333BQP67NXIHZ7JPOOHMZWJDPZRL4XMHDDDUCKA' },
+              { term: heartbeatAddressLabel, description: '3WPMTZURXXNEB6CWHGHXQUSESVHYE3HK4G4XDW475BWSZBAUTW5YR7CY4E' },
             ],
           })
         })

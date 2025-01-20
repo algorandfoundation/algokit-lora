@@ -17,7 +17,7 @@ import { getByRole } from '@testing-library/react'
 
 describe('create-app-interface', () => {
   const localnet = algorandFixture()
-  beforeEach(localnet.beforeEach, 10e6)
+  beforeEach(localnet.newScope, 10e6)
   afterEach(() => {
     vitest.clearAllMocks()
   })
