@@ -1,3 +1,4 @@
+import { Address } from 'algosdk'
 import { uint8ArrayToBase64 } from './uint8-array-to-base64'
 
 const toKebabCase = (str: string) =>
@@ -10,6 +11,10 @@ export const normaliseAlgoSdkData = (obj: unknown): unknown => {
 
   if (obj instanceof Uint8Array) {
     return uint8ArrayToBase64(obj)
+  }
+
+  if (obj instanceof Address) {
+    return obj.toString()
   }
 
   if (obj != null && typeof obj === 'object') {

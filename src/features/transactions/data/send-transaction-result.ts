@@ -53,7 +53,6 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
     invariant(confirmation.txn.txn.genesisHash, 'Genesis hash is required')
     invariant(confirmation.txn.txn.genesisID, 'Genesis ID is required')
 
-    // TODO: PD - test
     const txnResult = getIndexerTransactionFromAlgodTransaction({
       signedTxnWithAD: asSignedTxnWithAD(confirmation),
       rootIntraRoundOffset: 0,

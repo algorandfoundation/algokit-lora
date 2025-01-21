@@ -24,7 +24,6 @@ export type TransactionResult = Omit<
     algosdk.indexerModels.TransactionApplication,
     'getEncodingSchema' | 'toEncodingData' | 'globalStateSchema' | 'localStateSchema' | 'applicationId'
   > & {
-    // TODO: PD - review this
     // algod returns undefined for application-id when creating an application
     applicationId?: bigint
     globalStateSchema?: Omit<algosdk.indexerModels.StateSchema, 'getEncodingSchema' | 'toEncodingData'>

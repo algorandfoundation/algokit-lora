@@ -79,16 +79,22 @@ const subscriberAtom = atom(null, (get, set) => {
     algod
   )
 
-  const reduceAllTransactions = (acc: BalanceChange[], transaction: SubscribedTransaction): BalanceChange[] => {
+  const reduceInnerTransactionsAndAccummulateBalanceChanges = (
+    acc: BalanceChange[],
+    transaction: SubscribedTransaction
+  ): BalanceChange[] => {
     if (transaction.balanceChanges && transaction.balanceChanges.length > 0) {
       acc.push(...transaction.balanceChanges)
     }
-    transaction.id = ''
+    // Remove id and parentTransactionId for inner transactions to match with indexer
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(transaction as any).id = undefined
+    transaction.parentTransactionId = undefined
     transaction.balanceChanges = undefined
     transaction.filtersMatched = undefined
     transaction.arc28Events = undefined
 
-    return (transaction.innerTxns ?? []).reduce(reduceAllTransactions, acc)
+    return (transaction.innerTxns ?? []).reduce(reduceInnerTransactionsAndAccummulateBalanceChanges, acc)
   }
 
   subscriber.onPoll(async (result) => {
@@ -113,7 +119,10 @@ const subscriberAtom = atom(null, (get, set) => {
             const round = t.confirmedRound
             // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
             const { filtersMatched: _filtersMatched, balanceChanges: _balanceChanges, arc28Events: _arc28Events, ...transaction } = t
-            const balanceChanges = (transaction.innerTxns ?? []).reduce(reduceAllTransactions, _balanceChanges ?? [])
+            const balanceChanges = (transaction.innerTxns ?? []).reduce(
+              reduceInnerTransactionsAndAccummulateBalanceChanges,
+              _balanceChanges ?? []
+            )
 
             // Accumulate transaction ids by round
             acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id!))
@@ -228,18 +237,18 @@ const subscriberAtom = atom(null, (get, set) => {
           : undefined),
         ...(b.upgradeVote
           ? {
-              'upgrade-vote': {
-                'upgrade-approve': b.upgradeVote.upgradeApprove ?? false,
-                'upgrade-delay': b.upgradeVote.upgradeDelay ?? 0,
-                'upgrade-propose': b.upgradeVote.upgradePropose,
+              upgradeVote: {
+                upgradeApprove: b.upgradeVote.upgradeApprove ?? false,
+                upgradeDelay: b.upgradeVote.upgradeDelay ?? 0,
+                upgradePropose: b.upgradeVote.upgradePropose,
               },
             }
           : undefined),
         ...(b.participationUpdates
           ? {
-              'participation-updates': {
-                'absent-participation-accounts': b.participationUpdates.absentParticipationAccounts,
-                'expired-participation-accounts': b.participationUpdates.expiredParticipationAccounts,
+              participationUpdates: {
+                absentParticipationAccounts: b.participationUpdates.absentParticipationAccounts,
+                expiredParticipationAccounts: b.participationUpdates.expiredParticipationAccounts,
               },
             }
           : undefined),

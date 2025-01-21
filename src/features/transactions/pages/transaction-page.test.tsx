@@ -1177,9 +1177,6 @@ describe('transaction-page', () => {
     })
   })
 
-  // TODO: PD - show uint8array as base64 in transaction JSON. This JSON should match indexer JSON.
-  // TODO: PD Invalid decoded StateProof: [object Object]
-
   describe('when rendering a key registration transaction (online)', () => {
     const transaction = transactionResultMother['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']().build()
 

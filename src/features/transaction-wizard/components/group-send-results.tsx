@@ -7,7 +7,7 @@ import { TransactionsGraph, TransactionsGraphData } from '@/features/transaction
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { AppCallTransaction } from '@/features/transactions/models'
-import { asJson } from '@/utils/as-json'
+import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import algosdk from 'algosdk'
 import { Download } from 'lucide-react'
 import { useCallback } from 'react'
@@ -76,9 +76,8 @@ const buildSimulateTraceFilename = (simulateResponse: algosdk.modelsv2.SimulateR
 export function GroupSendResults({ transactionGraph, transactionGraphBgClassName, sentAppCalls, simulateResponse }: Props) {
   const downloadSimulateTrace = useCallback(async () => {
     if (!simulateResponse) return
-
-    // TODO: PD - test
-    const file = new Blob([asJson(simulateResponse.toEncodingData())], { type: 'application/json' })
+    // TODO: PD - match simulate trace
+    const file = new Blob([asJson(normaliseAlgoSdkData(simulateResponse))], { type: 'application/json' })
     await downloadFile(buildSimulateTraceFilename(simulateResponse), file)
   }, [simulateResponse])
 
