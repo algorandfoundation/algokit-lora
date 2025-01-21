@@ -5,6 +5,7 @@ import { asTransactionsSummary } from '@/features/transactions/mappers'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { TransactionResult } from '@/features/transactions/data/types'
+import { SubscribedTransaction } from '@algorandfoundation/algokit-subscriber/types/subscription'
 
 const asCommonBlock = (block: BlockResult, transactions: (Transaction | TransactionSummary)[]): CommonBlockProperties => {
   return {
@@ -40,4 +41,42 @@ export const asBlock = (
     ),
     proposer: block.proposer,
   }
+}
+
+export const asTransactionResult = (subscribedTransaction: SubscribedTransaction): TransactionResult => {
+  const {
+    getEncodingSchema: _getEncodingSchema,
+    toEncodingData: _toEncodingData,
+    filtersMatched: _filtersMatched,
+    balanceChanges: _balanceChanges,
+    arc28Events: _arc28Events,
+    ...transaction
+  } = subscribedTransaction
+
+  const innerTransactions = (transaction.innerTxns ?? []).map((innerTransaction) =>
+    asInnerTransactionResult(innerTransaction, transaction.intraRoundOffset ?? 0)
+  )
+
+  return {
+    ...transaction,
+    innerTxns: innerTransactions,
+  }
+}
+
+const asInnerTransactionResult = (subscribedTransaction: SubscribedTransaction, rootIntraRoundOffset: number): TransactionResult => {
+  const {
+    getEncodingSchema: _getEncodingSchema,
+    toEncodingData: _toEncodingData,
+    filtersMatched: _filtersMatched,
+    balanceChanges: _balanceChanges,
+    arc28Events: _arc28Events,
+    id: _id,
+    parentTransactionId: _parentTransactionId,
+    ...transaction
+  } = subscribedTransaction
+
+  const innerTransactions = (transaction.innerTxns ?? []).map((innerTransaction) =>
+    asInnerTransactionResult(innerTransaction, rootIntraRoundOffset)
+  )
+  return { ...transaction, intraRoundOffset: rootIntraRoundOffset, innerTxns: innerTransactions }
 }

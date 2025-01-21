@@ -26,6 +26,7 @@ import { asError } from '@/utils/error'
 import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { asTransactionResult } from '../mappers'
 
 const notStartedSubscriberStatus = { state: SubscriberState.NotStarted } satisfies SubscriberStatus
 const startedSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
@@ -79,24 +80,6 @@ const subscriberAtom = atom(null, (get, set) => {
     algod
   )
 
-  const reduceInnerTransactionsAndAccummulateBalanceChanges = (
-    acc: BalanceChange[],
-    transaction: SubscribedTransaction
-  ): BalanceChange[] => {
-    if (transaction.balanceChanges && transaction.balanceChanges.length > 0) {
-      acc.push(...transaction.balanceChanges)
-    }
-    // Remove id and parentTransactionId for inner transactions to match with indexer
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(transaction as any).id = undefined
-    transaction.parentTransactionId = undefined
-    transaction.balanceChanges = undefined
-    transaction.filtersMatched = undefined
-    transaction.arc28Events = undefined
-
-    return (transaction.innerTxns ?? []).reduce(reduceInnerTransactionsAndAccummulateBalanceChanges, acc)
-  }
-
   subscriber.onPoll(async (result) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
       return
@@ -117,12 +100,9 @@ const subscriberAtom = atom(null, (get, set) => {
         (acc, t) => {
           if (!t.parentTransactionId && t.confirmedRound != null) {
             const round = t.confirmedRound
-            // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
-            const { filtersMatched: _filtersMatched, balanceChanges: _balanceChanges, arc28Events: _arc28Events, ...transaction } = t
-            const balanceChanges = (transaction.innerTxns ?? []).reduce(
-              reduceInnerTransactionsAndAccummulateBalanceChanges,
-              _balanceChanges ?? []
-            )
+
+            const balanceChanges = extractBalanceChanges(t)
+            const transaction = asTransactionResult(t)
 
             // Accumulate transaction ids by round
             acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id!))
@@ -363,4 +343,9 @@ const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
   const isAppCreate = appCallTransaction.onCompletion === ApplicationOnComplete.noop && !appCallTransaction.applicationId
   const isAppOptIn = appCallTransaction.onCompletion === ApplicationOnComplete.optin && appCallTransaction.applicationId
   return isAppCreate || isAppOptIn
+}
+
+const extractBalanceChanges = (txn: SubscribedTransaction): BalanceChange[] => {
+  const innerTxnsBalanceChanges = (txn.innerTxns ?? []).flatMap((innerTxn) => extractBalanceChanges(innerTxn)) ?? []
+  return [...(txn.balanceChanges ?? []), ...innerTxnsBalanceChanges]
 }
