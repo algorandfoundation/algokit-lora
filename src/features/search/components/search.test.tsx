@@ -86,19 +86,19 @@ describe('search', () => {
         return executeComponentTest(
           () => render(<Search />, undefined, myStore),
           async (component, user) => {
-            const input = component.getByPlaceholderText(searchPlaceholderLabel)
-            await user.type(input, id)
-            const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
-            results.forEach((result) => {
-              const link = result!.querySelector('a')
-              const linkText = link?.textContent || ''
-              expect(linkText.substring(0, 3)).toBe(id.substring(0, 3))
-            })
-            const result = results.find((result) => result!.textContent!.includes(type))!
-            await user.click(result)
-
             await waitFor(
               async () => {
+                const input = component.getByPlaceholderText(searchPlaceholderLabel)
+                await user.type(input, id)
+
+                const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
+                results.forEach((result) => {
+                  const link = result!.querySelector('a')
+                  expect(link).toHaveTextContent(label)
+                })
+
+                const result = results.find((result) => result!.textContent!.includes(type))!
+                await user.click(result)
                 expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
               },
               { timeout: 10000 }
