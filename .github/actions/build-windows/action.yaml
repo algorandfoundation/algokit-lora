@@ -2,12 +2,16 @@ name: 'Build for Windows'
 description: 'Build for Windows'
 inputs:
   production-release:
-    description: 'Production release?'
+    description: 'Whether this is a production release'
     required: true
   release-version:
     description: 'The release version'
-  package_name:
-    description: 'The name of the package'
+    required: true
+  release-tag:
+    description: 'The release tag'
+    required: true
+  crabnebula-release-id:
+    description: 'The CrabNebula release ID'
     required: true
   azure_tenant_id:
     description: 'The Microsoft Entra tenant (directory) ID.'
@@ -18,23 +22,39 @@ inputs:
   azure_client_secret:
     description: 'A client secret that was generated for the App Registration.'
     required: true
+  tauri-signing-private-key:
+    description: 'The Tauri signing private key'
+    required: true
+  tauri-signing-private-key-password:
+    description: 'The Tauri signing private key password'
+    required: true
+  tauri-signing-public-key:
+    description: 'The Tauri signing public key'
+    required: true
+  crabnebula-org-name:
+    description: 'The CrabNebula org name'
+    required: true
+  crabnebula-app-name:
+    description: 'The CrabNebula app name'
+    required: true
+  crabnebula-api-key:
+    description: 'The CrabNebula API key'
+    required: true
 
 runs:
   using: 'composite'
   steps:
-    - name: Get artifact name
-      id: set-env
-      run: |
-        echo "artifact_name=algokit-lora-windows-${{ runner.arch }}" >> $GITHUB_OUTPUT
-      shell: bash
-
-    - name: Bump version in tauri.conf.json and Cargo files
+    - name: Setup tauri.conf.json
       if: ${{ inputs.release-version != '' }}
       run: |
-        version="${{ inputs.release-version }}"
-        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
-        sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.toml"
-        sed -i "s/version = \"0.0.0\"/version = \"$version\"/g" "src-tauri/Cargo.lock"
+        input_version="${{ inputs.release-version }}"
+        version="${input_version/beta./""}"
+        sed -i "s/\"version\": \"0.1.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
+        sed -i "s/\"createUpdaterArtifacts\": false/\"createUpdaterArtifacts\": true/g" "src-tauri/tauri.conf.json"
+        sed -i "s/CN_ORG_NAME/${{ inputs.crabnebula-org-name }}/g" "src-tauri/tauri.conf.json"
+        sed -i "s/CN_APP_NAME/${{ inputs.crabnebula-app-name }}/g" "src-tauri/tauri.conf.json"
+        sed -i "s/CN_CHANNEL/${{ inputs.production-release != 'true' && '?channel=beta' || '' }}/g" "src-tauri/tauri.conf.json"
+        sed -i "s/TAURI_SIGNING_PUBLIC_KEY/${{ inputs.tauri-signing-public-key }}/g" "src-tauri/tauri.conf.json"
       shell: bash
 
     # Create a dummy file to sign, so we can install the signing tools without any errors
@@ -76,6 +96,8 @@ runs:
         AZURE_TENANT_ID: ${{ inputs.azure_tenant_id }}
         AZURE_CLIENT_ID: ${{ inputs.azure_client_id }}
         AZURE_CLIENT_SECRET: ${{ inputs.azure_client_secret }}
+        TAURI_SIGNING_PRIVATE_KEY: ${{ inputs.tauri-signing-private-key }}
+        TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ inputs.tauri-signing-private-key-password }}
       run: |
         npm run tauri build
       shell: pwsh
@@ -95,9 +117,18 @@ runs:
         timestamp-rfc3161: http://timestamp.acs.microsoft.com
         timestamp-digest: SHA256
 
-    - name: Upload installer artifact
-      uses: actions/upload-artifact@v4
+    - name: Upload artifacts to release
+      uses: softprops/action-gh-release@v1
       with:
-        if-no-files-found: error
-        name: ${{ steps.set-env.outputs.artifact_name }}
-        path: ${{ github.workspace }}\src-tauri\target\release\bundle\msi\algokit-lora*.msi
+        fail_on_unmatched_files: true
+        files: |
+          src-tauri/target/release/bundle/msi/algokit-lora*.msi
+          src-tauri/target/release/bundle/nsis/algokit-lora*.exe
+        tag_name: ${{ inputs.release-tag }}
+        prerelease: ${{ inputs.production-release != 'true' }}
+
+    - name: Upload artifacts to CrabNebula
+      uses: crabnebula-dev/cloud-release@v0.2.0
+      with:
+        command: release upload "${{ inputs.crabnebula-org-name }}/${{ inputs.crabnebula-app-name }}" "${{ inputs.crabnebula-release-id }}" --framework tauri ${{ inputs.production-release != 'true' && '--channel beta' || '' }}
+        api-key: ${{ inputs.crabnebula-api-key }}

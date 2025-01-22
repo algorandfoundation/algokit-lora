@@ -12,6 +12,9 @@
     "cli:default",
     "dialog:default",
     "fs:write-files",
-    "shell:default"
+    "shell:default",
+    "updater:default",
+    "process:default",
+    "process:allow-restart"
   ]
 }

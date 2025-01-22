@@ -39,23 +39,15 @@ runs:
 
     - name: Get next version (dry run)
       id: get-next-version
-      run: npx semantic-release --dry-run
+      run: npx semantic-release --dry-run ${{ inputs.production-release == 'true' && '--branches main' || '' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       shell: bash
 
-    - name: Create release - beta
-      if: ${{ inputs.production-release != 'true' }}
+    - name: Create release ${{ inputs.production-release == 'true' && '' || 'beta' }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-      run: 'npx semantic-release'
-      shell: bash
-
-    - name: Create release
-      if: ${{ inputs.production-release == 'true' }}
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-      run: 'npx semantic-release --branches main'
+      run: npx semantic-release ${{ inputs.production-release == 'true' && '--branches main' || '' }}
       shell: bash
 
     - name: Get release tag
@@ -73,6 +65,6 @@ runs:
           const { data } = await github.rest.repos.getReleaseByTag({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            tag: "${{ steps.get-release-tag.outputs.release-tag }}"
+            tag: "${{ steps.get-next-version.outputs.new-release-git-tag }}"
           })
           return data.id
