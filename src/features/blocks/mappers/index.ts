@@ -53,9 +53,7 @@ export const asTransactionResult = (subscribedTransaction: SubscribedTransaction
     ...transaction
   } = subscribedTransaction
 
-  const innerTransactions = (transaction.innerTxns ?? []).map((innerTransaction) =>
-    asInnerTransactionResult(innerTransaction, transaction.intraRoundOffset ?? 0)
-  )
+  const innerTransactions = transaction.innerTxns?.map((innerTransaction) => asInnerTransactionResult(innerTransaction))
 
   return {
     ...transaction,
@@ -63,7 +61,7 @@ export const asTransactionResult = (subscribedTransaction: SubscribedTransaction
   }
 }
 
-const asInnerTransactionResult = (subscribedTransaction: SubscribedTransaction, rootIntraRoundOffset: number): TransactionResult => {
+const asInnerTransactionResult = (subscribedTransaction: SubscribedTransaction): TransactionResult => {
   const {
     getEncodingSchema: _getEncodingSchema,
     toEncodingData: _toEncodingData,
@@ -75,8 +73,6 @@ const asInnerTransactionResult = (subscribedTransaction: SubscribedTransaction, 
     ...transaction
   } = subscribedTransaction
 
-  const innerTransactions = (transaction.innerTxns ?? []).map((innerTransaction) =>
-    asInnerTransactionResult(innerTransaction, rootIntraRoundOffset)
-  )
-  return { ...transaction, intraRoundOffset: rootIntraRoundOffset, innerTxns: innerTransactions }
+  const innerTransactions = transaction.innerTxns?.map((innerTransaction) => asInnerTransactionResult(innerTransaction))
+  return { ...transaction, intraRoundOffset: subscribedTransaction.parentIntraRoundOffset, innerTxns: innerTransactions }
 }

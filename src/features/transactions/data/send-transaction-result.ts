@@ -55,7 +55,6 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
 
     const txnResult = getIndexerTransactionFromAlgodTransaction({
       signedTxnWithAD: asSignedTxnWithAD(confirmation),
-      rootIntraRoundOffset: 0,
       intraRoundOffset: 0,
       transactionId: confirmation.txn.txn.txID(),
       genesisHash: Buffer.from(confirmation.txn.txn.genesisHash),
