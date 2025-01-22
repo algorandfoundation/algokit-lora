@@ -1,14 +1,6 @@
 name: Release
 
 on:
-  #  push:
-  #    branches:
-  #      - main
-  #    paths-ignore:
-  #      - 'docs/**'
-  #      - '**.md'
-  #      - '.vscode/**'
-  #      - '.idea/**'
   workflow_dispatch:
     inputs:
       production-release:
@@ -24,56 +16,45 @@ permissions:
   pull-requests: write # to be able to comment on released pull requests
   packages: read
 
+env:
+  PRODUCTION_RELEASE: ${{ github.ref_name == 'main' && inputs.production-release == 'true' }}
+
 jobs:
-  ci:
-    name: CI
-    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
-    with:
-      working-directory: .
-      node-version: 20.x
-      audit-script: npm run audit
-      compile-script: npm run check-types
-      test-script: npm run test
-      pre-test-script: |
-        pipx install algokit
-        algokit localnet start
-        npx --yes wait-on tcp:4001 -t 30000
-
-  build-website:
-    name: Build Website
-    uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
-    with:
-      node-version: 20.x
-      build-path: dist
-      artifact-name: website
-      static-site: true
-      static-site-env-prefix: VITE
-    needs:
-      - ci
-
   create-release:
-    runs-on: [ubuntu-20.04]
+    runs-on: [ubuntu-22.04]
     name: Create release
-    needs:
-      - ci
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Create release
-        id: create-release-action
+      - name: Create GitHub release
         uses: ./.github/actions/create-release
+        id: create-github-release
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          production-release: ${{ github.ref_name == 'main' && inputs.production-release == 'true' }}
+          production-release: ${{ env.PRODUCTION_RELEASE }}
           node-version: 20
 
+      - name: Create draft CrabNebula release
+        uses: crabnebula-dev/cloud-release@v0.2.0
+        id: create-crabnebula-release
+        if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
+        with:
+          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ env.PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
+          api-key: ${{ secrets.CN_API_KEY }}
+
+      - name: Get CrabNebula release ID
+        id: get-crabnebula-release-id
+        if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
+        run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
+
     outputs:
-      release-published: ${{ steps.create-release-action.outputs.release-published }}
-      release-version: ${{ steps.create-release-action.outputs.release-version }}
-      release-tag: ${{ steps.create-release-action.outputs.release-tag }}
-      release-id: ${{ steps.create-release-action.outputs.release-id }}
+      release-published: ${{ steps.create-github-release.outputs.release-published }}
+      release-version: ${{ steps.create-github-release.outputs.release-version }}
+      release-tag: ${{ steps.create-github-release.outputs.release-tag }}
+      release-id: ${{ steps.create-github-release.outputs.release-id }}
+      crabnebula-release-id: ${{ steps.get-crabnebula-release-id.outputs.release-id }}
 
   build-tauri:
     name: Build Tauri app
@@ -82,8 +63,9 @@ jobs:
     runs-on: ${{ matrix.platform }}
     strategy:
       matrix:
-        # macos-14 is the Apple Silicon M1 runner
-        platform: [ubuntu-22.04, windows-latest, 'macos-12', 'macos-14']
+        # macos-14 is the Apple Arm runner
+        # macos-13 is the Apple Intel runner
+        platform: [ubuntu-22.04, windows-latest, macos-13, macos-14]
     if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
@@ -124,98 +106,70 @@ jobs:
         uses: ./.github/actions/build-linux
         with:
           release-version: ${{ needs.create-release.outputs.release-version }}
+          release-tag: ${{ needs.create-release.outputs.release-tag }}
+          production-release: ${{ env.PRODUCTION_RELEASE  }}
+          crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
+          appimage-signing-private-key: ${{ secrets.APPIMAGE_SIGNING_PRIVATE_KEY }}
+          appimage-signing-private-key-password: ${{ secrets.APPIMAGE_SIGNING_PRIVATE_KEY_PASSWORD }}
+          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
+          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
+          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Build for Windows
         id: build-windows
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/build-windows
         with:
-          production-release: ${{ inputs.production-release }}
           release-version: ${{ needs.create-release.outputs.release-version }}
+          release-tag: ${{ needs.create-release.outputs.release-tag }}
+          production-release: ${{ env.PRODUCTION_RELEASE  }}
+          crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
           package_name: algokit-lora
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
+          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
+          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Build for Mac
         id: build-mac
         if: ${{ runner.os == 'macOS' }}
         uses: ./.github/actions/build-mac
         with:
-          production-release: ${{ inputs.production-release }}
           release-version: ${{ needs.create-release.outputs.release-version }}
-    outputs:
-      linux-artifact-name: ${{ steps.build-linux.outputs.artifact-name }}
+          release-tag: ${{ needs.create-release.outputs.release-tag }}
+          production-release: ${{ env.PRODUCTION_RELEASE  }}
+          crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
+          apple-certificate: ${{ secrets.APPLE_CERTIFICATE }}
+          apple-certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+          apple-id: ${{ secrets.APPLE_ID }}
+          apple-password: ${{ secrets.APPLE_PASSWORD }}
+          apple-team-id: ${{ secrets.APPLE_TEAM_ID }}
+          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
+          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
+          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
 
-  deploy-website-staging:
-    name: Publish Website to Staging
-    needs:
-      - build-website
-    runs-on: [ubuntu-22.04]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: website
-          path: artifacts
-
-      - name: Unzip
-        run: |
-          cd artifacts
-          mkdir -p website
-          unzip website.zip -d website
-
-      - name: Apply Staging Transforms
-        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms@main
-        with:
-          app-artifact-path: artifacts/website
-          static-site-transforms: |-
-            VITE_DISPENSER_AUTH0_DOMAIN:dispenser-staging.eu.auth0.com
-            VITE_DISPENSER_AUTH0_CLIENT_ID:pSffrx40HwIdWAJFeGCsy5FZn2NzYIvO
-            VITE_DISPENSER_AUTH0_AUDIENCE:api-staging-dispenser-user
-            VITE_TESTNET_DISPENSER_API_URL:https://api.dispenser-dev.algorandfoundation.tools
-            VITE_TESTNET_DISPENSER_ADDRESS:A3Q4VQFQ5DLEIWCMUX6V7YFZ7BUPWUXWY4YVNJQODUODSQ7KVEFOZUNFUQ
-
-      - name: Deploy website to Netlify
-        run: |
-          npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --alias staging
-
-  publish-app:
-    name: Publish
+  publish-crabnebula:
+    name: Publish CrabNebula release
     needs:
       - create-release
       - build-tauri
-    runs-on: [ubuntu-20.04]
-    if: ${{ inputs.production-release == 'true' }}
+    runs-on: [ubuntu-22.04]
+    if: ${{ needs.create-release.outputs.release-published == 'true' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Publish CrabNebula release
+        uses: crabnebula-dev/cloud-release@v0.2.0
         with:
-          fetch-depth: 0
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-
-      - name: Publish to Snap
-        uses: ./.github/actions/publish-to-snap
-        with:
-          release-version: ${{ needs.create-release.outputs.release-version }}
-          release-tag: ${{ needs.create-release.outputs.release-tag }}
-          artifact-name: ${{ needs.build-tauri.outputs.linux-artifact-name }}
-
-      - name: Publish to Winget
-        uses: ./.github/actions/publish-to-winget
-        with:
-          release-version: ${{ needs.create-release.outputs.release-version }}
-          release-tag: ${{ needs.create-release.outputs.release-tag }}
-
-      - name: Publish to Brew
-        uses: ./.github/actions/publish-to-brew
-        with:
-          release-version: ${{ needs.create-release.outputs.release-version }}
-          release-tag: ${{ needs.create-release.outputs.release-tag }}
+          command: release publish "${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }}" "${{ needs.create-release.outputs.crabnebula-release-id }}" ${{ env.PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
+          api-key: ${{ secrets.CN_API_KEY }}

@@ -8,11 +8,13 @@ import { useSubscribeToBlocksEffect } from '@/features/blocks/data'
 import { useDataProviderToken, useStateCleanupEffect } from '../data'
 import { ToastContainer } from 'react-toastify'
 import { useNfdDataLoaderEffect } from '@/features/nfd/data'
+import { useCheckForAppUpdates } from '@/features/tauri/use-check-for-app-updates'
 
 function RegisterGlobalEffects() {
   useSubscribeToBlocksEffect()
   useStateCleanupEffect()
   useNfdDataLoaderEffect()
+  useCheckForAppUpdates()
   return <></>
 }
 
