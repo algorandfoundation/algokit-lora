@@ -10,7 +10,7 @@ import {
 import { cn } from '@/features/common/utils'
 import { useCallback, useEffect, useRef } from 'react'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, NavLink } from 'react-router-dom'
 import { useSearch } from '../data'
 import { Loader2 as Loader } from 'lucide-react'
 import { useLocationChange } from '@/features/common/hooks/use-location-change'
@@ -93,7 +93,9 @@ export function Search() {
                   {results.map((result) => {
                     return (
                       <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
-                        <span>{result.label}</span>
+                        <NavLink className="truncate text-primary underline" to={result.url}>
+                          {result.label}
+                        </NavLink>
                         <span className={cn('ml-auto text-xs')}>{result.type}</span>
                       </CommandItem>
                     )
