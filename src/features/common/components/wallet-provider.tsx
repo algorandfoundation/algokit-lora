@@ -1,7 +1,7 @@
 import { PropsWithChildren, useMemo } from 'react'
 import { WalletProviderInner } from './wallet-provider-inner'
 import { defaultKmdWallet, useSelectedKmdWallet } from '@/features/wallet/data/selected-kmd-wallet'
-import { NetworkConfigWithId } from '@/features/network/data/types'
+import { mainnetId, NetworkConfigWithId } from '@/features/network/data/types'
 import { SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '../hooks/use-dialog-form'
 import { PromptForm } from './prompt-form'
@@ -98,6 +98,7 @@ export function WalletProvider({ networkConfig, children }: Props) {
             port: networkConfig.algod.port,
             token: networkConfig.algod.token ?? '',
           },
+          isTestnet: networkConfig.id !== mainnetId,
         },
       },
       options: {

@@ -9,7 +9,7 @@ export class BlockResultBuilder extends DataBuilder<BlockResult> {
         ? initialState
         : {
             round: BigInt(incrementedNumber('round')),
-            timestamp: BigInt(randomDate().getTime()),
+            timestamp: randomDate().getTime(),
             transactionIds: Array.from({ length: randomNumberBetween(1, 1000) }, () => randomString(52, 52)),
             seed: base64ToBytes(randomString(64, 64)),
             genesisHash: base64ToBytes(randomString(64, 64)),
