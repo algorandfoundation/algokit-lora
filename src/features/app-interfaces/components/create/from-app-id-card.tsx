@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useCreateAppInterfaceStateMachine } from '../../data'
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { Card, CardContent } from '@/features/common/components/card'
@@ -17,7 +17,7 @@ import { useLoadableAppInterfacesAtom } from '../../data'
 const schema = zfd.formData({
   application: z
     .object({
-      id: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+      id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
       exists: z.boolean().optional(),
       appInterfaceExists: z.boolean().optional(),
     })

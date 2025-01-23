@@ -24,4 +24,32 @@ export const normaliseAlgoSdkData = (obj: unknown): unknown => {
   return obj
 }
 
-export const asJson = (value: unknown) => JSON.stringify(value, (_, v) => (typeof v === 'bigint' ? v.toString() : v), 2)
+const toNumber = (value: number | bigint) => {
+  if (typeof value === 'number') return value
+
+  if (value > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new Error(`Cannot convert ${value} to a Number as it is larger than the maximum safe integer the Number type can hold.`)
+  } else if (value < BigInt(Number.MIN_SAFE_INTEGER)) {
+    throw new Error(`Cannot convert ${value} to a Number as it is smaller than the minimum safe integer the Number type can hold.`)
+  }
+  return Number(value)
+}
+
+const defaultJsonValueReplacer = (_key: string, value: unknown) => {
+  if (typeof value === 'bigint') {
+    try {
+      return toNumber(value)
+    } catch {
+      return value.toString()
+    }
+  }
+  return value
+}
+
+export const asJson = (
+  value: unknown,
+  replacer: (key: string, value: unknown) => unknown = defaultJsonValueReplacer,
+  space?: string | number
+) => {
+  return JSON.stringify(value, replacer, space)
+}

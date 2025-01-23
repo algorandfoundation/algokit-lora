@@ -3,7 +3,7 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { Form } from '@/features/forms/components/form'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
 import { useCallback, useMemo } from 'react'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -38,10 +38,10 @@ const formSchema = zfd.formData({
       )
       .max(4)
   ),
-  assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: numberSchema(z.bigint().min(0n)) })).max(8)),
-  applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: numberSchema(z.bigint().min(0n)) })).max(8)),
+  assets: zfd.repeatable(z.array(z.object({ id: z.string(), assetId: bigIntSchema(z.bigint().min(0n)) })).max(8)),
+  applications: zfd.repeatable(z.array(z.object({ id: z.string(), applicationId: bigIntSchema(z.bigint().min(0n)) })).max(8)),
   boxes: zfd.repeatable(
-    z.array(z.object({ id: z.string(), applicationId: numberSchema(z.bigint().min(0n)), boxName: zfd.text(z.string().optional()) })).max(8)
+    z.array(z.object({ id: z.string(), applicationId: bigIntSchema(z.bigint().min(0n)), boxName: zfd.text(z.string().optional()) })).max(8)
   ),
 })
 

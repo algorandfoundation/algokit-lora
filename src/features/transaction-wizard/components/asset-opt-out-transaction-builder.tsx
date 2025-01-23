@@ -1,4 +1,4 @@
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
 import { addressFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -30,7 +30,7 @@ const formSchema = {
   closeRemainderTo: addressFieldSchema,
   asset: z
     .object({
-      id: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
+      id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
       decimals: z.number().optional(),
       unitName: z.string().optional(),
       clawback: z.string().optional(),

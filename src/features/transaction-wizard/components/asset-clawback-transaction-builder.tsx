@@ -1,4 +1,4 @@
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
 import { addressFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -33,7 +33,7 @@ const formSchema = z
     clawbackTarget: addressFieldSchema,
     asset: z
       .object({
-        id: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
+        id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
         decimals: z.number().optional(),
         unitName: z.string().optional(),
         clawback: z.string().optional(),
@@ -53,7 +53,7 @@ const formSchema = z
           })
         }
       }),
-    amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+    amount: decimalSchema({ required_error: 'Required', invalid_type_error: 'Required' }),
   })
   .superRefine((data, ctx) => {
     if (data.asset.clawback && data.sender && data.sender.resolvedAddress && data.sender.resolvedAddress !== data.asset.clawback) {
@@ -189,7 +189,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         sender: data.sender,
         receiver: data.receiver,
         clawbackTarget: data.clawbackTarget,
-        amount: data.amount,
+        amount: data.amount!,
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

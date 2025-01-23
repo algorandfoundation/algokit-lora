@@ -33,6 +33,7 @@ import {
 } from '@algorandfoundation/algokit-utils/types/composer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'
+import Decimal from 'decimal.js'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -176,8 +177,14 @@ export const asAssetTransferTransactionParams = (
     | BuildAssetClawbackTransactionResult
 ): AssetTransferParams => {
   invariant(transaction.asset.decimals !== undefined, 'Asset decimals is required')
-
-  const amount = 'amount' in transaction && transaction.amount > 0 ? BigInt(transaction.amount * 10 ** transaction.asset.decimals) : 0n
+  let amount = 0n
+  if ('amount' in transaction && transaction.amount.gt(0)) {
+    const convertedAmount = transaction.amount.mul(new Decimal(10).pow(transaction.asset.decimals))
+    if (!convertedAmount.isInteger()) {
+      throw new Error('Asset transfer failed to convert to the lowest unit')
+    }
+    amount = BigInt(convertedAmount.toString())
+  }
   return {
     sender: transaction.sender.resolvedAddress,
     receiver: 'receiver' in transaction ? transaction.receiver.resolvedAddress : transaction.sender.resolvedAddress,

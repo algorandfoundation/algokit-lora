@@ -1,4 +1,4 @@
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
 import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -29,7 +29,7 @@ const formSchema = z
     ...senderFieldSchema,
     asset: z
       .object({
-        id: numberSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
+        id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
         decimals: z.number().optional(), // This field is used to determine if an asset has been resolved
         unitName: z.string().optional(),
         manager: z.string().optional(),
