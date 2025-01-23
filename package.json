@@ -24,7 +24,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@algorandfoundation/algokit-subscriber": "file:../algokit-subscriber-ts/algorandfoundation-algokit-subscriber-1.0.0.tgz",
+    "@algorandfoundation/algokit-subscriber": "3.0.0-beta.1",
     "@algorandfoundation/algokit-utils": "^8.1.0",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
