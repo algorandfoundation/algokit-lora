@@ -14,20 +14,20 @@ export enum AppSpecStandard {
 export type AppSpecVersion =
   | {
       standard: AppSpecStandard.ARC32
-      roundFirstValid?: number
-      roundLastValid?: number
+      roundFirstValid?: bigint
+      roundLastValid?: bigint
       appSpec: Arc32AppSpec
     }
   | {
       standard: AppSpecStandard.ARC4
-      roundFirstValid?: number
-      roundLastValid?: number
+      roundFirstValid?: bigint
+      roundLastValid?: bigint
       appSpec: Arc4AppSpec
     }
   | {
       standard: AppSpecStandard.ARC56
-      roundFirstValid?: number
-      roundLastValid?: number
+      roundFirstValid?: bigint
+      roundLastValid?: bigint
       appSpec: Arc56Contract
     }
 

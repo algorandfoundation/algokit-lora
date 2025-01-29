@@ -1,4 +1,3 @@
-import { TransactionResult, TransactionSearchResults } from '@algorandfoundation/algokit-utils/types/indexer'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
 import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
@@ -11,6 +10,10 @@ import { readOnlyAtomCache } from '@/features/common/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { Getter, Setter } from 'jotai/index'
+import { TransactionResult } from '@/features/transactions/data/types'
+import algosdk from 'algosdk'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -28,7 +31,7 @@ const createAssetMetadataResult = async (
 
   // Get ARC-69 metadata if applicable
   if (latestAssetCreateOrReconfigureTransaction && latestAssetCreateOrReconfigureTransaction.note) {
-    const metadata = noteToArc69Metadata(latestAssetCreateOrReconfigureTransaction.note)
+    const metadata = noteToArc69Metadata(uint8ArrayToBase64(latestAssetCreateOrReconfigureTransaction.note))
     if (metadata) {
       arc69MetadataResult = {
         metadata,
@@ -108,7 +111,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
 }
 
 const getAssetMetadataResult = async (_: Getter, __: Setter, assetResult: AssetResult) => {
-  if (assetResult.index === 0) {
+  if (assetResult.index === 0n) {
     return null
   }
 
@@ -122,13 +125,13 @@ const getAssetMetadataResult = async (_: Getter, __: Setter, assetResult: AssetR
           .addressRole('sender')
           .limit(2) // Return 2 to cater for a destroy transaction and any potential eventual consistency delays between transactions and assets.
           .do()
-          .then((res) => res.transactions as TransactionResult[]) // Implicitly newest to oldest when filtering with an address.
+          .then((res) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn))) // Implicitly newest to oldest when filtering with an address.
       : []
   if (results.length === 0) {
     // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
     // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
     results = await executePaginatedRequest(
-      (res: TransactionSearchResults) => res.transactions,
+      (res: algosdk.indexerModels.TransactionsResponse) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn)),
       (nextToken) => {
         let s = indexer.searchForTransactions().assetID(assetResult.index).txType('acfg')
         if (nextToken) {
@@ -140,8 +143,8 @@ const getAssetMetadataResult = async (_: Getter, __: Setter, assetResult: AssetR
   }
 
   const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
-    const isAssetConfigTransaction = t['tx-type'] === TransactionType.acfg
-    const isDestroyTransaction = t['asset-config-transaction']?.['params'] === undefined
+    const isAssetConfigTransaction = t.txType === TransactionType.acfg
+    const isDestroyTransaction = t.assetConfigTransaction?.params === undefined
     return isAssetConfigTransaction && !isDestroyTransaction
   })
 

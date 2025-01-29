@@ -1,18 +1,19 @@
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { Account, Address } from 'algosdk'
 
 export const deploySmartContract = async (
-  localnet: AlgorandFixture,
+  creator: Address & TransactionSignerAccount & Account,
+  algorandClient: AlgorandClient,
   appSpec: string | Arc56Contract | AppSpec,
   params?: AppFactoryDeployParams
 ) => {
-  const { testAccount } = localnet.context
-
-  const appFactory = localnet.algorand.client.getAppFactory({
+  const appFactory = algorandClient.client.getAppFactory({
     appSpec,
-    defaultSender: testAccount.addr,
+    defaultSender: creator.addr,
   })
 
   const deployResult = await appFactory.deploy(params ?? {})

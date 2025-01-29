@@ -21,7 +21,7 @@ export function ApplicationLink({ applicationId, className, showCopyButton, chil
       urlTemplate={Urls.Network.Explore.Application.ById}
       urlParams={{ applicationId: applicationId.toString(), networkId: selectedNetwork }}
     >
-      {children ? children : applicationId}
+      {children ? children : applicationId.toString()}
     </TemplatedNavLink>
   )
 

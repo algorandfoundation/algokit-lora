@@ -3,7 +3,7 @@ import { isDefined } from '@/utils/is-defined'
 import { latestTransactionIdsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
-import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round, SubscriberState, SubscriberStatus, SubscriberStoppedDetails, SubscriberStoppedReason } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
 import algosdk from 'algosdk'
@@ -24,6 +24,9 @@ import { createTimestamp, maxBlocksToDisplay } from '@/features/common/data'
 import { genesisHashAtom } from './genesis-hash'
 import { asError } from '@/utils/error'
 import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
+import { TransactionResult } from '@/features/transactions/data/types'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { subscribedTransactionToTransactionResult } from '@/features/transactions/mappers/subscriber-transaction-mappers'
 
 const notStartedSubscriberStatus = { state: SubscriberState.NotStarted } satisfies SubscriberStatus
 const startedSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
@@ -68,7 +71,7 @@ const subscriberAtom = atom(null, (get, set) => {
       waitForBlockWhenAtTip: true,
       syncBehaviour: 'sync-oldest-start-now',
       watermarkPersistence: {
-        get: async () => get(syncedRoundAtom) ?? 0,
+        get: async () => get(syncedRoundAtom) ?? 0n,
         set: async (watermark) => {
           set(syncedRoundAtom, watermark)
         },
@@ -76,18 +79,6 @@ const subscriberAtom = atom(null, (get, set) => {
     },
     algod
   )
-
-  const reduceAllTransactions = (acc: BalanceChange[], transaction: SubscribedTransaction): BalanceChange[] => {
-    if (transaction.balanceChanges && transaction.balanceChanges.length > 0) {
-      acc.push(...transaction.balanceChanges)
-    }
-    transaction.id = ''
-    transaction.balanceChanges = undefined
-    transaction.filtersMatched = undefined
-    transaction.arc28Events = undefined
-
-    return (transaction.innerTransactions ?? []).reduce(reduceAllTransactions, acc)
-  }
 
   subscriber.onPoll(async (result) => {
     if (!result.blockMetadata || result.blockMetadata.length < 1) {
@@ -107,11 +98,11 @@ const subscriberAtom = atom(null, (get, set) => {
     const [blockTransactionIds, transactionResults, groupResults, staleAssetIds, staleAddresses, staleApplicationIds] =
       result.subscribedTransactions.reduce(
         (acc, t) => {
-          if (!t.parentTransactionId && t['confirmed-round'] != null) {
-            const round = t['confirmed-round']
-            // Remove filtersMatched, balanceChanges and arc28Events, as we don't need to store them in the transaction
-            const { filtersMatched: _filtersMatched, balanceChanges: _balanceChanges, arc28Events: _arc28Events, ...transaction } = t
-            const balanceChanges = (transaction['inner-txns'] ?? []).reduce(reduceAllTransactions, _balanceChanges ?? [])
+          if (!t.parentTransactionId && t.confirmedRound != null) {
+            const round = t.confirmedRound
+
+            const balanceChanges = extractBalanceChanges(t)
+            const transaction = subscribedTransactionToTransactionResult(t)
 
             // Accumulate transaction ids by round
             acc[0].set(round, (acc[0].get(round) ?? []).concat(transaction.id))
@@ -120,15 +111,16 @@ const subscriberAtom = atom(null, (get, set) => {
             acc[1].push(transaction)
 
             // Accumulate group results
-            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction['round-time'] ?? Math.floor(Date.now() / 1000))
+            accumulateGroupsFromTransaction(acc[2], transaction, round, transaction.roundTime ?? Math.floor(Date.now() / 1000))
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(t)
-              .filter((t) => t['tx-type'] === algosdk.TransactionType.acfg)
-              .map((t) => t['asset-config-transaction']!['asset-id'])
+              .filter((t) => t.txType === algosdk.TransactionType.acfg)
+              .map((t) => t.assetConfigTransaction!.assetId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
-            acc[3].push(...staleAssetIds)
+              .filter((x) => x !== 0n) // ALGO is never stale
+            acc[3] = acc[3].concat(staleAssetIds)
 
             // Accumulate stale addresses
             const addressesStaleDueToBalanceChanges =
@@ -136,7 +128,7 @@ const subscriberAtom = atom(null, (get, set) => {
                 ?.filter((bc) => {
                   const isAssetOptIn =
                     bc.amount === 0n &&
-                    bc.assetId !== 0 &&
+                    bc.assetId !== 0n &&
                     bc.roles.includes(BalanceChangeRole.Sender) &&
                     bc.roles.includes(BalanceChangeRole.Receiver)
                   const isNonZeroAmount = bc.amount !== 0n // Can either be negative (decreased balance) or positive (increased balance)
@@ -152,21 +144,21 @@ const subscriberAtom = atom(null, (get, set) => {
 
             const addressesStaleDueToTransactions = flattenTransactionResult(t)
               .filter((t) => {
-                const accountIsStaleDueToRekey = t['rekey-to']
+                const accountIsStaleDueToRekey = t.rekeyTo
                 return accountIsStaleDueToAppChanges(t) || accountIsStaleDueToRekey
               })
               .map((t) => t.sender)
               .filter(distinct((x) => x))
             const staleAddresses = Array.from(new Set(addressesStaleDueToBalanceChanges.concat(addressesStaleDueToTransactions)))
-            acc[4].push(...staleAddresses)
+            acc[4] = acc[4].concat(staleAddresses)
 
             // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(t)
-              .filter((t) => t['tx-type'] === algosdk.TransactionType.appl)
-              .map((t) => t['application-transaction']?.['application-id'])
+              .filter((t) => t.txType === algosdk.TransactionType.appl)
+              .map((t) => t.applicationTransaction?.applicationId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore application create transactions because they aren't in the atom
-            acc[5].push(...staleApplicationIds)
+            acc[5] = acc[5].concat(staleApplicationIds)
           }
           return acc
         },
@@ -181,63 +173,63 @@ const subscriberAtom = atom(null, (get, set) => {
       )
     const blockResults = result.blockMetadata.map((b) => {
       return {
-        ['genesis-hash']: b.genesisHash,
-        ['genesis-id']: b.genesisId,
-        ['previous-block-hash']: b.previousBlockHash ? b.previousBlockHash : '',
+        genesisHash: base64ToBytes(b.genesisHash),
+        genesisId: b.genesisId,
+        previousBlockHash: base64ToBytes(b.previousBlockHash ?? ''),
         ...(b.rewards
           ? {
               rewards: {
-                ['fee-sink']: b.rewards.feeSink,
-                ['rewards-calculation-round']: b.rewards.rewardsCalculationRound,
-                ['rewards-level']: b.rewards.rewardsLevel,
-                ['rewards-pool']: b.rewards.rewardsPool,
-                ['rewards-rate']: b.rewards.rewardsRate,
-                ['rewards-residue']: Number(b.rewards.rewardsResidue),
+                feeSink: b.rewards.feeSink,
+                rewardsCalculationRound: b.rewards.rewardsCalculationRound,
+                rewardsLevel: b.rewards.rewardsLevel,
+                rewardsPool: b.rewards.rewardsPool,
+                rewardsRate: b.rewards.rewardsRate,
+                rewardsResidue: b.rewards.rewardsResidue,
               },
             }
           : undefined),
         round: b.round,
-        seed: b.seed ?? '',
+        seed: base64ToBytes(b.seed ?? ''),
         ...(b.stateProofTracking && b.stateProofTracking.length > 0
           ? {
-              'state-proof-tracking': b.stateProofTracking.map((tracking) => ({
-                'next-round': tracking.nextRound,
-                'online-total-weight': tracking.onlineTotalWeight,
+              stateProofTracking: b.stateProofTracking.map((tracking) => ({
+                nextRound: tracking.nextRound,
+                onlineTotalWeight: tracking.onlineTotalWeight,
                 type: tracking.type,
-                'voters-commitment': tracking.votersCommitment,
+                votersCommitment: tracking.votersCommitment,
               })),
             }
           : undefined),
         timestamp: b.timestamp,
-        ['transactions-root']: b.transactionsRoot,
-        ['transactions-root-sha256']: b.transactionsRootSha256,
-        ['txn-counter']: b.txnCounter,
+        transactionsRoot: base64ToBytes(b.transactionsRoot),
+        transactionsRootSha256: base64ToBytes(b.transactionsRootSha256),
+        txnCounter: b.txnCounter,
         proposer: b.proposer,
         ...(b.upgradeState
           ? {
-              ['upgrade-state']: {
-                ['current-protocol']: b.upgradeState.currentProtocol,
-                ['next-protocol']: b.upgradeState.nextProtocol,
-                ['next-protocol-approvals']: b.upgradeState.nextProtocolApprovals ?? 0,
-                ['next-protocol-switch-on']: b.upgradeState.nextProtocolSwitchOn ?? 0,
-                ['next-protocol-vote-before']: b.upgradeState.nextProtocolVoteBefore ?? 0,
+              upgradeState: {
+                currentProtocol: b.upgradeState.currentProtocol,
+                nextProtocol: b.upgradeState.nextProtocol,
+                nextProtocolApprovals: b.upgradeState.nextProtocolApprovals ?? 0n,
+                nextProtocolSwitchOn: b.upgradeState.nextProtocolSwitchOn ?? 0n,
+                nextProtocolVoteBefore: b.upgradeState.nextProtocolVoteBefore ?? 0n,
               },
             }
           : undefined),
         ...(b.upgradeVote
           ? {
-              'upgrade-vote': {
-                'upgrade-approve': b.upgradeVote.upgradeApprove ?? false,
-                'upgrade-delay': b.upgradeVote.upgradeDelay ?? 0,
-                'upgrade-propose': b.upgradeVote.upgradePropose,
+              upgradeVote: {
+                upgradeApprove: b.upgradeVote.upgradeApprove ?? false,
+                upgradeDelay: b.upgradeVote.upgradeDelay ?? 0n,
+                upgradePropose: b.upgradeVote.upgradePropose,
               },
             }
           : undefined),
         ...(b.participationUpdates
           ? {
-              'participation-updates': {
-                'absent-participation-accounts': b.participationUpdates.absentParticipationAccounts,
-                'expired-participation-accounts': b.participationUpdates.expiredParticipationAccounts,
+              participationUpdates: {
+                absentParticipationAccounts: b.participationUpdates.absentParticipationAccounts,
+                expiredParticipationAccounts: b.participationUpdates.expiredParticipationAccounts,
               },
             }
           : undefined),
@@ -345,11 +337,16 @@ export const useSubscribeToBlocksEffect = () => {
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
-  if (txn['tx-type'] !== algosdk.TransactionType.appl) {
+  if (txn.txType !== algosdk.TransactionType.appl) {
     return false
   }
-  const appCallTransaction = txn['application-transaction']!
-  const isAppCreate = appCallTransaction['on-completion'] === ApplicationOnComplete.noop && !appCallTransaction['application-id']
-  const isAppOptIn = appCallTransaction['on-completion'] === ApplicationOnComplete.optin && appCallTransaction['application-id']
+  const appCallTransaction = txn.applicationTransaction!
+  const isAppCreate = appCallTransaction.onCompletion === ApplicationOnComplete.noop && !appCallTransaction.applicationId
+  const isAppOptIn = appCallTransaction.onCompletion === ApplicationOnComplete.optin && appCallTransaction.applicationId
   return isAppCreate || isAppOptIn
+}
+
+const extractBalanceChanges = (txn: SubscribedTransaction): BalanceChange[] => {
+  const innerTxnsBalanceChanges = (txn.innerTxns ?? []).flatMap((innerTxn) => extractBalanceChanges(innerTxn)) ?? []
+  return (txn.balanceChanges ?? []).concat(innerTxnsBalanceChanges)
 }

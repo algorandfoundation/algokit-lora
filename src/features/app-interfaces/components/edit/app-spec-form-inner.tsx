@@ -26,7 +26,7 @@ type FormInnerProps = {
   helper: FormFieldHelper<z.infer<typeof appSpecSchema>>
 }
 
-export const supportedStandards = [AppSpecStandard.ARC32, AppSpecStandard.ARC4]
+export const supportedStandards = [AppSpecStandard.ARC56, AppSpecStandard.ARC32, AppSpecStandard.ARC4]
 
 export function AppSpecFormInner({ helper }: FormInnerProps) {
   return (

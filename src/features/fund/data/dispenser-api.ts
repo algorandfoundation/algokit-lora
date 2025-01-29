@@ -130,11 +130,11 @@ const createRefundStatusAtom = () => {
   return atom(async (get) => {
     const activeAccount = await get(activeWalletAccountAtom)
     // approxLimit = balance - minBalance - likelyTransactionFee
-    const approxLimit = Number(activeAccount?.algoHolding.amount ?? 0) - (activeAccount?.minBalance ?? 0) - 1000
+    const approxLimit = (activeAccount?.algoHolding.amount ?? 0n) - (activeAccount?.minBalance ?? 0n) - 1000n
 
     return {
       canRefund: !!activeAccount,
-      limit: microAlgos(approxLimit < 0 ? 0 : approxLimit),
+      limit: microAlgos(approxLimit < 0n ? 0n : approxLimit),
     }
   })
 }

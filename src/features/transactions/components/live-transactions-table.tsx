@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
 import { useEffect, useState } from 'react'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { useLiveTransactions } from '../data/live-transaction'
 import { cn } from '@/features/common/utils'
 import { Switch } from '@/features/common/components/switch'

@@ -1,23 +1,23 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BasePaymentTransaction, InnerPaymentTransaction, PaymentTransaction, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 const mapCommonPaymentTransactionProperties = (transactionResult: TransactionResult) => {
-  invariant(transactionResult['payment-transaction'], 'payment-transaction is not set')
-  const payment = transactionResult['payment-transaction']
+  invariant(transactionResult.paymentTransaction, 'payment-transaction is not set')
+  const payment = transactionResult.paymentTransaction
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.Payment,
     subType: undefined,
-    receiver: payment['receiver'],
-    amount: microAlgos(payment['amount']),
-    closeRemainder: payment['close-remainder-to']
+    receiver: payment.receiver,
+    amount: microAlgos(payment.amount),
+    closeRemainder: payment.closeRemainderTo
       ? {
-          to: payment['close-remainder-to'],
-          amount: microAlgos(payment['close-amount'] ?? 0),
+          to: payment.closeRemainderTo,
+          amount: microAlgos(payment.closeAmount ?? 0n),
         }
       : undefined,
   } satisfies BasePaymentTransaction

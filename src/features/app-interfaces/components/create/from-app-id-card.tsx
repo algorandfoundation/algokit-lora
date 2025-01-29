@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useCreateAppInterfaceStateMachine } from '../../data'
-import { numberSchema } from '@/features/forms/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
 import { zfd } from 'zod-form-data'
 import { z } from 'zod'
 import { Card, CardContent } from '@/features/common/components/card'
@@ -17,7 +17,7 @@ import { useLoadableAppInterfacesAtom } from '../../data'
 const schema = zfd.formData({
   application: z
     .object({
-      id: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' })),
+      id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
       exists: z.boolean().optional(),
       appInterfaceExists: z.boolean().optional(),
     })
@@ -56,7 +56,7 @@ type FormInnerProps = {
 function FormInner({ helper }: FormInnerProps) {
   const formCtx = useFormContext<z.infer<typeof schema>>()
   const applicationIdFieldValue = formCtx.watch('application.id') // This actually comes back as a string value, so we convert below
-  const [applicationId] = useDebounce(applicationIdFieldValue ? Number(applicationIdFieldValue) : undefined, 500)
+  const [applicationId] = useDebounce(applicationIdFieldValue ? BigInt(applicationIdFieldValue) : undefined, 500)
 
   if (applicationId) {
     return <FormFieldsWithApplicationValidation helper={helper} formCtx={formCtx} applicationId={applicationId} />

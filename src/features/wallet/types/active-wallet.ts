@@ -6,11 +6,11 @@ export type ActiveWalletAccount = {
   address: Address
   assetHolding: Map<AssetId, AccountAssetHolding>
   algoHolding: AccountAssetHolding
-  minBalance: number
-  validAtRound: number
+  minBalance: bigint
+  validAtRound: bigint
   nfd: Nfd | null
 }
 
 type AccountAssetHolding = {
-  amount: number | bigint
+  amount: bigint
 }

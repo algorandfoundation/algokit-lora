@@ -8,10 +8,11 @@ import { AppSpecStandard, AppSpecVersion, Arc32AppSpec, Arc4AppSpec } from '../.
 import { useAddAppSpecVersion } from '../../data/update'
 import { ApplicationId } from '@/features/applications/data/types'
 import { parseAsAppSpec } from '../../mappers'
-import { isArc32AppSpec, isArc4AppSpec } from '@/features/common/utils'
+import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { invariant } from '@/utils/invariant'
 import { AppSpecFormInner, appSpecSchema, supportedStandards } from './app-spec-form-inner'
 import { toast } from 'react-toastify'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 type Props = {
   applicationId: ApplicationId
@@ -24,8 +25,8 @@ export function AddAppSpecForm({ applicationId, onSuccess }: Props) {
   const addNewAppSpec = useCallback(
     async (values: z.infer<typeof appSpecSchema>) => {
       const common = {
-        roundFirstValid: values.roundFirstValid !== undefined ? Number(values.roundFirstValid) : undefined,
-        roundLastValid: values.roundLastValid !== undefined ? Number(values.roundLastValid) : undefined,
+        roundFirstValid: values.roundFirstValid,
+        roundLastValid: values.roundLastValid,
       }
       const parsedAppSpec = await parseAsAppSpec(values.file, supportedStandards)
       const appSpecVersion = isArc32AppSpec(parsedAppSpec)
@@ -34,13 +35,19 @@ export function AddAppSpecForm({ applicationId, onSuccess }: Props) {
             appSpec: parsedAppSpec as Arc32AppSpec,
             standard: AppSpecStandard.ARC32,
           } satisfies AppSpecVersion)
-        : isArc4AppSpec(parsedAppSpec)
+        : isArc56AppSpec(parsedAppSpec)
           ? ({
               ...common,
-              appSpec: parsedAppSpec as Arc4AppSpec,
-              standard: AppSpecStandard.ARC4,
+              appSpec: parsedAppSpec as Arc56Contract,
+              standard: AppSpecStandard.ARC56,
             } satisfies AppSpecVersion)
-          : undefined
+          : isArc4AppSpec(parsedAppSpec)
+            ? ({
+                ...common,
+                appSpec: parsedAppSpec as Arc4AppSpec,
+                standard: AppSpecStandard.ARC4,
+              } satisfies AppSpecVersion)
+            : undefined
 
       invariant(appSpecVersion, 'App spec standard is not supported')
       await addAppSpecVersion(applicationId, appSpecVersion)

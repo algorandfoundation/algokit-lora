@@ -7,6 +7,7 @@ import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useSelectedNetwork } from '@/features/network/data'
+import { AssetId } from '../data/types'
 
 type CommonProps = {
   className?: string
@@ -15,13 +16,13 @@ type CommonProps = {
 
 type AssetIdLinkProps = PropsWithChildren<
   {
-    assetId: number
+    assetId: AssetId
   } & CommonProps
 >
 
 type AssetIdAndNameLinkProps = PropsWithChildren<
   {
-    assetId: number
+    assetId: AssetId
     assetName?: string
   } & CommonProps
 >
@@ -40,7 +41,7 @@ function Link(props: AssetIdLinkProps | AssetIdAndNameLinkProps) {
       urlTemplate={Urls.Network.Explore.Asset.ById}
       urlParams={{ assetId: props.assetId.toString(), networkId: selectedNetwork }}
     >
-      {props.children ? props.children : props.assetId}
+      {props.children ? props.children : props.assetId.toString()}
     </TemplatedNavLink>
   )
 

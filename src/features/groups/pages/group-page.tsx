@@ -32,7 +32,7 @@ export function GroupPage() {
   const { groupId } = useRequiredParam(UrlParams.GroupId)
   useTitle()
 
-  const round = parseInt(_round, 10)
+  const round = BigInt(_round)
   const loadableGroup = useLoadableGroup(groupId, round)
 
   return (

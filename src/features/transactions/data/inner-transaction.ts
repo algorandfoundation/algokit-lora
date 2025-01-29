@@ -1,6 +1,6 @@
 import { Atom, atom, useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { loadable } from 'jotai/utils'
 import { TransactionId } from './types'
 import { asTransaction } from '../mappers/transaction-mappers'
@@ -14,7 +14,7 @@ export const createInnerTransactionAtom = (
   innerId: string
 ) => {
   return atom(async (get) => {
-    const txn = 'id' in transactionResult ? transactionResult : await get(transactionResult)
+    const txn = 'read' in transactionResult ? await get(transactionResult) : transactionResult
     const transaction = asTransaction(txn, assetSummaryResolver, abiMethodResolver)
     if (transaction.type !== TransactionType.AppCall) {
       throw new Error('Only application call transactions have inner transactions')

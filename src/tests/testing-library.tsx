@@ -27,7 +27,7 @@ const Providers =
     const routes = evalTemplates([
       {
         template: Urls.Index,
-        element: children,
+        element: <ErrorBoundary>{children}</ErrorBoundary>,
       },
     ])
     const router = createMemoryRouter(routes)
@@ -35,9 +35,7 @@ const Providers =
     return (
       <TestPlatformProvider store={store}>
         <TooltipProvider>
-          <ErrorBoundary>
-            <RouterProvider router={router} />
-          </ErrorBoundary>
+          <RouterProvider router={router} />
         </TooltipProvider>
       </TestPlatformProvider>
     )

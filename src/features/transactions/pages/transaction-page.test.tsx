@@ -12,7 +12,6 @@ import { useParams } from 'react-router-dom'
 import { getByDescriptionTerm } from '@/tests/custom-queries/get-description'
 import { createStore } from 'jotai'
 import { transactionResultsAtom } from '../data'
-import { lookupTransactionById } from '@algorandfoundation/algokit-utils'
 import { HttpError } from '@/tests/errors'
 import { logicsigLabel } from '../components/logicsig-details'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
@@ -85,11 +84,13 @@ import { AppSpecStandard, Arc32AppSpec, Arc4AppSpec } from '@/features/app-inter
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { genesisHashAtom } from '@/features/blocks/data'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
-import { algod } from '@/features/common/data/algo-client'
+import { algod, indexer } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { heartbeatAddressLabel } from '../components/heartbeat-transaction-info'
+import algosdk from 'algosdk'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -97,6 +98,11 @@ vi.mock('@/features/common/data/algo-client', async () => {
     ...original,
     algod: {
       disassemble: vi.fn().mockReturnValue({
+        do: vi.fn(),
+      }),
+    },
+    indexer: {
+      lookupTransactionByID: vi.fn().mockReturnValue({
         do: vi.fn(),
       }),
     },
@@ -120,7 +126,9 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(lookupTransactionById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupTransactionByID('8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+        Promise.reject(new HttpError('boom', 404))
+      )
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -134,7 +142,9 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(lookupTransactionById).mockImplementation(() => Promise.reject({}))
+      vi.mocked(indexer.lookupTransactionByID('7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+        Promise.reject({})
+      )
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -149,16 +159,16 @@ describe('transaction-page', () => {
     const transaction = transactionResultMother
       .payment()
       .withId('FBORGSDC4ULLWHWZUMUFIYQLSDC26HGLTFD7EATQDY37FHCIYBBQ')
-      ['withConfirmed-round'](36570178)
-      ['withRound-time'](1709189521)
+      .withConfirmedRound(36570178n)
+      .withRoundTime(1709189521)
       .withSender('M3IAMWFYEIJWLWFIIOEDFOLGIVMEOB3F4I3CA4BIAHJENHUUSX63APOXXM')
-      ['withPayment-transaction']({
-        amount: 236070000,
+      .withPaymentTransaction({
+        amount: 236070000n,
         receiver: 'KIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
-        'close-amount': 345071234,
-        'close-remainder-to': 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
+        closeAmount: 345071234n,
+        closeRemainderTo: 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ',
       })
-      .withFee(1000)
+      .withFee(1000n)
       .build()
 
     it('should be rendered with the correct data', () => {
@@ -183,7 +193,7 @@ describe('transaction-page', () => {
                 { term: transactionBlockLabel, description: '36570178' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: transaction.sender },
-                { term: transactionReceiverLabel, description: transaction['payment-transaction']!.receiver },
+                { term: transactionReceiverLabel, description: transaction.paymentTransaction!.receiver },
                 { term: transactionAmountLabel, description: '236.07' },
                 { term: transactionCloseRemainderToLabel, description: 'AIZLH4HUM5ZIB5RVP6DR2IGXB44TGJ6HZUZIAYZFZ63KWCAQB2EZGPU5BQ' },
                 { term: transactionCloseRemainderAmountLabel, description: '345.071234' },
@@ -283,14 +293,16 @@ describe('transaction-page', () => {
 
           const base64Tab = component.getByRole('tabpanel', { name: base64ProgramTabLabel })
           expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active')
-          expect(base64Tab.textContent).toBe(transaction.signature!.logicsig!.logic)
+          expect(base64Tab.textContent).toBe(uint8ArrayToBase64(transaction.signature!.logicsig!.logic))
         }
       )
     })
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(algod.disassemble('').do).mockImplementation(() => Promise.resolve({ result: teal }))
+      vi.mocked(algod.disassemble('').do).mockImplementation(() =>
+        Promise.resolve(new algosdk.modelsv2.DisassembleResponse({ result: teal }))
+      )
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
@@ -300,11 +312,13 @@ describe('transaction-page', () => {
           return render(<TransactionPage />, undefined, myStore)
         },
         async (component, user) => {
-          await waitFor(async () => {
+          const logicsigTabList = await waitFor(async () => {
             const logicsigTabList = component.getByRole('tablist', { name: logicsigLabel })
             expect(logicsigTabList).toBeTruthy()
-            await user.click(getByRole(logicsigTabList, 'tab', { name: tealProgramTabLabel }))
+            return logicsigTabList
           })
+          await user.click(getByRole(logicsigTabList, 'tab', { name: tealProgramTabLabel }))
+
           const tealTab = component.getByRole('tabpanel', { name: tealProgramTabLabel })
           await waitFor(() => expect(tealTab.getAttribute('data-state'), 'Teal tab should be active').toBe('active'))
           expect(tealTab.textContent).toBe(teal)
@@ -319,7 +333,7 @@ describe('transaction-page', () => {
     describe('and the note is text', () => {
       const note = 'Здравейте, world!'
       const base64Note = Buffer.from(note).toString('base64')
-      const transaction = transactionBuilder.withNote(base64Note).build()
+      const transaction = transactionBuilder.withNote(Buffer.from(note)).build()
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -352,11 +366,13 @@ describe('transaction-page', () => {
             return render(<TransactionPage />, undefined, myStore)
           },
           async (component, user) => {
-            await waitFor(async () => {
+            const noteTabList = await waitFor(async () => {
               const noteTabList = component.getByRole('tablist', { name: noteLabel })
               expect(noteTabList).toBeTruthy()
-              await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+              return noteTabList
             })
+            await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+
             const textTab = component.getByRole('tabpanel', { name: textNoteTabLabel })
             await waitFor(() => expect(textTab.getAttribute('data-state'), 'UTF-8 tab should be active').toBe('active'))
             expect(textTab.textContent).toBe(note)
@@ -369,7 +385,7 @@ describe('transaction-page', () => {
       const jsonNote = { hello: 'world' }
       const note = JSON.stringify(jsonNote)
       const base64Note = Buffer.from(note).toString('base64')
-      const transaction = transactionBuilder.withNote(base64Note).build()
+      const transaction = transactionBuilder.withNote(Buffer.from(note)).build()
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
@@ -402,11 +418,13 @@ describe('transaction-page', () => {
             return render(<TransactionPage />, undefined, myStore)
           },
           async (component, user) => {
-            await waitFor(async () => {
+            const noteTabList = await waitFor(async () => {
               const noteTabList = component.getByRole('tablist', { name: noteLabel })
               expect(noteTabList).toBeTruthy()
-              await user.click(getByRole(noteTabList, 'tab', { name: base64NoteTabLabel }))
+              return noteTabList
             })
+            await user.click(getByRole(noteTabList, 'tab', { name: base64NoteTabLabel }))
+
             const base64Tab = component.getByRole('tabpanel', { name: base64NoteTabLabel })
             await waitFor(() => expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active'))
             expect(base64Tab.textContent).toBe(base64Note)
@@ -420,11 +438,13 @@ describe('transaction-page', () => {
             return render(<TransactionPage />, undefined, myStore)
           },
           async (component, user) => {
-            await waitFor(async () => {
+            const noteTabList = await waitFor(async () => {
               const noteTabList = component.getByRole('tablist', { name: noteLabel })
               expect(noteTabList).toBeTruthy()
-              await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+              return noteTabList
             })
+            await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+
             const textTab = component.getByRole('tabpanel', { name: textNoteTabLabel })
             await waitFor(() => expect(textTab.getAttribute('data-state'), 'UTF-8 tab should be active').toBe('active'))
             expect(textTab.textContent).toBe(note)
@@ -435,7 +455,7 @@ describe('transaction-page', () => {
 
     describe('and the note is arc-2 formatted', () => {
       const note = 'algoCityTemp:j{"city":"Singapore","temp":35}'
-      const base64Note = Buffer.from(note).toString('base64')
+      const base64Note = Buffer.from(note)
       const transaction = transactionBuilder.withNote(base64Note).build()
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
@@ -471,14 +491,16 @@ describe('transaction-page', () => {
             return render(<TransactionPage />, undefined, myStore)
           },
           async (component, user) => {
-            await waitFor(async () => {
+            const noteTabList = await waitFor(async () => {
               const noteTabList = component.getByRole('tablist', { name: noteLabel })
               expect(noteTabList).toBeTruthy()
-              await user.click(getByRole(noteTabList, 'tab', { name: base64NoteTabLabel }))
+              return noteTabList
             })
+            await user.click(getByRole(noteTabList, 'tab', { name: base64NoteTabLabel }))
+
             const base64Tab = component.getByRole('tabpanel', { name: base64NoteTabLabel })
             await waitFor(() => expect(base64Tab.getAttribute('data-state'), 'Base64 tab should be active').toBe('active'))
-            expect(base64Tab.textContent).toBe(base64Note)
+            expect(base64Tab.textContent).toBe(uint8ArrayToBase64(base64Note))
           }
         )
       })
@@ -489,11 +511,13 @@ describe('transaction-page', () => {
             return render(<TransactionPage />, undefined, myStore)
           },
           async (component, user) => {
-            await waitFor(async () => {
+            const noteTabList = await waitFor(async () => {
               const noteTabList = component.getByRole('tablist', { name: noteLabel })
               expect(noteTabList).toBeTruthy()
-              await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+              return noteTabList
             })
+            await user.click(getByRole(noteTabList, 'tab', { name: textNoteTabLabel }))
+
             const textTab = component.getByRole('tabpanel', { name: textNoteTabLabel })
             await waitFor(() => expect(textTab.getAttribute('data-state'), 'UTF-8 tab should be active').toBe('active'))
             expect(textTab.textContent).toBe(note)
@@ -919,7 +943,7 @@ describe('transaction-page', () => {
   describe('when rendering an app call transaction that has no foreign assets but has an inner asset transfer transaction', () => {
     const asset = assetResultMother['mainnet-312769']().build()
     const innerAssetTransferTransaction = transactionResultMother.transfer(asset).build()
-    const transaction = transactionResultMother.appCall()['withInner-txns']([innerAssetTransferTransaction]).build()
+    const transaction = transactionResultMother.appCall().withInnerTxns([innerAssetTransferTransaction]).build()
 
     it('should be rendered without error', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -1119,6 +1143,7 @@ describe('transaction-page', () => {
 
           // After click on the Table tab
           await user.click(getByRole(viewTransactionTabList, 'tab', { name: transactionVisualTableTabLabel }))
+
           const tableViewTab = component.getByRole('tabpanel', { name: transactionVisualTableTabLabel })
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
 
@@ -1136,12 +1161,7 @@ describe('transaction-page', () => {
   })
 
   describe('when rendering a state proof transaction', () => {
-    const transaction = transactionResultMother
-      .stateProof()
-      ['withRound-time'](1696316292)
-      ['withConfirmed-round'](32563331)
-      .withFee(0)
-      .build()
+    const transaction = transactionResultMother.stateProof().withRoundTime(1696316292).withConfirmedRound(32563331n).withFee(0n).build()
 
     it('should be rendered correctly', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: transaction.id }))
@@ -1279,7 +1299,7 @@ describe('when rendering an app call transaction with ARC-32 app spec loaded', (
     myStore.set(genesisHashAtom, 'some-hash')
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-    const applicationId = transaction['application-transaction']!['application-id']!
+    const applicationId = transaction.applicationTransaction!.applicationId!
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
@@ -1324,7 +1344,7 @@ describe('when rendering an app call transaction with ARC-4 app spec loaded', ()
     myStore.set(genesisHashAtom, 'some-hash')
     myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-    const applicationId = transaction['application-transaction']!['application-id']!
+    const applicationId = transaction.applicationTransaction!.applicationId!
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
@@ -1368,7 +1388,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
       myStore.set(genesisHashAtom, 'some-hash')
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1421,7 +1441,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
       myStore.set(genesisHashAtom, 'some-hash')
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1474,7 +1494,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
       myStore.set(genesisHashAtom, 'some-hash')
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -1524,7 +1544,7 @@ describe('when rendering an app call transaction with ARC-56 app spec loaded', (
       myStore.set(genesisHashAtom, 'some-hash')
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,

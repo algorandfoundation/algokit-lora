@@ -1,4 +1,3 @@
-import { ApplicationOnComplete, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import {
   AppCallOnComplete,
   AppCallTransaction,
@@ -23,6 +22,9 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { globalStateDeltaResolver } from '../data/global-state-delta-resolver'
 import { localStateDeltaResolver } from '../data/local-state-delta-resolver'
+import { TransactionResult } from '../data/types'
+import { AssetId } from '@/features/assets/data/types'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 const opUpPrograms = [
   'A4EB', // #pragma version 3\npushint 1\n // First version pushint was available
@@ -43,7 +45,7 @@ const opUpPrograms = [
 const mapCommonAppCallTransactionProperties = (
   networkTransactionId: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
@@ -51,14 +53,16 @@ const mapCommonAppCallTransactionProperties = (
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>,
   indexPrefix?: string
 ) => {
-  invariant(transactionResult['application-transaction'], 'application-transaction is not set')
-  const isCreate = !transactionResult['application-transaction']['application-id']
-  const onCompletion = asAppCallOnComplete(transactionResult['application-transaction']['on-completion'])
+  invariant(transactionResult.applicationTransaction, 'application-transaction is not set')
+  const isCreate = !transactionResult.applicationTransaction.applicationId
+  const onCompletion = asAppCallOnComplete(transactionResult.applicationTransaction.onCompletion)
   const isOpUp =
     isCreate &&
     onCompletion === AppCallOnComplete.Delete &&
-    opUpPrograms.includes(transactionResult['application-transaction']['approval-program']) &&
-    opUpPrograms.includes(transactionResult['application-transaction']['clear-state-program'])
+    !!transactionResult.applicationTransaction.approvalProgram &&
+    !!transactionResult.applicationTransaction.clearStateProgram &&
+    opUpPrograms.includes(uint8ArrayToBase64(transactionResult.applicationTransaction.approvalProgram)) &&
+    opUpPrograms.includes(uint8ArrayToBase64(transactionResult.applicationTransaction.clearStateProgram))
   const abiMethod = abiMethodResolver(transactionResult, groupResolver)
 
   return {
@@ -66,30 +70,30 @@ const mapCommonAppCallTransactionProperties = (
     type: TransactionType.AppCall,
     subType: isCreate ? AppCallTransactionSubType.Create : undefined,
     isOpUp,
-    applicationId: transactionResult['application-transaction']['application-id']
-      ? transactionResult['application-transaction']['application-id']
-      : transactionResult['created-application-index']!,
-    applicationArgs: transactionResult['application-transaction']['application-args'] ?? [],
-    applicationAccounts: transactionResult['application-transaction'].accounts ?? [],
-    foreignApps: transactionResult['application-transaction']['foreign-apps'] ?? [],
-    foreignAssets: transactionResult['application-transaction']['foreign-assets'] ?? [],
+    applicationId: transactionResult.applicationTransaction.applicationId
+      ? transactionResult.applicationTransaction.applicationId
+      : transactionResult.createdApplicationIndex!,
+    applicationArgs: transactionResult.applicationTransaction.applicationArgs?.map((a) => uint8ArrayToBase64(a)) ?? [],
+    applicationAccounts: transactionResult.applicationTransaction.accounts?.map((a) => a.toString()) ?? [],
+    foreignApps: transactionResult.applicationTransaction.foreignApps ?? [],
+    foreignAssets: transactionResult.applicationTransaction.foreignAssets ?? [],
     globalStateDeltas: globalStateDeltaResolver(transactionResult),
     localStateDeltas: localStateDeltaResolver(transactionResult),
     innerTransactions:
-      transactionResult['inner-txns']?.map((innerTransaction, index) => {
+      transactionResult.innerTxns?.map((innerTransaction, index) => {
         // Generate a unique id for the inner transaction
         const innerId = indexPrefix ? `${indexPrefix}/${index + 1}` : `${index + 1}`
         return asInnerTransaction(networkTransactionId, innerId, innerTransaction, assetResolver, abiMethodResolver, groupResolver)
       }) ?? [],
     onCompletion,
-    logs: transactionResult['logs'] ?? [],
+    logs: transactionResult.logs?.map((l) => uint8ArrayToBase64(l)) ?? [],
     abiMethod,
   } satisfies BaseAppCallTransaction
 }
 
 export const asAppCallTransaction = (
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
@@ -114,7 +118,7 @@ export const asInnerAppCallTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
@@ -134,20 +138,22 @@ export const asInnerAppCallTransaction = (
   }
 }
 
-const asAppCallOnComplete = (indexerEnum: ApplicationOnComplete): AppCallOnComplete => {
-  switch (indexerEnum) {
-    case ApplicationOnComplete.noop:
+const asAppCallOnComplete = (onComplete?: string): AppCallOnComplete => {
+  switch (onComplete) {
+    case 'noop':
       return AppCallOnComplete.NoOp
-    case ApplicationOnComplete.optin:
+    case 'optin':
       return AppCallOnComplete.OptIn
-    case ApplicationOnComplete.closeout:
+    case 'closeout':
       return AppCallOnComplete.CloseOut
-    case ApplicationOnComplete.clear:
+    case 'clear':
       return AppCallOnComplete.ClearState
-    case ApplicationOnComplete.update:
+    case 'update':
       return AppCallOnComplete.Update
-    case ApplicationOnComplete.delete:
+    case 'delete':
       return AppCallOnComplete.Delete
+    default:
+      throw new Error(`Unsupported on-complete value: ${onComplete}`)
   }
 }
 
@@ -155,31 +161,31 @@ const asInnerTransaction = (
   networkTransactionId: string,
   index: string,
   transactionResult: TransactionResult,
-  assetResolver: (assetId: number) => AsyncMaybeAtom<AssetSummary>,
+  assetResolver: (assetId: AssetId) => AsyncMaybeAtom<AssetSummary>,
   abiMethodResolver: (
     transactionResult: TransactionResult,
     groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
   ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ) => {
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.pay) {
+  if (transactionResult.txType === AlgoSdkTransactionType.pay) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
   }
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.axfer) {
+  if (transactionResult.txType === AlgoSdkTransactionType.axfer) {
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.appl) {
+  if (transactionResult.txType === AlgoSdkTransactionType.appl) {
     return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, abiMethodResolver, groupResolver)
   }
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.acfg) {
+  if (transactionResult.txType === AlgoSdkTransactionType.acfg) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)
   }
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.afrz) {
+  if (transactionResult.txType === AlgoSdkTransactionType.afrz) {
     return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
-  if (transactionResult['tx-type'] === AlgoSdkTransactionType.keyreg) {
+  if (transactionResult.txType === AlgoSdkTransactionType.keyreg) {
     return asInnerKeyRegTransaction(networkTransactionId, index, transactionResult)
   }
 
-  throw new Error(`Unsupported inner transaction type: ${transactionResult['tx-type']}`)
+  throw new Error(`Unsupported inner transaction type: ${transactionResult.txType}`)
 }

@@ -13,8 +13,8 @@ export const abiTypeToFormFieldSchema = (type: algosdk.ABIType, isOptional: bool
     return bigIntSchema(isOptional ? uintSchema.optional() : uintSchema)
   }
   if (type instanceof algosdk.ABIByteType) {
-    const uintSchema = z.number().min(0).max(255, `Value must be less than or equal to 255`)
-    return numberSchema(isOptional ? uintSchema.optional() : uintSchema)
+    const byteSchema = z.number().min(0).max(255, `Value must be less than or equal to 255`)
+    return numberSchema(isOptional ? byteSchema.optional() : byteSchema)
   }
   if (type instanceof algosdk.ABIBoolType) {
     const boolSchema = z
@@ -76,7 +76,7 @@ export const abiTypeToFormFieldSchema = (type: algosdk.ABIType, isOptional: bool
 
 export const abiReferenceTypeToFormFieldSchema = (type: algosdk.ABIReferenceType): z.ZodTypeAny => {
   if (type === algosdk.ABIReferenceType.asset || type === algosdk.ABIReferenceType.application) {
-    return numberSchema(z.number().min(0))
+    return bigIntSchema(z.bigint().min(0n))
   }
   if (type === algosdk.ABIReferenceType.account) {
     return addressFieldSchema

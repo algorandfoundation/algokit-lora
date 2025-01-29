@@ -33,7 +33,7 @@ export function EditAppInterfacePage() {
   const { applicationId: _applicationId } = useRequiredParam(UrlParams.ApplicationId)
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 
-  const applicationId = parseInt(_applicationId, 10)
+  const applicationId = BigInt(_applicationId)
   const [loadableAppInterface, refreshAppInterface] = useAppInterface(applicationId)
 
   return (

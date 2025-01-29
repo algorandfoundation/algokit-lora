@@ -24,6 +24,7 @@ describe('transaction-wizard-page', () => {
         return {
           ...original.useWallet(),
           activeAddress: null,
+          isReady: true,
         } satisfies ReturnType<typeof useWallet>
       })
     })
@@ -142,11 +143,12 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr)
-            expect(result.transaction['payment-transaction']!).toMatchInlineSnapshot(`
-              {
-                "amount": 500000,
-                "close-amount": 0,
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+              TransactionPayment {
+                "amount": 500000n,
+                "closeAmount": 0n,
+                "closeRemainderTo": undefined,
                 "receiver": "${testAccount2.addr}",
               }
             `)
@@ -247,12 +249,12 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr)
-            expect(result.transaction['payment-transaction']!).toMatchInlineSnapshot(`
-              {
-                "amount": 0,
-                "close-amount": 9999000,
-                "close-remainder-to": "${testAccount2.addr}",
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+              TransactionPayment {
+                "amount": 0n,
+                "closeAmount": 9999000n,
+                "closeRemainderTo": "${testAccount2.addr}",
                 "receiver": "${testAccount.addr}",
               }
             `)

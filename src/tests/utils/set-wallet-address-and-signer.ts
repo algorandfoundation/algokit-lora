@@ -9,8 +9,9 @@ export const setWalletAddressAndSigner = async (localnet: AlgorandFixture) => {
   vi.mocked(useWallet).mockImplementation(() => {
     return {
       ...original.useWallet(),
-      activeAddress: testAccount.addr,
+      activeAddress: testAccount.addr.toString(),
       transactionSigner: testAccount.signer,
+      isReady: true,
     } satisfies ReturnType<typeof useWallet>
   })
 }

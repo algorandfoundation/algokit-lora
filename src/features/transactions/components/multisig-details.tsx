@@ -23,10 +23,14 @@ export function MultisigDetails({ signature }: MultisigProps) {
         dt: multisigThresholdLabel,
         dd: signature.threshold,
       },
-      {
-        dt: multisigSubsignersLabel,
-        dd: signature.subsigners.map((address, index) => <div key={index}>{address}</div>),
-      },
+      ...(signature.subsigners
+        ? [
+            {
+              dt: multisigSubsignersLabel,
+              dd: signature.subsigners.map((address, index) => <div key={index}>{address}</div>),
+            },
+          ]
+        : []),
     ],
     [signature.subsigners, signature.version, signature.threshold]
   )

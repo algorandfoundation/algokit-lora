@@ -184,7 +184,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       const associatedAccounts = transaction.innerTransactions
         .reduce(
           (acc, itxn) => {
-            if (itxn.sender !== getApplicationAddress(transaction.applicationId)) {
+            if (itxn.sender !== getApplicationAddress(transaction.applicationId).toString()) {
               acc.push({
                 type: 'Rekey',
                 accountNumber: -1,
@@ -216,7 +216,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
         applicationId: transaction.applicationId,
         linkedAccount: {
           accountNumber: -1,
-          accountAddress: getApplicationAddress(transaction.applicationId),
+          accountAddress: getApplicationAddress(transaction.applicationId).toString(),
         },
         associatedAccounts,
       })

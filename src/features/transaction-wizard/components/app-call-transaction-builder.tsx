@@ -46,7 +46,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
-        applicationId: Number(values.applicationId),
+        applicationId: BigInt(values.applicationId),
         sender: values.sender,
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,

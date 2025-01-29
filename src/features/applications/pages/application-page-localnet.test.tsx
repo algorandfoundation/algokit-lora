@@ -26,8 +26,8 @@ describe('application-page on localnet', () => {
     })
 
     beforeEach(async () => {
-      const { app } = await deploySmartContract(localnet, Arc32TestContractAppSpec as AppSpec)
-      appId = Number(app.appId)
+      const { app } = await deploySmartContract(localnet.context.testAccount, localnet.algorand, Arc32TestContractAppSpec as AppSpec)
+      appId = app.appId
     })
 
     it('should be rendered with the correct data', async () => {

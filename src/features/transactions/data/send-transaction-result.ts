@@ -1,8 +1,5 @@
-import { BlockInnerTransaction } from '@algorandfoundation/algokit-subscriber/types/block'
-import algosdk from 'algosdk'
 import { Transaction } from '../models'
 import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
-import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
 import { invariant } from '@/utils/invariant'
 import { asTransaction } from '../mappers'
 import { getAssetResultAtom } from '@/features/assets/data'
@@ -12,23 +9,28 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { asAssetSummary } from '@/features/assets/mappers'
+import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
+import algosdk, { SignedTxnWithAD } from 'algosdk'
+import { accumulateGroupsFromTransaction } from '@/features/blocks/data'
+import { subscribedTransactionToTransactionResult } from '../mappers/subscriber-transaction-mappers'
 
-const asBlockTransaction = (res: algosdk.modelsv2.PendingTransactionResponse): BlockInnerTransaction => {
-  return {
-    txn: res.txn.txn,
-    sgnr: res.txn.sgnr,
-    caid: res.assetIndex !== undefined ? Number(res.assetIndex) : res.txn.txn.caid,
-    apid: res.applicationIndex !== undefined ? Number(res.applicationIndex) : res.txn.txn.apid,
-    aca: res.assetClosingAmount,
-    ca: res.closingAmount !== undefined ? Number(res.closingAmount) : undefined,
-    dt: {
-      // We don't use gd or ld in this context, so don't need to map.
-      gd: {},
-      ld: {},
-      lg: res.logs ?? [],
-      itx: res.innerTxns?.map((inner) => asBlockTransaction(inner)),
-    },
-  }
+const asSignedTxnWithAD = (res: algosdk.modelsv2.PendingTransactionResponse): SignedTxnWithAD => {
+  return new SignedTxnWithAD({
+    signedTxn: new algosdk.SignedTransaction({
+      txn: res.txn.txn,
+      sgnr: res.txn.sgnr,
+    }),
+    applyData: new algosdk.ApplyData({
+      configAsset: res.assetIndex,
+      applicationID: res.applicationIndex,
+      closingAmount: res.closingAmount,
+      assetClosingAmount: res.assetClosingAmount,
+      evalDelta: new algosdk.EvalDelta({
+        logs: res.logs,
+        innerTxns: res.innerTxns?.map((inner) => asSignedTxnWithAD(inner)),
+      }),
+    }),
+  })
 }
 
 export const asTransactionFromSendResult = (result: SendTransactionResults): Transaction[] => {
@@ -38,37 +40,47 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
   invariant(result.transactions.length === result.confirmations.length, 'All transactions must be confirmed')
 
   const now = new Date()
+  const groups = new Map<GroupId, GroupResult>()
+
+  // This mapping does some approximations, which are fine for the contexts we currently use it for.
+  const transactionResults = result.confirmations.map((confirmation, i) => {
+    invariant(confirmation.txn.txn.genesisHash, 'Genesis hash is required')
+    invariant(confirmation.txn.txn.genesisID, 'Genesis ID is required')
+
+    const subscribedTransaction = getIndexerTransactionFromAlgodTransaction({
+      signedTxnWithAD: asSignedTxnWithAD(confirmation),
+      intraRoundOffset: 0,
+      transactionId: confirmation.txn.txn.txID(),
+      genesisHash: Buffer.from(confirmation.txn.txn.genesisHash),
+      genesisId: confirmation.txn.txn.genesisID,
+      roundNumber: confirmation.confirmedRound ?? 0n,
+      roundTimestamp: Math.floor(now.getTime() / 1000),
+      transaction: result.transactions[i],
+      logs: confirmation.logs,
+      createdAssetId: confirmation.assetIndex,
+      createdAppId: confirmation.applicationIndex,
+      closeAmount: confirmation.closingAmount,
+      assetCloseAmount: confirmation.assetClosingAmount,
+    })
+
+    return subscribedTransactionToTransactionResult(subscribedTransaction)
+  })
+
+  transactionResults.forEach((txnResult) => {
+    accumulateGroupsFromTransaction(groups, txnResult, 0n, 0)
+  })
+
   const groupResolver = (groupId: GroupId, round: Round) =>
     atom(() => {
       return {
         id: groupId,
         timestamp: now.toISOString(),
         round,
-        transactionIds: result.transactions.map((txn) => txn.txID()),
+        transactionIds: groups.get(groupId)?.transactionIds ?? [],
       } satisfies GroupResult
     })
 
-  // This mapping does some approximations, which are fine for the contexts we currently use it for.
-  return result.confirmations.map((confirmation, i) => {
-    const txnResult = getIndexerTransactionFromAlgodTransaction({
-      blockTransaction: asBlockTransaction(confirmation),
-      roundOffset: 0,
-      roundIndex: 0,
-      genesisHash: confirmation.txn.txn.gh,
-      genesisId: confirmation.txn.txn.gen,
-      roundNumber: Number(confirmation.confirmedRound ?? 0),
-      roundTimestamp: Math.floor(now.getTime() / 1000),
-      transaction: result.transactions[i],
-      logs: confirmation.logs,
-      createdAssetId: confirmation.assetIndex !== undefined ? Number(confirmation.assetIndex) : undefined,
-      createdAppId: confirmation.applicationIndex !== undefined ? Number(confirmation.applicationIndex) : undefined,
-      closeAmount: confirmation.closingAmount != undefined ? Number(confirmation.closingAmount) : undefined,
-      assetCloseAmount: confirmation.assetClosingAmount,
-    })
-
-    const transaction = asTransaction(txnResult, assetSummaryResolver, abiMethodResolver, groupResolver)
-    return transaction
-  })
+  return transactionResults.map((txnResult) => asTransaction(txnResult, assetSummaryResolver, abiMethodResolver, groupResolver))
 }
 
 const assetSummaryResolver = (assetId: AssetId) =>
@@ -82,7 +94,7 @@ const assetSummaryResolver = (assetId: AssetId) =>
         params: {
           creator: '',
           decimals: 0,
-          total: 0,
+          total: 0n,
         },
       })
     }

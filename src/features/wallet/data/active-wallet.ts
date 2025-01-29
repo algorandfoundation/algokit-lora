@@ -17,12 +17,14 @@ export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccou
   }
 })
 
-export const useSetActiveWalletState = (activeAddress: string | undefined, signer: algosdk.TransactionSigner) => {
+export const useSetActiveWalletState = (isReady: boolean, activeAddress: string | undefined, signer: algosdk.TransactionSigner) => {
   const setActiveWalletAddress = useSetAtom(activeWalletAddressAtom)
   useEffect(() => {
-    setActiveWalletAddress(activeAddress)
-    algorandClient.setDefaultSigner(signer)
-  }, [setActiveWalletAddress, activeAddress, signer])
+    if (isReady) {
+      setActiveWalletAddress(activeAddress)
+      algorandClient.setDefaultSigner(signer)
+    }
+  }, [setActiveWalletAddress, activeAddress, signer, isReady])
 }
 
 const getActiveWalletAccount = async (address: string) => {
@@ -31,14 +33,12 @@ const getActiveWalletAccount = async (address: string) => {
 
   return {
     address: address,
-    // In algosdk, the asset ID has type bigint | number
-    // but in lora, we use number only
-    assetHolding: new Map(assetHolding.map((asset) => [Number(asset.assetId), { amount: asset.amount }])),
+    assetHolding: new Map(assetHolding.map((asset) => [asset.assetId, { amount: asset.amount }])),
     algoHolding: {
       amount: accountInformation.balance.microAlgo,
     },
-    minBalance: Number(accountInformation.minBalance.microAlgo),
-    validAtRound: Number(accountInformation.validAsOfRound),
+    minBalance: accountInformation.minBalance.microAlgo,
+    validAtRound: accountInformation.validAsOfRound,
   } satisfies Omit<ActiveWalletAccount, 'nfd'>
 }
 

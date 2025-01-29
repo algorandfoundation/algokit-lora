@@ -1,4 +1,6 @@
+import { ApplicationId } from '@/features/applications/data/types'
 import { StructDefinition } from '@/features/applications/models'
+import { AssetId } from '@/features/assets/data/types'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
 import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import algosdk from 'algosdk'
@@ -67,8 +69,8 @@ export type DecodedAbiValue =
 
 export type DecodedAbiReference =
   | ({ type: DecodedAbiType.Account; value: string } & RepresentationProps)
-  | ({ type: DecodedAbiType.Application; value: number } & RepresentationProps)
-  | ({ type: DecodedAbiType.Asset; value: number } & RepresentationProps)
+  | ({ type: DecodedAbiType.Application; value: ApplicationId } & RepresentationProps)
+  | ({ type: DecodedAbiType.Asset; value: AssetId } & RepresentationProps)
 
 export type DecodedAbiTransaction = { type: DecodedAbiType.Transaction; value: string } & RepresentationProps
 

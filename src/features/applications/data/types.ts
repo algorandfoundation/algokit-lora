@@ -1,16 +1,26 @@
-import { ApplicationResult as IndexerApplicationResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import algosdk from 'algosdk'
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 
-export type ApplicationId = number
+export type ApplicationId = bigint
 
 export type ApplicationMetadataResult = {
   name: string
 } | null
 
-export type ApplicationResult = Omit<IndexerApplicationResult, 'created-at-round' | 'deleted-at-round' | 'params'> & {
-  params: Omit<IndexerApplicationResult['params'], 'global-state'> & {
-    'global-state'?: IndexerApplicationResult['params']['global-state']
+export type ApplicationResult = Omit<
+  algosdk.indexerModels.Application,
+  'getEncodingSchema' | 'toEncodingData' | 'createdAtRound' | 'deletedAtRound' | 'params'
+> & {
+  params: Omit<
+    algosdk.indexerModels.ApplicationParams,
+    'getEncodingSchema' | 'toEncodingData' | 'globalState' | 'globalStateSchema' | 'localStateSchema'
+  > & {
+    globalState?: algosdk.indexerModels.ApplicationParams['globalState']
+    globalStateSchema?: ApplicationStateSchema
+    localStateSchema?: ApplicationStateSchema
   }
 }
 
 export type AppClientMethodCallParamsArgs = NonNullable<AppCallMethodCall['args']>[number]
+
+export type ApplicationStateSchema = Omit<algosdk.indexerModels.ApplicationStateSchema, 'getEncodingSchema' | 'toEncodingData'>

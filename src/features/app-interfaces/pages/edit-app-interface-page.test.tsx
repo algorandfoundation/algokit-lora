@@ -14,7 +14,7 @@ import { getButton } from '@/tests/utils/get-button'
 describe('edit-app-interface', () => {
   it('can edit an existing app spec', async () => {
     const myStore = getTestStore()
-    const applicationId = 1234
+    const applicationId = 1234n
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
@@ -60,7 +60,7 @@ describe('edit-app-interface', () => {
 
   it('can add an app spec', async () => {
     const myStore = getTestStore()
-    const applicationId = 1234
+    const applicationId = 1234n
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,
@@ -109,7 +109,7 @@ describe('edit-app-interface', () => {
 
   it('can delete an app spec', async () => {
     const myStore = getTestStore()
-    const applicationId = 1234
+    const applicationId = 1234n
     const dbConnection = await myStore.get(dbConnectionAtom)
     await upsertAppInterface(dbConnection, {
       applicationId: applicationId,

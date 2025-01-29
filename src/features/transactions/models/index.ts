@@ -6,10 +6,11 @@ import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { GroupId } from '@/features/groups/data/types'
 import { Atom } from 'jotai/index'
 import { DecodedAbiMethod, DecodedAbiStorageKey, DecodedAbiStorageValue } from '@/features/abi-methods/models'
+import { ApplicationId } from '@/features/applications/data/types'
 
 export type CommonTransactionProperties = {
   type: TransactionType
-  confirmedRound: number
+  confirmedRound: bigint
   roundTime: number
   group?: GroupId
   fee: AlgoAmount
@@ -63,7 +64,7 @@ export type BaseAssetTransferTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetTransfer
   subType: AssetTransferTransactionSubType | undefined
   receiver: Address
-  amount: number | bigint
+  amount: bigint
   closeRemainder?: CloseAssetRemainder
   assetId: AssetId
   asset: AsyncMaybeAtom<AssetSummary>
@@ -87,8 +88,7 @@ export type Transaction =
 export type TransactionSummary = Pick<CommonTransactionProperties, 'type' | 'fee'> & {
   id: string
   from: Address
-  to?: Address | number
-  innerTransactions?: TransactionSummary[]
+  to?: Address | number | bigint
 }
 
 export enum SignatureType {
@@ -104,9 +104,9 @@ export type Singlesig = {
 
 export type Multisig = {
   type: SignatureType.Multi
-  version: number
-  threshold: number
-  subsigners: Address[]
+  version?: number
+  threshold?: number
+  subsigners?: Address[]
 }
 
 export type Logicsig = {
@@ -154,10 +154,10 @@ export type BaseAppCallTransaction = CommonTransactionProperties & {
   type: TransactionType.AppCall
   subType: AppCallTransactionSubType | undefined
   isOpUp: boolean
-  applicationId: number
+  applicationId: ApplicationId
   applicationArgs: string[]
-  foreignApps: number[]
-  foreignAssets: number[]
+  foreignApps: ApplicationId[]
+  foreignAssets: AssetId[]
   applicationAccounts: Address[]
   globalStateDeltas: Atom<Promise<GlobalStateDelta[]>>
   localStateDeltas: Atom<Promise<LocalStateDelta[]>>
@@ -200,7 +200,7 @@ export type InnerTransaction =
 export type BaseAssetConfigTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetConfig
   subType: AssetConfigTransactionSubType
-  assetId: number
+  assetId: AssetId
   url?: string
   name?: string
   total?: number | bigint
@@ -229,7 +229,7 @@ export type BaseAssetFreezeTransaction = CommonTransactionProperties & {
   type: TransactionType.AssetFreeze
   subType: undefined
   address: Address
-  assetId: number
+  assetId: AssetId
   asset: AsyncMaybeAtom<AssetSummary>
   freezeStatus: AssetFreezeStatus
 }
@@ -256,9 +256,9 @@ export type BaseKeyRegTransaction = CommonTransactionProperties & {
   subType: KeyRegTransactionSubType
   nonParticipation?: boolean
   selectionParticipationKey?: string
-  voteFirstValid?: number
-  voteKeyDilution?: number
-  voteLastValid?: number
+  voteFirstValid?: bigint
+  voteKeyDilution?: bigint
+  voteLastValid?: bigint
   voteParticipationKey?: string
   stateProofKey?: string
 }

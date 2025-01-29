@@ -30,7 +30,7 @@ export function BlockPage() {
   useTitle()
   const { round: _round } = useRequiredParam(UrlParams.Round)
   invariant(isInteger(_round), blockInvalidRoundMessage)
-  const round = parseInt(_round, 10)
+  const round = BigInt(_round)
   const loadableBlock = useLoadableBlock(round)
 
   return (

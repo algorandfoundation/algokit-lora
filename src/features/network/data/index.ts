@@ -26,6 +26,7 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   kmd: 'KMD',
   mnemonic: 'MNEMONIC',
   defly: 'Defly',
+  'defly-web': 'Defly Web',
   pera: 'Pera',
   exodus: 'Exodus',
   lute: 'Lute',
@@ -34,8 +35,6 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   kibisis: 'Kibisis',
   walletconnect: 'Wallet Connect',
   magic: 'Magic',
-  liquid: 'Liquid',
-  'pera-beta': 'Pera Beta',
   biatec: 'Biatec',
 }
 
@@ -276,9 +275,9 @@ export const useSetNetworkPromptedTokens = () => {
 const shouldPromptForTokens = atom((get) => {
   const networkConfig = get(networkConfigAtom)
   return (
-    (networkConfig.algod.promptForToken && !networkConfig.algod.token) ||
-    (networkConfig.indexer.promptForToken && !networkConfig.indexer.token) ||
-    (networkConfig.kmd?.promptForToken && !networkConfig?.kmd.token)
+    (networkConfig.algod.promptForToken === true && !networkConfig.algod.token) ||
+    (networkConfig.indexer.promptForToken === true && !networkConfig.indexer.token) ||
+    (networkConfig.kmd?.promptForToken === true && !networkConfig?.kmd.token)
   )
 })
 
@@ -331,7 +330,7 @@ export const useSetSelectedNetwork = () => {
 
   return useCallback(
     async (selectedNetwork: string) => {
-      disconnectAllWallets()
+      await disconnectAllWallets()
       setStorageNetwork(selectedNetwork)
       // Refresh selected network atom value
       settingsStore.set(selectedNetworkAtomId)

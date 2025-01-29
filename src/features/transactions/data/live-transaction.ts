@@ -4,7 +4,7 @@ import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { atomEffect } from 'jotai-effect'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { TransactionId } from '@/features/transactions/data/types'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 export const useLiveTransactions = (filter: (transactionResult: TransactionResult) => boolean, maxRows: number) => {
   const { liveTransactionsAtomEffect, liveTransactionsAtom, showLiveUpdatesAtom } = useMemo(() => {

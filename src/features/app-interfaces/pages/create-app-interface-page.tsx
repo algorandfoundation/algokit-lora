@@ -37,8 +37,8 @@ function CreateAppInterfaceInner() {
     const common = {
       applicationId: state.context.applicationId,
       name: state.context.name,
-      roundFirstValid: state.context.roundFirstValid !== undefined ? Number(state.context.roundFirstValid) : undefined,
-      roundLastValid: state.context.roundLastValid !== undefined ? Number(state.context.roundLastValid) : undefined,
+      roundFirstValid: state.context.roundFirstValid,
+      roundLastValid: state.context.roundLastValid,
     }
 
     try {

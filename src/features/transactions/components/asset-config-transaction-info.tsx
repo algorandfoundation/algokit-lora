@@ -64,7 +64,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
               transaction.total != null
                 ? {
                     dt: assetTotalSupplyLabel,
-                    dd: `${new Decimal(transaction.total.toString()).div(new Decimal(10).pow((transaction.decimals ?? 0).toString()))} ${transaction.unitName}`,
+                    dd: `${new Decimal(transaction.total.toString()).div(new Decimal(10).pow((transaction.decimals ?? 0).toString()))} ${transaction.unitName ?? ''}`,
                   }
                 : undefined,
               transaction.decimals != null

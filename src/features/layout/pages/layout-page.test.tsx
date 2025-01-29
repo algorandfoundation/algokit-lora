@@ -51,6 +51,7 @@ describe('when rendering the layout page', () => {
         return {
           ...original.useWallet(),
           activeAddress: 'CGRSYAYF2M5HNH6KYY6RPLYANVZ5ZQO4OTC3M3YPI4D6JFBXZGRUSVLQ5Q',
+          isReady: true,
         } satisfies ReturnType<typeof useWallet>
       })
 
@@ -84,6 +85,7 @@ describe('when rendering the layout page', () => {
                 name: 'Account 2',
               },
             ],
+            isReady: true,
           } satisfies ReturnType<typeof useWallet>
         })
 
@@ -127,6 +129,7 @@ describe('when rendering the layout page', () => {
             setAlgodClient: vi.fn(),
             signTransactions: vi.fn(),
             transactionSigner: vi.fn(),
+            isReady: true,
           } as unknown as ReturnType<typeof useWallet>
         })
         await executeComponentTest(

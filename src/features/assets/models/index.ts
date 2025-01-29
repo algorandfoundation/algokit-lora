@@ -1,5 +1,7 @@
+import { AssetId } from '../data/types'
+
 export type AssetSummary = {
-  id: number
+  id: AssetId
   name?: string
   decimals: number
   unitName?: string
