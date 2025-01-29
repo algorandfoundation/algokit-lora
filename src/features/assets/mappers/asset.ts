@@ -6,20 +6,20 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 import Decimal from 'decimal.js'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
-import { asJson } from '@/utils/as-json'
+import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
-    defaultFrozen: assetResult.params['default-frozen'] ?? false,
+    defaultFrozen: assetResult.params.defaultFrozen ?? false,
     url: assetResult.params.url,
     type: asType(assetResult),
     standardsUsed: asStandardsUsed(assetResult, metadataResult),
     traits: asTraits(metadataResult),
     media: asMedia(assetResult, metadataResult),
     metadata: asMetadata(metadataResult),
-    json: asJson(assetResult),
+    json: asJson(normaliseAlgoSdkData(assetResult)),
   }
 }
 
@@ -133,7 +133,7 @@ const asType = (assetResult: AssetResult): AssetType => {
     return AssetType.Deleted
   }
 
-  if (assetResult.params.total === 1 && assetResult.params.decimals === 0) {
+  if (assetResult.params.total === 1n && assetResult.params.decimals === 0) {
     return AssetType.PureNonFungible
   }
   // Check for fractional non-fungible

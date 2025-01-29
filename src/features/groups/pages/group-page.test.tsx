@@ -19,6 +19,7 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
+import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -27,6 +28,29 @@ vi.mock('@/features/common/data/algo-client', async () => {
     indexer: {
       lookupBlock: vi.fn().mockReturnValue({
         do: vi.fn(),
+      }),
+      lookupTransactionByID: vi.fn().mockReturnValue({
+        do: () => {
+          return Promise.resolve(
+            new algosdk.indexerModels.TransactionResponse({
+              currentRound: 1,
+              transaction: new algosdk.indexerModels.Transaction({
+                sender: 'sender',
+                fee: 1000,
+                firstValid: 1,
+                lastValid: 1,
+                note: 'note',
+                txType: 'pay',
+                confirmedRound: 1,
+                roundTime: 1,
+                paymentTransaction: new algosdk.indexerModels.TransactionPayment({
+                  amount: 1000,
+                  receiver: 'receiver',
+                }),
+              }),
+            })
+          )
+        },
       }),
     },
   }
@@ -86,7 +110,7 @@ describe('group-page', () => {
     const group = groupResultMother
       .groupWithTransactions(transactionResults)
       .withId('/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=')
-      .withRound(36591812)
+      .withRound(36591812n)
       .withTimestamp('2024-03-01T01:07:53Z')
       .build()
 
@@ -133,13 +157,113 @@ describe('group-page', () => {
           await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
           await tableAssertion({
             container: tableViewTab,
-            // This table has 10+ row, we only test the first 2 rows
+            // This table has 10+ row, we only test the first row
             rows: [
               {
                 cells: ['', 'INDQXWQ…', '/oRSr2u…', 'AACC…EN4A', '1201559522', 'Application Call', ''],
               },
             ],
           })
+        }
+      )
+    })
+  })
+
+  describe('when rendering a group of inner transactions', () => {
+    const transactionResults = [transactionResultMother['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']().build()]
+    const assets = [
+      assetResultMother['mainnet-31566704']().build(),
+      assetResultMother['mainnet-386195940']().build(),
+      assetResultMother['mainnet-408898501']().build(),
+    ]
+    const group = groupResultMother
+      .groupWithTransactions(transactionResults)
+      .withId('aWpPwlog0oZYHQe9uDlwReKzIgb9HVKLv8Z4GX0wMO0=')
+      .withRound(36591812n)
+      .withTimestamp('2024-03-01T01:07:53Z')
+      .build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
+
+      const myStore = createStore()
+      myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
+      myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
+      myStore.set(
+        assetResultsAtom,
+        new Map([
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+        ])
+      )
+      myStore.set(genesisHashAtom, 'some-hash')
+
+      return executeComponentTest(
+        () => render(<GroupPage />, undefined, myStore),
+        async (component, user) => {
+          await waitFor(() =>
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: groupIdLabel, description: 'aWpPwlog0oZYHQe9uDlwReKzIgb9HVKLv8Z4GX0wMO0=' },
+                { term: blockLabel, description: '36591812' },
+                { term: timestampLabel, description: 'Fri, 01 March 2024 01:07:53' },
+                { term: transactionsLabel, description: '3Payment=1Application Call=1Asset Transfer=1' },
+              ],
+            })
+          )
+
+          const groupVisualTabList = component.getByRole('tablist', { name: groupVisual })
+          expect(groupVisualTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: groupVisualGraphLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(groupVisualTabList, 'tab', { name: groupVisualTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: groupVisualTableLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+          await tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['', 'inner/1', 'aWpPwlo…', 'AACC…EN4A', '2PIF…RNMM', 'Payment', '2.770045'],
+              },
+              {
+                cells: ['', 'inner/2', 'aWpPwlo…', 'AACC…EN4A', '1002541853', 'Application Call', ''],
+              },
+            ],
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an inner transaction group', () => {
+    const transaction1 = transactionResultMother.payment().withId('MNVQ6KV2HCFDX4GBXGVNODIIK3ATIPH5KG4TS7L3WZT2JM6ETLLQ/inner/1').build()
+    const transaction2 = transactionResultMother.appCall().withId('MNVQ6KV2HCFDX4GBXGVNODIIK3ATIPH5KG4TS7L3WZT2JM6ETLLQ/inner/2').build()
+
+    const group = groupResultMother
+      .groupWithTransactions([transaction1, transaction2])
+      .withId('ZlhheIuy1l/olQhJQt0eMMgbxPAsmElYrL6Is0A2Qno=')
+      .withRound(2215n)
+      .withTimestamp('2025-01-27T01:07:53Z')
+      .build()
+
+    it('should be rendered with the correct data', () => {
+      vi.mocked(useParams).mockImplementation(() => ({ round: group.round.toString(), groupId: group.id }))
+
+      const myStore = createStore()
+      myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
+
+      return executeComponentTest(
+        () => render(<GroupPage />, undefined, myStore),
+        async () => {
+          const mock = vi.mocked(indexer.lookupTransactionByID)
+
+          expect(mock).toHaveBeenCalledWith('MNVQ6KV2HCFDX4GBXGVNODIIK3ATIPH5KG4TS7L3WZT2JM6ETLLQ')
+          expect(mock).toHaveBeenCalledTimes(1)
         }
       )
     })

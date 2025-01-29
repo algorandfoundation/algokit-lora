@@ -7,9 +7,10 @@ import { Urls } from '@/routes/urls'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { Nfd } from '@/features/nfd/data/types'
 import { PropsWithChildren } from 'react'
+import { Address } from 'algosdk'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{
-  address: string
+  address: string | Address
   short?: boolean
   className?: string
   showCopyButton?: boolean
@@ -18,10 +19,11 @@ export type AddressOrNfdLinkProps = PropsWithChildren<{
 
 export const AddressOrNfdLink = fixedForwardRef(
   (
-    { address, nfd, short, className, children, showCopyButton, ...rest }: AddressOrNfdLinkProps,
+    { address: _address, nfd, short, className, children, showCopyButton, ...rest }: AddressOrNfdLinkProps,
     ref?: React.LegacyRef<HTMLAnchorElement>
   ) => {
     const [selectedNetwork] = useSelectedNetwork()
+    const address = typeof _address === 'string' ? _address : _address.toString()
 
     const link = (
       <TemplatedNavLink

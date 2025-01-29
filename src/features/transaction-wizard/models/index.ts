@@ -10,6 +10,7 @@ import React from 'react'
 import { Nfd } from '@/features/nfd/data/types'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
+import Decimal from 'decimal.js'
 
 export enum BuildableTransactionType {
   // pay
@@ -137,7 +138,7 @@ export type BuildAssetTransferTransactionResult = CommonBuildTransactionResult &
   }
   type: BuildableTransactionType.AssetTransfer
   receiver: AddressOrNfd
-  amount: number
+  amount: Decimal
 }
 
 export type BuildAssetOptInTransactionResult = CommonBuildTransactionResult & {
@@ -171,7 +172,7 @@ export type BuildAssetClawbackTransactionResult = CommonBuildTransactionResult &
   type: BuildableTransactionType.AssetClawback
   receiver: AddressOrNfd
   clawbackTarget: AddressOrNfd
-  amount: number
+  amount: Decimal
 }
 
 export type BuildAssetCreateTransactionResult = CommonBuildTransactionResult & {

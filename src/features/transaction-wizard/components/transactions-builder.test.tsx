@@ -13,7 +13,7 @@ import { MethodDefinition } from '@/features/applications/models'
 
 describe('patchTransactions', () => {
   const exampleMethodCallProperties = {
-    applicationId: 1988,
+    applicationId: 1988n,
     methodDefinition: {} as MethodDefinition,
     onComplete: 0,
     sender: asAddressOrNfd('IN6X7QLOJB76VTDHWAW43OTBUGAQ22DVYBPNHLLTJ5RVOTFVTCPK3JY6RA'),

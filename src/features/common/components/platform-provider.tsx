@@ -30,7 +30,7 @@ export function PlatformProvider({ children }: PropsWithChildren) {
   // The DataProvider key prop is super important it governs if the provider is reinitialized
   const dataProvider = shouldPromptForTokens ? (
     <DataProvider key={`${key}-tokenprompt`} networkConfig={networkConfig}>
-      {children}
+      <WalletProvider networkConfig={networkConfig}>{children}</WalletProvider>
     </DataProvider>
   ) : (
     <DataProvider key={key} networkConfig={networkConfig}>

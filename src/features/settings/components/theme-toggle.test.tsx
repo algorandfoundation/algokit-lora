@@ -8,8 +8,8 @@ describe('when the theme is toggled to dark', () => {
     return executeComponentTest(
       () => render(<ThemeToggle navTextClassName="" />),
       async (component, user) => {
-        user.click(await component.findByRole('button', { name: themeTogglelabel }))
-        user.click(await component.findByText('Dark'))
+        await user.click(await component.findByRole('button', { name: themeTogglelabel }))
+        await user.click(await component.findByText('Dark'))
 
         await waitFor(() => expect(document.documentElement.classList.contains('dark')).toBe(true))
       }

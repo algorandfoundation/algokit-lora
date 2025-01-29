@@ -1,14 +1,14 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import algosdk from 'algosdk'
+import { TransactionResult } from '../data/types'
 
 export const flattenTransactionResult = (transactionResult: TransactionResult): TransactionResult[] => {
   const results = [transactionResult]
 
-  if (transactionResult['tx-type'] !== algosdk.TransactionType.appl) {
+  if (transactionResult.txType !== algosdk.TransactionType.appl) {
     return results
   }
 
-  const innerTransactions = transactionResult['inner-txns'] ?? []
+  const innerTransactions = transactionResult.innerTxns ?? []
 
   return results.concat(innerTransactions.flatMap(flattenTransactionResult))
 }

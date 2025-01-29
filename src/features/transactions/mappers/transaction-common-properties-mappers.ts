@@ -1,24 +1,27 @@
-import { TransactionResult, TransactionSignature } from '@algorandfoundation/algokit-utils/types/indexer'
 import { InnerTransactionId, Logicsig, Multisig, SignatureType, Singlesig } from '../models'
 import { invariant } from '@/utils/invariant'
-import { publicKeyToAddress } from '@/utils/publickey-to-addess'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
+import { TransactionResult, TransactionSignature } from '@/features/transactions/data/types'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import algosdk from 'algosdk'
+import { isDefined } from '@/utils/is-defined'
+import { normaliseAlgoSdkData } from '@/utils/as-json'
 import { asJson } from '@/utils/as-json'
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
-  invariant(transactionResult['confirmed-round'] !== undefined, 'confirmed-round is not set')
-  invariant(transactionResult['round-time'], 'round-time is not set')
+  invariant(transactionResult.confirmedRound !== undefined, 'confirmed-round is not set')
+  invariant(transactionResult.roundTime, 'round-time is not set')
 
   return {
-    confirmedRound: transactionResult['confirmed-round'],
-    roundTime: transactionResult['round-time'] * 1000,
-    group: transactionResult['group'],
+    confirmedRound: transactionResult.confirmedRound,
+    roundTime: transactionResult.roundTime * 1000,
+    group: transactionResult.group ? uint8ArrayToBase64(transactionResult.group) : undefined,
     fee: microAlgos(transactionResult.fee),
     sender: transactionResult.sender,
     signature: transformSignature(transactionResult.signature),
-    note: transactionResult.note,
-    json: asJson(transactionResult),
-    rekeyTo: transactionResult['rekey-to'],
+    note: transactionResult.note ? uint8ArrayToBase64(transactionResult.note) : undefined,
+    json: asJson(normaliseAlgoSdkData(transactionResult)),
+    rekeyTo: transactionResult.rekeyTo?.toString(),
   }
 }
 
@@ -26,7 +29,7 @@ export const transformSignature = (signature?: TransactionSignature) => {
   if (signature?.sig) {
     return {
       type: SignatureType.Single,
-      signer: signature.sig,
+      signer: uint8ArrayToBase64(signature.sig),
     } satisfies Singlesig
   }
 
@@ -35,14 +38,16 @@ export const transformSignature = (signature?: TransactionSignature) => {
       type: SignatureType.Multi,
       version: signature.multisig.version,
       threshold: signature.multisig.threshold,
-      subsigners: signature.multisig.subsignature.map((subsignature) => publicKeyToAddress(subsignature['public-key'])),
+      subsigners: signature.multisig.subsignature
+        ?.map((subsignature) => (subsignature.publicKey ? algosdk.encodeAddress(subsignature.publicKey) : undefined))
+        .filter(isDefined),
     } satisfies Multisig
   }
 
   if (signature?.logicsig) {
     return {
       type: SignatureType.Logic,
-      logic: signature.logicsig.logic,
+      logic: uint8ArrayToBase64(signature.logicsig.logic),
     } satisfies Logicsig
   }
 }

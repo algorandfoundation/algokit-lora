@@ -1,6 +1,6 @@
 import { Search, noSearchResultsMessage, searchPlaceholderLabel } from './search'
 import { describe, it, expect, vi } from 'vitest'
-import { render, renderHook, waitFor } from '@/tests/testing-library'
+import { render, renderHook } from '@/tests/testing-library'
 import { executeComponentTest } from '@/tests/test-component'
 import { atom, createStore } from 'jotai'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
@@ -24,13 +24,11 @@ describe('search', () => {
       return executeComponentTest(
         () => render(<Search />),
         async (component, user) => {
-          await waitFor(async () => {
-            const input = component.getByPlaceholderText(searchPlaceholderLabel)
-            await user.type(input, 'nothing')
-            const result = await component.findByText(noSearchResultsMessage)
+          const input = component.getByPlaceholderText(searchPlaceholderLabel)
+          await user.type(input, 'nothing')
+          const result = await component.findByText(noSearchResultsMessage)
 
-            expect(result).toBeDefined()
-          })
+          expect(result).toBeDefined()
         }
       )
     })
@@ -86,23 +84,19 @@ describe('search', () => {
         return executeComponentTest(
           () => render(<Search />, undefined, myStore),
           async (component, user) => {
-            await waitFor(
-              async () => {
-                const input = component.getByPlaceholderText(searchPlaceholderLabel)
-                await user.type(input, id)
+            const input = await component.findByPlaceholderText(searchPlaceholderLabel)
+            await user.type(input, id)
 
-                const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
-                results.forEach((result) => {
-                  const link = result!.querySelector('a')
-                  expect(link).toHaveTextContent(label)
-                })
+            const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
+            results.forEach((result) => {
+              const link = result!.querySelector('a')
+              expect(link).toHaveTextContent(label)
+            })
 
-                const result = results.find((result) => result!.textContent!.includes(type))!
-                await user.click(result)
-                expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
-              },
-              { timeout: 10000 }
-            )
+            const result = results.find((result) => result!.textContent!.includes(type))!
+            await user.click(result)
+
+            expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
           }
         )
       })
@@ -139,17 +133,12 @@ describe('search', () => {
           return executeComponentTest(
             () => render(<Search />, undefined, myStore),
             async (component, user) => {
-              await waitFor(
-                async () => {
-                  const input = component.getByPlaceholderText(searchPlaceholderLabel)
-                  await user.type(input, term)
-                  const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
-                  const result = results.find((result) => result!.textContent!.includes(type))!
-                  await user.click(result)
-                  expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
-                },
-                { timeout: 10000 }
-              )
+              const input = await component.findByPlaceholderText(searchPlaceholderLabel)
+              await user.type(input, term)
+              const results = (await component.findAllByText(label, undefined, { timeout: 1000 })).map((result) => result.parentElement)
+              const result = results.find((result) => result!.textContent!.includes(type))!
+              await user.click(result)
+              expect(mockNavigate).toHaveBeenCalledWith(`/localnet/${type.toLowerCase()}/${id}`)
             }
           )
         })

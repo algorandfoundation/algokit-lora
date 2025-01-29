@@ -10,12 +10,13 @@ import { blockResultMother } from '@/tests/object-mother/block-result'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { latestTransactionIdsAtom, transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from '@/features/blocks/data/types'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { TransactionId } from '@/features/transactions/data/types'
 import { randomNumberBetween } from '@makerx/ts-dossier'
 import { ellipseId } from '@/utils/ellipse-id'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { createReadOnlyAtomAndTimestamp, createTimestamp } from '@/features/common/data'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 describe('explore-page', () => {
   describe('when no blocks are available', () => {
@@ -51,7 +52,10 @@ describe('explore-page', () => {
   })
 
   describe('when a small number of blocks have been processed', () => {
-    const transactionResult1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
+    const transactionResult1 = transactionResultMother
+      .payment()
+      .withGroup(base64ToBytes('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg='))
+      .build()
     const transactionResults = [transactionResult1]
     const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
     const myStore = createStore()
@@ -95,7 +99,7 @@ describe('explore-page', () => {
             const transactionCard1 = transactionCards[0]
             expect(getByRole(transactionCard1, 'heading').textContent).toBe(ellipseId(transactionResult1.id))
             expect(transactionCard1.textContent).toContain(`From:${ellipseAddress(transactionResult1.sender)}`)
-            expect(transactionCard1.textContent).toContain(`To:${ellipseAddress(transactionResult1.receiver)}`)
+            expect(transactionCard1.textContent).toContain(`To:${ellipseAddress(transactionResult1.paymentTransaction!.receiver)}`)
             expect(transactionCards[0].textContent).toContain('Payment')
           })
         }
@@ -119,7 +123,7 @@ describe('explore-page', () => {
         }
       },
       {
-        syncedRound: 0,
+        syncedRound: 0n,
         blocks: new Map<Round, readonly [Atom<BlockResult>, number]>(),
         transactions: new Map<TransactionId, readonly [Atom<TransactionResult>, number]>(),
       }

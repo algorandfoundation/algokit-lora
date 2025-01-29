@@ -1,4 +1,4 @@
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { TransactionResult } from '@/features/transactions/data/types'
 import { blockResultBuilder } from '../builders/block-result-builder'
 
 export const blockResultMother = {

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, SmallSizeDialogBody }
 import { WalletAccount, WalletId, Wallet, useWallet } from '@txnlab/use-wallet-react'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { AccountLink } from '@/features/accounts/components/account-link'
-import { CircleMinus, Wallet as WalletIcon } from 'lucide-react'
+import { Loader2 as Loader, CircleMinus, Wallet as WalletIcon } from 'lucide-react'
 import { localnetId, useNetworkConfig } from '@/features/network/data'
 import { useCallback, useMemo } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/features/common/components/popover'
@@ -140,7 +140,7 @@ function ConnectedWallet({ activeAddress, activeWalletAccounts, wallets }: Conne
 const walletsWithLocalPrompt = [WalletId.KMD.toString(), WalletId.MNEMONIC.toString()]
 
 export function ConnectWalletButton() {
-  const { activeAddress, activeWalletAccounts, wallets } = useWallet()
+  const { activeAddress, activeWalletAccounts, wallets, isReady } = useWallet()
   const [dialogOpen, setDialogOpen] = useAtom(walletDialogOpenAtom)
   const networkConfig = useNetworkConfig()
   const refreshAvailableKmdWallets = useRefreshAvailableKmdWallets()
@@ -176,7 +176,14 @@ export function ConnectWalletButton() {
     [setDialogOpen]
   )
 
-  if (activeAddress) {
+  if (!isReady) {
+    button = (
+      <Button className="flex w-40" variant="outline" disabled>
+        <Loader className="mr-2 size-4 animate-spin" />
+        Loading
+      </Button>
+    )
+  } else if (activeAddress) {
     button = <ConnectedWallet activeAddress={activeAddress} activeWalletAccounts={activeWalletAccounts ?? []} wallets={wallets} />
   } else {
     if (availableWalletIds.includes(WalletId.KMD)) {
@@ -187,7 +194,18 @@ export function ConnectWalletButton() {
   }
 
   let walletProviders = <p>No wallet providers available</p>
-  if (!activeAddress && availableWallets.length > 0) {
+  if (!isReady) {
+    walletProviders = (
+      <>
+        {networkConfig.walletIds.map((walletId) => (
+          // Ensures that if the dialog is open and useWallet is reinitialised, the height stays consistent.
+          <div className="h-10" key={`placeholder-${walletId}`}>
+            &nbsp;
+          </div>
+        ))}
+      </>
+    )
+  } else if (!activeAddress && availableWallets.length > 0) {
     walletProviders = (
       <>
         {availableWallets.map((wallet) =>

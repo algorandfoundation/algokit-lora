@@ -1,12 +1,14 @@
 import { atom, Getter, Setter } from 'jotai'
 import { createReadOnlyAtomAndTimestamp, readOnlyAtomCache } from '@/features/common/data'
-import { TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { transactionResultsAtom } from '@/features/transactions/data'
 import { BlockResult, Round } from './types'
 import { groupResultsAtom } from '@/features/groups/data'
 import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { indexer } from '@/features/common/data/algo-client'
+import { TransactionResult } from '@/features/transactions/data/types'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -15,25 +17,29 @@ export const getBlockAndExtractData = async (round: Round) => {
     .do()
     .then((result) => {
       const { transactions, ...block } = result
-      const [transactionIds, groupResults] = ((transactions ?? []) as TransactionResult[]).reduce(
-        (acc, t) => {
-          // Accumulate transactions
-          acc[0].push(t.id)
+      const [transactionIds, groupResults] = (transactions ?? [])
+        .map((txn) => indexerTransactionToTransactionResult(txn))
+        .reduce(
+          (acc, t) => {
+            // Accumulate transactions
+            acc[0].push(t.id)
 
-          // Accumulate group results
-          accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
+            // Accumulate group results
+            accumulateGroupsFromTransaction(acc[1], t, block.round, block.timestamp)
 
-          return acc
-        },
-        [[], new Map()] as [string[], Map<GroupId, GroupResult>]
-      )
+            return acc
+          },
+          [[], new Map()] as [string[], Map<GroupId, GroupResult>]
+        )
 
       return [
         {
           ...block,
+          timestamp: block.timestamp,
           transactionIds,
+          txnCounter: block.txnCounter !== undefined ? BigInt(block.txnCounter) : undefined,
         } as BlockResult,
-        (transactions ?? []) as TransactionResult[],
+        (transactions ?? []).map((txn) => indexerTransactionToTransactionResult(txn)),
         Array.from(groupResults.values()),
       ] as const
     })
@@ -42,23 +48,23 @@ export const getBlockAndExtractData = async (round: Round) => {
 export const accumulateGroupsFromTransaction = (
   acc: Map<GroupId, GroupResult>,
   transaction: TransactionResult,
-  round: number,
+  round: bigint,
   roundTime: number
 ) => {
   // Inner transactions can be part of a group, just like regular transactions.
-  // In this scenario we add the root transaction id to the group, as inner transactions don't have ids on the network.
   flattenTransactionResult(transaction).forEach((txn) => {
-    if (txn.group) {
-      const group: GroupResult = acc.get(txn.group) ?? {
-        id: txn.group,
+    const groupId = txn.group ? uint8ArrayToBase64(txn.group) : undefined
+    if (groupId) {
+      const group: GroupResult = acc.get(groupId) ?? {
+        id: groupId,
         round,
         timestamp: new Date(roundTime * 1000).toISOString(),
         transactionIds: [],
       }
-      if (!group.transactionIds.find((id) => id === transaction.id)) {
-        group.transactionIds.push(transaction.id)
+      if (!group.transactionIds.find((id) => id === txn.id)) {
+        group.transactionIds.push(txn.id)
       }
-      acc.set(txn.group, group)
+      acc.set(groupId, group)
     }
   })
 }
@@ -72,7 +78,7 @@ export const addStateExtractedFromBlocksAtom = atom(
       set(transactionResultsAtom, (prev) => {
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
-          if (!next.has(transactionResult.id)) {
+          if (transactionResult.id && !next.has(transactionResult.id)) {
             next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
           }
         })

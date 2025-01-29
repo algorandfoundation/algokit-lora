@@ -17,13 +17,13 @@ export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
   const location = useLocation()
 
   const handleNetworkChange = useCallback(
-    (newNetworkId: string) => {
+    async (newNetworkId: string) => {
       const currentPath = location.pathname
-      setSelectedNetwork(newNetworkId)
       if (currentNetworkId) {
         const newUrl = currentPath.replace(currentNetworkId, newNetworkId)
         navigate(newUrl)
       }
+      await setSelectedNetwork(newNetworkId)
     },
     [currentNetworkId, location.pathname, navigate, setSelectedNetwork]
   )

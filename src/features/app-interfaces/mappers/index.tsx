@@ -87,7 +87,15 @@ export const getLatestAppSpecVersion = (appSpecVersions: AppSpecVersion[]): AppS
   if (noRoundLastValid) {
     return noRoundLastValid
   }
-  const sorted = appSpecVersions.sort((a, b) => b.roundLastValid! - a.roundLastValid!)
+  const sorted = appSpecVersions.sort((a, b) => {
+    if (b.roundLastValid! > a.roundLastValid!) {
+      return 1
+    }
+    if (b.roundLastValid! < a.roundLastValid!) {
+      return -1
+    }
+    return 0
+  })
 
   if (sorted.length > 0) {
     return sorted[0]

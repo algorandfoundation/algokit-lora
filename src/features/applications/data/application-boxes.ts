@@ -12,6 +12,7 @@ import { asBoxDescriptor } from '../mappers'
 import { base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
+import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 
 const getApplicationBoxNames = async (applicationId: ApplicationId, appSpec?: Arc56Contract, nextPageToken?: string) => {
   const results = await indexer
@@ -44,7 +45,10 @@ export const useApplicationBox = (application: Application, boxDescriptor: BoxDe
   return useMemo(() => {
     return atom(async () => {
       const result = await getApplicationBox(application.id, boxDescriptor.base64Name)
-      const box = result.get_obj_for_encoding(false) as ApplicationBox
+      const box = {
+        name: uint8ArrayToUtf8(result.name),
+        value: uint8ArrayToUtf8(result.value),
+      } as ApplicationBox
 
       if (application.appSpec && 'valueType' in boxDescriptor) {
         return asDecodedAbiStorageValue(application.appSpec, boxDescriptor.valueType, base64ToBytes(box.value))

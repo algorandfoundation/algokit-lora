@@ -1,4 +1,5 @@
 import { AccountResult } from '@/features/accounts/data/types'
+import { randomBigInt } from '@/tests/utils/random-bigint'
 import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
 import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
 
@@ -9,23 +10,23 @@ export class AccountResultBuilder extends DataBuilder<AccountResult> {
         ? initialState
         : {
             address: randomString(52, 52),
-            amount: randomNumber(),
-            'amount-without-pending-rewards': randomNumber(),
-            'apps-local-state': [],
-            'apps-total-schema': { 'num-byte-slice': 0, 'num-uint': 0 },
+            amount: randomBigInt(),
+            amountWithoutPendingRewards: randomBigInt(),
+            appsLocalState: [],
+            appsTotalSchema: { numByteSlice: 0, numUint: 0 },
             assets: [],
-            'created-apps': [],
-            'created-assets': [],
-            'min-balance': randomNumber(),
-            'pending-rewards': randomNumber(),
-            'reward-base': randomNumber(),
-            rewards: randomNumber(),
-            round: 38851889,
+            createdApps: [],
+            createdAssets: [],
+            minBalance: randomBigInt(),
+            pendingRewards: randomBigInt(),
+            rewardBase: randomBigInt(),
+            rewards: randomBigInt(),
+            round: 38851889n,
             status: AccountStatus.Online,
-            'total-apps-opted-in': randomNumber(),
-            'total-assets-opted-in': randomNumber(),
-            'total-created-apps': randomNumber(),
-            'total-created-assets': randomNumber(),
+            totalAppsOptedIn: randomNumber(),
+            totalAssetsOptedIn: randomNumber(),
+            totalCreatedApps: randomNumber(),
+            totalCreatedAssets: randomNumber(),
           }
     )
   }

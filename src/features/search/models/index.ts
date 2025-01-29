@@ -1,7 +1,7 @@
 export type SearchResult = (
   | {
       type: SearchResultType.Application | SearchResultType.Asset | SearchResultType.Block
-      id: number
+      id: bigint
     }
   | {
       type: SearchResultType.Account | SearchResultType.Transaction

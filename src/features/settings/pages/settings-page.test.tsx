@@ -34,8 +34,8 @@ describe('settings-page', () => {
         () => render(<SettingsPage />),
         async (component, user) => {
           const createNetworkConfigButton = await component.findByRole('button', { name: 'Create' })
-
           await user.click(createNetworkConfigButton)
+
           const createNetworkConfigDialog = await component.findByRole('dialog', { name: createNetworkConfigDialogLabel })
 
           await user.type(await findByRole(createNetworkConfigDialog, 'textbox', { name: 'name' }), 'My LocalNet')

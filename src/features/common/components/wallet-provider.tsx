@@ -1,8 +1,8 @@
 import { PropsWithChildren, useMemo } from 'react'
 import { WalletProviderInner } from './wallet-provider-inner'
 import { defaultKmdWallet, useSelectedKmdWallet } from '@/features/wallet/data/selected-kmd-wallet'
-import { NetworkConfigWithId } from '@/features/network/data/types'
-import { NetworkId, SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnlab/use-wallet-react'
+import { mainnetId, NetworkConfigWithId } from '@/features/network/data/types'
+import { SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '../hooks/use-dialog-form'
 import { PromptForm } from './prompt-form'
 import { loraKmdDevWalletName } from '@/features/fund/utils/kmd'
@@ -89,15 +89,22 @@ export function WalletProvider({ networkConfig, children }: Props) {
   const walletManager = useMemo(() => {
     return new WalletManager({
       wallets: wallets,
-      // use-wallet doesn't support custom network, we set it to localnet always to get around this.
-      network: NetworkId.LOCALNET,
-      algod: {
-        baseServer: networkConfig.algod.server,
-        port: networkConfig.algod.port,
-        token: networkConfig.algod.token,
+      defaultNetwork: networkConfig.id,
+      networks: {
+        [networkConfig.id]: {
+          algod: {
+            baseServer: networkConfig.algod.server,
+            port: networkConfig.algod.port,
+            token: networkConfig.algod.token ?? '',
+          },
+          isTestnet: networkConfig.id !== mainnetId,
+        },
+      },
+      options: {
+        resetNetwork: true,
       },
     })
-  }, [networkConfig.algod.port, networkConfig.algod.server, networkConfig.algod.token, wallets])
+  }, [networkConfig.algod.port, networkConfig.algod.server, networkConfig.algod.token, networkConfig.id, wallets])
 
   return (
     // The key prop is super important it governs if the provider is reinitialized

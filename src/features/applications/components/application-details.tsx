@@ -54,7 +54,7 @@ export function ApplicationDetails({ application }: Props) {
         dd: (
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center overflow-hidden">
-              <span className="truncate">{application.id}</span>
+              <span className="truncate">{application.id.toString()}</span>
               <CopyButton value={application.id.toString()} />
             </div>
             {application.isDeleted && <Badge variant="outline">Deleted</Badge>}

@@ -9,13 +9,13 @@ import { syncedRoundAtom } from './synced-round'
 import { atomEffect } from 'jotai-effect'
 
 const createBlockAtom = (round: Round) => {
-  const nextRound = round + 1
+  const nextRound = round + 1n
 
   // This atom packages up the next round number, which may not be available yet.
   // We start by initialising as a promise that never resolves (async forever atom).
   // We then activate an atomEffect, which sets the next round number based on the round that we've synced up to.
   // If we've synced the round, we know that block is available to query.
-  const nextRoundWhenAvailableAtom = atom<Promise<number> | number>(new Promise<number>(() => {}))
+  const nextRoundWhenAvailableAtom = atom<Promise<Round> | Round>(new Promise<Round>(() => {}))
 
   const setNextRoundWhenAvailableEffect = atomEffect((get, set) => {
     // Conditionally subscribe to updates on the syncedRoundAtom

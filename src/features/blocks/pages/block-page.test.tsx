@@ -25,6 +25,8 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -82,13 +84,13 @@ describe('block-page', () => {
 
   describe('when rendering a block that exists', () => {
     describe('and has no transactions', () => {
-      const block = blockResultMother.blockWithoutTransactions().withRound(12345).withTimestamp(1719284618).build()
+      const block = blockResultMother.blockWithoutTransactions().withRound(12345n).withTimestamp(1719284618).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
-        myStore.set(syncedRoundAtom, block.round + 1)
+        myStore.set(syncedRoundAtom, block.round + 1n)
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
@@ -100,8 +102,8 @@ describe('block-page', () => {
                   { term: roundLabel, description: block.round.toString() },
                   { term: timestampLabel, description: 'Tue, 25 June 2024 03:03:38' },
                   { term: transactionsLabel, description: '0' },
-                  { term: previousRoundLabel, description: (block.round - 1).toString() },
-                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                  { term: previousRoundLabel, description: (block.round - 1n).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1n).toString() },
                 ],
               })
             )
@@ -113,13 +115,13 @@ describe('block-page', () => {
     })
 
     describe('and has a proposer', () => {
-      const block = blockResultMother.blockWithoutTransactions().withRound(1644).withTimestamp(1724943091).build()
+      const block = blockResultMother.blockWithoutTransactions().withRound(1644n).withTimestamp(1724943091).build()
 
       it('should be rendered with the correct data', () => {
         vi.mocked(useParams).mockImplementation(() => ({ round: block.round.toString() }))
         const myStore = createStore()
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
-        myStore.set(syncedRoundAtom, block.round + 1)
+        myStore.set(syncedRoundAtom, block.round + 1n)
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
@@ -131,8 +133,8 @@ describe('block-page', () => {
                   { term: roundLabel, description: block.round.toString() },
                   { term: timestampLabel, description: 'Thu, 29 August 2024 14:51:31' },
                   { term: transactionsLabel, description: '0' },
-                  { term: previousRoundLabel, description: (block.round - 1).toString() },
-                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                  { term: previousRoundLabel, description: (block.round - 1n).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1n).toString() },
                   { term: proposerLabel, description: block.proposer ?? '' },
                 ],
               })
@@ -146,7 +148,10 @@ describe('block-page', () => {
 
     describe('and has transactions', () => {
       const asset = assetResultMother['mainnet-312769']().build()
-      const transactionResult1 = transactionResultMother.payment().withGroup('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg=').build()
+      const transactionResult1 = transactionResultMother
+        .payment()
+        .withGroup(base64ToBytes('W3pIVuWVJlzmMDGvX8St0W/DPxslnpt6vKV8zoFb6rg='))
+        .build()
       const transactionResult2 = transactionResultMother.transfer(asset).build()
       const transactionResults = [transactionResult1, transactionResult2]
       const block = blockResultMother.blockWithTransactions(transactionResults).withTimestamp(1719284618).build()
@@ -158,7 +163,7 @@ describe('block-page', () => {
         myStore.set(blockResultsAtom, new Map([[block.round, createReadOnlyAtomAndTimestamp(block)]]))
         myStore.set(transactionResultsAtom, new Map(transactionResults.map((t) => [t.id, createReadOnlyAtomAndTimestamp(t)])))
         myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
-        myStore.set(syncedRoundAtom, block.round + 1)
+        myStore.set(syncedRoundAtom, block.round + 1n)
 
         return executeComponentTest(
           () => render(<BlockPage />, undefined, myStore),
@@ -170,8 +175,8 @@ describe('block-page', () => {
                   { term: roundLabel, description: block.round.toString() },
                   { term: timestampLabel, description: 'Tue, 25 June 2024 03:03:38' },
                   { term: transactionsLabel, description: '2Payment=1Asset Transfer=1' },
-                  { term: previousRoundLabel, description: (block.round - 1).toString() },
-                  { term: nextRoundLabel, description: (block.round + 1).toString() },
+                  { term: previousRoundLabel, description: (block.round - 1n).toString() },
+                  { term: nextRoundLabel, description: (block.round + 1n).toString() },
                 ],
               })
             )
@@ -186,22 +191,22 @@ describe('block-page', () => {
                   cells: [
                     '',
                     ellipseId(transactionResult1.id),
-                    ellipseId(transactionResult1.group),
+                    ellipseId(transactionResult1.group ? uint8ArrayToBase64(transactionResult1.group) : undefined),
                     ellipseAddress(transactionResult1.sender),
-                    ellipseAddress(transactionResult1['payment-transaction']!.receiver),
+                    ellipseAddress(transactionResult1.paymentTransaction?.receiver),
                     'Payment',
-                    (transactionResult1['payment-transaction']!.amount / 1e6).toString(),
+                    (Number(transactionResult1.paymentTransaction!.amount) / 1e6).toString(),
                   ],
                 },
                 {
                   cells: [
                     '',
                     ellipseId(transactionResult2.id),
-                    ellipseId(transactionResult2.group),
+                    ellipseId(transactionResult2.group ? uint8ArrayToBase64(transactionResult2.group) : undefined),
                     ellipseAddress(transactionResult2.sender),
-                    ellipseAddress(transactionResult2['asset-transfer-transaction']!.receiver),
+                    ellipseAddress(transactionResult2.assetTransferTransaction?.receiver),
                     'Asset Transfer',
-                    `${(transactionResult2['asset-transfer-transaction']!.amount as number) / 1e6}USDt`,
+                    `${Number(transactionResult2.assetTransferTransaction!.amount) / 1e6}USDt`,
                   ],
                 },
               ],

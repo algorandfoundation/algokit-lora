@@ -7,8 +7,8 @@ type Props = PropsWithChildren<{
 }>
 
 function SetActiveWalletState({ children }: PropsWithChildren) {
-  const { activeAddress, transactionSigner } = useWallet()
-  useSetActiveWalletState(activeAddress ?? undefined, transactionSigner)
+  const { isReady, activeAddress, transactionSigner } = useWallet()
+  useSetActiveWalletState(isReady, activeAddress ?? undefined, transactionSigner)
 
   return <>{children}</>
 }

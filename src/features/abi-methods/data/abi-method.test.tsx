@@ -16,6 +16,7 @@ import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/ind
 import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { getTestStore } from '@/tests/utils/get-test-store'
 import { DecodedAbiType } from '@/features/abi-methods/models'
+import Arc32TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32.json'
 
 describe('resolving ABI method', () => {
   describe('for an app call with referenced asset', () => {
@@ -27,7 +28,7 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -48,7 +49,7 @@ describe('resolving ABI method', () => {
         {
           name: 'asset',
           type: DecodedAbiType.Asset,
-          value: 705457144,
+          value: 705457144n,
           length: 9,
           multiline: false,
         },
@@ -61,7 +62,7 @@ describe('resolving ABI method', () => {
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
       myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -82,7 +83,7 @@ describe('resolving ABI method', () => {
         {
           name: 'asset',
           type: DecodedAbiType.Asset,
-          value: 705457144,
+          value: 705457144n,
           length: 9,
           multiline: false,
         },
@@ -97,7 +98,7 @@ describe('resolving ABI method', () => {
     const group = groupResultMother
       .groupWithTransactions([axferTransaction, appCallTransaction])
       .withId('kk6u1A9C9x1roBZOci/4Ne3XtHOtxKRq2O7OLVCbKOc=')
-      .withRound(appCallTransaction['confirmed-round']!)
+      .withRound(appCallTransaction.confirmedRound!)
       .build()
 
     it('should resolve the correct data with arc32 appspec', async () => {
@@ -105,7 +106,7 @@ describe('resolving ABI method', () => {
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
-      const applicationId = appCallTransaction['application-transaction']!['application-id']!
+      const applicationId = appCallTransaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -152,7 +153,7 @@ describe('resolving ABI method', () => {
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
-      const applicationId = appCallTransaction['application-transaction']!['application-id']!
+      const applicationId = appCallTransaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -201,7 +202,7 @@ describe('resolving ABI method', () => {
     const group = groupResultMother
       .groupWithTransactions([payTransaction, appCallTransaction])
       .withId('V5t9TByjm6M6pY9B76O+myDggseVS6bZP1lgizX665w=')
-      .withRound(appCallTransaction['confirmed-round']!)
+      .withRound(appCallTransaction.confirmedRound!)
       .build()
 
     it('should resolve the correct data', async () => {
@@ -209,7 +210,7 @@ describe('resolving ABI method', () => {
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
       myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
 
-      const applicationId = appCallTransaction['application-transaction']!['application-id']!
+      const applicationId = appCallTransaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -349,7 +350,7 @@ describe('resolving ABI method', () => {
         {
           name: 'asset',
           type: DecodedAbiType.Asset,
-          value: 705457144,
+          value: 705457144n,
           length: 9,
           multiline: false,
         },
@@ -363,7 +364,7 @@ describe('resolving ABI method', () => {
         {
           name: 'application',
           type: DecodedAbiType.Application,
-          value: 705410358,
+          value: 705410358n,
           length: 9,
           multiline: false,
         },
@@ -408,7 +409,7 @@ describe('resolving ABI method', () => {
       const myStore = getTestStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
 
-      const applicationId = transaction['application-transaction']!['application-id']!
+      const applicationId = transaction.applicationTransaction!.applicationId!
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
         applicationId: applicationId,
@@ -510,6 +511,74 @@ describe('resolving ABI method', () => {
 
       const abiMethod = await myStore.get(abiMethodResolver(transaction, getGroupResultAtom))
       expect(abiMethod).toBeUndefined()
+    })
+  })
+
+  describe('for an inner app call with a reference to another transaction', () => {
+    const appCallTransaction = transactionResultMother['localnet-64YO3SCTIJQFVTHYFPD74GYCEH5ETU7RVZCGQ5WCXPIEZEWHRE5A']().build()
+    const group = groupResultMother
+      .groupWithTransactions([appCallTransaction.innerTxns![0], appCallTransaction.innerTxns![1]])
+      .withId('8Dp0ZM4bEo4LexOu2AtAhOUBKKttkR2slT8aau9t7+E=')
+      .withRound(appCallTransaction.confirmedRound!)
+      .build()
+
+    it('should resolve the correct data with arc32 appspec', async () => {
+      const myStore = getTestStore()
+      myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
+      myStore.set(transactionResultsAtom, new Map([[appCallTransaction.id, createReadOnlyAtomAndTimestamp(appCallTransaction)]]))
+
+      const applicationId = appCallTransaction.applicationTransaction!.applicationId!
+      const dbConnection = await myStore.get(dbConnectionAtom)
+      await upsertAppInterface(dbConnection, {
+        applicationId: applicationId,
+        name: 'test',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC32,
+            appSpec: Arc32TestContractAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+
+      const innerApplicationId = appCallTransaction.innerTxns![1].applicationTransaction!.applicationId!
+      await upsertAppInterface(dbConnection, {
+        applicationId: innerApplicationId,
+        name: 'test_1',
+        appSpecVersions: [
+          {
+            standard: AppSpecStandard.ARC32,
+            appSpec: Arc32TestContractAppSpec as unknown as Arc32AppSpec,
+          },
+        ],
+        lastModified: createTimestamp(),
+      } satisfies AppInterfaceEntity)
+
+      const abiMethod = await myStore.get(abiMethodResolver(appCallTransaction, getGroupResultAtom))
+      expect(abiMethod).toBeDefined()
+      expect(abiMethod!.name).toBe('inner_pay_appl')
+      expect(abiMethod!.arguments).toStrictEqual([
+        {
+          name: 'appId',
+          type: DecodedAbiType.Uint,
+          value: 10019n,
+          length: 5,
+          multiline: false,
+        },
+      ])
+
+      const innerAbiMethod = await myStore.get(abiMethodResolver(appCallTransaction.innerTxns![1], getGroupResultAtom))
+      expect(innerAbiMethod).toBeDefined()
+      expect(innerAbiMethod!.name).toBe('get_pay_txn_amount')
+      expect(innerAbiMethod!.arguments).toStrictEqual([
+        {
+          length: 60,
+          multiline: false,
+          name: 'pay_txn',
+          type: 'Transaction',
+          value: '64YO3SCTIJQFVTHYFPD74GYCEH5ETU7RVZCGQ5WCXPIEZEWHRE5A/inner/1',
+        },
+      ])
     })
   })
 })

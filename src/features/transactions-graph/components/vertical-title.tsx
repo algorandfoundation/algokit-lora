@@ -49,7 +49,7 @@ export function VerticalTitle({ vertical, isSimulated }: { vertical: Vertical; i
         <div className={cn('grid text-center')}>
           <TitleWrapper>
             {isSimulated ? (
-              <span className="text-primary">{vertical.applicationId}</span>
+              <span className="text-primary">{vertical.applicationId.toString()}</span>
             ) : (
               <ApplicationLink applicationId={vertical.applicationId} />
             )}
@@ -67,7 +67,7 @@ export function VerticalTitle({ vertical, isSimulated }: { vertical: Vertical; i
       )}
       {vertical.type === 'Asset' && (
         <TitleWrapper>
-          {isSimulated ? <span className="text-primary">{vertical.assetId}</span> : <AssetIdLink assetId={vertical.assetId} />}
+          {isSimulated ? <span className="text-primary">{vertical.assetId.toString()}</span> : <AssetIdLink assetId={vertical.assetId} />}
         </TitleWrapper>
       )}
       {vertical.type === 'OpUp' && (

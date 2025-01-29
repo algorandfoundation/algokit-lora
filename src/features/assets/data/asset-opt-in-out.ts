@@ -12,7 +12,7 @@ export const useAssetOptInOut = (asset: Asset) => {
     return atom(async (get) => {
       const activeAccount = await get(activeWalletAccountAtom)
 
-      if (asset.id === 0 || !activeAccount) {
+      if (asset.id === 0n || !activeAccount) {
         return {
           hasActiveAccount: !!activeAccount,
           canOptIn: false,
@@ -23,7 +23,7 @@ export const useAssetOptInOut = (asset: Asset) => {
       return {
         hasActiveAccount: !!activeAccount,
         canOptIn: !activeAccount.assetHolding.has(asset.id),
-        canOptOut: activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0,
+        canOptOut: activeAccount.assetHolding.has(asset.id) && activeAccount.assetHolding.get(asset.id)!.amount === 0n,
       }
     })
   }, [asset])

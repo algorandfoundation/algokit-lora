@@ -22,8 +22,8 @@ export function TransactionBuilderValidRoundField() {
       setValue(lastValidPath, undefined)
     } else {
       if (syncedRound && getValues(firstValidPath) === undefined && getValues(lastValidPath) === undefined) {
-        setValue(firstValidPath, BigInt(syncedRound))
-        setValue(lastValidPath, BigInt(syncedRound + 1000))
+        setValue(firstValidPath, syncedRound)
+        setValue(lastValidPath, syncedRound + 1000n)
       }
     }
     clearErrors(firstValidPath)

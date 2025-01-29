@@ -5,11 +5,10 @@ import { render, prettyDOM } from '@/tests/testing-library'
 import {
   asAppCallTransaction,
   asAssetTransferTransaction,
+  asHeartbeatTransaction,
   asPaymentTransaction,
   asTransaction,
-  asHeartbeatTransaction,
 } from '../../transactions/mappers'
-import { AssetResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { useParams } from 'react-router-dom'
 import { asAssetSummary } from '@/features/assets/mappers/asset-summary'
@@ -27,6 +26,8 @@ import { GroupId, GroupResult } from '@/features/groups/data/types'
 import { Round } from '@/features/blocks/data/types'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { DecodedAbiMethod } from '@/features/abi-methods/models'
+import { AssetResult } from '@/features/assets/data/types'
+import { TransactionResult } from '@/features/transactions/data/types'
 
 // This file maintain the snapshot test for the TransactionViewVisual component
 // To add new test case:
@@ -51,7 +52,7 @@ describe('payment-transaction-graph', () => {
       return executeComponentTest(
         () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
-          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+          await expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/payment-transaction-graph.${transactionResult.id}.html`
           )
         }
@@ -80,7 +81,7 @@ describe('asset-transfer-transaction-graph', () => {
         return executeComponentTest(
           () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
           async (component) => {
-            expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+            await expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/asset-transfer-graph.${transaction.id}.html`
             )
           }
@@ -142,7 +143,7 @@ describe('application-call-graph', () => {
           async (component) => {
             // Sleep to make sure the ABI method is loaded
             await setTimeout(10)
-            expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+            await expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/application-transaction-graph.${transactionResult.id}.html`
             )
           }
@@ -165,7 +166,7 @@ describe('key-reg-graph', () => {
       return executeComponentTest(
         () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
-          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+          await expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/key-reg-graph.${transactionResult.id}.html`
           )
         }
@@ -246,7 +247,7 @@ describe('group-graph', () => {
             // Sleep to make sure the ABI method is loaded
             await setTimeout(10)
 
-            expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+            await expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
               `__snapshots__/group-graph.${encodeURIComponent(groupId)}.html`
             )
           }
@@ -269,7 +270,7 @@ describe('heartbeat-transaction-graph', () => {
       return executeComponentTest(
         () => render(<TransactionsGraph transactionsGraphData={graphData} downloadable={true} />),
         async (component) => {
-          expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
+          await expect(prettyDOM(component.container, prettyDomMaxLength, { highlight: false })).toMatchFileSnapshot(
             `__snapshots__/heartbeat-transaction-graph.${transactionResult.id}.html`
           )
         }
@@ -278,7 +279,7 @@ describe('heartbeat-transaction-graph', () => {
   })
 })
 
-const createAssetResolver = (assetResults: AssetResult[]) => (assetId: number) => {
+const createAssetResolver = (assetResults: AssetResult[]) => (assetId: bigint) => {
   const assetResult = assetResults.find((a) => a.index === assetId)
   invariant(assetResult, `Could not find asset result ${assetId}`)
   return atom(() => asAssetSummary(assetResult))

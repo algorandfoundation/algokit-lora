@@ -30,7 +30,7 @@ import {
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
-import { modelsv2, indexerModels } from 'algosdk'
+import algosdk, { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
@@ -165,7 +165,7 @@ describe('application-page', () => {
         )
       )
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        Promise.resolve(new algosdk.indexerModels.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
       )
 
       return executeComponentTest(
@@ -173,60 +173,58 @@ describe('application-page', () => {
           return render(<ApplicationPage />, undefined, myStore)
         },
         async (component, user) => {
-          await waitFor(async () => {
-            const detailsCard = component.getByLabelText(applicationDetailsLabel)
-            descriptionListAssertion({
-              container: detailsCard,
-              items: [
-                { term: applicationIdLabel, description: '80441968' },
-                { term: applicationCreatorAccountLabel, description: '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA' },
-                { term: applicationAccountLabel, description: 'S3TLYVDRMR5VRKPACAYFXFLPNTYWQG37A6LPKERQ2DNABLTTGCXDUE2T3E' },
-                { term: applicationGlobalStateByteLabel, description: '3' },
-                { term: applicationLocalStateByteLabel, description: '0' },
-                { term: applicationGlobalStateUintLabel, description: '12' },
-                { term: applicationLocalStateUintLabel, description: '2' },
-              ],
-            })
+          const detailsCard = await component.findByLabelText(applicationDetailsLabel)
+          descriptionListAssertion({
+            container: detailsCard,
+            items: [
+              { term: applicationIdLabel, description: '80441968' },
+              { term: applicationCreatorAccountLabel, description: '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA' },
+              { term: applicationAccountLabel, description: 'S3TLYVDRMR5VRKPACAYFXFLPNTYWQG37A6LPKERQ2DNABLTTGCXDUE2T3E' },
+              { term: applicationGlobalStateByteLabel, description: '3' },
+              { term: applicationLocalStateByteLabel, description: '0' },
+              { term: applicationGlobalStateUintLabel, description: '12' },
+              { term: applicationLocalStateUintLabel, description: '2' },
+            ],
+          })
 
-            const applicationStateTabList = component.getByRole('tablist', { name: applicationStateLabel })
-            expect(applicationStateTabList).toBeTruthy()
-            // Only test the first 10 rows, should be enough
-            const globalStateTab = await component.findByRole('tabpanel', {
-              name: applicationGlobalStateLabel,
-            })
-            await tableAssertion({
-              container: globalStateTab,
-              rows: [
-                { cells: ['Bids', 'Uint', '0'] },
-                { cells: ['Creator', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
-                { cells: ['Dividend', 'Uint', '5'] },
-                { cells: ['Escrow', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
-                { cells: ['FeesFirst', 'Uint', '250000'] },
-                { cells: ['FeesSecond', 'Uint', '500000'] },
-                { cells: ['Multiplier', 'Uint', '5'] },
-                { cells: ['Pot', 'Uint', '0'] },
-                { cells: ['Price', 'Uint', '1000000'] },
-                { cells: ['RoundBegin', 'Uint', '1606905675'] },
-              ],
-            })
+          const applicationStateTabList = component.getByRole('tablist', { name: applicationStateLabel })
+          expect(applicationStateTabList).toBeTruthy()
+          // Only test the first 10 rows, should be enough
+          const globalStateTab = await component.findByRole('tabpanel', {
+            name: applicationGlobalStateLabel,
+          })
+          await tableAssertion({
+            container: globalStateTab,
+            rows: [
+              { cells: ['Bids', 'Uint', '0'] },
+              { cells: ['Creator', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
+              { cells: ['Dividend', 'Uint', '5'] },
+              { cells: ['Escrow', 'Bytes', '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA'] },
+              { cells: ['FeesFirst', 'Uint', '250000'] },
+              { cells: ['FeesSecond', 'Uint', '500000'] },
+              { cells: ['Multiplier', 'Uint', '5'] },
+              { cells: ['Pot', 'Uint', '0'] },
+              { cells: ['Price', 'Uint', '1000000'] },
+              { cells: ['RoundBegin', 'Uint', '1606905675'] },
+            ],
+          })
 
-            await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
-            const boxesTab = await component.findByRole('tabpanel', { name: applicationBoxesLabel })
-            await tableAssertion({
-              container: boxesTab,
-              rows: [
-                { cells: ['AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8='] },
-                { cells: ['AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4='] },
-                { cells: ['AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ='] },
-                { cells: ['AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk='] },
-                { cells: ['AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk='] },
-                { cells: ['AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U='] },
-                { cells: ['AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o='] },
-                { cells: ['AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc='] },
-                { cells: ['AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0='] },
-                { cells: ['AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck='] },
-              ],
-            })
+          await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
+          const boxesTab = await component.findByRole('tabpanel', { name: applicationBoxesLabel })
+          await tableAssertion({
+            container: boxesTab,
+            rows: [
+              { cells: ['AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8='] },
+              { cells: ['AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4='] },
+              { cells: ['AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ='] },
+              { cells: ['AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk='] },
+              { cells: ['AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk='] },
+              { cells: ['AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U='] },
+              { cells: ['AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o='] },
+              { cells: ['AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc='] },
+              { cells: ['AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0='] },
+              { cells: ['AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck='] },
+            ],
           })
         }
       )
@@ -245,7 +243,13 @@ describe('application-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [transactionResult], nextToken: '' })
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [transactionResult] as algosdk.indexerModels.Transaction[],
+            nextToken: '',
+          })
+        )
       )
 
       return executeComponentTest(
@@ -319,7 +323,13 @@ describe('application-page', () => {
         )
       )
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [],
+            nextToken: '',
+          })
+        )
       )
 
       return executeComponentTest(
@@ -361,7 +371,13 @@ describe('application-page', () => {
       const applicationResult = applicationResultMother['testnet-718348254']().build()
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            currentRound: 123n,
+            transactions: [],
+            nextToken: '',
+          })
+        )
       )
 
       const myStore = createStore()
@@ -386,38 +402,36 @@ describe('application-page', () => {
           return render(<ApplicationPage />, undefined, myStore)
         },
         async (component, user) => {
-          await waitFor(async () => {
-            const abiMethodsCard = component.getByLabelText(applicationAbiMethodDefinitionsLabel)
-            expect(abiMethodsCard).toBeTruthy()
+          const abiMethodsCard = await component.findByLabelText(applicationAbiMethodDefinitionsLabel)
+          expect(abiMethodsCard).toBeTruthy()
 
-            const echoStructAccordionTrigger = component.getByRole('button', { name: 'echo_struct' })
-            await user.click(echoStructAccordionTrigger)
+          const echoStructAccordionTrigger = component.getByRole('button', { name: 'echo_struct' })
+          await user.click(echoStructAccordionTrigger)
 
-            const echoStructAccordionPanel = component.getByRole('region', { name: 'echo_struct' })
-            expect(echoStructAccordionPanel).toBeTruthy()
+          const echoStructAccordionPanel = component.getByRole('region', { name: 'echo_struct' })
+          expect(echoStructAccordionPanel).toBeTruthy()
 
-            const argumentsDiv = within(echoStructAccordionPanel).getByText('Arguments').parentElement
-            expect(argumentsDiv).toBeTruthy()
+          const argumentsDiv = within(echoStructAccordionPanel).getByText('Arguments').parentElement
+          expect(argumentsDiv).toBeTruthy()
 
-            const argument1Div = within(argumentsDiv!).getByText('Argument 1').parentElement
-            descriptionListAssertion({
-              container: argument1Div!,
-              items: [
-                { term: 'Name', description: 'inputUser' },
-                { term: 'Type', description: 'UserStruct:name: stringid: uint64' },
-              ],
-            })
+          const argument1Div = within(argumentsDiv!).getByText('Argument 1').parentElement
+          descriptionListAssertion({
+            container: argument1Div!,
+            items: [
+              { term: 'Name', description: 'inputUser' },
+              { term: 'Type', description: 'UserStruct:name: stringid: uint64' },
+            ],
+          })
 
-            const returnDiv = within(echoStructAccordionPanel).getByText('Return').parentElement
-            expect(returnDiv).toBeTruthy()
+          const returnDiv = within(echoStructAccordionPanel).getByText('Return').parentElement
+          expect(returnDiv).toBeTruthy()
 
-            const returnTypeDiv = within(returnDiv!).getByText('Type').parentElement
-            expect(returnTypeDiv).toBeTruthy()
+          const returnTypeDiv = within(returnDiv!).getByText('Type').parentElement
+          expect(returnTypeDiv).toBeTruthy()
 
-            descriptionListAssertion({
-              container: returnTypeDiv!,
-              items: [{ term: 'Type', description: 'UserStruct:name: stringid: uint64' }],
-            })
+          descriptionListAssertion({
+            container: returnTypeDiv!,
+            items: [{ term: 'Type', description: 'UserStruct:name: stringid: uint64' }],
           })
         }
       )
@@ -444,7 +458,13 @@ describe('application-page', () => {
           )
         )
         vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-          Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+          Promise.resolve(
+            new algosdk.indexerModels.TransactionsResponse({
+              currentRound: 123n,
+              transactions: [],
+              nextToken: '',
+            })
+          )
         )
 
         const myStore = createStore()
@@ -515,7 +535,13 @@ describe('application-page', () => {
           )
         )
         vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-          Promise.resolve({ currentRound: 123, transactions: [], nextToken: '' })
+          Promise.resolve(
+            new algosdk.indexerModels.TransactionsResponse({
+              currentRound: 123n,
+              transactions: [],
+              nextToken: '',
+            })
+          )
         )
 
         const myStore = createStore()

@@ -42,6 +42,7 @@ vi.mock('@txnlab/use-wallet-react', async () => {
         setAlgodClient: vi.fn(),
         signTransactions: vi.fn(),
         transactionSigner: vi.fn(),
+        isReady: true,
       } as unknown as ReturnType<typeof useWallet>
     }),
   }

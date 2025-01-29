@@ -1,4 +1,5 @@
-import { AssetResult } from '@algorandfoundation/algokit-utils/types/indexer'
+import { AssetResult } from '@/features/assets/data/types'
+import { randomBigInt } from '@/tests/utils/random-bigint'
 import { DataBuilder, dossierProxy, randomNumber, randomString } from '@makerx/ts-dossier'
 
 export class AssetResultBuilder extends DataBuilder<AssetResult> {
@@ -7,10 +8,10 @@ export class AssetResultBuilder extends DataBuilder<AssetResult> {
       initialState
         ? initialState
         : {
-            index: randomNumber(),
+            index: randomBigInt(),
             params: {
               creator: randomString(52, 52),
-              total: randomNumber(),
+              total: randomBigInt(),
               decimals: randomNumber(),
             },
           }

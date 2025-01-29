@@ -27,6 +27,8 @@ import { randomGuid } from '@/utils/random-guid'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
 import { BuildableTransactionType } from '@/features/transaction-wizard/models'
 import { asMethodDefinitions } from '@/features/applications/mappers'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { act } from 'react'
 
 describe('application-method-definitions', () => {
   const localnet = algorandFixture()
@@ -41,8 +43,16 @@ describe('application-method-definitions', () => {
     beforeEach(async () => {
       const myStore = getTestStore()
       await setWalletAddressAndSigner(localnet)
-      const { app } = await deploySmartContract(localnet, Arc32TestContractAppSpec as AppSpec)
-      appId = Number(app.appId)
+      const { app } = await deploySmartContract(localnet.context.testAccount, localnet.algorand, Arc32TestContractAppSpec as AppSpec)
+      appId = app.appId
+
+      const dispenser = await localnet.context.algorand.account.dispenserFromEnvironment()
+      await localnet.context.algorand.send.payment({
+        sender: dispenser,
+        receiver: app.appAddress,
+        amount: algo(10),
+        note: 'Fund app account',
+      })
 
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
@@ -160,12 +170,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAAD",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAAD')
             }
           )
         })
@@ -244,12 +250,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQACAgI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQACAgI=')
             }
           )
         })
@@ -393,13 +395,9 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(localnet.context.testAccount.addr)
-              expect(result.transaction.fee).toBe(0)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAAD",
-              ]
-              `)
+              expect(result.transaction.sender).toBe(localnet.context.testAccount.addr.toString())
+              expect(result.transaction.fee).toBe(0n)
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAAD')
             }
           )
         })
@@ -479,12 +477,13 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
-              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
-                {
-                  "amount": 500000,
-                  "close-amount": 0,
-                  "receiver": "${testAccount2.addr}",
+              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+                TransactionPayment {
+                  "amount": 500000n,
+                  "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -499,13 +498,18 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
 
+              // This is a bit hacky, we traverse the DOM to find the inner app call method name
+              // This is to verify that the abiMethod is resolved correctly for the app call
+              const innerAppCallTxnLink = within(resultsDiv)
+                .getAllByRole('link')
+                .find((a) => a.getAttribute('href')?.startsWith(`/localnet/transaction/${appCallTransactionId}`))
+              expect(innerAppCallTxnLink?.parentElement?.parentElement?.parentElement?.parentElement?.nextSibling?.textContent).toBe(
+                '1App Callget_pay_txn_amount'
+              )
+
               const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
-              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
-                [
-                  "FR98dQAAAAAAB6Eg",
-                ]
-              `)
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(appCallTransaction.transaction.logs![0])).toBe('FR98dQAAAAAAB6Eg')
             }
           )
         })
@@ -601,12 +605,13 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
-              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
-                {
-                  "amount": 600000,
-                  "close-amount": 0,
-                  "receiver": "${testAccount2.addr}",
+              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+                TransactionPayment {
+                  "amount": 600000n,
+                  "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -622,12 +627,8 @@ describe('application-method-definitions', () => {
               )
 
               const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
-              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(appCallTransaction.transaction['logs']!).toMatchInlineSnapshot(`
-                [
-                  "FR98dQAAAAAACSfA",
-                ]
-              `)
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(appCallTransaction.transaction.logs![0])).toBe('FR98dQAAAAAACSfA')
             }
           )
         })
@@ -727,12 +728,13 @@ describe('application-method-definitions', () => {
                 { timeout: 10_000 }
               )
               const paymentTransaction = await localnet.context.waitForIndexerTransaction(paymentTransactionId)
-              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(paymentTransaction.transaction['payment-transaction']!).toMatchInlineSnapshot(`
-                {
-                  "amount": 500000,
-                  "close-amount": 0,
-                  "receiver": "${testAccount2.addr}",
+              expect(paymentTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(paymentTransaction.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+                TransactionPayment {
+                  "amount": 500000n,
+                  "closeAmount": 0n,
+                  "closeRemainderTo": undefined,
+                  "receiver": "${testAccount2.addr.toString()}",
                 }
               `)
 
@@ -748,8 +750,8 @@ describe('application-method-definitions', () => {
               )
 
               const appCallTransaction = await localnet.context.waitForIndexerTransaction(appCallTransactionId)
-              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr)
-              expect(appCallTransaction.transaction.note).toBe('aGVsbG8gd29ybGQh')
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(appCallTransaction.transaction.note!)).toBe('aGVsbG8gd29ybGQh')
             }
           )
         })
@@ -893,12 +895,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQABAQ==",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQABAQ==')
             }
           )
         })
@@ -983,12 +981,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQACAgI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQACAgI=')
             }
           )
         })
@@ -1096,12 +1090,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAE",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAE')
             }
           )
         })
@@ -1203,12 +1193,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAs",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAwAAAAAAAAAs')
             }
           )
         })
@@ -1284,12 +1270,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQADAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAD",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQADAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAD')
             }
           )
         })
@@ -1391,12 +1373,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAEAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAQ=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAEAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAADAAAAAAAAAAQ=')
             }
           )
         })
@@ -1489,12 +1467,10 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAEAC4AAgAEABYAAgAAAAAAAAABAAAAAAAAAAIAAgAAAAAAAAADAAAAAAAAAAQABAAWAAIAAAAAAAAABQAAAAAAAAAGAAVIZWxsbw==",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe(
+                'FR98dQAEAC4AAgAEABYAAgAAAAAAAAABAAAAAAAAAAIAAgAAAAAAAAADAAAAAAAAAAQABAAWAAIAAAAAAAAABQAAAAAAAAAGAAVIZWxsbw=='
+              )
             }
           )
         })
@@ -1625,12 +1601,10 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAEAD4AAgAEAB4AAwAAAAAAAAABAAAAAAAAAAIAAAAAAAAACwADAAAAAAAAAAMAAAAAAAAABAAAAAAAAAAWAAQAHgADAAAAAAAAAAUAAAAAAAAABgAAAAAAAAAhAAVIZWxsbw==",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe(
+                'FR98dQAEAD4AAgAEAB4AAwAAAAAAAAABAAAAAAAAAAIAAAAAAAAACwADAAAAAAAAAAMAAAAAAAAABAAAAAAAAAAWAAQAHgADAAAAAAAAAAUAAAAAAAAABgAAAAAAAAAhAAVIZWxsbw=='
+              )
             }
           )
         })
@@ -1695,12 +1669,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dYA=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dYA=')
             }
           )
         })
@@ -1787,12 +1757,122 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQA=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQA=')
+            }
+          )
+        })
+      })
+
+      describe('when calling inner_pay_appl method', () => {
+        let innerAppId: ApplicationId
+
+        beforeEach(async () => {
+          const myStore = getTestStore()
+          const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(10) })
+
+          const { app: innerApp } = await deploySmartContract(testAccount2, localnet.algorand, Arc32TestContractAppSpec as AppSpec, {
+            onUpdate: 'append',
+          })
+          innerAppId = innerApp.appId
+
+          const dbConnection = await myStore.get(dbConnectionAtom)
+          await upsertAppInterface(dbConnection, {
+            applicationId: innerAppId,
+            name: 'test_inner',
+            appSpecVersions: [
+              {
+                standard: AppSpecStandard.ARC32,
+                appSpec: Arc32TestContractAppSpec as unknown as Arc32AppSpec,
+              },
+            ],
+            lastModified: createTimestamp(),
+          } satisfies AppInterfaceEntity)
+        })
+
+        it('succeeds when all fields have been correctly supplied', async () => {
+          const myStore = getTestStore()
+          const { testAccount } = localnet.context
+          vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
+
+          return executeComponentTest(
+            () => {
+              return render(<ApplicationPage />, undefined, myStore)
+            },
+            async (component, user) => {
+              const methodPanel = await expandMethodAccordion(component, user, 'inner_pay_appl')
+
+              // Call the method
+              const callButton = await waitFor(() => {
+                const callButton = within(methodPanel).getByRole('button', { name: 'Call' })
+                expect(callButton).not.toBeDisabled()
+                return callButton!
+              })
+              await user.click(callButton)
+              const formDialog = component.getByRole('dialog')
+
+              // Enter the inner app id
+              const arg1Input = await getArgInput(formDialog, 'Argument 1')
+              fireEvent.input(arg1Input, {
+                target: { value: innerAppId.toString() },
+              })
+
+              await setCheckbox(formDialog, user, 'Set fee automatically', false)
+              const feeInput = await within(formDialog).findByLabelText(/Fee/)
+              fireEvent.input(feeInput, {
+                target: { value: '0.003' },
+              })
+
+              // Save the transaction
+              await user.click(within(formDialog).getByRole('button', { name: 'Add' }))
+
+              // Populate resources
+              const populateResourcesButton = await waitFor(() => {
+                const populateResourcesButton = component.getByRole('button', { name: 'Populate Resources' })
+                expect(populateResourcesButton).not.toBeDisabled()
+                return populateResourcesButton!
+              })
+              await user.click(populateResourcesButton)
+
+              // Send the transactions
+              const sendButton = await waitFor(() => {
+                const sendButton = component.getByRole('button', { name: sendButtonLabel })
+                expect(sendButton).not.toBeDisabled()
+                return sendButton!
+              })
+              await user.click(sendButton)
+
+              const resultsDiv = await waitFor(
+                () => {
+                  expect(component.queryByText('Required')).not.toBeInTheDocument()
+                  return component.getByText(groupSendResultsLabel).parentElement!
+                },
+                { timeout: 10_000 }
+              )
+
+              // Check the app call transaction
+              const appCallTransactionId = await waitFor(
+                () => {
+                  const transactionLink = within(resultsDiv)
+                    .getAllByRole('link')
+                    .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                  return transactionLink.getAttribute('href')!.split('/').pop()!
+                },
+                { timeout: 10_000 }
+              )
+
+              const appCallTransaction = await act(() => localnet.context.waitForIndexerTransaction(appCallTransactionId))
+              expect(appCallTransaction.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(appCallTransaction.transaction.logs![0])).toBe('FR98dQAAAAAAAYag')
+
+              // This is a bit hacky, we traverse the DOM to find the inner app call method name
+              // This is to verify that the abiMethod is resolved correctly for the inner app call
+              const innerAppCallTxnLink = within(resultsDiv)
+                .getAllByRole('link')
+                .find((a) => a.getAttribute('href')?.startsWith(`/localnet/transaction/${appCallTransactionId}/inner/2`))
+              expect(innerAppCallTxnLink?.parentElement?.parentElement?.parentElement?.nextSibling?.nextSibling?.textContent).toBe(
+                '2App Callget_pay_txn_amount'
+              )
             }
           )
         })
@@ -1807,13 +1887,13 @@ describe('application-method-definitions', () => {
 
       const { appId: _, ...params } = await asMethodCallParams({
         id: randomGuid(),
-        applicationId: 1988,
+        applicationId: 1988n,
         type: BuildableTransactionType.MethodCall,
         appSpec: Arc56TestContractAppSpec as Arc56Contract,
         methodDefinition: asMethodDefinitions(Arc56TestContractAppSpec).find((m) => m.name === 'createApplication')!,
         onComplete: 0,
         methodArgs: [],
-        sender: asAddressOrNfd(localnet.context.testAccount.addr),
+        sender: asAddressOrNfd(localnet.context.testAccount.addr.toString()),
         fee: {
           setAutomatically: true,
         },
@@ -1822,26 +1902,31 @@ describe('application-method-definitions', () => {
         },
       })
 
-      const { app } = await deploySmartContract(localnet, Arc56TestContractAppSpec as Arc56Contract, {
-        createParams: {
-          ...params,
-          method: params.method.name,
-          onComplete: params.onComplete,
-          schema: {
-            localInts: Arc56TestContractAppSpec.state.schema.local.ints ?? 0,
-            localByteSlices: Arc56TestContractAppSpec.state.schema.local.bytes ?? 0,
-            globalInts: Arc56TestContractAppSpec.state.schema.global.ints ?? 0,
-            globalByteSlices: Arc56TestContractAppSpec.state.schema.global.bytes ?? 0,
+      const { app } = await deploySmartContract(
+        localnet.context.testAccount,
+        localnet.algorand,
+        Arc56TestContractAppSpec as Arc56Contract,
+        {
+          createParams: {
+            ...params,
+            method: params.method.name,
+            onComplete: params.onComplete,
+            schema: {
+              localInts: Arc56TestContractAppSpec.state.schema.local.ints ?? 0,
+              localByteSlices: Arc56TestContractAppSpec.state.schema.local.bytes ?? 0,
+              globalInts: Arc56TestContractAppSpec.state.schema.global.ints ?? 0,
+              globalByteSlices: Arc56TestContractAppSpec.state.schema.global.bytes ?? 0,
+            },
           },
-        },
-        onUpdate: 'append',
-        onSchemaBreak: 'append',
-        deployTimeParams: {
-          someNumber: 1000,
-        },
-        populateAppCallResources: true,
-      })
-      appId = Number(app.appId)
+          onUpdate: 'append',
+          onSchemaBreak: 'append',
+          deployTimeParams: {
+            someNumber: 1000,
+          },
+          populateAppCallResources: true,
+        }
+      )
+      appId = app.appId
 
       const dbConnection = await myStore.get(dbConnectionAtom)
       await upsertAppInterface(dbConnection, {
@@ -1932,12 +2017,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAADAAAAAAAAAAI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAADAAAAAAAAAAI=')
             }
           )
         })
@@ -2048,12 +2129,8 @@ describe('application-method-definitions', () => {
               )
 
               const result = await localnet.context.waitForIndexerTransaction(transactionId)
-              expect(result.transaction.sender).toBe(testAccount.addr)
-              expect(result.transaction['logs']!).toMatchInlineSnapshot(`
-              [
-                "FR98dQAAAAAAAAAGAAAAAAAAAAI=",
-              ]
-            `)
+              expect(result.transaction.sender).toBe(testAccount.addr.toString())
+              expect(uint8ArrayToBase64(result.transaction.logs![0])).toBe('FR98dQAAAAAAAAAGAAAAAAAAAAI=')
             }
           )
         })
@@ -2104,12 +2181,9 @@ const addItemIntoDynamicArray = async (parentComponent: HTMLElement, user: UserE
 }
 
 const expandMethodAccordion = async (component: RenderResult, user: UserEvent, methodName: string) => {
-  return waitFor(async () => {
-    const accordionTrigger = component.getByRole('button', { name: methodName })
-    await user.click(accordionTrigger)
-
-    return component.getByRole('region', { name: methodName })
-  })
+  const accordionTrigger = await component.findByRole('button', { name: methodName })
+  await user.click(accordionTrigger)
+  return component.getByRole('region', { name: methodName })
 }
 
 const getStructArgInput = async (parentComponent: HTMLElement, argName: string, path: string[]) => {

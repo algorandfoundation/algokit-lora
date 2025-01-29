@@ -18,7 +18,11 @@ export type AppSpecDetails = {
 } & AppSpecVersion
 
 export const upsertAppInterface = async (dbConnection: DbConnection, appInterface: AppInterfaceEntity) => {
-  await dbConnection.put('app-interfaces', appInterface)
+  const entity = {
+    ...appInterface,
+    applicationId: appInterface.applicationId.toString(),
+  }
+  await dbConnection.put('app-interfaces', entity)
 }
 
 export const useCreateAppInterface = () => {

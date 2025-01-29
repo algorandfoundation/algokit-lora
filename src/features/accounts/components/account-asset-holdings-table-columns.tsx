@@ -5,12 +5,13 @@ import { AssetIdLink } from '@/features/assets/components/asset-link'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { RenderInlineAsyncAtom } from '@/features/common/components/render-inline-async-atom'
+import { AssetId } from '@/features/assets/data/types'
 
 export const accountAssetHoldingsTableColumns: ColumnDef<AssetHolding>[] = [
   {
     header: 'ID',
     accessorFn: (item) => item.assetId,
-    cell: (c) => <AssetIdLink assetId={c.getValue<number>()} />,
+    cell: (c) => <AssetIdLink assetId={c.getValue<AssetId>()} />,
   },
   {
     header: 'Name',

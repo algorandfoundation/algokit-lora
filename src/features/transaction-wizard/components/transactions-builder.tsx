@@ -80,6 +80,7 @@ export function TransactionsBuilder({
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>(defaultTransactions ?? [])
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
   const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
+  const [isBusy, setIsBusy] = useState(false)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -139,6 +140,7 @@ export function TransactionsBuilder({
 
   const sendTransactions = useCallback(async () => {
     try {
+      setIsBusy(true)
       setErrorMessage(undefined)
       invariant(activeAddress, 'Please connect your wallet')
       ensureThereIsNoPlaceholderTransaction(transactions)
@@ -149,11 +151,14 @@ export function TransactionsBuilder({
       console.error(err)
       const error = await parseCallAbiMethodError(err, transactions)
       setErrorMessage(error.message)
+    } finally {
+      setIsBusy(false)
     }
   }, [activeAddress, onSendTransactions, transactions])
 
   const simulateTransactions = useCallback(async () => {
     try {
+      setIsBusy(true)
       setErrorMessage(undefined)
       ensureThereIsNoPlaceholderTransaction(transactions)
 
@@ -179,11 +184,14 @@ export function TransactionsBuilder({
       console.error(err)
       const error = await parseSimulateAbiMethodError(err, transactions)
       setErrorMessage(error.message)
+    } finally {
+      setIsBusy(false)
     }
   }, [onSimulated, requireSignaturesOnSimulate, transactions])
 
   const populateResources = useCallback(async () => {
     try {
+      setIsBusy(true)
       setErrorMessage(undefined)
       ensureThereIsNoPlaceholderTransaction(transactions)
 
@@ -201,10 +209,12 @@ export function TransactionsBuilder({
           const transactionWithResources = transactionsWithResources[i]
           if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
             const resources = {
-              accounts: (transactionWithResources.txn.appAccounts ?? []).map((account) => algosdk.encodeAddress(account.publicKey)),
-              assets: transactionWithResources.txn.appForeignAssets ?? [],
-              applications: transactionWithResources.txn.appForeignApps ?? [],
-              boxes: transactionWithResources.txn.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ?? [],
+              accounts: transactionWithResources.txn.applicationCall?.accounts.map((account) => account.toString()) ?? [],
+              assets: transactionWithResources.txn.applicationCall?.foreignAssets.map((a) => a) ?? [],
+              applications: transactionWithResources.txn.applicationCall?.foreignApps.map((a) => a) ?? [],
+              boxes:
+                transactionWithResources.txn.applicationCall?.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ??
+                [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }
@@ -216,6 +226,8 @@ export function TransactionsBuilder({
       // eslint-disable-next-line no-console
       console.error(error)
       setErrorMessage(asError(error).message)
+    } finally {
+      setIsBusy(false)
     }
   }, [transactions])
 
@@ -299,9 +311,9 @@ export function TransactionsBuilder({
     }
 
     return {
-      disabled: false,
+      disabled: isBusy,
     }
-  }, [transactions])
+  }, [transactions, isBusy])
 
   const simulateButtonDisabledProps = useMemo(() => {
     if (requireSignaturesOnSimulate && !activeAddress) {

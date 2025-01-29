@@ -1,28 +1,29 @@
-import { KeyRegistrationTransactionResult, TransactionResult } from '@algorandfoundation/algokit-utils/types/indexer'
 import { KeyRegTransaction, BaseKeyRegTransaction, InnerKeyRegTransaction, TransactionType, KeyRegTransactionSubType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
+import { TransactionKeyreg, TransactionResult } from '../data/types'
+import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
-const mapSubType = (keyreg: KeyRegistrationTransactionResult) =>
-  keyreg['vote-first-valid'] !== undefined && keyreg['vote-last-valid'] && keyreg['vote-key-dilution'] && keyreg['vote-participation-key']
+const mapSubType = (keyreg: TransactionKeyreg) =>
+  keyreg.voteFirstValid !== undefined && keyreg.voteLastValid && keyreg.voteKeyDilution && keyreg.voteParticipationKey
     ? KeyRegTransactionSubType.Online
     : KeyRegTransactionSubType.Offline
 
 const mapCommonKeyRegTransactionProperties = (transactionResult: TransactionResult): BaseKeyRegTransaction => {
-  invariant(transactionResult['keyreg-transaction'], 'keyreg-transaction is not set')
-  const keyReg = transactionResult['keyreg-transaction']
+  invariant(transactionResult.keyregTransaction, 'keyreg-transaction is not set')
+  const keyReg = transactionResult.keyregTransaction
 
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.KeyReg,
     subType: mapSubType(keyReg),
-    voteParticipationKey: keyReg['vote-participation-key'],
-    nonParticipation: keyReg['non-participation'],
-    selectionParticipationKey: keyReg['selection-participation-key'],
-    stateProofKey: keyReg['state-proof-key'],
-    voteKeyDilution: keyReg['vote-key-dilution'],
-    voteFirstValid: keyReg['vote-first-valid'],
-    voteLastValid: keyReg['vote-last-valid'],
+    voteParticipationKey: keyReg.voteParticipationKey ? uint8ArrayToBase64(keyReg.voteParticipationKey) : undefined,
+    nonParticipation: keyReg.nonParticipation,
+    selectionParticipationKey: keyReg.selectionParticipationKey ? uint8ArrayToBase64(keyReg.selectionParticipationKey) : undefined,
+    stateProofKey: keyReg.stateProofKey ? uint8ArrayToBase64(keyReg.stateProofKey) : undefined,
+    voteKeyDilution: keyReg.voteKeyDilution,
+    voteFirstValid: keyReg.voteFirstValid,
+    voteLastValid: keyReg.voteLastValid,
   }
 }
 

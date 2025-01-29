@@ -8,7 +8,7 @@ export class GroupResultBuilder extends DataBuilder<GroupResult> {
         ? initialState
         : {
             id: randomString(45, 45),
-            round: incrementedNumber('round'),
+            round: BigInt(incrementedNumber('round')),
             timestamp: randomDate().toISOString(),
             transactionIds: Array.from({ length: randomNumberBetween(1, 1000) }, () => randomString(52, 52)),
           }

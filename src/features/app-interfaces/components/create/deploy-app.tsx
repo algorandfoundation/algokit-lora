@@ -152,7 +152,7 @@ export function DeployApp({ machine }: Props) {
         populateAppCallResources: true,
       })
 
-      send({ type: 'deploymentCompleted', applicationId: Number(result.appId), roundFirstValid: result.updatedRound })
+      send({ type: 'deploymentCompleted', applicationId: result.appId, roundFirstValid: result.updatedRound })
     },
     [
       activeAddress,
@@ -182,7 +182,7 @@ export function DeployApp({ machine }: Props) {
       const transaction = await open({
         type,
         transaction: {
-          applicationId: 0,
+          applicationId: 0n,
           ...(method && appSpec
             ? {
                 methodDefinition: method,

@@ -5,6 +5,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { algod } from '@/features/common/data/algo-client'
 import { asError, is400 } from '@/utils/error'
+import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 const getAccountResult = async (address: Address) => {
   try {
@@ -12,7 +13,7 @@ const getAccountResult = async (address: Address) => {
       .accountInformation(address)
       .do()
       .then((result) => {
-        return result as AccountResult
+        return removeEncodableMethods(result) as AccountResult
       })
   } catch (e: unknown) {
     const error = asError(e)
@@ -23,7 +24,7 @@ const getAccountResult = async (address: Address) => {
         .exclude('all')
         .do()
         .then((result) => {
-          return result as AccountResult
+          return removeEncodableMethods(result) as AccountResult
         })
     }
     throw e
@@ -35,7 +36,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
   const assetResults = get(assetResultsAtom)
   const applicationResults = get(applicationResultsAtom)
 
-  const assetsToAdd = (accountResult['created-assets'] ?? []).filter((a) => !assetResults.has(a.index))
+  const assetsToAdd = (accountResult.createdAssets ?? []).filter((a) => !assetResults.has(a.index))
   if (assetsToAdd.length > 0) {
     set(assetResultsAtom, (prev) => {
       const next = new Map(prev)
@@ -47,7 +48,7 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
       return next
     })
   }
-  const applicationsToAdd = (accountResult['created-apps'] ?? []).filter((a) => !applicationResults.has(a.id))
+  const applicationsToAdd = (accountResult.createdApps ?? []).filter((a) => !applicationResults.has(a.id))
   if (applicationsToAdd.length > 0) {
     set(applicationResultsAtom, (prev) => {
       const next = new Map(prev)

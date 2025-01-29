@@ -30,7 +30,7 @@ const liveExplorerAtomsBuilder = () => {
       const latestBlockSummaries = (
         await Promise.all(
           Array.from({ length: maxBlocksToDisplay }, async (_, i) => {
-            const round = syncedRound - i
+            const round = syncedRound - BigInt(i)
             const blockResult = blockResults.get(round)
             if (blockResult) {
               const block = await get(blockResult[0])
