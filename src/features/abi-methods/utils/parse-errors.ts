@@ -1,5 +1,6 @@
 import { getApplicationResultAtom } from '@/features/applications/data'
 import { dataStore } from '@/features/common/data/data-store'
+import { asAlgosdkTransactions } from '@/features/transaction-wizard/mappers'
 import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
@@ -8,12 +9,7 @@ import algosdk from 'algosdk'
 type URLTokenBaseHTTPError = {
   name: 'URLTokenBaseHTTPError'
   response: {
-    body: {
-      data: {
-        ['app-index']: number
-        ['group-index']: number
-      }
-    }
+    text: string
   }
 }
 
@@ -23,12 +19,7 @@ type SimulateError = Error & {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isURLTokenBaseHTTPError = (e: any): e is URLTokenBaseHTTPError => {
-  return (
-    e.name === 'URLTokenBaseHTTPError' &&
-    e.response?.body?.data &&
-    e.response.body.data['app-index'] !== undefined &&
-    e.response.body.data['group-index'] !== undefined
-  )
+  return e.name === 'URLTokenBaseHTTPError' && e.response?.text
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -36,13 +27,41 @@ const isSimulateError = (e: any): e is SimulateError => {
   return e.simulateResponse !== undefined
 }
 
+/**
+ * The supplied transactions array may contain transactions passed as ABI method call args, which become group transactions.
+ * This function flattens any such args into the transaction group and finds the transaction by group index.
+ */
+const findTransactionInGroup = async (transactions: BuildTransactionResult[], groupIndex: number) => {
+  const indexMap: number[] = []
+
+  for (const [i, transaction] of transactions.entries()) {
+    // Flattens out transactions passed as ABI method call args
+    const txns = await asAlgosdkTransactions(transaction)
+    txns.forEach((_) => {
+      indexMap.push(i)
+    })
+  }
+
+  const index = indexMap[groupIndex]
+  if (index === undefined) {
+    return undefined
+  }
+  return transactions[index]
+}
+
 export const parseCallAbiMethodError = async (e: unknown, transactions: BuildTransactionResult[]): Promise<Error> => {
   if (!isURLTokenBaseHTTPError(e)) {
     return asError(e)
   }
 
-  const groupIndex = e.response.body.data['group-index']
-  const transaction = transactions[groupIndex]
+  const errorBody = JSON.parse(e.response.text)
+  const groupIndex =
+    errorBody && errorBody.data && errorBody.data['group-index'] !== undefined ? (errorBody.data['group-index'] as number) : undefined
+  if (groupIndex === undefined) {
+    return asError(e)
+  }
+
+  const transaction = await findTransactionInGroup(transactions, groupIndex)
   if (!transaction || transaction.type !== BuildableTransactionType.MethodCall) {
     return asError(e)
   }
@@ -62,7 +81,7 @@ export const parseSimulateAbiMethodError = async (e: unknown, transactions: Buil
 
   // When there are multiple errors, the failedAt array will only have one element
   const groupIndex = Number(e.simulateResponse.txnGroups[0].failedAt[0])
-  const transaction = transactions[groupIndex]
+  const transaction = await findTransactionInGroup(transactions, groupIndex)
   if (!transaction || transaction.type !== BuildableTransactionType.MethodCall) {
     return asError(e)
   }
@@ -91,7 +110,7 @@ const parseErrorForTransaction = async (e: unknown, groupIndex: number, transact
     return asError(e)
   }
 
-  return new Error(`Error in transaction ${groupIndex + 1}: ${tealErrorMessage}`)
+  return new Error(`Error in transaction at index ${groupIndex}: ${tealErrorMessage}`)
 }
 
 const extractErrorMessage = (errorString: string): string | undefined => {

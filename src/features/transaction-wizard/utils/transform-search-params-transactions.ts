@@ -52,11 +52,11 @@ export function transformSearchParamsTransactions(searchParamTransactions: BaseS
     } catch (error) {
       if (error instanceof z.ZodError) {
         const badPaths = error.errors.map((e) => e.path.join('-'))
-        errors.push(`Error in transaction ${index} in the following fields: ${badPaths.join(', ')}`)
+        errors.push(`Error in transaction at index ${index} in the following fields: ${badPaths.join(', ')}`)
         continue
       }
       if (error instanceof Error) {
-        errors.push(`Error in transaction ${index}: ${error.message}`)
+        errors.push(`Error in transaction at index ${index}: ${error.message}`)
       }
     }
   }
