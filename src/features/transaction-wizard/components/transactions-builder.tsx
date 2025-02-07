@@ -1,3 +1,4 @@
+/* eslint-disable tailwindcss/no-custom-classname */
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
@@ -343,7 +344,12 @@ export function TransactionsBuilder({
         <div className="mb-4 flex items-center gap-2">
           {title}
           {!disableAddTransaction && (
-            <Button variant="outline-secondary" onClick={createTransaction} className="ml-auto" icon={<Plus size={16} />}>
+            <Button
+              variant="outline-secondary"
+              onClick={createTransaction}
+              className="plausible-event-name=txn-wizard-add-txn ml-auto"
+              icon={<Plus size={16} />}
+            >
               {addTransactionLabel}
             </Button>
           )}
@@ -396,7 +402,7 @@ export function TransactionsBuilder({
             </Button>
             {onSimulated && (
               <AsyncActionButton
-                className="w-28"
+                className="plausible-event-name=txn-wizard-simulate-txn w-28"
                 onClick={simulateTransactions}
                 icon={<SquarePlay size={16} />}
                 {...simulateButtonDisabledProps}
@@ -404,7 +410,12 @@ export function TransactionsBuilder({
                 Simulate
               </AsyncActionButton>
             )}
-            <AsyncActionButton className="w-28" onClick={sendTransactions} icon={sendButtonConfig.icon} {...sendButtonDisabledProps}>
+            <AsyncActionButton
+              className="plausible-event-name=txn-wizard-send-txn w-28"
+              onClick={sendTransactions}
+              icon={sendButtonConfig.icon}
+              {...sendButtonDisabledProps}
+            >
               {sendButtonConfig.label}
             </AsyncActionButton>
           </div>

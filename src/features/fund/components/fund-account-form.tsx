@@ -77,7 +77,14 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit, defaultRece
       onSubmit={fundAccount}
       formAction={
         <FormActions>
-          <SubmitButton>{onCreateReceiver ? 'Create and Fund' : 'Fund'}</SubmitButton>
+          <SubmitButton
+            // eslint-disable-next-line tailwindcss/no-custom-classname
+            className={
+              onCreateReceiver ? 'plausible-event-name=fund-account-form-create-and-fund' : 'plausible-event-name=fund-account-form-fund'
+            }
+          >
+            {onCreateReceiver ? 'Create and Fund' : 'Fund'}
+          </SubmitButton>
         </FormActions>
       }
     >
