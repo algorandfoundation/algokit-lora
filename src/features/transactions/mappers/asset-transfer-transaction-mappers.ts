@@ -26,7 +26,7 @@ const mapSubType = (transactionResult: TransactionResult) => {
   }
 
   // if the assetTransfer.sender is not a ZERO address, it's a clawback
-  // https://developer.algorand.org/docs/rest-apis/indexer/#transactionassettransfer
+  // https://dev.algorand.co/concepts/transactions/types#asset-transfer-transaction
   if (assetTransfer.sender && assetTransfer.sender !== ZERO_ADDRESS && assetTransfer.receiver && assetTransfer.receiver !== ZERO_ADDRESS) {
     return AssetTransferTransactionSubType.Clawback
   }

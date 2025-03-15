@@ -4,9 +4,9 @@
 
 <p align="center">
     <a target="_blank" href="https://github.com/algorandfoundation/algokit-lora/blob/main/README.md"><img src="https://img.shields.io/badge/docs-repository-00dc94?logo=github&style=flat.svg" /></a>
-    <a target="_blank" href="https://developer.algorand.org/algokit/"><img src="https://img.shields.io/badge/learn-AlgoKit-00dc94?logo=algorand&mac=flat.svg" /></a>
+    <a target="_blank" href="https://dev.algorand.co/algokit/algokit-intro"><img src="https://img.shields.io/badge/learn-AlgoKit-00dc94?logo=algorand&mac=flat.svg" /></a>
     <a target="_blank" href="https://github.com/algorandfoundation/algokit-lora"><img src="https://img.shields.io/github/stars/algorandfoundation/algokit-lora?color=00dc94&logo=star&style=flat" /></a>
-    <a target="_blank" href="https://developer.algorand.org/algokit/"><img  src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Falgorandfoundation%2Falgokit-lora&countColor=%2300dc94&style=flat" /></a>
+    <a target="_blank" href="https://dev.algorand.co/algokit/algokit-intro"><img  src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Falgorandfoundation%2Falgokit-lora&countColor=%2300dc94&style=flat" /></a>
 </p>
 
 ---
