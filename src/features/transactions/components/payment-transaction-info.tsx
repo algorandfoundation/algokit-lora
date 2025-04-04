@@ -31,7 +31,7 @@ export function PaymentTransactionInfo({ transaction }: Props) {
   }
 
   const wasmTxn = decodeTransaction(encodeTransaction(txnModel));
-  console.log(wasmTxn);
+  console.log('Pay fields from WASM:', wasmTxn.payFields);
 
   const paymentTransactionItems = useMemo(
     () => [
