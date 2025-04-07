@@ -121,7 +121,7 @@ export const addStateExtractedFromBlocksAtom = atom(
               transactionResult.paymentTransaction = {
                 amount: wasmTxn.payFields!.amount,
                 receiver: wasmTxn.payFields!.receiver.address,
-                closeAmount: transactionResult.paymentTransaction.closeAmount, // This appears to be missing from the wasmTxn model
+                closeAmount: transactionResult.paymentTransaction.closeAmount,
                 closeRemainderTo: wasmTxn.payFields!.closeRemainderTo?.address,
               }
             }
