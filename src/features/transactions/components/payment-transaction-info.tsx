@@ -6,7 +6,6 @@ import { DescriptionList } from '@/features/common/components/description-list'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { transactionAmountLabel } from './transactions-table-columns'
 import { transactionReceiverLabel, transactionSenderLabel } from './labels'
-import {addressFromString, decodeTransaction, encodeTransaction, Transaction} from '@joe-p/algo_models'
 
 type Props = {
   transaction: PaymentTransaction | InnerPaymentTransaction
@@ -16,46 +15,29 @@ export const transactionCloseRemainderToLabel = 'Close Remainder To'
 export const transactionCloseRemainderAmountLabel = 'Close Remainder Amount'
 
 export function PaymentTransactionInfo({ transaction }: Props) {
-  const txnModel: Transaction = {
-    header: {
-      sender: addressFromString(transaction.sender),
-      transactionType: 'Payment',
-      fee: transaction.fee.microAlgos,
-      firstValid: transaction.confirmedRound,
-      lastValid: transaction.confirmedRound,
-    },
-    payFields: {
-      amount: transaction.amount.microAlgos,
-      receiver: addressFromString(transaction.receiver)
-    }
-  }
-
-  const wasmTxn = decodeTransaction(encodeTransaction(txnModel));
-  console.log('Pay fields from WASM:', wasmTxn.payFields);
-
   const paymentTransactionItems = useMemo(
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={wasmTxn.header.sender.address} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: <AccountLink address={wasmTxn.payFields!.receiver.address} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.receiver} showCopyButton={true} />,
       },
       {
         dt: transactionAmountLabel,
-        dd: <DisplayAlgo amount={wasmTxn.payFields!.amount.microAlgo()} />,
+        dd: <DisplayAlgo amount={transaction.amount} />,
       },
-      ...(wasmTxn.payFields!.closeRemainderTo
+      ...(transaction.closeRemainder
         ? [
             {
               dt: transactionCloseRemainderToLabel,
-              dd: <AccountLink address={wasmTxn.payFields!.closeRemainderTo!.address} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} />,
             },
             {
               dt: transactionCloseRemainderAmountLabel,
-              dd: <DisplayAlgo amount={transaction.closeRemainder!.amount} />,
+              dd: <DisplayAlgo amount={transaction.closeRemainder.amount} />,
             },
           ]
         : []),
