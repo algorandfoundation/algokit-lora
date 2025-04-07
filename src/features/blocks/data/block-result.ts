@@ -9,6 +9,8 @@ import { indexer } from '@/features/common/data/algo-client'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
+import { addressFromString, decodeTransaction, encodeTransaction, Transaction } from '@joe-p/algo_models'
+import { Address } from 'algosdk'
 
 export const getBlockAndExtractData = async (round: Round) => {
   // We  use indexer instead of algod, as algod might not have the full history of blocks
@@ -79,6 +81,51 @@ export const addStateExtractedFromBlocksAtom = atom(
         const next = new Map(prev)
         transactionResultsToAdd.forEach((transactionResult) => {
           if (transactionResult.id && !next.has(transactionResult.id)) {
+            // This code has been added to test the WASM encoding/decoding of payment transactions
+            if (transactionResult.txType === 'pay' && transactionResult.paymentTransaction) {
+              const txnModel: Transaction = {
+                header: {
+                  sender: addressFromString(transactionResult.sender),
+                  transactionType: 'Payment',
+                  fee: transactionResult.fee,
+                  firstValid: transactionResult.firstValid,
+                  lastValid: transactionResult.lastValid,
+                  genesisHash: transactionResult.genesisHash,
+                  genesisId: transactionResult.genesisId,
+                  note: transactionResult.note,
+                  rekeyTo: transactionResult.rekeyTo ? addressFromString(transactionResult.rekeyTo.toString()) : undefined,
+                  lease: transactionResult.lease,
+                  group: transactionResult.group,
+                },
+                payFields: {
+                  amount: transactionResult.paymentTransaction.amount,
+                  receiver: addressFromString(transactionResult.paymentTransaction.receiver),
+                  closeRemainderTo: transactionResult.paymentTransaction.closeRemainderTo
+                    ? addressFromString(transactionResult.paymentTransaction.closeRemainderTo)
+                    : undefined,
+                },
+              }
+
+              const wasmTxn = decodeTransaction(encodeTransaction(txnModel))
+
+              transactionResult.sender = wasmTxn.header.sender.address
+              transactionResult.fee = wasmTxn.header.fee
+              transactionResult.firstValid = wasmTxn.header.firstValid
+              transactionResult.lastValid = wasmTxn.header.lastValid
+              transactionResult.genesisHash = wasmTxn.header.genesisHash
+              transactionResult.genesisId = wasmTxn.header.genesisId
+              transactionResult.note = wasmTxn.header.note
+              transactionResult.rekeyTo = wasmTxn.header.rekeyTo?.address ? Address.fromString(wasmTxn.header.rekeyTo.address) : undefined
+              transactionResult.lease = wasmTxn.header.lease
+              transactionResult.group = wasmTxn.header.group
+              transactionResult.paymentTransaction = {
+                amount: wasmTxn.payFields!.amount,
+                receiver: wasmTxn.payFields!.receiver.address,
+                closeAmount: transactionResult.paymentTransaction.closeAmount,
+                closeRemainderTo: wasmTxn.payFields!.closeRemainderTo?.address,
+              }
+            }
+
             next.set(transactionResult.id, createReadOnlyAtomAndTimestamp(transactionResult))
           }
         })
