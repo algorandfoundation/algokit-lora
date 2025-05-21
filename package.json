@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^3.2.0",
-    "@algorandfoundation/algokit-utils": "^9.0.0",
+    "@algorandfoundation/algokit-utils": "^9.2.0-future.3",
+    "@algorandfoundation/tealscript": "https://registry.npmjs.org/@algorandfoundation/tealscript/-/tealscript-0.106.3.tgz",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",
