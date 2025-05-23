@@ -13,6 +13,8 @@ jobs:
     permissions:
       contents: read
       packages: read
+    secrets:
+      NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       working-directory: .
       node-version: 20.x
