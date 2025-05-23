@@ -76,12 +76,14 @@ export type Label =
   | { type: LabelType.StateProof }
   | { type: LabelType.Heartbeat }
 
+export type MarkerTag = number | 'Rekey'
+
 export type Vector = {
   type: RepresentationType.Vector
   label: Label
   fromVerticalIndex: number
-  fromAccountIndex?: number
-  toAccountIndex?: number
+  fromTag?: MarkerTag
+  toTag?: MarkerTag
   toVerticalIndex: number
   direction: 'leftToRight' | 'rightToLeft'
 }
@@ -90,15 +92,15 @@ export type SelfLoop = {
   type: RepresentationType.SelfLoop
   label: Label
   fromVerticalIndex: number
-  fromAccountIndex?: number
-  toAccountIndex?: number
+  fromTag?: MarkerTag
+  toTag?: MarkerTag
 }
 
 export type Point = {
   type: RepresentationType.Point
   label: Label
   fromVerticalIndex: number
-  fromAccountIndex?: number
+  fromTag?: MarkerTag
 }
 
 type AssociatedAccount = {
@@ -146,10 +148,10 @@ export type Vertical = AccountVertical | ApplicationVertical | AssetVertical | O
 
 export type RepresentationFromTo = {
   verticalId: number
-  accountNumber?: number
+  tag?: MarkerTag
 }
 // Fallback value, it should never happen, just to make TypeScript happy
 export const fallbackFromTo: RepresentationFromTo = {
   verticalId: -1,
-  accountNumber: undefined,
+  tag: undefined,
 }

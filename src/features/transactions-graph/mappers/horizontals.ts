@@ -179,13 +179,12 @@ const getAssetTransferTransactionRepresentations = (
       })
     : undefined
 
-  const sender =
-    transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
-      ? transaction.clawbackFrom
-      : transaction.sender
+  const tagAddress =
+    transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom ? transaction.clawbackFrom : undefined
+
   const from = parent
-    ? calculateFromWithParent(sender, verticals, parent)
-    : calculateFromWithoutParent(sender, verticals, transaction.subType === AssetTransferTransactionSubType.Clawback)
+    ? calculateFromWithParent(transaction.sender, verticals, parent, tagAddress)
+    : calculateFromWithoutParent(transaction.sender, verticals, tagAddress)
   const to = getAccountOrApplicationByAddress(verticals, transaction.receiver)
 
   const transferRepresentation = asTransactionGraphRepresentation(from, to, {
@@ -209,7 +208,7 @@ const getKeyRegTransactionRepresentations = (
   return [
     {
       fromVerticalIndex: from.verticalId,
-      fromAccountIndex: from.accountNumber,
+      fromTag: from.tag,
       type: RepresentationType.Point,
       label: {
         type: LabelType.KeyReg,
@@ -258,13 +257,13 @@ function getAccountOrApplicationByAddress(verticals: Vertical[], address: string
   if (accountVertical) {
     fromTo = {
       verticalId: accountVertical.id,
-      accountNumber: accountVertical.accountNumber,
+      tag: accountVertical.accountNumber,
     }
   }
   if (applicationVertical) {
     fromTo = {
       verticalId: applicationVertical.id,
-      accountNumber: applicationVertical.linkedAccount.accountNumber,
+      tag: applicationVertical.linkedAccount.accountNumber,
     }
   }
   return fromTo
@@ -293,7 +292,7 @@ const getStateProofTransactionRepresentations = (transaction: StateProofTransact
   return [
     {
       fromVerticalIndex: from.verticalId,
-      fromAccountIndex: from.accountNumber,
+      fromTag: from.tag,
       type: RepresentationType.Point,
       label: {
         type: LabelType.StateProof,
@@ -308,7 +307,7 @@ const getHeartbeatTransactionRepresentations = (transaction: HeartbeatTransactio
   return [
     {
       fromVerticalIndex: from.verticalId,
-      fromAccountIndex: from.accountNumber,
+      fromTag: from.tag,
       type: RepresentationType.Point,
       label: {
         type: LabelType.Heartbeat,
@@ -321,8 +320,8 @@ const asTransactionGraphRepresentation = (from: RepresentationFromTo, to: Repres
   if (from.verticalId === to.verticalId) {
     return {
       fromVerticalIndex: from.verticalId,
-      fromAccountIndex: from.accountNumber,
-      toAccountIndex: to.accountNumber,
+      fromTag: from.tag,
+      toTag: to.tag,
       type: RepresentationType.SelfLoop,
       label: description,
     }
@@ -332,32 +331,28 @@ const asTransactionGraphRepresentation = (from: RepresentationFromTo, to: Repres
 
   return {
     fromVerticalIndex: Math.min(from.verticalId, to.verticalId),
-    fromAccountIndex: from.accountNumber,
+    fromTag: from.tag,
     toVerticalIndex: Math.max(from.verticalId, to.verticalId),
-    toAccountIndex: to.accountNumber,
+    toTag: to.tag,
     direction: direction,
     type: RepresentationType.Vector,
     label: description,
   }
 }
 
-const calculateFromWithoutParent = (
-  sender: Address,
-  verticals: Vertical[],
-  useAssociatedAccountsVertical: boolean = false
-): RepresentationFromTo => {
+const calculateFromWithoutParent = (sender: Address, verticals: Vertical[], tagAddress?: Address): RepresentationFromTo => {
   // If the transaction is not a child, it is sent an individual account or an application account
-  const accountVertical = useAssociatedAccountsVertical
-    ? verticals.find(
-        (c): c is AccountVertical => c.type === 'Account' && c.associatedAccounts.map((x) => x.accountAddress).includes(sender)
-      )
-    : verticals.find((c): c is AccountVertical => c.type === 'Account' && sender === c.accountAddress)
-
+  const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && sender === c.accountAddress)
   if (accountVertical) {
+    const tagAddressAccountNumber = tagAddress
+      ? accountVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)?.accountNumber
+      : undefined
+
     return {
       verticalId: accountVertical.id,
-      accountNumber:
-        accountVertical.accountAddress === sender
+      tag: tagAddressAccountNumber
+        ? tagAddressAccountNumber
+        : sender == accountVertical.accountAddress
           ? accountVertical.accountNumber
           : accountVertical.associatedAccounts.find((x) => x.accountAddress === sender)?.accountNumber,
     }
@@ -369,27 +364,55 @@ const calculateFromWithoutParent = (
   if (applicationVertical) {
     return {
       verticalId: applicationVertical.id,
-      accountNumber: applicationVertical.linkedAccount.accountNumber,
+      tag: applicationVertical.linkedAccount.accountNumber,
     }
   }
+
   return fallbackFromTo
 }
 
-const calculateFromWithParent = (sender: Address, verticals: Vertical[], parent: Horizontal): RepresentationFromTo => {
-  // If the transaction is child, the parent transaction must be an application call
-  // The "from" must be the parent application call transaction
+const calculateFromWithParent = (
+  sender: Address,
+  verticals: Vertical[],
+  parent: Horizontal,
+  tagAddress?: Address
+): RepresentationFromTo => {
+  // If the transaction is a child, the parent transaction must be an application call
   const parentAppCallTransaction = parent.transaction as AppCallTransaction
   const applicationVertical = verticals.find(
     (c): c is ApplicationVertical => c.type === 'Application' && c.applicationId === parentAppCallTransaction.applicationId
   )
-  if (applicationVertical) {
+
+  if (!applicationVertical) {
+    return fallbackFromTo
+  }
+
+  const tagAddressAccountNumber = tagAddress
+    ? applicationVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)?.accountNumber
+    : undefined
+  if (tagAddressAccountNumber) {
     return {
       verticalId: applicationVertical.id,
-      accountNumber:
-        applicationVertical.linkedAccount.accountAddress === sender
-          ? applicationVertical.linkedAccount.accountNumber
-          : applicationVertical.associatedAccounts.find((account) => account.accountAddress === sender)?.accountNumber,
+      tag: tagAddressAccountNumber,
     }
   }
+
+  if (sender === applicationVertical.linkedAccount.accountAddress) {
+    return {
+      verticalId: applicationVertical.id,
+      tag: applicationVertical.linkedAccount.accountNumber,
+    }
+  }
+
+  const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === sender)
+  if (accountVertical) {
+    return {
+      verticalId: accountVertical.id,
+      tag: applicationVertical.associatedAccounts.find((account) => account.type === 'Rekey' && sender === account.accountAddress)
+        ? 'Rekey'
+        : accountVertical.accountNumber,
+    }
+  }
+
   return fallbackFromTo
 }
