@@ -1,6 +1,6 @@
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { Horizontal as HorizontalModel, LabelType, Point, RepresentationType, SelfLoop, Vector, Vertical } from '../models'
+import { Horizontal as HorizontalModel, LabelType, Point, MarkerTag, RepresentationType, SelfLoop, Vector, Vertical } from '../models'
 import { graphConfig } from '@/features/transactions-graph/components/graph-config'
 import { cn } from '@/features/common/utils'
 import SvgPointerLeft from '@/features/common/components/svg/pointer-left'
@@ -20,6 +20,7 @@ import PointerRight from '@/features/common/components/svg/pointer-right'
 import { SubHorizontalTitle } from '@/features/transactions-graph/components/sub-horizontal-title'
 import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
 import { HeartbeatTransactionTooltipContent } from './heartbeat-transaction-tooltip-content'
+import { KeyIcon } from 'lucide-react'
 
 function ConnectionsFromAncestorsToAncestorsNextSiblings({ ancestors }: { ancestors: HorizontalModel[] }) {
   return ancestors
@@ -46,12 +47,12 @@ const colorClassMap = {
   [TransactionType.Heartbeat]: { border: 'border-heartbeat', text: 'text-heartbeat' },
 }
 
-function Circle({ className, text }: { className?: string; text?: string | number }) {
+function Marker({ className, tag }: { className?: string; tag?: MarkerTag }) {
   return (
     <div
       className={cn('inline-flex relative size-5 items-center justify-center overflow-hidden rounded-full border text-[0.6rem]', className)}
     >
-      {text}
+      {tag === 'Rekey' ? <KeyIcon size={10} /> : tag}
     </div>
   )
 }
@@ -177,10 +178,7 @@ const RenderTransactionVector = fixedForwardRef(
         ref={ref}
         {...rest}
       >
-        <Circle
-          className={cn(colorClass.border, bgClassName)}
-          text={vector.direction === 'leftToRight' ? vector.fromAccountIndex : vector.toAccountIndex}
-        />
+        <Marker className={cn(colorClass.border, bgClassName)} tag={vector.direction === 'leftToRight' ? vector.fromTag : vector.toTag} />
         <div
           style={{
             width: `calc(${(100 - 100 / (vector.toVerticalIndex - vector.fromVerticalIndex + 1)).toFixed(2)}% - ${graphConfig.circleDimension}px)`,
@@ -212,10 +210,7 @@ const RenderTransactionVector = fixedForwardRef(
             <VectorLabel transaction={transaction} vector={vector} />
           </div>
         </div>
-        <Circle
-          className={cn(colorClass.border, bgClassName)}
-          text={vector.direction === 'leftToRight' ? vector.toAccountIndex : vector.fromAccountIndex}
-        />
+        <Marker className={cn(colorClass.border, bgClassName)} tag={vector.direction === 'leftToRight' ? vector.toTag : vector.fromTag} />
       </div>
     )
   }
@@ -246,10 +241,7 @@ const RenderTransactionSelfLoop = fixedForwardRef(
           gridColumnEnd: loop.fromVerticalIndex + 4, // 4 to offset the name column and make this cell span 2 columns
         }}
       >
-        <Circle
-          className={cn(colorClass.border, 'z-10', bgClassName)}
-          text={loop.fromAccountIndex === loop.toAccountIndex ? loop.fromAccountIndex : undefined}
-        />
+        <Marker className={cn(colorClass.border, 'z-10', bgClassName)} tag={loop.fromTag} />
         <div
           style={{
             width: `50%`,
@@ -303,7 +295,7 @@ const RenderTransactionPoint = fixedForwardRef(
           gridColumnEnd: point.fromVerticalIndex + 3,
         }}
       >
-        <Circle className={cn(colorClass.border, bgClassName)} />
+        <Marker className={cn(colorClass.border, bgClassName)} />
       </div>
     )
   }

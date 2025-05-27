@@ -69,7 +69,6 @@ export const keyRegistrationFormSchema = z
           path: ['voteLastValid'],
         })
       }
-      // TODO: NC - Add validation to ensure first is less than last
       if (!schema.voteKeyDilution) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
