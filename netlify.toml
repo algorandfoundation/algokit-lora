@@ -2,3 +2,12 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# All files in the assets directory have a content hash in their file name and therefore can be cached like this.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    cache-control = '''
+    max-age=31536000,
+    immutable
+    '''
