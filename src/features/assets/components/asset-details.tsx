@@ -116,30 +116,30 @@ export function AssetDetails({ asset }: Props) {
     () => [
       {
         dt: assetCreatorLabel,
-        dd: <AccountLink address={asset.creator} showCopyButton={true} />,
+        dd: <AccountLink address={asset.creator} showCopyButton={true} showQRButton={true} />,
       },
       asset.manager && asset.manager !== ZERO_ADDRESS
         ? {
             dt: assetManagerLabel,
-            dd: <AccountLink address={asset.manager} showCopyButton={true} />,
+            dd: <AccountLink address={asset.manager} showCopyButton={true} showQRButton={true} />,
           }
         : undefined,
       asset.reserve && asset.reserve !== ZERO_ADDRESS
         ? {
             dt: assetReserveLabel,
-            dd: <AccountLink address={asset.reserve} showCopyButton={true} />,
+            dd: <AccountLink address={asset.reserve} showCopyButton={true} showQRButton={true} />,
           }
         : undefined,
       asset.freeze && asset.freeze !== ZERO_ADDRESS
         ? {
             dt: assetFreezeLabel,
-            dd: <AccountLink address={asset.freeze} showCopyButton={true} />,
+            dd: <AccountLink address={asset.freeze} showCopyButton={true} showQRButton={true} />,
           }
         : undefined,
       asset.clawback && asset.clawback !== ZERO_ADDRESS
         ? {
             dt: assetClawbackLabel,
-            dd: <AccountLink address={asset.clawback} showCopyButton={true} />,
+            dd: <AccountLink address={asset.clawback} showCopyButton={true} showQRButton={true} />,
           }
         : undefined,
     ],

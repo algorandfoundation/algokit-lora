@@ -16,11 +16,11 @@ export function HeartbeatTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: heartbeatAddressLabel,
-        dd: <AccountLink address={transaction.address} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.address} showCopyButton={true} showQRButton={true} />,
       },
     ],
     [transaction.address, transaction.sender]

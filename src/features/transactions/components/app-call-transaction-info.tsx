@@ -79,11 +79,11 @@ function AppCallDescriptionList({
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
+        dd: <ApplicationLink applicationId={transaction.applicationId} />,
       },
       ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
       {
@@ -187,7 +187,9 @@ function ForeignAccounts({ transaction }: Props) {
     <div className="flex flex-col overflow-hidden">
       {transaction.applicationAccounts.length === 0 && <span>No foreign accounts.</span>}
       {transaction.applicationAccounts.length > 0 &&
-        transaction.applicationAccounts.map((address, index) => <AccountLink key={index} address={address} showCopyButton={true} />)}
+        transaction.applicationAccounts.map((address, index) => (
+          <AccountLink key={index} address={address} showCopyButton={true} showQRButton={true} />
+        ))}
     </div>
   )
 }

@@ -23,19 +23,19 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} showQRButton={true} />,
       },
       ...(subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
         ? [
             {
               dt: transactionClawbackAddressLabel,
-              dd: <AccountLink address={transaction.clawbackFrom} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.clawbackFrom} showCopyButton={true} showQRButton={true} />,
             },
           ]
         : []),
       {
         dt: transactionReceiverLabel,
-        dd: <AccountLink address={transaction.receiver} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.receiver} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: assetLabel,
@@ -49,7 +49,7 @@ export function AssetTransferTransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionCloseRemainderToLabel,
-              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} showQRButton={true} />,
             },
             {
               dt: transactionCloseRemainderAmountLabel,

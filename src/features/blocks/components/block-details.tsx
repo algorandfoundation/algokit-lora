@@ -57,7 +57,7 @@ export function BlockDetails({ block }: Props) {
         ? [
             {
               dt: proposerLabel,
-              dd: <AccountLink address={block.proposer} showCopyButton={true} />,
+              dd: <AccountLink address={block.proposer} showCopyButton={true} showQRButton={true} />,
             },
           ]
         : []),
