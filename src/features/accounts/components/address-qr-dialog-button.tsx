@@ -1,7 +1,7 @@
 import { cn } from '@/features/common/utils'
 import { Button } from '../../common/components/button'
 import { useCallback, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/features/common/components/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, MediumSizeDialogBody } from '@/features/common/components/dialog'
 import { Description } from '@radix-ui/react-dialog'
 import QRCode from 'react-qr-code'
 import { QrCodeIcon } from 'lucide-react'
@@ -34,27 +34,22 @@ export function OpenAddressQRDialogButton({ address, className }: Props) {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen} modal={true}>
         {dialogOpen && (
           <DialogContent className="bg-card">
-            <Description hidden={true}>Address QR Code</Description>
+            <Description hidden={true}>{addressQRCodeLabel}</Description>
 
             <DialogHeader>
-              <div>
-                <DialogTitle asChild>
-                  <h2>Address QR Code</h2>
-                </DialogTitle>
-              </div>
-
-              <span>
-                {address}
-              </span>
+              <DialogTitle asChild>
+                <h2>{addressQRCodeLabel}</h2>
+              </DialogTitle>
             </DialogHeader>
-
-            <div>
-              <div className="flex items-center justify-center">
-                <QRCode value={address} />
+            <MediumSizeDialogBody>
+              <div className="flex flex-col items-center space-y-4">
+                <div className="flex w-full max-w-full items-center justify-center">
+                  <span className="max-w-full truncate text-center">{address}</span>
+                </div>
+                <QRCode className="w-full" value={`algorand://${address}`} />
+                <p>Scan the QR code to copy the address</p>
               </div>
-
-              <p className="mt-4 text-center ">Scan the QR code to copy the address</p>
-            </div>
+            </MediumSizeDialogBody>
           </DialogContent>
         )}
       </Dialog>
