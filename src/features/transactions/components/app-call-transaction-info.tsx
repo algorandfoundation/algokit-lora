@@ -83,7 +83,7 @@ function AppCallDescriptionList({
       },
       {
         dt: applicationIdLabel,
-        dd: <ApplicationLink applicationId={transaction.applicationId} />,
+        dd: <ApplicationLink applicationId={transaction.applicationId} showCopyButton={true} />,
       },
       ...(abiMethod ? [{ dt: abiMethodNameLabel, dd: abiMethod.name }] : []),
       {
