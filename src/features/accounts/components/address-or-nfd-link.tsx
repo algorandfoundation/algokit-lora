@@ -8,7 +8,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { Nfd } from '@/features/nfd/data/types'
 import { PropsWithChildren } from 'react'
 import { Address } from 'algosdk'
-import { OpenQRViewDialogButton } from '@/features/common/components/qr-view-dialog-button'
+import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{
   address: string | Address
@@ -55,7 +55,7 @@ export const AddressOrNfdLink = fixedForwardRef(
       <div className="flex items-center overflow-hidden">
         {link}
         {showCopyButton && <CopyButton value={address} />}
-        {showQRButton && <OpenQRViewDialogButton address={address} />}
+        {showQRButton && <OpenAddressQRDialogButton address={address} />}
       </div>
     )
   }
