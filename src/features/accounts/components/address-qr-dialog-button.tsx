@@ -1,8 +1,7 @@
 import { cn } from '@/features/common/utils'
-import { Button } from './button'
+import { Button } from '../../common/components/button'
 import { useCallback, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/features/common/components/dialog'
-import { CopyButton } from './copy-button'
 import { Description } from '@radix-ui/react-dialog'
 import QRCode from 'react-qr-code'
 import { QrCodeIcon } from 'lucide-react'
@@ -12,9 +11,9 @@ type Props = {
   className?: string
 }
 
-const AdressQRCodeLabel = 'Address QR Code'
+const addressQRCodeLabel = 'Address QR Code'
 
-export function OpenQRViewDialogButton({ address, className }: Props) {
+export function OpenAddressQRDialogButton({ address, className }: Props) {
   const [dialogOpen, setDialogOpen] = useState(false)
   const openAddressViewDialog = useCallback(() => {
     setDialogOpen(true)
@@ -27,7 +26,7 @@ export function OpenQRViewDialogButton({ address, className }: Props) {
         onClick={openAddressViewDialog}
         size="icon"
         className={cn('align-middle ml-1 size-4 hover:text-foreground/60', className)}
-        aria-label={AdressQRCodeLabel}
+        aria-label={addressQRCodeLabel}
       >
         <QrCodeIcon size={16} />
       </Button>
@@ -46,7 +45,6 @@ export function OpenQRViewDialogButton({ address, className }: Props) {
 
               <span>
                 {address}
-                <CopyButton value={`algorand://${address}`} className="ml-1" />
               </span>
             </DialogHeader>
 
