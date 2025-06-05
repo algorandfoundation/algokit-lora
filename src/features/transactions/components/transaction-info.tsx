@@ -98,7 +98,7 @@ export function TransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionRekeyToLabel,
-              dd: <AccountLink address={transaction.rekeyTo} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.rekeyTo} showCopyButton={true} showQRButton={true} />,
             },
           ]
         : []),

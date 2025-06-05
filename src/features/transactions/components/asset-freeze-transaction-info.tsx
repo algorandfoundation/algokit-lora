@@ -19,7 +19,7 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: assetLabel,
@@ -27,7 +27,7 @@ export function AssetFreezeTransactionInfo({ transaction }: Props) {
       },
       {
         dt: assetFreezeAddressLabel,
-        dd: <AccountLink address={transaction.address} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.address} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: assetFreezeStatusLabel,

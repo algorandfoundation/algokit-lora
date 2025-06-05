@@ -32,7 +32,7 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
       [
         {
           dt: transactionSenderLabel,
-          dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+          dd: <AccountLink address={transaction.sender} showCopyButton={true} showQRButton={true} />,
         },
         {
           dt: assetLabel,
@@ -78,25 +78,25 @@ export function AssetConfigTransactionInfo({ transaction }: Props) {
         transaction.manager
           ? {
               dt: assetManagerLabel,
-              dd: <AccountLink address={transaction.manager} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.manager} showCopyButton={true} showQRButton={true} />,
             }
           : undefined,
         transaction.reserve
           ? {
               dt: assetReserveLabel,
-              dd: <AccountLink address={transaction.reserve} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.reserve} showCopyButton={true} showQRButton={true} />,
             }
           : undefined,
         transaction.freeze
           ? {
               dt: assetFreezeLabel,
-              dd: <AccountLink address={transaction.freeze} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.freeze} showCopyButton={true} showQRButton={true} />,
             }
           : undefined,
         transaction.clawback
           ? {
               dt: assetClawbackLabel,
-              dd: <AccountLink address={transaction.clawback} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.clawback} showCopyButton={true} showQRButton={true} />,
             }
           : undefined,
         transaction.defaultFrozen != null

@@ -21,6 +21,7 @@ import {
 import { OpenJsonViewDialogButton } from '@/features/common/components/json-view-dialog-button'
 import { CopyButton } from '@/features/common/components/copy-button'
 import { useLoadableReverseLookupNfdResult } from '@/features/nfd/data'
+import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
 
 type Props = {
   account: Account
@@ -37,6 +38,7 @@ export function AccountInfo({ account }: Props) {
           <div className="flex items-center">
             <span className="truncate">{account.address}</span>
             <CopyButton value={account.address} />
+            <OpenAddressQRDialogButton address={account.address} />
           </div>
         ),
       },
@@ -84,7 +86,7 @@ export function AccountInfo({ account }: Props) {
         ? [
             {
               dt: accountRekeyedToLabel,
-              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} />,
+              dd: <AccountLink address={account.rekeyedTo} showCopyButton={true} showQRButton={true} />,
             },
           ]
         : []),

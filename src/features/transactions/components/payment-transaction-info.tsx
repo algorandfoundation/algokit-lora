@@ -19,11 +19,11 @@ export function PaymentTransactionInfo({ transaction }: Props) {
     () => [
       {
         dt: transactionSenderLabel,
-        dd: <AccountLink address={transaction.sender} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.sender} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: transactionReceiverLabel,
-        dd: <AccountLink address={transaction.receiver} showCopyButton={true} />,
+        dd: <AccountLink address={transaction.receiver} showCopyButton={true} showQRButton={true} />,
       },
       {
         dt: transactionAmountLabel,
@@ -33,7 +33,7 @@ export function PaymentTransactionInfo({ transaction }: Props) {
         ? [
             {
               dt: transactionCloseRemainderToLabel,
-              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} />,
+              dd: <AccountLink address={transaction.closeRemainder.to} showCopyButton={true} showQRButton={true} />,
             },
             {
               dt: transactionCloseRemainderAmountLabel,

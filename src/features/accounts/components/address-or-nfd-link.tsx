@@ -8,18 +8,20 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { Nfd } from '@/features/nfd/data/types'
 import { PropsWithChildren } from 'react'
 import { Address } from 'algosdk'
+import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{
   address: string | Address
   short?: boolean
   className?: string
   showCopyButton?: boolean
+  showQRButton?: boolean
   nfd?: Nfd
 }>
 
 export const AddressOrNfdLink = fixedForwardRef(
   (
-    { address: _address, nfd, short, className, children, showCopyButton, ...rest }: AddressOrNfdLinkProps,
+    { address: _address, nfd, short, className, children, showCopyButton, showQRButton, ...rest }: AddressOrNfdLinkProps,
     ref?: React.LegacyRef<HTMLAnchorElement>
   ) => {
     const [selectedNetwork] = useSelectedNetwork()
@@ -53,6 +55,7 @@ export const AddressOrNfdLink = fixedForwardRef(
       <div className="flex items-center overflow-hidden">
         {link}
         {showCopyButton && <CopyButton value={address} />}
+        {showQRButton && <OpenAddressQRDialogButton address={address} />}
       </div>
     )
   }
