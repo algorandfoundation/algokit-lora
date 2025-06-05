@@ -6,16 +6,24 @@ import { Loader2 as Loader } from 'lucide-react'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { ViewModelPage } from '../../data/lazy-load-pagination'
 import { cn } from '../../utils'
+import { TableDataContext, useTablePageSize } from '../../../settings/data/table-page-sizes'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   createLoadablePage: (pageSize: number) => (pageNumber: number) => Loadable<Promise<ViewModelPage<TData>>>
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
+  dataContext: TableDataContext
 }
 
-export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, getSubRows, subRowsExpanded }: Props<TData, TValue>) {
-  const [pageSize, setPageSize] = useState(10)
+export function LazyLoadDataTable<TData, TValue>({
+  columns,
+  createLoadablePage,
+  getSubRows,
+  subRowsExpanded,
+  dataContext,
+}: Props<TData, TValue>) {
+  const [pageSize, setPageSize] = useTablePageSize(dataContext)
   const useLoadablePage = useMemo(() => createLoadablePage(pageSize), [createLoadablePage, pageSize])
   const [currentPage, setCurrentPage] = useState<number>(1)
   const loadablePage = useLoadablePage(currentPage)
@@ -28,10 +36,13 @@ export function LazyLoadDataTable<TData, TValue>({ columns, createLoadablePage, 
     setCurrentPage((prev) => (prev > 1 ? prev - 1 : prev))
   }, [])
 
-  const setPageSizeAndResetCurrentPage = useCallback((newPageSize: number) => {
-    setPageSize(newPageSize)
-    setCurrentPage(1)
-  }, [])
+  const setPageSizeAndResetCurrentPage = useCallback(
+    (newPageSize: number) => {
+      setPageSize(newPageSize)
+      setCurrentPage(1)
+    },
+    [setPageSize]
+  )
 
   const page = useMemo(() => (loadablePage.state === 'hasData' ? loadablePage.data : undefined), [loadablePage])
 

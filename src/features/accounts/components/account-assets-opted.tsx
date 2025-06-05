@@ -7,5 +7,5 @@ type Props = {
 }
 
 export function AccountAssetsOpted({ assetsOpted }: Props) {
-  return <DataTable columns={accountAssetHoldingsTableColumns} data={assetsOpted} />
+  return <DataTable columns={accountAssetHoldingsTableColumns} data={assetsOpted} dataContext="asset" />
 }

@@ -1,6 +1,7 @@
 import { Button } from '@/features/common/components/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { pageSizeOptions } from '../../../settings/data/table-page-sizes'
 
 interface Props {
   pageSize: number
@@ -11,8 +12,6 @@ interface Props {
   previousPageEnabled: boolean
   previousPage: () => void
 }
-
-const pageSizeOptions = [10, 20, 30, 40, 50]
 
 export function LazyLoadDataTablePagination({
   pageSize,

@@ -1,13 +1,14 @@
 import { ColumnDef, ExpandedState, flexRender, getCoreRowModel, getExpandedRowModel, useReactTable } from '@tanstack/react-table'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/features/common/components/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../common/components/select'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { useLiveTransactions } from '../data/live-transaction'
 import { cn } from '@/features/common/utils'
 import { Switch } from '@/features/common/components/switch'
 import { Label } from '@/features/common/components/label'
+import { pageSizeOptions, useTablePageSize } from '@/features/settings/data/table-page-sizes'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
@@ -17,7 +18,7 @@ interface Props {
 
 export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
-  const [maxRows, setMaxRows] = useState(10)
+  const [maxRows, setMaxRows] = useTablePageSize('transaction')
   const { transactions, showLiveUpdates, setShowLiveUpdates } = useLiveTransactions(filter, maxRows)
 
   const table = useReactTable({
@@ -37,6 +38,13 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
   useEffect(() => {
     table.toggleAllRowsExpanded(true)
   }, [table])
+
+  const updateMaxRows = useCallback(
+    (newMaxRows: string) => {
+      setMaxRows(Number(newMaxRows))
+    },
+    [setMaxRows]
+  )
 
   return (
     <div>
@@ -85,14 +93,14 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
         <div className="flex">
           <div className="flex shrink grow basis-0 items-center justify-start gap-2">
             <p className="hidden text-sm font-medium md:flex">Max rows</p>
-            <Select value={`${maxRows}`} onValueChange={(value) => setMaxRows(Number(value))}>
+            <Select value={`${maxRows}`} onValueChange={updateMaxRows}>
               <SelectTrigger className="h-8 w-[70px]">
                 <SelectValue placeholder={`${maxRows}`} />
               </SelectTrigger>
               <SelectContent side="top">
-                {maxRowsOptions.map((option) => (
-                  <SelectItem key={option} value={`${option}`}>
-                    {option}
+                {pageSizeOptions.map((maxRows) => (
+                  <SelectItem key={maxRows} value={`${maxRows}`}>
+                    {maxRows}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -100,7 +108,7 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
           </div>
         </div>
         <div className="ml-auto flex items-center space-x-2">
-          <Switch id="live-view-enabled" onCheckedChange={(checked) => setShowLiveUpdates(checked)} checked={showLiveUpdates} />
+          <Switch id="live-view-enabled" onCheckedChange={setShowLiveUpdates} checked={showLiveUpdates} />
           <Label htmlFor="live-view-enabled" className="cursor-pointer">
             Show updates
           </Label>
@@ -109,5 +117,3 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
     </div>
   )
 }
-
-const maxRowsOptions = [10, 20, 30, 40, 50]

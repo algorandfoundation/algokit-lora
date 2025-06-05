@@ -2,12 +2,11 @@ import { Table } from '@tanstack/react-table'
 import { Button } from '@/features/common/components/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
+import { pageSizeOptions } from '../../settings/data/table-page-sizes'
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>
 }
-
-const pageSizeOptions = [10, 20, 30, 40, 50]
 
 export function DataTablePagination<TData>({ table }: DataTablePaginationProps<TData>) {
   return (

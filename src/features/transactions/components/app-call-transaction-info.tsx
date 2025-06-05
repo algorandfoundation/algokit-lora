@@ -284,9 +284,9 @@ function GlobalStateDeltas({ transaction }: Props) {
 function GlobalStateTable({ data }: { data: GlobalStateDelta[] }) {
   const component = useMemo(() => {
     if (data.every((item) => 'type' in item)) {
-      return <DataTable columns={rawGlobalStateDeltaTableColumns} data={data} />
+      return <DataTable columns={rawGlobalStateDeltaTableColumns} data={data} dataContext="applicationState" />
     }
-    return <DataTable columns={decodedGlobalStateDeltaTableColumns} data={data} />
+    return <DataTable columns={decodedGlobalStateDeltaTableColumns} data={data} dataContext="applicationState" />
   }, [data])
 
   return component
@@ -374,9 +374,9 @@ function LocalStateDeltas({ transaction }: Props) {
 function LocalStateTable({ data }: { data: LocalStateDelta[] }) {
   const component = useMemo(() => {
     if (data.every((item) => 'type' in item)) {
-      return <DataTable columns={rawLocalStateDeltaTableColumns} data={data} />
+      return <DataTable columns={rawLocalStateDeltaTableColumns} data={data} dataContext="applicationState" />
     }
-    return <DataTable columns={decodedLocalStateDeltaTableColumns} data={data} />
+    return <DataTable columns={decodedLocalStateDeltaTableColumns} data={data} dataContext="applicationState" />
   }, [data])
 
   return component
