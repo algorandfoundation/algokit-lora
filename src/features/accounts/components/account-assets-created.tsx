@@ -36,5 +36,5 @@ const assetsCreatedTableColumns: ColumnDef<AccountAssetSummary>[] = [
 ]
 
 export function AccountAssetsCreated({ assetsCreated }: Props) {
-  return <DataTable columns={assetsCreatedTableColumns} data={assetsCreated} />
+  return <DataTable columns={assetsCreatedTableColumns} data={assetsCreated} dataContext="asset" />
 }

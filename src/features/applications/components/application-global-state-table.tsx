@@ -12,9 +12,9 @@ type Props = {
 export function ApplicationGlobalStateTable({ application }: Props) {
   const component = useMemo(() => {
     if (application.globalState?.every((state) => 'type' in state)) {
-      return <DataTable columns={rawTableColumns} data={application.globalState ?? []} />
+      return <DataTable columns={rawTableColumns} data={application.globalState ?? []} dataContext="applicationState" />
     }
-    return <DataTable columns={decodedTableColumns} data={application.globalState ?? []} />
+    return <DataTable columns={decodedTableColumns} data={application.globalState ?? []} dataContext="applicationState" />
   }, [application.globalState])
 
   return component

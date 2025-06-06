@@ -81,7 +81,7 @@ export function AppSpecsTable({ appInterface, refreshAppInterface }: Props) {
         <h2 className="pb-0">{appSpecsLabel}</h2>
         <AddAppSpecButton applicationId={appInterface.applicationId} onSuccess={refreshAppInterface} />
       </div>
-      <DataTable ariaLabel={appSpecsLabel} columns={tableColumns} data={appInterface.appSpecVersions} />
+      <DataTable ariaLabel={appSpecsLabel} columns={tableColumns} data={appInterface.appSpecVersions} dataContext="appSpec" />
     </div>
   )
 }

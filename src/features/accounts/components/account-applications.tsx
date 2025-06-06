@@ -18,5 +18,5 @@ const applicationsTableColumns: ColumnDef<ApplicationSummary>[] = [
 ]
 
 export function AccountApplications({ applications }: Props) {
-  return <DataTable columns={applicationsTableColumns} data={applications} />
+  return <DataTable columns={applicationsTableColumns} data={applications} dataContext="application" />
 }

@@ -47,7 +47,7 @@ export function NetworkConfigsTable() {
           Create
         </Button>
       </div>
-      <DataTable ariaLabel={networkConfigsTableLabel} columns={tableColumns} data={data} />
+      <DataTable ariaLabel={networkConfigsTableLabel} columns={tableColumns} data={data} dataContext="networkConfig" />
       <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
         {createNetworkConfigDialogOpen && (
           <DialogContent className="bg-card" aria-label={createNetworkConfigDialogLabel}>
