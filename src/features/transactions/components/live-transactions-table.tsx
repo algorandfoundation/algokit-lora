@@ -8,7 +8,7 @@ import { useLiveTransactions } from '../data/live-transaction'
 import { cn } from '@/features/common/utils'
 import { Switch } from '@/features/common/components/switch'
 import { Label } from '@/features/common/components/label'
-import { pageSizeOptions, useTablePageSize } from '@/features/settings/data/table-page-sizes'
+import { pageSizeOptions, useTablePageSize } from '@/features/settings/data/table-pagination'
 
 interface Props {
   columns: ColumnDef<Transaction>[]

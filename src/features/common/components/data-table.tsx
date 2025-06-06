@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { DataTablePagination } from './data-table-pagination'
 import { useEffect, useState } from 'react'
 import { cn } from '@/features/common/utils'
-import { TableDataContext, useTablePageSize } from '../../settings/data/table-page-sizes'
+import { TableDataContext } from '../../settings/data/table-pagination'
+import { useTablePagination } from '@/features/settings/data/table-pagination'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -33,40 +34,31 @@ export function DataTable<TData, TValue>({
   dataContext,
 }: DataTableProps<TData, TValue>) {
   const [expanded, setExpanded] = useState<ExpandedState>({})
-  const [pageSize, setPageSize] = useTablePageSize(dataContext)
+  const [pagination, setPagination] = useTablePagination(dataContext)
+
+  const updatePagination: Parameters<typeof useReactTable<TData>>[0]['onPaginationChange'] = (updaterOrValue) => {
+    setPagination((prev) => (typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue))
+  }
 
   const table = useReactTable({
     data,
     paginateExpandedRows: false,
     state: {
       expanded: expanded,
+      pagination,
     },
     onExpandedChange: setExpanded,
+    onPaginationChange: updatePagination,
     getSubRows: getSubRows,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: pageSize,
-      },
-    },
   })
-
-  const currentPageSize = table.getState().pagination.pageSize
 
   useEffect(() => {
     table.toggleAllRowsExpanded(subRowsExpanded ?? false)
   }, [subRowsExpanded, table])
-
-  useEffect(() => {
-    if (currentPageSize !== pageSize) {
-      setPageSize(currentPageSize)
-    }
-    // It's important not to include pageSize in the dependencies, otherwise it will cause an infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPageSize])
 
   return (
     <div>

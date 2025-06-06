@@ -2,7 +2,7 @@ import { Table } from '@tanstack/react-table'
 import { Button } from '@/features/common/components/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/features/common/components/select'
 import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from 'lucide-react'
-import { pageSizeOptions } from '../../settings/data/table-page-sizes'
+import { pageSizeOptions } from '../../settings/data/table-pagination'
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>

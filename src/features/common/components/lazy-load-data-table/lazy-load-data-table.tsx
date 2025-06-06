@@ -6,7 +6,7 @@ import { Loader2 as Loader } from 'lucide-react'
 import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { ViewModelPage } from '../../data/lazy-load-pagination'
 import { cn } from '../../utils'
-import { TableDataContext, useTablePageSize } from '../../../settings/data/table-page-sizes'
+import { TableDataContext, useTablePageSize } from '../../../settings/data/table-pagination'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
