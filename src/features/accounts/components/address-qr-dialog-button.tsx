@@ -46,7 +46,9 @@ export function OpenAddressQRDialogButton({ address, className }: Props) {
                 <div className="flex w-full max-w-full items-center justify-center">
                   <span className="max-w-full truncate text-center">{address}</span>
                 </div>
-                <QRCode className="w-full" value={`algorand://${address}`} />
+                <div className="bg-white p-2">
+                  <QRCode className="w-full" value={`algorand://${address}`} />
+                </div>
                 <p>Scan the QR code to copy the address</p>
               </div>
             </MediumSizeDialogBody>
