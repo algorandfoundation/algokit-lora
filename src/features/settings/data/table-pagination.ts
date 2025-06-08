@@ -62,7 +62,7 @@ export const useTablePagination = (context: TableDataContext) => {
         }
 
         const nextPageSize = pageSizeOrDefault(nextValue.pageSize)
-        if (nextPageSize !== pageSize) {
+        if (pageSize !== nextPageSize) {
           set(tablePageSizesAtom, (prev) => ({
             ...prev,
             [context]: nextPageSize,
