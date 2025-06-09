@@ -20,13 +20,13 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const receiverLabel = 'Receiver'
 
-const formSchema = {
+export const paymentFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
   ...receiverFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
-}
-const formData = zfd.formData(formSchema)
+})
+const formData = zfd.formData(paymentFormSchema)
 
 type Props = {
   mode: TransactionBuilderMode
