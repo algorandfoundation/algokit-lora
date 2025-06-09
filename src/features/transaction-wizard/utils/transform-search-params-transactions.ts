@@ -51,7 +51,7 @@ const transformPaymentTransaction = (params: BaseSearchParamTransaction): BuildP
     value: params.receiver,
     resolvedAddress: params.receiver,
   },
-  amount: microAlgo(Number(params.amount ?? 0)).algo,
+  amount: microAlgo(Number(params.amount)).algo,
   fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
   validRounds: {
     setAutomatically: true,
