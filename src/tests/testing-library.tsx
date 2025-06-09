@@ -44,9 +44,9 @@ const Providers =
 const customRender = (ui: Parameters<typeof render>[0], options?: Parameters<typeof render>[1], store?: ReturnType<typeof createStore>) =>
   render(ui, { wrapper: Providers(store), ...options })
 
-const customRenderHook = (
-  ui: Parameters<typeof renderHook>[0],
-  options?: Parameters<typeof renderHook>[1],
+const customRenderHook = <TProps, TResult>(
+  ui: (initialProps: TProps) => TResult,
+  options?: Omit<Parameters<typeof renderHook<TProps, TResult>>[1], 'wrapper'>,
   store?: ReturnType<typeof createStore>
 ) => renderHook(ui, { wrapper: Providers(store), ...options })
 

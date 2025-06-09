@@ -14,7 +14,7 @@ export function ApplicationBoxes({ application }: Props) {
   const createLoadablePage = useMemo(() => createLoadableApplicationBoxesPage(application), [application])
   const tableColumns = useMemo(() => createTableColumns(application), [application])
 
-  return <LazyLoadDataTable columns={tableColumns} createLoadablePage={createLoadablePage} />
+  return <LazyLoadDataTable columns={tableColumns} createLoadablePage={createLoadablePage} dataContext="applicationState" />
 }
 
 const createTableColumns = (application: Application): ColumnDef<BoxDescriptor>[] => {

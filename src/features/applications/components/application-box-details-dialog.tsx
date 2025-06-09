@@ -47,7 +47,12 @@ function InternalDialogContent({ application, boxDescriptor }: { application: Ap
   return (
     <RenderLoadable loadable={loadableApplicationBox}>
       {(applicationBox) => (
-        <DataTable columns={boxTableColumns} data={[{ boxDescriptor, boxValue: applicationBox }]} hidePagination={true} />
+        <DataTable
+          columns={boxTableColumns}
+          data={[{ boxDescriptor, boxValue: applicationBox }]}
+          hidePagination={true}
+          dataContext="applicationState"
+        />
       )}
     </RenderLoadable>
   )

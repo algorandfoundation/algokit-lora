@@ -26,7 +26,12 @@ export function ApplicationTransactionHistory({ applicationId }: Props) {
 
   return (
     <div>
-      <LazyLoadDataTable columns={transactionsTableColumns} getSubRows={getSubRows} createLoadablePage={createLoadablePage} />
+      <LazyLoadDataTable
+        columns={transactionsTableColumns}
+        getSubRows={getSubRows}
+        createLoadablePage={createLoadablePage}
+        dataContext="transaction"
+      />
       <ListingOrderLabel />
     </div>
   )
