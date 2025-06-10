@@ -10,6 +10,7 @@ import {
   BuildAssetTransferTransactionResult,
   BuildAssetReconfigureTransactionResult,
   BuildAssetDestroyTransactionResult,
+  BuildAssetFreezeTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
@@ -19,6 +20,7 @@ import { assetOptOutFormSchema } from '../components/asset-opt-out-transaction-b
 import { assetTransferFormSchema } from '../components/asset-transfer-transaction-builder'
 import { assetReconfigureFormSchema } from '../components/asset-reconfigure-transaction-builder'
 import { assetDestroyFormSchema } from '../components/asset-destroy-transaction-builder'
+import { assetFreezeFormSchema } from '../components/asset-freeze-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
@@ -246,6 +248,33 @@ const transformAssetReconfigureTransaction = (params: BaseSearchParamTransaction
   note: params.note,
 })
 
+const transformAssetFreezeTransaction = (params: BaseSearchParamTransaction): BuildAssetFreezeTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetFreeze,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  freezeTarget: {
+    value: params.freezeto,
+    resolvedAddress: params.freezeto,
+  },
+  asset: {
+    id: BigInt(params.assetid),
+    decimals: params.decimals ? Number(params.decimals) : undefined,
+    unitName: params.unitname,
+    freeze: params.assetfreeze,
+  },
+  frozen: params.frozen === 'true',
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformAssetDestroyTransaction = (params: BaseSearchParamTransaction): BuildAssetDestroyTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetDestroy,
@@ -299,6 +328,10 @@ const transformationConfigByTransactionType = {
   [BuildableTransactionType.AssetDestroy]: {
     transform: transformAssetDestroyTransaction,
     schema: assetDestroyFormSchema,
+  },
+  [BuildableTransactionType.AssetFreeze]: {
+    transform: transformAssetFreezeTransaction,
+    schema: assetFreezeFormSchema,
   },
   // TODO: Add other transaction types
 }
