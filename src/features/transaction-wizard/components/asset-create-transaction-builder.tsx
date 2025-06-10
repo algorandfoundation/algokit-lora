@@ -21,7 +21,7 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
-  total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).gt(BigInt(0), 'Must be greater than 0')),
   decimals: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).max(19)),
   assetName: zfd.text(z.string().optional()),
   unitName: zfd.text(z.string().optional()),

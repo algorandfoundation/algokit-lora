@@ -74,8 +74,8 @@ const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): Bu
     value: params.sender,
     resolvedAddress: params.sender,
   },
-  total: BigInt(params.total || '1'),
-  decimals: Number(params.decimals || '0'),
+  total: BigInt(params.total),
+  decimals: Number(params.decimals),
   assetName: params.assetname || params['asset-name'],
   unitName: params.unitname || params['unit-name'],
   url: params.url,
@@ -145,7 +145,6 @@ export function transformSearchParamsTransactions(searchParamTransactions: BaseS
       transactionsFromSearchParams.push(transaction)
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.log({ error })
         const badPaths = error.errors.map((e) => e.path.join('-'))
         errors.push(`Error in transaction at index ${index} in the following fields: ${badPaths.join(', ')}`)
         continue
