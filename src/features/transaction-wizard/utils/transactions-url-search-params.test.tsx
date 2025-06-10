@@ -330,29 +330,6 @@ describe('Render transactions page with search params', () => {
       expect(screen.getByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset create transaction with kebab-case parameter names', () => {
-      renderTxnsWizardPageWithSearchParams({
-        searchParams: new URLSearchParams({
-          'type[0]': 'acfg',
-          'sender[0]': sender,
-          'total[0]': total,
-          'decimals[0]': decimals,
-          'asset-name[0]': assetName,
-          'unit-name[0]': unitName,
-          'metadata-hash[0]': metadataHash,
-          'default-frozen[0]': 'true',
-        }),
-      })
-
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText('1000000')).toBeInTheDocument()
-      expect(screen.getByText(decimals)).toBeInTheDocument()
-      expect(screen.getByText(assetName)).toBeInTheDocument()
-      expect(screen.getByText(unitName)).toBeInTheDocument()
-      expect(screen.getByText(metadataHash)).toBeInTheDocument()
-      expect(screen.getByText('true')).toBeInTheDocument()
-    })
-
     it('should render asset create transaction with fee only', () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({

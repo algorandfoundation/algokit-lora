@@ -60,7 +60,7 @@ const transformPaymentTransaction = (params: BaseSearchParamTransaction): BuildP
     firstValid: undefined,
     lastValid: undefined,
   },
-  note: params.note ? params.note : undefined,
+  note: params.note,
 })
 
 const defaultOptionalAddress = {
@@ -76,11 +76,11 @@ const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): Bu
   },
   total: BigInt(params.total),
   decimals: Number(params.decimals),
-  assetName: params.assetname || params['asset-name'],
-  unitName: params.unitname || params['unit-name'],
+  assetName: params.assetname,
+  unitName: params.unitname,
   url: params.url,
-  metadataHash: params.metadatahash || params['metadata-hash'],
-  defaultFrozen: Boolean(params.defaultfrozen || params['default-frozen']),
+  metadataHash: params.metadatahash,
+  defaultFrozen: params.defaultfrozen === 'true',
   manager: params.manager
     ? {
         value: params.manager,
