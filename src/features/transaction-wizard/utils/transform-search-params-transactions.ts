@@ -7,16 +7,19 @@ import {
   BuildTransactionResult,
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
+  BuildAssetTransferTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
 import { assetCreateFormSchema } from '../components/asset-create-transaction-builder'
 import { assetOptInFormSchema } from '../components/asset-opt-in-transaction-builder'
 import { assetOptOutFormSchema } from '../components/asset-opt-out-transaction-builder'
+import { assetTransferFormSchema } from '../components/asset-transfer-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
+import Decimal from 'decimal.js'
 
 // This is a workaround to make the online field a boolean instead of a string.
 // A string type is used in the form schema because of the value of radio buttons cant be boolean
@@ -166,6 +169,33 @@ const transformAssetOptOutTransaction = (params: BaseSearchParamTransaction): Bu
   note: params.note,
 })
 
+const transformAssetTransferTransaction = (params: BaseSearchParamTransaction): BuildAssetTransferTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetTransfer,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  receiver: {
+    value: params.receiver,
+    resolvedAddress: params.receiver,
+  },
+  asset: {
+    id: BigInt(params.assetid),
+    decimals: params.decimals ? Number(params.decimals) : undefined,
+    unitName: params.unitname,
+    clawback: params.clawback,
+  },
+  amount: new Decimal(params.amount),
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformationConfigByTransactionType = {
   [algosdk.TransactionType.keyreg]: {
     transform: transformKeyRegistrationTransaction,
@@ -186,6 +216,10 @@ const transformationConfigByTransactionType = {
   [BuildableTransactionType.AssetOptOut]: {
     transform: transformAssetOptOutTransaction,
     schema: assetOptOutFormSchema,
+  },
+  [BuildableTransactionType.AssetTransfer]: {
+    transform: transformAssetTransferTransaction,
+    schema: assetTransferFormSchema,
   },
   // TODO: Add other transaction types
 }
