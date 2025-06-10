@@ -1078,8 +1078,6 @@ describe('Render transactions page with search params', () => {
         baseParams[key] = value.toString()
       }
       const searchParams = new URLSearchParams(baseParams)
-      console.log(`${mode} ${key} ${value} ${expected}`)
-      console.log(searchParams.toString())
       renderTxnsWizardPageWithSearchParams({ searchParams })
       const toastElement = await screen.findByText(expected)
       expect(toastElement).toBeInTheDocument()
@@ -1098,6 +1096,263 @@ describe('Render transactions page with search params', () => {
       const searchParams = new URLSearchParams(baseParams)
       renderTxnsWizardPageWithSearchParams({ searchParams })
       const toastElement = await screen.findByText('Error in transaction at index 0 in the following fields: asset-id')
+      expect(toastElement).toBeInTheDocument()
+      cleanup()
+    })
+  })
+
+  describe('asset reconfigure transaction search params', () => {
+    const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
+    const assetId = '12345'
+    const assetManager = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU' // Must be same as sender
+    const decimals = '6'
+    const unitName = 'TOKEN'
+    const manager = 'AAOLENX3Z76HBMQOLQF4VW26ZQSORVX7ZQJ66LCPX36T2QNAUYOYEY76RM'
+    const reserve = 'DJ76C74DI7EDNSHQLAJXGMBHFINBLATVGNRAVCO3VILPCQR7LKY7GPUL7Y'
+    const freeze = 'UJSXVS7TLTNFZF4PDRYDQI4IGMZNF7S4PO2F7ZNX372UWFJMNT4ZJ7RAEI'
+    const clawback = 'U6S57IUI3EJIIKPGGGKGD5C6S2VCJQ3SBWDDWUO4LNI7QL5AA3LTZKEWZM'
+    const fee = '2000'
+    const note = 'Asset reconfigure test'
+
+    it('should render asset reconfigure transaction with minimal required fields', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetReconfigure',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+    })
+
+    it('should render asset reconfigure transaction with all optional fields', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetReconfigure',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+          'unitname[0]': unitName,
+          'manager[0]': manager,
+          'reserve[0]': reserve,
+          'freeze[0]': freeze,
+          'clawback[0]': clawback,
+          'fee[0]': fee,
+          'note[0]': note,
+        }),
+      })
+
+      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(manager)).toBeInTheDocument()
+      expect(screen.getByText(reserve)).toBeInTheDocument()
+      expect(screen.getByText(freeze)).toBeInTheDocument()
+      expect(screen.getByText(clawback)).toBeInTheDocument()
+      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(screen.getByText(note)).toBeInTheDocument()
+    })
+
+    it('should render asset reconfigure transaction with fee only', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetReconfigure',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+          'fee[0]': fee,
+        }),
+      })
+
+      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText('0.002')).toBeInTheDocument()
+    })
+
+    it('should render asset reconfigure transaction with note only', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetReconfigure',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+          'note[0]': note,
+        }),
+      })
+
+      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(note)).toBeInTheDocument()
+    })
+
+    it('should render asset reconfigure transaction with unit name only', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetReconfigure',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+          'unitname[0]': unitName,
+        }),
+      })
+
+      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+    })
+
+    it.each([
+      // Missing required field cases
+      {
+        key: 'sender[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0: Cannot convert undefined to a BigInt',
+      },
+      {
+        key: 'assetmanager[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      {
+        key: 'decimals[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      // Invalid field value cases
+      {
+        key: 'sender[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'invalid',
+        value: 'not-a-number',
+        expected: 'Error in transaction at index 0: Cannot convert not-a-number to a BigInt',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'invalid',
+        value: '0',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'invalid',
+        value: '-1',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      {
+        key: 'manager[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: manager-value, manager-value',
+      },
+      {
+        key: 'reserve[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: reserve-value, reserve-value',
+      },
+      {
+        key: 'freeze[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: freeze-value, freeze-value',
+      },
+      {
+        key: 'clawback[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: clawback-value, clawback-value',
+      },
+      {
+        key: 'fee[0]',
+        mode: 'invalid',
+        value: 'not-a-number',
+        expected: 'Error in transaction at index 0: The number NaN cannot be converted to a BigInt because it is not an integer',
+      },
+      {
+        key: 'fee[0]',
+        mode: 'invalid',
+        value: '-100',
+        expected: 'Error in transaction at index 0: Microalgos should be positive and less than 2^53 - 1.',
+      },
+    ])('should show error toast for $mode $key', async ({ key, mode, value, expected }) => {
+      const baseParams: Record<string, string> = {
+        'type[0]': 'AssetReconfigure',
+        'sender[0]': sender,
+        'assetid[0]': assetId,
+        'assetmanager[0]': assetManager,
+        'decimals[0]': decimals,
+      }
+      if (mode === 'missing') {
+        delete baseParams[key]
+      } else if (mode === 'invalid' && value !== undefined) {
+        baseParams[key] = value.toString()
+      }
+      const searchParams = new URLSearchParams(baseParams)
+      renderTxnsWizardPageWithSearchParams({ searchParams })
+      const toastElement = await screen.findByText(expected)
+      expect(toastElement).toBeInTheDocument()
+      cleanup()
+    })
+
+    it('should show "Asset cannot be reconfigured" error when assetmanager is undefined', async () => {
+      const baseParams: Record<string, string> = {
+        'type[0]': 'AssetReconfigure',
+        'sender[0]': sender,
+        'assetid[0]': assetId,
+        'decimals[0]': decimals,
+        // Note: deliberately omitting assetmanager[0] to trigger "asset cannot be reconfigured"
+      }
+      const searchParams = new URLSearchParams(baseParams)
+      renderTxnsWizardPageWithSearchParams({ searchParams })
+      const toastElement = await screen.findByText('Error in transaction at index 0 in the following fields: asset-id')
+      expect(toastElement).toBeInTheDocument()
+      cleanup()
+    })
+
+    it('should show "Asset does not exist" error when decimals is undefined', async () => {
+      const baseParams: Record<string, string> = {
+        'type[0]': 'AssetReconfigure',
+        'sender[0]': sender,
+        'assetid[0]': assetId,
+        'assetmanager[0]': assetManager,
+        // Note: deliberately omitting decimals[0] to trigger "asset does not exist"
+      }
+      const searchParams = new URLSearchParams(baseParams)
+      renderTxnsWizardPageWithSearchParams({ searchParams })
+      const toastElement = await screen.findByText('Error in transaction at index 0 in the following fields: asset-id')
+      expect(toastElement).toBeInTheDocument()
+      cleanup()
+    })
+
+    it('should show "Must be the manager account of the asset" error when sender is not the asset manager', async () => {
+      const differentSender = 'AAOLENX3Z76HBMQOLQF4VW26ZQSORVX7ZQJ66LCPX36T2QNAUYOYEY76RM'
+      const baseParams: Record<string, string> = {
+        'type[0]': 'AssetReconfigure',
+        'sender[0]': differentSender, // Different from assetManager
+        'assetid[0]': assetId,
+        'assetmanager[0]': assetManager,
+        'decimals[0]': decimals,
+      }
+      const searchParams = new URLSearchParams(baseParams)
+      console.log(searchParams.toString())
+      renderTxnsWizardPageWithSearchParams({ searchParams })
+      const toastElement = await screen.findByText('Error in transaction at index 0 in the following fields: sender.value')
       expect(toastElement).toBeInTheDocument()
       cleanup()
     })

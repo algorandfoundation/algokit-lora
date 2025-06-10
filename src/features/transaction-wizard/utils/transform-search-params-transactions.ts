@@ -8,6 +8,7 @@ import {
   BuildAssetOptInTransactionResult,
   BuildAssetOptOutTransactionResult,
   BuildAssetTransferTransactionResult,
+  BuildAssetReconfigureTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
@@ -15,6 +16,7 @@ import { assetCreateFormSchema } from '../components/asset-create-transaction-bu
 import { assetOptInFormSchema } from '../components/asset-opt-in-transaction-builder'
 import { assetOptOutFormSchema } from '../components/asset-opt-out-transaction-builder'
 import { assetTransferFormSchema } from '../components/asset-transfer-transaction-builder'
+import { assetReconfigureFormSchema } from '../components/asset-reconfigure-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
@@ -196,6 +198,52 @@ const transformAssetTransferTransaction = (params: BaseSearchParamTransaction): 
   note: params.note,
 })
 
+const transformAssetReconfigureTransaction = (params: BaseSearchParamTransaction): BuildAssetReconfigureTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetReconfigure,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  asset: {
+    id: BigInt(params.assetid),
+    decimals: params.decimals ? Number(params.decimals) : undefined,
+    unitName: params.unitname,
+    manager: params.assetmanager,
+  },
+  manager: params.manager
+    ? {
+        value: params.manager,
+        resolvedAddress: params.manager,
+      }
+    : defaultOptionalAddress,
+  reserve: params.reserve
+    ? {
+        value: params.reserve,
+        resolvedAddress: params.reserve,
+      }
+    : defaultOptionalAddress,
+  freeze: params.freeze
+    ? {
+        value: params.freeze,
+        resolvedAddress: params.freeze,
+      }
+    : defaultOptionalAddress,
+  clawback: params.clawback
+    ? {
+        value: params.clawback,
+        resolvedAddress: params.clawback,
+      }
+    : defaultOptionalAddress,
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformationConfigByTransactionType = {
   [algosdk.TransactionType.keyreg]: {
     transform: transformKeyRegistrationTransaction,
@@ -220,6 +268,10 @@ const transformationConfigByTransactionType = {
   [BuildableTransactionType.AssetTransfer]: {
     transform: transformAssetTransferTransaction,
     schema: assetTransferFormSchema,
+  },
+  [BuildableTransactionType.AssetReconfigure]: {
+    transform: transformAssetReconfigureTransaction,
+    schema: assetReconfigureFormSchema,
   },
   // TODO: Add other transaction types
 }
