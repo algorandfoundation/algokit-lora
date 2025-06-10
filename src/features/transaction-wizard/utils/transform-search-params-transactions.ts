@@ -5,10 +5,12 @@ import {
   BuildKeyRegistrationTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
+  BuildAssetOptInTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
 import { assetCreateFormSchema } from '../components/asset-create-transaction-builder'
+import { assetOptInFormSchema } from '../components/asset-opt-in-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
@@ -114,6 +116,28 @@ const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): Bu
   note: params.note,
 })
 
+const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): BuildAssetOptInTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetOptIn,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  asset: {
+    id: BigInt(params.assetid),
+    decimals: params.decimals ? Number(params.decimals) : undefined,
+    unitName: params.unitname,
+    clawback: params.clawback,
+  },
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformationConfigByTransactionType = {
   [algosdk.TransactionType.keyreg]: {
     transform: transformKeyRegistrationTransaction,
@@ -126,6 +150,10 @@ const transformationConfigByTransactionType = {
   [algosdk.TransactionType.acfg]: {
     transform: transformAssetCreateTransaction,
     schema: assetCreateFormSchema,
+  },
+  [algosdk.TransactionType.axfer]: {
+    transform: transformAssetOptInTransaction,
+    schema: assetOptInFormSchema,
   },
   // TODO: Add other transaction types
 }
