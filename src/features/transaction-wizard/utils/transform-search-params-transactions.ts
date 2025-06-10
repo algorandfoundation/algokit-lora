@@ -1,12 +1,14 @@
 import {
   BaseSearchParamTransaction,
   BuildableTransactionType,
+  BuildAssetCreateTransactionResult,
   BuildKeyRegistrationTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
+import { assetCreateFormSchema } from '../components/asset-create-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
@@ -61,6 +63,57 @@ const transformPaymentTransaction = (params: BaseSearchParamTransaction): BuildP
   note: params.note ? params.note : undefined,
 })
 
+const defaultOptionalAddress = {
+  value: '',
+  resolvedAddress: '',
+}
+const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): BuildAssetCreateTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetCreate,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  total: BigInt(params.total || '1'),
+  decimals: Number(params.decimals || '0'),
+  assetName: params.assetname || params['asset-name'],
+  unitName: params.unitname || params['unit-name'],
+  url: params.url,
+  metadataHash: params.metadatahash || params['metadata-hash'],
+  defaultFrozen: Boolean(params.defaultfrozen || params['default-frozen']),
+  manager: params.manager
+    ? {
+        value: params.manager,
+        resolvedAddress: params.manager,
+      }
+    : defaultOptionalAddress,
+  reserve: params.reserve
+    ? {
+        value: params.reserve,
+        resolvedAddress: params.reserve,
+      }
+    : defaultOptionalAddress,
+  freeze: params.freeze
+    ? {
+        value: params.freeze,
+        resolvedAddress: params.freeze,
+      }
+    : defaultOptionalAddress,
+  clawback: params.clawback
+    ? {
+        value: params.clawback,
+        resolvedAddress: params.clawback,
+      }
+    : defaultOptionalAddress,
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformationConfigByTransactionType = {
   [algosdk.TransactionType.keyreg]: {
     transform: transformKeyRegistrationTransaction,
@@ -69,6 +122,10 @@ const transformationConfigByTransactionType = {
   [algosdk.TransactionType.pay]: {
     transform: transformPaymentTransaction,
     schema: paymentFormSchema,
+  },
+  [algosdk.TransactionType.acfg]: {
+    transform: transformAssetCreateTransaction,
+    schema: assetCreateFormSchema,
   },
   // TODO: Add other transaction types
 }
@@ -88,6 +145,7 @@ export function transformSearchParamsTransactions(searchParamTransactions: BaseS
       transactionsFromSearchParams.push(transaction)
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.log({ error })
         const badPaths = error.errors.map((e) => e.path.join('-'))
         errors.push(`Error in transaction at index ${index} in the following fields: ${badPaths.join(', ')}`)
         continue
