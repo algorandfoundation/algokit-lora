@@ -11,6 +11,7 @@ import {
   BuildAssetReconfigureTransactionResult,
   BuildAssetDestroyTransactionResult,
   BuildAssetFreezeTransactionResult,
+  BuildAssetClawbackTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
@@ -21,6 +22,7 @@ import { assetTransferFormSchema } from '../components/asset-transfer-transactio
 import { assetReconfigureFormSchema } from '../components/asset-reconfigure-transaction-builder'
 import { assetDestroyFormSchema } from '../components/asset-destroy-transaction-builder'
 import { assetFreezeFormSchema } from '../components/asset-freeze-transaction-builder'
+import { assetClawbackFormSchema } from '../components/asset-clawback-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
@@ -296,6 +298,37 @@ const transformAssetDestroyTransaction = (params: BaseSearchParamTransaction): B
   note: params.note,
 })
 
+const transformAssetClawbackTransaction = (params: BaseSearchParamTransaction): BuildAssetClawbackTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetClawback,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  receiver: {
+    value: params.receiver,
+    resolvedAddress: params.receiver,
+  },
+  clawbackTarget: {
+    value: params.clawbackfrom || params.clawbacktarget,
+    resolvedAddress: params.clawbackfrom || params.clawbacktarget,
+  },
+  asset: {
+    id: BigInt(params.assetid),
+    decimals: params.decimals ? Number(params.decimals) : undefined,
+    unitName: params.unitname,
+    clawback: params.assetclawback,
+  },
+  amount: new Decimal(params.amount),
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformationConfigByTransactionType = {
   [algosdk.TransactionType.keyreg]: {
     transform: transformKeyRegistrationTransaction,
@@ -332,6 +365,10 @@ const transformationConfigByTransactionType = {
   [BuildableTransactionType.AssetFreeze]: {
     transform: transformAssetFreezeTransaction,
     schema: assetFreezeFormSchema,
+  },
+  [BuildableTransactionType.AssetClawback]: {
+    transform: transformAssetClawbackTransaction,
+    schema: assetClawbackFormSchema,
   },
   // TODO: Add other transaction types
 }
