@@ -664,4 +664,208 @@ describe('Render transactions page with search params', () => {
       cleanup()
     })
   })
+
+  describe('asset opt-out transaction search params', () => {
+    const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
+    const assetId = '12345'
+    const closeto = 'AAOLENX3Z76HBMQOLQF4VW26ZQSORVX7ZQJ66LCPX36T2QNAUYOYEY76RM'
+    const decimals = '6'
+    const unitName = 'USDC'
+    const clawback = 'DJ76C74DI7EDNSHQLAJXGMBHFINBLATVGNRAVCO3VILPCQR7LKY7GPUL7Y'
+    const fee = '2000'
+    const note = 'Asset opt-out test'
+
+    it('should render asset opt-out transaction with minimal required fields', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(screen.getAllByText(sender)).toHaveLength(2)
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(closeto)).toBeInTheDocument()
+    })
+
+    it('should render asset opt-out transaction with all optional fields', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+          'unitname[0]': unitName,
+          'clawback[0]': clawback,
+          'fee[0]': fee,
+          'note[0]': note,
+        }),
+      })
+
+      expect(screen.getAllByText(sender)).toHaveLength(2)
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(closeto)).toBeInTheDocument()
+      expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
+      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(screen.getByText(note)).toBeInTheDocument()
+    })
+
+    it('should render asset opt-out transaction with fee only', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+          'fee[0]': fee,
+        }),
+      })
+
+      expect(screen.getAllByText(sender)).toHaveLength(2)
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(closeto)).toBeInTheDocument()
+      expect(screen.getByText('0.002')).toBeInTheDocument()
+    })
+
+    it('should render asset opt-out transaction with note only', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+          'note[0]': note,
+        }),
+      })
+
+      expect(screen.getAllByText(sender)).toHaveLength(2)
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(closeto)).toBeInTheDocument()
+      expect(screen.getByText(note)).toBeInTheDocument()
+    })
+
+    it('should render asset opt-out transaction with unit name only', () => {
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'sender[0]': sender,
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+          'unitname[0]': unitName,
+        }),
+      })
+
+      expect(screen.getAllByText(sender)).toHaveLength(2)
+      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(screen.getByText(closeto)).toBeInTheDocument()
+      expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
+    })
+
+    it.each([
+      // Missing required field cases
+      {
+        key: 'sender[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0: Cannot convert undefined to a BigInt',
+      },
+      {
+        key: 'closeto[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0 in the following fields: closeRemainderTo-value, closeRemainderTo-resolvedAddress',
+      },
+      {
+        key: 'decimals[0]',
+        mode: 'missing',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      // Invalid field value cases
+      {
+        key: 'sender[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'invalid',
+        value: 'not-a-number',
+        expected: 'Error in transaction at index 0: Cannot convert not-a-number to a BigInt',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'invalid',
+        value: '0',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      {
+        key: 'assetid[0]',
+        mode: 'invalid',
+        value: '-1',
+        expected: 'Error in transaction at index 0 in the following fields: asset-id',
+      },
+      {
+        key: 'closeto[0]',
+        mode: 'invalid',
+        value: 'invalid-address',
+        expected: 'Error in transaction at index 0 in the following fields: closeRemainderTo-value, closeRemainderTo-value',
+      },
+      {
+        key: 'fee[0]',
+        mode: 'invalid',
+        value: 'not-a-number',
+        expected: 'Error in transaction at index 0: The number NaN cannot be converted to a BigInt because it is not an integer',
+      },
+      {
+        key: 'fee[0]',
+        mode: 'invalid',
+        value: '-100',
+        expected: 'Error in transaction at index 0: Microalgos should be positive and less than 2^53 - 1.',
+      },
+    ])('should show error toast for $mode $key', async ({ key, mode, value, expected }) => {
+      const baseParams: Record<string, string> = {
+        'type[0]': 'AssetOptOut',
+        'sender[0]': sender,
+        'assetid[0]': assetId,
+        'closeto[0]': closeto,
+        'decimals[0]': decimals,
+      }
+      if (mode === 'missing') {
+        delete baseParams[key]
+      } else if (mode === 'invalid' && value !== undefined) {
+        baseParams[key] = value.toString()
+      }
+      const searchParams = new URLSearchParams(baseParams)
+      renderTxnsWizardPageWithSearchParams({ searchParams })
+      const toastElement = await screen.findByText(expected)
+      expect(toastElement).toBeInTheDocument()
+      cleanup()
+    })
+
+    it('should show "Asset does not exist" error when decimals is undefined', async () => {
+      const baseParams: Record<string, string> = {
+        'type[0]': 'AssetOptOut',
+        'sender[0]': sender,
+        'assetid[0]': assetId,
+        'closeto[0]': closeto,
+        // Note: deliberately omitting decimals[0] to trigger "asset does not exist"
+      }
+      const searchParams = new URLSearchParams(baseParams)
+      renderTxnsWizardPageWithSearchParams({ searchParams })
+      const toastElement = await screen.findByText('Error in transaction at index 0 in the following fields: asset-id')
+      expect(toastElement).toBeInTheDocument()
+      cleanup()
+    })
+  })
 })

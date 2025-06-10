@@ -6,11 +6,13 @@ import {
   BuildPaymentTransactionResult,
   BuildTransactionResult,
   BuildAssetOptInTransactionResult,
+  BuildAssetOptOutTransactionResult,
 } from '../models'
 import { keyRegistrationFormSchema } from '../components/key-registration-transaction-builder'
 import { paymentFormSchema } from '../components/payment-transaction-builder'
 import { assetCreateFormSchema } from '../components/asset-create-transaction-builder'
 import { assetOptInFormSchema } from '../components/asset-opt-in-transaction-builder'
+import { assetOptOutFormSchema } from '../components/asset-opt-out-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
@@ -138,6 +140,32 @@ const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): Bui
   note: params.note,
 })
 
+const transformAssetOptOutTransaction = (params: BaseSearchParamTransaction): BuildAssetOptOutTransactionResult => ({
+  id: randomGuid(),
+  type: BuildableTransactionType.AssetOptOut,
+  sender: {
+    value: params.sender,
+    resolvedAddress: params.sender,
+  },
+  asset: {
+    id: BigInt(params.assetid),
+    decimals: params.decimals ? Number(params.decimals) : undefined,
+    unitName: params.unitname,
+    clawback: params.clawback,
+  },
+  closeRemainderTo: {
+    value: params.closeto,
+    resolvedAddress: params.closeto,
+  },
+  fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
+  validRounds: {
+    setAutomatically: true,
+    firstValid: undefined,
+    lastValid: undefined,
+  },
+  note: params.note,
+})
+
 const transformationConfigByTransactionType = {
   [algosdk.TransactionType.keyreg]: {
     transform: transformKeyRegistrationTransaction,
@@ -155,6 +183,10 @@ const transformationConfigByTransactionType = {
     transform: transformAssetOptInTransaction,
     schema: assetOptInFormSchema,
   },
+  [BuildableTransactionType.AssetOptOut]: {
+    transform: transformAssetOptOutTransaction,
+    schema: assetOptOutFormSchema,
+  },
   // TODO: Add other transaction types
 }
 
@@ -162,11 +194,11 @@ export function transformSearchParamsTransactions(searchParamTransactions: BaseS
   const transactionsFromSearchParams: BuildTransactionResult[] = []
   const errors: string[] = []
   for (const [index, searchParamTransaction] of searchParamTransactions.entries()) {
-    if (!(searchParamTransaction.type in transformationConfigByTransactionType)) {
+    const configKey = searchParamTransaction.type
+    if (!(configKey in transformationConfigByTransactionType)) {
       continue // Skip transactions with unsupported types
     }
-    const { transform, schema } =
-      transformationConfigByTransactionType[searchParamTransaction.type as keyof typeof transformationConfigByTransactionType]
+    const { transform, schema } = transformationConfigByTransactionType[configKey as keyof typeof transformationConfigByTransactionType]
     try {
       const transaction = transform(searchParamTransaction)
       schema.parse(transaction)
