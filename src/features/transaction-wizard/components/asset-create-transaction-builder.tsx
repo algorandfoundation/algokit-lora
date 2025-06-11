@@ -18,10 +18,10 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-const formSchema = {
+export const assetCreateFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
-  total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
+  total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).gt(BigInt(0), 'Must be greater than 0')),
   decimals: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).max(19)),
   assetName: zfd.text(z.string().optional()),
   unitName: zfd.text(z.string().optional()),
@@ -32,9 +32,9 @@ const formSchema = {
   reserve: optionalAddressFieldSchema,
   freeze: optionalAddressFieldSchema,
   clawback: optionalAddressFieldSchema,
-}
+})
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetCreateFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>
