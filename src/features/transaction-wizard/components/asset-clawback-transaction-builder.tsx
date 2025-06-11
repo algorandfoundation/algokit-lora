@@ -25,7 +25,7 @@ import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 const clawbackTargetLabel = 'Clawback target'
 
-const formSchema = z
+export const assetClawbackFormSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
@@ -65,7 +65,7 @@ const formSchema = z
     }
   })
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetClawbackFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>

@@ -24,7 +24,7 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-const formSchema = {
+export const assetOptInFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
   asset: z
@@ -43,9 +43,9 @@ const formSchema = {
         })
       }
     }),
-}
+})
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetOptInFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>
