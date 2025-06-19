@@ -140,7 +140,6 @@ const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): Bui
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
     unitName: params.unitname,
-    clawback: params.clawback,
   },
   fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
   validRounds: {

@@ -479,7 +479,6 @@ describe('Render transactions page with search params', () => {
     const assetId = '12345'
     const decimals = '6'
     const unitName = 'USDC'
-    const clawback = 'AAOLENX3Z76HBMQOLQF4VW26ZQSORVX7ZQJ66LCPX36T2QNAUYOYEY76RM'
     const fee = '2000'
     const note = 'Asset opt-in test'
 
@@ -506,7 +505,6 @@ describe('Render transactions page with search params', () => {
           'assetid[0]': assetId,
           'decimals[0]': decimals,
           'unitname[0]': unitName,
-          'clawback[0]': clawback,
           'fee[0]': fee,
           'note[0]': note,
         }),
@@ -516,8 +514,6 @@ describe('Render transactions page with search params', () => {
       expect(screen.getAllByText(sender)).toHaveLength(2)
       expect(screen.getByText(assetId)).toBeInTheDocument()
       expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
-      // Clawback is not displayed in the UI, nor in the edit form. WHY?
-      // expect(screen.getByText(clawback)).toBeInTheDocument()
       expect(screen.getByText('0.002')).toBeInTheDocument()
       expect(screen.getByText(note)).toBeInTheDocument()
     })
@@ -612,13 +608,6 @@ describe('Render transactions page with search params', () => {
         value: '-1',
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
-      // This test passes because there is not address validation for clawback. Is this correct?
-      // {
-      //   key: 'clawback[0]',
-      //   mode: 'invalid',
-      //   value: 'invalid-address',
-      //   expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      // },
       {
         key: 'fee[0]',
         mode: 'invalid',

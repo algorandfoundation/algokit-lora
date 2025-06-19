@@ -32,7 +32,6 @@ export const assetOptInFormSchema = z.object({
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
       decimals: z.number().optional(),
       unitName: z.string().optional(),
-      clawback: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -106,7 +105,6 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
         trigger('asset')
       }
       if (initialAssetLoad) {
