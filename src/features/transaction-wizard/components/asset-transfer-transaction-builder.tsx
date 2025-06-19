@@ -26,7 +26,7 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const receiverLabel = 'Receiver'
 
-const formSchema = {
+export const assetTransferFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
   ...receiverFieldSchema,
@@ -47,9 +47,9 @@ const formSchema = {
       }
     }),
   amount: decimalSchema({ required_error: 'Required' }),
-}
+})
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetTransferFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>

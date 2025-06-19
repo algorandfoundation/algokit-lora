@@ -208,6 +208,8 @@ export type BuildAssetDestroyTransactionResult = CommonBuildTransactionResult & 
   type: BuildableTransactionType.AssetDestroy
   asset: {
     id: AssetId
+    decimals?: number
+    manager?: Address
   }
 }
 

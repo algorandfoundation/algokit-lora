@@ -26,7 +26,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
-const formSchema = {
+export const assetDestroyFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
   asset: z
@@ -50,9 +50,9 @@ const formSchema = {
         })
       }
     }),
-}
+})
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetDestroyFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>
