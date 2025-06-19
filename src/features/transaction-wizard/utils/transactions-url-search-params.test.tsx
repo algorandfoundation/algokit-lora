@@ -660,7 +660,6 @@ describe('Render transactions page with search params', () => {
     const closeto = 'AAOLENX3Z76HBMQOLQF4VW26ZQSORVX7ZQJ66LCPX36T2QNAUYOYEY76RM'
     const decimals = '6'
     const unitName = 'USDC'
-    const clawback = 'DJ76C74DI7EDNSHQLAJXGMBHFINBLATVGNRAVCO3VILPCQR7LKY7GPUL7Y'
     const fee = '2000'
     const note = 'Asset opt-out test'
 
@@ -689,7 +688,6 @@ describe('Render transactions page with search params', () => {
           'closeto[0]': closeto,
           'decimals[0]': decimals,
           'unitname[0]': unitName,
-          'clawback[0]': clawback,
           'fee[0]': fee,
           'note[0]': note,
         }),
