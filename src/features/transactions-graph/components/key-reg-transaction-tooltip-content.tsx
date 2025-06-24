@@ -1,6 +1,7 @@
 import { InnerKeyRegTransaction, KeyRegTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import {
+  transactionSignerAddressLabel,
   transactionFeeLabel,
   transactionIdLabel,
   transactionRekeyToLabel,
@@ -43,6 +44,14 @@ export function KeyRegTransactionTooltipContent({ transaction, isSimulated }: Pr
             {
               dt: transactionRekeyToLabel,
               dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
+      ...(transaction.signer
+        ? [
+            {
+              dt: transactionSignerAddressLabel,
+              dd: <AccountLink address={transaction.signer} />,
             },
           ]
         : []),

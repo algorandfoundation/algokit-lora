@@ -1,6 +1,7 @@
 import { AssetFreezeTransaction, InnerAssetFreezeTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import {
+  transactionSignerAddressLabel,
   transactionFeeLabel,
   transactionIdLabel,
   transactionRekeyToLabel,
@@ -58,6 +59,14 @@ export function AssetFreezeTransactionTooltipContent({ transaction, isSimulated 
             {
               dt: transactionRekeyToLabel,
               dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
+      ...(transaction.signer
+        ? [
+            {
+              dt: transactionSignerAddressLabel,
+              dd: <AccountLink address={transaction.signer} />,
             },
           ]
         : []),

@@ -101,9 +101,11 @@ const getAppCallTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
+  const tagAddress = transaction.signer ? transaction.signer : undefined
+
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromWithoutParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals, tagAddress)
   const to = transaction.isOpUp
     ? {
         verticalId: verticals.find((c) => c.type === 'OpUp')?.id ?? -1,
@@ -121,9 +123,11 @@ const getAssetConfigTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
+  const tagAddress = transaction.signer ? transaction.signer : undefined
+
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromWithoutParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals, tagAddress)
   const to = {
     verticalId: verticals.find((c) => c.type === 'Asset' && transaction.assetId === c.assetId)?.id ?? -1,
   }
@@ -147,9 +151,11 @@ const getAssetFreezeTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
+  const tagAddress = transaction.signer ? transaction.signer : undefined
+
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromWithoutParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals, tagAddress)
   const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && transaction.address === c.accountAddress)
   const to = accountVertical
     ? {
@@ -180,7 +186,11 @@ const getAssetTransferTransactionRepresentations = (
     : undefined
 
   const tagAddress =
-    transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom ? transaction.clawbackFrom : undefined
+    transaction.subType === AssetTransferTransactionSubType.Clawback && transaction.clawbackFrom
+      ? transaction.clawbackFrom
+      : transaction.signer
+        ? transaction.signer
+        : undefined
 
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent, tagAddress)
@@ -201,9 +211,11 @@ const getKeyRegTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
+  const tagAddress = transaction.signer ? transaction.signer : undefined
+
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromWithoutParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals, tagAddress)
 
   return [
     {
@@ -222,9 +234,11 @@ const getPaymentTransactionRepresentations = (
   verticals: Vertical[],
   parent?: Horizontal
 ): Representation[] => {
+  const tagAddress = transaction.signer ? transaction.signer : undefined
+
   const from = parent
     ? calculateFromWithParent(transaction.sender, verticals, parent)
-    : calculateFromWithoutParent(transaction.sender, verticals)
+    : calculateFromWithoutParent(transaction.sender, verticals, tagAddress)
   const to = getAccountOrApplicationByAddress(verticals, transaction.receiver)
 
   const paymentRepresentation = asTransactionGraphRepresentation(from, to, {
@@ -344,14 +358,19 @@ const calculateFromWithoutParent = (sender: Address, verticals: Vertical[], tagA
   // If the transaction is not a child, it is sent an individual account or an application account
   const accountVertical = verticals.find((c): c is AccountVertical => c.type === 'Account' && sender === c.accountAddress)
   if (accountVertical) {
-    const tagAddressAccountNumber = tagAddress
-      ? accountVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)?.accountNumber
+    const taggedAccount = tagAddress
+      ? (verticals
+          .find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === tagAddress)
+          ?.associatedAccounts.find((account) => account.accountAddress === sender) ??
+        accountVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress))
       : undefined
 
     return {
       verticalId: accountVertical.id,
-      tag: tagAddressAccountNumber
-        ? tagAddressAccountNumber
+      tag: taggedAccount
+        ? taggedAccount.type === 'Rekey'
+          ? 'Rekey'
+          : taggedAccount.accountNumber
         : sender == accountVertical.accountAddress
           ? accountVertical.accountNumber
           : accountVertical.associatedAccounts.find((x) => x.accountAddress === sender)?.accountNumber,
@@ -361,10 +380,21 @@ const calculateFromWithoutParent = (sender: Address, verticals: Vertical[], tagA
   const applicationVertical = verticals.find(
     (c): c is ApplicationVertical => c.type === 'Application' && sender === c.linkedAccount.accountAddress
   )
+
   if (applicationVertical) {
+    const taggedAccount = tagAddress
+      ? verticals
+          .find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === tagAddress)
+          ?.associatedAccounts.find((account) => account.accountAddress === sender)
+      : applicationVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)
+
     return {
       verticalId: applicationVertical.id,
-      tag: applicationVertical.linkedAccount.accountNumber,
+      tag: taggedAccount
+        ? taggedAccount.type === 'Rekey'
+          ? 'Rekey'
+          : taggedAccount.accountNumber
+        : applicationVertical.linkedAccount.accountNumber,
     }
   }
 
@@ -379,28 +409,41 @@ const calculateFromWithParent = (
 ): RepresentationFromTo => {
   // If the transaction is a child, the parent transaction must be an application call
   const parentAppCallTransaction = parent.transaction as AppCallTransaction
-  const applicationVertical = verticals.find(
+  const parentApplicationVertical = verticals.find(
     (c): c is ApplicationVertical => c.type === 'Application' && c.applicationId === parentAppCallTransaction.applicationId
   )
 
-  if (!applicationVertical) {
+  if (!parentApplicationVertical) {
     return fallbackFromTo
   }
 
   const tagAddressAccountNumber = tagAddress
-    ? applicationVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)?.accountNumber
+    ? parentApplicationVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)?.accountNumber
     : undefined
   if (tagAddressAccountNumber) {
     return {
-      verticalId: applicationVertical.id,
+      verticalId: parentApplicationVertical.id,
       tag: tagAddressAccountNumber,
     }
   }
 
-  if (sender === applicationVertical.linkedAccount.accountAddress) {
+  // const taggedAccount = tagAddress
+  //   ? verticals
+  //       .find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === tagAddress)
+  //       ?.associatedAccounts.find((account) => account.accountAddress === sender)
+  //   : applicationVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)
+
+  // if (taggedAccount) {
+  //   return {
+  //     verticalId: applicationVertical.id,
+  //     tag: taggedAccount.type === 'Rekey' ? 'Rekey' : taggedAccount.accountNumber,
+  //   }
+  // }
+
+  if (sender === parentApplicationVertical.linkedAccount.accountAddress) {
     return {
-      verticalId: applicationVertical.id,
-      tag: applicationVertical.linkedAccount.accountNumber,
+      verticalId: parentApplicationVertical.id,
+      tag: parentApplicationVertical.linkedAccount.accountNumber,
     }
   }
 
@@ -408,9 +451,21 @@ const calculateFromWithParent = (
   if (accountVertical) {
     return {
       verticalId: accountVertical.id,
-      tag: applicationVertical.associatedAccounts.find((account) => account.type === 'Rekey' && sender === account.accountAddress)
+      tag: parentApplicationVertical.associatedAccounts.find((account) => account.type === 'Rekey' && sender === account.accountAddress)
         ? 'Rekey'
         : accountVertical.accountNumber,
+    }
+  }
+
+  const applicationVertical = verticals.find(
+    (c): c is ApplicationVertical => c.type === 'Application' && c.linkedAccount.accountAddress === sender
+  )
+  if (applicationVertical) {
+    return {
+      verticalId: applicationVertical.id,
+      tag: parentApplicationVertical.associatedAccounts.find((account) => account.type === 'Rekey' && sender === account.accountAddress)
+        ? 'Rekey'
+        : applicationVertical.linkedAccount.accountNumber,
     }
   }
 

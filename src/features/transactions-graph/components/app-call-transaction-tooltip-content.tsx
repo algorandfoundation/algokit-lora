@@ -1,6 +1,7 @@
 import { AppCallTransaction, InnerAppCallTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import {
+  transactionSignerAddressLabel,
   transactionFeeLabel,
   transactionIdLabel,
   transactionRekeyToLabel,
@@ -70,6 +71,14 @@ function AppCallDescriptionList({
             {
               dt: transactionRekeyToLabel,
               dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
+      ...(transaction.signer
+        ? [
+            {
+              dt: transactionSignerAddressLabel,
+              dd: <AccountLink address={transaction.signer} />,
             },
           ]
         : []),

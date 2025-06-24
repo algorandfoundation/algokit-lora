@@ -26,6 +26,7 @@ export const transactionBlockLabel = 'Block'
 export const transactionFeeLabel = 'Fee'
 export const transactionGroupLabel = 'Group'
 export const transactionRekeyToLabel = 'Rekey To'
+export const transactionSignerAddressLabel = 'Signer'
 
 export function TransactionInfo({ transaction }: Props) {
   const isInnerTransaction = 'innerId' in transaction
@@ -99,6 +100,14 @@ export function TransactionInfo({ transaction }: Props) {
             {
               dt: transactionRekeyToLabel,
               dd: <AccountLink address={transaction.rekeyTo} showCopyButton={true} showQRButton={true} />,
+            },
+          ]
+        : []),
+      ...(transaction.signer
+        ? [
+            {
+              dt: transactionSignerAddressLabel,
+              dd: <AccountLink address={transaction.signer} showCopyButton={true} showQRButton={true} />,
             },
           ]
         : []),

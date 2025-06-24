@@ -1,6 +1,7 @@
 import { InnerPaymentTransaction, PaymentTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import {
+  transactionSignerAddressLabel,
   transactionFeeLabel,
   transactionIdLabel,
   transactionRekeyToLabel,
@@ -68,6 +69,14 @@ export function PaymentTransactionTooltipContent({ transaction, isSimulated }: P
             {
               dt: transactionRekeyToLabel,
               dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
+      ...(transaction.signer
+        ? [
+            {
+              dt: transactionSignerAddressLabel,
+              dd: <AccountLink address={transaction.signer} />,
             },
           ]
         : []),

@@ -1,11 +1,11 @@
 import { AssetTransferTransactionSubType, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
-import { ApplicationVertical, Vertical } from '../models'
+import { AccountVertical, ApplicationVertical, Vertical } from '../models'
 import { distinct } from '@/utils/distinct'
 import { getApplicationAddress } from 'algosdk'
 
 export const getVerticalsForTransactions = (transactions: Transaction[] | InnerTransaction[]): Vertical[] => {
   const transactionsVerticals = transactions.flatMap(asRawTransactionGraphVerticals)
-  const mergedVerticals = mergeRawTransactionGraphVerticals(transactionsVerticals)
+  const mergedVerticals = mergeRawTransactionGraphVerticals(transactions, transactionsVerticals)
   return indexTransactionsVerticals(mergedVerticals)
 }
 
@@ -58,8 +58,8 @@ const indexTransactionsVerticals = (rawVerticals: Vertical[]): Vertical[] => {
   })
 }
 
-const mergeRawTransactionGraphVerticals = (verticals: Vertical[]): Vertical[] => {
-  return verticals.reduce<Vertical[]>((acc, current, _, array) => {
+const mergeRawTransactionGraphVerticals = (transactions: Transaction[] | InnerTransaction[], verticals: Vertical[]): Vertical[] => {
+  const mergedVerticals = verticals.reduce<Vertical[]>((acc, current, _, array) => {
     if (current.type === 'Account') {
       if (
         acc.some(
@@ -121,6 +121,22 @@ const mergeRawTransactionGraphVerticals = (verticals: Vertical[]): Vertical[] =>
     }
     return acc
   }, [])
+
+  transactions.forEach((transaction) => {
+    if (transaction.signer) {
+      const vertical = mergedVerticals.find((v): v is AccountVertical => v.type === 'Account' && v.accountAddress === transaction.signer)
+
+      if (vertical && !vertical.associatedAccounts.find((a) => a.accountAddress === transaction.sender && a.type === 'Rekey')) {
+        vertical.associatedAccounts.push({
+          type: 'Rekey',
+          accountNumber: -1,
+          accountAddress: transaction.sender,
+        })
+      }
+    }
+  })
+
+  return mergedVerticals
 }
 
 const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransaction): Vertical[] => {
@@ -138,6 +154,7 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
           : [],
     },
   ]
+
   if (transaction.type === TransactionType.Payment) {
     verticals.push({
       id: -1,
@@ -238,5 +255,6 @@ const asRawTransactionGraphVerticals = (transaction: Transaction | InnerTransact
       associatedAccounts: [],
     })
   }
+
   return verticals
 }

@@ -1,6 +1,7 @@
 import { AssetTransferTransaction, AssetTransferTransactionSubType, InnerAssetTransferTransaction } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import {
+  transactionSignerAddressLabel,
   transactionFeeLabel,
   transactionIdLabel,
   transactionRekeyToLabel,
@@ -78,6 +79,14 @@ export function AssetTransferTransactionTooltipContent({ transaction, isSimulate
             {
               dt: transactionRekeyToLabel,
               dd: <AccountLink address={transaction.rekeyTo} />,
+            },
+          ]
+        : []),
+      ...(transaction.signer
+        ? [
+            {
+              dt: transactionSignerAddressLabel,
+              dd: <AccountLink address={transaction.signer} />,
             },
           ]
         : []),

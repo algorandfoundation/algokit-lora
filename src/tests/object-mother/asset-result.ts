@@ -636,4 +636,23 @@ export const assetResultMother = {
       },
     })
   },
+  ['mainnet-465865291']: () => {
+    return new AssetResultBuilder({
+      index: 465865291n,
+      params: {
+        creator: '3EPGHSNBBN5M2LD6V7A63EHZQQLATVQHDBYJQIZ6BLCBTIXA5XR7ZOZEB4',
+        decimals: 6,
+        defaultFrozen: false,
+        manager: '3EPGHSNBBN5M2LD6V7A63EHZQQLATVQHDBYJQIZ6BLCBTIXA5XR7ZOZEB4',
+        name: 'STBL',
+        nameB64: encoder.encode('U1RCTA=='),
+        reserve: 'OPY7XNB5LVMECF3PHJGQV2U33LZPM5FBUXA3JJPHANAG5B7GEYUPZJVYRE',
+        total: 1000000000000000000n,
+        unitName: 'STBL',
+        unitNameB64: encoder.encode('U1RCTA=='),
+        url: 'https://algofi.org',
+        urlB64: encoder.encode('aHR0cHM6Ly9hbGdvZmkub3Jn'),
+      },
+    } satisfies AssetResult)
+  },
 }
