@@ -17,7 +17,13 @@ export const useVersion = (): VersionInfo => {
   useEffect(() => {
     if (window.__TAURI_INTERNALS__) {
       setIsTauri(true)
-      getVersion().then((v) => setTauriVersion(v))
+      getVersion()
+        .then((v) => setTauriVersion(v))
+        .catch((error) => {
+          // Log error but don't throw - fallback to web version
+          // eslint-disable-next-line no-console
+          console.warn('Failed to get Tauri version:', error)
+        })
     }
   }, [])
 
