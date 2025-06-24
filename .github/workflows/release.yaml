@@ -24,15 +24,25 @@ jobs:
     runs-on: [ubuntu-22.04]
     name: Create release
     steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
       - uses: actions/checkout@v4
         with:
+          # Use bot token for authenticated operations
+          token: ${{ steps.app_token.outputs.token }}
           fetch-depth: 0
 
       - name: Create GitHub release
         uses: ./.github/actions/create-release
         id: create-github-release
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Use bot token for semantic-release operations
+          github-token: ${{ steps.app_token.outputs.token }}
           production-release: ${{ env.PRODUCTION_RELEASE }}
           node-version: 20
 
@@ -69,8 +79,17 @@ jobs:
     if: ${{ needs.create-release.outputs.release-published == 'true' }}
 
     steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
       - uses: actions/checkout@v4
         with:
+          # Use bot token for authenticated operations
+          token: ${{ steps.app_token.outputs.token }}
           fetch-depth: 0
 
       - name: Setup node
@@ -83,6 +102,9 @@ jobs:
 
       - name: Install npm dependencies
         run: npm install
+
+      - name: Synchronize version to Cargo.toml
+        run: npm run sync-version
 
       - name: Create .env file
         run: |
@@ -99,6 +121,11 @@ jobs:
           VITE_DISPENSER_AUTH0_AUDIENCE: api-prod-dispenser-user
           VITE_TESTNET_DISPENSER_API_URL: https://api.dispenser.algorandfoundation.tools
           VITE_TESTNET_DISPENSER_ADDRESS: Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
+          # Inject version information for desktop builds
+          VITE_APP_VERSION: ${{ needs.create-release.outputs.release-version }}
+          VITE_BUILD_DATE: ${{ github.run_id }}
+          VITE_COMMIT_HASH: ${{ github.sha }}
+          VITE_ENVIRONMENT: ${{ env.PRODUCTION_RELEASE == 'true' && 'production' || 'beta' }}
 
       - name: Build for Linux
         id: build-linux
