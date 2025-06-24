@@ -9,6 +9,7 @@
     "build:0-clean": "rimraf dist src/features/common/components/icons src/features/common/components/svg",
     "build:1-icons": "npx --yes @svgr/cli --config-file .svgrrc.cjs --icon --typescript --out-dir src/features/common/components/icons src/assets/icons --no-index --filename-case kebab --jsx-runtime automatic",
     "build:2-svg": "npx --yes @svgr/cli --config-file .svgrrc.cjs --typescript --out-dir src/features/common/components/svg src/assets/svg --no-index --filename-case kebab --jsx-runtime automatic",
+    "build:3-sync-version": "node scripts/sync-version.cjs",
     "build:4-tsc": "tsc",
     "build:5-vite": "vite build",
     "build:6-netlify": "cpy netlify.toml dist",
@@ -20,6 +21,7 @@
     "audit": "better-npm-audit audit -l moderate",
     "check-types": "tsc --noEmit && npx --yes madge src/App.tsx --circular",
     "tauri": "tauri",
+    "sync-version": "node scripts/sync-version.cjs",
     "pre-commit": "run-s check-types lint:fix audit test",
     "postinstall": "patch-package"
   },
