@@ -11,7 +11,7 @@
 
 ---
 
-Algorand AlgoKit lora is a live on-chain resource analyzer, that enables developers to explore and interact with a configured Algorand network in a visual way.
+Algorand AlgoKit lora is a live on-chain resource analyzer that enables developers to explore and interact with a configured Algorand network in a visual way.
 
 ## What is lora?
 
@@ -24,9 +24,9 @@ You can access lora by visiting [https://lora.algokit.io](https://lora.algokit.i
 
 An explorer is an essential tool for making blockchain data accessible and enables users to inspect and understand on-chain activities. Without these tools, it's difficult to interpret data or gather the information and insights to fully harness the potential of the blockchain. Therefore it makes sense to have a high quality, officially supported and fully open-source tool available to the community.
 
-Before developing lora, we evaluated the existing tools in the community, but none fully met our desires.
+Before developing lora, we evaluated the existing tools in the community, but none fully met our requirements.
 
-As part of this evaluation we came up with several design goals, which are:
+As part of this evaluation, we came up with several design goals, which are:
 
 - **Developer-Centric User Experience**: Offer a rich user experience tailored for developers, with support for LocalNet, TestNet, and MainNet.
 - **Open Source**: Fully open source and actively maintained.
@@ -46,7 +46,7 @@ As part of this evaluation we came up with several design goals, which are:
 - Monitor and inspect real-time transactions related to an asset, account, or application with the live transaction view.
 - Review historical transactions related to an asset, account, or application through the historical transaction view.
 - Access detailed asset information and metadata when the asset complies with one of the ASA ARCs.
-- Connected to your Algorand wallet and perform context specific actions.
+- Connect to your Algorand wallet and perform context-specific actions.
 - Fund an account in LocalNet or TestNet.
 - Visually deploy, populate, simulate and call an app by uploading an ARC-4, ARC-32 or ARC-56 app spec via App lab.
 - Craft, simulate and send transaction groups using Transaction wizard.
@@ -55,6 +55,57 @@ As part of this evaluation we came up with several design goals, which are:
 ## Roadmap
 
 - Installable app with tighter AlgoKit tooling integration.
+
+## Release Management
+
+### Versioning Strategy
+
+Lora uses [semantic versioning](https://semver.org/) with automated releases based on [conventional commits](https://www.conventionalcommits.org/). Our versioning system supports both web and desktop applications with synchronized version numbers.
+
+### Branch Strategy
+
+- **`main`** - Production releases (stable)
+
+  - Triggers production deployments to [lora.algokit.io](https://lora.algokit.io)
+  - Creates stable releases (e.g., `v1.2.0`)
+  - Desktop releases are built and distributed
+
+- **`staging`** - Beta releases (prerelease)
+
+  - Triggers staging deployments for testing
+  - Creates beta releases (e.g., `v1.2.0-beta.1`)
+  - Used for final testing before production
+
+- **`branch-name/*`** - Dev branches
+  - Created from `main` for dev work
+  - Merged to `staging` for testing
+  - Promoted to `main` after validation
+
+### Environments
+
+- **Production** (`main`) - https://lora.algokit.io
+
+  - Stable, production-ready releases
+  - Full testing and validation completed
+  - Used by end users and production applications
+
+- **Staging** (`staging`) - Beta deployment
+
+  - Pre-release testing environment
+  - Latest features undergoing final validation
+  - Used by internal teams and beta testers
+
+- **Development** (local) - `v0.0.0-dev`
+  - Local development builds
+  - Hot reloading and debug features
+  - Used during active development
+
+### Release Process
+
+Feature branch → staging → (manual promotion) → main → production
+↓ ↓ ↓
+PR review Beta release Stable release
+Cloudflare Netlify
 
 ## Contributing
 
