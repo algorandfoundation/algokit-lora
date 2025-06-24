@@ -1,0 +1,54 @@
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      promote-from-staging:
+        description: 'Promote staging to production'
+        required: true
+        default: true
+        type: boolean
+
+concurrency: promote-to-production
+
+jobs:
+  promote-staging-to-main:
+    name: Promote Staging to Main
+    runs-on: ubuntu-22.04
+    if: inputs.promote-from-staging
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Set Git user as GitHub actions
+        run: git config --global user.email "179917785+engineering-ci[bot]@users.noreply.github.com" && git config --global user.name "engineering-ci[bot]"
+
+      - name: Merge staging to main
+        id: merge-staging
+        run: |
+          git checkout main
+          git pull origin main
+          git merge origin/staging --no-ff -m "chore: promote staging to production
+
+          This promotion merges tested changes from staging branch to main for production release.
+
+          The merge includes all commits since the last promotion and will trigger the
+          production release workflow to create a stable version and deploy to production."
+          git push origin main
+          echo "Promotion completed successfully"
+
+      - name: Log promotion details
+        run: |
+          echo "✅ Successfully promoted staging to main"
+          echo "📝 Merge commit: $(git rev-parse HEAD)"
+          echo "🔄 This will trigger the production release workflow"
+          echo "🎯 Next: Monitor the 'Release Web' workflow for production deployment"

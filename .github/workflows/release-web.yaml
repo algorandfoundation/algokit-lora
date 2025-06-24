@@ -12,12 +12,6 @@ on:
 
 concurrency: deploy-to-production
 
-permissions:
-  contents: write # to be able to publish a GitHub release
-  issues: write # to be able to comment on released issues
-  pull-requests: write # to be able to comment on released pull requests
-  packages: read
-
 jobs:
   ci:
     name: CI
@@ -33,8 +27,47 @@ jobs:
         algokit localnet start
         npx --yes wait-on tcp:4001 -t 30000
 
+  create-production-release:
+    name: Create Production Release
+    needs: ci
+    runs-on: ubuntu-22.04
+    outputs:
+      version: ${{ steps.semantic-release.outputs.new-release-version }}
+      released: ${{ steps.semantic-release.outputs.new-release-published }}
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set Git user as GitHub actions
+        run: git config --global user.email "179917785+engineering-ci[bot]@users.noreply.github.com" && git config --global user.name "engineering-ci[bot]"
+
+      - name: Create production release
+        id: semantic-release
+        run: npx semantic-release --branches main
+        env:
+          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
+
   build-website:
     name: Build Website
+    needs: [create-production-release]
+    if: needs.create-production-release.outputs.released == 'true'
     uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
     with:
       node-version: 20.x
@@ -42,51 +75,16 @@ jobs:
       artifact-name: website
       static-site: true
       static-site-env-prefix: VITE
-    needs:
-      - ci
-
-  deploy-to-staging:
-    name: Publish Website to Staging
-    needs:
-      - build-website
-    runs-on: [ubuntu-22.04]
-    environment: Staging
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: website
-          path: artifacts
-
-      - name: Unzip
-        run: |
-          cd artifacts
-          mkdir -p website
-          unzip website.zip -d website
-
-      - name: Apply Staging Transforms
-        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms@main
-        with:
-          app-artifact-path: artifacts/website
-          static-site-transforms: |-
-            VITE_DISPENSER_AUTH0_DOMAIN:dispenser-staging.eu.auth0.com
-            VITE_DISPENSER_AUTH0_CLIENT_ID:pSffrx40HwIdWAJFeGCsy5FZn2NzYIvO
-            VITE_DISPENSER_AUTH0_AUDIENCE:api-staging-dispenser-user
-            VITE_TESTNET_DISPENSER_API_URL:https://api.dispenser-dev.algorandfoundation.tools
-            VITE_TESTNET_DISPENSER_ADDRESS:A3Q4VQFQ5DLEIWCMUX6V7YFZ7BUPWUXWY4YVNJQODUODSQ7KVEFOZUNFUQ
-
-      - name: Deploy website to Netlify
-        run: |
-          npx netlify-cli deploy --site ${{ secrets.NETLIFY_SITE_ID }} --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} --dir artifacts/website --prod --no-build
+      build-env: |
+        VITE_APP_VERSION=${{ needs.create-production-release.outputs.version }}
+        VITE_BUILD_DATE=${{ github.event.head_commit.timestamp }}
+        VITE_COMMIT_HASH=${{ github.sha }}
+        VITE_ENVIRONMENT=production
 
   deploy-to-production:
     name: Publish Website to Production
-    needs:
-      - deploy-to-staging
+    needs: [create-production-release, build-website]
+    if: needs.create-production-release.outputs.released == 'true'
     runs-on: [ubuntu-22.04]
     environment: Production
     steps:
