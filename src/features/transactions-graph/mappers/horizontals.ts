@@ -427,19 +427,6 @@ const calculateFromWithParent = (
     }
   }
 
-  // const taggedAccount = tagAddress
-  //   ? verticals
-  //       .find((c): c is AccountVertical => c.type === 'Account' && c.accountAddress === tagAddress)
-  //       ?.associatedAccounts.find((account) => account.accountAddress === sender)
-  //   : applicationVertical.associatedAccounts.find((account) => account.accountAddress === tagAddress)
-
-  // if (taggedAccount) {
-  //   return {
-  //     verticalId: applicationVertical.id,
-  //     tag: taggedAccount.type === 'Rekey' ? 'Rekey' : taggedAccount.accountNumber,
-  //   }
-  // }
-
   if (sender === parentApplicationVertical.linkedAccount.accountAddress) {
     return {
       verticalId: parentApplicationVertical.id,
