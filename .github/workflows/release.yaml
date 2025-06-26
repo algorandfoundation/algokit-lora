@@ -17,7 +17,7 @@ permissions:
   packages: read
 
 env:
-  PRODUCTION_RELEASE: ${{ github.ref_name == 'main' && inputs.production-release == 'true' }}
+  PRODUCTION_RELEASE: ${{ github.ref_name == 'release' && inputs.production-release == 'true' }}
 
 jobs:
   create-release:

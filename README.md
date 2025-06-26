@@ -64,13 +64,13 @@ Lora uses [semantic versioning](https://semver.org/) with automated releases bas
 
 ### Branch Strategy
 
-- **`main`** - Production releases (stable)
+- **`release`** - Production releases (stable)
 
   - Triggers production deployments to [lora.algokit.io](https://lora.algokit.io)
   - Creates stable releases (e.g., `v1.2.0`)
   - Desktop releases are built and distributed
 
-- **`staging`** - Beta releases (prerelease)
+- **`main`** - Staging releases (prerelease)
 
   - Triggers staging deployments for testing
   - Creates beta releases (e.g., `v1.2.0-beta.1`)
@@ -78,18 +78,18 @@ Lora uses [semantic versioning](https://semver.org/) with automated releases bas
 
 - **`branch-name/*`** - Dev branches
   - Created from `main` for dev work
-  - Merged to `staging` for testing
-  - Promoted to `main` after validation
+  - Merged to `main` for testing
+  - Promoted to `release` after validation
 
 ### Environments
 
-- **Production** (`main`) - https://lora.algokit.io
+- **Production** (`release`) - https://lora.algokit.io
 
   - Stable, production-ready releases
   - Full testing and validation completed
   - Used by end users and production applications
 
-- **Staging** (`staging`) - Beta deployment
+- **Staging** (`main`) - Beta deployment
 
   - Pre-release testing environment
   - Latest features undergoing final validation
@@ -102,10 +102,10 @@ Lora uses [semantic versioning](https://semver.org/) with automated releases bas
 
 ### Release Process
 
-Feature branch → staging → (manual promotion) → main → production
+Feature branch → main → (manual promotion) → release → production
 ↓ ↓ ↓
 PR review Beta release Stable release
-Cloudflare Netlify
+Staging Deployment Production Deployment
 
 ## Contributing
 
