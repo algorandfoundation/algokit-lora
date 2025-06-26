@@ -1,3 +1,15 @@
+# Staging Deployment Workflow
+#
+# This workflow automatically triggers when code is pushed to the 'main' branch.
+# It creates beta releases for testing and deploys to the staging environment.
+# This serves as the testing ground before production releases.
+#
+# Role in release workflow:
+# - Triggered by pushes to 'main' branch (from feature branch merges)
+# - Creates semantic release with beta version (e.g., v1.2.0-beta.1)
+# - Deploys to staging environment for testing (done on the Cloudflare Pages side)
+# - Allows validation before promoting to production
+
 name: Staging Deployment
 
 on:
