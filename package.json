@@ -144,11 +144,11 @@
   "release": {
     "branches": [
       {
-        "name": "main",
+        "name": "release",
         "channel": "stable"
       },
       {
-        "name": "staging",
+        "name": "main",
         "channel": "beta",
         "prerelease": "beta"
       }

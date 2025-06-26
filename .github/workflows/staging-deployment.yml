@@ -2,7 +2,7 @@ name: Staging Deployment
 
 on:
   push:
-    branches: [staging]
+    branches: [main]
     paths-ignore:
       - 'docs/**'
       - '**.md'

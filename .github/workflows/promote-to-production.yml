@@ -3,8 +3,8 @@ name: Promote to Production
 on:
   workflow_dispatch:
     inputs:
-      promote-from-staging:
-        description: 'Promote staging to production'
+      promote-from-main:
+        description: 'Promote main to production'
         required: true
         default: true
         type: boolean
@@ -12,10 +12,10 @@ on:
 concurrency: promote-to-production
 
 jobs:
-  promote-staging-to-main:
-    name: Promote Staging to Main
+  promote-main-to-release:
+    name: Promote Main to Release
     runs-on: ubuntu-22.04
-    if: inputs.promote-from-staging
+    if: inputs.promote-from-main
     steps:
       - name: Generate bot token
         uses: actions/create-github-app-token@v1
@@ -32,23 +32,23 @@ jobs:
       - name: Set Git user as GitHub actions
         run: git config --global user.email "179917785+engineering-ci[bot]@users.noreply.github.com" && git config --global user.name "engineering-ci[bot]"
 
-      - name: Merge staging to main
-        id: merge-staging
+      - name: Merge main to release
+        id: merge-main
         run: |
-          git checkout main
-          git pull origin main
-          git merge origin/staging --no-ff -m "chore: promote staging to production
+          git checkout release
+          git pull origin release
+          git merge origin/main --no-ff -m "chore: promote main to production
 
-          This promotion merges tested changes from staging branch to main for production release.
+          This promotion merges tested changes from main branch to release for production release.
 
           The merge includes all commits since the last promotion and will trigger the
           production release workflow to create a stable version and deploy to production."
-          git push origin main
+          git push origin release
           echo "Promotion completed successfully"
 
       - name: Log promotion details
         run: |
-          echo "✅ Successfully promoted staging to main"
+          echo "✅ Successfully promoted main to release"
           echo "📝 Merge commit: $(git rev-parse HEAD)"
           echo "🔄 This will trigger the production release workflow"
           echo "🎯 Next: Monitor the 'Release Web' workflow for production deployment"

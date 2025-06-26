@@ -3,7 +3,7 @@ name: Release Web
 on:
   push:
     branches:
-      - main
+      - release
     paths-ignore:
       - 'docs/**'
       - '**.md'
@@ -60,7 +60,7 @@ jobs:
 
       - name: Create production release
         id: semantic-release
-        run: npx semantic-release --branches main
+        run: npx semantic-release --branches release
         env:
           GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
 
