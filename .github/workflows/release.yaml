@@ -1,3 +1,16 @@
+# Manual Release Workflow
+#
+# This workflow is manually triggered to create GitHub releases and build desktop applications.
+# It can create both production releases (from 'release' branch) and beta releases
+# (from 'main' branch) along with cross-platform desktop app builds.
+#
+# Role in release workflow:
+# - Manually triggered via GitHub Actions UI
+# - Creates GitHub releases with semantic versioning
+# - Builds cross-platform desktop applications (Windows, macOS, Linux)
+# - Publishes desktop apps via CrabNebula for distribution
+# - Separate from web deployment workflows
+
 name: Release
 
 on:

@@ -102,10 +102,15 @@ Lora uses [semantic versioning](https://semver.org/) with automated releases bas
 
 ### Release Process
 
+```
 Feature branch → main → (manual promotion) → release → production
-↓ ↓ ↓
-PR review Beta release Stable release
-Staging Deployment Production Deployment
+       ↓           ↓                             ↓
+   PR review   Beta release                Stable release
+              (staging-deployment.yml)    (release-web.yaml)
+
+Manual promotion: promote-to-production.yml
+Manual Desktop releases: release.yaml
+```
 
 ## Contributing
 

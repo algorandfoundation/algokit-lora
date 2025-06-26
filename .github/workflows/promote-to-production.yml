@@ -1,3 +1,15 @@
+# Promotion Workflow
+#
+# This workflow is manually triggered to promote tested changes from 'main' to 'release'.
+# It performs a merge from main branch to release branch, which then triggers
+# the production deployment workflow.
+#
+# Role in release workflow:
+# - Manually triggered via GitHub Actions UI
+# - Merges tested changes from 'main' → 'release' branch
+# - Triggers production deployment automatically after merge
+# - Acts as the final approval gate before production release
+
 name: Promote to Production
 
 on:

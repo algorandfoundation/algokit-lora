@@ -1,3 +1,15 @@
+# Production Deployment Workflow
+#
+# This workflow automatically triggers when code is pushed to the 'release' branch.
+# It creates stable production releases, builds the web application, and deploys
+# to the production environment at https://lora.algokit.io.
+#
+# Role in release workflow:
+# - Triggered by pushes to 'release' branch (via promotion workflow)
+# - Creates semantic release with stable version (e.g., v1.2.0)
+# - Builds and deploys web app to production
+# - Updates GitHub release with production artifacts
+
 name: Release Web
 
 on:
