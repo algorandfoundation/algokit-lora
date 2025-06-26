@@ -28,6 +28,7 @@ import {
   transactionGroupLabel,
   transactionIdLabel,
   transactionRekeyToLabel,
+  transactionSignerAddressLabel,
   transactionTimestampLabel,
   transactionTypeLabel,
 } from '../components/transaction-info'
@@ -708,6 +709,7 @@ describe('transaction-page', () => {
                 { term: transactionGroupLabel, description: 'Tjo3cLO5x5GeMwmJLuJCQ1YT2FHkmUpVlSLbxRQDJ30=' },
                 { term: transactionFeeLabel, description: '0.005' },
                 { term: transactionSenderLabel, description: 'W2IZ3EHDRW2IQNPC33CI2CXSLMFCFICVKQVWIYLJWXCTD765RW47ONNCEY' },
+                { term: transactionSignerAddressLabel, description: '7ML3SONQTSKIPPWPFVVKBSEIKJS5FZXY3ABGPT43C3PP4SEKV3W7FAJOTE' },
                 { term: applicationIdLabel, description: '971368268' },
                 { term: onCompletionLabel, description: 'NoOp' },
               ],
@@ -1032,6 +1034,7 @@ describe('transaction-page', () => {
                 { term: transactionBlockLabel, description: '38185488' },
                 { term: transactionFeeLabel, description: '0.001' },
                 { term: transactionSenderLabel, description: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU' },
+                { term: transactionSignerAddressLabel, description: '5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M' },
                 { term: assetLabel, description: '1781083085(DHM: M5+ Quake us6000mt40)' },
                 { term: assetUrlLabel, description: 'https://assets.datahistory.org/quake/us6000mt40.png#i' },
                 { term: assetUnitLabel, description: 'QUAKE' },
@@ -1091,6 +1094,7 @@ describe('transaction-page', () => {
                 { term: transactionIdLabel, description: transaction.id },
                 { term: transactionTypeLabel, description: 'Asset ConfigReconfigure' },
                 { term: transactionTimestampLabel, description: 'Mon, 01 April 2024 18:05:37' },
+                { term: transactionSignerAddressLabel, description: '5ROHDU55YSX545QRE5G2SGZD77OVAJK4RKHAAT7CPMHMNRJACSQUKTUT3M' },
               ],
             })
           })
@@ -1128,6 +1132,7 @@ describe('transaction-page', () => {
               { term: transactionGroupLabel, description: 'xERjxVTlNb8jeHa16qmpxDMh4+dcDCokO69QnNESbFk=' },
               { term: transactionFeeLabel, description: '0.001' },
               { term: transactionSenderLabel, description: 'E4A6FVIHXSZ3F7QXRCOTYDDILVQYEBFH56HYDIIYX4SVXS2QX5GUTBVZHY' },
+              { term: transactionSignerAddressLabel, description: 'FJ5ZFYSXL5SDNWSWBFWUROO4VQRPA42ICJRMRZYGPWXWLBE7TT3HRXWJF4' },
               { term: assetLabel, description: '1707148495(Verification Lofty #29297)' },
               { term: assetFreezeAddressLabel, description: 'ZJU3X2B2QN3BUBIJ64JZ565V363ANGBUDOLXAJHDXGIIMYK6WV3NSNCBQQ' },
               { term: assetFreezeStatusLabel, description: 'Frozen' },

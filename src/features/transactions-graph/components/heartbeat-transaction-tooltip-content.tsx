@@ -1,10 +1,5 @@
 import { useMemo } from 'react'
-import {
-  transactionFeeLabel,
-  transactionIdLabel,
-  transactionRekeyToLabel,
-  transactionTypeLabel,
-} from '@/features/transactions/components/transaction-info'
+import { transactionFeeLabel, transactionIdLabel, transactionTypeLabel } from '@/features/transactions/components/transaction-info'
 import { asTransactionLinkTextComponent, TransactionLink } from '@/features/transactions/components/transaction-link'
 import { transactionSenderLabel } from '@/features/transactions/components/labels'
 import { AccountLink } from '@/features/accounts/components/account-link'
@@ -43,14 +38,6 @@ export function HeartbeatTransactionTooltipContent({ transaction, isSimulated }:
         dt: transactionFeeLabel,
         dd: <DisplayAlgo amount={transaction.fee} />,
       },
-      ...(transaction.rekeyTo
-        ? [
-            {
-              dt: transactionRekeyToLabel,
-              dd: <AccountLink address={transaction.rekeyTo} />,
-            },
-          ]
-        : []),
     ],
     [isSimulated, transaction]
   )

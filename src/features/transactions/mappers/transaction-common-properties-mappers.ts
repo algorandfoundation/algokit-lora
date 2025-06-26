@@ -22,6 +22,7 @@ export const mapCommonTransactionProperties = (transactionResult: TransactionRes
     note: transactionResult.note ? uint8ArrayToBase64(transactionResult.note) : undefined,
     json: asJson(normaliseAlgoSdkData(transactionResult)),
     rekeyTo: transactionResult.rekeyTo?.toString(),
+    signer: transactionResult.authAddr?.toString(),
   }
 }
 

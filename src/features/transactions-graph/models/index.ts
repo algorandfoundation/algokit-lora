@@ -121,7 +121,7 @@ export type AccountVertical = {
   accountNumber: number
   type: 'Account'
   accountAddress: Address
-  associatedAccounts: ClawbackAssociatedAccount[]
+  associatedAccounts: (ClawbackAssociatedAccount | RekeyAssociatedAccount)[]
 }
 export type ApplicationVertical = {
   id: number

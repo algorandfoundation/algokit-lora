@@ -222,6 +222,31 @@ describe('group-graph', () => {
       ],
       assetResults: [assetResultMother['testnet-705736805']().build(), algoAssetResult],
     },
+    {
+      // App account atomic rekey to user account
+      groupId: '5VFCW3FBMGGqVQIukeg9IMlaSzci242qEEshJWDwI9c=',
+      transactionResults: [
+        transactionResultMother['mainnet-SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA']().build(),
+        transactionResultMother['mainnet-66BWHDAIBMYJXXGRUAQMSSQOQZ3XNTEJZILTOOBH2F732ZVD2PVQ']().build(),
+        transactionResultMother['mainnet-LYAXMJ3YBIKLTMWETYI3SDC3HPIJJWVU6K5KFTQDR7FKESHIEEKQ']().build(),
+        transactionResultMother['mainnet-CODYBRSDHJTBJ6TNON6E5I42K6ILU2LCZFEUAP7Q2A5QVVAU4IKA']().build(),
+        transactionResultMother['mainnet-3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A']().build(),
+        transactionResultMother['mainnet-S3M4OHWB2PLVNTQYXT7NAKLKX2AIEAJZMH5QZBHVN7BAU553HQMQ']().build(),
+        transactionResultMother['mainnet-PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A']().build(),
+        transactionResultMother['mainnet-P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ']().build(),
+        transactionResultMother['mainnet-QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ']().build(),
+      ],
+      assetResults: [assetResultMother['mainnet-31566704']().build(), assetResultMother['mainnet-465865291']().build(), algoAssetResult],
+    },
+    {
+      // Multi app interaction with rekey
+      groupId: 'wDegGrdXE32WoxPfioFELwPVWBIiZK0GF1bwos7fJs0=',
+      transactionResults: [
+        transactionResultMother['mainnet-AFCLNZPUMZVOKWUPY2NQUD5SUL2SOAJAUF6CP2GIU2UMAODMWEVQ']().build(),
+        transactionResultMother['mainnet-KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q']().build(),
+      ],
+      assetResults: [assetResultMother['mainnet-31566704']().build(), algoAssetResult],
+    },
   ])(
     'when rendering group $groupId',
     ({
