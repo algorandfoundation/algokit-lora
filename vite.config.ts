@@ -3,15 +3,16 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
+import { execSync } from 'child_process'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   define: {
     // Inject version information at build time
-    __APP_VERSION__: JSON.stringify(process.env.VITE_APP_VERSION || '0.0.0'),
-    __BUILD_DATE__: JSON.stringify(process.env.VITE_BUILD_DATE || new Date().toISOString()),
-    __COMMIT_HASH__: JSON.stringify(process.env.VITE_COMMIT_HASH || 'unknown'),
-    __ENVIRONMENT__: JSON.stringify(process.env.VITE_ENVIRONMENT || 'development'),
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '0.0.0'),
+    __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+    __COMMIT_HASH__: JSON.stringify(process.env.CF_PAGES_COMMIT_SHA || execSync('git rev-parse HEAD').toString().trim()),
+    __ENVIRONMENT__: JSON.stringify(mode || 'development'), // development | production | staging
   },
   plugins: [
     react(),
@@ -33,11 +34,6 @@ export default defineConfig({
       VITE_DISPENSER_AUTH0_AUDIENCE: 'test',
       VITE_TESTNET_DISPENSER_API_URL: 'https://test.api',
       VITE_TESTNET_DISPENSER_ADDRESS: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
-      // Add version environment variables for testing
-      VITE_APP_VERSION: '0.0.0-test',
-      VITE_BUILD_DATE: new Date().toISOString(),
-      VITE_COMMIT_HASH: 'test-hash',
-      VITE_ENVIRONMENT: 'development',
       // For running tests against LocalNet
       ALGOD_TOKEN: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       ALGOD_SERVER: 'http://localhost',
@@ -69,4 +65,4 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+}))

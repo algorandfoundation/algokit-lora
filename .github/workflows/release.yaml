@@ -134,11 +134,6 @@ jobs:
           VITE_DISPENSER_AUTH0_AUDIENCE: api-prod-dispenser-user
           VITE_TESTNET_DISPENSER_API_URL: https://api.dispenser.algorandfoundation.tools
           VITE_TESTNET_DISPENSER_ADDRESS: Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
-          # Inject version information for desktop builds
-          VITE_APP_VERSION: ${{ needs.create-release.outputs.release-version }}
-          VITE_BUILD_DATE: ${{ github.run_id }}
-          VITE_COMMIT_HASH: ${{ github.sha }}
-          VITE_ENVIRONMENT: ${{ env.PRODUCTION_RELEASE == 'true' && 'production' || 'beta' }}
 
       - name: Build for Linux
         id: build-linux
