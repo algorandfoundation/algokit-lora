@@ -87,11 +87,6 @@ jobs:
       artifact-name: website
       static-site: true
       static-site-env-prefix: VITE
-      build-env: |
-        VITE_APP_VERSION=${{ needs.create-production-release.outputs.version }}
-        VITE_BUILD_DATE=${{ github.event.head_commit.timestamp }}
-        VITE_COMMIT_HASH=${{ github.sha }}
-        VITE_ENVIRONMENT=production
 
   deploy-to-production:
     name: Publish Website to Production
