@@ -51,16 +51,4 @@ jobs:
           git pull origin release
           git merge origin/main --no-ff -m "chore: promote main to production
 
-          This promotion merges tested changes from main branch to release for production release.
-
-          The merge includes all commits since the last promotion and will trigger the
-          production release workflow to create a stable version and deploy to production."
-          git push origin release
-          echo "Promotion completed successfully"
-
-      - name: Log promotion details
-        run: |
-          echo "✅ Successfully promoted main to release"
-          echo "📝 Merge commit: $(git rev-parse HEAD)"
-          echo "🔄 This will trigger the production release workflow"
-          echo "🎯 Next: Monitor the 'Release Web' workflow for production deployment"
+          This promotion merges tested changes from main branch to release for production release."

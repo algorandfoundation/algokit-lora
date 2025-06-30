@@ -23,7 +23,7 @@
     "audit": "better-npm-audit audit -l moderate",
     "check-types": "tsc --noEmit && npx --yes madge src/App.tsx --circular",
     "tauri": "tauri",
-    "sync-version": "node scripts/sync-version.cjs",
+    "sync-version": "npm run scripts/sync-version.cjs",
     "pre-commit": "run-s check-types lint:fix audit test",
     "postinstall": "patch-package"
   },
@@ -142,125 +142,6 @@
     "@semantic-release/git": "^10.0.1",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3"
-  },
-  "release": {
-    "branches": [
-      {
-        "name": "release",
-        "channel": "stable"
-      },
-      {
-        "name": "main",
-        "channel": "beta",
-        "prerelease": "beta"
-      }
-    ],
-    "plugins": [
-      [
-        "@semantic-release/commit-analyzer",
-        {
-          "preset": "conventionalcommits",
-          "releaseRules": [
-            {
-              "type": "feat",
-              "release": "minor"
-            },
-            {
-              "type": "fix",
-              "release": "patch"
-            },
-            {
-              "type": "perf",
-              "release": "patch"
-            },
-            {
-              "type": "build",
-              "release": "patch"
-            },
-            {
-              "type": "chore",
-              "release": "patch"
-            },
-            {
-              "type": "refactor",
-              "release": "patch"
-            }
-          ]
-        }
-      ],
-      [
-        "@semantic-release/release-notes-generator",
-        {
-          "preset": "conventionalcommits",
-          "presetConfig": {
-            "types": [
-              {
-                "type": "feat",
-                "section": "🚀 Features"
-              },
-              {
-                "type": "fix",
-                "section": "🐛 Bug Fixes"
-              },
-              {
-                "type": "perf",
-                "section": "⚡ Performance"
-              },
-              {
-                "type": "build",
-                "section": "🔧 Build System"
-              },
-              {
-                "type": "chore",
-                "section": "🧹 Maintenance"
-              },
-              {
-                "type": "refactor",
-                "section": "♻️ Refactoring"
-              }
-            ]
-          }
-        }
-      ],
-      [
-        "@semantic-release/changelog",
-        {
-          "changelogFile": "CHANGELOG.md"
-        }
-      ],
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "CHANGELOG.md",
-            "package.json",
-            "package-lock.json",
-            "src-tauri/Cargo.toml"
-          ],
-          "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-        }
-      ],
-      [
-        "@semantic-release/github",
-        {
-          "successComment": false,
-          "failTitle": false,
-          "assets": [
-            {
-              "path": "dist/**",
-              "label": "Web Application Build"
-            }
-          ]
-        }
-      ],
-      "semantic-release-export-data"
-    ]
   },
   "overrides": {
     "ws@>7.0.0 <7.5.9": "7.5.10",
