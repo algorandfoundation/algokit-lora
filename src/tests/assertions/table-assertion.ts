@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 import { getAllByRole, waitFor, within } from '../testing-library'
+import { MESSAGE_TABLE_ROW_DATA_LABEL } from '@/features/common/constants'
 
 export type TableAssertionInput = {
   container: HTMLElement
@@ -20,6 +21,9 @@ export const tableAssertion = async ({ container, rows, matchRowCount }: TableAs
 
   const tableRows = await waitFor(() => {
     const tableRows = getAllByRole(tableBody!, 'row')
+    if (tableRows.length === 1 && tableRows[0].getAttribute('aria-label') === MESSAGE_TABLE_ROW_DATA_LABEL) {
+      throw new Error('Found message row')
+    }
     if (matchRowCount) {
       expect(tableRows.length).toBe(rows.length)
     } else {

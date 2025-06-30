@@ -48,6 +48,7 @@ import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { JotaiStore } from '@/features/common/data/types'
+import { NO_RESULTS_TABLE_MESSAGE } from '@/features/common/constants'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -331,7 +332,7 @@ describe('application-page', () => {
           const addressInput = await findByRole(localStateTab, 'textbox', { name: 'local-state-address' })
           await user.type(addressInput, '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA')
 
-          await findByText(localStateTab, 'No results.')
+          await findByText(localStateTab, NO_RESULTS_TABLE_MESSAGE)
         }
       )
     })

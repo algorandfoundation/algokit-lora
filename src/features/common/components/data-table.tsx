@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { cn } from '@/features/common/utils'
 import { TableDataContext } from '../../settings/data/table-pagination'
 import { useTablePagination } from '@/features/settings/data/table-pagination'
+import { MESSAGE_TABLE_ROW_DATA_LABEL, NO_RESULTS_TABLE_MESSAGE } from '../constants'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -97,9 +98,9 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
+              <TableRow aria-label={MESSAGE_TABLE_ROW_DATA_LABEL}>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {!isResultData ? data : 'No results.'}
+                  {!isResultData ? data : NO_RESULTS_TABLE_MESSAGE}
                 </TableCell>
               </TableRow>
             )}
