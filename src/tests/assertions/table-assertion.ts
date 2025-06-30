@@ -1,5 +1,5 @@
 import { expect } from 'vitest'
-import { getAllByRole, within } from '../testing-library'
+import { getAllByRole, waitFor, within } from '../testing-library'
 
 export type TableAssertionInput = {
   container: HTMLElement
@@ -17,11 +17,16 @@ export const tableAssertion = async ({ container, rows, matchRowCount }: TableAs
 
   const tableBody = rowGroups[1]
   expect(tableBody, 'tbody not found').toBeTruthy()
-  const tableRows = getAllByRole(tableBody!, 'row')
 
-  if (matchRowCount) {
-    expect(tableRows.length).toBe(rows.length)
-  }
+  const tableRows = await waitFor(() => {
+    const tableRows = getAllByRole(tableBody!, 'row')
+    if (matchRowCount) {
+      expect(tableRows.length).toBe(rows.length)
+    } else {
+      expect(tableRows.length).toBeGreaterThanOrEqual(rows.length)
+    }
+    return tableRows
+  })
 
   rows.forEach((row, index) => {
     const dataRow = tableRows[index]

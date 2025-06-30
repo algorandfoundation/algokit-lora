@@ -21,10 +21,13 @@ import {
   applicationNameLabel,
   applicationBoxesTabId,
   applicationGlobalStateTabId,
+  applicationLocalStateTabId,
   applicationGlobalStateLabel,
+  applicationLocalStateLabel,
   applicationAbiMethodDefinitionsLabel,
 } from './labels'
-import { ApplicationGlobalStateTable } from './application-global-state-table'
+import { ApplicationStateTable } from './application-state-table'
+import { ApplicationLocalState } from './application-local-state'
 import { ApplicationBoxes } from './application-boxes'
 import { OverflowAutoTabsContent, Tabs, TabsList, TabsTrigger } from '@/features/common/components/tabs'
 import { ApplicationLiveTransactions } from './application-live-transactions'
@@ -157,12 +160,18 @@ export function ApplicationDetails({ application }: Props) {
               <TabsTrigger className="w-fit px-4" value={applicationGlobalStateTabId}>
                 {applicationGlobalStateLabel}
               </TabsTrigger>
+              <TabsTrigger className="w-fit px-4" value={applicationLocalStateTabId}>
+                {applicationLocalStateLabel}
+              </TabsTrigger>
               <TabsTrigger className="w-fit px-4" value={applicationBoxesTabId}>
                 {applicationBoxesLabel}
               </TabsTrigger>
             </TabsList>
             <OverflowAutoTabsContent value={applicationGlobalStateTabId}>
-              <ApplicationGlobalStateTable application={application} />
+              <ApplicationStateTable data={application.globalState ?? []} />
+            </OverflowAutoTabsContent>
+            <OverflowAutoTabsContent value={applicationLocalStateTabId}>
+              <ApplicationLocalState application={application} />
             </OverflowAutoTabsContent>
             <OverflowAutoTabsContent value={applicationBoxesTabId}>
               <ApplicationBoxes application={application} />

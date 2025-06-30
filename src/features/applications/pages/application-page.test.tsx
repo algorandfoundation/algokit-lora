@@ -1,7 +1,7 @@
 import { executeComponentTest } from '@/tests/test-component'
-import { getByRole, render, waitFor, within } from '@/tests/testing-library'
+import { findByRole, findByText, getByRole, render, waitFor, within } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeAll } from 'vitest'
 import {
   ApplicationPage,
   applicationFailedToLoadMessage,
@@ -24,9 +24,13 @@ import {
   applicationGlobalStateUintLabel,
   applicationIdLabel,
   applicationLocalStateByteLabel,
+  applicationLocalStateLabel,
   applicationLocalStateUintLabel,
   applicationNameLabel,
   applicationStateLabel,
+  enterAddressToViewLocalStateMessage,
+  failedToLoadLocalStateMessage,
+  invalidAddressForLocalStateMessage,
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
@@ -43,6 +47,7 @@ import { searchTransactionsMock } from '@/tests/setup/mocks'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
+import { JotaiStore } from '@/features/common/data/types'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -50,6 +55,9 @@ vi.mock('@/features/common/data/algo-client', async () => {
     ...original,
     algod: {
       getApplicationByID: vi.fn().mockReturnValue({
+        do: vi.fn().mockReturnValue({ then: vi.fn() }),
+      }),
+      accountApplicationInformation: vi.fn().mockReturnValue({
         do: vi.fn().mockReturnValue({ then: vi.fn() }),
       }),
     },
@@ -114,13 +122,13 @@ describe('application-page', () => {
     })
   })
 
-  describe('when rendering an application', () => {
+  describe('when rendering an application with state', () => {
     const applicationResult = applicationResultMother['mainnet-80441968']().build()
+    let myStore: JotaiStore
 
-    it('should be rendered with the correct data', () => {
-      const myStore = createStore()
+    beforeAll(() => {
+      myStore = createStore()
       myStore.set(genesisHashAtom, 'some-hash')
-
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
@@ -167,7 +175,9 @@ describe('application-page', () => {
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
         Promise.resolve(new algosdk.indexerModels.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
       )
+    })
 
+    it('should be rendered with the correct data', () => {
       return executeComponentTest(
         () => {
           return render(<ApplicationPage />, undefined, myStore)
@@ -209,6 +219,10 @@ describe('application-page', () => {
             ],
           })
 
+          await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationLocalStateLabel }))
+          const localStateTab = await component.findByRole('tabpanel', { name: applicationLocalStateLabel })
+          await findByText(localStateTab, enterAddressToViewLocalStateMessage)
+
           await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationBoxesLabel }))
           const boxesTab = await component.findByRole('tabpanel', { name: applicationBoxesLabel })
           await tableAssertion({
@@ -226,6 +240,142 @@ describe('application-page', () => {
               { cells: ['AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck='] },
             ],
           })
+        }
+      )
+    })
+
+    it('should render local state when account has state', () => {
+      const addressWithLocalState = 'YJJBMRVNONUG52SHL7WA3P766CJUEBQVSKEYNSEDTS2YD5ETX2I64ISL74'
+      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() =>
+        Promise.resolve(
+          new algosdk.modelsv2.AccountApplicationResponse({
+            round: 1n,
+            appLocalState: new algosdk.modelsv2.ApplicationLocalState({
+              id: applicationResult.id,
+              schema: new algosdk.modelsv2.ApplicationStateSchema({
+                numUint: 1,
+                numByteSlice: 2,
+              }),
+              keyValue: [
+                new algosdk.modelsv2.TealKeyValue({
+                  key: Buffer.from('YmFsYW5jZQ==', 'base64'),
+                  value: new algosdk.modelsv2.TealValue({
+                    type: 2,
+                    uint: 1150n,
+                    bytes: '',
+                  }),
+                }),
+                new algosdk.modelsv2.TealKeyValue({
+                  key: Buffer.from('bWVzc2FnZQ==', 'base64'),
+                  value: new algosdk.modelsv2.TealValue({
+                    type: 1,
+                    uint: 0,
+                    bytes: Buffer.from('SGVsbG8gd29ybGQ=', 'base64'),
+                  }),
+                }),
+                new algosdk.modelsv2.TealKeyValue({
+                  key: Buffer.from('aS5hcHBpZA==', 'base64'),
+                  value: new algosdk.modelsv2.TealValue({
+                    type: 1,
+                    uint: 0,
+                    bytes: Buffer.from('AAAAADNlLm0=', 'base64'),
+                  }),
+                }),
+              ],
+            }),
+            createdApp: undefined,
+          })
+        )
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const applicationStateTabList = await component.findByRole('tablist', { name: applicationStateLabel })
+          expect(applicationStateTabList).toBeTruthy()
+
+          await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationLocalStateLabel }))
+          const localStateTab = await component.findByRole('tabpanel', { name: applicationLocalStateLabel })
+
+          const addressInput = await findByRole(localStateTab, 'textbox', { name: 'local-state-address' })
+          await user.type(addressInput, addressWithLocalState)
+
+          await tableAssertion({
+            container: localStateTab,
+            rows: [
+              { cells: ['balance', 'Uint', '1150'] },
+              { cells: ['i.appid', 'Bytes', 'AAAAADNlLm0='] },
+              { cells: ['message', 'Bytes', 'Hello world'] },
+            ],
+          })
+        }
+      )
+    })
+
+    it('should render no results message when account does not have local state', () => {
+      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const applicationStateTabList = await component.findByRole('tablist', { name: applicationStateLabel })
+          expect(applicationStateTabList).toBeTruthy()
+
+          await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationLocalStateLabel }))
+          const localStateTab = await component.findByRole('tabpanel', { name: applicationLocalStateLabel })
+
+          const addressInput = await findByRole(localStateTab, 'textbox', { name: 'local-state-address' })
+          await user.type(addressInput, '24YD4UNKUGVNGZ6QGXWIUPQ5L456FBH7LB5L6KFGQJ65YLQHXX4CQNPCZA')
+
+          await findByText(localStateTab, 'No results.')
+        }
+      )
+    })
+
+    it('should display failure message when local state fails to load', () => {
+      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() => Promise.reject(new Error('boom')))
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const applicationStateTabList = await component.findByRole('tablist', { name: applicationStateLabel })
+          expect(applicationStateTabList).toBeTruthy()
+
+          await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationLocalStateLabel }))
+          const localStateTab = await component.findByRole('tabpanel', { name: applicationLocalStateLabel })
+
+          const addressInput = await findByRole(localStateTab, 'textbox', { name: 'local-state-address' })
+          await user.type(addressInput, 'OMXLQTI5ZSMWTCIZA3O3YBW74BTCOI67SZTOEDHK3ZEDZ34Z3DEOQD4PW4')
+
+          await findByText(localStateTab, failedToLoadLocalStateMessage)
+        }
+      )
+    })
+
+    it('should display invalid address message when viewing local state for an invalid address', () => {
+      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() => Promise.reject(new Error('boom')))
+
+      return executeComponentTest(
+        () => {
+          return render(<ApplicationPage />, undefined, myStore)
+        },
+        async (component, user) => {
+          const applicationStateTabList = await component.findByRole('tablist', { name: applicationStateLabel })
+          expect(applicationStateTabList).toBeTruthy()
+
+          await user.click(getByRole(applicationStateTabList, 'tab', { name: applicationLocalStateLabel }))
+          const localStateTab = await component.findByRole('tabpanel', { name: applicationLocalStateLabel })
+
+          const addressInput = await findByRole(localStateTab, 'textbox', { name: 'local-state-address' })
+          await user.type(addressInput, 'HELLO')
+
+          await findByText(localStateTab, invalidAddressForLocalStateMessage)
         }
       )
     })

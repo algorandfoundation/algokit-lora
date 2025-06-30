@@ -16,7 +16,7 @@ import { useTablePagination } from '@/features/settings/data/table-pagination'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[] | React.ReactNode // Allow for a single ReactNode to be passed, so that errors and loading states can be displayed inline.
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
   ariaLabel?: string
@@ -40,8 +40,10 @@ export function DataTable<TData, TValue>({
     setPagination((prev) => (typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue))
   }
 
+  const isResultData = Array.isArray(data)
+
   const table = useReactTable({
-    data,
+    data: isResultData ? data : [],
     paginateExpandedRows: false,
     state: {
       expanded: expanded,
@@ -80,7 +82,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isResultData && table.getRowModel().rows?.length > 0 ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -97,7 +99,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {!isResultData ? data : 'No results.'}
                 </TableCell>
               </TableRow>
             )}
