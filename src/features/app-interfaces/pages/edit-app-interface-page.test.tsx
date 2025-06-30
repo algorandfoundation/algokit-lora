@@ -10,6 +10,7 @@ import { EditAppInterfacePage } from './edit-app-interface-page'
 import { fireEvent, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
 import { getButton } from '@/tests/utils/get-button'
+import { NO_RESULTS_TABLE_MESSAGE } from '@/features/common/constants'
 
 describe('edit-app-interface', () => {
   it('can edit an existing app spec', async () => {
@@ -138,7 +139,7 @@ describe('edit-app-interface', () => {
         const confirmButton = await getButton(component, 'Confirm')
         await user.click(confirmButton)
 
-        expect(await component.findByText('No results.')).toBeInTheDocument()
+        expect(await component.findByText(NO_RESULTS_TABLE_MESSAGE)).toBeInTheDocument()
       }
     )
   })

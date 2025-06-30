@@ -27,6 +27,7 @@ import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { NO_RESULTS_TABLE_MESSAGE } from '@/features/common/constants'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -108,7 +109,7 @@ describe('block-page', () => {
               })
             )
             const transactionsRow = getAllByRole(component.container, 'row')[1]
-            expect(transactionsRow.textContent).toBe('No results.')
+            expect(transactionsRow.textContent).toBe(NO_RESULTS_TABLE_MESSAGE)
           }
         )
       })
@@ -140,7 +141,7 @@ describe('block-page', () => {
               })
             )
             const transactionsRow = getAllByRole(component.container, 'row')[1]
-            expect(transactionsRow.textContent).toBe('No results.')
+            expect(transactionsRow.textContent).toBe(NO_RESULTS_TABLE_MESSAGE)
           }
         )
       })

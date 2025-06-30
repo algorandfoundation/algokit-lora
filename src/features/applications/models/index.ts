@@ -16,7 +16,7 @@ export type Application = {
   localStateSchema?: ApplicationStateSchema
   approvalProgram: string
   clearStateProgram: string
-  globalState?: GlobalState[]
+  globalState?: ApplicationState[]
   json: string
   isDeleted: boolean
   appSpec?: Arc56Contract
@@ -27,25 +27,28 @@ export type ApplicationStateSchema = {
   numUint: number
 }
 
-export type GlobalState = RawGlobalState | DecodedGlobalState
-export type RawGlobalState =
+export type LocalStateSearchResult = ApplicationState[] | string
+
+export type ApplicationState = RawApplicationState | DecodedApplicationState
+
+export type RawApplicationState =
   | {
       key: string
-      type: RawGlobalStateType.Bytes
+      type: RawApplicationStateType.Bytes
       value: string
     }
   | {
       key: string
-      type: RawGlobalStateType.Uint
+      type: RawApplicationStateType.Uint
       value: number | bigint
     }
 
-export type DecodedGlobalState = {
+export type DecodedApplicationState = {
   key: DecodedAbiStorageKey
   value: DecodedAbiStorageValue
 }
 
-export enum RawGlobalStateType {
+export enum RawApplicationStateType {
   Bytes = 'Bytes',
   Uint = 'Uint',
 }

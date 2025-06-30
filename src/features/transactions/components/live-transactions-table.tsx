@@ -9,6 +9,7 @@ import { cn } from '@/features/common/utils'
 import { Switch } from '@/features/common/components/switch'
 import { Label } from '@/features/common/components/label'
 import { pageSizeOptions, useTablePageSize } from '@/features/settings/data/table-pagination'
+import { MESSAGE_TABLE_ROW_DATA_LABEL, NO_RESULTS_TABLE_MESSAGE } from '@/features/common/constants'
 
 interface Props {
   columns: ColumnDef<Transaction>[]
@@ -80,9 +81,9 @@ export function LiveTransactionsTable({ filter, columns, getSubRows }: Props) {
                 </TableRow>
               ))
             ) : (
-              <TableRow>
+              <TableRow aria-label={MESSAGE_TABLE_ROW_DATA_LABEL}>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {NO_RESULTS_TABLE_MESSAGE}
                 </TableCell>
               </TableRow>
             )}

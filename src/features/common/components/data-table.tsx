@@ -13,10 +13,11 @@ import { useEffect, useState } from 'react'
 import { cn } from '@/features/common/utils'
 import { TableDataContext } from '../../settings/data/table-pagination'
 import { useTablePagination } from '@/features/settings/data/table-pagination'
+import { MESSAGE_TABLE_ROW_DATA_LABEL, NO_RESULTS_TABLE_MESSAGE } from '../constants'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[] | React.ReactNode // Allow for a single ReactNode to be passed, so that errors and loading states can be displayed inline.
   getSubRows?: (row: TData) => TData[]
   subRowsExpanded?: boolean
   ariaLabel?: string
@@ -40,8 +41,10 @@ export function DataTable<TData, TValue>({
     setPagination((prev) => (typeof updaterOrValue === 'function' ? updaterOrValue(prev) : updaterOrValue))
   }
 
+  const isResultData = Array.isArray(data)
+
   const table = useReactTable({
-    data,
+    data: isResultData ? data : [],
     paginateExpandedRows: false,
     state: {
       expanded: expanded,
@@ -80,7 +83,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isResultData && table.getRowModel().rows?.length > 0 ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -95,9 +98,9 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
+              <TableRow aria-label={MESSAGE_TABLE_ROW_DATA_LABEL}>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {!isResultData ? data : NO_RESULTS_TABLE_MESSAGE}
                 </TableCell>
               </TableRow>
             )}

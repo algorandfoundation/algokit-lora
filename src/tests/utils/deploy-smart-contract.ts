@@ -4,11 +4,17 @@ import { AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/types/
 import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { Account, Address } from 'algosdk'
+import { JotaiStore } from '@/features/common/data/types'
+import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
+import { upsertAppInterface } from '@/features/app-interfaces/data'
+import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
+import { createTimestamp } from '@/features/common/data'
 
 export const deploySmartContract = async (
   creator: Address & TransactionSignerAccount & Account,
   algorandClient: AlgorandClient,
-  appSpec: string | Arc56Contract | AppSpec,
+  store: JotaiStore,
+  appSpec: Arc56Contract | AppSpec,
   params?: AppFactoryDeployParams
 ) => {
   const appFactory = algorandClient.client.getAppFactory({
@@ -16,10 +22,30 @@ export const deploySmartContract = async (
     defaultSender: creator.addr,
   })
 
-  const deployResult = await appFactory.deploy(params ?? {})
+  // Deploy the app
+  const deployment = await appFactory.deploy(params ?? {})
+
+  // Add the app spec as an app interface
+  const dbConnection = await store.get(dbConnectionAtom)
+  await upsertAppInterface(dbConnection, {
+    applicationId: deployment.result.appId,
+    name: 'test',
+    appSpecVersions: [
+      'contract' in appSpec
+        ? {
+            standard: AppSpecStandard.ARC32,
+            appSpec: appSpec as Arc32AppSpec,
+          }
+        : {
+            standard: AppSpecStandard.ARC56,
+            appSpec: appSpec as Arc56Contract,
+          },
+    ],
+    lastModified: createTimestamp(),
+  } satisfies AppInterfaceEntity)
 
   return {
-    app: deployResult.result,
-    client: deployResult.appClient,
+    app: deployment.result,
+    client: deployment.appClient,
   }
 }
