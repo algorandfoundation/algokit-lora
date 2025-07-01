@@ -22,6 +22,8 @@ export const transactionRoundLabel = 'Round'
 export const transactionTimestampLabel = 'Timestamp'
 export const transactionFeeLabel = 'Fee'
 
+const isAccountCloseTransaction = (txn: Transaction | InnerTransaction) => txn.type === TransactionType.Payment && txn.closeRemainder
+
 const expandColumn: ColumnDef<Transaction | InnerTransaction> = {
   id: 'expand',
   header: () => undefined,
@@ -54,6 +56,7 @@ const idColumn: ColumnDef<Transaction | InnerTransaction> = {
       </div>
     )
   },
+  meta: { className: 'align-top' },
 }
 const groupColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Group ID',
@@ -62,6 +65,7 @@ const groupColumn: ColumnDef<Transaction | InnerTransaction> = {
     const transaction = c.getValue<Transaction>()
     return transaction.group ? <GroupLink round={transaction.confirmedRound} groupId={transaction.group} short={true} /> : undefined
   },
+  meta: { className: 'align-top' },
 }
 const blockColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionRoundLabel,
@@ -70,11 +74,13 @@ const blockColumn: ColumnDef<Transaction | InnerTransaction> = {
     const transaction = c.getValue<Transaction>()
     return <BlockLink round={transaction.confirmedRound} />
   },
+  meta: { className: 'align-top' },
 }
 const timestampColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionTimestampLabel,
   accessorFn: (transaction) => transaction.roundTime,
   cell: (c) => <DateFormatted date={new Date(c.getValue<number>())} short={true} />,
+  meta: { className: 'align-top' },
 }
 const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionFromLabel,
@@ -89,18 +95,34 @@ const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
         : transaction.sender
     return <AccountLink address={from} short={true} />
   },
-  meta: { className: 'max-w-36' },
+  meta: { className: 'max-w-36 align-top' },
 }
 const toColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionToLabel,
   accessorFn: (transaction) => transaction,
-  cell: (c) => <TransactionTo transaction={c.getValue<Transaction>()} />,
-  meta: { className: 'max-w-36' },
+  cell: (c) => {
+    const transaction = c.getValue<Transaction>()
+    if (transaction.type === TransactionType.Payment && transaction.closeRemainder) {
+      return (
+        <div className="grid gap-2">
+          <AccountLink address={transaction.receiver} short={true} />
+          <AccountLink address={transaction.closeRemainder.to} short={true} />
+        </div>
+      )
+    }
+    return (
+      <div className={cn(isAccountCloseTransaction(transaction) ? 'grid' : '')}>
+        <TransactionTo transaction={c.getValue<Transaction>()} />
+      </div>
+    )
+  },
+  meta: { className: 'max-w-36 align-top' },
 }
 const typeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Type',
   accessorFn: (transaction) => transaction.type,
   cell: (c) => <TransactionTypeBadge transactionType={c.getValue<TransactionType>()} />,
+  meta: { className: 'align-top' },
 }
 const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionAmountLabel,
@@ -108,11 +130,28 @@ const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
   cell: (c) => {
     const transaction = c.getValue<Transaction>()
     if (transaction.type === TransactionType.Payment) {
-      return <DisplayAlgo className={cn('justify-center')} amount={transaction.amount} />
+      if (transaction.closeRemainder) {
+        return (
+          <div className="grid gap-2">
+            <DisplayAlgo amount={transaction.amount} />
+            <DisplayAlgo amount={transaction.closeRemainder.amount} />
+          </div>
+        )
+      }
+      return (
+        <div className={cn(isAccountCloseTransaction(transaction) ? 'grid' : '')}>
+          <DisplayAlgo amount={transaction.amount} />
+        </div>
+      )
     } else if (transaction.type === TransactionType.AssetTransfer) {
-      return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
+      return (
+        <div className={cn(isAccountCloseTransaction(transaction) ? 'grid' : '')}>
+          <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
+        </div>
+      )
     }
   },
+  meta: { className: 'align-top' },
 }
 const feeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionFeeLabel,
@@ -121,6 +160,7 @@ const feeColumn: ColumnDef<Transaction | InnerTransaction> = {
     const transaction = c.getValue<Transaction>()
     return <DisplayAlgo amount={transaction.fee} />
   },
+  meta: { className: 'align-top' },
 }
 
 export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [
