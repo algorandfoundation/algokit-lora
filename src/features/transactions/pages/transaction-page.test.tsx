@@ -220,7 +220,7 @@ describe('transaction-page', () => {
             container: tableViewTab,
             rows: [
               {
-                cells: ['', 'FBORGSD…', '', 'M3IA…OXXM', 'KIZL…U5BQ', 'Payment', '236.07'],
+                cells: ['', 'FBORGSD…', '', 'M3IA…OXXM', 'KIZL…U5BQAIZL…U5BQ', 'Payment', '236.07345.071234'],
               },
             ],
           })
