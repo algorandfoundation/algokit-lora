@@ -23,6 +23,7 @@
     "audit": "better-npm-audit audit -l moderate",
     "check-types": "tsc --noEmit && npx --yes madge src/App.tsx --circular",
     "tauri": "tauri",
+    "tauri:build": "npm run build && tauri build",
     "sync-version": "npm run scripts/sync-version.cjs",
     "pre-commit": "run-s check-types lint:fix audit test",
     "postinstall": "patch-package"

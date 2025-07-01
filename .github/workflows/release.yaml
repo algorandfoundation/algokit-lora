@@ -1,19 +1,25 @@
-# Manual Release Workflow
+# Manual Release Workflow (Orchestrator)
 #
-# This workflow is manually triggered to create GitHub releases and build desktop applications.
-# It can create both production releases (from 'release' branch) and beta releases
-# (from 'main' branch) along with cross-platform desktop app builds.
+# This workflow orchestrates both web and desktop releases when triggered.
+# It runs semantic-release once and then calls both release workflows.
 #
 # Role in release workflow:
-# - Manually triggered via GitHub Actions UI
-# - Creates GitHub releases with semantic versioning
-# - Builds cross-platform desktop applications (Windows, macOS, Linux)
-# - Publishes desktop apps via CrabNebula for distribution
-# - Separate from web deployment workflows
+# - Triggered by push to release branch or manual dispatch
+# - Creates GitHub releases with semantic versioning once
+# - Calls release-web.yaml for web deployment
+# - Calls release-desktop.yaml for desktop app builds
+# - Coordinates both releases to use same version
 
 name: Release
 
 on:
+  push:
+    branches:
+      - release
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+      - '.vscode/**'
   workflow_dispatch:
     inputs:
       production-release:
@@ -21,21 +27,84 @@ on:
         required: true
         default: 'true'
 
-concurrency: create-release
-
-permissions:
-  contents: write # to be able to publish a GitHub release
-  issues: write # to be able to comment on released issues
-  pull-requests: write # to be able to comment on released pull requests
-  packages: read
+concurrency: orchestrate-release
 
 env:
-  PRODUCTION_RELEASE: ${{ github.ref_name == 'release' && inputs.production-release == 'true' }}
+  PRODUCTION_RELEASE: ${{ github.ref_name == 'release' && (inputs.production-release == 'true' || inputs.production-release == '') }}
 
 jobs:
-  create-release:
+  ci:
+    name: CI
+    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
+    with:
+      working-directory: .
+      node-version: 20.x
+      audit-script: npm run audit
+      compile-script: npm run check-types
+      test-script: npm run test
+      pre-test-script: |
+        pipx install algokit
+        algokit localnet start
+        npx --yes wait-on tcp:4001 -t 30000
+
+  build-app:
+    name: Build Application
+    needs: ci
     runs-on: [ubuntu-22.04]
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Synchronize version to Cargo.toml and tauri.conf.json
+        run: npm run sync-version
+
+      - name: Create .env file with production values
+        run: |
+          cat > .env << EOF
+          VITE_DISPENSER_AUTH0_DOMAIN=dispenser-prod.eu.auth0.com
+          VITE_DISPENSER_AUTH0_CLIENT_ID=Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
+          VITE_DISPENSER_AUTH0_AUDIENCE=api-prod-dispenser-user
+          VITE_TESTNET_DISPENSER_API_URL=https://api.dispenser.algorandfoundation.tools
+          VITE_TESTNET_DISPENSER_ADDRESS=Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
+          EOF
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload app build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: dist/
+          retention-days: 1
+
+  create-release:
     name: Create release
+    needs: [ci, build-app]
+    runs-on: [ubuntu-22.04]
+    outputs:
+      release-published: ${{ steps.create-github-release.outputs.release-published }}
+      release-version: ${{ steps.create-github-release.outputs.release-version }}
+      release-tag: ${{ steps.create-github-release.outputs.release-tag }}
+      release-id: ${{ steps.create-github-release.outputs.release-id }}
+      crabnebula-release-id: ${{ steps.get-crabnebula-release-id.outputs.release-id }}
     steps:
       - name: Generate bot token
         uses: actions/create-github-app-token@v1
@@ -49,6 +118,12 @@ jobs:
           # Use bot token for authenticated operations
           token: ${{ steps.app_token.outputs.token }}
           fetch-depth: 0
+
+      - name: Download app build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: dist/
 
       - name: Create GitHub release
         uses: ./.github/actions/create-release
@@ -72,139 +147,23 @@ jobs:
         if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
         run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
 
-    outputs:
-      release-published: ${{ steps.create-github-release.outputs.release-published }}
-      release-version: ${{ steps.create-github-release.outputs.release-version }}
-      release-tag: ${{ steps.create-github-release.outputs.release-tag }}
-      release-id: ${{ steps.create-github-release.outputs.release-id }}
-      crabnebula-release-id: ${{ steps.get-crabnebula-release-id.outputs.release-id }}
+  release-web:
+    name: Release Web
+    needs: [ci, build-app, create-release]
+    if: needs.create-release.outputs.release-published == 'true'
+    uses: ./.github/workflows/release-web.yaml
+    with:
+      version: ${{ needs.create-release.outputs.release-version }}
+    secrets: inherit
 
-  build-tauri:
-    name: Build Tauri app
-    needs:
-      - create-release
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      matrix:
-        # macos-14 is the Apple Arm runner
-        # macos-13 is the Apple Intel runner
-        platform: [ubuntu-22.04, windows-latest, macos-13, macos-14]
-    if: ${{ needs.create-release.outputs.release-published == 'true' }}
-
-    steps:
-      - name: Generate bot token
-        uses: actions/create-github-app-token@v1
-        id: app_token
-        with:
-          app-id: ${{ secrets.BOT_ID }}
-          private-key: ${{ secrets.BOT_SK }}
-
-      - uses: actions/checkout@v4
-        with:
-          # Use bot token for authenticated operations
-          token: ${{ steps.app_token.outputs.token }}
-          fetch-depth: 0
-
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install npm dependencies
-        run: npm install
-
-      - name: Synchronize version to Cargo.toml
-        run: npm run sync-version
-
-      - name: Create .env file
-        run: |
-          sed -E -n 's/(VITE_[A-Z0-9_]+)=(.*)/\1="{{\1}}"/p' .env.sample > .env
-
-      - name: Substitute environment variables
-        uses: bluwy/substitute-string-action@v3
-        with:
-          _input-file: '.env'
-          _format-key: '{{key}}'
-          _output-file: '.env'
-          VITE_DISPENSER_AUTH0_DOMAIN: dispenser-prod.eu.auth0.com
-          VITE_DISPENSER_AUTH0_CLIENT_ID: Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
-          VITE_DISPENSER_AUTH0_AUDIENCE: api-prod-dispenser-user
-          VITE_TESTNET_DISPENSER_API_URL: https://api.dispenser.algorandfoundation.tools
-          VITE_TESTNET_DISPENSER_ADDRESS: Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
-
-      - name: Build for Linux
-        id: build-linux
-        if: ${{ runner.os == 'Linux' }}
-        uses: ./.github/actions/build-linux
-        with:
-          release-version: ${{ needs.create-release.outputs.release-version }}
-          release-tag: ${{ needs.create-release.outputs.release-tag }}
-          production-release: ${{ env.PRODUCTION_RELEASE  }}
-          crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
-          appimage-signing-private-key: ${{ secrets.APPIMAGE_SIGNING_PRIVATE_KEY }}
-          appimage-signing-private-key-password: ${{ secrets.APPIMAGE_SIGNING_PRIVATE_KEY_PASSWORD }}
-          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
-          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
-          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
-          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
-
-      - name: Build for Windows
-        id: build-windows
-        if: ${{ runner.os == 'Windows' }}
-        uses: ./.github/actions/build-windows
-        with:
-          release-version: ${{ needs.create-release.outputs.release-version }}
-          release-tag: ${{ needs.create-release.outputs.release-tag }}
-          production-release: ${{ env.PRODUCTION_RELEASE  }}
-          crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
-          package_name: algokit-lora
-          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
-          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
-          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
-          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
-
-      - name: Build for Mac
-        id: build-mac
-        if: ${{ runner.os == 'macOS' }}
-        uses: ./.github/actions/build-mac
-        with:
-          release-version: ${{ needs.create-release.outputs.release-version }}
-          release-tag: ${{ needs.create-release.outputs.release-tag }}
-          production-release: ${{ env.PRODUCTION_RELEASE  }}
-          crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
-          apple-certificate: ${{ secrets.APPLE_CERTIFICATE }}
-          apple-certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
-          apple-id: ${{ secrets.APPLE_ID }}
-          apple-password: ${{ secrets.APPLE_PASSWORD }}
-          apple-team-id: ${{ secrets.APPLE_TEAM_ID }}
-          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
-          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
-          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
-          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
-          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
-
-  publish-crabnebula:
-    name: Publish CrabNebula release
-    needs:
-      - create-release
-      - build-tauri
-    runs-on: [ubuntu-22.04]
-    if: ${{ needs.create-release.outputs.release-published == 'true' }}
-    steps:
-      - name: Publish CrabNebula release
-        uses: crabnebula-dev/cloud-release@v0.2.0
-        with:
-          command: release publish "${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }}" "${{ needs.create-release.outputs.crabnebula-release-id }}" ${{ env.PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
-          api-key: ${{ secrets.CN_API_KEY }}
+  release-desktop:
+    name: Release Desktop
+    needs: [ci, build-app, create-release]
+    if: needs.create-release.outputs.release-published == 'true'
+    uses: ./.github/workflows/release-desktop.yaml
+    with:
+      version: ${{ needs.create-release.outputs.release-version }}
+      production-release: ${{ inputs.production-release || 'true' }}
+      release-tag: ${{ needs.create-release.outputs.release-tag }}
+      crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
+    secrets: inherit
