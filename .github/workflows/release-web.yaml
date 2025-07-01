@@ -1,97 +1,29 @@
-# Production Deployment Workflow
+# Web Release Workflow
 #
-# This workflow automatically triggers when code is pushed to the 'release' branch.
-# It creates stable production releases, builds the web application, and deploys
-# to the production environment at https://lora.algokit.io.
+# This workflow is called by the main release orchestrator to deploy web application.
+# It downloads pre-built web artifacts and deploys to the production environment.
 #
 # Role in release workflow:
-# - Triggered by pushes to 'release' branch (via promotion workflow)
-# - Creates semantic release with stable version (e.g., v1.2.0)
-# - Builds and deploys web app to production
-# - Updates GitHub release with production artifacts
+# - Called by main release.yaml orchestrator
+# - Receives version from semantic-release
+# - Downloads pre-built web artifacts
+# - Deploys web app to production
 
 name: Release Web
 
 on:
-  push:
-    branches:
-      - release
-    paths-ignore:
-      - 'docs/**'
-      - '**.md'
-      - '.vscode/**'
-      - '.idea/**'
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        type: string
 
 concurrency: deploy-to-production
 
 jobs:
-  ci:
-    name: CI
-    uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
-    with:
-      working-directory: .
-      node-version: 20.x
-      audit-script: npm run audit
-      compile-script: npm run check-types
-      test-script: npm run test
-      pre-test-script: |
-        pipx install algokit
-        algokit localnet start
-        npx --yes wait-on tcp:4001 -t 30000
-
-  create-production-release:
-    name: Create Production Release
-    needs: ci
-    runs-on: ubuntu-22.04
-    outputs:
-      version: ${{ steps.semantic-release.outputs.new-release-version }}
-      released: ${{ steps.semantic-release.outputs.new-release-published }}
-    steps:
-      - name: Generate bot token
-        uses: actions/create-github-app-token@v1
-        id: app_token
-        with:
-          app-id: ${{ secrets.BOT_ID }}
-          private-key: ${{ secrets.BOT_SK }}
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ steps.app_token.outputs.token }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Set Git user as GitHub actions
-        run: git config --global user.email "179917785+engineering-ci[bot]@users.noreply.github.com" && git config --global user.name "engineering-ci[bot]"
-
-      - name: Create production release
-        id: semantic-release
-        run: npx semantic-release --branches release
-        env:
-          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
-
-  build-website:
-    name: Build Website
-    needs: [create-production-release]
-    if: needs.create-production-release.outputs.released == 'true'
-    uses: makerxstudio/shared-config/.github/workflows/node-build-zip.yml@main
-    with:
-      node-version: 20.x
-      build-path: dist
-      artifact-name: website
-      static-site: true
-      static-site-env-prefix: VITE
-
   deploy-to-production:
-    name: Publish Website to Production
-    needs: [create-production-release, build-website]
-    if: needs.create-production-release.outputs.released == 'true'
+    name: Deploy Website to Production
     runs-on: [ubuntu-22.04]
     environment: Production
     steps:
@@ -99,28 +31,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download artifacts
+      - name: Download app build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: website
-          path: artifacts
-
-      - name: Unzip
-        run: |
-          cd artifacts
-          mkdir -p website
-          unzip website.zip -d website
-
-      - name: Apply Production Transforms
-        uses: makerxstudio/shared-config/.github/actions/placeholder-transforms@main
-        with:
-          app-artifact-path: artifacts/website
-          static-site-transforms: |-
-            VITE_DISPENSER_AUTH0_DOMAIN:dispenser-prod.eu.auth0.com
-            VITE_DISPENSER_AUTH0_CLIENT_ID:Cg13HjvSV45pMme4dnK9yVJde8tVeDaM
-            VITE_DISPENSER_AUTH0_AUDIENCE:api-prod-dispenser-user
-            VITE_TESTNET_DISPENSER_API_URL:https://api.dispenser.algorandfoundation.tools
-            VITE_TESTNET_DISPENSER_ADDRESS:Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
+          name: app-build
+          path: artifacts/website
 
       - name: Deploy website to Netlify
         run: |
