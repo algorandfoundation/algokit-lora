@@ -7,21 +7,31 @@ vi.mock('@tauri-apps/api/app', () => ({
   getVersion: vi.fn(),
 }))
 
-// Mock config
-vi.mock('@/config', () => ({
-  default: {
+// Mock config module
+// Note: We define the mock config inside the factory function to avoid hoisting issues.
+// vi.mock() calls are hoisted to the top of the file, so any external variables
+// referenced in the factory must be accessible at that time.
+vi.mock('@/config', () => {
+  const mockConfig = {
     version: {
       app: '1.2.3',
       build: '2024-01-15T10:30:00Z',
       commit: 'abc123def456',
-      environment: 'development' as const,
+      environment: 'development' as 'development' | 'staging' | 'production',
     },
-  },
-}))
+  }
+  return {
+    default: mockConfig,
+  }
+})
 
-// Import the mocked function once
+// Import mocked modules to get references we can work with in tests
 const { getVersion } = await import('@tauri-apps/api/app')
 const mockGetVersion = vi.mocked(getVersion)
+
+// Import the mocked config module so we can modify its properties in individual tests.
+const mockConfigModule = await import('@/config')
+const mockConfig = mockConfigModule.default
 
 // Mock global Tauri object
 const mockTauriInternals = {
@@ -78,16 +88,6 @@ describe('useVersion', () => {
       const { result } = renderHook(() => useVersion())
 
       await waitFor(() => {
-        expect(result.current.version).toBe('2.0.0')
-      })
-
-      expect(mockGetVersion).toHaveBeenCalledOnce()
-    })
-
-    it('should still return web config for other version info', async () => {
-      const { result } = renderHook(() => useVersion())
-
-      await waitFor(() => {
         expect(result.current).toEqual({
           version: '2.0.0',
           buildDate: '2024-01-15T10:30:00Z',
@@ -96,6 +96,8 @@ describe('useVersion', () => {
           isTauri: true,
         })
       })
+
+      expect(mockGetVersion).toHaveBeenCalledOnce()
     })
 
     it('should fallback to web version if Tauri getVersion fails', async () => {
@@ -113,13 +115,17 @@ describe('useVersion', () => {
   })
 
   describe('environment variants', () => {
-    it.each([
-      ['development', 'development'],
-      ['staging', 'staging'],
-      ['production', 'production'],
-    ])('should handle %s environment correctly', (_env, _expected) => {
+    it.each(['development', 'staging', 'production'])('should handle %s environment correctly', (environment) => {
+      // Directly modify the mock object's environment property for this test case.
+      mockConfig.version.environment = environment as 'development' | 'staging' | 'production'
+
       const { result } = renderHook(() => useVersion())
-      expect(result.current.environment).toBe('development')
+      expect(result.current.environment).toBe(environment)
+    })
+
+    afterEach(() => {
+      // Reset environment back to default after each test to prevent test pollution.
+      mockConfig.version.environment = 'development'
     })
   })
 })

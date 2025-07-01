@@ -49,6 +49,6 @@ jobs:
         run: |
           git checkout release
           git pull origin release
-          git merge origin/main --no-ff -m "chore: promote main to production
+          git merge origin/main --no-ff -m "chore: promote main (i.e. staging) to production"
 
           This promotion merges tested changes from main branch to release for production release."
