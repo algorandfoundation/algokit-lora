@@ -1,4 +1,10 @@
-import { AssetTransferTransactionSubType, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
+import {
+  AssetTransferTransactionSubType,
+  InnerTransaction,
+  PaymentTransactionSubType,
+  Transaction,
+  TransactionType,
+} from '@/features/transactions/models'
 import { cn } from '@/features/common/utils'
 import { ColumnDef } from '@tanstack/react-table'
 import { DisplayAlgo } from '@/features/common/components/display-algo'
@@ -21,8 +27,6 @@ export const transactionAmountLabel = 'Amount'
 export const transactionRoundLabel = 'Round'
 export const transactionTimestampLabel = 'Timestamp'
 export const transactionFeeLabel = 'Fee'
-
-const isAccountCloseTransaction = (txn: Transaction | InnerTransaction) => txn.type === TransactionType.Payment && txn.closeRemainder
 
 const expandColumn: ColumnDef<Transaction | InnerTransaction> = {
   id: 'expand',
@@ -102,19 +106,15 @@ const toColumn: ColumnDef<Transaction | InnerTransaction> = {
   accessorFn: (transaction) => transaction,
   cell: (c) => {
     const transaction = c.getValue<Transaction>()
-    if (transaction.type === TransactionType.Payment && transaction.closeRemainder) {
+    if (transaction.type === TransactionType.Payment && transaction.subType === PaymentTransactionSubType.AccountClose) {
       return (
-        <div className="grid gap-2">
+        <div className="grid gap-1">
           <AccountLink address={transaction.receiver} short={true} />
           <AccountLink address={transaction.closeRemainder.to} short={true} />
         </div>
       )
     }
-    return (
-      <div className={cn(isAccountCloseTransaction(transaction) ? 'grid' : '')}>
-        <TransactionTo transaction={c.getValue<Transaction>()} />
-      </div>
-    )
+    return <TransactionTo transaction={c.getValue<Transaction>()} />
   },
   meta: { className: 'max-w-36 align-top' },
 }
@@ -130,25 +130,17 @@ const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
   cell: (c) => {
     const transaction = c.getValue<Transaction>()
     if (transaction.type === TransactionType.Payment) {
-      if (transaction.closeRemainder) {
+      if (transaction.subType === PaymentTransactionSubType.AccountClose) {
         return (
-          <div className="grid gap-2">
+          <div className="grid gap-1">
             <DisplayAlgo amount={transaction.amount} />
             <DisplayAlgo amount={transaction.closeRemainder.amount} />
           </div>
         )
       }
-      return (
-        <div className={cn(isAccountCloseTransaction(transaction) ? 'grid' : '')}>
-          <DisplayAlgo amount={transaction.amount} />
-        </div>
-      )
+      return <DisplayAlgo amount={transaction.amount} />
     } else if (transaction.type === TransactionType.AssetTransfer) {
-      return (
-        <div className={cn(isAccountCloseTransaction(transaction) ? 'grid' : '')}>
-          <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
-        </div>
-      )
+      return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
     }
   },
   meta: { className: 'align-top' },

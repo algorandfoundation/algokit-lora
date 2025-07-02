@@ -39,6 +39,10 @@ export enum AssetTransferTransactionSubType {
   OptOut = 'Opt-out',
 }
 
+export enum PaymentTransactionSubType {
+  AccountClose = 'Account-Close',
+}
+
 export type CloseAlgoRemainder = {
   to: Address
   amount: AlgoAmount
@@ -51,11 +55,18 @@ export type CloseAssetRemainder = {
 
 export type BasePaymentTransaction = CommonTransactionProperties & {
   type: TransactionType.Payment
-  subType: undefined
   receiver: Address
   amount: AlgoAmount
-  closeRemainder?: CloseAlgoRemainder
-}
+} & (
+    | {
+        subType: undefined
+        closeRemainder: undefined
+      }
+    | {
+        subType: PaymentTransactionSubType.AccountClose
+        closeRemainder: CloseAlgoRemainder
+      }
+  )
 
 export type PaymentTransaction = BasePaymentTransaction & {
   id: string
