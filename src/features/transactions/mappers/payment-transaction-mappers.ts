@@ -1,4 +1,4 @@
-import { BasePaymentTransaction, InnerPaymentTransaction, PaymentTransaction, TransactionType } from '../models'
+import { BasePaymentTransaction, InnerPaymentTransaction, PaymentTransaction, PaymentTransactionSubType, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
 import { microAlgos } from '@algorandfoundation/algokit-utils'
@@ -11,15 +11,20 @@ const mapCommonPaymentTransactionProperties = (transactionResult: TransactionRes
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.Payment,
-    subType: undefined,
     receiver: payment.receiver,
     amount: microAlgos(payment.amount),
-    closeRemainder: payment.closeRemainderTo
+    ...(payment.closeRemainderTo
       ? {
-          to: payment.closeRemainderTo,
-          amount: microAlgos(payment.closeAmount ?? 0n),
+          subType: PaymentTransactionSubType.AccountClose,
+          closeRemainder: {
+            to: payment.closeRemainderTo,
+            amount: microAlgos(payment.closeAmount ?? 0n),
+          },
         }
-      : undefined,
+      : {
+          subType: undefined,
+          closeRemainder: undefined,
+        }),
   } satisfies BasePaymentTransaction
 }
 
