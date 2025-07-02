@@ -106,7 +106,7 @@ const toColumn: ColumnDef<Transaction | InnerTransaction> = {
   accessorFn: (transaction) => transaction,
   cell: (c) => {
     const transaction = c.getValue<Transaction>()
-    if (transaction.type === TransactionType.Payment && transaction.subType === PaymentTransactionSubType.AccountClose) {
+    if (transaction.subType === PaymentTransactionSubType.AccountClose) {
       return (
         <div className="grid gap-1">
           <AccountLink address={transaction.receiver} short={true} />
