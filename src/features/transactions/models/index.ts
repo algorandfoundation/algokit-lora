@@ -40,7 +40,7 @@ export enum AssetTransferTransactionSubType {
 }
 
 export enum PaymentTransactionSubType {
-  AccountClose = 'Account-Close',
+  AccountClose = 'Account Close',
 }
 
 export type CloseAlgoRemainder = {

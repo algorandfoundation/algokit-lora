@@ -189,7 +189,7 @@ describe('transaction-page', () => {
               container: component.container,
               items: [
                 { term: transactionIdLabel, description: transaction.id },
-                { term: transactionTypeLabel, description: 'PaymentAccount-Close' },
+                { term: transactionTypeLabel, description: 'PaymentAccount Close' },
                 { term: transactionTimestampLabel, description: 'Thu, 29 February 2024 06:52:01' },
                 { term: transactionBlockLabel, description: '36570178' },
                 { term: transactionFeeLabel, description: '0.001' },
