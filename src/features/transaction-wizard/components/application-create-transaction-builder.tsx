@@ -3,8 +3,8 @@ import { numberSchema } from '@/features/forms/data/common'
 import {
   senderFieldSchema,
   commonSchema,
-  onCompleteFieldSchema,
   onCompleteOptionsForAppCreate,
+  onCompleteForAppCreateFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -25,7 +25,7 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 const formData = zfd.formData({
   ...commonSchema,
   ...senderFieldSchema,
-  ...onCompleteFieldSchema,
+  ...onCompleteForAppCreateFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
