@@ -125,6 +125,17 @@ export const onCompleteOptions = [
   },
 ]
 
+export const onCompleteOptionsForAppCreate = [
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.NoOpOC), value: algosdk.OnApplicationComplete.NoOpOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.CloseOutOC), value: algosdk.OnApplicationComplete.CloseOutOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC), value: algosdk.OnApplicationComplete.UpdateApplicationOC.toString() },
+  {
+    label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
+    value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
+  },
+]
+
 export const commonSchema = {
   ...feeFieldSchema,
   ...validRoundsFieldSchema,
