@@ -150,7 +150,7 @@ jobs:
     name: Publish CrabNebula release
     needs:
       - build-tauri
-    runs-on: [ubuntu-22.04]
+    runs-on: ubuntu-latest
     steps:
       - name: Publish CrabNebula release
         uses: crabnebula-dev/cloud-release@v0.2.0

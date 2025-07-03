@@ -25,18 +25,9 @@ on:
 
 concurrency: orchestrate-release
 
-# TODO: NC - Run on ubuntu-latest where applicable
-# TODO: NC - Check if the next version stuff works.defaults:
-# TODO: NC - Conditionally run the tauri releases etc
+# TODO: NC - version replacement
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    outputs:
-      production_release: ${{ github.ref_name == 'release' }}
-    steps:
-      - run: echo 'Setting outputs'
-
   ci:
     name: CI
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
@@ -54,7 +45,7 @@ jobs:
   build-app:
     name: Build Application
     needs: ci
-    runs-on: [ubuntu-22.04]
+    runs-on: ubuntu-latest
     steps:
       - name: Generate bot token
         uses: actions/create-github-app-token@v1
@@ -84,12 +75,12 @@ jobs:
       # Let scripts run without the token
       - run: npm rebuild
 
-      # TODO: NC - Confirm how this works
+      # TODO: NC - Confirm how this works. It doesn't sync tauri.conf.json
       - name: Synchronize version to Cargo.toml and tauri.conf.json
         run: npm run sync-version
 
-      # TODO: NC - Conditionally generate the staging config
       - name: Create .env file with production values
+        if: github.ref_name == 'release'
         run: |
           cat > .env << EOF
           VITE_DISPENSER_AUTH0_DOMAIN=dispenser-prod.eu.auth0.com
@@ -98,6 +89,10 @@ jobs:
           VITE_TESTNET_DISPENSER_API_URL=https://api.dispenser.algorandfoundation.tools
           VITE_TESTNET_DISPENSER_ADDRESS=Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
           EOF
+
+      - name: Create .env file with dev values
+        if: github.ref_name != 'release'
+        run: cp .env.sample .env
 
       - name: Build application
         run: npm run build
@@ -111,8 +106,8 @@ jobs:
 
   create-release:
     name: Create release
-    needs: [setup, ci, build-app]
-    runs-on: [ubuntu-22.04]
+    needs: [ci, build-app]
+    runs-on: ubuntu-latest
     outputs:
       release-published: ${{ steps.create-github-release.outputs.release-published }}
       release-version: ${{ steps.create-github-release.outputs.release-version }}
@@ -150,14 +145,14 @@ jobs:
       - name: Create draft CrabNebula release
         uses: crabnebula-dev/cloud-release@v0.2.0
         id: create-crabnebula-release
-        if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
+        if: steps.create-github-release.outputs.release-published == 'true'
         with:
-          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ needs.setup.outputs.production_release != 'true' && '--channel beta' || '' }}
+          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ steps.create-github-release.outputs.release-published != 'true' && '--channel beta' || '' }}
           api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Get CrabNebula release ID
         id: get-crabnebula-release-id
-        if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
+        if: steps.create-github-release.outputs.release-published == 'true'
         run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
 
   release-web:
@@ -171,12 +166,12 @@ jobs:
 
   release-desktop:
     name: Release Desktop
-    needs: [setup, ci, build-app, create-release]
+    needs: [ci, build-app, create-release]
     if: needs.create-release.outputs.release-published == 'true'
     uses: ./.github/workflows/release-desktop.yaml
     with:
       version: ${{ needs.create-release.outputs.release-version }}
-      production-release: ${{ needs.setup.outputs.production_release == 'true' }}
+      production-release: ${{ needs.create-release.outputs.release-published == 'true' }}
       release-tag: ${{ needs.create-release.outputs.release-tag }}
       crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
     secrets: inherit
