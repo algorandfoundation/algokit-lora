@@ -26,7 +26,7 @@ concurrency: promote-to-production
 jobs:
   promote-main-to-release:
     name: Promote Main to Release
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: inputs.promote-from-main
     steps:
       - name: Generate bot token

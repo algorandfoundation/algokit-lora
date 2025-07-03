@@ -24,7 +24,7 @@ concurrency: deploy-to-production
 jobs:
   deploy-to-production:
     name: Deploy Website to Production
-    runs-on: [ubuntu-22.04]
+    runs-on: ubuntu-latest
     environment: Production
     steps:
       - uses: actions/checkout@v4

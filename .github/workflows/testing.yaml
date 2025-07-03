@@ -1,0 +1,75 @@
+name: Testing
+
+on:
+  push:
+    branches:
+      - neil-test
+  workflow_dispatch:
+
+concurrency: testing
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      production_release: ${{ steps.set_production_release.outputs.production_release }}
+    steps:
+      - id: set_production_release
+        run: echo 'production_release=${{ github.ref_name == 'release' }}' >> $GITHUB_OUTPUT
+
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    outputs:
+      release-published: ${{ steps.get-next-version.outputs.new-release-published }}
+      release-version: ${{ steps.get-next-version.outputs.new-release-version }}
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@algorandfoundation'
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.app_token.outputs.token }}
+
+      # Let scripts run without the token
+      - run: npm rebuild
+
+      - name: Build application
+        run: npm run build
+
+      - name: Get next version (dry run)
+        id: get-next-version
+        run: npx semantic-release --dry-run
+        env:
+          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
+        shell: bash
+
+  log-info:
+    name: Log info
+    needs: [setup, test]
+    runs-on: [ubuntu-22.04]
+    steps:
+      - name: Echo info
+        run: |
+          echo "Production release: ${{ needs.setup.outputs.production_release }}"
+          echo "Release published: ${{ needs.test.outputs.release-published }}"
+          echo "Release version: ${{ needs.test.outputs.release-version }}"
+        shell: bash

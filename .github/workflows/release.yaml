@@ -16,23 +16,28 @@ on:
   push:
     branches:
       - release
+      - main
     paths-ignore:
       - 'docs/**'
       - '**.md'
       - '.vscode/**'
   workflow_dispatch:
-    inputs:
-      production-release:
-        description: 'Production release?'
-        required: true
-        default: 'true'
 
 concurrency: orchestrate-release
 
-env:
-  PRODUCTION_RELEASE: ${{ github.ref_name == 'release' && (inputs.production-release == 'true' || inputs.production-release == '') }}
+# TODO: NC - Run on ubuntu-latest where applicable
+# TODO: NC - Check if the next version stuff works.defaults:
+# TODO: NC - Conditionally run the tauri releases etc
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      production_release: ${{ steps.set_production_release.outputs.production_release }}
+    steps:
+      - id: set_production_release
+        run: echo 'production_release=${{ github.ref_name == 'release' }}' >> $GITHUB_OUTPUT
+
   ci:
     name: CI
     uses: makerxstudio/shared-config/.github/workflows/node-ci.yml@main
@@ -68,13 +73,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@algorandfoundation'
+          cache: 'npm'
 
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.app_token.outputs.token }}
 
+      # Let scripts run without the token
+      - run: npm rebuild
+
+      # TODO: NC - Confirm how this works
       - name: Synchronize version to Cargo.toml and tauri.conf.json
         run: npm run sync-version
 
+      # TODO: NC - Conditionally generate the staging config
       - name: Create .env file with production values
         run: |
           cat > .env << EOF
@@ -97,7 +112,7 @@ jobs:
 
   create-release:
     name: Create release
-    needs: [ci, build-app]
+    needs: [setup, ci, build-app]
     runs-on: [ubuntu-22.04]
     outputs:
       release-published: ${{ steps.create-github-release.outputs.release-published }}
@@ -131,7 +146,6 @@ jobs:
         with:
           # Use bot token for semantic-release operations
           github-token: ${{ steps.app_token.outputs.token }}
-          production-release: ${{ env.PRODUCTION_RELEASE }}
           node-version: 20
 
       - name: Create draft CrabNebula release
@@ -139,7 +153,7 @@ jobs:
         id: create-crabnebula-release
         if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
         with:
-          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ env.PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
+          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ needs.setup.outputs.production_release != 'true' && '--channel beta' || '' }}
           api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Get CrabNebula release ID
@@ -158,12 +172,12 @@ jobs:
 
   release-desktop:
     name: Release Desktop
-    needs: [ci, build-app, create-release]
+    needs: [setup, ci, build-app, create-release]
     if: needs.create-release.outputs.release-published == 'true'
     uses: ./.github/workflows/release-desktop.yaml
     with:
       version: ${{ needs.create-release.outputs.release-version }}
-      production-release: ${{ inputs.production-release || 'true' }}
+      production-release: ${{needs.setup.outputs.production_release == 'true' }}
       release-tag: ${{ needs.create-release.outputs.release-tag }}
       crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
     secrets: inherit
