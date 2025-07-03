@@ -12,10 +12,9 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      production_release: ${{ steps.set_production_release.outputs.production_release }}
+      production_release: ${{ github.ref_name == 'neil-test' }}
     steps:
-      - id: set_production_release
-        run: echo 'production_release=${{ github.ref_name == 'release' }}' >> $GITHUB_OUTPUT
+      - run: echo 'Setting outputs'
 
   test:
     name: Testing
@@ -70,6 +69,8 @@ jobs:
       - name: Echo info
         run: |
           echo "Production release: ${{ needs.setup.outputs.production_release }}"
+          echo "Production release is true: ${{ needs.setup.outputs.production_release == 'true' }}"
+          echo "Production release is not true: ${{ needs.setup.outputs.production_release != 'true' }}"
           echo "Release published: ${{ needs.test.outputs.release-published }}"
           echo "Release version: ${{ needs.test.outputs.release-version }}"
         shell: bash

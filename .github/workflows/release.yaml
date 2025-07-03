@@ -33,10 +33,9 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      production_release: ${{ steps.set_production_release.outputs.production_release }}
+      production_release: ${{ github.ref_name == 'release' }}
     steps:
-      - id: set_production_release
-        run: echo 'production_release=${{ github.ref_name == 'release' }}' >> $GITHUB_OUTPUT
+      - run: echo 'Setting outputs'
 
   ci:
     name: CI
@@ -177,7 +176,7 @@ jobs:
     uses: ./.github/workflows/release-desktop.yaml
     with:
       version: ${{ needs.create-release.outputs.release-version }}
-      production-release: ${{needs.setup.outputs.production_release == 'true' }}
+      production-release: ${{ needs.setup.outputs.production_release == 'true' }}
       release-tag: ${{ needs.create-release.outputs.release-tag }}
       crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
     secrets: inherit
