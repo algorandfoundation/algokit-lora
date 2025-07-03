@@ -24,12 +24,12 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 
-const formSchema = z
+export const assetFreezeFormSchema = z
   .object({
     ...commonSchema,
     ...senderFieldSchema,
     freezeTarget: addressFieldSchema,
-    frozen: z.string(),
+    frozen: z.union([z.string(), z.boolean()]),
     asset: z
       .object({
         id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -63,7 +63,7 @@ const formSchema = z
     }
   })
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetFreezeFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>

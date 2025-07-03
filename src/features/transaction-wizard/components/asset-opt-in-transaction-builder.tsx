@@ -24,7 +24,7 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-const formSchema = {
+export const assetOptInFormSchema = z.object({
   ...commonSchema,
   ...senderFieldSchema,
   asset: z
@@ -32,7 +32,6 @@ const formSchema = {
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
       decimals: z.number().optional(),
       unitName: z.string().optional(),
-      clawback: z.string().optional(),
     })
     .superRefine((asset, ctx) => {
       if (asset.decimals === undefined) {
@@ -43,9 +42,9 @@ const formSchema = {
         })
       }
     }),
-}
+})
 
-const formData = zfd.formData(formSchema)
+const formData = zfd.formData(assetOptInFormSchema)
 
 type FormFieldsProps = {
   helper: FormFieldHelper<z.infer<typeof formData>>
@@ -106,7 +105,6 @@ function FormFieldsWithAssetInfo({ helper, formCtx, assetId }: FieldsWithAssetIn
       if ((initialAssetLoad && getValues('asset.decimals') === undefined) || !initialAssetLoad) {
         setValue('asset.decimals', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.decimals : undefined)
         setValue('asset.unitName', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.unitName : undefined)
-        setValue('asset.clawback', loadableAssetSummary.state === 'hasData' ? loadableAssetSummary.data.clawback : undefined)
         trigger('asset')
       }
       if (initialAssetLoad) {
