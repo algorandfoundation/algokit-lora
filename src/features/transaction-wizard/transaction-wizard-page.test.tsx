@@ -342,7 +342,7 @@ describe('transaction-wizard-page', () => {
         )
       })
 
-      it('succeeds when sending an opt-up transaction', async () => {
+      it('succeeds when sending an op-up transaction', async () => {
         const { testAccount } = localnet.context
 
         await executeComponentTest(

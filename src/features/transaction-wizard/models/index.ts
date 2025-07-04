@@ -129,7 +129,6 @@ export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResu
   onComplete:
     | algosdk.OnApplicationComplete.NoOpOC
     | algosdk.OnApplicationComplete.OptInOC
-    | algosdk.OnApplicationComplete.CloseOutOC
     | algosdk.OnApplicationComplete.UpdateApplicationOC
     | algosdk.OnApplicationComplete.DeleteApplicationOC
 }
