@@ -1,11 +1,11 @@
 import { useCallback } from 'react'
 import { ApplicationStateTable } from './application-state-table'
 import { useApplicationLocalStateSearch } from '../data/application-local-state'
-import { Application, ApplicationState } from '../models'
-import { Loader2 as Loader, XIcon } from 'lucide-react'
+import { Application } from '../models'
+import { XIcon } from 'lucide-react'
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons'
 import { Button } from '@/features/common/components/button'
-import { enterAddressToViewLocalStateMessage, failedToLoadLocalStateMessage } from './labels'
+import { enterAddressToViewLocalStateMessage } from './labels'
 
 type Props = {
   application: Application
@@ -23,21 +23,14 @@ export function ApplicationLocalState({ application }: Props) {
 
   const handleClear = useCallback(() => address && setAddress(''), [setAddress, address])
 
-  let data: ApplicationState[] | React.ReactNode = enterAddressToViewLocalStateMessage
-  if (address) {
-    if (loadableResults.state === 'loading') {
-      data = <Loader className="mx-auto size-10 animate-spin" />
-    } else if (loadableResults.state === 'hasData') {
-      data = loadableResults.data
-    } else {
-      data = failedToLoadLocalStateMessage
-    }
-  }
+  const data = address
+    ? loadableResults
+    : ({ state: 'hasError', error: new Error(enterAddressToViewLocalStateMessage) } satisfies typeof loadableResults)
 
   return (
     <div className="space-y-4 overflow-hidden">
       <div className="max-w-[35rem] rounded-md border border-input bg-popover text-popover-foreground">
-        <div className="flex items-center px-3" cmdk-input-wrapper="">
+        <div className="flex items-center px-3">
           <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
           <input
             placeholder="Search by Address or NFD"

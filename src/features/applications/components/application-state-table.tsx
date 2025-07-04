@@ -4,17 +4,16 @@ import { DataTable } from '@/features/common/components/data-table'
 import { useMemo } from 'react'
 import { DecodedAbiStorageValue } from '@/features/abi-methods/components/decoded-abi-storage-value'
 import { DecodedAbiStorageKey } from '@/features/abi-methods/components/decoded-abi-storage-key'
+import { Loadable } from 'jotai/vanilla/utils/loadable'
 
 type Props = {
-  data: ApplicationState[] | React.ReactNode
+  data: ApplicationState[] | Loadable<ApplicationState[]>
 }
 
 export function ApplicationStateTable({ data }: Props) {
   const component = useMemo(() => {
-    if (!Array.isArray(data) || data?.every((state) => 'type' in state)) {
-      return <DataTable columns={rawTableColumns} data={data} dataContext="applicationState" />
-    }
-    return <DataTable columns={decodedTableColumns} data={data} dataContext="applicationState" />
+    const isRaw = (Array.isArray(data) ? data : data.state === 'hasData' ? data.data : undefined)?.every((state) => 'type' in state) ?? true
+    return <DataTable columns={isRaw ? rawTableColumns : decodedTableColumns} data={data} dataContext="applicationState" />
   }, [data])
 
   return component
@@ -62,7 +61,7 @@ const decodedTableColumns: ColumnDef<ApplicationState>[] = [
   },
 ]
 
-const rawTableColumns: ColumnDef<RawApplicationState>[] = [
+const rawTableColumns: ColumnDef<ApplicationState>[] = [
   {
     header: 'Key',
     accessorFn: (item) => item,

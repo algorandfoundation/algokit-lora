@@ -27,8 +27,6 @@ export type ApplicationStateSchema = {
   numUint: number
 }
 
-export type LocalStateSearchResult = ApplicationState[] | string
-
 export type ApplicationState = RawApplicationState | DecodedApplicationState
 
 export type RawApplicationState =

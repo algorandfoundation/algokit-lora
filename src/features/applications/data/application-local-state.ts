@@ -1,5 +1,5 @@
 import { atom, useAtomValue, useSetAtom, useStore } from 'jotai'
-import { LocalStateSearchResult } from '../models'
+import { ApplicationState } from '../models'
 import { asArc56AppSpec, asLocalStateValues } from '../mappers'
 import { ApplicationId } from './types'
 import { Address } from '@/features/accounts/data/types'
@@ -12,7 +12,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { loadable } from 'jotai/utils'
 import { asError, is404 } from '@/utils/error'
 import { createAppSpecAtom } from './application-method-definitions'
-import { invalidAddressForLocalStateMessage } from '../components/labels'
+import { failedToLoadLocalStateMessage, invalidAddressForLocalStateMessage } from '../components/labels'
 
 const getApplicationLocalState = async (address: Address, applicationId: ApplicationId) => {
   try {
@@ -22,7 +22,7 @@ const getApplicationLocalState = async (address: Address, applicationId: Applica
     if (is404(asError(e))) {
       return undefined
     }
-    throw e
+    throw new Error(failedToLoadLocalStateMessage)
   }
 }
 
@@ -31,7 +31,7 @@ const createApplicationLocalStateSearchAtom = (store: JotaiStore, applicationId:
   const resultsAtom = atom(async (get) => {
     // Return an async forever value if we are debouncing, so we can render a loader
     if (get(isDebouncingAtom)) {
-      return new Promise<LocalStateSearchResult>(() => [])
+      return new Promise<ApplicationState[]>(() => [])
     }
 
     const enteredAddress = store.get(enteredAddressAtom)
@@ -52,7 +52,7 @@ const createApplicationLocalStateSearchAtom = (store: JotaiStore, applicationId:
     }
 
     if (!address) {
-      return invalidAddressForLocalStateMessage
+      throw new Error(invalidAddressForLocalStateMessage)
     }
 
     const localState = await getApplicationLocalState(address, applicationId)
@@ -66,7 +66,7 @@ const createApplicationLocalStateSearchAtom = (store: JotaiStore, applicationId:
   return [currentEnteredAddressAtom, enteredAddressAtom, resultsAtom] as const
 }
 
-const useSearchAtoms = (applicationId: ApplicationId) => {
+const useApplicationLocalStateSearchAtom = (applicationId: ApplicationId) => {
   const store = useStore()
   return useMemo(() => {
     return createApplicationLocalStateSearchAtom(store, applicationId)
@@ -74,6 +74,6 @@ const useSearchAtoms = (applicationId: ApplicationId) => {
 }
 
 export const useApplicationLocalStateSearch = (applicationId: ApplicationId) => {
-  const [currentEnteredAddressAtom, enteredAddressAtom, resultsAtom] = useSearchAtoms(applicationId)
+  const [currentEnteredAddressAtom, enteredAddressAtom, resultsAtom] = useApplicationLocalStateSearchAtom(applicationId)
   return [useAtomValue(currentEnteredAddressAtom), useSetAtom(enteredAddressAtom), useAtomValue(loadable(resultsAtom))] as const
 }
