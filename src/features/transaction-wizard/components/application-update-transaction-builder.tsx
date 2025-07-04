@@ -134,7 +134,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
               return helper.textField({
                 field: `args.${index}.value`,
                 label: `Argument ${index + 1}`,
-                helpText: 'The argument in bytes, base64 encoded',
+                helpText: `The argument in bytes, base64 encoded${index === 0 ? '. This is the ABI method selector if an ABI method is called' : ''}`,
               })
             },
           })}
