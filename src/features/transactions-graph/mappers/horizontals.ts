@@ -114,7 +114,12 @@ const getAppCallTransactionRepresentations = (
         verticalId: verticals.find((c) => c.type === 'Application' && transaction.applicationId === c.applicationId)?.id ?? -1,
       }
 
-  const type = transaction.subType === AppCallTransactionSubType.Create ? LabelType.AppCreate : LabelType.AppCall
+  const type =
+    transaction.subType === AppCallTransactionSubType.Create
+      ? LabelType.AppCreate
+      : transaction.subType === AppCallTransactionSubType.Update
+        ? LabelType.AppUpdate
+        : LabelType.AppCall
   return [asTransactionGraphRepresentation(from, to, { type })]
 }
 

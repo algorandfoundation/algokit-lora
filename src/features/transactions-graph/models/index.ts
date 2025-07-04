@@ -36,6 +36,7 @@ export enum LabelType {
   AssetTransferRemainder = 'AssetTransferRemainder',
   AppCall = 'AppCall',
   AppCreate = 'AppCreate',
+  AppUpdate = 'AppUpdate',
   AssetCreate = 'AssetCreate',
   AssetReconfigure = 'AssetReconfigure',
   AssetDestroy = 'AssetDestroy',
@@ -68,6 +69,7 @@ export type Label =
   | { type: LabelType.Clawback; asset: AsyncMaybeAtom<AssetSummary>; amount: number | bigint }
   | { type: LabelType.AppCall }
   | { type: LabelType.AppCreate }
+  | { type: LabelType.AppUpdate }
   | { type: LabelType.AssetCreate }
   | { type: LabelType.AssetReconfigure }
   | { type: LabelType.AssetDestroy }
