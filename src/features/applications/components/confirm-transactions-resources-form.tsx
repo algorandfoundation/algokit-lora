@@ -160,7 +160,7 @@ export function ConfirmTransactionsResourcesForm({ resources, onSubmit, onCancel
                   {helper.textField({
                     label: 'Name',
                     field: `boxes.${index}.boxName`,
-                    helpText: 'A Base64 encoded box name',
+                    helpText: 'A base64 encoded box name',
                     className: 'w-3/4 self-start',
                   })}
                 </div>

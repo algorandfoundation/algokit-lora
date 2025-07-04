@@ -16,6 +16,8 @@ import {
   BuildMethodCallTransactionResult,
   BuildPaymentTransactionResult,
   BuildTransactionResult,
+  BuildApplicationCreateTransactionResult,
+  BuildApplicationUpdateTransactionResult,
   MethodCallArg,
   PlaceholderTransaction,
   TransactionPositionsInGroup,
@@ -34,6 +36,8 @@ import {
   asAssetTransferTransactionParams,
   asKeyRegistrationTransactionParams,
   asPaymentTransactionParams,
+  asApplicationCreateTransactionParams,
+  asApplicationUpdateTransactionParams,
 } from './as-algosdk-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
@@ -80,6 +84,12 @@ export const asDescriptionListItems = (
   }
   if (transaction.type === BuildableTransactionType.KeyRegistration) {
     return asKeyRegistrationTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.ApplicationCreate) {
+    return asApplicationCreateTransaction(transaction)
+  }
+  if (transaction.type === BuildableTransactionType.ApplicationUpdate) {
+    return asApplicationUpdateTransaction(transaction)
   }
 
   throw new Error('Unsupported transaction type')
@@ -653,6 +663,8 @@ export const asTransactionLabelFromBuildableTransactionType = (type: BuildableTr
       return TransactionType.Payment
     case BuildableTransactionType.AppCall:
     case BuildableTransactionType.MethodCall:
+    case BuildableTransactionType.ApplicationCreate:
+    case BuildableTransactionType.ApplicationUpdate:
       return TransactionType.AppCall
     case BuildableTransactionType.AssetOptIn:
     case BuildableTransactionType.AssetOptOut:
@@ -676,3 +688,101 @@ export const freezeAssetLabel = 'Freeze asset'
 export const unfreezeAssetLabel = 'Unfreeze asset'
 export const onlineKeyRegistrationLabel = 'Online'
 export const offlineKeyRegistrationLabel = 'Offline'
+
+const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTransactionResult): DescriptionListItems => {
+  const params = asApplicationCreateTransactionParams(transaction)
+
+  return [
+    {
+      dt: 'On complete',
+      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+    },
+    {
+      dt: 'Sender',
+      dd: <AddressOrNfdLink address={params.sender} />,
+    },
+    {
+      dt: 'Approval program',
+      dd: transaction.approvalProgram,
+    },
+    {
+      dt: 'Clear state program',
+      dd: transaction.clearStateProgram,
+    },
+    {
+      dt: 'Global ints',
+      dd: transaction.globalInts ?? 0,
+    },
+    {
+      dt: 'Global byte slices',
+      dd: transaction.globalByteSlices ?? 0,
+    },
+    {
+      dt: 'Local ints',
+      dd: transaction.localInts ?? 0,
+    },
+    {
+      dt: 'Local byte slices',
+      dd: transaction.localByteSlices ?? 0,
+    },
+    ...(params.extraProgramPages
+      ? [
+          {
+            dt: 'Extra program pages',
+            dd: transaction.extraProgramPages,
+          },
+        ]
+      : []),
+    ...(transaction.args.length > 0
+      ? [
+          {
+            dt: 'Arguments',
+            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index + 1}`, dd: arg }))} />,
+          },
+        ]
+      : []),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
+    ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
+  ]
+}
+
+const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTransactionResult): DescriptionListItems => {
+  const params = asApplicationUpdateTransactionParams(transaction)
+
+  return [
+    {
+      dt: 'Application ID',
+      dd: <ApplicationLink applicationId={params.appId} />,
+    },
+    {
+      dt: 'On complete',
+      dd: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
+    },
+    {
+      dt: 'Sender',
+      dd: <AddressOrNfdLink address={params.sender} />,
+    },
+    {
+      dt: 'Approval program',
+      dd: transaction.approvalProgram,
+    },
+    {
+      dt: 'Clear state program',
+      dd: transaction.clearStateProgram,
+    },
+    ...(transaction.args.length > 0
+      ? [
+          {
+            dt: 'Arguments',
+            dd: <DescriptionList items={transaction.args.map((arg, index) => ({ dt: `Arg ${index + 1}`, dd: arg }))} />,
+          },
+        ]
+      : []),
+    ...asFeeItem(params.staticFee),
+    ...asValidRoundsItem(params.firstValidRound, params.lastValidRound),
+    ...asNoteItem(params.note),
+    ...asResourcesItem(params.accountReferences, params.assetReferences, params.appReferences, params.boxReferences),
+  ]
+}

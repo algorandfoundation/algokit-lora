@@ -125,6 +125,28 @@ export const onCompleteOptions = [
   },
 ]
 
+export const onCompleteForAppCreateFieldSchema = {
+  onComplete: z.union([
+    z.literal(algosdk.OnApplicationComplete.NoOpOC.toString(), { required_error: requiredMessage }),
+    z.literal(algosdk.OnApplicationComplete.OptInOC.toString(), { required_error: requiredMessage }),
+    z.literal(algosdk.OnApplicationComplete.UpdateApplicationOC.toString(), { required_error: requiredMessage }),
+    z.literal(algosdk.OnApplicationComplete.DeleteApplicationOC.toString(), { required_error: requiredMessage }),
+  ]),
+}
+
+export const onCompleteOptionsForAppCreate = [
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.NoOpOC), value: algosdk.OnApplicationComplete.NoOpOC.toString() },
+  { label: asOnCompleteLabel(algosdk.OnApplicationComplete.OptInOC), value: algosdk.OnApplicationComplete.OptInOC.toString() },
+  {
+    label: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
+    value: algosdk.OnApplicationComplete.UpdateApplicationOC.toString(),
+  },
+  {
+    label: asOnCompleteLabel(algosdk.OnApplicationComplete.DeleteApplicationOC),
+    value: algosdk.OnApplicationComplete.DeleteApplicationOC.toString(),
+  },
+]
+
 export const commonSchema = {
   ...feeFieldSchema,
   ...validRoundsFieldSchema,

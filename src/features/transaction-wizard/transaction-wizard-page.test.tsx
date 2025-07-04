@@ -9,6 +9,7 @@ import { selectOption } from '@/tests/utils/select-option'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 import { addTransactionLabel } from './components/transactions-builder'
 import { groupSendResultsLabel } from './components/group-send-results'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -258,6 +259,246 @@ describe('transaction-wizard-page', () => {
                 "receiver": "${testAccount.addr}",
               }
             `)
+          }
+        )
+      })
+    })
+
+    describe('and an application create transaction is being sent', () => {
+      it('succeeds when all fields have been correctly supplied', async () => {
+        const { testAccount } = localnet.context
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Application Create (appl)')
+
+            const senderInput = await component.findByLabelText(/Sender/)
+            fireEvent.input(senderInput, {
+              target: { value: testAccount.addr },
+            })
+
+            const approvalProgram =
+              'CiACAQgmAQQVH3x1MRtBAJKCBQT+a99pBHPAS00E4ARHRQR4zc4FBIMeel82GgCOBQBSADcAKAASAAOBAEMxGRREMRhEKDYaAVCwIkMxGRREMRhENhoBNhoCiABdKExQsCJDMRkURDEYRCg2GgFQsCJDMRkURDEYRDYaAVcCAEkVFlcGAkxQKExQsCJDMRkURDEYRDYaATYaAogAEShMULAiQzEZQP+TMRgURCJDigIBi/4Xi/8XCBaJigIBi/8XIwuL/kwjWIk='
+            const approvalProgramInput = await component.findByLabelText(/Approval program/)
+            fireEvent.input(approvalProgramInput, {
+              target: {
+                value: approvalProgram,
+              },
+            })
+
+            const clearStateProgram = 'CoEBQw=='
+            const clearStateProgramInput = await component.findByLabelText(/Clear state program/)
+            fireEvent.input(clearStateProgramInput, {
+              target: { value: clearStateProgram },
+            })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.applicationTransaction!.approvalProgram).toEqual(base64ToBytes(approvalProgram))
+            expect(result.transaction.applicationTransaction!.clearStateProgram).toEqual(base64ToBytes(clearStateProgram))
+          }
+        )
+      })
+
+      it('succeeds when sending an op-up transaction', async () => {
+        const { testAccount } = localnet.context
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Application Create (appl)')
+
+            const senderInput = await component.findByLabelText(/Sender/)
+            fireEvent.input(senderInput, {
+              target: { value: testAccount.addr },
+            })
+
+            const approvalProgramInput = await component.findByLabelText(/Approval program/)
+            fireEvent.input(approvalProgramInput, {
+              target: { value: 'CoEBQw==' },
+            })
+
+            const clearStateProgramInput = await component.findByLabelText(/Clear state program/)
+            fireEvent.input(clearStateProgramInput, {
+              target: { value: 'CoEBQw==' },
+            })
+
+            await selectOption(component.baseElement, user, /On complete/, 'Delete')
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+          }
+        )
+      })
+    })
+
+    describe('and an application update transaction is being sent', () => {
+      it('succeeds when updating an updatable application', async () => {
+        const { testAccount } = localnet.context
+
+        // First create an updatable application
+        const appCreateResult = await localnet.context.algorand.send.appCreate({
+          sender: testAccount.addr,
+          approvalProgram: '#pragma version 10\nint 1\nreturn',
+          clearStateProgram: '#pragma version 10\nint 1\nreturn',
+        })
+        const appId = Number(appCreateResult.confirmation.applicationIndex!)
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Application Update (appl)')
+
+            const senderInput = await component.findByLabelText(/Sender/)
+            fireEvent.input(senderInput, {
+              target: { value: testAccount.addr },
+            })
+
+            const applicationIdInput = await component.findByLabelText(/Application ID/)
+            fireEvent.input(applicationIdInput, {
+              target: { value: appId },
+            })
+
+            const program = 'CoEBQw=='
+            const approvalProgramInput = await component.findByLabelText(/Approval program/)
+            fireEvent.input(approvalProgramInput, {
+              target: { value: program },
+            })
+
+            const clearStateProgramInput = await component.findByLabelText(/Clear state program/)
+            fireEvent.input(clearStateProgramInput, {
+              target: { value: program },
+            })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.applicationTransaction?.onCompletion).toBe('update')
+            expect(result.transaction.applicationTransaction!.approvalProgram).toEqual(base64ToBytes(program))
+            expect(result.transaction.applicationTransaction!.clearStateProgram).toEqual(base64ToBytes(program))
           }
         )
       })

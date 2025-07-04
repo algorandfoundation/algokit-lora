@@ -54,6 +54,7 @@ const mapCommonAppCallTransactionProperties = (
   indexPrefix?: string
 ) => {
   invariant(transactionResult.applicationTransaction, 'application-transaction is not set')
+
   const isCreate = !transactionResult.applicationTransaction.applicationId
   const onCompletion = asAppCallOnComplete(transactionResult.applicationTransaction.onCompletion)
   const isOpUp =
@@ -68,7 +69,11 @@ const mapCommonAppCallTransactionProperties = (
   return {
     ...mapCommonTransactionProperties(transactionResult),
     type: TransactionType.AppCall,
-    subType: isCreate ? AppCallTransactionSubType.Create : undefined,
+    subType: isCreate
+      ? AppCallTransactionSubType.Create
+      : onCompletion === AppCallOnComplete.Update
+        ? AppCallTransactionSubType.Update
+        : undefined,
     isOpUp,
     applicationId: transactionResult.applicationTransaction.applicationId
       ? transactionResult.applicationTransaction.applicationId

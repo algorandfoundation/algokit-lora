@@ -19,6 +19,8 @@ export enum BuildableTransactionType {
   // appl
   AppCall = 'AppCall',
   MethodCall = 'MethodCall',
+  ApplicationCreate = 'ApplicationCreate',
+  ApplicationUpdate = 'ApplicationUpdate',
   // axfer
   AssetOptIn = 'AssetOptIn',
   AssetOptOut = 'AssetOptOut',
@@ -112,6 +114,31 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
     | algosdk.OnApplicationComplete.ClearStateOC
     | algosdk.OnApplicationComplete.CloseOutOC
     | algosdk.OnApplicationComplete.DeleteApplicationOC
+}
+
+export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResult & {
+  type: BuildableTransactionType.ApplicationCreate
+  approvalProgram: string
+  clearStateProgram: string
+  extraProgramPages?: number
+  args: string[]
+  globalInts?: number
+  globalByteSlices?: number
+  localInts?: number
+  localByteSlices?: number
+  onComplete:
+    | algosdk.OnApplicationComplete.NoOpOC
+    | algosdk.OnApplicationComplete.OptInOC
+    | algosdk.OnApplicationComplete.UpdateApplicationOC
+    | algosdk.OnApplicationComplete.DeleteApplicationOC
+}
+
+export type BuildApplicationUpdateTransactionResult = CommonBuildTransactionResult & {
+  type: BuildableTransactionType.ApplicationUpdate
+  applicationId: ApplicationId
+  approvalProgram: string
+  clearStateProgram: string
+  args: string[]
 }
 
 export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | PlaceholderTransaction | FulfilledByTransaction | undefined
@@ -254,6 +281,8 @@ export type BuildTransactionResult =
   | BuildAccountCloseTransactionResult
   | BuildAppCallTransactionResult
   | BuildMethodCallTransactionResult
+  | BuildApplicationCreateTransactionResult
+  | BuildApplicationUpdateTransactionResult
   | BuildAssetTransferTransactionResult
   | BuildAssetOptInTransactionResult
   | BuildAssetOptOutTransactionResult

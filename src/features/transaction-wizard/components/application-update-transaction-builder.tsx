@@ -1,6 +1,5 @@
-import algosdk from 'algosdk'
-import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commonSchema, onCompleteFieldSchema, onCompleteOptions } from '@/features/transaction-wizard/data/common'
+import { bigIntSchema } from '@/features/forms/data/common'
+import { senderFieldSchema, commonSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -10,7 +9,7 @@ import { CancelButton } from '@/features/forms/components/cancel-button'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { TransactionBuilderFeeField } from '@/features/transaction-wizard/components/transaction-builder-fee-field'
 import { TransactionBuilderValidRoundField } from '@/features/transaction-wizard/components/transaction-builder-valid-round-field'
-import { BuildAppCallTransactionResult, BuildableTransactionType } from '../models'
+import { BuildApplicationUpdateTransactionResult, BuildableTransactionType } from '../models'
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
@@ -20,9 +19,9 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 const formData = zfd.formData({
   ...commonSchema,
   ...senderFieldSchema,
-  ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
-  extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
+  approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
+  clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   args: zfd.repeatableOfType(
     z.object({
       id: z.string(),
@@ -33,23 +32,22 @@ const formData = zfd.formData({
 
 type Props = {
   mode: TransactionBuilderMode
-  transaction?: BuildAppCallTransactionResult
+  transaction?: BuildApplicationUpdateTransactionResult
   activeAccount?: ActiveWalletAccount
-  defaultValues?: Partial<BuildAppCallTransactionResult>
-  onSubmit: (transaction: BuildAppCallTransactionResult) => void
+  onSubmit: (transaction: BuildApplicationUpdateTransactionResult) => void
   onCancel: () => void
 }
 
-export function AppCallTransactionBuilder({ mode, transaction, activeAccount, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
+export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
-        type: BuildableTransactionType.AppCall,
+        type: BuildableTransactionType.ApplicationUpdate,
         applicationId: BigInt(values.applicationId),
+        approvalProgram: values.approvalProgram,
+        clearStateProgram: values.clearStateProgram,
         sender: values.sender,
-        onComplete: Number(values.onComplete),
-        extraProgramPages: values.extraProgramPages,
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),
@@ -63,9 +61,9 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
+        approvalProgram: transaction.approvalProgram,
+        clearStateProgram: transaction.clearStateProgram,
         sender: transaction.sender,
-        onComplete: transaction.onComplete.toString(),
-        extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
@@ -77,16 +75,14 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     }
     return {
       sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
-      onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
       fee: {
         setAutomatically: true,
       },
       validRounds: {
         setAutomatically: true,
       },
-      applicationId: _defaultValues?.applicationId !== undefined ? BigInt(_defaultValues.applicationId) : undefined,
     }
-  }, [mode, activeAccount, _defaultValues?.applicationId, transaction])
+  }, [mode, activeAccount, transaction])
 
   return (
     <Form
@@ -102,29 +98,26 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     >
       {(helper) => (
         <div className="space-y-4">
-          {defaultValues.applicationId !== 0n &&
-            helper.numberField({
-              field: 'applicationId',
-              label: 'Application ID',
-              helpText: 'The application to be called',
-            })}
-          {helper.selectField({
-            field: 'onComplete',
-            label: 'On complete',
-            options: onCompleteOptions,
-            helpText: 'Action to perform after executing the program',
+          {helper.numberField({
+            field: 'applicationId',
+            label: 'Application ID',
+            helpText: 'The application to be updated',
+          })}
+          {helper.textAreaField({
+            field: 'approvalProgram',
+            label: 'Approval program',
+            helpText: 'The compiled AVM bytecode approval program, base64 encoded',
+          })}
+          {helper.textAreaField({
+            field: 'clearStateProgram',
+            label: 'Clear state program',
+            helpText: 'The compiled AVM bytecode clear state program, base64 encoded',
           })}
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to call from. Sends the transaction and pays the fee',
+            helpText: 'Account to update from. Sends the transaction and pays the fee',
           })}
-          {defaultValues.applicationId === 0n &&
-            helper.numberField({
-              field: 'extraProgramPages',
-              label: 'Extra program pages',
-              helpText: 'Number of additional pages allocated to the programs. If empty this will be calculated automatically',
-            })}
           {helper.arrayField({
             field: 'args',
             label: 'Arguments',
