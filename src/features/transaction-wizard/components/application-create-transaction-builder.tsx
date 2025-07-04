@@ -183,7 +183,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
               return helper.textField({
                 field: `args.${index}.value`,
                 label: `Argument ${index + 1}`,
-                helpText: `A base64 encoded bytes value${index === 0 ? '. When using ABI, this should be the method selector' : ''}`,
+                helpText: `A base64 encoded bytes value${index === 0 ? '. If using ABI, this should be the method selector' : ''}`,
               })
             },
           })}
