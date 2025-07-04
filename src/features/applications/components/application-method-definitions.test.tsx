@@ -6,10 +6,6 @@ import Arc32TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32
 import Arc56TestContractAppSpec from '@/tests/test-app-specs/arc56/sample-one.json'
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
-import { upsertAppInterface } from '@/features/app-interfaces/data'
-import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
-import { createTimestamp } from '@/features/common/data'
 import { ApplicationPage } from '../pages/application-page'
 import { executeComponentTest } from '@/tests/test-component'
 import { useParams } from 'react-router-dom'
@@ -29,6 +25,7 @@ import { BuildableTransactionType } from '@/features/transaction-wizard/models'
 import { asMethodDefinitions } from '@/features/applications/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { act } from 'react'
+import { JotaiStore } from '@/features/common/data/types'
 
 describe('application-method-definitions', () => {
   const localnet = algorandFixture()
@@ -40,10 +37,17 @@ describe('application-method-definitions', () => {
   })
 
   describe('test-arc32-app-spec', () => {
+    let myStore: JotaiStore
+
     beforeEach(async () => {
-      const myStore = getTestStore()
+      myStore = getTestStore()
       await setWalletAddressAndSigner(localnet)
-      const { app } = await deploySmartContract(localnet.context.testAccount, localnet.algorand, Arc32TestContractAppSpec as AppSpec)
+      const { app } = await deploySmartContract(
+        localnet.context.testAccount,
+        localnet.algorand,
+        myStore,
+        Arc32TestContractAppSpec as AppSpec
+      )
       appId = app.appId
 
       const dispenser = await localnet.context.algorand.account.dispenserFromEnvironment()
@@ -53,19 +57,6 @@ describe('application-method-definitions', () => {
         amount: algo(10),
         note: 'Fund app account',
       })
-
-      const dbConnection = await myStore.get(dbConnectionAtom)
-      await upsertAppInterface(dbConnection, {
-        applicationId: appId,
-        name: 'test',
-        appSpecVersions: [
-          {
-            standard: AppSpecStandard.ARC32,
-            appSpec: Arc32TestContractAppSpec as unknown as Arc32AppSpec,
-          },
-        ],
-        lastModified: createTimestamp(),
-      } satisfies AppInterfaceEntity)
     })
 
     describe('when a wallet is connected', () => {
@@ -75,7 +66,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling calculator add method', () => {
         it('reports validation errors when required fields have not been supplied', () => {
-          const myStore = getTestStore()
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
           return executeComponentTest(
@@ -106,8 +96,8 @@ describe('application-method-definitions', () => {
             }
           )
         })
+
         it('succeeds when all fields have been correctly supplied', () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -175,8 +165,8 @@ describe('application-method-definitions', () => {
             }
           )
         })
+
         it('allows the users to switch to echo_bytes method and send the transaction', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -255,8 +245,8 @@ describe('application-method-definitions', () => {
             }
           )
         })
+
         it('fee can be set to zero and the transaction should fail', async () => {
-          const myStore = getTestStore()
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
           return executeComponentTest(
@@ -310,8 +300,8 @@ describe('application-method-definitions', () => {
             }
           )
         })
+
         it('fee can be be shared between transactions', async () => {
-          const myStore = getTestStore()
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
           return executeComponentTest(
@@ -405,7 +395,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling get_pay_txn_amount method', () => {
         it('succeeds when all fields have been correctly supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
@@ -515,7 +504,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows the user to edit the payment amount', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
@@ -634,7 +622,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows the user to edit note for get_pay_txn_amount method call', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
@@ -757,7 +744,6 @@ describe('application-method-definitions', () => {
         })
 
         it('clear the payment transaction if the user switch to call add method', async () => {
-          const myStore = getTestStore()
           const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -835,7 +821,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling echo_bytes method', () => {
         it('succeeds when a byte array is supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -902,7 +887,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows the user to edit the input, save and send again', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -988,7 +972,6 @@ describe('application-method-definitions', () => {
         })
 
         it('fails when no byte array is supplied', async () => {
-          const myStore = getTestStore()
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
           return executeComponentTest(
@@ -1022,7 +1005,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling echo_static_array method', () => {
         it('succeeds when an array is supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1097,7 +1079,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows edit', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1202,7 +1183,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling echo_dynamic_array method', () => {
         it('succeeds when an array is supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1277,7 +1257,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows edit', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1382,7 +1361,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling nest_array_and_tuple method', () => {
         it('succeeds when the input is supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1476,7 +1454,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows edit', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1612,7 +1589,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling echo_boolean method', () => {
         it('succeeds when the input is supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1676,7 +1652,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows edit', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1768,30 +1743,21 @@ describe('application-method-definitions', () => {
         let innerAppId: ApplicationId
 
         beforeEach(async () => {
-          const myStore = getTestStore()
           const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(10) })
 
-          const { app: innerApp } = await deploySmartContract(testAccount2, localnet.algorand, Arc32TestContractAppSpec as AppSpec, {
-            onUpdate: 'append',
-          })
+          const { app: innerApp } = await deploySmartContract(
+            testAccount2,
+            localnet.algorand,
+            myStore,
+            Arc32TestContractAppSpec as AppSpec,
+            {
+              onUpdate: 'append',
+            }
+          )
           innerAppId = innerApp.appId
-
-          const dbConnection = await myStore.get(dbConnectionAtom)
-          await upsertAppInterface(dbConnection, {
-            applicationId: innerAppId,
-            name: 'test_inner',
-            appSpecVersions: [
-              {
-                standard: AppSpecStandard.ARC32,
-                appSpec: Arc32TestContractAppSpec as unknown as Arc32AppSpec,
-              },
-            ],
-            lastModified: createTimestamp(),
-          } satisfies AppInterfaceEntity)
         })
 
         it('succeeds when all fields have been correctly supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -1881,8 +1847,10 @@ describe('application-method-definitions', () => {
   })
 
   describe('test-arc56-app-spec', () => {
+    let myStore: JotaiStore
+
     beforeEach(async () => {
-      const myStore = getTestStore()
+      myStore = getTestStore()
       await setWalletAddressAndSigner(localnet)
 
       const { appId: _, ...params } = await asMethodCallParams({
@@ -1905,6 +1873,7 @@ describe('application-method-definitions', () => {
       const { app } = await deploySmartContract(
         localnet.context.testAccount,
         localnet.algorand,
+        myStore,
         Arc56TestContractAppSpec as Arc56Contract,
         {
           createParams: {
@@ -1927,19 +1896,6 @@ describe('application-method-definitions', () => {
         }
       )
       appId = app.appId
-
-      const dbConnection = await myStore.get(dbConnectionAtom)
-      await upsertAppInterface(dbConnection, {
-        applicationId: appId,
-        name: 'test',
-        appSpecVersions: [
-          {
-            standard: AppSpecStandard.ARC56,
-            appSpec: Arc56TestContractAppSpec as Arc56Contract,
-          },
-        ],
-        lastModified: createTimestamp(),
-      } satisfies AppInterfaceEntity)
     })
 
     describe('when a wallet is connected', () => {
@@ -1949,7 +1905,6 @@ describe('application-method-definitions', () => {
 
       describe('when calling foo method', () => {
         it('succeeds when the input is supplied', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 
@@ -2024,7 +1979,6 @@ describe('application-method-definitions', () => {
         })
 
         it('allows edit', async () => {
-          const myStore = getTestStore()
           const { testAccount } = localnet.context
           vi.mocked(useParams).mockImplementation(() => ({ applicationId: appId.toString() }))
 

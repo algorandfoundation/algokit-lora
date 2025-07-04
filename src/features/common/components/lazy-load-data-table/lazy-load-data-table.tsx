@@ -7,6 +7,7 @@ import { Loadable } from 'jotai/vanilla/utils/loadable'
 import { ViewModelPage } from '../../data/lazy-load-pagination'
 import { cn } from '../../utils'
 import { TableDataContext, useTablePageSize } from '../../../settings/data/table-pagination'
+import { MESSAGE_TABLE_ROW_DATA_LABEL, NO_RESULTS_TABLE_MESSAGE } from '../../constants'
 
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -113,9 +114,9 @@ export function LazyLoadDataTable<TData, TValue>({
                 </TableRow>
               ))}
             {loadablePage.state === 'hasData' && table.getRowModel().rows.length === 0 && (
-              <TableRow>
+              <TableRow aria-label={MESSAGE_TABLE_ROW_DATA_LABEL}>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {NO_RESULTS_TABLE_MESSAGE}
                 </TableCell>
               </TableRow>
             )}
