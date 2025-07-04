@@ -116,7 +116,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to update the application from. Sends the transaction and pays the fee',
+            helpText: 'Account to update from. Sends the transaction and pays the fee',
           })}
           {helper.arrayField({
             field: 'args',
@@ -134,7 +134,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
               return helper.textField({
                 field: `args.${index}.value`,
                 label: `Argument ${index + 1}`,
-                helpText: `The argument in bytes, base64 encoded${index === 0 ? '. This is the ABI method selector if an ABI method is called' : ''}`,
+                helpText: `A base64 encoded bytes value${index === 0 ? '. When using ABI, this should be the method selector' : ''}`,
               })
             },
           })}

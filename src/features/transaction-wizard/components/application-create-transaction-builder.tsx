@@ -140,32 +140,32 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to create the application from. Sends the transaction and pays the fee',
+            helpText: 'Account to create from. Sends the transaction and pays the fee',
           })}
           {helper.numberField({
             field: 'globalInts',
             label: 'Global ints',
-            helpText: 'The number of integers saved in global state',
+            helpText: 'The number of integers stored in global state',
           })}
           {helper.numberField({
             field: 'globalByteSlices',
             label: 'Global byte slices',
-            helpText: 'The number of byte slices saved in global state',
+            helpText: 'The number of byte slices stored in global state',
           })}
           {helper.numberField({
             field: 'localInts',
             label: 'Local ints',
-            helpText: 'The number of integers saved in local state',
+            helpText: 'The number of integers stored in local state',
           })}
           {helper.numberField({
             field: 'localByteSlices',
             label: 'Local byte slices',
-            helpText: 'The number of byte slices saved in local state',
+            helpText: 'The number of byte slices stored in local state',
           })}
           {helper.numberField({
             field: 'extraProgramPages',
             label: 'Extra program pages',
-            helpText: 'Number of extra pages required for the programs. If empty, this will be calculated automatically',
+            helpText: 'Number of additional pages allocated to the programs. If empty this will be calculated automatically',
           })}
           {helper.arrayField({
             field: 'args',
@@ -183,7 +183,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
               return helper.textField({
                 field: `args.${index}.value`,
                 label: `Argument ${index + 1}`,
-                helpText: `The argument in bytes, base64 encoded${index === 0 ? '. This is the ABI method selector if an ABI method is called' : ''}`,
+                helpText: `A base64 encoded bytes value${index === 0 ? '. When using ABI, this should be the method selector' : ''}`,
               })
             },
           })}

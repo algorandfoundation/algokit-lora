@@ -123,8 +123,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
             helper.numberField({
               field: 'extraProgramPages',
               label: 'Extra program pages',
-              helpText:
-                'Number of additional pages allocated to the approval and clear state programs. If empty this will be calculated automatically',
+              helpText: 'Number of additional pages allocated to the programs. If empty this will be calculated automatically',
             })}
           {helper.arrayField({
             field: 'args',
@@ -142,7 +141,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
               return helper.textField({
                 field: `args.${index}.value`,
                 label: `Argument ${index + 1}`,
-                helpText: 'The argument in bytes, base64 encoded',
+                helpText: 'A base64 encoded bytes value',
               })
             },
           })}
