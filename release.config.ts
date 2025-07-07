@@ -69,12 +69,6 @@ const config: Options = {
       },
     ],
     [
-      '@semantic-release/npm',
-      {
-        npmPublish: false,
-      },
-    ],
-    [
       '@semantic-release/git',
       {
         assets: ['CHANGELOG.md', 'package.json', 'package-lock.json', 'src-tauri/Cargo.toml'],
@@ -84,7 +78,7 @@ const config: Options = {
     [
       '@semantic-release/github',
       {
-        successComment: true,
+        successComment: 'Released in version ${nextRelease.version} :tada:',
         failTitle: false,
         assets: [{ path: 'dist/**', label: 'Web Application Build' }],
         addReleases: 'bottom',

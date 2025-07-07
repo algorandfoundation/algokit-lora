@@ -16,21 +16,14 @@ on:
   push:
     branches:
       - release
+      - main
     paths-ignore:
       - 'docs/**'
       - '**.md'
       - '.vscode/**'
   workflow_dispatch:
-    inputs:
-      production-release:
-        description: 'Production release?'
-        required: true
-        default: 'true'
 
 concurrency: orchestrate-release
-
-env:
-  PRODUCTION_RELEASE: ${{ github.ref_name == 'release' && (inputs.production-release == 'true' || inputs.production-release == '') }}
 
 jobs:
   ci:
@@ -50,7 +43,7 @@ jobs:
   build-app:
     name: Build Application
     needs: ci
-    runs-on: [ubuntu-22.04]
+    runs-on: ubuntu-latest
     steps:
       - name: Generate bot token
         uses: actions/create-github-app-token@v1
@@ -68,14 +61,23 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@algorandfoundation'
+          cache: 'npm'
 
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.app_token.outputs.token }}
 
-      - name: Synchronize version to Cargo.toml and tauri.conf.json
+      # Let scripts run without the token
+      - run: npm rebuild
+
+      - name: Synchronize version to Cargo.toml
         run: npm run sync-version
 
       - name: Create .env file with production values
+        if: github.ref_name == 'release'
         run: |
           cat > .env << EOF
           VITE_DISPENSER_AUTH0_DOMAIN=dispenser-prod.eu.auth0.com
@@ -84,6 +86,10 @@ jobs:
           VITE_TESTNET_DISPENSER_API_URL=https://api.dispenser.algorandfoundation.tools
           VITE_TESTNET_DISPENSER_ADDRESS=Z5GPJQCHVU54C2I4FLYNE2XHRQRL5OV2GPJQKXJFMW34CRIN2KRQFXF7DI
           EOF
+
+      - name: Create .env file with dev values
+        if: github.ref_name != 'release'
+        run: cp .env.sample .env
 
       - name: Build application
         run: npm run build
@@ -98,7 +104,7 @@ jobs:
   create-release:
     name: Create release
     needs: [ci, build-app]
-    runs-on: [ubuntu-22.04]
+    runs-on: ubuntu-latest
     outputs:
       release-published: ${{ steps.create-github-release.outputs.release-published }}
       release-version: ${{ steps.create-github-release.outputs.release-version }}
@@ -131,20 +137,19 @@ jobs:
         with:
           # Use bot token for semantic-release operations
           github-token: ${{ steps.app_token.outputs.token }}
-          production-release: ${{ env.PRODUCTION_RELEASE }}
           node-version: 20
 
       - name: Create draft CrabNebula release
         uses: crabnebula-dev/cloud-release@v0.2.0
         id: create-crabnebula-release
-        if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
+        if: steps.create-github-release.outputs.release-published == 'true'
         with:
-          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ env.PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
+          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ steps.create-github-release.outputs.release-published != 'true' && '--channel beta' || '' }}
           api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Get CrabNebula release ID
         id: get-crabnebula-release-id
-        if: ${{ steps.create-github-release.outputs.release-published == 'true' }}
+        if: steps.create-github-release.outputs.release-published == 'true'
         run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
 
   release-web:
@@ -163,7 +168,7 @@ jobs:
     uses: ./.github/workflows/release-desktop.yaml
     with:
       version: ${{ needs.create-release.outputs.release-version }}
-      production-release: ${{ inputs.production-release || 'true' }}
+      production-release: ${{ needs.create-release.outputs.release-published == 'true' }}
       release-tag: ${{ needs.create-release.outputs.release-tag }}
       crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
     secrets: inherit

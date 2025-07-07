@@ -4,9 +4,6 @@ inputs:
   github-token:
     description: 'The GitHub token'
     required: true
-  production-release:
-    description: 'Is production release?'
-    required: true
   node-version:
     description: 'The Node version'
     required: true
@@ -32,22 +29,31 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
+        registry-url: 'https://npm.pkg.github.com'
+        scope: '@algorandfoundation'
+        cache: 'npm'
 
     - name: Install npm dependencies
-      run: npm install
+      run: npm ci --ignore-scripts
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.github-token }}
+      shell: bash
+
+    # Let scripts run without the token
+    - run: npm rebuild
       shell: bash
 
     - name: Get next version (dry run)
       id: get-next-version
-      run: npx semantic-release --dry-run ${{ inputs.production-release == 'true' && '--branches release' || '' }}
+      run: npx semantic-release --dry-run
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       shell: bash
 
-    - name: Create release ${{ inputs.production-release == 'true' && '' || 'beta' }}
+    - name: Create release
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-      run: npx semantic-release ${{ inputs.production-release == 'true' && '--branches release' || '' }}
+      run: npx semantic-release
       shell: bash
 
     - name: Get release tag
