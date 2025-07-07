@@ -86,9 +86,6 @@ jobs:
           name: app-build
           path: dist/
 
-      - name: Synchronize version to Cargo.toml
-        run: npm run sync-version
-
       - name: Build for Linux
         id: build-linux
         if: ${{ runner.os == 'Linux' }}

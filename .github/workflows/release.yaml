@@ -40,10 +40,16 @@ jobs:
         algokit localnet start
         npx --yes wait-on tcp:4001 -t 30000
 
-  build-app:
-    name: Build Application
-    needs: ci
+  build-and-release:
+    name: Build and Create Release
+    needs: [ci]
     runs-on: ubuntu-latest
+    outputs:
+      release-published: ${{ steps.generate-release-version.outputs.release-published }}
+      release-version: ${{ steps.generate-release-version.outputs.release-version }}
+      release-tag: ${{ steps.generate-release-version.outputs.release-tag }}
+      release-id: ${{ steps.generate-release-version.outputs.release-id }}
+      crabnebula-release-id: ${{ steps.get-crabnebula-release-id.outputs.release-id }}
     steps:
       - name: Generate bot token
         uses: actions/create-github-app-token@v1
@@ -73,8 +79,26 @@ jobs:
       # Let scripts run without the token
       - run: npm rebuild
 
+      - name: Generate release version
+        uses: ./.github/actions/generate-release-version
+        id: generate-release-version
+        with:
+          # Use bot token for semantic-release operations
+          github-token: ${{ steps.app_token.outputs.token }}
+          node-version: 20
+
       - name: Synchronize version to Cargo.toml
+        if: steps.generate-release-version.outputs.release-published == 'true'
         run: npm run sync-version
+
+      - name: Commit version changes
+        if: steps.generate-release-version.outputs.release-published == 'true'
+        run: |
+          git config --local user.email "179917785+engineering-ci[bot]@users.noreply.github.com"
+          git config --local user.name "engineering-ci[bot]"
+          git add package.json package-lock.json src-tauri/Cargo.toml src-tauri/Cargo.lock
+          git commit -m "chore(release): ${{ steps.generate-release-version.outputs.release-version }}" || echo "No changes to commit"
+          git push origin ${{ github.ref_name }}
 
       - name: Create .env file with production values
         if: github.ref_name == 'release'
@@ -101,74 +125,36 @@ jobs:
           path: dist/
           retention-days: 1
 
-  create-release:
-    name: Create release
-    needs: [ci, build-app]
-    runs-on: ubuntu-latest
-    outputs:
-      release-published: ${{ steps.create-github-release.outputs.release-published }}
-      release-version: ${{ steps.create-github-release.outputs.release-version }}
-      release-tag: ${{ steps.create-github-release.outputs.release-tag }}
-      release-id: ${{ steps.create-github-release.outputs.release-id }}
-      crabnebula-release-id: ${{ steps.get-crabnebula-release-id.outputs.release-id }}
-    steps:
-      - name: Generate bot token
-        uses: actions/create-github-app-token@v1
-        id: app_token
-        with:
-          app-id: ${{ secrets.BOT_ID }}
-          private-key: ${{ secrets.BOT_SK }}
-
-      - uses: actions/checkout@v4
-        with:
-          # Use bot token for authenticated operations
-          token: ${{ steps.app_token.outputs.token }}
-          fetch-depth: 0
-
-      - name: Download app build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: app-build
-          path: dist/
-
-      - name: Create GitHub release
-        uses: ./.github/actions/create-release
-        id: create-github-release
-        with:
-          # Use bot token for semantic-release operations
-          github-token: ${{ steps.app_token.outputs.token }}
-          node-version: 20
-
       - name: Create draft CrabNebula release
         uses: crabnebula-dev/cloud-release@v0.2.0
         id: create-crabnebula-release
-        if: steps.create-github-release.outputs.release-published == 'true'
+        if: steps.generate-release-version.outputs.release-published == 'true'
         with:
-          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.create-github-release.outputs.release-version }} ${{ steps.create-github-release.outputs.release-published != 'true' && '--channel beta' || '' }}
+          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.generate-release-version.outputs.release-version }} ${{ steps.generate-release-version.outputs.release-published != 'true' && '--channel beta' || '' }}
           api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Get CrabNebula release ID
         id: get-crabnebula-release-id
-        if: steps.create-github-release.outputs.release-published == 'true'
+        if: steps.generate-release-version.outputs.release-published == 'true'
         run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
 
   release-web:
     name: Release Web
-    needs: [ci, build-app, create-release]
-    if: needs.create-release.outputs.release-published == 'true'
+    needs: [build-and-release]
+    if: needs.build-and-release.outputs.release-published == 'true'
     uses: ./.github/workflows/release-web.yaml
     with:
-      version: ${{ needs.create-release.outputs.release-version }}
+      version: ${{ needs.build-and-release.outputs.release-version }}
     secrets: inherit
 
   release-desktop:
     name: Release Desktop
-    needs: [ci, build-app, create-release]
-    if: needs.create-release.outputs.release-published == 'true'
+    needs: [build-and-release]
+    if: needs.build-and-release.outputs.release-published == 'true'
     uses: ./.github/workflows/release-desktop.yaml
     with:
-      version: ${{ needs.create-release.outputs.release-version }}
-      production-release: ${{ needs.create-release.outputs.release-published == 'true' }}
-      release-tag: ${{ needs.create-release.outputs.release-tag }}
-      crabnebula-release-id: ${{ needs.create-release.outputs.crabnebula-release-id }}
+      version: ${{ needs.build-and-release.outputs.release-version }}
+      production-release: ${{ needs.build-and-release.outputs.release-published == 'true' }}
+      release-tag: ${{ needs.build-and-release.outputs.release-tag }}
+      crabnebula-release-id: ${{ needs.build-and-release.outputs.crabnebula-release-id }}
     secrets: inherit

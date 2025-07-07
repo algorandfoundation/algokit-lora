@@ -10,6 +10,10 @@ const path = require('path')
 /**
  * Synchronizes version from package.json to src-tauri/Cargo.toml
  * This ensures web and desktop versions stay in sync during builds
+ *
+ * Usage:
+ * - Automatically called during release process to commit version changes
+ * - Can be run manually during development: npm run sync-version
  */
 
 // Read package.json
