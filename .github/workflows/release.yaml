@@ -88,11 +88,11 @@ jobs:
           node-version: 20
 
       - name: Synchronize version to Cargo.toml
-        if: steps.generate-release-version.outputs.release-published == 'true'
+        # if: steps.generate-release-version.outputs.release-published == 'true'
         run: npm run sync-version
 
       - name: Commit version changes
-        if: steps.generate-release-version.outputs.release-published == 'true'
+        # if: steps.generate-release-version.outputs.release-published == 'true'
         run: |
           git config --local user.email "179917785+engineering-ci[bot]@users.noreply.github.com"
           git config --local user.name "engineering-ci[bot]"
