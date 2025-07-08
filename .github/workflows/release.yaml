@@ -87,19 +87,6 @@ jobs:
           github-token: ${{ steps.app_token.outputs.token }}
           node-version: 20
 
-      - name: Synchronize version to Cargo.toml
-        if: steps.generate-release-version.outputs.release-published == 'true'
-        run: npm run sync-version
-
-      - name: Commit version changes
-        if: steps.generate-release-version.outputs.release-published == 'true'
-        run: |
-          git config --local user.email "179917785+engineering-ci[bot]@users.noreply.github.com"
-          git config --local user.name "engineering-ci[bot]"
-          git add package.json package-lock.json src-tauri/Cargo.toml src-tauri/Cargo.lock
-          git commit -m "chore(release): ${{ steps.generate-release-version.outputs.release-version }}" || echo "No changes to commit"
-          git push origin ${{ github.ref_name }}
-
       - name: Create .env file with production values
         if: github.ref_name == 'release'
         run: |
