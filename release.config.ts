@@ -68,10 +68,17 @@ const config: Options = {
         changelogTitle: '# Changelog\n\nAll notable changes to this project will be documented in this file.',
       },
     ],
+    '@semantic-release/npm',
+    [
+      '@semantic-release/exec',
+      {
+        prepareCmd: 'npm run sync-version',
+      },
+    ],
     [
       '@semantic-release/git',
       {
-        assets: ['CHANGELOG.md', 'package.json', 'package-lock.json', 'src-tauri/Cargo.toml'],
+        assets: ['CHANGELOG.md', 'package.json', 'package-lock.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock'],
         message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
