@@ -87,19 +87,6 @@ jobs:
           github-token: ${{ steps.app_token.outputs.token }}
           node-version: 20
 
-      - name: Synchronize version to Cargo.toml
-        if: steps.generate-release-version.outputs.release-published == 'true'
-        run: npm run sync-version
-
-      - name: Commit version changes
-        if: steps.generate-release-version.outputs.release-published == 'true'
-        run: |
-          git config --local user.email "179917785+engineering-ci[bot]@users.noreply.github.com"
-          git config --local user.name "engineering-ci[bot]"
-          git add package.json package-lock.json src-tauri/Cargo.toml src-tauri/Cargo.lock
-          git commit -m "chore(release): ${{ steps.generate-release-version.outputs.release-version }}" || echo "No changes to commit"
-          git push origin ${{ github.ref_name }}
-
       - name: Create .env file with production values
         if: github.ref_name == 'release'
         run: |
@@ -137,6 +124,61 @@ jobs:
         id: get-crabnebula-release-id
         if: steps.generate-release-version.outputs.release-published == 'true'
         run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
+
+  sync-release-to-main:
+    name: Sync Release Version to Main
+    runs-on: ubuntu-latest
+    needs: [build-and-release, release-web]
+    if: github.ref_name == 'release'
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Set Git user as GitHub actions
+        run: git config --global user.email "179917785+engineering-ci[bot]@users.noreply.github.com" && git config --global user.name "engineering-ci[bot]"
+
+      - name: Sync stable release back to main
+        run: |
+          VERSION="${{ needs.build-and-release.outputs.release-version }}"
+          TAG="${{ needs.build-and-release.outputs.release-tag }}"
+
+          echo "Syncing release version $VERSION (tag: $TAG) back to main..."
+
+          # Get the latest state of both branches
+          git fetch origin
+          git checkout release
+          git pull origin release
+
+          # Switch to main and merge the release commit
+          git checkout main
+          git pull origin main
+
+          # Find the commit that has the version tag
+          RELEASE_COMMIT=$(git rev-list -n 1 $TAG)
+          echo "Release commit: $RELEASE_COMMIT"
+
+          # Merge the release commit into main
+          git merge $RELEASE_COMMIT --no-ff -m "chore: sync stable release $VERSION to main
+
+          This commit syncs the stable release version back to main branch
+          to ensure the next beta cycle starts from the correct version base.
+
+          Release: $VERSION
+          Tag: $TAG"
+
+          # Push the updated main branch
+          git push origin main
+
+          echo "✅ Successfully synced $VERSION to main branch"
 
   release-web:
     name: Release Web
