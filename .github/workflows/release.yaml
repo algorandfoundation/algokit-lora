@@ -6,8 +6,9 @@
 # Role in release workflow:
 # - Triggered by push to release branch or manual dispatch
 # - Creates GitHub releases with semantic versioning once
-# - Calls release-web.yaml for web deployment
-# - Calls release-desktop.yaml for desktop app builds
+# - Calls release-web.yaml for web deployment on ref==release
+# - Syncs release version to main branch if ref==release
+# - Calls release-desktop.yaml for desktop app builds on ref==release
 # - Coordinates both releases to use same version
 
 name: Release
@@ -22,6 +23,10 @@ on:
       - '**.md'
       - '.vscode/**'
   workflow_dispatch:
+
+env:
+  # Define whether this is a production release (release branch)
+  IS_PRODUCTION_RELEASE: ${{ github.ref_name == 'release' }}
 
 concurrency: orchestrate-release
 
@@ -88,7 +93,7 @@ jobs:
           node-version: 20
 
       - name: Create .env file with production values
-        if: github.ref_name == 'release'
+        if: env.IS_PRODUCTION_RELEASE == 'true'
         run: |
           cat > .env << EOF
           VITE_DISPENSER_AUTH0_DOMAIN=dispenser-prod.eu.auth0.com
@@ -99,7 +104,7 @@ jobs:
           EOF
 
       - name: Create .env file with dev values
-        if: github.ref_name != 'release'
+        if: env.IS_PRODUCTION_RELEASE != 'true'
         run: cp .env.sample .env
 
       - name: Build application
@@ -115,14 +120,14 @@ jobs:
       - name: Create draft CrabNebula release
         uses: crabnebula-dev/cloud-release@v0.2.0
         id: create-crabnebula-release
-        if: steps.generate-release-version.outputs.release-published == 'true'
+        if: env.IS_PRODUCTION_RELEASE == 'true'
         with:
-          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.generate-release-version.outputs.release-version }} ${{ steps.generate-release-version.outputs.release-published != 'true' && '--channel beta' || '' }}
+          command: release draft ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} ${{ steps.generate-release-version.outputs.release-version }} ${{ env.IS_PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
           api-key: ${{ secrets.CN_API_KEY }}
 
       - name: Get CrabNebula release ID
         id: get-crabnebula-release-id
-        if: steps.generate-release-version.outputs.release-published == 'true'
+        if: env.IS_PRODUCTION_RELEASE == 'true'
         run: echo "release-id=${{ fromJson(steps.create-crabnebula-release.outputs.stdout).id }}" >> $GITHUB_OUTPUT
 
   sync-release-to-main:
@@ -183,7 +188,7 @@ jobs:
   release-web:
     name: Release Web
     needs: [build-and-release]
-    if: needs.build-and-release.outputs.release-published == 'true'
+    if: github.ref_name == 'release'
     uses: ./.github/workflows/release-web.yaml
     with:
       version: ${{ needs.build-and-release.outputs.release-version }}
@@ -192,11 +197,11 @@ jobs:
   release-desktop:
     name: Release Desktop
     needs: [build-and-release]
-    if: needs.build-and-release.outputs.release-published == 'true'
+    if: github.ref_name == 'release'
     uses: ./.github/workflows/release-desktop.yaml
     with:
       version: ${{ needs.build-and-release.outputs.release-version }}
-      production-release: ${{ needs.build-and-release.outputs.release-published == 'true' }}
+      production-release: ${{ github.ref_name == 'release' }}
       release-tag: ${{ needs.build-and-release.outputs.release-tag }}
       crabnebula-release-id: ${{ needs.build-and-release.outputs.crabnebula-release-id }}
     secrets: inherit
