@@ -171,8 +171,9 @@ jobs:
           RELEASE_COMMIT=$(git rev-list -n 1 $TAG)
           echo "Release commit: $RELEASE_COMMIT"
 
-          # Merge the release commit into main
-          git merge $RELEASE_COMMIT --no-ff -m "chore: sync stable release $VERSION to main
+          # Cherry-pick the release commit into main (without merge history)
+          git cherry-pick $RELEASE_COMMIT --no-commit
+          git commit -m "chore: sync stable release $VERSION to main [skip ci]
 
           This commit syncs the stable release version back to main branch
           to ensure the next beta cycle starts from the correct version base.
@@ -180,8 +181,12 @@ jobs:
           Release: $VERSION
           Tag: $TAG"
 
-          # Push the updated main branch
+          # Create the same tag on main branch (force move if it exists)
+          git tag -f $TAG
+
+          # Push the updated main branch and tags
           git push origin main
+          git push origin $TAG -f
 
           echo "✅ Successfully synced $VERSION to main branch"
 

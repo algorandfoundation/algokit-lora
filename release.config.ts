@@ -30,6 +30,7 @@ const config: Options = {
         preset: 'conventionalcommits',
         releaseRules: [
           ...specialReleaseRules, // more specific first
+          { breaking: true, release: 'major' },
           ...Object.entries(commitTypes).map(([type, config]) => ({
             type,
             release: config.release,
@@ -79,7 +80,7 @@ const config: Options = {
       '@semantic-release/git',
       {
         assets: ['CHANGELOG.md', 'package.json', 'package-lock.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock'],
-        message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+        message: 'chore(release): ref:${nextRelease.channel} ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
       },
     ],
     [
