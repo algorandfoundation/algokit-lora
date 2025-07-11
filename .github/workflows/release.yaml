@@ -50,7 +50,6 @@ jobs:
     needs: [ci]
     runs-on: ubuntu-latest
     outputs:
-      release-published: ${{ steps.generate-release-version.outputs.release-published }}
       release-version: ${{ steps.generate-release-version.outputs.release-version }}
       release-tag: ${{ steps.generate-release-version.outputs.release-tag }}
       release-id: ${{ steps.generate-release-version.outputs.release-id }}
