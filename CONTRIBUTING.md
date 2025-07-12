@@ -87,12 +87,40 @@ Lora uses [semantic versioning](https://semver.org/) with automated releases bas
 
 ### Release Process
 
+The release process follows a controlled promotion workflow with automatic version synchronization:
+
 ```
 Feature branch → main → (manual promotion) → release → production
-       ↓           ↓                             ↓
-   PR review   Beta release                Stable release
-              (staging-deployment.yml)    (release-web.yaml)
-
-Manual promotion: promote-to-production.yml
-Manual Desktop releases: release.yaml
+       ↓           ↓                             ↓         ↓
+   PR review   Beta release                Stable release  │
+              (release.yaml)              (release.yaml)   │
+                                                           │
+                     ←─────────────────────────────────────┘
+                          Automatic sync back to main
+                        (sync-release-to-main job)
 ```
+
+**Workflow Details:**
+
+1. **Development**: Create feature branches from `main`
+2. **Testing**: Merge to `main` triggers beta releases (`release.yaml` - beta versions only)
+3. **Promotion**: Manual promotion (`promote-to-production.yml`) merges `main` → `release`
+4. **Production**: Release to `release` branch triggers production deployment (`release.yaml` - full deployment)
+5. **Synchronization**: After production release, version is automatically synced back to `main`
+
+**Key Workflows:**
+
+- `promote-to-production.yml` - Manual promotion from main to release
+- `release.yaml` - Release orchestrator (handles both beta releases on main and production releases on release)
+- `sync-release-to-main` - Automatic version synchronization back to main (part of release.yaml)
+
+**Branch Behavior:**
+
+- **Main branch**: `release.yaml` creates beta versions (e.g., `v1.2.0-beta.1`) but doesn't deploy to production
+- **Release branch**: `release.yaml` creates stable versions (e.g., `v1.2.0`) and deploys to production (web + desktop)
+
+This ensures that:
+
+- All environments stay in sync with consistent version numbers
+- The next beta cycle starts from the correct version base
+- Release tags are properly maintained across both branches
