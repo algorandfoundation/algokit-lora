@@ -36,9 +36,6 @@ const config: Options = {
             release: config.release,
           })),
         ],
-        parserOpts: {
-          noteKeywords: ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'],
-        },
       },
     ],
     [
@@ -51,9 +48,6 @@ const config: Options = {
             section: config.section,
             hidden: config.hidden,
           })),
-        },
-        parserOpts: {
-          noteKeywords: ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'],
         },
         writerOpts: {
           groupBy: 'type',
