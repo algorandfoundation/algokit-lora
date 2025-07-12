@@ -1,9 +1,23 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { executeComponentTest } from '@/tests/test-component'
 import { findByRole, render, waitFor } from '@/tests/testing-library'
 import { SettingsPage } from '@/features/settings/pages/settings-page'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { createNetworkConfigDialogLabel, networkConfigsTableLabel } from '@/features/network/components/network-configs-table'
+
+// Mock the VersionDisplay component to test props
+vi.mock('@/features/common/components/version-display', () => ({
+  VersionDisplay: vi.fn(({ showDetails, showEnvironment }) => (
+    <div data-testid="version-display">
+      Mock VersionDisplay (details: {showDetails?.toString()}, environment: {showEnvironment?.toString()})
+    </div>
+  )),
+}))
+
+// Mock the ClearCache component to avoid caching side effects during testing
+vi.mock('@/features/settings/components/clear-cache', () => ({
+  ClearCache: vi.fn(() => <div data-testid="clear-cache">Mock ClearCache</div>),
+}))
 
 describe('settings-page', () => {
   describe('when viewing', () => {
@@ -23,6 +37,33 @@ describe('settings-page', () => {
             ],
             matchRowCount: true,
           })
+        }
+      )
+    })
+
+    it('should render all settings components', () => {
+      return executeComponentTest(
+        () => render(<SettingsPage />),
+        async (component) => {
+          // Network table should be present (already tested above)
+          expect(await component.findByRole('table', { name: networkConfigsTableLabel })).toBeInTheDocument()
+
+          // Clear cache component should be present
+          expect(component.getByTestId('clear-cache')).toBeInTheDocument()
+
+          // Version display component should be present
+          expect(component.getByTestId('version-display')).toBeInTheDocument()
+        }
+      )
+    })
+
+    it('should render VersionDisplay with showDetails and showEnvironment enabled', () => {
+      return executeComponentTest(
+        () => render(<SettingsPage />),
+        async (component) => {
+          const versionDisplay = component.getByTestId('version-display')
+          expect(versionDisplay).toHaveTextContent('details: true')
+          expect(versionDisplay).toHaveTextContent('environment: true')
         }
       )
     })

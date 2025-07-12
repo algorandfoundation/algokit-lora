@@ -1,0 +1,156 @@
+# Desktop Release Workflow
+#
+# This workflow is called by the main release orchestrator to build desktop applications.
+# It downloads pre-built web artifacts and builds cross-platform desktop applications.
+#
+# Role in release workflow:
+# - Called by main release.yaml orchestrator
+# - Receives version from semantic-release
+# - Downloads pre-built web artifacts
+# - Builds cross-platform desktop applications
+# - Publishes desktop apps via CrabNebula
+
+name: Release Desktop
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        type: string
+      production-release:
+        description: 'Production release?'
+        required: true
+        type: string
+      release-tag:
+        description: 'Release tag'
+        required: true
+        type: string
+      crabnebula-release-id:
+        description: 'CrabNebula release ID'
+        required: true
+        type: string
+
+concurrency: build-desktop
+
+env:
+  PRODUCTION_RELEASE: ${{ inputs.production-release == 'true' }}
+
+jobs:
+  build-tauri:
+    name: Build Tauri app
+    runs-on: ${{ matrix.platform }}
+    strategy:
+      matrix:
+        # macos-14 is the Apple Arm runner
+        # macos-13 is the Apple Intel runner
+        platform: [ubuntu-22.04, windows-latest, macos-13, macos-14]
+
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          # Use bot token for authenticated operations
+          token: ${{ steps.app_token.outputs.token }}
+          fetch-depth: 0
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@algorandfoundation'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install npm dependencies
+        run: npm ci --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ steps.app_token.outputs.token }}
+
+      # Let scripts run without the token
+      - run: npm rebuild
+
+      - name: Download app build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: dist/
+
+      - name: Build for Linux
+        id: build-linux
+        if: ${{ runner.os == 'Linux' }}
+        uses: ./.github/actions/build-linux
+        with:
+          release-tag: ${{ inputs.release-tag }}
+          production-release: ${{ env.PRODUCTION_RELEASE  }}
+          crabnebula-release-id: ${{ inputs.crabnebula-release-id }}
+          appimage-signing-private-key: ${{ secrets.APPIMAGE_SIGNING_PRIVATE_KEY }}
+          appimage-signing-private-key-password: ${{ secrets.APPIMAGE_SIGNING_PRIVATE_KEY_PASSWORD }}
+          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
+          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
+          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
+
+      - name: Build for Windows
+        id: build-windows
+        if: ${{ runner.os == 'Windows' }}
+        uses: ./.github/actions/build-windows
+        with:
+          release-tag: ${{ inputs.release-tag }}
+          production-release: ${{ env.PRODUCTION_RELEASE  }}
+          crabnebula-release-id: ${{ inputs.crabnebula-release-id }}
+          package_name: algokit-lora
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_client_secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
+          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
+          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
+
+      - name: Build for Mac
+        id: build-mac
+        if: ${{ runner.os == 'macOS' }}
+        uses: ./.github/actions/build-mac
+        with:
+          release-tag: ${{ inputs.release-tag }}
+          production-release: ${{ env.PRODUCTION_RELEASE  }}
+          crabnebula-release-id: ${{ inputs.crabnebula-release-id }}
+          apple-certificate: ${{ secrets.APPLE_CERTIFICATE }}
+          apple-certificate-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+          apple-id: ${{ secrets.APPLE_ID }}
+          apple-password: ${{ secrets.APPLE_PASSWORD }}
+          apple-team-id: ${{ secrets.APPLE_TEAM_ID }}
+          tauri-signing-public-key: ${{ secrets.TAURI_SIGNING_PUBLIC_KEY }}
+          tauri-signing-private-key: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          tauri-signing-private-key-password: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          crabnebula-org-name: ${{ secrets.CN_ORG_NAME }}
+          crabnebula-app-name: ${{ secrets.CN_APP_NAME }}
+          crabnebula-api-key: ${{ secrets.CN_API_KEY }}
+
+  publish-crabnebula:
+    name: Publish CrabNebula release
+    needs:
+      - build-tauri
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish CrabNebula release
+        uses: crabnebula-dev/cloud-release@v0.2.0
+        with:
+          command: release publish "${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }}" "${{ inputs.crabnebula-release-id }}" ${{ env.PRODUCTION_RELEASE != 'true' && '--channel beta' || '' }}
+          api-key: ${{ secrets.CN_API_KEY }}
