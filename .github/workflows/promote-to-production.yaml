@@ -1,0 +1,55 @@
+# Promotion Workflow
+#
+# This workflow is manually triggered to promote tested changes from 'main' to 'release'.
+# It performs a merge from main branch to release branch, which then triggers
+# the production deployment workflow.
+#
+# Role in release workflow:
+# - Manually triggered via GitHub Actions UI
+# - Merges tested changes from 'main' → 'release' branch
+# - Triggers production deployment automatically after merge
+# - Acts as the final approval gate before production release
+
+name: Promote to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      promote-from-main:
+        description: 'Promote main to production'
+        required: true
+        default: true
+        type: boolean
+
+concurrency: promote-to-production
+
+jobs:
+  promote-main-to-release:
+    name: Promote Main to Release
+    runs-on: ubuntu-latest
+    if: inputs.promote-from-main
+    steps:
+      - name: Generate bot token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.BOT_ID }}
+          private-key: ${{ secrets.BOT_SK }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Set Git user as GitHub actions
+        run: git config --global user.email "179917785+engineering-ci[bot]@users.noreply.github.com" && git config --global user.name "engineering-ci[bot]"
+
+      - name: Merge main to release
+        id: merge-main
+        run: |
+          git checkout release
+          git pull origin release
+          git merge origin/main --no-ff -X theirs -m "chore: promote main (i.e. staging) to production
+
+          This promotion merges tested changes from main branch to release for production release."
+          git push origin release

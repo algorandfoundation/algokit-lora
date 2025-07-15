@@ -1,11 +1,10 @@
 {
   "productName": "algokit-lora",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "identifier": "algokit-lora.algorand-foundation",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
   "app": {
