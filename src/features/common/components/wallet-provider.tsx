@@ -6,6 +6,7 @@ import { SupportedWallet, WalletId, WalletIdConfig, WalletManager } from '@txnla
 import { DialogBodyProps, useDialogForm } from '../hooks/use-dialog-form'
 import { PromptForm } from './prompt-form'
 import { loraKmdDevWalletName } from '@/features/fund/utils/kmd'
+import config from '@/config'
 
 type Props = PropsWithChildren<{
   networkConfig: NetworkConfigWithId
@@ -76,6 +77,24 @@ export function WalletProvider({ networkConfig, children }: Props) {
               siteName: 'AlgoKit - lora',
             },
           })
+        } else if (id === WalletId.WALLETCONNECT) {
+          if (config.walletConnectProjectId) {
+            acc.push({
+              id,
+              options: {
+                projectId: config.walletConnectProjectId,
+                metadata: {
+                  name: 'AlgoKit - LORA',
+                  description: 'Algorand Developer Tools for debugging and interacting with the Algorand blockchain',
+                  url: window.location.origin,
+                  icons: [`${window.location.origin}/apple-touch-icon.png`],
+                },
+              },
+            })
+          } else {
+            // eslint-disable-next-line no-console
+            console.warn('WalletConnect Project ID not configured - WalletConnect will not be available')
+          }
         } else {
           // eslint-disable-next-line no-console
           console.error(`${id} is not a supported wallet provider`)

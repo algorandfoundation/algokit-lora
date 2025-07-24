@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_DISPENSER_AUTH0_AUDIENCE: string
   readonly VITE_TESTNET_DISPENSER_API_URL: string
   readonly VITE_TESTNET_DISPENSER_ADDRESS: string
+  readonly VITE_WALLETCONNECT_PROJECT_ID?: string
 }
 
 interface ImportMeta {

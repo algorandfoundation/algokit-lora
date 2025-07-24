@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => ({
       VITE_DISPENSER_AUTH0_AUDIENCE: 'test',
       VITE_TESTNET_DISPENSER_API_URL: 'https://test.api',
       VITE_TESTNET_DISPENSER_ADDRESS: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+      VITE_WALLETCONNECT_PROJECT_ID: 'test_project_id',
       // For running tests against LocalNet
       ALGOD_TOKEN: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       ALGOD_SERVER: 'http://localhost',

@@ -6,6 +6,7 @@ const dispenserAuth0ClientId = import.meta.env.VITE_DISPENSER_AUTH0_CLIENT_ID
 const dispenserAuth0Audience = import.meta.env.VITE_DISPENSER_AUTH0_AUDIENCE
 const testNetDispenserApiUrl = import.meta.env.VITE_TESTNET_DISPENSER_API_URL
 const testNetDispenserAddress = import.meta.env.VITE_TESTNET_DISPENSER_ADDRESS
+const walletConnectProjectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID
 
 // Version configuration - injected at build time via vite's define feature
 declare global {
@@ -25,6 +26,10 @@ invariant(dispenserAuth0ClientId, 'dispenserAuth0ClientId is not set')
 invariant(dispenserAuth0Audience, 'dispenserAuth0Audience is not set')
 invariant(testNetDispenserApiUrl, 'testNetDispenserApiUrl is not set')
 invariant(testNetDispenserAddress, 'testNetDispenserAddress is not set')
+// WalletConnect project ID is optional for development
+if (walletConnectProjectId) {
+  invariant(walletConnectProjectId, 'walletConnectProjectId is not set')
+}
 
 const config = {
   dispenserAuth0Domain,
@@ -32,6 +37,7 @@ const config = {
   dispenserAuth0Audience,
   testNetDispenserApiUrl,
   testNetDispenserAddress,
+  walletConnectProjectId,
   // Version information
   version: {
     app: appVersion,

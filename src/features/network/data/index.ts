@@ -21,7 +21,7 @@ import { useDisconnectAllWallets } from '@/features/wallet/hooks/use-disconnect-
 
 export { localnetId, testnetId, mainnetId, fnetId } from './types'
 export const localnetWalletIds = [WalletId.KMD, WalletId.MNEMONIC, WalletId.LUTE]
-export const nonLocalnetWalletIds = [WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS, WalletId.LUTE]
+export const nonLocalnetWalletIds = [WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS, WalletId.LUTE, WalletId.WALLETCONNECT]
 export const allWalletProviderNames: Record<WalletId, string> = {
   kmd: 'KMD',
   mnemonic: 'MNEMONIC',
@@ -30,10 +30,10 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   pera: 'Pera',
   exodus: 'Exodus',
   lute: 'Lute',
+  walletconnect: 'WalletConnect',
   // The below providers aren't used
   custom: 'Custom',
   kibisis: 'Kibisis',
-  walletconnect: 'Wallet Connect',
   magic: 'Magic',
   biatec: 'Biatec',
 }
@@ -68,7 +68,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       server: 'https://fnet-api.4160.nodely.io/',
       port: 443,
     },
-    walletIds: [WalletId.LUTE],
+    walletIds: nonLocalnetWalletIds,
   },
   [betanetId]: {
     name: 'BetaNet',
@@ -80,7 +80,7 @@ export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
       server: 'https://betanet-api.algonode.cloud/',
       port: 443,
     },
-    walletIds: [WalletId.LUTE],
+    walletIds: nonLocalnetWalletIds,
   },
   [testnetId]: {
     name: 'TestNet',

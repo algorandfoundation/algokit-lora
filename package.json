@@ -65,6 +65,8 @@
     "@tauri-apps/plugin-updater": "^2.7.1",
     "@txnlab/use-wallet": "^4.0.0",
     "@txnlab/use-wallet-react": "^4.0.0",
+    "@walletconnect/modal": "^2.7.0",
+    "@walletconnect/sign-client": "^2.21.5",
     "@xstate/react": "^5.0.3",
     "algosdk": "3.3.1",
     "class-variance-authority": "^0.7.0",
@@ -102,10 +104,16 @@
     "zod-form-data": "^2.0.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "@eslint/js": "^9.15.0",
     "@makerx/prettier-config": "^2.0.0",
     "@makerx/ts-config": "^1.0.1",
     "@makerx/ts-dossier": "^3.0.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/npm": "^12.0.2",
     "@tauri-apps/cli": "^2.0.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^14.2.2",
@@ -136,15 +144,9 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.15.0",
-    "@semantic-release/changelog": "^6.0.3",
     "vite": "^7.0.5",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vitest": "^3.2.4",
-    "@semantic-release/exec": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/npm": "^12.0.2",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3"
+    "vitest": "^3.2.4"
   },
   "overrides": {
     "ws@>7.0.0 <7.5.9": "7.5.10",
