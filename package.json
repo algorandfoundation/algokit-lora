@@ -81,7 +81,7 @@
     "jsonschema": "^1.4.1",
     "lucide-react": "^0.356.0",
     "lute-connect": "^1.2.0",
-    "msw": "^2.4.1",
+    "msw": "^2.10.4",
     "multiformats": "^13.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
