@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.0...v2.0.1) (2025-07-25)
+
+### 🐛 Bug Fixes
+
+* crab nebula release version ([c68190f](https://github.com/algorandfoundation/algokit-lora/commit/c68190f9bb1db6efa2c2f20219b07d61f4d245b1))
+
 ## [2.0.0](https://github.com/algorandfoundation/algokit-lora/compare/v1.2.0...v2.0.0) (2025-07-25)
 
 ### ⚠ BREAKING CHANGES
