@@ -99,7 +99,7 @@ describe('VersionDisplay', () => {
 
       expect(component.getByText(/Built:/)).toBeInTheDocument()
       expect(component.getByText(/Commit:/)).toBeInTheDocument()
-      expect(component.getByText(/1\/15\/2024/)).toBeInTheDocument() // Date formatting
+      expect(component.getByText(RegExp(`${new Date('2024-01-15').toLocaleDateString()}`))).toBeInTheDocument() // Date formatting
       expect(component.getByText(/abc123d/)).toBeInTheDocument() // First 7 chars of commit
     })
 

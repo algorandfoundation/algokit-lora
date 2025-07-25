@@ -10,11 +10,10 @@ import { createTransactionsAtom, getTransactionResultAtoms } from '@/features/tr
 const createGroupAtom = (groupId: GroupId, round: Round) => {
   return atom(async (get) => {
     const groupResult = await get(getGroupResultAtom(groupId, round))
-    const transactionResults = await Promise.all(
-      // Transaction IDs in the group can be the inner transaction ID
-      // We need to remove the /inner/{id} part of the ID
-      getTransactionResultAtoms(groupResult.transactionIds.map((id) => id.split('/')[0])).map((txn) => get(txn))
-    )
+    // Transaction IDs in the group can be the inner transaction ID
+    // We need to remove the /inner/{id} part of the ID
+    const transactionIds = Array.from(new Set(groupResult.transactionIds.map((id) => id.split('/')[0])))
+    const transactionResults = await Promise.all(getTransactionResultAtoms(transactionIds).map((txn) => get(txn)))
     const transactions = get(createTransactionsAtom(transactionResults))
     return asGroup(groupResult, transactions)
   })
