@@ -15,6 +15,8 @@ import {
   BuildAccountCloseTransactionResult,
   BuildAssetFreezeTransactionResult,
   BuildKeyRegistrationTransactionResult,
+  BuildApplicationCreateTransactionResult,
+  BuildApplicationUpdateTransactionResult,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -22,6 +24,8 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import {
   AppCallMethodCall,
   AppCallParams,
+  AppCreateParams,
+  AppUpdateParams,
   AssetConfigParams,
   AssetCreateParams,
   AssetDestroyParams,
@@ -67,6 +71,12 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   }
   if (transaction.type === BuildableTransactionType.AppCall) {
     return [await asAppCallTransaction(transaction)]
+  }
+  if (transaction.type === BuildableTransactionType.ApplicationCreate) {
+    return [await asApplicationCreateTransaction(transaction)]
+  }
+  if (transaction.type === BuildableTransactionType.ApplicationUpdate) {
+    return [await asApplicationUpdateTransaction(transaction)]
   }
 
   throw new Error('Unsupported transaction type')
@@ -167,6 +177,49 @@ export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionR
 const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult): Promise<algosdk.Transaction> => {
   const params = asAppCallTransactionParams(transaction)
   return await algorandClient.createTransaction.appCall(params)
+}
+
+export const asApplicationCreateTransactionParams = (transaction: BuildApplicationCreateTransactionResult): AppCreateParams => {
+  return {
+    sender: transaction.sender.resolvedAddress,
+    args: transaction.args.map((arg) => base64ToBytes(arg)),
+    onComplete: transaction.onComplete,
+    approvalProgram: base64ToBytes(transaction.approvalProgram),
+    clearStateProgram: base64ToBytes(transaction.clearStateProgram),
+    schema: {
+      globalInts: transaction.globalInts ?? 0,
+      globalByteSlices: transaction.globalByteSlices ?? 0,
+      localInts: transaction.localInts ?? 0,
+      localByteSlices: transaction.localByteSlices ?? 0,
+    },
+    extraProgramPages: transaction.extraProgramPages,
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+
+const asApplicationCreateTransaction = async (transaction: BuildApplicationCreateTransactionResult): Promise<algosdk.Transaction> => {
+  const params = asApplicationCreateTransactionParams(transaction)
+  return await algorandClient.createTransaction.appCreate(params)
+}
+
+export const asApplicationUpdateTransactionParams = (transaction: BuildApplicationUpdateTransactionResult): AppUpdateParams => {
+  return {
+    sender: transaction.sender.resolvedAddress,
+    appId: BigInt(transaction.applicationId),
+    args: transaction.args.map((arg) => base64ToBytes(arg)),
+    approvalProgram: base64ToBytes(transaction.approvalProgram),
+    clearStateProgram: base64ToBytes(transaction.clearStateProgram),
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+
+const asApplicationUpdateTransaction = async (transaction: BuildApplicationUpdateTransactionResult): Promise<algosdk.Transaction> => {
+  const params = asApplicationUpdateTransactionParams(transaction)
+  return await algorandClient.createTransaction.appUpdate(params)
 }
 
 export const asAssetTransferTransactionParams = (
@@ -356,6 +409,8 @@ export const asAbiTransactionType = (type: BuildableTransactionType) => {
       return algosdk.ABITransactionType.pay
     case BuildableTransactionType.AppCall:
     case BuildableTransactionType.MethodCall:
+    case BuildableTransactionType.ApplicationCreate:
+    case BuildableTransactionType.ApplicationUpdate:
       return algosdk.ABITransactionType.appl
     case BuildableTransactionType.AssetOptIn:
     case BuildableTransactionType.AssetOptOut:

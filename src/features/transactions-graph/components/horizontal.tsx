@@ -63,6 +63,7 @@ function VectorLabelText({ type }: { type: LabelType }) {
   if (type === LabelType.PaymentTransferRemainder || type === LabelType.AssetTransferRemainder) return <span>Remainder</span>
   if (type === LabelType.AppCall) return <span>App Call</span>
   if (type === LabelType.AppCreate) return <span>App Create</span>
+  if (type === LabelType.AppUpdate) return <span>App Update</span>
   if (type === LabelType.AssetCreate) return <span>Asset Create</span>
   if (type === LabelType.AssetReconfigure)
     return (

@@ -13,6 +13,7 @@ import { TransactionFormItem, TransactionFormItemProps } from './transaction-for
 import { ArrayFormItem, ArrayFormItemProps } from './array-form-item'
 import { RadioGroupFormItem, RadioGroupFormItemProps } from './radio-group-form-item'
 import { AddressFieldProps, AddressFormItem, AddressOrNfdFieldSchema, OptionalAddressOrNfdFieldSchema } from './address-form-item'
+import { TextAreaFormItem, TextAreaFormItemProps } from './text-area-form-item'
 
 export class FormFieldHelper<TSchema extends Record<string, unknown>> {
   private readonly fieldPrefix: string
@@ -30,6 +31,10 @@ export class FormFieldHelper<TSchema extends Record<string, unknown>> {
 
   textField(props: TextFormItemProps<TSchema>) {
     return <TextFormItem {...this.prefixFieldProp(props)} />
+  }
+
+  textAreaField(props: TextAreaFormItemProps<TSchema>) {
+    return <TextAreaFormItem {...this.prefixFieldProp(props)} />
   }
 
   numberField(props: NumberFormItemProps<TSchema>) {

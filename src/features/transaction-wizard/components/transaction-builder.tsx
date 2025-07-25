@@ -21,6 +21,8 @@ import { AppCallTransactionBuilder } from './app-call-transaction-builder'
 import { AccountCloseTransactionBuilder } from './account-close-transaction-builder'
 import { AssetFreezeTransactionBuilder } from './asset-freeze-transaction-builder'
 import { KeyRegistrationTransactionBuilder } from './key-registration-transaction-builder'
+import { ApplicationCreateTransactionBuilder } from './application-create-transaction-builder'
+import { ApplicationUpdateTransactionBuilder } from './application-update-transaction-builder'
 
 export const transactionTypeLabel = 'Transaction type'
 
@@ -48,6 +50,18 @@ const builderConfigs = [
     type: BuildableTransactionType.MethodCall,
     label: 'ABI Method Call (appl)',
     component: MethodCallTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.appl,
+    type: BuildableTransactionType.ApplicationCreate,
+    label: 'Application Create (appl)',
+    component: ApplicationCreateTransactionBuilder,
+  },
+  {
+    transactionType: algosdk.TransactionType.appl,
+    type: BuildableTransactionType.ApplicationUpdate,
+    label: 'Application Update (appl)',
+    component: ApplicationUpdateTransactionBuilder,
   },
   {
     transactionType: algosdk.TransactionType.axfer,

@@ -160,6 +160,7 @@ export type LocalStateDelta = RawLocalStateDelta | DecodedLocalStateDelta
 
 export enum AppCallTransactionSubType {
   Create = 'Create',
+  Update = 'Update',
 }
 
 export type BaseAppCallTransaction = CommonTransactionProperties & {

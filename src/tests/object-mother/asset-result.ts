@@ -655,4 +655,40 @@ export const assetResultMother = {
       },
     } satisfies AssetResult)
   },
+  ['mainnet-2982339967']: () => {
+    return new AssetResultBuilder({
+      index: 2982339967n,
+      params: {
+        creator: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
+        decimals: 6,
+        defaultFrozen: false,
+        manager: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
+        name: 'Alpha Market 2982339824 Yes',
+        nameB64: encoder.encode('QWxwaGEgTWFya2V0IDI5ODIzMzk4MjQgWWVz'),
+        total: 18446744073709552000n,
+        unitName: 'ALPHA-Y',
+        unitNameB64: encoder.encode('QUxQSEEtWQ=='),
+        url: 'https://www.alphaarcade.com/market/2982339824',
+        urlB64: encoder.encode('aHR0cHM6Ly93d3cuYWxwaGFhcmNhZGUuY29tL21hcmtldC8yOTgyMzM5ODI0'),
+      },
+    } satisfies AssetResult)
+  },
+  ['mainnet-2982339968']: () => {
+    return new AssetResultBuilder({
+      index: 2982339968n,
+      params: {
+        creator: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
+        decimals: 6,
+        defaultFrozen: false,
+        manager: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
+        name: 'Alpha Market 2982339824 No',
+        nameB64: encoder.encode('QWxwaGEgTWFya2V0IDI5ODIzMzk4MjQgTm8='),
+        total: 18446744073709552000n,
+        unitName: 'ALPHA-N',
+        unitNameB64: encoder.encode('QUxQSEEtTg=='),
+        url: 'https://www.alphaarcade.com/market/2982339824',
+        urlB64: encoder.encode('aHR0cHM6Ly93d3cuYWxwaGFhcmNhZGUuY29tL21hcmtldC8yOTgyMzM5ODI0'),
+      },
+    } satisfies AssetResult)
+  },
 }

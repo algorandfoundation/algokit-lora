@@ -17,6 +17,8 @@ export const applicationClearStateProgramTabsListAriaLabel = 'View Application C
 export const applicationStateLabel = 'State'
 export const applicationGlobalStateLabel = 'Global'
 export const applicationGlobalStateTabId = 'global-state'
+export const applicationLocalStateLabel = 'Local'
+export const applicationLocalStateTabId = 'local-state'
 export const applicationBoxesLabel = 'Box'
 export const applicationBoxesTabId = 'boxes'
 
@@ -30,3 +32,7 @@ export const applicationHistoricalTransactionsTabId = 'historical-transactions'
 export const applicationHistoricalTransactionsTabLabel = 'Historical Transactions'
 
 export const applicationAbiMethodDefinitionsLabel = 'ABI Methods'
+
+export const enterAddressToViewLocalStateMessage = 'Enter an address to view local state.'
+export const failedToLoadLocalStateMessage = 'Failed to load local state.'
+export const invalidAddressForLocalStateMessage = 'Invalid address or NFD.'

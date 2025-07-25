@@ -49,7 +49,7 @@ runs:
       run: |
         input_version="${{ inputs.release-version }}"
         version="${input_version/beta./""}"
-        sed -i "s/\"version\": \"0.1.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
+        sed -i "s/\"version\": \"0.0.0\"/\"version\": \"$version\"/g" "src-tauri/tauri.conf.json"
         sed -i "s/\"createUpdaterArtifacts\": false/\"createUpdaterArtifacts\": true/g" "src-tauri/tauri.conf.json"
         sed -i "s/CN_ORG_NAME/${{ inputs.crabnebula-org-name }}/g" "src-tauri/tauri.conf.json"
         sed -i "s/CN_APP_NAME/${{ inputs.crabnebula-app-name }}/g" "src-tauri/tauri.conf.json"

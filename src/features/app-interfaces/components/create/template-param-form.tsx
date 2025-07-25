@@ -24,7 +24,7 @@ export function TemplateParamForm({ name, path, formHelper, disabled }: Template
       case TemplateParamType.Number:
         return 'A number value'
       case TemplateParamType.Uint8Array:
-        return 'A Base64 encoded Uint8Array value'
+        return 'A base64 encoded bytes value'
     }
   }, [type])
 

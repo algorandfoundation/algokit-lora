@@ -1,11 +1,11 @@
 import {
   Application,
-  RawGlobalStateType,
+  RawApplicationStateType,
   ApplicationSummary,
   ArgumentDefinition,
-  GlobalState,
-  DecodedGlobalState,
-  RawGlobalState,
+  ApplicationState,
+  DecodedApplicationState,
+  RawApplicationState,
   MethodDefinition,
   StructDefinition,
   StructFieldType,
@@ -61,20 +61,23 @@ export const asApplication = (
       : undefined,
     approvalProgram: uint8ArrayToBase64(application.params.approvalProgram),
     clearStateProgram: uint8ArrayToBase64(application.params.clearStateProgram),
-    globalState: asGlobalStateValue(application.params.globalState, appSpec),
+    globalState: asGlobalStateValues(application.params.globalState, appSpec),
     isDeleted: application.deleted ?? false,
     json: asJson(normaliseAlgoSdkData(application)),
     appSpec,
   }
 }
 
-export const asGlobalStateValue = (globalState: ApplicationResult['params']['globalState'], appSpec?: Arc56Contract): GlobalState[] => {
+export const asGlobalStateValues = (
+  globalState: ApplicationResult['params']['globalState'],
+  appSpec?: Arc56Contract
+): ApplicationState[] => {
   if (!globalState) {
     return []
   }
 
   return globalState
-    .map((state) => asGlobalState(state, appSpec))
+    .map((state) => asApplicationState(state, 'global', appSpec))
     .sort((a, b) => {
       const aKey = typeof a.key === 'string' ? a.key : a.key.name
       const bKey = typeof b.key === 'string' ? b.key : b.key.name
@@ -82,7 +85,7 @@ export const asGlobalStateValue = (globalState: ApplicationResult['params']['glo
     })
 }
 
-const asRawGlobalKey = (key: Uint8Array): string => {
+const asRawApplicationStateKey = (key: Uint8Array): string => {
   const buffer = Buffer.from(key)
 
   if (isUtf8(buffer)) {
@@ -92,41 +95,41 @@ const asRawGlobalKey = (key: Uint8Array): string => {
   }
 }
 
-const asRawGlobalValue = (bytes: Uint8Array) => {
+const asRawApplicationStateValue = (bytes: Uint8Array) => {
   if (bytes.length === 32) {
     return encodeAddress(bytes)
   }
   return base64ToUtf8IfValid(uint8ArrayToBase64(bytes))
 }
 
-const getRawGlobalState = (state: modelsv2.TealKeyValue): RawGlobalState => {
+const getRawApplicationState = (state: modelsv2.TealKeyValue): RawApplicationState => {
   if (state.value.type === 1) {
     return {
-      key: asRawGlobalKey(state.key),
-      type: RawGlobalStateType.Bytes,
-      value: asRawGlobalValue(state.value.bytes),
+      key: asRawApplicationStateKey(state.key),
+      type: RawApplicationStateType.Bytes,
+      value: asRawApplicationStateValue(state.value.bytes),
     }
   }
   if (state.value.type === 2) {
     return {
-      key: asRawGlobalKey(state.key),
-      type: RawGlobalStateType.Uint,
+      key: asRawApplicationStateKey(state.key),
+      type: RawApplicationStateType.Uint,
       value: state.value.uint,
     }
   }
   throw new Error(`Unknown type ${state.value.type}`)
 }
 
-const asGlobalState = (state: modelsv2.TealKeyValue, appSpec?: Arc56Contract): GlobalState => {
+const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
   const { key: keyBytes, value } = state
   const key = uint8ArrayToBase64(keyBytes)
 
   if (!appSpec) {
-    return getRawGlobalState(state)
+    return getRawApplicationState(state)
   }
 
-  // Check for global keys first
-  for (const [keyName, storageKey] of Object.entries(appSpec.state.keys.global)) {
+  // Check for local/global keys first
+  for (const [keyName, storageKey] of Object.entries(appSpec.state.keys[type])) {
     if (storageKey.key === key) {
       return {
         key: {
@@ -135,12 +138,12 @@ const asGlobalState = (state: modelsv2.TealKeyValue, appSpec?: Arc56Contract): G
           ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
         },
         value: tealValueToAbiStorageValue(appSpec, storageKey.valueType, value),
-      } satisfies DecodedGlobalState
+      } satisfies DecodedApplicationState
     }
   }
 
-  // Check for global maps with prefix
-  for (const [keyName, storageMap] of Object.entries(appSpec.state.maps.global)) {
+  // Check for local/global maps with prefix
+  for (const [keyName, storageMap] of Object.entries(appSpec.state.maps[type])) {
     if (!storageMap.prefix) {
       continue
     }
@@ -158,12 +161,12 @@ const asGlobalState = (state: modelsv2.TealKeyValue, appSpec?: Arc56Contract): G
           ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
         },
         value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
-      } satisfies DecodedGlobalState
+      } satisfies DecodedApplicationState
     }
   }
 
-  // Check for global maps without prefix
-  for (const [keyName, storageMap] of Object.entries(appSpec.state.maps.global)) {
+  // Check for local/global maps without prefix
+  for (const [keyName, storageMap] of Object.entries(appSpec.state.maps[type])) {
     if (storageMap.prefix) {
       continue
     }
@@ -178,14 +181,28 @@ const asGlobalState = (state: modelsv2.TealKeyValue, appSpec?: Arc56Contract): G
           ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
         },
         value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
-      } satisfies DecodedGlobalState
+      } satisfies DecodedApplicationState
     } catch {
       // Do nothing
     }
   }
 
   // The default case
-  return getRawGlobalState(state)
+  return getRawApplicationState(state)
+}
+
+export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?: Arc56Contract): ApplicationState[] => {
+  if (!localState) {
+    return []
+  }
+
+  return localState
+    .map((state) => asApplicationState(state, 'local', appSpec))
+    .sort((a, b) => {
+      const aKey = typeof a.key === 'string' ? a.key : a.key.name
+      const bKey = typeof b.key === 'string' ? b.key : b.key.name
+      return aKey.localeCompare(bKey)
+    })
 }
 
 const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: modelsv2.TealValue): DecodedAbiStorageValue => {
