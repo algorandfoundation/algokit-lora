@@ -118,7 +118,7 @@ jobs:
 
       - name: Debug CrabNebula release command
         run: |
-          echo "generate-release-version outputs:"
+          echo "generate-release-version outputs v2:"
           echo "release-version: ${{ steps.generate-release-version.outputs.release-version }}"
           echo "release-tag: ${{ steps.generate-release-version.outputs.release-tag }}"
           echo "release-notes: ${{ steps.generate-release-version.outputs.release-notes }}"
