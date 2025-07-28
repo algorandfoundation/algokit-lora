@@ -14,7 +14,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formData = zfd.formData({
@@ -47,7 +47,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
-        sender: values.sender,
+        sender: asOptionalAddressOrNfd(values.sender),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,

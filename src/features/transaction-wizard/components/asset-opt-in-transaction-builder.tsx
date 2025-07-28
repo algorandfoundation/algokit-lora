@@ -23,6 +23,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 export const assetOptInFormSchema = z.object({
   ...commonSchema,
@@ -143,7 +144,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount,
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptIn,
         asset: data.asset,
-        sender: data.sender,
+        sender: asOptionalAddressOrNfd(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

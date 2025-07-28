@@ -215,7 +215,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetReconfigure,
         asset: data.asset,
-        sender: data.sender,
+        sender: asOptionalAddressOrNfd(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),

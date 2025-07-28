@@ -13,7 +13,7 @@ import { BuildApplicationUpdateTransactionResult, BuildableTransactionType } fro
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 const formData = zfd.formData({
@@ -47,7 +47,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         applicationId: BigInt(values.applicationId),
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
-        sender: values.sender,
+        sender: asOptionalAddressOrNfd(values.sender),
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),

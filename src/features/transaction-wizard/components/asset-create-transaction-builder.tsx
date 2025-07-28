@@ -133,7 +133,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: data.unitName,
         total: data.total,
         decimals: data.decimals,
-        sender: data.sender,
+        sender: asOptionalAddressOrNfd(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),

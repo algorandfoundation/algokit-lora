@@ -21,6 +21,7 @@ import {
   MethodCallArg,
   PlaceholderTransaction,
   TransactionPositionsInGroup,
+  AddressOrNfd,
 } from '../models'
 import { asDecodedAbiStruct, asDecodedAbiValue } from '@/features/abi-methods/mappers'
 import { DecodedAbiValue } from '@/features/abi-methods/components/decoded-abi-value'
@@ -29,18 +30,23 @@ import { ApplicationLink } from '@/features/applications/components/application-
 import { DisplayAlgo } from '@/features/common/components/display-algo'
 import { DecodedAbiType } from '@/features/abi-methods/models'
 import { TransactionType } from '@/features/transactions/models'
-import {
-  asAppCallTransactionParams,
-  asAssetConfigTransactionParams,
-  asAssetFreezeTransactionParams,
-  asAssetTransferTransactionParams,
-  asKeyRegistrationTransactionParams,
-  asPaymentTransactionParams,
-  asApplicationCreateTransactionParams,
-  asApplicationUpdateTransactionParams,
-} from './as-algosdk-transactions'
+import { asAlgosdkTransactions, asFee, asValidRounds } from './as-algosdk-transactions'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
+import {
+  AppCallMethodCall,
+  AppCallParams,
+  AppCreateParams,
+  AppUpdateParams,
+  AssetConfigParams,
+  AssetCreateParams,
+  AssetDestroyParams,
+  AssetFreezeParams,
+  AssetTransferParams,
+  CommonAppCallParams,
+  OfflineKeyRegistrationParams,
+  OnlineKeyRegistrationParams,
+  PaymentParams,
+} from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
@@ -49,6 +55,75 @@ import { asAssetDisplayAmount } from '@/features/common/components/display-asset
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
+import { algos } from '@algorandfoundation/algokit-utils'
+
+type PaymentTransactionDescription = Omit<PaymentParams, 'sender'> & {
+  sender?: string
+}
+
+type MethodCallDescription = Omit<AppCallMethodCall, 'sender'> & { sender?: string }
+type AppCallDescription = Omit<AppCallParams, 'sender'> & { sender?: string }
+type AppCreateDescription = Omit<AppCreateParams, 'sender'> & { sender?: string }
+type AppUpdateDescription = Omit<AppUpdateParams, 'sender'> & { sender?: string }
+type AssetConfigDescription = Omit<AssetConfigParams, 'sender'> & { sender?: string }
+type AssetCreateDescription = Omit<AssetCreateParams, 'sender'> & { sender?: string }
+type AssetDestroyDescription = Omit<AssetDestroyParams, 'sender'> & { sender?: string }
+type AssetFreezeDescription = Omit<AssetFreezeParams, 'sender'> & { sender?: string }
+type AssetTransferDescription = Omit<AssetTransferParams, 'sender'> & { sender?: string }
+type OfflineKeyRegistrationDescription = Omit<OfflineKeyRegistrationParams, 'sender'> & { sender?: string }
+type OnlineKeyRegistrationDescription = Omit<OnlineKeyRegistrationParams, 'sender'> & { sender?: string }
+
+export const asPaymentTransactionDescription = (
+  transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
+): PaymentTransactionDescription => {
+  return {
+    sender: transaction.sender?.resolvedAddress,
+    receiver: transaction.receiver ? transaction.receiver.resolvedAddress : (transaction.sender?.resolvedAddress ?? 'LOL IDK'),
+    closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo.resolvedAddress : undefined,
+    amount: algos(transaction.amount ?? 0),
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
+
+export const asMethodCallParams = async (transaction: BuildMethodCallTransactionResult): Promise<MethodCallDescription> => {
+  invariant(transaction.methodDefinition, 'Method is required')
+  invariant(transaction.methodArgs, 'Method args are required')
+
+  const args = await Promise.all(
+    transaction.methodArgs.map(async (arg) => {
+      if (typeof arg === 'object' && 'type' in arg) {
+        if (arg.type === BuildableTransactionType.Fulfilled || arg.type === BuildableTransactionType.Placeholder) {
+          return undefined
+        } else if (arg.type !== BuildableTransactionType.MethodCall) {
+          // Other transaction types only return 1 transaction
+          return (await asAlgosdkTransactions(arg))[0]
+        } else {
+          return await asMethodCallParams(arg)
+        }
+      }
+      return arg
+    })
+  )
+
+  return {
+    sender: ensureSender(transaction.sender),
+    appId: BigInt(transaction.applicationId),
+    method: transaction.methodDefinition.abiMethod,
+    args: args,
+    accountReferences: transaction.accounts ?? [],
+    appReferences: transaction.foreignApps?.map((app) => BigInt(app)) ?? [],
+    assetReferences: transaction.foreignAssets?.map((asset) => BigInt(asset)) ?? [],
+    boxReferences:
+      transaction.boxes?.map(([appId, boxName]) => {
+        return { appId: BigInt(appId), name: Uint8Array.from(Buffer.from(boxName, 'base64')) }
+      }) ?? [],
+    note: transaction.note,
+    ...asFee(transaction.fee),
+    ...asValidRounds(transaction.validRounds),
+  }
+}
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -96,12 +171,12 @@ export const asDescriptionListItems = (
 }
 
 const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult): DescriptionListItems => {
-  const params = asPaymentTransactionParams(txn)
+  const params = asPaymentTransactionDescription(txn)
 
   return [
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set', // TODO: check term "Not set"
     },
     ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
@@ -141,7 +216,7 @@ const asAssetTransferTransaction = (
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     {
       dt: 'Receiver',
@@ -193,7 +268,7 @@ const asAssetConfigTransaction = (
     ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     ...('manager' in params && params.manager
       ? [
@@ -248,7 +323,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     ...('account' in params && params.account
       ? [
@@ -274,7 +349,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
   return [
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     {
       dt: 'Registration',
@@ -386,7 +461,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -439,7 +514,7 @@ const asMethodCallTransaction = (
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -699,7 +774,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     {
       dt: 'Approval program',
@@ -762,7 +837,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: params.sender ? <AddressOrNfdLink address={params.sender} /> : 'Not set',
     },
     {
       dt: 'Approval program',

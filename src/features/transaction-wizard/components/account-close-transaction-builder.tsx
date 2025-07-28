@@ -63,7 +63,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AccountClose,
-        sender: data.sender,
+        sender: asOptionalAddressOrNfd(data.sender),
         closeRemainderTo: data.closeRemainderTo,
         receiver: asOptionalAddressOrNfd(data.receiver),
         amount: data.amount,

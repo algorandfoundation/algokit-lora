@@ -67,7 +67,7 @@ export type AddressOrNfd = {
 
 type CommonBuildTransactionResult = {
   id: string
-  sender: AddressOrNfd
+  sender: AddressOrNfd | undefined
   fee: {
     setAutomatically: boolean
     value?: number
