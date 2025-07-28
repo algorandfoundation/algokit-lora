@@ -83,6 +83,14 @@ jobs:
       # Let scripts run without the token
       - run: npm rebuild
 
+      - name: Validate CrabNebula API key
+        id: validate-cn-api
+        uses: crabnebula-dev/cloud-release@v0.2.0
+        with:
+          command: release list ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} --limit 1
+          api-key: ${{ secrets.CN_API_KEY }}
+        continue-on-error: false
+
       - name: Generate release version
         uses: ./.github/actions/generate-release-version
         id: generate-release-version
