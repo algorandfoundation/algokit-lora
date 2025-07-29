@@ -7,6 +7,7 @@ import Decimal from 'decimal.js'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
+import { hasArc62Property } from '../utils/arc62'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
   return {
@@ -110,6 +111,9 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
 
 const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadataResult): AssetStandard[] => {
   const standardsUsed = new Set<AssetStandard>()
+
+  if (!metadataResult || !metadataResult.arc3) return []
+
   const [isArc3, isArc19] = assetResult.params.url
     ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
     : [false, false]
@@ -118,6 +122,11 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
   }
   if (metadataResult?.arc3?.metadata.properties && isArc16Properties(metadataResult.arc3.metadata.properties)) {
     standardsUsed.add(AssetStandard.ARC16)
+  }
+
+  //TODO-ARTHUR: Add conditional to check if the asset follows ARC-62 and execute function to get the circulating supply and burned supply - populate the asset with the data
+  if (isArc3 && hasArc62Property(metadataResult.arc3)) {
+    standardsUsed.add(AssetStandard.ARC62)
   }
   if (isArc19) {
     standardsUsed.add(AssetStandard.ARC19)
