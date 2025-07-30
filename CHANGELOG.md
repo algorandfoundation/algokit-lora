@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.6](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.5...v2.0.6) (2025-07-30)
+
+### 🐛 Bug Fixes
+
+* reorder steps ([#480](https://github.com/algorandfoundation/algokit-lora/issues/480)) ([491c692](https://github.com/algorandfoundation/algokit-lora/commit/491c692794aa5b7033e3ff255202f031752a420d))
+
 ## [2.0.5](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.4...v2.0.5) (2025-07-30)
 
 ## [2.0.4](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.3...v2.0.4) (2025-07-30)
