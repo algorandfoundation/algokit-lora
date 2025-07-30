@@ -50,6 +50,8 @@ const expandAssetJsonLevel = (level: number) => {
 }
 
 export function AssetDetails({ asset }: Props) {
+  console.log('AssetDetails', { assetDetails: asset })
+
   const assetItems = useMemo(
     () => [
       {
