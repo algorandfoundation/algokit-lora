@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.5](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.4...v2.0.5) (2025-07-30)
+
 ## [2.0.4](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.3...v2.0.4) (2025-07-30)
 
 ### 🐛 Bug Fixes
