@@ -36,6 +36,7 @@ import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
 import algosdk from 'algosdk'
+import { hasArc62Property } from '../utils/arc62'
 
 const server = setupServer()
 
@@ -205,6 +206,7 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
 
     it('should be rendered with the correct data', () => {
+      console.log('assetResult', transactionResult)
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -997,6 +999,34 @@ describe('asset-page', () => {
           })
         }
       )
+    })
+  })
+
+  describe('isArc62', () => {
+    it('should return true when "arc-62" property exists in metadata', () => {
+      const assetResult = assetResultMother['mainnet-1284444444']().build()
+
+      const metadata = {
+        properties: {
+          'arc-62': { 'application-id': 741524546 },
+        },
+      }
+      const extended = { ...assetResult, metadata }
+
+      expect(hasArc62Property(extended)).toBe(true)
+    })
+
+    it('should return false when "arc-62" property exists in metadata', () => {
+      const assetResult = assetResultMother['mainnet-1284444444']().build()
+
+      const metadata = {
+        properties: {
+          'arc-62': { 'application-ids': 741524546 },
+        },
+      }
+      const extended = { ...assetResult, metadata }
+
+      expect(hasArc62Property(extended)).toBe(false)
     })
   })
 })
