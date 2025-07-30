@@ -18,6 +18,11 @@ on:
         description: 'Release version'
         required: true
         type: string
+    secrets:
+      NETLIFY_SITE_ID:
+        required: true
+      NETLIFY_AUTH_TOKEN:
+        required: true
 
 concurrency: deploy-to-production
 
