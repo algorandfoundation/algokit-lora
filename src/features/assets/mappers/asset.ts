@@ -7,7 +7,7 @@ import Decimal from 'decimal.js'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
-import { hasArc62Property } from '../utils/arc62'
+import { isArc62 } from '../utils/arc62'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
   return {
@@ -125,7 +125,7 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
   }
 
   //TODO-ARTHUR: Add conditional to check if the asset follows ARC-62 and execute function to get the circulating supply and burned supply - populate the asset with the data
-  if (isArc3 && hasArc62Property(metadataResult.arc3)) {
+  if (isArc3 && isArc62(metadataResult.arc3)) {
     standardsUsed.add(AssetStandard.ARC62)
   }
   if (isArc19) {
