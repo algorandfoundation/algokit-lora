@@ -691,4 +691,25 @@ export const assetResultMother = {
       },
     } satisfies AssetResult)
   },
+
+  // Add new asset that uses an arc3 to create an arc62 asset here to be used in the test suite
+  'testnet-741524546': () => {
+    return new AssetResultBuilder({
+      index: 741524548n,
+      params: {
+        creator: 'Q3ROBYOB5QODCSNZKDYLH33NO5V4FN3YKMOHE43RPPC2LUPG56DNSU446I',
+        decimals: 0,
+        defaultFrozen: false,
+        manager: 'Q3ROBYOB5QODCSNZKDYLH33NO5V4FN3YKMOHE43RPPC2LUPG56DNSU446I',
+        name: 'ARC-62 Test Asset',
+        nameB64: encoder.encode('Z29sZCBudWdnZXQ='),
+        reserve: 'Q3ROBYOB5QODCSNZKDYLH33NO5V4FN3YKMOHE43RPPC2LUPG56DNSU446I',
+        total: 42n,
+        unitName: 'ARC-62',
+        unitNameB64: encoder.encode('cGllY2U='),
+        url: 'ipfs://bafkreib5wek6vteallf5sv4rbtr466ufpzuw364eoqapkgxk22ywkgzsam#arc3',
+        urlB64: encoder.encode('aHR0cHM6Ly9wYXRoL3RvL215L2Fzc2V0L2RldGFpbHM='),
+      },
+    })
+  },
 }
