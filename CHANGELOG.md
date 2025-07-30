@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.4](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.3...v2.0.4) (2025-07-30)
+
+### 🐛 Bug Fixes
+
+* added secrets to workflow_call workflows ([6b38e22](https://github.com/algorandfoundation/algokit-lora/commit/6b38e222e288a6a89d1548dd9d5c88f6128c4edc))
+
 ## [2.0.3](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.2...v2.0.3) (2025-07-28)
 
 ### 🐛 Bug Fixes
