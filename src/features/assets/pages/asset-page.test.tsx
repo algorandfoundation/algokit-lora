@@ -206,7 +206,6 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
 
     it('should be rendered with the correct data', () => {
-      console.log('assetResult', transactionResult)
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
