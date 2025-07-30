@@ -54,11 +54,11 @@ on:
         required: true
       TAURI_SIGNING_PUBLIC_KEY:
         required: true
-      CRABNEBULA_ORG_NAME:
+      CN_ORG_NAME:
         required: true
-      CRABNEBULA_APP_NAME:
+      CN_APP_NAME:
         required: true
-      CRABNEBULA_API_KEY:
+      CN_API_KEY:
         required: true
 
 concurrency: build-desktop
