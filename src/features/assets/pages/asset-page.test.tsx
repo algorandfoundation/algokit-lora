@@ -36,7 +36,7 @@ import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
 import algosdk from 'algosdk'
-import { hasArc62Property } from '../utils/arc62'
+import { isArc62 } from '../utils/arc62'
 
 const server = setupServer()
 
@@ -1012,7 +1012,7 @@ describe('asset-page', () => {
       }
       const extended = { ...assetResult, metadata }
 
-      expect(hasArc62Property(extended)).toBe(true)
+      expect(isArc62(extended)).toBe(true)
     })
 
     it('should return false when "arc-62" property exists in metadata', () => {
@@ -1025,7 +1025,7 @@ describe('asset-page', () => {
       }
       const extended = { ...assetResult, metadata }
 
-      expect(hasArc62Property(extended)).toBe(false)
+      expect(isArc62(extended)).toBe(false)
     })
   })
 })
