@@ -1,6 +1,6 @@
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
-import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
+import { Arc3MetadataResult, Arc62MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -14,6 +14,7 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
+import { isArc62 } from '../utils/arc62'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -28,6 +29,7 @@ const createAssetMetadataResult = async (
 ): Promise<AssetMetadataResult> => {
   let arc69MetadataResult: Arc69MetadataResult | undefined = undefined
   let arc3MetadataResult: Arc3MetadataResult | undefined = undefined
+  let arc62MetadataResult: Arc62MetadataResult | undefined = undefined
 
   // Get ARC-69 metadata if applicable
   if (latestAssetCreateOrReconfigureTransaction && latestAssetCreateOrReconfigureTransaction.note) {
@@ -44,6 +46,8 @@ const createAssetMetadataResult = async (
     ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
     : [false, false]
 
+  // TODO Arthur - check if is arc62 - if it is, get the circulating supply and add to the result
+
   if (assetResult.params.url && (isArc3 || isArc19)) {
     // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
     const metadataUrl = isArc19
@@ -58,6 +62,12 @@ const createAssetMetadataResult = async (
         arc3MetadataResult = {
           metadata_url: gatewayMetadataUrl,
           metadata,
+        }
+
+        const usesArc62 = isArc62(arc3MetadataResult)
+
+        if (usesArc62) {
+          arc62MetadataResult = { metadata: { circulatingSupply: 10 } }
         }
       } catch (error) {
         if (error instanceof SyntaxError) {
@@ -88,10 +98,11 @@ const createAssetMetadataResult = async (
     }
   }
 
-  if (arc3MetadataResult || arc69MetadataResult) {
+  if (arc3MetadataResult || arc69MetadataResult || arc62MetadataResult) {
     return {
       arc3: arc3MetadataResult,
       arc69: arc69MetadataResult,
+      arc62: arc62MetadataResult,
     }
   }
 
