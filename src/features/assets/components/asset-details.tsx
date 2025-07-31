@@ -27,6 +27,7 @@ import {
   assetActivityLabel,
   assetUnitNameLabel,
   assetUrlLabel,
+  assetCirculatingSupply,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
@@ -71,6 +72,7 @@ export function AssetDetails({ asset }: Props) {
           </div>
         ),
       },
+      asset.metadata?.arc62Metadata ? { dt: assetCirculatingSupply, dd: <div>{asset.metadata.arc62Metadata} </div> } : undefined,
       asset.name
         ? {
             dt: assetNameLabel,
