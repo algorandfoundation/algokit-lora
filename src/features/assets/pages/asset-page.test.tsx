@@ -1003,7 +1003,7 @@ describe('asset-page', () => {
 
   describe('isArc62', () => {
     it('should return true when "arc-62" property exists in metadata', () => {
-      const assetResult = assetResultMother['mainnet-1284444444']().build()
+      const assetResult = assetResultMother['testnet-741524546']().build()
 
       const metadata = {
         properties: {
@@ -1016,7 +1016,7 @@ describe('asset-page', () => {
     })
 
     it('should return false when "arc-62" property exists in metadata', () => {
-      const assetResult = assetResultMother['mainnet-1284444444']().build()
+      const assetResult = assetResultMother['testnet-741524546']().build()
 
       const metadata = {
         properties: {
@@ -1026,6 +1026,109 @@ describe('asset-page', () => {
       const extended = { ...assetResult, metadata }
 
       expect(isArc62(extended)).toBe(false)
+    })
+  })
+
+  describe('when rendering an ARC-3 + ARC-62 asset', () => {
+    const assetResult = assetResultMother['testnet-741524546']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
+
+    it('should be rendered with the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+            nextToken: undefined,
+            currentRound: 1,
+          })
+        )
+      )
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/bafkreib5wek6vteallf5sv4rbtr466ufpzuw364eoqapkgxk22ywkgzsam#arc3', () => {
+          return HttpResponse.json({
+            name: 'ARC-62 Test ASA',
+            standard: 'arc3',
+            decimals: 0,
+            description: 'ASA with Circulating Supply App',
+            properties: {
+              'arc-62': {
+                'application-id': 741524546,
+              },
+            },
+          })
+        })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '741524548ARC-3ARC-62Fungible' },
+                { term: assetUnitLabel, description: 'ARC-62' },
+                { term: assetNameLabel, description: 'ARC-62 Test Asset' },
+                { term: assetTotalSupplyLabel, description: '42 ARC-62' },
+                // { term: assetDecimalsLabel, description: '0' },
+                // { term: assetDefaultFrozenLabel, description: 'No' },
+                // { term: assetUrlLabel, description: 'template-ipfs://{ipfscid:1:raw:reserve:sha2-256}#arc3' },
+              ],
+            })
+
+            // const mediaCard = component.getByLabelText(assetMediaLabel)
+            // expect(
+            //   mediaCard.querySelector(`img[src="${ipfsGatewayUrl}bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74"]`)
+            // ).toBeTruthy()
+
+            // const assetAddressesCard = component.getByText(assetAddressesLabel).parentElement!
+            // descriptionListAssertion({
+            //   container: assetAddressesCard,
+            //   items: [
+            //     { term: assetCreatorLabel, description: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU' },
+            //     { term: assetManagerLabel, description: 'UF5DSSCT3GO62CSTSFB4QN5GNKFIMO7HCF2OIY6D57Z37IETEXRKUUNOPU' },
+            //     { term: assetReserveLabel, description: 'OPL3M2ZOKLSPVIM32MRK45O6IQMHTJPVWOWPVTEGXVHC3GHFLJK2YC5OWE' },
+            //   ],
+            // })
+
+            // const assetMetadataCard = component.getByText(assetMetadataLabel).parentElement!
+            // descriptionListAssertion({
+            //   container: assetMetadataCard,
+            //   items: [
+            //     { term: 'Name', description: 'Zappy #1620' },
+            //     { term: 'Standard', description: 'arc3' },
+            //     { term: 'Decimals', description: '0' },
+            //     { term: 'Image', description: 'ipfs://bafkreicfzgycn6zwhmegqjfnsj4q4qkff2luu3tzfrxtv5qpra5buf7d74' },
+            //     { term: 'Image Mimetype', description: 'image/png' },
+            //   ],
+            // })
+
+            // const assetTraitsCard = component.getByText(assetTraitsLabel).parentElement!
+            // descriptionListAssertion({
+            //   container: assetTraitsCard,
+            //   items: [
+            //     { term: 'Background', description: 'Orange' },
+            //     { term: 'Body', description: 'Turtleneck Sweater' },
+            //     { term: 'Earring', description: 'Right Helix' },
+            //     { term: 'Eyes', description: 'Wet' },
+            //     { term: 'Eyewear', description: 'Nerd Glasses' },
+            //     { term: 'Head', description: 'Wrap' },
+            //     { term: 'Mouth', description: 'Party Horn' },
+            //     { term: 'Skin', description: 'Sienna' },
+            // ],
+            // })
+          })
+        }
+      )
     })
   })
 })
