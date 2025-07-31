@@ -12,6 +12,10 @@
 
 name: Release Desktop
 
+permissions:
+  contents: read
+  packages: read
+
 on:
   workflow_call:
     inputs:
