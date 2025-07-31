@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.7](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.6...v2.0.7) (2025-07-31)
+
+### 🐛 Bug Fixes
+
+* revered back to using GITHUB_TOKEN ([#481](https://github.com/algorandfoundation/algokit-lora/issues/481)) ([ba6fe12](https://github.com/algorandfoundation/algokit-lora/commit/ba6fe12d88d3480d4d7ba8ddfa200eba504b6526))
+
 ## [2.0.6](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.5...v2.0.6) (2025-07-30)
 
 ### 🐛 Bug Fixes
