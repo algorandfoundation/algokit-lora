@@ -51,7 +51,12 @@ export type Arc69MetadataResult = {
   }
 }
 
+export type Arc62MetadataResult = {
+  metadata: { circulatingSupply: number }
+}
+
 export type AssetMetadataResult = {
   arc3?: Arc3MetadataResult
   arc69?: Arc69MetadataResult
+  arc62?: Arc62MetadataResult
 } | null
