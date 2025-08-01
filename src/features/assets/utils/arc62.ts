@@ -43,11 +43,16 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
       throw new Error(`Burned address not found in application ${applicationId} global state.`)
     }
 
-    const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, assetId, {
-      accountReferences: [arc62CreatorAddress!, burnedAddress],
-      appReferences: [applicationId],
-      assetReferences: [assetId],
-    })
+    const simulateResult = await executeFundedDiscoveryApplicationCall(
+      arc62GetCirculatingSupplyMethod,
+      applicationId,
+      {
+        accountReferences: [arc62CreatorAddress!, burnedAddress],
+        appReferences: [applicationId],
+        assetReferences: [assetId],
+      },
+      [assetId]
+    )
 
     if (!simulateResult.returns?.[0]) return
     const methodResult = simulateResult.returns[0].returnValue
@@ -85,11 +90,12 @@ export type appCallReferences = {
   boxReferences?: BoxReference | BoxIdentifier[]
 }
 
+// Abstracts the logic to execute a funded discovery application call to be more reusable
 export async function executeFundedDiscoveryApplicationCall(
   applicationMethod: algosdk.ABIMethod,
   applicationId: bigint,
-  assetId: bigint,
-  references?: appCallReferences
+  references?: appCallReferences,
+  applicationCallArgs?: any[]
 ) {
   // Using a fee sink address to call the method - simulating will check if caller account has balance
   const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
@@ -97,16 +103,15 @@ export async function executeFundedDiscoveryApplicationCall(
   // Create a transaction composer to call the method
   const composer = algorandClient.newGroup()
 
-  console.log('references', references)
   // Add the method call to the composer
   composer.addAppCallMethodCall({
     appId: applicationId,
     method: applicationMethod,
-    args: [assetId],
+    args: applicationCallArgs,
     sender: feeSinkAddress,
-    assetReferences: [references?.assetReferences ?? []].flat(),
-    accountReferences: [references?.accountReferences ?? []].flat(),
-    appReferences: [references?.appReferences ?? []].flat(),
+    assetReferences: references?.assetReferences ?? [],
+    accountReferences: references?.accountReferences ?? [],
+    appReferences: references?.appReferences ?? [],
   })
   const simulateResult = await composer.simulate({ skipSignatures: true })
 
