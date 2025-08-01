@@ -19,9 +19,6 @@ export const isArc62 = (asset: Arc3MetadataResult): boolean => {
 export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: bigint) => {
   const arc62GetCirculatingSupplyMethod = algosdk.ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64')
   try {
-    // Using a fee sink address to call the method - simulating will check if caller account has balance
-    const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
-
     // Fetch appplication data to define both creator and burner addresses in order to populate the method call
     const arc62ContractData = await indexer.lookupApplications(applicationId).do()
 
@@ -46,11 +43,7 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
     const simulateResult = await executeFundedDiscoveryApplicationCall(
       arc62GetCirculatingSupplyMethod,
       applicationId,
-      {
-        accountReferences: [arc62CreatorAddress!, burnedAddress],
-        appReferences: [applicationId],
-        assetReferences: [assetId],
-      },
+
       [assetId]
     )
 
@@ -83,18 +76,10 @@ function decodeAppState(globalState: any[]) {
   return decoded
 }
 
-export type appCallReferences = {
-  assetReferences?: bigint[]
-  accountReferences?: (string | Address)[]
-  appReferences?: bigint[]
-  boxReferences?: BoxReference | BoxIdentifier[]
-}
-
 // Abstracts the logic to execute a funded discovery application call to be more reusable
 export async function executeFundedDiscoveryApplicationCall(
   applicationMethod: algosdk.ABIMethod,
   applicationId: bigint,
-  references?: appCallReferences,
   applicationCallArgs?: any[]
 ) {
   // Using a fee sink address to call the method - simulating will check if caller account has balance
@@ -109,11 +94,8 @@ export async function executeFundedDiscoveryApplicationCall(
     method: applicationMethod,
     args: applicationCallArgs,
     sender: feeSinkAddress,
-    assetReferences: references?.assetReferences ?? [],
-    accountReferences: references?.accountReferences ?? [],
-    appReferences: references?.appReferences ?? [],
   })
-  const simulateResult = await composer.simulate({ skipSignatures: true })
+  const simulateResult = await composer.simulate({ skipSignatures: true, allowUnnamedResources: true })
 
   console.log('simulateResult', simulateResult)
 
