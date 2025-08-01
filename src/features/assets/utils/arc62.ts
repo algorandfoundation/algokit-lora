@@ -1,4 +1,10 @@
+import { algorandClient, indexer } from '@/features/common/data/algo-client'
+import algosdk, { Address } from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
+import { AppManager, BoxIdentifier } from '@algorandfoundation/algokit-utils/types/app-manager'
+import { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
+import { BoxReference } from 'node_modules/algosdk/dist/types/client/v2/algod/models/types'
+import { Simulate } from 'react-dom/test-utils'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 export const isArc62 = (asset: Arc3MetadataResult): boolean => {
@@ -9,9 +15,102 @@ export const isArc62 = (asset: Arc3MetadataResult): boolean => {
   return arc62?.['application-id'] !== undefined
 }
 
-// Plaeholder function to get the circulating supply from the application ID
-export const getArc62CirculatingSupply = (applicationId: number) => {
-  const result = applicationId.toString().match(/arc62-(\d+)/)
+// TODO Arthur - Refactor this - Try to make funded account application discovery more reusable
+export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: bigint) => {
+  const arc62GetCirculatingSupplyMethod = algosdk.ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64')
+  try {
+    // Using a fee sink address to call the method - simulating will check if caller account has balance
+    const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
 
-  return result
+    // Fetch appplication data to define both creator and burner addresses in order to populate the method call
+    const arc62ContractData = await indexer.lookupApplications(applicationId).do()
+
+    // I can prolly improve error managing using some existing logger
+    if (!arc62ContractData.application) {
+      throw new Error(`Application with ID ${applicationId} not found.`)
+    }
+    // Decode the application creator address to populate application call
+    const arc62CreatorAddress = arc62ContractData.application?.params.creator
+
+    // Fetch the global state to get the burned address
+    const globalAppState = arc62ContractData.application?.params.globalState ?? []
+
+    // Decode the global state to get the burned address to populate the method call
+    const decodedState = decodeAppState(globalAppState)
+    const burnedAddress = decodedState.burned.toString()
+
+    if (!burnedAddress) {
+      throw new Error(`Burned address not found in application ${applicationId} global state.`)
+    }
+
+    const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, assetId, {
+      accountReferences: [arc62CreatorAddress!, burnedAddress],
+      appReferences: [applicationId],
+      assetReferences: [assetId],
+    })
+
+    if (!simulateResult.returns?.[0]) return
+    const methodResult = simulateResult.returns[0].returnValue
+    console.log('circulating supply response', methodResult)
+    return methodResult
+  } catch (error) {
+    console.error('Error fetching circulating supply:', error)
+  }
+}
+
+// helper to decode state
+function decodeAppState(globalState: any[]) {
+  const decoded: Record<string, string | number> = {}
+
+  globalState.forEach(({ key, value }) => {
+    const decodedKey = Buffer.from(key, 'base64').toString()
+
+    if (value.type === 1) {
+      // value.bytes contains base64 string of the address
+      const raw = Buffer.from(value.bytes, 'base64')
+      const address = algosdk.encodeAddress(raw)
+      decoded[decodedKey] = address
+    } else if (value.type === 2) {
+      decoded[decodedKey] = value.uint
+    }
+  })
+
+  return decoded
+}
+
+export type appCallReferences = {
+  assetReferences?: bigint[]
+  accountReferences?: (string | Address)[]
+  appReferences?: bigint[]
+  boxReferences?: BoxReference | BoxIdentifier[]
+}
+
+export async function executeFundedDiscoveryApplicationCall(
+  applicationMethod: algosdk.ABIMethod,
+  applicationId: bigint,
+  assetId: bigint,
+  references?: appCallReferences
+) {
+  // Using a fee sink address to call the method - simulating will check if caller account has balance
+  const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+
+  // Create a transaction composer to call the method
+  const composer = algorandClient.newGroup()
+
+  console.log('references', references)
+  // Add the method call to the composer
+  composer.addAppCallMethodCall({
+    appId: applicationId,
+    method: applicationMethod,
+    args: [assetId],
+    sender: feeSinkAddress,
+    assetReferences: [references?.assetReferences ?? []].flat(),
+    accountReferences: [references?.accountReferences ?? []].flat(),
+    appReferences: [references?.appReferences ?? []].flat(),
+  })
+  const simulateResult = await composer.simulate({ skipSignatures: true })
+
+  console.log('simulateResult', simulateResult)
+
+  return simulateResult
 }
