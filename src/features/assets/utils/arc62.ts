@@ -1,10 +1,6 @@
 import { algorandClient, indexer } from '@/features/common/data/algo-client'
 import algosdk, { Address } from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
-import { AppManager, BoxIdentifier } from '@algorandfoundation/algokit-utils/types/app-manager'
-import { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
-import { BoxReference } from 'node_modules/algosdk/dist/types/client/v2/algod/models/types'
-import { Simulate } from 'react-dom/test-utils'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 export const isArc62 = (asset: Arc3MetadataResult): boolean => {
@@ -26,8 +22,6 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
     if (!arc62ContractData.application) {
       throw new Error(`Application with ID ${applicationId} not found.`)
     }
-    // Decode the application creator address to populate application call
-    const arc62CreatorAddress = arc62ContractData.application?.params.creator
 
     // Fetch the global state to get the burned address
     const globalAppState = arc62ContractData.application?.params.globalState ?? []
@@ -40,12 +34,7 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
       throw new Error(`Burned address not found in application ${applicationId} global state.`)
     }
 
-    const simulateResult = await executeFundedDiscoveryApplicationCall(
-      arc62GetCirculatingSupplyMethod,
-      applicationId,
-
-      [assetId]
-    )
+    const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, [assetId])
 
     if (!simulateResult.returns?.[0]) return
     const methodResult = simulateResult.returns[0].returnValue
