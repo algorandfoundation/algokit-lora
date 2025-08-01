@@ -1,5 +1,5 @@
 import { algorandClient, indexer } from '@/features/common/data/algo-client'
-import algosdk, { Address } from 'algosdk'
+import algosdk from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
