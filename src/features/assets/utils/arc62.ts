@@ -1,5 +1,5 @@
 import { algorandClient, indexer } from '@/features/common/data/algo-client'
-import algosdk from 'algosdk'
+import algosdk, { getApplicationAddress } from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
 import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 
@@ -39,7 +39,7 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
     await getArc62BurnedSupply(applicationId, assetId)
     if (!simulateResult.returns?.[0]) return
     const methodResult = simulateResult.returns[0].returnValue
-    console.log('circulating supply response', methodResult)
+
     return methodResult
   } catch (error) {
     console.error('Error fetching circulating supply:', error)
@@ -65,8 +65,13 @@ export const getArc62BurnedSupply = async (applicationId: bigint, assetId: bigin
   return burnedSupply
 }
 
+export const getArc62ReserveAddress = async (applicationId: bigint) => {
+  const arc62ReserveAddress = getApplicationAddress(applicationId)
+  return arc62ReserveAddress
+}
+
 // helper to decode state
-function decodeAppState(globalState: any[]) {
+export const decodeAppState = (globalState: any[]) => {
   const decoded: Record<string, string | number> = {}
 
   globalState.forEach(({ key, value }) => {
