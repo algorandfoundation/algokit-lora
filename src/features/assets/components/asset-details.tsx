@@ -27,6 +27,9 @@ import {
   assetActivityLabel,
   assetUnitNameLabel,
   assetUrlLabel,
+  circulatingSupplyLabel,
+  burnedSupplyLabel,
+  reserveSupplyLabel,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
@@ -78,18 +81,17 @@ export function AssetDetails({ asset }: Props) {
         ),
       },
       parsedArc62 && {
-        dt: 'circulatingSupply',
+        dt: circulatingSupplyLabel,
         dd: <div>{parsedArc62.circulatingSupply}</div>,
       },
       parsedArc62 && {
-        dt: 'burnedSupply',
+        dt: burnedSupplyLabel,
         dd: <div>{parsedArc62.burnedSupply}</div>,
       },
       parsedArc62 && {
-        dt: 'reserveSupply',
+        dt: reserveSupplyLabel,
         dd: <div>{parsedArc62.reserveSupply}</div>,
       },
-
       asset.name
         ? {
             dt: assetNameLabel,
@@ -130,18 +132,7 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [
-      asset.id,
-      asset.name,
-      asset.standardsUsed,
-      asset.type,
-      asset.unitName,
-      asset.total,
-      asset.decimals,
-      asset.defaultFrozen,
-      asset.url,
-      asset.metadata?.arc62Metadata,
-    ]
+    [asset.id, asset.name, asset.standardsUsed, asset.type, asset.unitName, asset.total, asset.decimals, asset.defaultFrozen, asset.url]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(
