@@ -27,7 +27,6 @@ import {
   assetActivityLabel,
   assetUnitNameLabel,
   assetUrlLabel,
-  assetCirculatingSupply,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
@@ -51,7 +50,13 @@ const expandAssetJsonLevel = (level: number) => {
 }
 
 export function AssetDetails({ asset }: Props) {
-  console.log('AssetDetails', { assetDetails: asset })
+  const raw = String(asset.metadata?.arc62Metadata)
+  let parsedArc62 = null
+  try {
+    parsedArc62 = raw ? JSON.parse(raw) : null
+  } catch (e) {
+    parsedArc62 = null
+  }
 
   const assetItems = useMemo(
     () => [
@@ -72,7 +77,19 @@ export function AssetDetails({ asset }: Props) {
           </div>
         ),
       },
-      asset.metadata?.arc62Metadata ? { dt: assetCirculatingSupply, dd: <div>{asset.metadata.arc62Metadata} </div> } : undefined,
+      parsedArc62 && {
+        dt: 'circulatingSupply',
+        dd: <div>{parsedArc62.circulatingSupply}</div>,
+      },
+      parsedArc62 && {
+        dt: 'burnedSupply',
+        dd: <div>{parsedArc62.burnedSupply}</div>,
+      },
+      parsedArc62 && {
+        dt: 'reserveSupply',
+        dd: <div>{parsedArc62.reserveSupply}</div>,
+      },
+
       asset.name
         ? {
             dt: assetNameLabel,
@@ -113,7 +130,18 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.id, asset.name, asset.standardsUsed, asset.type, asset.unitName, asset.total, asset.decimals, asset.defaultFrozen, asset.url]
+    [
+      asset.id,
+      asset.name,
+      asset.standardsUsed,
+      asset.type,
+      asset.unitName,
+      asset.total,
+      asset.decimals,
+      asset.defaultFrozen,
+      asset.url,
+      asset.metadata?.arc62Metadata,
+    ]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(
