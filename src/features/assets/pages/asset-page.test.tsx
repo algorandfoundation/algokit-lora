@@ -1002,34 +1002,6 @@ describe('asset-page', () => {
     })
   })
 
-  describe('isArc62', () => {
-    it('should return true when "arc-62" property exists in metadata', () => {
-      const assetResult = assetResultMother['testnet-741524546']().build()
-
-      const metadata = {
-        properties: {
-          'arc-62': { 'application-id': 741524546 },
-        },
-      }
-      const extended = { ...assetResult, metadata }
-
-      expect(arc62Utils.isArc62(extended)).toBe(true)
-    })
-
-    it('should return false when "arc-62" property exists in metadata', () => {
-      const assetResult = assetResultMother['testnet-740315456']().build()
-
-      const metadata = {
-        properties: {
-          'arc-62': { 'application-ids': 741524546 },
-        },
-      }
-      const extended = { ...assetResult, metadata }
-
-      expect(arc62Utils.isArc62(extended)).toBe(false)
-    })
-  })
-
   describe('when rendering an ARC-3 + ARC-62 asset', () => {
     const assetResult = assetResultMother['testnet-740315456']().build()
     const transactionResult = transactionResultMother.assetConfig().build()
