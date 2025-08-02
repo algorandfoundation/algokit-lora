@@ -49,7 +49,11 @@ describe('arc62Utils.isArc62', () => {
   arc62TestCases.forEach(({ name, metadata, expected }) => {
     test(name, () => {
       const assetResult = assetResultMother['testnet-740315456']().build()
+
+      // Extend the assetResult from "asset builder" with the metadata
       const extended = { ...assetResult, metadata }
+
+      // Test if the asset, based on the metadata, is recognized as ARC-62 due to its application-id property checked by isArc62()
       expect(arc62Utils.isArc62(extended)).toBe(expected)
     })
   })
