@@ -1006,7 +1006,7 @@ describe('asset-page', () => {
     const assetResult = assetResultMother['testnet-740315456']().build()
     const transactionResult = transactionResultMother.assetConfig().build()
 
-    it('should be rendered with the correct data', () => {
+    it('Asset details component display the correct data', () => {
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -1023,6 +1023,7 @@ describe('asset-page', () => {
         )
       )
 
+      // TODO ARTHUR - Needs to get help on this test
       // I have to mock the applicationCall to populate the test
       // vi.spyOn(arc62Utils, 'executeFundedDiscoveryApplicationCall').mockImplementation(async () => ({
       //   methodResults: [
