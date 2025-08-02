@@ -1,6 +1,7 @@
 import { algorandClient, indexer } from '@/features/common/data/algo-client'
 import algosdk from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
+import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 export const isArc62 = (asset: Arc3MetadataResult): boolean => {
@@ -35,7 +36,7 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
     }
 
     const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, [assetId])
-
+    await getArc62BurnedSupply(applicationId, assetId)
     if (!simulateResult.returns?.[0]) return
     const methodResult = simulateResult.returns[0].returnValue
     console.log('circulating supply response', methodResult)
@@ -45,12 +46,31 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
   }
 }
 
+export const getArc62BurnedSupply = async (applicationId: bigint, assetId: bigint) => {
+  // Fetch appplication data to define both creator and burner addresses in order to populate the method call
+  const arc62ContractData = await indexer.lookupApplications(applicationId).do()
+
+  const globalAppState = arc62ContractData.application?.params.globalState ?? []
+
+  // Decode the global state to get the burned address to populate the method call
+  const decodedState = decodeAppState(globalAppState)
+  const burnedAddress = decodedState.burned.toString()
+  console.log('burnedAddress', burnedAddress)
+
+  const burnedAsset = await indexer.lookupAccountAssets(burnedAddress).assetId(assetId).do()
+  console.log('burnedAsset', burnedAsset)
+
+  const burnedSupply = burnedAsset.assets?.[0]?.amount ?? 0
+
+  return burnedSupply
+}
+
 // helper to decode state
 function decodeAppState(globalState: any[]) {
   const decoded: Record<string, string | number> = {}
 
   globalState.forEach(({ key, value }) => {
-    const decodedKey = Buffer.from(key, 'base64').toString()
+    const decodedKey = uint8ArrayToUtf8(key)
 
     if (value.type === 1) {
       // value.bytes contains base64 string of the address
