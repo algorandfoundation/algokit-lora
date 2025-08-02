@@ -14,7 +14,7 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
-import { getArc62CirculatingSupply, isArc62 } from '../utils/arc62'
+import { getArc62BurnedSupply, getArc62CirculatingSupply, isArc62 } from '../utils/arc62'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -71,7 +71,15 @@ const createAssetMetadataResult = async (
         if (usesArc62) {
           const arc62AppId = metadata.properties[`arc-62`]['application-id']
           const circulatingSupply = await getArc62CirculatingSupply(arc62AppId, assetResult.index)
-          arc62MetadataResult = { metadata: { circulatingSupply: Number(circulatingSupply) } }
+          const burnedSupply = await getArc62BurnedSupply(arc62AppId, assetResult.index)
+          const reserveSupply = Number(assetResult.params.total) - (Number(circulatingSupply)! + Number(burnedSupply)!)
+          arc62MetadataResult = {
+            metadata: {
+              circulatingSupply: Number(circulatingSupply),
+              burnedSupply: Number(burnedSupply),
+              reserveSupply: Number(reserveSupply),
+            },
+          }
         }
       } catch (error) {
         if (error instanceof SyntaxError) {
