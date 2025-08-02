@@ -80,18 +80,24 @@ export function AssetDetails({ asset }: Props) {
           </div>
         ),
       },
-      parsedArc62 && {
-        dt: circulatingSupplyLabel,
-        dd: <div>{parsedArc62.circulatingSupply}</div>,
-      },
-      parsedArc62 && {
-        dt: burnedSupplyLabel,
-        dd: <div>{parsedArc62.burnedSupply}</div>,
-      },
-      parsedArc62 && {
-        dt: reserveSupplyLabel,
-        dd: <div>{parsedArc62.reserveSupply}</div>,
-      },
+      parsedArc62
+        ? {
+            dt: circulatingSupplyLabel,
+            dd: <div>{parsedArc62.circulatingSupply}</div>,
+          }
+        : undefined,
+      parsedArc62
+        ? {
+            dt: burnedSupplyLabel,
+            dd: <div>{parsedArc62.burnedSupply}</div>,
+          }
+        : undefined,
+      parsedArc62
+        ? {
+            dt: reserveSupplyLabel,
+            dd: <div>{parsedArc62.reserveSupply}</div>,
+          }
+        : undefined,
       asset.name
         ? {
             dt: assetNameLabel,
