@@ -15,6 +15,8 @@ import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 import { getArc62BurnedSupply, getArc62CirculatingSupply, isArc62 } from '../utils/arc62'
+import { parseArc2 } from '@/features/transactions/mappers'
+import { parse } from 'path'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -42,13 +44,11 @@ const createAssetMetadataResult = async (
   }
 
   // Get ARC-3 or ARC-19 metadata if applicable
-  const [isArc3, isArc19] = assetResult.params.url
-    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
-    : [false, false]
+  const [isArc3, isArc19, isArc2] = assetResult.params.url
+    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url), parseArc2(assetResult.params.url)] as const)
+    : [false, false, false]
 
-  // TODO Arthur - check if is arc62 - if it is, get the circulating supply and add to the result
-
-  if (assetResult.params.url && (isArc3 || isArc19)) {
+  if (assetResult.params.url && (isArc3 || isArc19 || isArc2)) {
     // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
     const metadataUrl = isArc19
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
