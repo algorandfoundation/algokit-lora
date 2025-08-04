@@ -1,4 +1,3 @@
-import { testnetId, useSetSelectedNetwork } from '@/features/network/data'
 import { executeFundedDiscoveryApplicationCall } from '@/utils/funded-discovery'
 import algosdk from 'algosdk'
 import { describe, test, expect } from 'vitest'
@@ -23,7 +22,7 @@ const onchainQueryTestCases: onchainQueryTestCase[] = [
   },
 ]
 
-describe('arc62Utils.isArc62', () => {
+describe('onChainQuery', () => {
   onchainQueryTestCases.forEach(({ name, metadata, expected }) => {
     test(name, async () => {
       const result = await executeFundedDiscoveryApplicationCall(metadata.properties['abi-method'], metadata.properties['application-id'], [
