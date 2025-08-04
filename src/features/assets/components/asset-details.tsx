@@ -80,6 +80,22 @@ export function AssetDetails({ asset }: Props) {
           </div>
         ),
       },
+      asset.name
+        ? {
+            dt: assetNameLabel,
+            dd: asset.name,
+          }
+        : undefined,
+      asset.unitName
+        ? {
+            dt: assetUnitNameLabel,
+            dd: asset.unitName,
+          }
+        : undefined,
+      {
+        dt: assetTotalSupplyLabel,
+        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
+      },
       parsedArc62
         ? {
             dt: circulatingSupplyLabel,
@@ -98,22 +114,6 @@ export function AssetDetails({ asset }: Props) {
             dd: <div>{parsedArc62.reserveSupply}</div>,
           }
         : undefined,
-      asset.name
-        ? {
-            dt: assetNameLabel,
-            dd: asset.name,
-          }
-        : undefined,
-      asset.unitName
-        ? {
-            dt: assetUnitNameLabel,
-            dd: asset.unitName,
-          }
-        : undefined,
-      {
-        dt: assetTotalSupplyLabel,
-        dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
-      },
       {
         dt: assetDecimalsLabel,
         dd: asset.decimals,
