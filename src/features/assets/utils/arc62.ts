@@ -42,7 +42,7 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
 
     return methodResult
   } catch (error) {
-    console.error('Error fetching circulating supply:', error)
+    throw error
   }
 }
 

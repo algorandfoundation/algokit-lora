@@ -173,7 +173,7 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.clawback, asset.creator, asset.freeze, asset.manager, asset.reserve]
+    [asset.clawback, asset.creator, asset.freeze, asset.manager, asset.reserve, parsedArc62]
   ).filter(isDefined)
 
   return (
