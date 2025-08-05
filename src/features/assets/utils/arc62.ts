@@ -2,7 +2,6 @@ import { algorandClient, indexer } from '@/features/common/data/algo-client'
 import algosdk, { getApplicationAddress } from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
 import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
-import { AppMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 export const isArc62 = (asset: Arc3MetadataResult): boolean => {
