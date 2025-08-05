@@ -15,35 +15,27 @@ export const isArc62 = (asset: Arc3MetadataResult): boolean => {
 // TODO Arthur - Refactor this - Try to make funded account application discovery more reusable
 export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: bigint) => {
   const arc62GetCirculatingSupplyMethod = algosdk.ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64')
-  try {
-    // Fetch appplication data to define both creator and burner addresses in order to populate the method call
-    const arc62ContractData = await indexer.lookupApplications(applicationId).do()
 
-    // I can prolly improve error managing using some existing logger
-    if (!arc62ContractData.application) {
-      throw new Error(`Application with ID ${applicationId} not found.`)
-    }
+  const arc62ContractData = await indexer.lookupApplications(applicationId).do()
 
-    // Fetch the global state to get the burned address
-    const globalAppState = arc62ContractData.application?.params.globalState ?? []
-
-    // Decode the global state to get the burned address to populate the method call
-    const decodedState = decodeAppState(globalAppState)
-    const burnedAddress = decodedState.burned.toString()
-
-    if (!burnedAddress) {
-      throw new Error(`Burned address not found in application ${applicationId} global state.`)
-    }
-
-    const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, [assetId])
-    await getArc62BurnedSupply(applicationId, assetId)
-    if (!simulateResult.returns?.[0]) return
-    const methodResult = simulateResult.returns[0].returnValue
-
-    return methodResult
-  } catch (error) {
-    throw error
+  if (!arc62ContractData.application) {
+    throw new Error(`Application with ID ${applicationId} not found.`)
   }
+
+  const globalAppState = arc62ContractData.application?.params.globalState ?? []
+  const decodedState = decodeAppState(globalAppState)
+  const burnedAddress = decodedState.burned.toString()
+
+  if (!burnedAddress) {
+    throw new Error(`Burned address not found in application ${applicationId} global state.`)
+  }
+
+  const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, [assetId])
+
+  await getArc62BurnedSupply(applicationId, assetId)
+
+  if (!simulateResult.returns?.[0]) return
+  return simulateResult.returns[0].returnValue
 }
 
 export const getArc62BurnedSupply = async (applicationId: bigint, assetId: bigint) => {
