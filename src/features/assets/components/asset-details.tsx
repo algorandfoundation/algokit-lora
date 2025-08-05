@@ -59,6 +59,7 @@ export function AssetDetails({ asset }: Props) {
     parsedArc62 = raw ? JSON.parse(raw) : null
   } catch (e) {
     parsedArc62 = null
+    console.error('Failed to parse ARC-62 metadata', e)
   }
 
   const assetItems = useMemo(

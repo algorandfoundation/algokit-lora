@@ -5,9 +5,9 @@ import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { ZERO_ADDRESS } from '@/features/common/constants'
-import { algo, executePaginatedRequest } from '@algorandfoundation/algokit-utils'
+import { executePaginatedRequest } from '@algorandfoundation/algokit-utils'
 import { readOnlyAtomCache } from '@/features/common/data'
-import { algorandClient, indexer } from '@/features/common/data/algo-client'
+import { indexer } from '@/features/common/data/algo-client'
 import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gateway-if-needed'
 import { Getter, Setter } from 'jotai/index'
 import { TransactionResult } from '@/features/transactions/data/types'
@@ -16,7 +16,6 @@ import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
 import { getArc62BurnedSupply, getArc62CirculatingSupply, isArc62 } from '../utils/arc62'
 import { parseArc2 } from '@/features/transactions/mappers'
-import { parse } from 'path'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -65,8 +64,6 @@ const createAssetMetadataResult = async (
         }
 
         const usesArc62 = isArc62(arc3MetadataResult)
-
-        console.log(`userArc62`, metadata.properties['arc-62'])
 
         if (usesArc62) {
           const arc62AppId = metadata.properties[`arc-62`]['application-id']

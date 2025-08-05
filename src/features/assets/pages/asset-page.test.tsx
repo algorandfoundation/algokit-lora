@@ -37,7 +37,6 @@ import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
 import algosdk from 'algosdk'
-import * as arc62Utils from '../utils/arc62'
 
 const server = setupServer()
 

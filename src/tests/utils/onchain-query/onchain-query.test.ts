@@ -29,7 +29,6 @@ describe('onChainQuery', () => {
         metadata.properties['asset-id'],
       ])
 
-      console.log('result', result)
       // Test if the asset, based on the metadata, is recognized as ARC-62 due to its application-id property checked by isArc62()
       expect(result).toBe(expected)
     })
