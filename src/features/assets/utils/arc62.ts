@@ -2,6 +2,7 @@ import { algorandClient, indexer } from '@/features/common/data/algo-client'
 import algosdk, { getApplicationAddress } from 'algosdk'
 import { Arc3MetadataResult } from '../data/types'
 import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
+import { AppMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 export const isArc62 = (asset: Arc3MetadataResult): boolean => {
@@ -55,10 +56,8 @@ export const getArc62BurnedSupply = async (applicationId: bigint, assetId: bigin
   // Decode the global state to get the burned address to populate the method call
   const decodedState = decodeAppState(globalAppState)
   const burnedAddress = decodedState.burned.toString()
-  console.log('burnedAddress', burnedAddress)
 
   const burnedAsset = await indexer.lookupAccountAssets(burnedAddress).assetId(assetId).do()
-  console.log('burnedAsset', burnedAsset)
 
   const burnedSupply = burnedAsset.assets?.[0]?.amount ?? 0
 
@@ -71,16 +70,15 @@ export const getArc62ReserveAddress = async (applicationId: bigint) => {
 }
 
 // helper to decode state
-export const decodeAppState = (globalState: any[]) => {
-  const decoded: Record<string, string | number> = {}
+export const decodeAppState = (globalState: algosdk.indexerModels.TealKeyValue[]) => {
+  const decoded: Record<string, string | number | bigint> = {}
 
   globalState.forEach(({ key, value }) => {
     const decodedKey = uint8ArrayToUtf8(key)
 
     if (value.type === 1) {
-      // value.bytes contains base64 string of the address
-      const raw = Buffer.from(value.bytes, 'base64')
-      const address = algosdk.encodeAddress(raw)
+      // value.bytes is a Uint8Array representing the address
+      const address = algosdk.encodeAddress(value.bytes)
       decoded[decodedKey] = address
     } else if (value.type === 2) {
       decoded[decodedKey] = value.uint
@@ -94,7 +92,17 @@ export const decodeAppState = (globalState: any[]) => {
 export async function executeFundedDiscoveryApplicationCall(
   applicationMethod: algosdk.ABIMethod,
   applicationId: bigint,
-  applicationCallArgs?: any[]
+  applicationCallArgs?: (
+    | boolean
+    | number
+    | bigint
+    | string
+    | Uint8Array
+    | Array<boolean | number | bigint | string | Uint8Array>
+    | algosdk.TransactionWithSigner
+    | algosdk.Transaction
+    | Promise<algosdk.Transaction>
+  )[]
 ) {
   // Using a fee sink address to call the method - simulating will check if caller account has balance
   const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
@@ -110,8 +118,6 @@ export async function executeFundedDiscoveryApplicationCall(
     sender: feeSinkAddress,
   })
   const simulateResult = await composer.simulate({ skipSignatures: true, allowUnnamedResources: true })
-
-  console.log('simulateResult', simulateResult)
 
   return simulateResult
 }

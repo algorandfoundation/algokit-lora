@@ -10,8 +10,6 @@ import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { isArc62 } from '../utils/arc62'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
-  console.log(`as asset result`, metadataResult)
-
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
