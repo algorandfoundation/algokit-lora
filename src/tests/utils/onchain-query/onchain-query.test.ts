@@ -1,7 +1,7 @@
 import { Arc3MetadataResult } from '@/features/assets/data/types'
-import { executeFundedDiscoveryApplicationCall } from '@/utils/funded-discovery'
+
 import algosdk from 'algosdk'
-import { describe, test, expect } from 'vitest'
+import { describe, test } from 'vitest'
 
 type onchainQueryTestCase = {
   name: string
@@ -25,12 +25,12 @@ const onchainQueryTestCases: onchainQueryTestCase[] = [
   },
 ]
 
-describe('onChainQuery', () => {
-  onchainQueryTestCases.forEach(({ name, metadata, expected }) => {
-    test(name, async () => {
-      // const result = await executeFundedDiscoveryApplicationCall(metadata.metadata['arc-62']['abi-method'])
-      // Test if the asset, based on the metadata, is recognized as ARC-62 due to its application-id property checked by isArc62()
-      // expect(result).toBe(expected)
-    })
-  })
-})
+// describe('onChainQuery', () => {
+//   onchainQueryTestCases.forEach(({ name, metadata, expected }) => {
+//     test(name, async () => {
+//       // const result = await executeFundedDiscoveryApplicationCall(metadata.metadata['arc-62']['abi-method'])
+//       // Test if the asset, based on the metadata, is recognized as ARC-62 due to its application-id property checked by isArc62()
+//       // expect(result).toBe(expected)
+//     })
+//   })
+// })
