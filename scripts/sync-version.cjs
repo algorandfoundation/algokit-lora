@@ -39,19 +39,41 @@ cargoToml = cargoToml.replace(/^version = ".*"$/m, `version = "${newVersion}"`)
 // Write updated Cargo.toml
 fs.writeFileSync(cargoTomlPath, cargoToml)
 
-if (currentVersion === newVersion) {
+// Read Cargo.lock
+const cargoLockPath = path.join(__dirname, '../src-tauri/Cargo.lock')
+let cargoLock = fs.readFileSync(cargoLockPath, 'utf8')
+
+// Extract current version from Cargo.lock for algokit-lora package
+const lockCurrentVersionMatch = cargoLock.match(/\[\[package\]\]\s*\nname = "algokit-lora"\s*\nversion = "(.+?)"/s)
+const lockCurrentVersion = lockCurrentVersionMatch ? lockCurrentVersionMatch[1] : 'unknown'
+
+console.log(`🔒 Current Cargo.lock version: ${lockCurrentVersion}`)
+
+// Update version in Cargo.lock for algokit-lora package
+cargoLock = cargoLock.replace(/(\[\[package\]\]\s*\nname = "algokit-lora"\s*\nversion = ")([^"]+)(")/s, `$1${newVersion}$3`)
+
+// Write updated Cargo.lock
+fs.writeFileSync(cargoLockPath, cargoLock)
+
+if (currentVersion === newVersion && lockCurrentVersion === newVersion) {
   console.log(`✅ Versions already synchronized at ${newVersion}`)
 } else {
   console.log(`✅ Updated Cargo.toml version: ${currentVersion} → ${newVersion}`)
+  console.log(`✅ Updated Cargo.lock version: ${lockCurrentVersion} → ${newVersion}`)
 }
 
-// Verify the change was applied correctly
+// Verify the changes were applied correctly
 const updatedCargoToml = fs.readFileSync(cargoTomlPath, 'utf8')
 const verifyVersionMatch = updatedCargoToml.match(/^version = "(.+)"$/m)
 const verifyVersion = verifyVersionMatch ? verifyVersionMatch[1] : 'unknown'
 
-if (verifyVersion !== newVersion) {
-  console.error(`❌ Version sync failed! Expected ${newVersion}, got ${verifyVersion}`)
+const updatedCargoLock = fs.readFileSync(cargoLockPath, 'utf8')
+const verifyLockVersionMatch = updatedCargoLock.match(/\[\[package\]\]\s*\nname = "algokit-lora"\s*\nversion = "(.+?)"/s)
+const verifyLockVersion = verifyLockVersionMatch ? verifyLockVersionMatch[1] : 'unknown'
+
+if (verifyVersion !== newVersion || verifyLockVersion !== newVersion) {
+  console.error(`❌ Cargo.toml version sync failed! Expected ${newVersion}, got ${verifyVersion}`)
+  console.error(`❌ Cargo.lock version sync failed! Expected ${newVersion}, got ${verifyLockVersion}`)
   process.exit(1)
 }
 
