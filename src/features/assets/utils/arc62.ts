@@ -1,15 +1,17 @@
 import { algorandClient, indexer } from '@/features/common/data/algo-client'
 import algosdk, { getApplicationAddress } from 'algosdk'
-import { Arc3MetadataResult } from '../data/types'
+import { Arc3MetadataResult, Arc62MetadataResult } from '../data/types'
 import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
+import { executeFundedDiscoveryApplicationCall } from '@/utils/funded-discovery'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 export const isArc62 = (asset: Arc3MetadataResult): boolean => {
   if (!asset?.metadata?.properties) return false
 
-  const arc62 = asset.metadata.properties['arc-62'] as { 'application-id'?: number }
+  const arc62 = asset.metadata.properties['arc-62']
 
-  return arc62?.['application-id'] !== undefined
+  if (!arc62) return false
+  return arc62 !== undefined
 }
 
 // TODO Arthur - Refactor this - Try to make funded account application discovery more reusable
@@ -79,36 +81,16 @@ export const decodeAppState = (globalState: algosdk.indexerModels.TealKeyValue[]
   return decoded
 }
 
-// Abstracts the logic to execute a funded discovery application call to be more reusable
-export async function executeFundedDiscoveryApplicationCall(
-  applicationMethod: algosdk.ABIMethod,
-  applicationId: bigint,
-  applicationCallArgs?: (
-    | boolean
-    | number
-    | bigint
-    | string
-    | Uint8Array
-    | Array<boolean | number | bigint | string | Uint8Array>
-    | algosdk.TransactionWithSigner
-    | algosdk.Transaction
-    | Promise<algosdk.Transaction>
-  )[]
-) {
-  // Using a fee sink address to call the method - simulating will check if caller account has balance
-  const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+export const parseArc62Metadata = (metadata: string | number | undefined): Arc62MetadataResult['metadata'] | null => {
+  if (!metadata) return null
 
-  // Create a transaction composer to call the method
-  const composer = algorandClient.newGroup()
+  if (typeof metadata === 'string') {
+    try {
+      return JSON.parse(metadata)
+    } catch {
+      return null
+    }
+  }
 
-  // Add the method call to the composer
-  composer.addAppCallMethodCall({
-    appId: applicationId,
-    method: applicationMethod,
-    args: applicationCallArgs,
-    sender: feeSinkAddress,
-  })
-  const simulateResult = await composer.simulate({ skipSignatures: true, allowUnnamedResources: true })
-
-  return simulateResult
+  return null
 }
