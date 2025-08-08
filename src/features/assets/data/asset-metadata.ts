@@ -66,7 +66,7 @@ const createAssetMetadataResult = async (
         const usesArc62 = isArc62(arc3MetadataResult)
 
         if (usesArc62) {
-          const arc62AppId = metadata.properties[`arc-62`]['application-id']
+          const arc62AppId = BigInt(metadata.properties[`arc-62`]['application-id'])
           const circulatingSupply = await getArc62CirculatingSupply(arc62AppId, assetResult.index)
           const burnedSupply = await getArc62BurnedSupply(arc62AppId, assetResult.index)
           const reserveSupply = Number(assetResult.params.total) - (Number(circulatingSupply)! + Number(burnedSupply)!)

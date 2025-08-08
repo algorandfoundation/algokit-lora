@@ -125,7 +125,6 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
     standardsUsed.add(AssetStandard.ARC16)
   }
 
-  //TODO-ARTHUR: Add conditional to check if the asset follows ARC-62 and execute function to get the circulating supply and burned supply - populate the asset with the data
   if (isArc3 && isArc62(metadataResult.arc3)) {
     standardsUsed.add(AssetStandard.ARC62)
   }

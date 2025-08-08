@@ -30,6 +30,7 @@ export type Arc3MetadataResult = {
     animation_url_mimetype?: string
     properties?: Arc16MetadataProperties
     extra_metadata?: string
+    ['arc-62']?: Arc62MetadataResult['metadata']
     [key: string]: unknown
   }
 }
