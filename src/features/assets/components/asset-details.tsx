@@ -27,6 +27,9 @@ import {
   assetActivityLabel,
   assetUnitNameLabel,
   assetUrlLabel,
+  circulatingSupplyLabel,
+  burnedSupplyLabel,
+  reserveSupplyLabel,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
@@ -40,6 +43,7 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 import { CopyButton } from '@/features/common/components/copy-button'
 import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
 import { addHttpsSchemeIfNeeded } from '../utils/add-https-scheme-if-needed'
+import { parseArc62Metadata } from '../utils/arc62'
 
 type Props = {
   asset: Asset
@@ -50,6 +54,9 @@ const expandAssetJsonLevel = (level: number) => {
 }
 
 export function AssetDetails({ asset }: Props) {
+  const rawArc62Metadata = asset.metadata?.arc62Metadata
+  const parsedArc62Metadata = parseArc62Metadata(rawArc62Metadata)
+
   const assetItems = useMemo(
     () => [
       {
@@ -85,6 +92,24 @@ export function AssetDetails({ asset }: Props) {
         dt: assetTotalSupplyLabel,
         dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
       },
+      parsedArc62Metadata
+        ? {
+            dt: circulatingSupplyLabel,
+            dd: <div>{parsedArc62Metadata.circulatingSupply}</div>,
+          }
+        : undefined,
+      parsedArc62Metadata
+        ? {
+            dt: burnedSupplyLabel,
+            dd: <div>{parsedArc62Metadata.burnedSupply}</div>,
+          }
+        : undefined,
+      parsedArc62Metadata
+        ? {
+            dt: reserveSupplyLabel,
+            dd: <div>{parsedArc62Metadata.reserveSupply}</div>,
+          }
+        : undefined,
       {
         dt: assetDecimalsLabel,
         dd: asset.decimals,
@@ -109,7 +134,18 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.id, asset.name, asset.standardsUsed, asset.type, asset.unitName, asset.total, asset.decimals, asset.defaultFrozen, asset.url]
+    [
+      asset.id,
+      asset.name,
+      asset.standardsUsed,
+      asset.type,
+      asset.unitName,
+      asset.total,
+      asset.decimals,
+      asset.defaultFrozen,
+      asset.url,
+      parsedArc62Metadata,
+    ]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(
