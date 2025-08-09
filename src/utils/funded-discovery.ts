@@ -1,6 +1,6 @@
 import { AppClientMethodCallParamsArgs } from '@/features/applications/data/types'
 import { algorandClient } from '@/features/common/data/algo-client'
-import algosdk, { ABIMethod } from 'algosdk'
+import { ABIMethod } from 'algosdk'
 
 export async function executeFundedDiscoveryApplicationCall(
   applicationMethod: ABIMethod,
