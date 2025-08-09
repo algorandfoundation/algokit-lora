@@ -1,4 +1,4 @@
-import { algorandClient, indexer } from '@/features/common/data/algo-client'
+import { indexer } from '@/features/common/data/algo-client'
 import algosdk, { getApplicationAddress } from 'algosdk'
 import { Arc3MetadataResult, Arc62MetadataResult } from '../data/types'
 import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
