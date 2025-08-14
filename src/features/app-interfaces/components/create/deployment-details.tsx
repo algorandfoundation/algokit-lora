@@ -1,4 +1,4 @@
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
+import { useCreateAppInterfaceStateMachine, useUpdateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
 import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { Fieldset } from '@/features/forms/components/fieldset'
@@ -107,7 +107,7 @@ function FormInner({
 }
 
 type Props = {
-  machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
+  machine: ReturnType<typeof useCreateAppInterfaceStateMachine> | ReturnType<typeof useUpdateAppInterfaceStateMachine>
 }
 
 export function DeploymentDetails({ machine }: Props) {

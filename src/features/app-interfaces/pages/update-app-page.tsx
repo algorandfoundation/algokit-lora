@@ -1,39 +1,37 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { cn } from '@/features/common/utils'
 import { useAppInterface, useUpdateAppInterfaceStateMachine } from '../data'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { UrlParams, Urls } from '@/routes/urls'
 import { invariant } from '@/utils/invariant'
 import { useTitle } from '@/utils/use-title'
-import { Button } from '@/features/common/components/button'
-import { ArrowLeft } from 'lucide-react'
 import { useSelectedNetwork } from '@/features/network/data'
 import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { isInteger } from '@/utils/is-integer'
 import { appInterfaceFailedToLoadMessage, appInterfaceNotFoundMessage, applicationInvalidIdMessage, updateAppPageTitle } from './labels'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
-import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
+import { UploadAppSpec } from '../components/create/upload-app-spec'
+import { AppSpecStandard } from '../data/types'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { DeploymentDetails } from '../components/create/deployment-details'
 
 function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) {
+  const navigate = useNavigate()
   const [selectedNetwork] = useSelectedNetwork()
   const machine = useUpdateAppInterfaceStateMachine(appInterface)
   const [state] = machine
 
-  if (state.matches('updateAppInterface')) {
-    return (
-      <div className={cn('relative grid grid-cols-1 lg:grid-cols-2 gap-4')}>
-        Hi!
-        <TemplatedNavLink
-          urlTemplate={Urls.Network.AppLab.Edit.ById}
-          urlParams={{ networkId: selectedNetwork, applicationId: appInterface.applicationId.toString() }}
-        >
-          <Button variant="outline" className="w-24" icon={<ArrowLeft size={16} />}>
-            Back
-          </Button>
-        </TemplatedNavLink>
-      </div>
-    )
+  useEffect(() => {
+    if (state.matches('canceled')) {
+      navigate(Urls.Network.AppLab.Edit.ById.build({ networkId: selectedNetwork, applicationId: appInterface.applicationId.toString() }))
+    }
+  }, [navigate, selectedNetwork, state])
+
+  if (state.matches('appSpec')) {
+    return <UploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC56]} />
+  } else if (state.matches('appDetails')) {
+    return <DeploymentDetails machine={machine} />
   }
 
   return <PageLoader />

@@ -102,17 +102,8 @@ const createMachine = (appInterface: AppInterfaceEntity) =>
     types: {
       context: {} as UpdateAppInterfaceContext,
       events: {} as
-        | { type: 'fromAppSpecFileSelected' }
-        | { type: 'fromAppDeploymentSelected' }
         | { type: 'appSpecUploadCompleted'; file: File; appSpec: AppSpec }
         | { type: 'appSpecUploadCancelled' }
-        | {
-            type: 'appSpecFormCompleted'
-            file: File
-            appSpec: AppSpec
-            roundFirstValid?: bigint
-            roundLastValid?: bigint
-          }
         | {
             type: 'detailsCompleted'
             version?: string
@@ -132,108 +123,84 @@ const createMachine = (appInterface: AppInterfaceEntity) =>
     },
   }).createMachine({
     id: 'updateAppInterface',
-    initial: 'updateAppInterface',
+    initial: 'appSpec',
     context: {
       applicationId: appInterface.applicationId,
       name: appInterface.name,
     },
     states: {
-      updateAppInterface: {
-        id: 'updateAppInterface',
+      appSpec: {
         on: {
-          fromAppSpecFileSelected: {
-            target: 'fromAppSpecFile',
+          appSpecUploadCompleted: {
+            target: 'appDetails',
+            actions: assign({
+              file: ({ event }) => event.file,
+              appSpec: ({ event }) => event.appSpec,
+            }),
           },
-          fromAppDeploymentSelected: {
-            target: 'fromAppDeployment',
+          appSpecUploadCancelled: {
+            target: '#canceled',
+            actions: assign({
+              file: () => undefined,
+              appSpec: () => undefined,
+            }),
           },
         },
       },
-      fromAppSpecFile: {
-        id: 'fromAppSpecFile',
+      appDetails: {
+        on: {
+          detailsCompleted: {
+            target: 'deployment',
+            actions: assign({
+              version: ({ event }) => event.version, // TODO: check if the version is newer?
+              updatable: ({ event }) => event.updatable,
+              deletable: ({ event }) => event.deletable,
+              templateParams: ({ event }) => event.templateParams,
+            }),
+          },
+          detailsCancelled: {
+            target: 'appSpec',
+            actions: assign({
+              version: () => undefined,
+              updatable: () => undefined,
+              deletable: () => undefined,
+              templateParams: () => undefined,
+            }),
+          },
+        },
+      },
+      deployment: {
+        on: {
+          deploymentCompleted: {
+            target: 'create',
+            actions: assign({
+              roundFirstValid: ({ event }) => event.roundFirstValid,
+            }),
+          },
+          deploymentCancelled: {
+            target: 'appDetails',
+            actions: assign({
+              roundFirstValid: () => undefined,
+            }),
+          },
+        },
+      },
+      create: {
         on: {
           createCompleted: {
-            // TODO: do we need to assign anything here?
             target: '#finished',
           },
           createFailed: {
-            target: 'fromAppSpecFile',
-          },
-        },
-      },
-      fromAppDeployment: {
-        initial: 'appSpec',
-        states: {
-          appSpec: {
-            on: {
-              appSpecUploadCompleted: {
-                target: 'appDetails',
-                actions: assign({
-                  file: ({ event }) => event.file,
-                  appSpec: ({ event }) => event.appSpec,
-                }),
-              },
-              appSpecUploadCancelled: {
-                target: '#updateAppInterface',
-                actions: assign({
-                  file: () => undefined,
-                  appSpec: () => undefined,
-                }),
-              },
-            },
-          },
-          appDetails: {
-            on: {
-              detailsCompleted: {
-                target: 'deployment',
-                actions: assign({
-                  version: ({ event }) => event.version, // TODO: check if the version is newer?
-                  updatable: ({ event }) => event.updatable,
-                  deletable: ({ event }) => event.deletable,
-                  templateParams: ({ event }) => event.templateParams,
-                }),
-              },
-              detailsCancelled: {
-                target: 'appSpec',
-                actions: assign({
-                  version: () => undefined,
-                  updatable: () => undefined,
-                  deletable: () => undefined,
-                  templateParams: () => undefined,
-                }),
-              },
-            },
-          },
-          deployment: {
-            on: {
-              deploymentCompleted: {
-                target: 'create',
-                actions: assign({
-                  roundFirstValid: ({ event }) => event.roundFirstValid,
-                }),
-              },
-              deploymentCancelled: {
-                target: 'appDetails',
-                actions: assign({
-                  roundFirstValid: () => undefined,
-                }),
-              },
-            },
-          },
-          create: {
-            on: {
-              createCompleted: {
-                target: '#finished',
-              },
-              createFailed: {
-                target: 'deployment',
-              },
-            },
+            target: 'deployment',
           },
         },
       },
       finished: {
         id: 'finished',
+        type: 'final',
+      },
+      canceled: {
+        id: 'canceled',
         type: 'final',
       },
     },

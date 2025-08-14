@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { Form } from '@/features/forms/components/form'
 import { zfd } from 'zod-form-data'
 import { AppSpecStandard } from '@/features/app-interfaces/data/types'
-import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
+import { useCreateAppInterfaceStateMachine, useUpdateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { Button } from '@/features/common/components/button'
@@ -15,7 +15,7 @@ const selectAppSpecFormSchema = zfd.formData({
 })
 
 type Props = {
-  machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
+  machine: ReturnType<typeof useCreateAppInterfaceStateMachine> | ReturnType<typeof useUpdateAppInterfaceStateMachine>
   supportedStandards: AppSpecStandard[]
 }
 
