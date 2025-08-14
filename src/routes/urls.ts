@@ -59,7 +59,9 @@ export const Urls = {
     AppLab: UrlTemplate`/app-lab`.extend({
       Create: UrlTemplate`/create`,
       Edit: UrlTemplate`/edit`.extend({
-        ById: UrlTemplate`/${UrlParams.ApplicationId}`,
+        ById: UrlTemplate`/${UrlParams.ApplicationId}`.extend({
+          UpdateApp: UrlTemplate`/update-app`,
+        }),
       }),
     }),
     Fund: UrlTemplate`/fund`,

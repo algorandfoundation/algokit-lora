@@ -69,3 +69,15 @@ export type CreateAppInterfaceContext = {
   deletable?: boolean
   templateParams?: TemplateParam[]
 }
+
+export type UpdateAppInterfaceContext = {
+  applicationId: ApplicationId
+  name: string
+  version?: string
+  file?: File
+  appSpec?: AppSpec
+  roundFirstValid?: bigint
+  updatable?: boolean
+  deletable?: boolean
+  templateParams?: TemplateParam[]
+}

@@ -22,7 +22,8 @@ import { TransactionWizardPage, transactionWizardPageTitle } from './features/tr
 import { RedirectPage } from './features/common/pages/redirect-page'
 import { CreateAppInterfacePage, createAppInterfacePageTitle } from './features/app-interfaces/pages/create-app-interface-page'
 import { EditAppInterfacePage } from './features/app-interfaces/pages/edit-app-interface-page'
-import { editAppInterfacePageTitle } from './features/app-interfaces/pages/labels'
+import { updateAppPageTitle, editAppInterfacePageTitle } from './features/app-interfaces/pages/labels'
+import { UpdateAppPage } from './features/app-interfaces/pages/update-app-page'
 
 export const routes = evalTemplates([
   {
@@ -117,8 +118,18 @@ export const routes = evalTemplates([
               },
               {
                 template: Urls.Network.AppLab.Edit.ById,
-                errorElement: <ErrorPage title={editAppInterfacePageTitle} redirectUrl={Urls.Network.AppLab} />,
-                element: <EditAppInterfacePage />,
+                children: [
+                  {
+                    template: Urls.Network.AppLab.Edit.ById,
+                    errorElement: <ErrorPage title={editAppInterfacePageTitle} redirectUrl={Urls.Network.AppLab} />,
+                    element: <EditAppInterfacePage />,
+                  },
+                  {
+                    template: Urls.Network.AppLab.Edit.ById.UpdateApp,
+                    errorElement: <ErrorPage title={updateAppPageTitle} redirectUrl={Urls.Network.AppLab} />,
+                    element: <UpdateAppPage />,
+                  },
+                ],
               },
             ],
           },

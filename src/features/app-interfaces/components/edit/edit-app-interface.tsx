@@ -4,10 +4,11 @@ import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { useCallback, useMemo } from 'react'
 import { AppSpecsTable } from './app-specs-table'
 import { Button } from '@/features/common/components/button'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Pencil } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Urls } from '@/routes/urls'
 import { useSelectedNetwork } from '@/features/network/data'
+import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 
 type Props = {
   appInterface: AppInterfaceEntity
@@ -28,7 +29,17 @@ export function EditAppInterface({ appInterface, refreshAppInterface }: Props) {
       },
       {
         dt: 'App ID',
-        dd: <ApplicationLink applicationId={appInterface.applicationId} />,
+        dd: (
+          <div className="flex gap-1">
+            <ApplicationLink applicationId={appInterface.applicationId} />
+            <TemplatedNavLink
+              urlTemplate={Urls.Network.AppLab.Edit.ById.UpdateApp}
+              urlParams={{ networkId: selectedNetwork, applicationId: appInterface.applicationId.toString() }}
+            >
+              <Button size="icon" icon={<Pencil size={16} />} title="Update" />
+            </TemplatedNavLink>
+          </div>
+        ),
       },
     ]
   }, [appInterface.applicationId, appInterface.name])

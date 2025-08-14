@@ -29,7 +29,7 @@ const transformError = (e: Error & { status?: number }) => {
 }
 
 export function EditAppInterfacePage() {
-  useTitle('Edit App Interface')
+  useTitle(editAppInterfacePageTitle)
   const { applicationId: _applicationId } = useRequiredParam(UrlParams.ApplicationId)
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 
