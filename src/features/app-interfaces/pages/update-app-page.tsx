@@ -12,15 +12,28 @@ import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { UploadAppSpec } from '../components/create/upload-app-spec'
 import { AppSpecStandard } from '../data/types'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DeploymentDetails } from '../components/create/deployment-details'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AlgoAppSpec, AbiContract } from '../data/types/arc-32/application'
 
 function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) {
   const navigate = useNavigate()
   const [selectedNetwork] = useSelectedNetwork()
   const machine = useUpdateAppInterfaceStateMachine(appInterface)
-  const [state] = machine
+  const [state, send] = machine
+
+  const onAppSpecUploaded = useCallback((file: File, appSpec: AlgoAppSpec | AbiContract | Arc56Contract) => {
+    send({
+      type: 'appSpecUploadCompleted',
+      file,
+      appSpec,
+    })
+  }, [])
+  const onAppSpecCanceled = useCallback(() => {
+    send({ type: 'appSpecUploadCancelled' })
+  }, [])
 
   useEffect(() => {
     if (state.matches('canceled')) {
@@ -29,7 +42,13 @@ function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) 
   }, [navigate, selectedNetwork, state])
 
   if (state.matches('appSpec')) {
-    return <UploadAppSpec machine={machine} supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC56]} />
+    return (
+      <UploadAppSpec
+        supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC56]}
+        onCompleted={onAppSpecUploaded}
+        onCanceled={onAppSpecCanceled}
+      />
+    )
   } else if (state.matches('appDetails')) {
     return <DeploymentDetails machine={machine} />
   }
