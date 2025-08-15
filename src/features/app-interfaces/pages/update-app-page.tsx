@@ -15,6 +15,7 @@ import { AppSpec, AppSpecStandard } from '../data/types'
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DeploymentDetails, DeploymentDetailsFormData, DeploymentMode } from '../components/create/deployment-details'
+import { useLoadableApplication } from '@/features/applications/data'
 
 function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) {
   const navigate = useNavigate()
@@ -102,7 +103,10 @@ export function UpdateAppPage() {
 
   const applicationId = BigInt(_applicationId)
   const [loadableAppInterface] = useAppInterface(applicationId)
+  const [loadableApplication] = useLoadableApplication(applicationId)
 
+  // TODO: create a combine loadable & update the state machine
+  // store name, app id, app info (bytes ...)
   return (
     <>
       <PageTitle title={updateAppPageTitle} />

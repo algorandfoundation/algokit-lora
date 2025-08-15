@@ -127,6 +127,7 @@ const createMachine = (appInterface: AppInterfaceEntity) =>
     context: {
       applicationId: appInterface.applicationId,
       name: appInterface.name,
+      // TODO: prefill app version
     },
     states: {
       appSpec: {
