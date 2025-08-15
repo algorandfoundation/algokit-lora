@@ -1,4 +1,3 @@
-import { useCreateAppInterfaceStateMachine, useUpdateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
 import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { Fieldset } from '@/features/forms/components/fieldset'
@@ -20,7 +19,7 @@ import { asArc56AppSpec } from '@/features/applications/mappers'
 import { TealTemplateParamField, TealUnknownTypeTemplateParamFieldValue } from '../../models'
 import { asTealTemplateParamField } from '@/features/app-interfaces/mappers'
 import { getTemplateParamDefinition } from '../../utils/get-template-param-field-definition'
-import { ABITypeTemplateParam, TemplateParamType, UnknownTypeTemplateParam } from '../../data/types'
+import { ABITypeTemplateParam, AppSpec, TemplateParam, TemplateParamType, UnknownTypeTemplateParam } from '../../data/types'
 import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
 
 export const UPDATABLE_TEMPLATE_VAR_NAME = 'UPDATABLE'
@@ -48,6 +47,7 @@ const baseShape = {
 type BaseForm = ReturnType<typeof z.object<typeof baseShape>>
 
 type FormInnerProps = {
+  mode: DeploymentMode
   enableDeployTimeUpdatabilityControl: boolean
   enableDeployTimeDeletabilityControl: boolean
   templateParamFields: TealTemplateParamField[]
@@ -55,6 +55,7 @@ type FormInnerProps = {
 }
 
 function FormInner({
+  mode,
   enableDeployTimeUpdatabilityControl,
   enableDeployTimeDeletabilityControl,
   templateParamFields,
@@ -82,6 +83,7 @@ function FormInner({
         field: 'name',
         label: 'Name',
         helpText: 'Name of the app, which must be unique for the creator account. This is used in the deployment idempotency check',
+        disabled: mode === DeploymentMode.Update,
       })}
       {helper.textField({
         field: 'version',
@@ -106,26 +108,40 @@ function FormInner({
   )
 }
 
-type Props = {
-  machine: ReturnType<typeof useCreateAppInterfaceStateMachine> | ReturnType<typeof useUpdateAppInterfaceStateMachine>
+export enum DeploymentMode {
+  Create,
+  Update,
 }
 
-export function DeploymentDetails({ machine }: Props) {
-  const [state, send] = machine
-  invariant(
-    state.context.appSpec && (isArc32AppSpec(state.context.appSpec) || isArc56AppSpec(state.context.appSpec)),
-    'ARC32 or ARC56 app spec is required'
-  )
+export type DeploymentDetailsFormData = {
+  name: string
+  version: string
+  updatable?: boolean
+  deletable?: boolean
+  templateParams: TemplateParam[]
+}
 
-  const appSpec = asArc56AppSpec(state.context.appSpec)
+type Props = {
+  appSpec: AppSpec
+  mode: DeploymentMode
+  formData: Partial<DeploymentDetailsFormData>
+  onCompleted: (data: DeploymentDetailsFormData) => void
+  onCanceled: () => void
+}
+
+export function DeploymentDetails({ appSpec, mode, formData, onCompleted, onCanceled }: Props) {
+  invariant(isArc32AppSpec(appSpec) || isArc56AppSpec(appSpec), 'ARC32 or ARC56 app spec is required')
+
+  const arc56AppSpec = asArc56AppSpec(appSpec)
+
   const templateParamNames = useMemo(() => {
-    const approvalTemplateParams = getTemplateParamNames(appSpec.source?.approval ?? '')
-    const clearTemplateParams = getTemplateParamNames(appSpec.source?.clear ?? '')
+    const approvalTemplateParams = getTemplateParamNames(arc56AppSpec.source?.approval ?? '')
+    const clearTemplateParams = getTemplateParamNames(arc56AppSpec.source?.clear ?? '')
     return {
       approval: approvalTemplateParams,
       clear: clearTemplateParams,
     }
-  }, [appSpec])
+  }, [arc56AppSpec])
 
   const unifiedTemplateParamNames = Array.from(new Set([...templateParamNames.approval, ...templateParamNames.clear])).filter(
     (x) => ![UPDATABLE_TEMPLATE_VAR_NAME, DELETABLE_TEMPLATE_VAR_NAME].includes(x)
@@ -134,7 +150,7 @@ export function DeploymentDetails({ machine }: Props) {
   const enableDeployTimeDeletabilityControl = templateParamNames.approval.includes(DELETABLE_TEMPLATE_VAR_NAME)
 
   const templateParamFields = useMemo(() => {
-    const templateParamDefinitions = unifiedTemplateParamNames.map((p) => getTemplateParamDefinition(appSpec, p))
+    const templateParamDefinitions = unifiedTemplateParamNames.map((p) => getTemplateParamDefinition(arc56AppSpec, p))
     return templateParamDefinitions.map((p) =>
       asTealTemplateParamField({
         name: p.name,
@@ -143,7 +159,7 @@ export function DeploymentDetails({ machine }: Props) {
         defaultValue: p.defaultValue,
       })
     )
-  }, [appSpec, unifiedTemplateParamNames])
+  }, [arc56AppSpec, unifiedTemplateParamNames])
 
   const formSchema = useMemo(() => {
     const shape = templateParamFields.reduce((acc, field) => {
@@ -154,7 +170,7 @@ export function DeploymentDetails({ machine }: Props) {
     }, baseShape)
 
     const zodObject = z.object(shape).superRefine((schema, ctx) => {
-      if (schema.appInterfaceExists === true) {
+      if (schema.appInterfaceExists === true && mode === DeploymentMode.Create) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'App interface with this name already exists',
@@ -173,8 +189,7 @@ export function DeploymentDetails({ machine }: Props) {
         return f.toTemplateParam(value as (TealUnknownTypeTemplateParamFieldValue & AvmValue) & AbiFormItemValue)
       })
 
-      send({
-        type: 'detailsCompleted',
+      onCompleted({
         name: values.name,
         version: values.version,
         updatable: values.updatable,
@@ -182,26 +197,22 @@ export function DeploymentDetails({ machine }: Props) {
         templateParams: templateParamValues,
       })
     },
-    [send, templateParamFields]
+    [onCompleted, templateParamFields]
   )
-
-  const back = useCallback(() => {
-    send({ type: 'detailsCancelled' })
-  }, [send])
 
   const defaultValues = useMemo(() => {
     const commonValues = {
-      name: state.context.name ?? appSpec.name,
-      version: state.context.version ?? '1.0',
-      updatable: state.context.updatable !== undefined ? state.context.updatable : enableDeployTimeUpdatabilityControl ? false : undefined,
-      deletable: state.context.deletable !== undefined ? state.context.deletable : enableDeployTimeDeletabilityControl ? false : undefined,
+      name: formData.name ?? arc56AppSpec.name,
+      version: formData.version ?? '1.0',
+      updatable: formData.updatable !== undefined ? formData.updatable : enableDeployTimeUpdatabilityControl ? false : undefined,
+      deletable: formData.deletable !== undefined ? formData.deletable : enableDeployTimeDeletabilityControl ? false : undefined,
     }
 
     return templateParamFields.reduce((acc, field, index) => {
       return {
         ...acc,
-        [field.path]: state.context.templateParams
-          ? field.fromTemplateParam(state.context.templateParams[index] as UnknownTypeTemplateParam & ABITypeTemplateParam)
+        [field.path]: formData.templateParams
+          ? field.fromTemplateParam(formData.templateParams[index] as UnknownTypeTemplateParam & ABITypeTemplateParam)
           : 'defaultValue' in field
             ? field.defaultValue
             : {
@@ -210,14 +221,14 @@ export function DeploymentDetails({ machine }: Props) {
       }
     }, commonValues)
   }, [
-    appSpec.name,
+    arc56AppSpec.name,
     enableDeployTimeDeletabilityControl,
     enableDeployTimeUpdatabilityControl,
-    state.context.deletable,
-    state.context.name,
-    state.context.templateParams,
-    state.context.updatable,
-    state.context.version,
+    formData.deletable,
+    formData.name,
+    formData.templateParams,
+    formData.updatable,
+    formData.version,
     templateParamFields,
   ])
 
@@ -229,7 +240,7 @@ export function DeploymentDetails({ machine }: Props) {
       defaultValues={defaultValues}
       formAction={
         <FormActions>
-          <Button type="button" variant="outline" className="mr-auto w-24" onClick={back} icon={<ArrowLeft size={16} />}>
+          <Button type="button" variant="outline" className="mr-auto w-24" onClick={onCanceled} icon={<ArrowLeft size={16} />}>
             Back
           </Button>
           <SubmitButton className="w-24">Next</SubmitButton>
@@ -238,6 +249,7 @@ export function DeploymentDetails({ machine }: Props) {
     >
       {(helper) => (
         <FormInner
+          mode={mode}
           enableDeployTimeUpdatabilityControl={enableDeployTimeUpdatabilityControl}
           enableDeployTimeDeletabilityControl={enableDeployTimeDeletabilityControl}
           templateParamFields={templateParamFields}

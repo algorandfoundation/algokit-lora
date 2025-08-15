@@ -11,12 +11,10 @@ import { appInterfaceFailedToLoadMessage, appInterfaceNotFoundMessage, applicati
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { UploadAppSpec } from '../components/create/upload-app-spec'
-import { AppSpecStandard } from '../data/types'
+import { AppSpec, AppSpecStandard } from '../data/types'
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { DeploymentDetails } from '../components/create/deployment-details'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { AlgoAppSpec, AbiContract } from '../data/types/arc-32/application'
+import { DeploymentDetails, DeploymentDetailsFormData, DeploymentMode } from '../components/create/deployment-details'
 
 function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) {
   const navigate = useNavigate()
@@ -24,7 +22,7 @@ function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) 
   const machine = useUpdateAppInterfaceStateMachine(appInterface)
   const [state, send] = machine
 
-  const onAppSpecUploaded = useCallback((file: File, appSpec: AlgoAppSpec | AbiContract | Arc56Contract) => {
+  const onAppSpecUploaded = useCallback((file: File, appSpec: AppSpec) => {
     send({
       type: 'appSpecUploadCompleted',
       file,
@@ -33,6 +31,19 @@ function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) 
   }, [])
   const onAppSpecCanceled = useCallback(() => {
     send({ type: 'appSpecUploadCancelled' })
+  }, [])
+
+  const onDeploymentDetailsCompleted = useCallback((data: DeploymentDetailsFormData) => {
+    send({
+      type: 'detailsCompleted',
+      version: data.version,
+      updatable: data.updatable,
+      deletable: data.deletable,
+      templateParams: data.templateParams,
+    })
+  }, [])
+  const onDeploymentDetailsCanceled = useCallback(() => {
+    send({ type: 'detailsCancelled' })
   }, [])
 
   useEffect(() => {
@@ -45,12 +56,27 @@ function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) 
     return (
       <UploadAppSpec
         supportedStandards={[AppSpecStandard.ARC32, AppSpecStandard.ARC56]}
+        file={state.context.file}
         onCompleted={onAppSpecUploaded}
         onCanceled={onAppSpecCanceled}
       />
     )
-  } else if (state.matches('appDetails')) {
-    return <DeploymentDetails machine={machine} />
+  } else if (state.matches('appDetails') && state.context.appSpec) {
+    return (
+      <DeploymentDetails
+        mode={DeploymentMode.Update}
+        appSpec={state.context.appSpec}
+        formData={{
+          name: state.context.name,
+          version: state.context.version,
+          updatable: state.context.updatable,
+          deletable: state.context.deletable,
+          templateParams: state.context.templateParams,
+        }}
+        onCompleted={onDeploymentDetailsCompleted}
+        onCanceled={onDeploymentDetailsCanceled}
+      />
+    )
   }
 
   return <PageLoader />
