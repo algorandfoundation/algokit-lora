@@ -19,6 +19,9 @@ import { getApplicationResultAtom } from '@/features/applications/data'
 import { atom, useAtomValue } from 'jotai'
 import { loadable } from 'jotai/utils'
 import { ApplicationId } from '@/features/applications/data/types'
+import { algorandClient } from '@/features/common/data/algo-client'
+import { asArc56AppSpec } from '@/features/applications/mappers'
+import { asTealTemplateParams } from '../mappers'
 
 function UpdateAppInner({ context }: { context: UpdateAppContext }) {
   const navigate = useNavigate()
@@ -37,7 +40,24 @@ function UpdateAppInner({ context }: { context: UpdateAppContext }) {
     send({ type: 'appSpecUploadCancelled' })
   }, [])
 
-  const onDeploymentDetailsCompleted = useCallback((data: DeploymentDetailsFormData) => {
+  const onDeploymentDetailsCompleted = useCallback(async (data: DeploymentDetailsFormData) => {
+    const appManager = algorandClient.app
+
+    invariant(state.context.appSpec, 'AppSpec is not set')
+    const arc56AppSpec = asArc56AppSpec(state.context.appSpec)
+    invariant(arc56AppSpec.source?.approval, 'Approval program is not set')
+    invariant(arc56AppSpec.source?.clear, 'Clear program is not set')
+
+    const tealTemplateParams = asTealTemplateParams(state.context.templateParams)
+    const compiledApprovalProgram = await appManager.compileTealTemplate(arc56AppSpec.source.approval, tealTemplateParams, {
+      updatable: state.context.updatable,
+      deletable: state.context.deletable,
+    })
+    const compiledClearStateProgram = await appManager.compileTealTemplate(arc56AppSpec.source.clear, tealTemplateParams, {
+      updatable: state.context.updatable,
+      deletable: state.context.deletable,
+    })
+
     send({
       type: 'detailsCompleted',
       version: data.version,

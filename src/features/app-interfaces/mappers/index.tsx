@@ -9,6 +9,7 @@ import {
   UnknownTypeTemplateParam,
   TemplateParamType,
   AVMTypeTemplateParam,
+  TemplateParam,
 } from '../data/types'
 import {
   abiTypeToFormItem,
@@ -33,6 +34,7 @@ import { TemplateParamForm } from '../components/create/template-param-form'
 import { Label } from '@/features/common/components/label'
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
 import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 export const parseAsAppSpec = async (
   file: File,
@@ -194,4 +196,32 @@ export const asTealTemplateParamField = ({
       asAbiFormItemValue(templateParam.abiType, templateParam.value),
     defaultValue: defaultValue as AbiFormItemValue,
   }
+}
+
+export const asTealTemplateParams = (templateParams?: TemplateParam[]) => {
+  if (!templateParams) {
+    return undefined
+  }
+
+  return templateParams.reduce(
+    (acc, templateParam) => {
+      if ('type' in templateParam) {
+        if (templateParam.type === TemplateParamType.String) {
+          acc[templateParam.name] = templateParam.value
+        }
+        if (templateParam.type === TemplateParamType.Number) {
+          acc[templateParam.name] = Number(templateParam.value)
+        }
+        if (templateParam.type === TemplateParamType.Uint8Array) {
+          acc[templateParam.name] = base64ToBytes(templateParam.value)
+        }
+      } else if ('abiType' in templateParam) {
+        acc[templateParam.name] = templateParam.abiType.encode(templateParam.value)
+      } else {
+        acc[templateParam.name] = templateParam.value
+      }
+      return acc
+    },
+    {} as Record<string, string | number | bigint | Uint8Array>
+  )
 }

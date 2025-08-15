@@ -20,44 +20,16 @@ import { algorandClient } from '@/features/common/data/algo-client'
 import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { asArc56AppSpec, asMethodDefinitions } from '@/features/applications/mappers'
-import { Arc32AppSpec, TemplateParamType } from '../../data/types'
+import { Arc32AppSpec } from '../../data/types'
 import { CreateOnComplete, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
 import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
-import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { asTealTemplateParams } from '../../mappers'
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
-}
-
-const getTealTemplateParams = (templateParams: ReturnType<typeof useCreateAppInterfaceStateMachine>[0]['context']['templateParams']) => {
-  if (!templateParams) {
-    return undefined
-  }
-
-  return templateParams.reduce(
-    (acc, templateParam) => {
-      if ('type' in templateParam) {
-        if (templateParam.type === TemplateParamType.String) {
-          acc[templateParam.name] = templateParam.value
-        }
-        if (templateParam.type === TemplateParamType.Number) {
-          acc[templateParam.name] = Number(templateParam.value)
-        }
-        if (templateParam.type === TemplateParamType.Uint8Array) {
-          acc[templateParam.name] = base64ToBytes(templateParam.value)
-        }
-      } else if ('abiType' in templateParam) {
-        acc[templateParam.name] = templateParam.abiType.encode(templateParam.value)
-      } else {
-        acc[templateParam.name] = templateParam.value
-      }
-      return acc
-    },
-    {} as Record<string, string | number | bigint | Uint8Array>
-  )
 }
 
 export function DeployApp({ machine }: Props) {
@@ -148,7 +120,7 @@ export function DeployApp({ machine }: Props) {
         },
         onUpdate: 'append',
         onSchemaBreak: 'append',
-        deployTimeParams: getTealTemplateParams(state.context.templateParams),
+        deployTimeParams: asTealTemplateParams(state.context.templateParams),
         populateAppCallResources: true,
       })
 
