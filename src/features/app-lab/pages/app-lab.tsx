@@ -1,5 +1,5 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { useAppInterfaces } from '@/features/app-interfaces/data'
+import { useLoadableAppInterfaces } from '@/features/app-interfaces/data'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { AppInterfaces } from '@/features/app-interfaces/components/app-interfaces'
@@ -8,7 +8,7 @@ import { useTitle } from '@/utils/use-title'
 export const appLabPageTitle = 'App Lab'
 
 export function AppLab() {
-  const [appInterfaces, refreshAppInterfaces] = useAppInterfaces()
+  const [appInterfaces, refreshAppInterfaces] = useLoadableAppInterfaces()
   useTitle('App Lab')
 
   return (

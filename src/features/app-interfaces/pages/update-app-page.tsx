@@ -1,5 +1,5 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { useAppInterface, useUpdateAppInterfaceStateMachine } from '../data'
+import { getAppInterface, useUpdateAppInterfaceStateMachine } from '../data'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { UrlParams, Urls } from '@/routes/urls'
 import { invariant } from '@/utils/invariant'
@@ -9,18 +9,21 @@ import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { isInteger } from '@/utils/is-integer'
 import { appInterfaceFailedToLoadMessage, appInterfaceNotFoundMessage, applicationInvalidIdMessage, updateAppPageTitle } from './labels'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
+import { dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { UploadAppSpec } from '../components/create/upload-app-spec'
-import { AppSpec, AppSpecStandard } from '../data/types'
-import { useCallback, useEffect } from 'react'
+import { AppSpec, AppSpecStandard, UpdateAppContext } from '../data/types'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DeploymentDetails, DeploymentDetailsFormData, DeploymentMode } from '../components/create/deployment-details'
-import { useLoadableApplication } from '@/features/applications/data'
+import { getApplicationResultAtom } from '@/features/applications/data'
+import { atom, useAtomValue } from 'jotai'
+import { loadable } from 'jotai/utils'
+import { ApplicationId } from '@/features/applications/data/types'
 
-function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) {
+function UpdateAppInner({ context }: { context: UpdateAppContext }) {
   const navigate = useNavigate()
   const [selectedNetwork] = useSelectedNetwork()
-  const machine = useUpdateAppInterfaceStateMachine(appInterface)
+  const machine = useUpdateAppInterfaceStateMachine(context)
   const [state, send] = machine
 
   const onAppSpecUploaded = useCallback((file: File, appSpec: AppSpec) => {
@@ -49,7 +52,12 @@ function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) 
 
   useEffect(() => {
     if (state.matches('canceled')) {
-      navigate(Urls.Network.AppLab.Edit.ById.build({ networkId: selectedNetwork, applicationId: appInterface.applicationId.toString() }))
+      navigate(
+        Urls.Network.AppLab.Edit.ById.build({
+          networkId: selectedNetwork,
+          applicationId: context.current.appInterface.applicationId.toString(),
+        })
+      )
     }
   }, [navigate, selectedNetwork, state])
 
@@ -68,7 +76,7 @@ function UpdateAppInner({ appInterface }: { appInterface: AppInterfaceEntity }) 
         mode={DeploymentMode.Update}
         appSpec={state.context.appSpec}
         formData={{
-          name: state.context.name,
+          name: state.context.current.appInterface.name,
           version: state.context.version,
           updatable: state.context.updatable,
           deletable: state.context.deletable,
@@ -102,17 +110,35 @@ export function UpdateAppPage() {
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 
   const applicationId = BigInt(_applicationId)
-  const [loadableAppInterface] = useAppInterface(applicationId)
-  const [loadableApplication] = useLoadableApplication(applicationId)
+  const [loadableUpdateAppContext] = useLoadbleUpdateAppContext(applicationId)
 
-  // TODO: create a combine loadable & update the state machine
-  // store name, app id, app info (bytes ...)
   return (
     <>
       <PageTitle title={updateAppPageTitle} />
-      <RenderLoadable loadable={loadableAppInterface} transformError={transformError} fallback={<PageLoader />}>
-        {(appInterface) => <UpdateAppInner appInterface={appInterface} />}
+      <RenderLoadable loadable={loadableUpdateAppContext} transformError={transformError} fallback={<PageLoader />}>
+        {(appInterface) => <UpdateAppInner context={appInterface} />}
       </RenderLoadable>
     </>
   )
+}
+
+const useLoadbleUpdateAppContext = (applicationId: ApplicationId) => {
+  const fooAtom = useMemo(() => {
+    return atom(async (get) => {
+      const dbConnection = await get(dbConnectionAtom)
+
+      const appInterface = await getAppInterface(dbConnection, applicationId)
+      invariant(appInterface, appInterfaceNotFoundMessage)
+
+      const applicationResult = await get(getApplicationResultAtom(applicationId))
+
+      return {
+        current: {
+          appInterface,
+          application: applicationResult,
+        },
+      } satisfies UpdateAppContext
+    })
+  }, [applicationId])
+  return [useAtomValue(loadable(fooAtom))] as const
 }

@@ -1,9 +1,9 @@
-import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
+import { dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useAtomCallback } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
 import { upsertAppInterface } from './create'
-import { AppSpec, AppSpecVersion, TemplateParam, UpdateAppInterfaceContext } from './types'
+import { AppSpec, AppSpecVersion, TemplateParam, UpdateAppContext } from './types'
 import { invariant } from '@/utils/invariant'
 import { getAppInterfaces } from './read'
 import { createTimestamp } from '@/features/common/data'
@@ -97,10 +97,10 @@ export const useDeleteAppSpec = () => {
   )
 }
 
-const createMachine = (appInterface: AppInterfaceEntity) =>
+const createMachine = (context: UpdateAppContext) =>
   setup({
     types: {
-      context: {} as UpdateAppInterfaceContext,
+      context: {} as UpdateAppContext,
       events: {} as
         | { type: 'appSpecUploadCompleted'; file: File; appSpec: AppSpec }
         | { type: 'appSpecUploadCancelled' }
@@ -125,8 +125,7 @@ const createMachine = (appInterface: AppInterfaceEntity) =>
     id: 'updateAppInterface',
     initial: 'appSpec',
     context: {
-      applicationId: appInterface.applicationId,
-      name: appInterface.name,
+      current: { ...context.current },
       // TODO: prefill app version
     },
     states: {
@@ -207,9 +206,9 @@ const createMachine = (appInterface: AppInterfaceEntity) =>
     },
   })
 
-export const useUpdateAppInterfaceStateMachine = (appInterface: AppInterfaceEntity) => {
+export const useUpdateAppInterfaceStateMachine = (context: UpdateAppContext) => {
   const updateAppInterfaceMachineAtom = useMemo(() => {
-    return atomWithMachine(() => createMachine(appInterface))
-  }, [appInterface])
+    return atomWithMachine(() => createMachine(context))
+  }, [context])
   return useAtom(updateAppInterfaceMachineAtom)
 }

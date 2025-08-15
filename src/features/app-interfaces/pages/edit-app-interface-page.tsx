@@ -1,6 +1,6 @@
 import { PageTitle } from '@/features/common/components/page-title'
 import { EditAppInterface } from '../components/edit/edit-app-interface'
-import { useAppInterface } from '../data'
+import { useLoadbleAppInterface } from '../data'
 import { invariant } from '@/utils/invariant'
 import { isInteger } from '@/utils/is-integer'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
@@ -34,7 +34,7 @@ export function EditAppInterfacePage() {
   invariant(isInteger(_applicationId), applicationInvalidIdMessage)
 
   const applicationId = BigInt(_applicationId)
-  const [loadableAppInterface, refreshAppInterface] = useAppInterface(applicationId)
+  const [loadableAppInterface, refreshAppInterface] = useLoadbleAppInterface(applicationId)
 
   return (
     <>

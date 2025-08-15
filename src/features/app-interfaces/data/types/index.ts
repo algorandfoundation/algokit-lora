@@ -1,7 +1,8 @@
 import { AvmValue } from '@/features/abi-methods/models'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { AbiContract as Arc4AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
-import { ApplicationId } from '@/features/applications/data/types'
+import { ApplicationId, ApplicationResult } from '@/features/applications/data/types'
+import { AppInterfaceEntity } from '@/features/common/data/indexed-db'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import algosdk from 'algosdk'
 
@@ -70,9 +71,11 @@ export type CreateAppInterfaceContext = {
   templateParams?: TemplateParam[]
 }
 
-export type UpdateAppInterfaceContext = {
-  applicationId: ApplicationId
-  name: string
+export type UpdateAppContext = {
+  current: {
+    appInterface: AppInterfaceEntity
+    application: ApplicationResult
+  }
   version?: string
   file?: File
   appSpec?: AppSpec
