@@ -10,3 +10,6 @@ export const LORA_URI_SCHEME = 'algokit-lora'
 
 export const MESSAGE_TABLE_ROW_DATA_LABEL = 'message-row'
 export const NO_RESULTS_TABLE_MESSAGE = 'No results.'
+
+/** The maximum number of bytes in a single app code page */
+export const APP_PAGE_MAX_SIZE = 2048
