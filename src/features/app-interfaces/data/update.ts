@@ -1,15 +1,17 @@
 import { dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { ApplicationId } from '@/features/applications/data/types'
-import { useAtomCallback } from 'jotai/utils'
+import { loadable, useAtomCallback } from 'jotai/utils'
 import { useCallback, useMemo } from 'react'
 import { upsertAppInterface } from './create'
 import { AppSpec, AppSpecVersion, TemplateParam, UpdateAppContext } from './types'
 import { invariant } from '@/utils/invariant'
-import { getAppInterfaces } from './read'
+import { getAppInterface, getAppInterfaces } from './read'
 import { createTimestamp } from '@/features/common/data'
-import { useAtom } from 'jotai'
+import { atom, useAtom, useAtomValue } from 'jotai'
 import { atomWithMachine } from 'jotai-xstate'
 import { setup, assign } from 'xstate'
+import { appInterfaceNotFoundMessage } from '../pages/labels'
+import { getApplicationResultAtom } from '@/features/applications/data'
 
 export const useAddAppSpecVersion = () => {
   return useAtomCallback(
@@ -211,4 +213,25 @@ export const useUpdateAppInterfaceStateMachine = (context: UpdateAppContext) => 
     return atomWithMachine(() => createMachine(context))
   }, [context])
   return useAtom(updateAppInterfaceMachineAtom)
+}
+
+export const useLoadbleUpdateAppContext = (applicationId: ApplicationId) => {
+  const updateAppContextAtom = useMemo(() => {
+    return atom(async (get) => {
+      const dbConnection = await get(dbConnectionAtom)
+
+      const appInterface = await getAppInterface(dbConnection, applicationId)
+      invariant(appInterface, appInterfaceNotFoundMessage)
+
+      const applicationResult = await get(getApplicationResultAtom(applicationId))
+
+      return {
+        current: {
+          appInterface,
+          application: applicationResult,
+        },
+      } satisfies UpdateAppContext
+    })
+  }, [applicationId])
+  return [useAtomValue(loadable(updateAppContextAtom))] as const
 }

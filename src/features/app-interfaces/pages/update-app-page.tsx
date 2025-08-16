@@ -1,5 +1,5 @@
 import { PageTitle } from '@/features/common/components/page-title'
-import { getAppInterface, useUpdateAppInterfaceStateMachine } from '../data'
+import { useLoadbleUpdateAppContext, useUpdateAppInterfaceStateMachine } from '../data'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { UrlParams, Urls } from '@/routes/urls'
 import { invariant } from '@/utils/invariant'
@@ -9,21 +9,16 @@ import { useRequiredParam } from '@/features/common/hooks/use-required-param'
 import { isInteger } from '@/utils/is-integer'
 import { appInterfaceFailedToLoadMessage, appInterfaceNotFoundMessage, applicationInvalidIdMessage, updateAppPageTitle } from './labels'
 import { RenderLoadable } from '@/features/common/components/render-loadable'
-import { dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { UploadAppSpec } from '../components/create/upload-app-spec'
 import { AppSpec, AppSpecStandard, UpdateAppContext } from '../data/types'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { DeploymentDetails, DeploymentDetailsFormData, DeploymentMode } from '../components/create/deployment-details'
-import { getApplicationResultAtom } from '@/features/applications/data'
-import { atom, useAtomValue } from 'jotai'
-import { loadable } from 'jotai/utils'
-import { ApplicationId } from '@/features/applications/data/types'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { asArc56AppSpec } from '@/features/applications/mappers'
 import { asTealTemplateParams } from '../mappers'
 import { calculateExtraProgramPages } from '@/features/common/utils'
-import { Foo } from '../components/edit/foo'
+import { DeployApp } from '../components/edit/deploy-app'
 
 function UpdateAppInner({ context }: { context: UpdateAppContext }) {
   const navigate = useNavigate()
@@ -136,7 +131,7 @@ function UpdateAppInner({ context }: { context: UpdateAppContext }) {
       />
     )
   } else if (state.matches('deployment')) {
-    return <Foo />
+    return <DeployApp />
   }
 
   return <PageLoader />
@@ -171,25 +166,4 @@ export function UpdateAppPage() {
       </RenderLoadable>
     </>
   )
-}
-
-const useLoadbleUpdateAppContext = (applicationId: ApplicationId) => {
-  const fooAtom = useMemo(() => {
-    return atom(async (get) => {
-      const dbConnection = await get(dbConnectionAtom)
-
-      const appInterface = await getAppInterface(dbConnection, applicationId)
-      invariant(appInterface, appInterfaceNotFoundMessage)
-
-      const applicationResult = await get(getApplicationResultAtom(applicationId))
-
-      return {
-        current: {
-          appInterface,
-          application: applicationResult,
-        },
-      } satisfies UpdateAppContext
-    })
-  }, [applicationId])
-  return [useAtomValue(loadable(fooAtom))] as const
 }
