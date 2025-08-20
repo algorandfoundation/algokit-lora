@@ -1,5 +1,6 @@
 import { AppClientMethodCallParamsArgs } from '@/features/applications/data/types'
 import { algorandClient } from '@/features/common/data/algo-client'
+import { FEE_SINK_ADDRESS } from '@/features/network/data'
 import { ABIMethod } from 'algosdk'
 
 export async function executeFundedDiscoveryApplicationCall(
@@ -7,9 +8,6 @@ export async function executeFundedDiscoveryApplicationCall(
   applicationId: bigint,
   applicationCallArgs?: AppClientMethodCallParamsArgs[]
 ) {
-  // Using a fee sink address to call the method - simulating will check if caller account has balance
-  const feeSinkAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
-
   // Create a transaction composer to call the method
   const composer = algorandClient.newGroup()
 
@@ -18,7 +16,7 @@ export async function executeFundedDiscoveryApplicationCall(
     appId: applicationId,
     method: applicationMethod,
     args: applicationCallArgs,
-    sender: feeSinkAddress,
+    sender: FEE_SINK_ADDRESS,
   })
   const simulateResult = await composer.simulate({ skipSignatures: true, allowUnnamedResources: true })
 
