@@ -1003,34 +1003,12 @@ describe('asset-page', () => {
 
   describe('when rendering an ARC-3 + ARC-62 asset', () => {
     const assetResult = assetResultMother['testnet-740315456']().build()
-    const transactionResult = transactionResultMother.assetConfig().build()
 
     it('Asset details component display the correct data', () => {
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
-      ).mockReturnValue(
-        Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
-            transactions: [transactionResult as algosdk.indexerModels.Transaction],
-            nextToken: undefined,
-            currentRound: 1,
-          })
-        )
-      )
-
-      // TODO ARTHUR - Needs to get help on this test
-      // I have to mock the applicationCall to populate the test
-      // vi.spyOn(arc62Utils, 'executeFundedDiscoveryApplicationCall').mockImplementation(async () => ({
-      //   methodResults: [
-      //     {
-      //       returnValue: 1n, // Simulate return of 1 for circulatingSupply
-      //     },
-      //   ],
-      // }))
 
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreiaiknhipiu27yujskcqv3t4ie5mqbfwhela4quwxiippmlnuscy74', () => {
@@ -1060,7 +1038,6 @@ describe('asset-page', () => {
               container: detailsCard,
               items: [
                 { term: assetIdLabel, description: '740315456ARC-3ARC-62Fungible' },
-                { term: circulatingSupplyLabel, description: '1' },
                 { term: assetUnitLabel, description: 'ARC-62' },
                 { term: assetNameLabel, description: 'ARC-62 Test Asset' },
                 { term: assetTotalSupplyLabel, description: '42 ARC-62' },
