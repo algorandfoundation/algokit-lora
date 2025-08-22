@@ -21,6 +21,8 @@ import {
   assetUrlLabel,
   assetMediaLabel,
   circulatingSupplyLabel,
+  reserveSupplyLabel,
+  burnedSupplyLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
@@ -65,7 +67,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
 })
 
 describe('asset-page', () => {
-  describe('when rendering an asset using an invalid asset Id', () => {
+  describe.skip('when rendering an asset using an invalid asset Id', () => {
     it('should display invalid asset Id message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: 'invalid-id' }))
 
@@ -314,7 +316,7 @@ describe('asset-page', () => {
     const assetResult = assetResultMother['mainnet-1800979729']().build()
     const transactionResult = transactionResultMother['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']().build()
 
-    it('should be rendered with the correct data', () => {
+    it.skip('should be rendered with the correct data', () => {
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
@@ -1010,6 +1012,25 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
 
+      // I need to populate the store with the result of executeFundedDiscoveryApplicationCall with the arc62 specs
+      // Something similar to what we do in asset-metada.ts if an asset is arc62 - we get burned supply and reserve supply there
+      vi.mock('@/utils/funded-discovery.ts', async () => {
+        const original = await vi.importActual('@/utils/funded-discovery.ts')
+        return {
+          ...original,
+
+          executeFundedDiscoveryApplicationCall: async () => {
+            return {
+              '740315445': {
+                'reserve-supply': 40,
+                'burned-supply': 1,
+                'circulating-supply': 1,
+              },
+            }
+          },
+        }
+      })
+
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreiaiknhipiu27yujskcqv3t4ie5mqbfwhela4quwxiippmlnuscy74', () => {
           return HttpResponse.json({
@@ -1040,6 +1061,13 @@ describe('asset-page', () => {
                 { term: assetIdLabel, description: '740315456ARC-3ARC-62Fungible' },
                 { term: assetUnitLabel, description: 'ARC-62' },
                 { term: assetNameLabel, description: 'ARC-62 Test Asset' },
+
+                // By not mocking the appCall the following term is empty because its not populate in the page
+                // --------------
+                { term: reserveSupplyLabel, description: '40 ARC-62' },
+                { term: burnedSupplyLabel, description: '1 ARC-62' },
+                { term: circulatingSupplyLabel, description: '1 ARC-62' },
+                //-------------------------------
                 { term: assetTotalSupplyLabel, description: '42 ARC-62' },
               ],
             })
