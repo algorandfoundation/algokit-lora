@@ -34,7 +34,7 @@ export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: 
 
   const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, [assetId])
 
-  if (!simulateResult.returns?.[0]) return
+  if (!simulateResult || !simulateResult.returns?.[0]) return
   return simulateResult.returns[0].returnValue
 }
 
