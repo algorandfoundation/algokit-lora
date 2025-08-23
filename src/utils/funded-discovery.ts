@@ -10,23 +10,16 @@ export async function executeFundedDiscoveryApplicationCall(
   applicationId: bigint,
   applicationCallArgs?: AppClientMethodCallParamsArgs[]
 ) {
-  let fundedDiscoveryAddress: string | Address
-
+  let fundedDiscoveryAddress: string | Address = FEE_SINK_ADDRESS
   const networkConfig = settingsStore.get(networkConfigAtom)
 
   if (!networkConfig.id) return
-
-  fundedDiscoveryAddress = FEE_SINK_ADDRESS
-
   if (networkConfig.id === 'localnet') {
     const localnetClient = AlgorandClient.defaultLocalNet()
-
-    fundedDiscoveryAddress = await localnetClient.account.fromEnvironment('FUNDED_DISCOVERY_ACCOUNT', (1).algo())
+    fundedDiscoveryAddress = await localnetClient.account.localNetDispenser()
   }
 
-  // Create a transaction composer to call the method
   const composer = algorandClient.newGroup()
-  // Add the method call to the composer
   composer.addAppCallMethodCall({
     appId: applicationId,
     method: applicationMethod,
