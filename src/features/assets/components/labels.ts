@@ -26,3 +26,7 @@ export const assetLiveTransactionsTabId = 'live-transactions'
 export const assetLiveTransactionsTabLabel = 'Live Transactions'
 export const assetHistoricalTransactionsTabId = 'historical-transactions'
 export const assetHistoricalTransactionsTabLabel = 'Historical Transactions'
+
+export const circulatingSupplyLabel = 'Circulating Supply'
+export const burnedSupplyLabel = 'Burned Supply'
+export const reserveSupplyLabel = 'Reserve Supply'

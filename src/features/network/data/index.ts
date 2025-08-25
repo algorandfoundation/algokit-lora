@@ -36,7 +36,11 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   walletconnect: 'Wallet Connect',
   magic: 'Magic',
   biatec: 'Biatec',
+  liquid: 'Liquid',
+  'w3-wallet': 'W3 Wallet',
 }
+
+export const FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {
