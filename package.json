@@ -57,7 +57,7 @@
     "@tanstack/react-table": "^8.16.0",
     "@tauri-apps/api": "^2.0.0",
     "@tauri-apps/plugin-cli": "^2.0.0",
-    "@tauri-apps/plugin-deep-link": "^2.0.0",
+    "@tauri-apps/plugin-deep-link": "^2.4.2",
     "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-fs": "^2.0.2",
     "@tauri-apps/plugin-process": "^2.2.0",
