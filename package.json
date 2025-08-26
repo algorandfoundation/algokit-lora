@@ -148,7 +148,6 @@
   },
   "overrides": {
     "ws@>7.0.0 <7.5.9": "7.5.10",
-    "esbuild": "0.25.0",
-    "@algorandfoundation/algokit-utils": "^9.2.0-future.6"
+    "esbuild": "0.25.0"
   }
 }
