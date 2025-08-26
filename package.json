@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^3.2.0",
-    "@algorandfoundation/algokit-utils": "^9.2.0-future.6",
+    "@algorandfoundation/algokit-utils": "^9.1.2",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",
@@ -148,7 +148,6 @@
   },
   "overrides": {
     "ws@>7.0.0 <7.5.9": "7.5.10",
-    "esbuild": "0.25.0",
-    "@algorandfoundation/algokit-utils": "^9.2.0-future.6"
+    "esbuild": "0.25.0"
   }
 }
