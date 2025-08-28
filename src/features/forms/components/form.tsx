@@ -41,7 +41,7 @@ export function Form<TData, TSchema extends Record<string, unknown>>({
     setSubmitting(false)
   }, [])
 
-  const formCtx = useForm<TSchema>({
+  const formCtx = useForm<TSchema, any, TSchema>({
     resolver: zodResolver(schema),
     defaultValues,
     mode: 'onBlur',
