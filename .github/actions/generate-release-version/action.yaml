@@ -50,6 +50,17 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       shell: bash
 
+    - name: Debug dry-run outputs
+      shell: bash
+      run: |
+        echo "=== Debugging semantic-release dry-run outputs ==="
+        echo "new-release-published: '${{ steps.get-next-version.outputs.new-release-published }}'"
+        echo "new-release-version: '${{ steps.get-next-version.outputs.new-release-version }}'"
+        echo "new-release-git-tag: '${{ steps.get-next-version.outputs.new-release-git-tag }}'"
+        echo "=== All step outputs ==="
+        echo '${{ toJSON(steps.get-next-version.outputs) }}'
+        echo "=== Done debugging ==="
+
     - name: Create release
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}

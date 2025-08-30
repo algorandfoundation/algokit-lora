@@ -83,6 +83,14 @@ jobs:
       # Let scripts run without the token
       - run: npm rebuild
 
+      - name: Validate CrabNebula API key
+        id: validate-cn-api
+        uses: crabnebula-dev/cloud-release@v0.2.0
+        with:
+          command: release list ${{ secrets.CN_ORG_NAME }}/${{ secrets.CN_APP_NAME }} --limit 1
+          api-key: ${{ secrets.CN_API_KEY }}
+        continue-on-error: false
+
       - name: Generate release version
         uses: ./.github/actions/generate-release-version
         id: generate-release-version
@@ -115,6 +123,27 @@ jobs:
           name: app-build
           path: dist/
           retention-days: 1
+
+      - name: Validate release outputs
+        run: |
+          echo "generate-release-version outputs:"
+          echo "release-version: ${{ steps.generate-release-version.outputs.release-version }}"
+          echo "release-tag: ${{ steps.generate-release-version.outputs.release-tag }}"
+          echo "release-notes: ${{ steps.generate-release-version.outputs.release-notes }}"
+          echo "release-channel: ${{ steps.generate-release-version.outputs.release-channel }}"
+
+          # Validate required outputs
+          if [ -z "${{ steps.generate-release-version.outputs.release-version }}" ]; then
+            echo "❌ Error: release-version is empty"
+            exit 1
+          fi
+
+          if [ -z "${{ steps.generate-release-version.outputs.release-tag }}" ]; then
+            echo "❌ Error: release-tag is empty"
+            exit 1
+          fi
+
+          echo "✅ All required release outputs are present"
 
       - name: Create draft CrabNebula release
         uses: crabnebula-dev/cloud-release@v0.2.0
@@ -171,7 +200,9 @@ jobs:
           echo "Release commit: $RELEASE_COMMIT"
 
           # Cherry-pick the release commit into main (without merge history)
-          git cherry-pick $RELEASE_COMMIT --no-commit
+          # Use -X theirs to automatically resolve conflicts in favor of the release branch
+          git cherry-pick $RELEASE_COMMIT --no-commit -X theirs
+
           git commit -m "chore: sync stable release $VERSION to main [skip ci]
 
           This commit syncs the stable release version back to main branch

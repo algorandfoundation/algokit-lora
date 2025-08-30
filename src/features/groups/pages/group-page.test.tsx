@@ -241,14 +241,23 @@ describe('group-page', () => {
   })
 
   describe('when rendering an inner transaction group', () => {
-    const transaction1 = transactionResultMother.payment().withId('MNVQ6KV2HCFDX4GBXGVNODIIK3ATIPH5KG4TS7L3WZT2JM6ETLLQ/inner/1').build()
-    const transaction2 = transactionResultMother.appCall().withId('MNVQ6KV2HCFDX4GBXGVNODIIK3ATIPH5KG4TS7L3WZT2JM6ETLLQ/inner/2').build()
+    const parentTransactionResult = transactionResultMother['mainnet-NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA']().build()
+    const transactionResults = [
+      parentTransactionResult.innerTxns![1],
+      parentTransactionResult.innerTxns![2],
+      parentTransactionResult.innerTxns![3],
+    ]
+    const assets = [
+      assetResultMother['mainnet-31566704']().build(),
+      assetResultMother['mainnet-2982339967']().build(),
+      assetResultMother['mainnet-2982339968']().build(),
+    ]
 
     const group = groupResultMother
-      .groupWithTransactions([transaction1, transaction2])
-      .withId('ZlhheIuy1l/olQhJQt0eMMgbxPAsmElYrL6Is0A2Qno=')
-      .withRound(2215n)
-      .withTimestamp('2025-01-27T01:07:53Z')
+      .groupWithTransactions(transactionResults)
+      .withId('+6zYx5gx0Iv3sLRso9Z1Xwr4niLcNyorFpQ+uBVkcBA=')
+      .withRound(52121244n)
+      .withTimestamp('2025-07-25T18:10:29.000Z')
       .build()
 
     it('should be rendered with the correct data', () => {
@@ -257,13 +266,56 @@ describe('group-page', () => {
       const myStore = createStore()
       myStore.set(groupResultsAtom, new Map([[group.id, createReadOnlyAtomAndTimestamp(group)]]))
 
+      myStore.set(transactionResultsAtom, new Map([[parentTransactionResult.id, createReadOnlyAtomAndTimestamp(parentTransactionResult)]]))
+      myStore.set(
+        assetResultsAtom,
+        new Map([
+          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
+        ])
+      )
+      myStore.set(genesisHashAtom, 'some-hash')
+
       return executeComponentTest(
         () => render(<GroupPage />, undefined, myStore),
-        async () => {
-          const mock = vi.mocked(indexer.lookupTransactionByID)
+        async (component, user) => {
+          await waitFor(() =>
+            descriptionListAssertion({
+              container: component.container,
+              items: [
+                { term: groupIdLabel, description: '+6zYx5gx0Iv3sLRso9Z1Xwr4niLcNyorFpQ+uBVkcBA=' },
+                { term: blockLabel, description: '52121244' },
+                { term: timestampLabel, description: 'Fri, 25 July 2025 18:10:29' },
+                { term: transactionsLabel, description: '6Payment=1Application Call=1Asset Transfer=4' },
+              ],
+            })
+          )
 
-          expect(mock).toHaveBeenCalledWith('MNVQ6KV2HCFDX4GBXGVNODIIK3ATIPH5KG4TS7L3WZT2JM6ETLLQ')
-          expect(mock).toHaveBeenCalledTimes(1)
+          const groupVisualTabList = component.getByRole('tablist', { name: groupVisual })
+          expect(groupVisualTabList).toBeTruthy()
+          expect(
+            component.getByRole('tabpanel', { name: groupVisualGraphLabel }).getAttribute('data-state'),
+            'Visual tab should be active'
+          ).toBe('active')
+
+          // After click on the Table tab
+          await user.click(getByRole(groupVisualTabList, 'tab', { name: groupVisualTableLabel }))
+          const tableViewTab = component.getByRole('tabpanel', { name: groupVisualTableLabel })
+          await waitFor(() => expect(tableViewTab.getAttribute('data-state'), 'Table tab should be active').toBe('active'))
+          await tableAssertion({
+            container: tableViewTab,
+            rows: [
+              {
+                cells: ['', 'inner/2', '+6zYx5g…', 'RDRO…VM7Y', 'YPU2…BIZE', 'Payment', '0.403', '0.001'],
+              },
+              {
+                cells: ['', 'inner/3', '+6zYx5g…', 'RDRO…VM7Y', '3137524476', 'Application Call', '', '0.001'],
+              },
+              {
+                cells: ['', 'inner/4', '+6zYx5g…', 'RDRO…VM7Y', 'YPU2…BIZE', 'Asset Transfer', '301.238999USDC', '0.001'],
+              },
+            ],
+          })
         }
       )
     })

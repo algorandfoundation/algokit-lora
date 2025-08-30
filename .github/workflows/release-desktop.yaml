@@ -31,6 +31,31 @@ on:
         description: 'CrabNebula release ID'
         required: true
         type: string
+    secrets:
+      APPLE_CERTIFICATE:
+        required: true
+      APPLE_CERTIFICATE_PASSWORD:
+        required: true
+      APPLE_ID:
+        required: true
+      APPLE_PASSWORD:
+        required: true
+      APPLE_TEAM_ID:
+        required: true
+      KEYCHAIN_PASSWORD:
+        required: true
+      TAURI_SIGNING_PRIVATE_KEY:
+        required: true
+      TAURI_SIGNING_PRIVATE_KEY_PASSWORD:
+        required: true
+      TAURI_SIGNING_PUBLIC_KEY:
+        required: true
+      CN_ORG_NAME:
+        required: true
+      CN_APP_NAME:
+        required: true
+      CN_API_KEY:
+        required: true
 
 concurrency: build-desktop
 
@@ -48,17 +73,10 @@ jobs:
         platform: [ubuntu-22.04, windows-latest, macos-13, macos-14]
 
     steps:
-      - name: Generate bot token
-        uses: actions/create-github-app-token@v1
-        id: app_token
-        with:
-          app-id: ${{ secrets.BOT_ID }}
-          private-key: ${{ secrets.BOT_SK }}
-
       - uses: actions/checkout@v4
         with:
-          # Use bot token for authenticated operations
-          token: ${{ steps.app_token.outputs.token }}
+          # Use GitHub token for authenticated operations
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Setup node
@@ -69,16 +87,16 @@ jobs:
           scope: '@algorandfoundation'
           cache: 'npm'
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
-
       - name: Install npm dependencies
         run: npm ci --ignore-scripts
         env:
-          NODE_AUTH_TOKEN: ${{ steps.app_token.outputs.token }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Let scripts run without the token
       - run: npm rebuild
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Download app build artifacts
         uses: actions/download-artifact@v4
@@ -91,6 +109,7 @@ jobs:
         if: ${{ runner.os == 'Linux' }}
         uses: ./.github/actions/build-linux
         with:
+          release-version: ${{ inputs.version }}
           release-tag: ${{ inputs.release-tag }}
           production-release: ${{ env.PRODUCTION_RELEASE  }}
           crabnebula-release-id: ${{ inputs.crabnebula-release-id }}
@@ -108,6 +127,7 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         uses: ./.github/actions/build-windows
         with:
+          release-version: ${{ inputs.version }}
           release-tag: ${{ inputs.release-tag }}
           production-release: ${{ env.PRODUCTION_RELEASE  }}
           crabnebula-release-id: ${{ inputs.crabnebula-release-id }}
@@ -127,6 +147,7 @@ jobs:
         if: ${{ runner.os == 'macOS' }}
         uses: ./.github/actions/build-mac
         with:
+          release-version: ${{ inputs.version }}
           release-tag: ${{ inputs.release-tag }}
           production-release: ${{ env.PRODUCTION_RELEASE  }}
           crabnebula-release-id: ${{ inputs.crabnebula-release-id }}
