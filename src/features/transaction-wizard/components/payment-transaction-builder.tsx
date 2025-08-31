@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,12 +17,22 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { useNetworkConfig } from '@/features/network/data'
 
 const receiverLabel = 'Receiver'
 
+export const senderFieldShape = {
+  sender: z
+    .object({
+      value: z.string().optional(),
+      resolvedAddress: z.string().optional(),
+    })
+    .optional(),
+} as const
+
 export const paymentFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...senderFieldShape,
   ...receiverFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 })
@@ -36,13 +46,41 @@ type Props = {
   onCancel: () => void
 }
 
+const defineSenderAddress = (data: z.infer<typeof formData>, networkId: string) => {
+  let senderAddress: string | undefined
+
+  if (data.sender?.resolvedAddress) {
+    senderAddress = data.sender.resolvedAddress
+  }
+
+  if (!senderAddress) {
+    switch (networkId) {
+      case 'mainnet':
+        senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+        break
+      case 'testnet':
+        senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+        break
+      default:
+        senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+    }
+  }
+
+  return {
+    value: senderAddress,
+    resolvedAddress: senderAddress,
+  }
+}
+
 export function PaymentTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: asOptionalAddressOrNfd(data.sender),
+        sender: defineSenderAddress(data, networkId),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,

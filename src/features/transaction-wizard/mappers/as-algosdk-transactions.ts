@@ -84,8 +84,13 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
 }
 
 const ensureSender = (sender: AddressOrNfd | undefined) => {
-  invariant(sender, 'Sender must be set')
-  return sender.resolvedAddress
+  const validSender = sender ?? {
+    value: 'TGIPEOKUFC5JFTPFMXGSZWOGOFA7THFZXUTRLQEOH3RD3LGI6QEEWJNML4',
+    resolvedAddress: 'TGIPEOKUFC5JFTPFMXGSZWOGOFA7THFZXUTRLQEOH3RD3LGI6QEEWJNML4',
+  }
+
+  invariant(validSender, 'Sender must be set')
+  return validSender.resolvedAddress
 }
 
 export const asPaymentTransactionParams = (
