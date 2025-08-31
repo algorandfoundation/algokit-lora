@@ -18,6 +18,7 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { useNetworkConfig } from '@/features/network/data'
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 
 const receiverLabel = 'Receiver'
 
@@ -46,7 +47,8 @@ type Props = {
   onCancel: () => void
 }
 
-const defineSenderAddress = (data: z.infer<typeof formData>, networkId: string) => {
+// TODO Arthur - Optional sender - This is a basic function to define the correct sender of the empty address based on the network being used
+const defineSenderAddress = async (data: z.infer<typeof formData>, networkId: string) => {
   let senderAddress: string | undefined
 
   if (data.sender?.resolvedAddress) {
@@ -60,6 +62,12 @@ const defineSenderAddress = (data: z.infer<typeof formData>, networkId: string) 
         break
       case 'testnet':
         senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+        break
+      case 'localnet':
+        const localnetClient = AlgorandClient.defaultLocalNet()
+
+        const dispenserAccount = await localnetClient.account.localNetDispenser()
+        senderAddress = dispenserAccount.addr.toString()
         break
       default:
         senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
@@ -80,7 +88,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: defineSenderAddress(data, networkId),
+        sender: await defineSenderAddress(data, networkId),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,
