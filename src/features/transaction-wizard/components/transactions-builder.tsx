@@ -40,6 +40,7 @@ import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
+const onlySimulateOptionalSenderMessage = 'Auto populated the sender as it was empty, only simualte is enabled'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -82,6 +83,7 @@ export function TransactionsBuilder({
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
   const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
+  const [onlySimulateOptionalSender, setOnlySimulateOptionalSender] = useState(true)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -328,6 +330,13 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
+    // if (onlySimulateOptionalSender) {
+    //   return {
+    //     disabled: true,
+    //     disabledReason: onlySimulateOptionalSenderMessage,
+    //   }
+    // }
+
     if (!activeAddress) {
       return {
         disabled: true,

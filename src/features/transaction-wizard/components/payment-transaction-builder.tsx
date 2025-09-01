@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalSenderFieldShape, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -15,25 +15,16 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { useNetworkConfig } from '@/features/network/data'
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import defineSenderAddress from '../utils/defineSenderAddress'
 
 const receiverLabel = 'Receiver'
 
-export const senderFieldShape = {
-  sender: z
-    .object({
-      value: z.string().optional(),
-      resolvedAddress: z.string().optional(),
-    })
-    .optional(),
-} as const
-
 export const paymentFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldShape,
+  ...optionalSenderFieldShape,
   ...receiverFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 })
@@ -47,39 +38,6 @@ type Props = {
   onCancel: () => void
 }
 
-// TODO Arthur - Optional sender - This is a basic function to define the correct sender of the empty address based on the network being used
-const defineSenderAddress = async (data: z.infer<typeof formData>, networkId: string) => {
-  let senderAddress: string | undefined
-
-  if (data.sender?.resolvedAddress) {
-    senderAddress = data.sender.resolvedAddress
-  }
-
-  if (!senderAddress) {
-    switch (networkId) {
-      case 'mainnet':
-        senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
-        break
-      case 'testnet':
-        senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
-        break
-      case 'localnet':
-        const localnetClient = AlgorandClient.defaultLocalNet()
-
-        const dispenserAccount = await localnetClient.account.localNetDispenser()
-        senderAddress = dispenserAccount.addr.toString()
-        break
-      default:
-        senderAddress = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
-    }
-  }
-
-  return {
-    value: senderAddress,
-    resolvedAddress: senderAddress,
-  }
-}
-
 export function PaymentTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
   const { id: networkId } = useNetworkConfig()
 
@@ -88,7 +46,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: await defineSenderAddress(data, networkId),
+        sender: await defineSenderAddress(data.sender!, networkId),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,
@@ -138,7 +96,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to pay from. Sends the transaction and pays the fee',
+            helpText: 'Account to pay from. Sends the transaction and pays the fee - optional for simulating',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.addressField({

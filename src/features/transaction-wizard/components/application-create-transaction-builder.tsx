@@ -1,10 +1,11 @@
 import algosdk from 'algosdk'
 import { numberSchema } from '@/features/forms/data/common'
 import {
-  senderFieldSchema,
   commonSchema,
   onCompleteOptionsForAppCreate,
   onCompleteForAppCreateFieldSchema,
+  optionalAddressFieldSchema,
+  optionalSenderFieldShape,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -19,12 +20,15 @@ import { BuildApplicationCreateTransactionResult, BuildableTransactionType } fro
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 const formData = zfd.formData({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   ...onCompleteForAppCreateFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
@@ -50,6 +54,8 @@ type Props = {
 }
 
 export function ApplicationCreateTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
@@ -57,7 +63,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         type: BuildableTransactionType.ApplicationCreate,
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
-        sender: asOptionalAddressOrNfd(values.sender),
+        sender: await defineSenderAddress(values.sender!, networkId),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         globalInts: values.globalInts,

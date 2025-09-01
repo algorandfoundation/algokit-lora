@@ -1,5 +1,10 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import {
+  addressFieldSchema,
+  commonSchema,
+  optionalAddressFieldSchema,
+  optionalSenderFieldShape,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -18,6 +23,9 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
+
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
 const closeRemainderToLabel = 'Close remainder to'
@@ -25,7 +33,7 @@ const closeRemainderToLabel = 'Close remainder to'
 const formSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    ...optionalSenderFieldShape,
     closeRemainderTo: addressFieldSchema,
     receiver: optionalAddressFieldSchema,
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).optional()),
@@ -58,12 +66,14 @@ type Props = {
 }
 
 export function AccountCloseTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AccountClose,
-        sender: asOptionalAddressOrNfd(data.sender),
+        sender: await defineSenderAddress(data.sender!, networkId),
         closeRemainderTo: data.closeRemainderTo,
         receiver: asOptionalAddressOrNfd(data.receiver),
         amount: data.amount,
