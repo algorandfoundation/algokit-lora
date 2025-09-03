@@ -40,7 +40,7 @@ import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
-const onlySimulateOptionalSenderMessage = 'Auto populated the sender as it was empty, only simualte is enabled'
+const onlySimulateOptionalSenderMessage = 'Auto populated the sender - only simulate is enabled'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -83,7 +83,7 @@ export function TransactionsBuilder({
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
   const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
-  const [onlySimulateOptionalSender, setOnlySimulateOptionalSender] = useState(true)
+  const [onlySimulateOptionalSender, setOnlySimulateOptionalSender] = useState(false)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -137,6 +137,7 @@ export function TransactionsBuilder({
     setErrorMessage(undefined)
     const transaction = await openTransactionBuilderDialog({ mode: TransactionBuilderMode.Create })
     if (transaction) {
+      console.log('transaction:', transaction)
       setTransactions((prev) => [...prev, transaction])
     }
   }, [openTransactionBuilderDialog])
@@ -173,6 +174,8 @@ export function TransactionsBuilder({
           stateChange: true,
         }),
       } satisfies SimulateOptions
+
+      console.log('transactions:', transactions)
       const result = await (requireSignaturesOnSimulate
         ? (await buildComposer(transactions)).simulate(simulateConfig)
         : (await buildComposerWithEmptySignatures(transactions)).simulate({
@@ -330,12 +333,17 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
-    // if (onlySimulateOptionalSender) {
-    //   return {
-    //     disabled: true,
-    //     disabledReason: onlySimulateOptionalSenderMessage,
-    //   }
-    // }
+    transactions.forEach((transaction) => {
+      console.log('Transactionxxx:', transaction)
+      if (transaction.sender?.autoPopulated === true) setOnlySimulateOptionalSender(true)
+    })
+
+    if (onlySimulateOptionalSender) {
+      return {
+        disabled: true,
+        disabledReason: onlySimulateOptionalSenderMessage,
+      }
+    }
 
     if (!activeAddress) {
       return {
@@ -345,7 +353,7 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [activeAddress, commonButtonDisableProps])
+  }, [activeAddress, commonButtonDisableProps, transactions])
 
   return (
     <div>

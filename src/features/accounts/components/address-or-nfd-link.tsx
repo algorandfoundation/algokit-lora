@@ -17,11 +17,12 @@ export type AddressOrNfdLinkProps = PropsWithChildren<{
   showCopyButton?: boolean
   showQRButton?: boolean
   nfd?: Nfd
+  autoPopulated?: boolean
 }>
 
 export const AddressOrNfdLink = fixedForwardRef(
   (
-    { address: _address, nfd, short, className, children, showCopyButton, showQRButton, ...rest }: AddressOrNfdLinkProps,
+    { address: _address, nfd, short, className, children, showCopyButton, showQRButton, autoPopulated, ...rest }: AddressOrNfdLinkProps,
     ref?: React.LegacyRef<HTMLAnchorElement>
   ) => {
     const [selectedNetwork] = useSelectedNetwork()
@@ -54,6 +55,14 @@ export const AddressOrNfdLink = fixedForwardRef(
     ) : (
       <div className="flex items-center overflow-hidden">
         {link}
+        {autoPopulated && (
+          <span className="ml-1 text-yellow-500 group" title="Auto Populated">
+            <span>?</span>
+            <div className="border-gray-300/20 border-2 p-1 rounded-sm hidden group-hover:block absolute z-10">
+              This address was auto populated
+            </div>
+          </span>
+        )}
         {showCopyButton && <CopyButton value={address} />}
         {showQRButton && <OpenAddressQRDialogButton address={address} />}
       </div>

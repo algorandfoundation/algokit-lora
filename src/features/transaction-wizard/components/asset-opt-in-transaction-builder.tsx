@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalSenderFieldShape, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -23,11 +23,12 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 export const assetOptInFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   asset: z
     .object({
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -138,13 +139,15 @@ type Props = {
 }
 
 export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptIn,
         asset: data.asset,
-        sender: asOptionalAddressOrNfd(data.sender),
+        sender: await defineSenderAddress(data.sender!, networkId),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

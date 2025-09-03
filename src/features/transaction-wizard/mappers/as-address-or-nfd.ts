@@ -1,6 +1,7 @@
 import { Address } from '@/features/accounts/data/types'
 import { AddressOrNfd } from '../models'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
 
 export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount): AddressOrNfd => {
   if (typeof addressOrAccount === 'object') {
@@ -18,7 +19,11 @@ export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount):
 
 export const asOptionalAddressOrNfd = (addressOrNfdSchema: Partial<AddressOrNfd>) => {
   return addressOrNfdSchema.value && addressOrNfdSchema.resolvedAddress
-    ? ({ value: addressOrNfdSchema.value, resolvedAddress: addressOrNfdSchema.resolvedAddress } satisfies AddressOrNfd)
+    ? ({
+        value: addressOrNfdSchema.value,
+        resolvedAddress: addressOrNfdSchema.resolvedAddress,
+        autoPopulated: false,
+      } satisfies AddressOrNfd)
     : undefined
 }
 
@@ -26,5 +31,6 @@ export const asOptionalAddressOrNfdSchema = (address?: Address) => {
   return {
     value: address,
     resolvedAddress: address,
+    autoPopulated: false,
   }
 }

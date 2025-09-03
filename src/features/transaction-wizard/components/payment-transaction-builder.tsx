@@ -15,7 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { useNetworkConfig } from '@/features/network/data'
 import defineSenderAddress from '../utils/defineSenderAddress'
@@ -23,8 +23,8 @@ import defineSenderAddress from '../utils/defineSenderAddress'
 const receiverLabel = 'Receiver'
 
 export const paymentFormSchema = z.object({
-  ...commonSchema,
   ...optionalSenderFieldShape,
+  ...commonSchema,
   ...receiverFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 })
@@ -59,8 +59,8 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
-        receiver: transaction.receiver,
+        sender: asOptionalAddressOrNfd(transaction.sender!),
+        receiver: asAddressOrNfd(transaction.receiver?.resolvedAddress!),
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,

@@ -63,6 +63,7 @@ export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
 export type AddressOrNfd = {
   value: Address | Nfd
   resolvedAddress: Address
+  autoPopulated?: boolean
 }
 
 type CommonBuildTransactionResult = {
@@ -146,6 +147,7 @@ export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | Placehol
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
   receiver: AddressOrNfd
+  sender: AddressOrNfd
   amount: number
 }
 

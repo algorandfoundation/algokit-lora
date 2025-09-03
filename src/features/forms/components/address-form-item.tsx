@@ -1,7 +1,7 @@
 import { FieldPath, useFormContext } from 'react-hook-form'
 import { FormItemProps } from '@/features/forms/components/form-item'
 import { TextFormItem } from './text-form-item'
-import { addressFieldSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
+import { addressFieldSchema, optionalAddressFieldSchema, optionalSenderFieldShape } from '@/features/transaction-wizard/data/common'
 import { useDebounce } from 'use-debounce'
 import { isNfd, useLoadableForwardLookupNfdResult } from '@/features/nfd/data'
 import { useCallback, useEffect } from 'react'
@@ -11,6 +11,7 @@ import { z } from 'zod'
 
 export type AddressOrNfdFieldSchema = z.infer<typeof addressFieldSchema>
 export type OptionalAddressOrNfdFieldSchema = z.infer<typeof optionalAddressFieldSchema>
+export type OptionalSenderFieldSchema = z.infer<typeof optionalSenderFieldShape.sender>
 
 export interface AddressFieldProps<TSchema extends Record<string, unknown> = Record<string, unknown>>
   extends Omit<FormItemProps<TSchema>, 'children'> {

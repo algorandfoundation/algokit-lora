@@ -1,6 +1,12 @@
 import algosdk from 'algosdk'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commonSchema, onCompleteFieldSchema, onCompleteOptions } from '@/features/transaction-wizard/data/common'
+import {
+  senderFieldSchema,
+  commonSchema,
+  onCompleteFieldSchema,
+  onCompleteOptions,
+  optionalSenderFieldShape,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -14,12 +20,14 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 const formData = zfd.formData({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
@@ -41,13 +49,14 @@ type Props = {
 }
 
 export function AppCallTransactionBuilder({ mode, transaction, activeAccount, defaultValues: _defaultValues, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
-        sender: asOptionalAddressOrNfd(values.sender),
+        sender: await defineSenderAddress(values.sender!, networkId),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,

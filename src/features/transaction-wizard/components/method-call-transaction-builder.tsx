@@ -5,6 +5,7 @@ import {
   onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
   senderFieldSchema,
+  optionalSenderFieldShape,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -39,10 +40,12 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 const appCallFormSchema = {
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
@@ -68,6 +71,8 @@ export function MethodCallTransactionBuilder({
   onSubmit,
   onCancel,
 }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const initialValues = useMemo(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
@@ -156,7 +161,7 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
-        sender: asOptionalAddressOrNfd(values.sender),
+        sender: await defineSenderAddress(values.sender!, networkId),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,

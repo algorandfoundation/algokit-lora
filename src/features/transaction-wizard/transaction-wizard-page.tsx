@@ -35,8 +35,6 @@ export function TransactionWizardPage() {
 
   const sendTransactions = useCallback(
     async (transactions: BuildTransactionResult[]) => {
-      console.log('Sending transactions', transactions)
-
       const composer = await buildComposer(transactions)
       const result = await composer.send()
       renderTransactionResults(result)
