@@ -82,7 +82,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

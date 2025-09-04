@@ -56,9 +56,9 @@ export const AddressOrNfdLink = fixedForwardRef(
       <div className="flex items-center overflow-hidden">
         {link}
         {autoPopulated && (
-          <span className="ml-1 text-yellow-500 group" title="Auto Populated">
+          <span className="group ml-1 text-yellow-500" title="Auto Populated">
             <span>?</span>
-            <div className="border-gray-300/20 border-2 p-1 rounded-sm hidden group-hover:block absolute z-10">
+            <div className="absolute z-10 hidden rounded-sm border-2 border-gray-300/20 p-1 group-hover:block">
               This address was auto populated
             </div>
           </span>

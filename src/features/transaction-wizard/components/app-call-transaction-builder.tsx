@@ -1,12 +1,6 @@
 import algosdk from 'algosdk'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import {
-  senderFieldSchema,
-  commonSchema,
-  onCompleteFieldSchema,
-  onCompleteOptions,
-  optionalSenderFieldShape,
-} from '@/features/transaction-wizard/data/common'
+import { commonSchema, onCompleteFieldSchema, onCompleteOptions, optionalSenderFieldShape } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -65,7 +59,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         note: values.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {

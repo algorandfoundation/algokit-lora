@@ -7,25 +7,29 @@ export default async function defineSenderAddress<T extends OptionalSenderFieldS
   let senderAddress: AddressOrNfd
   if (!data.resolvedAddress || !data.value) {
     switch (networkId) {
-      case 'mainnet':
+      case 'mainnet': {
         senderAddress = { value: FEE_SINK_ADDRESS, resolvedAddress: FEE_SINK_ADDRESS, autoPopulated: true }
         break
-      case 'testnet':
+      }
+      case 'testnet': {
         senderAddress = { value: FEE_SINK_ADDRESS, resolvedAddress: FEE_SINK_ADDRESS, autoPopulated: true }
         break
-      case 'localnet':
+      }
+      case 'localnet': {
         const localnetClient = AlgorandClient.defaultLocalNet()
 
         const dispenserAccount = await localnetClient.account.localNetDispenser()
         senderAddress = { value: dispenserAccount.addr.toString(), resolvedAddress: dispenserAccount.addr.toString(), autoPopulated: true }
         break
-      default:
+      }
+      default: {
         senderAddress = {
           value: FEE_SINK_ADDRESS,
           resolvedAddress: FEE_SINK_ADDRESS,
           autoPopulated: true,
         }
         break
+      }
     }
   } else {
     senderAddress = { value: data.value, resolvedAddress: data.resolvedAddress, autoPopulated: false }

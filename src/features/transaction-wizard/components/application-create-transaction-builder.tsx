@@ -4,7 +4,6 @@ import {
   commonSchema,
   onCompleteOptionsForAppCreate,
   onCompleteForAppCreateFieldSchema,
-  optionalAddressFieldSchema,
   optionalSenderFieldShape,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
@@ -76,7 +75,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         note: values.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {

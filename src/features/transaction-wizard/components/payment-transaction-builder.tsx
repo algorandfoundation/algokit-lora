@@ -54,13 +54,13 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         sender: asOptionalAddressOrNfd(transaction.sender!),
-        receiver: asAddressOrNfd(transaction.receiver?.resolvedAddress!),
+        receiver: asAddressOrNfd(transaction.receiver.resolvedAddress),
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,

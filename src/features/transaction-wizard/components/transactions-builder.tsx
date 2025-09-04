@@ -137,7 +137,6 @@ export function TransactionsBuilder({
     setErrorMessage(undefined)
     const transaction = await openTransactionBuilderDialog({ mode: TransactionBuilderMode.Create })
     if (transaction) {
-      console.log('transaction:', transaction)
       setTransactions((prev) => [...prev, transaction])
     }
   }, [openTransactionBuilderDialog])
@@ -175,7 +174,6 @@ export function TransactionsBuilder({
         }),
       } satisfies SimulateOptions
 
-      console.log('transactions:', transactions)
       const result = await (requireSignaturesOnSimulate
         ? (await buildComposer(transactions)).simulate(simulateConfig)
         : (await buildComposerWithEmptySignatures(transactions)).simulate({
@@ -334,7 +332,6 @@ export function TransactionsBuilder({
 
   const sendButtonDisabledProps = useMemo(() => {
     transactions.forEach((transaction) => {
-      console.log('Transactionxxx:', transaction)
       if (transaction.sender?.autoPopulated === true) setOnlySimulateOptionalSender(true)
     })
 
@@ -353,7 +350,7 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [activeAddress, commonButtonDisableProps, transactions])
+  }, [activeAddress, commonButtonDisableProps, transactions, onlySimulateOptionalSender])
 
   return (
     <div>

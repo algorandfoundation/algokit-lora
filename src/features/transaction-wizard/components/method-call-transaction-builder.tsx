@@ -4,7 +4,6 @@ import {
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
-  senderFieldSchema,
   optionalSenderFieldShape,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
@@ -37,7 +36,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import defineSenderAddress from '../utils/defineSenderAddress'
@@ -172,7 +171,7 @@ export function MethodCallTransactionBuilder({
 
       onSubmit(methodCallTxn)
     },
-    [methodDefinition, methodForm, transaction, appSpec, onSubmit, mode]
+    [methodDefinition, methodForm, transaction, appSpec, onSubmit, mode, networkId]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {

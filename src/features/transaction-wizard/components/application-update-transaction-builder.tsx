@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { senderFieldSchema, commonSchema, optionalSenderFieldShape } from '@/features/transaction-wizard/data/common'
+import { commonSchema, optionalSenderFieldShape } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -58,7 +58,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         note: values.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
