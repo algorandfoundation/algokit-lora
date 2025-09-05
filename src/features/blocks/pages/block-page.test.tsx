@@ -175,7 +175,7 @@ describe('block-page', () => {
                 items: [
                   { term: roundLabel, description: block.round.toString() },
                   { term: timestampLabel, description: 'Tue, 25 June 2024 03:03:38' },
-                  { term: transactionsLabel, description: '2Payment=1Asset Transfer=1' },
+                  { term: transactionsLabel, description: '2Asset Transfer=1Payment=1' },
                   { term: previousRoundLabel, description: (block.round - 1n).toString() },
                   { term: nextRoundLabel, description: (block.round + 1n).toString() },
                 ],

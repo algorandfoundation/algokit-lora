@@ -26,7 +26,7 @@ export const asTransactionsSummary = (transactions: TransactionsSummaryInput[]):
 
   return {
     count: transactionCount,
-    countByType: Array.from(countByType.entries()),
+    countByType: Array.from(countByType.entries()).sort(([typeA], [typeB]) => typeA.localeCompare(typeB)),
     feeTotal: microAlgos(feeTotal),
   }
 }
