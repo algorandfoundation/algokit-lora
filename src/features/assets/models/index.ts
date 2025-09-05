@@ -40,10 +40,10 @@ export type Asset = AssetSummary & {
   media?: AssetMedia
   json: string
 }
-
 export enum AssetStandard {
   ARC3 = 'ARC-3',
   ARC16 = 'ARC-16',
   ARC19 = 'ARC-19',
   ARC69 = 'ARC-69',
+  ARC62 = 'ARC-62',
 }
