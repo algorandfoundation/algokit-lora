@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,13 +22,11 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
-import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 export const assetReconfigureFormSchema = z
   .object({
     ...commonSchema,
-    ...optionalSenderFieldShape,
+    ...senderFieldSchema,
     asset: z
       .object({
         id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -211,16 +209,13 @@ type Props = {
 }
 
 export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
-  const { id: networkId } = useNetworkConfig()\
-  
-
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetReconfigure,
         asset: data.asset,
-        sender: await defineSenderAddress(data.sender, networkId),
+        sender: data.sender,
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),
