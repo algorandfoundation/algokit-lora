@@ -1,5 +1,5 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,10 +17,12 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).gt(BigInt(0), 'Must be greater than 0')),
   decimals: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).max(19)),
   assetName: zfd.text(z.string().optional()),
@@ -124,6 +126,8 @@ type Props = {
 }
 
 export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -133,7 +137,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: data.unitName,
         total: data.total,
         decimals: data.decimals,
-        sender: asOptionalAddressOrNfd(data.sender),
+        sender: await defineSenderAddress(data.sender, networkId),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),

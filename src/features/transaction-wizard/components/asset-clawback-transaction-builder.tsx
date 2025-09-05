@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalSenderFieldShape, receiverFieldSchema, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,13 +22,15 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 const clawbackTargetLabel = 'Clawback target'
 
 export const assetClawbackFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    ...optionalSenderFieldShape,
     ...receiverFieldSchema,
     clawbackTarget: addressFieldSchema,
     asset: z
@@ -180,13 +182,15 @@ type Props = {
 }
 
 export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetClawback,
         asset: data.asset,
-        sender: asOptionalAddressOrNfd(data.sender),
+        sender: await defineSenderAddress(data.sender, networkId),
         receiver: data.receiver,
         clawbackTarget: data.clawbackTarget,
         amount: data.amount!,

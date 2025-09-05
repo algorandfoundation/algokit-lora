@@ -56,11 +56,9 @@ export const AddressOrNfdLink = fixedForwardRef(
       <div className="flex items-center overflow-hidden">
         {link}
         {autoPopulated && (
-          <span className="group ml-1 text-yellow-500" title="Auto Populated">
+          <span className="group ml-1 text-yellow-500 cursor-help">
             <span>?</span>
-            <div className="absolute z-10 hidden rounded-sm border-2 border-gray-300/20 p-1 group-hover:block">
-              This address was auto populated
-            </div>
+            <div className="absolute z-10 hidden rounded-sm border-2 border-gray-300/20 p-1 group-hover:block">auto populated</div>
           </span>
         )}
         {showCopyButton && <CopyButton value={address} />}
