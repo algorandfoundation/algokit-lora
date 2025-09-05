@@ -14,7 +14,7 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
-import { getArc62BurnedSupply, getArc62CirculatingSupply, isArc62 } from '../utils/arc62'
+import { getArc62BurnedSupply, getArc62CirculatingSupply, getArc62AppId } from '../utils/arc62'
 import { parseArc2 } from '@/features/transactions/mappers'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
@@ -63,7 +63,7 @@ const createAssetMetadataResult = async (
           metadata,
         }
 
-        const usesArc62 = isArc62(arc3MetadataResult)
+        const usesArc62 = getArc62AppId(arc3MetadataResult)
 
         if (usesArc62) {
           const arc62AppId = BigInt(metadata.properties[`arc-62`]['application-id'])

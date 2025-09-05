@@ -7,7 +7,7 @@ import Decimal from 'decimal.js'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { isArc16Properties } from '../utils/arc16'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
-import { isArc62 } from '../utils/arc62'
+import { getArc62AppId } from '../utils/arc62'
 
 export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataResult): Asset => {
   return {
@@ -113,7 +113,7 @@ const asMedia = (assetResult: AssetResult, metadataResult: AssetMetadataResult):
 const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadataResult): AssetStandard[] => {
   const standardsUsed = new Set<AssetStandard>()
 
-  if (!metadataResult || !metadataResult.arc3) return []
+  if (!metadataResult) return []
 
   const [isArc3, isArc19] = assetResult.params.url
     ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
@@ -125,7 +125,7 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
     standardsUsed.add(AssetStandard.ARC16)
   }
 
-  if (isArc3 && isArc62(metadataResult.arc3)) {
+  if (metadataResult.arc3 && getArc62AppId(metadataResult.arc3)) {
     standardsUsed.add(AssetStandard.ARC62)
   }
   if (isArc19) {

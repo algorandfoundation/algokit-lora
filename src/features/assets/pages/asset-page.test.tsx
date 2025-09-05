@@ -67,7 +67,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
 })
 
 describe('asset-page', () => {
-  describe.skip('when rendering an asset using an invalid asset Id', () => {
+  describe('when rendering an asset using an invalid asset Id', () => {
     it('should display invalid asset Id message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: 'invalid-id' }))
 
@@ -316,7 +316,7 @@ describe('asset-page', () => {
     const assetResult = assetResultMother['mainnet-1800979729']().build()
     const transactionResult = transactionResultMother['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']().build()
 
-    it.skip('should be rendered with the correct data', () => {
+    it('should be rendered with the correct data', () => {
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 

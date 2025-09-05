@@ -5,13 +5,20 @@ import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 import { executeFundedDiscoveryApplicationCall } from '@/utils/funded-discovery'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
-export const isArc62 = (asset: Arc3MetadataResult): boolean => {
-  if (!asset?.metadata?.properties) return false
+// Returns the ARC-62 application ID if present, otherwise undefined
+export const getArc62AppId = (asset: Arc3MetadataResult): bigint | undefined => {
+  const arc62 = asset?.metadata?.properties?.['arc-62']
+  if (!arc62 || typeof arc62 !== 'object' || Array.isArray(arc62)) return undefined
 
-  const arc62 = asset.metadata.properties['arc-62']
+  const appId = (arc62 as Record<string, unknown>)['application-id']
+  if (typeof appId === 'number' && Number.isInteger(appId) && appId >= 0) {
+    return BigInt(appId)
+  }
+  if (typeof appId === 'string' && /^\d+$/.test(appId)) {
+    return BigInt(appId)
+  }
 
-  if (!arc62) return false
-  return arc62 !== undefined
+  return undefined
 }
 
 // TODO Arthur - Refactor this - Try to make funded account application discovery more reusable
