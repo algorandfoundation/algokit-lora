@@ -54,7 +54,7 @@ describe('arc62Utils.isArc62', () => {
       const extended = { ...assetResult, metadata: metadata.metadata }
 
       // Test if the asset, based on the metadata, is recognized as ARC-62 due to its application-id property checked by isArc62()
-      expect(arc62Utils.isArc62(extended)).toBe(expected)
+      expect(arc62Utils.getArc62AppId(extended)).toBe(expected)
     })
   })
 })
