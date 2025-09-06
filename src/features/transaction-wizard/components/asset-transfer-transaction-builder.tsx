@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalSenderFieldShape, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -23,12 +23,14 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
 
 const receiverLabel = 'Receiver'
 
 export const assetTransferFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   ...receiverFieldSchema,
   asset: z
     .object({
@@ -155,13 +157,15 @@ type Props = {
 }
 
 export function AssetTransferTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetTransfer,
         asset: data.asset,
-        sender: data.sender,
+        sender: await defineSenderAddress(data.sender!, networkId),
         receiver: data.receiver,
         amount: data.amount!,
         fee: data.fee,
@@ -169,7 +173,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

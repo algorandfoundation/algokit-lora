@@ -101,7 +101,13 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
   return [
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={txn.sender?.autoPopulated}
+          className={txn.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
@@ -141,7 +147,13 @@ const asAssetTransferTransaction = (
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     {
       dt: 'Receiver',
@@ -193,7 +205,13 @@ const asAssetConfigTransaction = (
     ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     ...('manager' in params && params.manager
       ? [
@@ -248,7 +266,13 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     ...('account' in params && params.account
       ? [
@@ -274,7 +298,13 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
   return [
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     {
       dt: 'Registration',
@@ -386,7 +416,13 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -439,7 +475,13 @@ const asMethodCallTransaction = (
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -699,7 +741,13 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     {
       dt: 'Approval program',
@@ -762,7 +810,13 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: (
+        <AddressOrNfdLink
+          autoPopulated={transaction.sender?.autoPopulated}
+          className={transaction.sender?.autoPopulated ? 'font-medium text-yellow-500/50' : ''}
+          address={params.sender}
+        />
+      ),
     },
     {
       dt: 'Approval program',

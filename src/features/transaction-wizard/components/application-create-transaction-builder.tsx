@@ -1,10 +1,10 @@
 import algosdk from 'algosdk'
 import { numberSchema } from '@/features/forms/data/common'
 import {
-  senderFieldSchema,
   commonSchema,
   onCompleteOptionsForAppCreate,
   onCompleteForAppCreateFieldSchema,
+  optionalSenderFieldShape,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -22,9 +22,12 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
+import defineSenderAddress from '../utils/defineSenderAddress'
+import { useNetworkConfig } from '@/features/network/data'
+
 const formData = zfd.formData({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   ...onCompleteForAppCreateFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
@@ -50,6 +53,8 @@ type Props = {
 }
 
 export function ApplicationCreateTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
@@ -57,7 +62,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         type: BuildableTransactionType.ApplicationCreate,
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
-        sender: values.sender,
+        sender: await defineSenderAddress(values.sender!, networkId),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         globalInts: values.globalInts,
@@ -70,7 +75,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         note: values.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {

@@ -48,6 +48,17 @@ export const optionalAddressFieldSchema = z
   })
 
 export const senderFieldSchema = { sender: addressFieldSchema }
+
+export const SenderSchema = z.object({
+  value: z.string().optional(),
+  resolvedAddress: z.string().optional(),
+})
+
+// TODO Arthur - Added this shape to make the sender optional in the forms that required it
+export const optionalSenderFieldShape = {
+  sender: SenderSchema,
+} as const
+
 export const receiverFieldSchema = { receiver: addressFieldSchema }
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }

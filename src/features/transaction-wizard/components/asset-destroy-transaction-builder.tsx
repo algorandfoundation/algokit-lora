@@ -24,7 +24,7 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 
 export const assetDestroyFormSchema = z.object({
   ...commonSchema,
@@ -165,7 +165,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetDestroy,
         asset: data.asset,
-        sender: data.sender,
+        sender: asOptionalAddressOrNfd(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

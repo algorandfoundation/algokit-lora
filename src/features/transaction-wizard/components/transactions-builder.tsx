@@ -40,6 +40,7 @@ import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
+const onlySimulateOptionalSenderMessage = 'Auto populated the sender - only simulate is enabled'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -82,6 +83,7 @@ export function TransactionsBuilder({
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
   const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
+  const [onlySimulateOptionalSender, setOnlySimulateOptionalSender] = useState(false)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -171,6 +173,7 @@ export function TransactionsBuilder({
           stateChange: true,
         }),
       } satisfies SimulateOptions
+
       const result = await (requireSignaturesOnSimulate
         ? (await buildComposer(transactions)).simulate(simulateConfig)
         : (await buildComposerWithEmptySignatures(transactions)).simulate({
@@ -328,6 +331,17 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
+    transactions.forEach((transaction) => {
+      if (transaction.sender?.autoPopulated === true) setOnlySimulateOptionalSender(true)
+    })
+
+    if (onlySimulateOptionalSender) {
+      return {
+        disabled: true,
+        disabledReason: onlySimulateOptionalSenderMessage,
+      }
+    }
+
     if (!activeAddress) {
       return {
         disabled: true,
@@ -336,7 +350,7 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [activeAddress, commonButtonDisableProps])
+  }, [activeAddress, commonButtonDisableProps, transactions, onlySimulateOptionalSender])
 
   return (
     <div>
