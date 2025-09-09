@@ -139,7 +139,7 @@ describe('group-page', () => {
                 { term: groupIdLabel, description: '/oRSr2uMFemQhwQliJO18b64Nl1QIkjA39ZszRCeSCI=' },
                 { term: blockLabel, description: '36591812' },
                 { term: timestampLabel, description: 'Fri, 01 March 2024 01:07:53' },
-                { term: transactionsLabel, description: '15Application Call=6Payment=3Asset Transfer=6' },
+                { term: transactionsLabel, description: '15Application Call=6Asset Transfer=6Payment=3' },
               ],
             })
           )
@@ -208,7 +208,7 @@ describe('group-page', () => {
                 { term: groupIdLabel, description: 'aWpPwlog0oZYHQe9uDlwReKzIgb9HVKLv8Z4GX0wMO0=' },
                 { term: blockLabel, description: '36591812' },
                 { term: timestampLabel, description: 'Fri, 01 March 2024 01:07:53' },
-                { term: transactionsLabel, description: '3Payment=1Application Call=1Asset Transfer=1' },
+                { term: transactionsLabel, description: '3Application Call=1Asset Transfer=1Payment=1' },
               ],
             })
           )
@@ -286,7 +286,7 @@ describe('group-page', () => {
                 { term: groupIdLabel, description: '+6zYx5gx0Iv3sLRso9Z1Xwr4niLcNyorFpQ+uBVkcBA=' },
                 { term: blockLabel, description: '52121244' },
                 { term: timestampLabel, description: 'Fri, 25 July 2025 18:10:29' },
-                { term: transactionsLabel, description: '6Payment=1Application Call=1Asset Transfer=4' },
+                { term: transactionsLabel, description: '6Application Call=1Asset Transfer=4Payment=1' },
               ],
             })
           )
