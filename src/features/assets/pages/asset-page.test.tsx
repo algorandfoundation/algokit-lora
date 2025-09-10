@@ -20,7 +20,6 @@ import {
   assetActivityLabel,
   assetUrlLabel,
   assetMediaLabel,
-  circulatingSupplyLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
