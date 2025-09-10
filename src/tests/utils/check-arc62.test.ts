@@ -1,7 +1,7 @@
 type Arc62TestCase = {
   name: string
   metadata: Arc3MetadataResult
-  expected: boolean
+  expected: bigint | undefined
 }
 
 const arc62TestCases: Arc62TestCase[] = [
@@ -10,7 +10,7 @@ const arc62TestCases: Arc62TestCase[] = [
     metadata: {
       metadata: { properties: { 'arc-62': { 'application-id': 741524546 } } },
     },
-    expected: true,
+    expected: 741524546n,
   },
   {
     name: 'Invalid ARC-62 with typo in key',
@@ -18,26 +18,26 @@ const arc62TestCases: Arc62TestCase[] = [
     metadata: {
       metadata: { properties: { 'arc-62': { 'applications-id': 741524546 } } },
     },
-    expected: false,
+    expected: undefined,
   },
   {
     name: 'No arc-62 property in metadata',
     metadata: {
       metadata: { properties: { 'arc-63': { 'application-id': 741524546 } } },
     },
-    expected: false,
+    expected: undefined,
   },
   {
     name: 'No properties at all',
     metadata: {
       metadata: { properties: {} },
     },
-    expected: false,
+    expected: undefined,
   },
   {
     name: 'Null metadata',
     metadata: { metadata: {} },
-    expected: false,
+    expected: undefined,
   },
 ]
 import * as arc62Utils from '@/features/assets/utils/arc62'
