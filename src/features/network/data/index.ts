@@ -18,6 +18,8 @@ import { settingsStore } from '@/features/settings/data'
 import config from '@/config'
 import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
 import { useDisconnectAllWallets } from '@/features/wallet/hooks/use-disconnect-all-wallets'
+import { Address } from 'algosdk'
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 
 export { localnetId, testnetId, mainnetId, fnetId } from './types'
 export const localnetWalletIds = [WalletId.KMD, WalletId.MNEMONIC, WalletId.LUTE]
@@ -37,10 +39,10 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   magic: 'Magic',
   biatec: 'Biatec',
   // liquid: 'Liquid',
-  'w3-wallet': 'W3 Wallet',
 }
 
-export const FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+export const MAINNET_FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+export const TESTNET_FAUCET_ADDRESS = 'GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A'
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {
@@ -145,6 +147,22 @@ const customNetworkConfigsAtom = atom<Record<NetworkId, NetworkConfig>>((get) =>
       ] satisfies [NetworkId, NetworkConfig]
     })
   )
+})
+
+export const fundedDiscoveryAddressAtom = atom<Promise<string | Address>>(async (get) => {
+  const currentNetwork = get(networkConfigAtom)
+  let executorAddress: string | Address = MAINNET_FEE_SINK_ADDRESS
+
+  if (!currentNetwork.id) return MAINNET_FEE_SINK_ADDRESS
+  if (currentNetwork.id === 'localnet') {
+    const localnetClient = AlgorandClient.defaultLocalNet()
+    executorAddress = await localnetClient.account.localNetDispenser()
+  }
+  if (currentNetwork.id === 'testnet') {
+    return TESTNET_FAUCET_ADDRESS
+  }
+
+  return executorAddress
 })
 
 export const temporaryLocalNetConfigAtom = atomWithDefault<NetworkConfig | undefined>(() => {

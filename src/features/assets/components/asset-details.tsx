@@ -28,8 +28,6 @@ import {
   assetUnitNameLabel,
   assetUrlLabel,
   circulatingSupplyLabel,
-  burnedSupplyLabel,
-  reserveSupplyLabel,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
@@ -96,18 +94,6 @@ export function AssetDetails({ asset }: Props) {
         ? {
             dt: circulatingSupplyLabel,
             dd: <div>{parsedArc62Metadata.circulatingSupply}</div>,
-          }
-        : undefined,
-      parsedArc62Metadata
-        ? {
-            dt: burnedSupplyLabel,
-            dd: <div>{parsedArc62Metadata.burnedSupply}</div>,
-          }
-        : undefined,
-      parsedArc62Metadata
-        ? {
-            dt: reserveSupplyLabel,
-            dd: <div>{parsedArc62Metadata.reserveSupply}</div>,
           }
         : undefined,
       {
