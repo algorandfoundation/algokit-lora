@@ -53,7 +53,7 @@ export type Arc69MetadataResult = {
 }
 
 export type Arc62MetadataResult = {
-  metadata: { circulatingSupply: number; burnedSupply: number; reserveSupply: number }
+  metadata: { circulatingSupply: number }
 }
 
 export type AssetMetadataResult = {

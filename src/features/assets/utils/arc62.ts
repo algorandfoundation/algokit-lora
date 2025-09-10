@@ -1,8 +1,9 @@
-import { indexer } from '@/features/common/data/algo-client'
-import algosdk, { getApplicationAddress } from 'algosdk'
+import algosdk from 'algosdk'
 import { Arc3MetadataResult, Arc62MetadataResult } from '../data/types'
-import { uint8ArrayToUtf8 } from '@/utils/uint8-array-to-utf8'
 import { executeFundedDiscoveryApplicationCall } from '@/utils/funded-discovery'
+import { Getter, Setter } from 'jotai'
+import { getApplicationResultAtom } from '@/features/applications/data'
+import { readOnlyAtomCache } from '@/features/common/data'
 
 // Checks if the asset metadata has the ARC-62 property in the correct place
 // Returns the ARC-62 application ID if present, otherwise undefined
@@ -21,70 +22,33 @@ export const getArc62AppId = (asset: Arc3MetadataResult): bigint | undefined => 
   return undefined
 }
 
-// TODO Arthur - Refactor this - Try to make funded account application discovery more reusable
-export const getArc62CirculatingSupply = async (applicationId: bigint, assetId: bigint) => {
-  const arc62GetCirculatingSupplyMethod = algosdk.ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64')
+type CirculatingSupplyKey = { applicationId: bigint; assetId: bigint }
 
-  const arc62ContractData = await indexer.lookupApplications(applicationId).do()
+const fetchArc62CirculatingSupplyAtom = async (
+  get: Getter,
+  _set: Setter,
+  { applicationId, assetId }: CirculatingSupplyKey
+): Promise<bigint | undefined> => {
+  const app = await get(getApplicationResultAtom(applicationId))
+  if (!app) throw new Error(`Application with ID ${applicationId} not found.`)
 
-  if (!arc62ContractData.application) {
-    throw new Error(`Application with ID ${applicationId} not found.`)
-  }
+  const method = algosdk.ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64')
+  const res = await executeFundedDiscoveryApplicationCall(method, applicationId, [assetId])
 
-  const globalAppState = arc62ContractData.application?.params.globalState ?? []
-  const decodedState = decodeAppState(globalAppState)
-  const burnedAddress = decodedState.burned.toString()
-
-  if (!burnedAddress) {
-    throw new Error(`Burned address not found in application ${applicationId} global state.`)
-  }
-
-  const simulateResult = await executeFundedDiscoveryApplicationCall(arc62GetCirculatingSupplyMethod, applicationId, [assetId])
-
-  if (!simulateResult || !simulateResult.returns?.[0]) return
-  return simulateResult.returns[0].returnValue
+  const returnValue = res?.returns?.[0]?.returnValue
+  if (returnValue == null) return undefined
+  if (typeof returnValue === 'bigint') return returnValue
+  if (typeof returnValue === 'string' || typeof returnValue === 'number') return BigInt(returnValue)
+  return undefined
 }
 
-export const getArc62BurnedSupply = async (applicationId: bigint, assetId: bigint) => {
-  // Fetch appplication data to define both creator and burner addresses in order to populate the method call
-  const arc62ContractData = await indexer.lookupApplications(applicationId).do()
+const keySelector = ({ applicationId, assetId }: CirculatingSupplyKey) => `${applicationId}:${assetId}`
 
-  const globalAppState = arc62ContractData.application?.params.globalState ?? []
-
-  // Decode the global state to get the burned address to populate the method call
-  const decodedState = decodeAppState(globalAppState)
-  const burnedAddress = decodedState.burned.toString()
-
-  const burnedAsset = await indexer.lookupAccountAssets(burnedAddress).assetId(assetId).do()
-
-  const burnedSupply = burnedAsset.assets?.[0]?.amount ?? 0
-
-  return burnedSupply
-}
-
-export const getArc62ReserveAddress = async (applicationId: bigint) => {
-  const arc62ReserveAddress = getApplicationAddress(applicationId)
-  return arc62ReserveAddress
-}
-
-// helper to decode state
-export const decodeAppState = (globalState: algosdk.indexerModels.TealKeyValue[]) => {
-  const decoded: Record<string, string | number | bigint> = {}
-
-  globalState.forEach(({ key, value }) => {
-    const decodedKey = uint8ArrayToUtf8(key)
-
-    if (value.type === 1) {
-      // value.bytes is a Uint8Array representing the address
-      const address = algosdk.encodeAddress(value.bytes)
-      decoded[decodedKey] = address
-    } else if (value.type === 2) {
-      decoded[decodedKey] = value.uint
-    }
-  })
-
-  return decoded
-}
+export const [arc62CirculatingSupplyAtoms, getArc62CirculatingSupplyAtom] = readOnlyAtomCache<
+  Parameters<typeof keySelector>,
+  ReturnType<typeof keySelector>,
+  Promise<bigint | undefined> | bigint | undefined
+>(fetchArc62CirculatingSupplyAtom, keySelector)
 
 export const parseArc62Metadata = (metadata: string | number | undefined): Arc62MetadataResult['metadata'] | null => {
   if (!metadata) return null

@@ -21,8 +21,6 @@ import {
   assetUrlLabel,
   assetMediaLabel,
   circulatingSupplyLabel,
-  reserveSupplyLabel,
-  burnedSupplyLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
@@ -1064,8 +1062,6 @@ describe('asset-page', () => {
 
                 // By not mocking the appCall the following term is empty because its not populate in the page
                 // --------------
-                { term: reserveSupplyLabel, description: '40 ARC-62' },
-                { term: burnedSupplyLabel, description: '1 ARC-62' },
                 { term: circulatingSupplyLabel, description: '1 ARC-62' },
                 //-------------------------------
                 { term: assetTotalSupplyLabel, description: '42 ARC-62' },
