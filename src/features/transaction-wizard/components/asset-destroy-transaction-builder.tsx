@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalSenderFieldShape, senderFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -25,10 +25,12 @@ import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { useNetworkConfig } from '@/features/network/data'
+import defineSenderAddress from '../utils/defineSenderAddress'
 
 export const assetDestroyFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   asset: z
     .object({
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -159,13 +161,15 @@ type Props = {
 }
 
 export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
+  const { id: networkId } = useNetworkConfig()
+
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetDestroy,
         asset: data.asset,
-        sender: asOptionalAddressOrNfd(data.sender),
+        sender: await defineSenderAddress(data.sender, networkId),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
