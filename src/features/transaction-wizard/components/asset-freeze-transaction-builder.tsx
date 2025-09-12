@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, optionalSenderFieldShape, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalSenderFieldShape } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,7 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { useNetworkConfig } from '@/features/network/data'
 import defineSenderAddress from '../utils/defineSenderAddress'
 
@@ -194,7 +194,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

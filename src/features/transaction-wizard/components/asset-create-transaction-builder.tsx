@@ -1,5 +1,5 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -150,7 +150,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id]
+    [onSubmit, transaction?.id, networkId]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
