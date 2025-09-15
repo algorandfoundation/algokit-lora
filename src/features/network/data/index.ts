@@ -159,7 +159,7 @@ export const fundedDiscoveryAddressAtom = atom<Promise<string | Address>>(async 
     executorAddress = await localnetClient.account.localNetDispenser()
   }
   if (currentNetwork.id === 'testnet') {
-    return TESTNET_FAUCET_ADDRESS
+    return TESTNET_FEE_SINK_ADDRESS
   }
 
   return executorAddress
