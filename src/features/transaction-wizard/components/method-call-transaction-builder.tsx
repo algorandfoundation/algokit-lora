@@ -70,8 +70,6 @@ export function MethodCallTransactionBuilder({
   onSubmit,
   onCancel,
 }: Props) {
-  const { id: networkId } = useNetworkConfig()
-
   const initialValues = useMemo(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {

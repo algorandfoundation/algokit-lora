@@ -139,21 +139,19 @@ type Props = {
 }
 
 export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
-  const { id: networkId } = useNetworkConfig()
-
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptIn,
         asset: data.asset,
-        sender: await defineSenderAddress(data.sender!, networkId),
+        sender: await defineSenderAddress(data.sender!),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id, networkId]
+    [onSubmit, transaction?.id]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

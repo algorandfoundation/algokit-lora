@@ -41,8 +41,6 @@ type Props = {
 }
 
 export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
-  const { id: networkId } = useNetworkConfig()
-
   const submit = useCallback(
     async (values: z.infer<typeof formData>) => {
       onSubmit({
@@ -58,7 +56,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         note: values.note,
       })
     },
-    [onSubmit, transaction?.id, networkId]
+    [onSubmit, transaction?.id]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {

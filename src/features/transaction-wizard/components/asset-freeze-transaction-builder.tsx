@@ -178,8 +178,6 @@ type Props = {
 }
 
 export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onCancel }: Props) {
-  const { id: networkId } = useNetworkConfig()
-
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
@@ -194,7 +192,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id, networkId]
+    [onSubmit, transaction?.id]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {

@@ -39,14 +39,12 @@ type Props = {
 }
 
 export function PaymentTransactionBuilder({ mode, transaction, activeAccount, onSubmit, onCancel }: Props) {
-  const { id: networkId } = useNetworkConfig()
-
   const submit = useCallback(
     async (data: z.infer<typeof formData>) => {
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: await defineSenderAddress(data.sender!, networkId),
+        sender: await defineSenderAddress(data.sender!),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,
@@ -54,7 +52,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
         note: data.note,
       })
     },
-    [onSubmit, transaction?.id, networkId]
+    [onSubmit, transaction?.id]
   )
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
