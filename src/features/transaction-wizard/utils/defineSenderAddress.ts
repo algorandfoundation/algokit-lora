@@ -1,6 +1,6 @@
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { OptionalSenderFieldSchema } from '@/features/forms/components/address-form-item'
-import { FEE_SINK_ADDRESS } from '@/features/network/data'
+import { TESTNET_FEE_SINK_ADDRESS, MAINNET_FEE_SINK_ADDRESS } from '@/features/network/data'
 import { AddressOrNfd } from '../models'
 
 export default async function defineSenderAddress<T extends OptionalSenderFieldSchema>(data: T, networkId: string): Promise<AddressOrNfd> {
@@ -8,11 +8,11 @@ export default async function defineSenderAddress<T extends OptionalSenderFieldS
   if (!data.resolvedAddress || !data.value) {
     switch (networkId) {
       case 'mainnet': {
-        senderAddress = { value: FEE_SINK_ADDRESS, resolvedAddress: FEE_SINK_ADDRESS, autoPopulated: true }
+        senderAddress = { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
         break
       }
       case 'testnet': {
-        senderAddress = { value: FEE_SINK_ADDRESS, resolvedAddress: FEE_SINK_ADDRESS, autoPopulated: true }
+        senderAddress = { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
         break
       }
       case 'localnet': {
@@ -24,8 +24,8 @@ export default async function defineSenderAddress<T extends OptionalSenderFieldS
       }
       default: {
         senderAddress = {
-          value: FEE_SINK_ADDRESS,
-          resolvedAddress: FEE_SINK_ADDRESS,
+          value: MAINNET_FEE_SINK_ADDRESS,
+          resolvedAddress: MAINNET_FEE_SINK_ADDRESS,
           autoPopulated: true,
         }
         break

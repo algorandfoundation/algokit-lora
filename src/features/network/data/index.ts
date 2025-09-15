@@ -37,7 +37,8 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   biatec: 'Biatec',
 }
 
-export const FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+export const MAINNET_FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
+export const TESTNET_FEE_SINK_ADDRESS = 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE'
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {
