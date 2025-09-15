@@ -24,7 +24,6 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 const receiverLabel = 'Receiver'
 

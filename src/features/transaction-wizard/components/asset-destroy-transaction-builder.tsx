@@ -25,7 +25,6 @@ import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import { useNetworkConfig } from '@/features/network/data'
 import defineSenderAddress from '../utils/defineSenderAddress'
 
 export const assetDestroyFormSchema = z.object({
@@ -167,7 +166,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetDestroy,
         asset: data.asset,
-        sender: await defineSenderAddress(data.sender, networkId),
+        sender: await defineSenderAddress(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

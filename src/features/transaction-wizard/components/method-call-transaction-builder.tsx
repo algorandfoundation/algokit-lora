@@ -40,7 +40,6 @@ import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -158,7 +157,7 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
-        sender: await defineSenderAddress(values.sender!, networkId),
+        sender: await defineSenderAddress(values.sender!),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,
@@ -169,7 +168,7 @@ export function MethodCallTransactionBuilder({
 
       onSubmit(methodCallTxn)
     },
-    [methodDefinition, methodForm, transaction, appSpec, onSubmit, mode, networkId]
+    [methodDefinition, methodForm, transaction, appSpec, onSubmit, mode]
   )
 
   const defaultValues = useMemo<Partial<z.infer<typeof baseFormData>>>(() => {

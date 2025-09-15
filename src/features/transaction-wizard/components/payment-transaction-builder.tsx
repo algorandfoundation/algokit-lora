@@ -17,7 +17,6 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { useNetworkConfig } from '@/features/network/data'
 import defineSenderAddress from '../utils/defineSenderAddress'
 
 const receiverLabel = 'Receiver'

@@ -39,6 +39,7 @@ import {
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
+import { MAINNET_FEE_SINK_ADDRESS } from '@/features/network/data'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -85,8 +86,8 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
 
 const ensureSender = (sender: AddressOrNfd | undefined) => {
   const validSender = sender ?? {
-    value: 'TGIPEOKUFC5JFTPFMXGSZWOGOFA7THFZXUTRLQEOH3RD3LGI6QEEWJNML4',
-    resolvedAddress: 'TGIPEOKUFC5JFTPFMXGSZWOGOFA7THFZXUTRLQEOH3RD3LGI6QEEWJNML4',
+    value: MAINNET_FEE_SINK_ADDRESS,
+    resolvedAddress: MAINNET_FEE_SINK_ADDRESS,
   }
 
   invariant(validSender, 'Sender must be set')

@@ -18,7 +18,6 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
@@ -135,7 +134,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: data.unitName,
         total: data.total,
         decimals: data.decimals,
-        sender: await defineSenderAddress(data.sender, networkId),
+        sender: await defineSenderAddress(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),

@@ -17,7 +17,6 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -49,7 +48,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
-        sender: await defineSenderAddress(values.sender!, networkId),
+        sender: await defineSenderAddress(values.sender!),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,

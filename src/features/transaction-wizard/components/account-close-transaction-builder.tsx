@@ -24,7 +24,6 @@ import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'

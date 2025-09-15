@@ -23,7 +23,6 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import { useNetworkConfig } from '@/features/network/data'
 import defineSenderAddress from '../utils/defineSenderAddress'
 
 export const assetFreezeFormSchema = z
@@ -184,7 +183,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetFreeze,
         asset: data.asset,
-        sender: await defineSenderAddress(data.sender, networkId),
+        sender: await defineSenderAddress(data.sender),
         freezeTarget: data.freezeTarget,
         frozen: data.frozen === 'true' ? true : false,
         fee: data.fee,

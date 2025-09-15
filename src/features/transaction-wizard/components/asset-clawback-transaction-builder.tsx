@@ -23,7 +23,6 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import defineSenderAddress from '../utils/defineSenderAddress'
-import { useNetworkConfig } from '@/features/network/data'
 
 const clawbackTargetLabel = 'Clawback target'
 
@@ -188,7 +187,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetClawback,
         asset: data.asset,
-        sender: await defineSenderAddress(data.sender, networkId),
+        sender: await defineSenderAddress(data.sender),
         receiver: data.receiver,
         clawbackTarget: data.clawbackTarget,
         amount: data.amount!,
