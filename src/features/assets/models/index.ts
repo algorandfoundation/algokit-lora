@@ -30,7 +30,8 @@ export type AssetMedia = {
 }
 
 export type Asset = AssetSummary & {
-  total: number | bigint
+  total: bigint
+  circulatingSupply?: bigint
   defaultFrozen: boolean
   url?: string
   type: AssetType

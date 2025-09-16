@@ -30,7 +30,7 @@ export type Arc3MetadataResult = {
     animation_url_mimetype?: string
     properties?: Arc16MetadataProperties
     extra_metadata?: string
-    ['arc-62']?: Arc62MetadataResult['metadata']
+    ['arc-62']?: Arc62MetadataResult
     [key: string]: unknown
   }
 }
@@ -53,7 +53,7 @@ export type Arc69MetadataResult = {
 }
 
 export type Arc62MetadataResult = {
-  metadata: { circulatingSupply: number }
+  circulatingSupply: bigint
 }
 
 export type AssetMetadataResult = {

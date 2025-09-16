@@ -20,6 +20,7 @@ import {
   assetActivityLabel,
   assetUrlLabel,
   assetMediaLabel,
+  circulatingSupplyLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
@@ -36,6 +37,8 @@ import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
 import algosdk from 'algosdk'
+import { applicationResultsAtom } from '@/features/applications/data'
+import { applicationResultMother } from '@/tests/object-mother/application-result'
 
 const server = setupServer()
 
@@ -59,6 +62,24 @@ vi.mock('@/features/common/data/algo-client', async () => {
         }),
       }),
       searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+    },
+    algorandClient: {
+      newGroup: vi.fn().mockReturnValue({
+        addAppCallMethodCall: vi.fn().mockReturnValue({
+          simulate: vi.fn().mockResolvedValue({
+            returns: [
+              {
+                returnValue: BigInt(1), // Mock circulating supply of 1
+              },
+            ],
+          }),
+        }),
+      }),
+      account: {
+        localNetDispenser: vi.fn().mockResolvedValue({
+          addr: { toString: () => 'TESTNET7UZPKMIOOLX32MUFZ6KNUL5XOVFEMVGYLWJYWCGVZFPGTIHVFPXGQ' },
+        }),
+      },
     },
   }
 })
@@ -1002,31 +1023,26 @@ describe('asset-page', () => {
 
   describe('when rendering an ARC-3 + ARC-62 asset', () => {
     const assetResult = assetResultMother['testnet-740315456']().build()
+    const applicationResult = applicationResultMother['testnet-740315445']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
 
     it('Asset details component display the correct data', () => {
       const myStore = createStore()
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-
-      // I need to populate the store with the result of executeFundedDiscoveryApplicationCall with the arc62 specs
-      // Something similar to what we do in asset-metada.ts if an asset is arc62 - we get burned supply and reserve supply there
-      vi.mock('@/utils/funded-discovery.ts', async () => {
-        const original = await vi.importActual('@/utils/funded-discovery.ts')
-        return {
-          ...original,
-
-          executeFundedDiscoveryApplicationCall: async () => {
-            return {
-              '740315445': {
-                'reserve-supply': 40,
-                'burned-supply': 1,
-                'circulating-supply': 1,
-              },
-            }
-          },
-        }
-      })
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+            nextToken: undefined,
+            currentRound: 1,
+          })
+        )
+      )
 
       server.use(
         http.get('https://ipfs.algonode.xyz/ipfs/bafkreiaiknhipiu27yujskcqv3t4ie5mqbfwhela4quwxiippmlnuscy74', () => {
@@ -1058,12 +1074,8 @@ describe('asset-page', () => {
                 { term: assetIdLabel, description: '740315456ARC-3ARC-62Fungible' },
                 { term: assetUnitLabel, description: 'ARC-62' },
                 { term: assetNameLabel, description: 'ARC-62 Test Asset' },
-
-                // By not mocking the appCall the following term is empty because its not populate in the page
-                // --------------
-                // { term: circulatingSupplyLabel, description: '1 ARC-62' },
-                //-------------------------------
                 { term: assetTotalSupplyLabel, description: '42 ARC-62' },
+                { term: circulatingSupplyLabel, description: '1 ARC-62' },
               ],
             })
           })

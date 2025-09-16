@@ -1,3 +1,8 @@
+import * as arc62Utils from '@/features/assets/utils/arc62'
+import { describe, test, expect } from 'vitest'
+import { assetResultMother } from '../object-mother/asset-result'
+import { Arc3MetadataResult } from '@/features/assets/data/types'
+
 type Arc62TestCase = {
   name: string
   metadata: Arc3MetadataResult
@@ -40,12 +45,8 @@ const arc62TestCases: Arc62TestCase[] = [
     expected: undefined,
   },
 ]
-import * as arc62Utils from '@/features/assets/utils/arc62'
-import { describe, test, expect } from 'vitest'
-import { assetResultMother } from '../object-mother/asset-result'
-import { Arc3MetadataResult } from '@/features/assets/data/types'
 
-describe('arc62Utils.isArc62', () => {
+describe('getArc62AppId', () => {
   arc62TestCases.forEach(({ name, metadata, expected }) => {
     test(name, () => {
       const assetResult = assetResultMother['testnet-740315456']().build()

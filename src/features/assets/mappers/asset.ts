@@ -13,6 +13,7 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
   return {
     ...asAssetSummary(assetResult),
     total: assetResult.params.total,
+    circulatingSupply: metadataResult?.arc62?.circulatingSupply,
     defaultFrozen: assetResult.params.defaultFrozen ?? false,
     url: assetResult.params.url,
     type: asType(assetResult),
@@ -27,10 +28,9 @@ export const asAsset = (assetResult: AssetResult, metadataResult: AssetMetadataR
 const asMetadata = (metadataResult: AssetMetadataResult): Asset['metadata'] => {
   if (metadataResult) {
     const { properties: _, ...arc3Metadata } = metadataResult.arc3?.metadata ?? {}
-    const { ...arc62Metadata } = metadataResult.arc62?.metadata ?? {}
     const { properties: __, attributes: ___, ...arc69Metadata } = metadataResult.arc69?.metadata ?? {}
 
-    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata, arc62Metadata }) as Record<string, string | number>
+    return normalizeObjectForDisplay({ ...arc3Metadata, ...arc69Metadata }) as Record<string, string | number>
   }
 }
 

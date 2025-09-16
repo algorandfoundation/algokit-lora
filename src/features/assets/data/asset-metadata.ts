@@ -14,8 +14,8 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
-import { getArc62AppId, getArc62CirculatingSupplyAtom } from '../utils/arc62'
-import { parseArc2 } from '@/features/transactions/mappers'
+import { getArc62AppId } from '../utils/arc62'
+import { createAssetCirculatingSupplyAtom } from './circulating-supply'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -44,11 +44,11 @@ const createAssetMetadataResult = async (
   }
 
   // Get ARC-3 or ARC-19 metadata if applicable
-  const [isArc3, isArc19, isArc2] = assetResult.params.url
-    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url), parseArc2(assetResult.params.url)] as const)
-    : [false, false, false]
+  const [isArc3, isArc19] = assetResult.params.url
+    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
+    : [false, false]
 
-  if (assetResult.params.url && (isArc3 || isArc19 || isArc2)) {
+  if (assetResult.params.url && (isArc3 || isArc19)) {
     // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
     const metadataUrl = isArc19
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
@@ -64,16 +64,14 @@ const createAssetMetadataResult = async (
           metadata,
         }
 
-        const usesArc62 = getArc62AppId(arc3MetadataResult)
+        const arc62AppId = getArc62AppId(arc3MetadataResult)
 
-        if (usesArc62) {
-          const arc62AppId = BigInt(metadata.properties[`arc-62`]['application-id'])
-          const circulatingSupply = await get(getArc62CirculatingSupplyAtom({ applicationId: arc62AppId, assetId: assetResult.index }))
-
-          arc62MetadataResult = {
-            metadata: {
-              circulatingSupply: Number(circulatingSupply),
-            },
+        if (arc62AppId) {
+          const circulatingSupply = await get(createAssetCirculatingSupplyAtom(arc62AppId, assetResult.index))
+          if (circulatingSupply !== undefined) {
+            arc62MetadataResult = {
+              circulatingSupply,
+            }
           }
         }
       } catch (error) {

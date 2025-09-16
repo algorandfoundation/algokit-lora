@@ -41,7 +41,6 @@ import { replaceIpfsWithGatewayIfNeeded } from '../utils/replace-ipfs-with-gatew
 import { CopyButton } from '@/features/common/components/copy-button'
 import { AssetOptInOutButton } from '@/features/assets/components/asset-opt-in-out-button'
 import { addHttpsSchemeIfNeeded } from '../utils/add-https-scheme-if-needed'
-import { parseArc62Metadata } from '../utils/arc62'
 
 type Props = {
   asset: Asset
@@ -52,9 +51,6 @@ const expandAssetJsonLevel = (level: number) => {
 }
 
 export function AssetDetails({ asset }: Props) {
-  const rawArc62Metadata = asset.metadata?.arc62Metadata
-  const parsedArc62Metadata = parseArc62Metadata(rawArc62Metadata)
-
   const assetItems = useMemo(
     () => [
       {
@@ -90,10 +86,10 @@ export function AssetDetails({ asset }: Props) {
         dt: assetTotalSupplyLabel,
         dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
       },
-      parsedArc62Metadata
+      asset.circulatingSupply !== undefined
         ? {
             dt: circulatingSupplyLabel,
-            dd: <div>{parsedArc62Metadata.circulatingSupply}</div>,
+            dd: `${new Decimal(asset.circulatingSupply.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
           }
         : undefined,
       {
@@ -130,7 +126,7 @@ export function AssetDetails({ asset }: Props) {
       asset.decimals,
       asset.defaultFrozen,
       asset.url,
-      parsedArc62Metadata,
+      asset.circulatingSupply,
     ]
   ).filter(isDefined)
 
