@@ -25,7 +25,7 @@ import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import defineSenderAddress from '../utils/defineSenderAddress'
+import defineSenderAddress from '../utils/define-sender-address'
 
 export const assetDestroyFormSchema = z.object({
   ...commonSchema,

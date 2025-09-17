@@ -39,7 +39,7 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
-import defineSenderAddress from '../utils/defineSenderAddress'
+import defineSenderAddress from '../utils/define-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,

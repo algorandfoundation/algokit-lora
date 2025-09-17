@@ -17,7 +17,7 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import defineSenderAddress from '../utils/defineSenderAddress'
+import defineSenderAddress from '../utils/define-sender-address'
 
 const receiverLabel = 'Receiver'
 
@@ -43,7 +43,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: await defineSenderAddress(data.sender!),
+        sender: await defineSenderAddress(data.sender),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,

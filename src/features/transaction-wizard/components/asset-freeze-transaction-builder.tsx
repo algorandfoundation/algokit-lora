@@ -23,7 +23,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import defineSenderAddress from '../utils/defineSenderAddress'
+import defineSenderAddress from '../utils/define-sender-address'
 
 export const assetFreezeFormSchema = z
   .object({

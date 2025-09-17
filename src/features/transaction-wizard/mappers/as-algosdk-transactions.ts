@@ -90,7 +90,6 @@ const ensureSender = (sender: AddressOrNfd | undefined) => {
     resolvedAddress: MAINNET_FEE_SINK_ADDRESS,
   }
 
-  invariant(validSender, 'Sender must be set')
   return validSender.resolvedAddress
 }
 
