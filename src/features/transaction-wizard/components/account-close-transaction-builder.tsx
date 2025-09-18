@@ -84,7 +84,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: defineSenderAddress(transaction.sender),
+        sender: transaction.sender,
         closeRemainderTo: transaction.closeRemainderTo,
         receiver: transaction.receiver,
         amount: transaction.amount,

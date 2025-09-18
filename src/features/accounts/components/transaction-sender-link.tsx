@@ -4,7 +4,6 @@ import { PropsWithChildren } from 'react'
 import { AddressOrNfdLink } from './address-or-nfd-link'
 import { Address } from '../data/types'
 import { cn } from '@/features/common/utils'
-import { a } from 'vitest/dist/chunks/suite.d.FvehnV49.js'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{
   address: Address
