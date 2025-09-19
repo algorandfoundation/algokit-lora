@@ -1,8 +1,12 @@
 import { algorandClient } from '@/features/common/data/algo-client'
 import {
+  betanetId,
+  localnetId,
+  mainnetId,
+  testnetId,
+  fnetId,
   BETANET_FEE_SINK_ADDRESS,
   FNET_FEE_SINK_ADDRESS,
-  fnetId,
   MAINNET_FEE_SINK_ADDRESS,
   selectedNetworkAtomId,
   TESTNET_FEE_SINK_ADDRESS,
@@ -10,7 +14,6 @@ import {
 import { settingsStore } from '@/features/settings/data'
 import { atom } from 'jotai'
 import { Address } from './types'
-import { betanetId, localnetId, mainnetId, testnetId } from '@/features/network/data/types'
 
 export const fundedAccountAtom = atom<Promise<Address | undefined>>(async () => {
   const selectedNetworkId = settingsStore.get(selectedNetworkAtomId)

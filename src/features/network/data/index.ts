@@ -19,7 +19,7 @@ import config from '@/config'
 import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
 import { useDisconnectAllWallets } from '@/features/wallet/hooks/use-disconnect-all-wallets'
 
-export { localnetId, testnetId, mainnetId, fnetId } from './types'
+export { localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
 export const localnetWalletIds = [WalletId.KMD, WalletId.MNEMONIC, WalletId.LUTE]
 export const nonLocalnetWalletIds = [WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS, WalletId.LUTE]
 export const allWalletProviderNames: Record<WalletId, string> = {
@@ -36,7 +36,6 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   walletconnect: 'Wallet Connect',
   magic: 'Magic',
   biatec: 'Biatec',
-  // liquid: 'Liquid',
 }
 
 export const MAINNET_FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
