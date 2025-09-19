@@ -43,21 +43,35 @@ const createAssetMetadataResult = async (
     }
   }
 
-  // Get ARC-3 or ARC-19 metadata if applicable
-  const [isArc3, isArc19] = assetResult.params.url
-    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
-    : [false, false]
+  if (assetResult.params.url) {
+    const [isArc3, isArc19] = [isArc3Url(assetResult.params.url, assetResult.params.name), isArc19Url(assetResult.params.url)] as const
 
-  if (assetResult.params.url && (isArc3 || isArc19)) {
-    // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
     const metadataUrl = isArc19
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
-      : getArc3Url(assetResult.index, assetResult.params.url)
+      : isArc3
+        ? getArc3Url(assetResult.index, assetResult.params.url)
+        : assetResult.params.url
 
     if (metadataUrl) {
       const gatewayMetadataUrl = replaceIpfsWithGatewayIfNeeded(metadataUrl)
       try {
-        const response = await fetch(gatewayMetadataUrl)
+        let response: Response | undefined = undefined
+
+        if (isArc3 || isArc19) {
+          response = await fetch(gatewayMetadataUrl)
+        } else if (metadataUrl.startsWith('ipfs://')) {
+          // Some assets don't fully conform to ARC-3 (no #arc3 suffix in url), so we try to detect if the URL points to IPFS JSON metadata.
+          const headResponse = await fetch(gatewayMetadataUrl, { method: 'HEAD' })
+          const contentType = headResponse.headers.get('Content-Type')
+          if (contentType && contentType === 'application/json') {
+            response = await fetch(gatewayMetadataUrl)
+          }
+        }
+
+        if (!response) {
+          throw new Error('Metadata URL is not supported')
+        }
+
         const { localization: _localization, ...metadata } = await response.json()
         arc3MetadataResult = {
           metadata_url: gatewayMetadataUrl,
@@ -95,9 +109,6 @@ const createAssetMetadataResult = async (
               }
             }
           }
-        } else {
-          // eslint-disable-next-line no-console
-          console.error('failed to fetch asset metadata')
         }
       }
     }

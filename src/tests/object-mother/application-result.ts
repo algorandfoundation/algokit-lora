@@ -224,6 +224,60 @@ export const applicationResultMother = {
       },
     })
   },
+  ['mainnet-2849426479']: () => {
+    return new ApplicationResultBuilder({
+      id: 2849426479n,
+      params: {
+        approvalProgram: base64ToBytes(
+          'CiADAAEgJgQIYXNzZXRfaWQRbm90LWNpcmN1bGF0aW5nLTERbm90LWNpcmN1bGF0aW5nLTIRbm90LWNpcmN1bGF0aW5nLTMxGEAADygiZykyA2cqMgNnKzIDZzEbQQBdggMEcJuAqAQLYscoBFzCxTU2GgCOAwAxABwAAiJDMRkURDEYRDYaAReIAJcWgAQVH3x1TFCwI0MxGRREMRhENhoBNhoCVwIAiAA9I0MxGRREMRhENhoBF4gADSNDMRlA/7oxGBREI0OKAQAxAIv/cQdEEkEADiIoZURAAAcjRCiL/2eJIkL/9ooCACIoZUQxAEsBcQdEEkSL/kxwAEUBRCkqK4v/jgMACwAGAAEAK4v+Z4kqi/5niSmL/meJigEBgABHAiIpZUQiKmVEIitlRCIoZUSL/xJEi/9xCEQyAxJAAA6L/3EIRIv/cABFAUAAeCKMAosDMgMSQAALiwOL/3AARQFAAFYijACLBDIDEkAAC4sEi/9wAEUBQAA0IowBiwUyAxJAAAuLBYv/cABFAUAAFCKL/3EARIsCCYsACYsBCUwJjACJiwWL/3AAREL/44sEi/9wAESMAUL/w4sDi/9wAESMAEL/oYv/cQhEi/9wAESMAkL/fA=='
+        ),
+        clearStateProgram: base64ToBytes('CoEBQw=='),
+        creator: algosdk.Address.fromString('5BBRF536WPMEJJMGHLD677FGYW4ELDYXPXBQAWCLNNJZ6RAOCEALFXRWOU'),
+        globalState: [
+          toTealKeyValue({
+            key: 'YXNzZXRfaWQ=',
+            value: {
+              bytes: '',
+              type: 2,
+              uint: 2849506951,
+            },
+          }),
+          toTealKeyValue({
+            key: 'bm90LWNpcmN1bGF0aW5nLTE=',
+            value: {
+              bytes: '6DKR56GFNNHN4KGNDMGSQGGHJPOYXHAIBCNIKD2MLSUIGVN6GZIJ4OA4Q4',
+              type: 1,
+              uint: 0,
+            },
+          }),
+          toTealKeyValue({
+            key: 'bm90LWNpcmN1bGF0aW5nLTI=',
+            value: {
+              bytes: '6DKR56GFNNHN4KGNDMGSQGGHJPOYXHAIBCNIKD2MLSUIGVN6GZIJ4OA4Q4',
+              type: 1,
+              uint: 0,
+            },
+          }),
+          toTealKeyValue({
+            key: 'bm90LWNpcmN1bGF0aW5nLTM=',
+            value: {
+              bytes: 'KK3AD72XX2Z7PIBJDU2B27DXC2XI3ZXZEXVHSM5JNV2OTKUTKDLOYUJ6I',
+              type: 1,
+              uint: 0,
+            },
+          }),
+        ],
+        globalStateSchema: {
+          numByteSlice: 3,
+          numUint: 1,
+        },
+        localStateSchema: {
+          numByteSlice: 0,
+          numUint: 0,
+        },
+      },
+    })
+  },
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>

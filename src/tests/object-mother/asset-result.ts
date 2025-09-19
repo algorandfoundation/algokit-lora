@@ -712,4 +712,25 @@ export const assetResultMother = {
       },
     })
   },
+  ['mainnet-2849506951']: () => {
+    return new AssetResultBuilder({
+      index: 2849506951n,
+      params: {
+        clawback: '6DKR56GFNNHN4KGNDMGSQGGHJPOYXHAIBCNIKD2MLSUIGVN6GZIJ4OA4Q4',
+        creator: '5BBRF536WPMEJJMGHLD677FGYW4ELDYXPXBQAWCLNNJZ6RAOCEALFXRWOU',
+        decimals: 9,
+        defaultFrozen: false,
+        freeze: '6DKR56GFNNHN4KGNDMGSQGGHJPOYXHAIBCNIKD2MLSUIGVN6GZIJ4OA4Q4',
+        manager: '6DKR56GFNNHN4KGNDMGSQGGHJPOYXHAIBCNIKD2MLSUIGVN6GZIJ4OA4Q4',
+        name: 'Midas US Treasury Bill Token',
+        nameB64: encoder.encode('TWlkYXMgVVMgVHJlYXN1cnkgQmlsbCBUb2tlbg=='),
+        reserve: 'KK3AD72XX2Z7PIBJDU2B27DXC2XI3ZXZEXVHSM5JNV2OTKUTKDLOYUJ6I',
+        total: 18446744073709551615n,
+        unitName: 'mTBILL',
+        unitNameB64: encoder.encode('bVRCSUxM'),
+        url: 'ipfs://bafkreifh2ih4gww2zcmi5cjpzalhqgkeyzbfdyqcgm6fjbzfj7mpvvgcbu',
+        urlB64: encoder.encode('aXBmczovL2JhZmtyZWlmaDJpaDRnd3cyemNtaTVjanB6YWxocWdrZXl6YmZkeXFjZ202ZmpiemZqN21wdnZnY2J1'),
+      },
+    } satisfies AssetResult)
+  },
 }

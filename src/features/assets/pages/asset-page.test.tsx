@@ -1083,4 +1083,73 @@ describe('asset-page', () => {
       )
     })
   })
+
+  describe('when rendering a non ARC-3 compliant ARC-62 asset', () => {
+    const assetResult = assetResultMother['mainnet-2849506951']().build()
+    const applicationResult = applicationResultMother['mainnet-2849426479']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
+
+    it('Asset details component display the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+            nextToken: undefined,
+            currentRound: 1,
+          })
+        )
+      )
+
+      server.use(
+        http.head('https://ipfs.algonode.xyz/ipfs/bafkreifh2ih4gww2zcmi5cjpzalhqgkeyzbfdyqcgm6fjbzfj7mpvvgcbu', () => {
+          return new Response(null, { status: 200, headers: { 'Content-Type': 'application/json' } })
+        }),
+        http.get('https://ipfs.algonode.xyz/ipfs/bafkreifh2ih4gww2zcmi5cjpzalhqgkeyzbfdyqcgm6fjbzfj7mpvvgcbu', () => {
+          return HttpResponse.json({
+            name: 'Midas US Treasury Bill Token',
+            decimals: 9,
+            description: 'Midas US Treasury Bill Token',
+            image: 'https://raw.githubusercontent.com/midas-apps/midas-assets/refs/heads/main/mtbill_512px.png',
+            image_mimetype: 'image/png',
+            external_url: 'https://midas.app',
+            external_url_mimetype: 'text/html',
+            properties: {
+              'arc-62': {
+                'application-id': 2849426479,
+              },
+            },
+          })
+        })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '2849506951ARC-62Fungible' },
+                { term: assetUnitLabel, description: 'mTBILL' },
+                { term: assetNameLabel, description: 'Midas US Treasury Bill Token' },
+                { term: assetTotalSupplyLabel, description: '18446744073.709551615 mTBILL' },
+                { term: circulatingSupplyLabel, description: '1e-9 mTBILL' }, // This is mocked so this value is not real, but expected
+              ],
+            })
+          })
+        }
+      )
+    })
+  })
 })
