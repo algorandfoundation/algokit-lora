@@ -1,6 +1,6 @@
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { TransactionType } from 'algosdk'
-import { Arc3MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
+import { Arc3MetadataResult, Arc62MetadataResult, Arc69MetadataResult, AssetMetadataResult, AssetResult } from './types'
 import { getArc19Url, isArc19Url } from '../utils/arc19'
 import { getArc3Url, isArc3Url } from '../utils/arc3'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
@@ -14,6 +14,8 @@ import { TransactionResult } from '@/features/transactions/data/types'
 import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { indexerTransactionToTransactionResult } from '@/features/transactions/mappers/indexer-transaction-mappers'
+import { getArc62AppId } from '../utils/arc62'
+import { createAssetCirculatingSupplyAtom } from './circulating-supply'
 
 // Currently, we support ARC-3, 19 and 69. Their specs can be found here https://github.com/algorandfoundation/ARCs/tree/main/ARCs
 // ARCs are community standard, therefore, there are edge cases
@@ -24,10 +26,12 @@ import { indexerTransactionToTransactionResult } from '@/features/transactions/m
 // - ARC-19 doesn't specify the metadata format but generally people use the ARC-3 format
 const createAssetMetadataResult = async (
   assetResult: AssetResult,
+  get: Getter,
   latestAssetCreateOrReconfigureTransaction?: TransactionResult
 ): Promise<AssetMetadataResult> => {
   let arc69MetadataResult: Arc69MetadataResult | undefined = undefined
   let arc3MetadataResult: Arc3MetadataResult | undefined = undefined
+  let arc62MetadataResult: Arc62MetadataResult | undefined = undefined
 
   // Get ARC-69 metadata if applicable
   if (latestAssetCreateOrReconfigureTransaction && latestAssetCreateOrReconfigureTransaction.note) {
@@ -59,6 +63,17 @@ const createAssetMetadataResult = async (
           metadata_url: gatewayMetadataUrl,
           metadata,
         }
+
+        const arc62AppId = getArc62AppId(arc3MetadataResult)
+
+        if (arc62AppId) {
+          const circulatingSupply = await get(createAssetCirculatingSupplyAtom(arc62AppId, assetResult.index))
+          if (circulatingSupply !== undefined) {
+            arc62MetadataResult = {
+              circulatingSupply,
+            }
+          }
+        }
       } catch (error) {
         if (error instanceof SyntaxError) {
           // If the metadata url points to an image or video, we construct the faux arc3 metadata, so we can still display the image.
@@ -88,10 +103,11 @@ const createAssetMetadataResult = async (
     }
   }
 
-  if (arc3MetadataResult || arc69MetadataResult) {
+  if (arc3MetadataResult || arc69MetadataResult || arc62MetadataResult) {
     return {
       arc3: arc3MetadataResult,
       arc69: arc69MetadataResult,
+      arc62: arc62MetadataResult,
     }
   }
 
@@ -110,7 +126,7 @@ const noteToArc69Metadata = (note: string | undefined) => {
   return undefined
 }
 
-const getAssetMetadataResult = async (_: Getter, __: Setter, assetResult: AssetResult) => {
+const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: AssetResult) => {
   if (assetResult.index === 0n) {
     return null
   }
@@ -152,7 +168,7 @@ const getAssetMetadataResult = async (_: Getter, __: Setter, assetResult: AssetR
     return null
   }
 
-  return await createAssetMetadataResult(assetResult, assetConfigTransactionResults[0])
+  return await createAssetMetadataResult(assetResult, get, assetConfigTransactionResults[0])
 }
 
 export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = readOnlyAtomCache(

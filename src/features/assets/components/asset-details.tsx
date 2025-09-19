@@ -27,6 +27,7 @@ import {
   assetActivityLabel,
   assetUnitNameLabel,
   assetUrlLabel,
+  circulatingSupplyLabel,
 } from './labels'
 import { Badge } from '@/features/common/components/badge'
 import { AssetMedia } from './asset-media'
@@ -85,6 +86,12 @@ export function AssetDetails({ asset }: Props) {
         dt: assetTotalSupplyLabel,
         dd: `${new Decimal(asset.total.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
       },
+      asset.circulatingSupply !== undefined
+        ? {
+            dt: circulatingSupplyLabel,
+            dd: `${new Decimal(asset.circulatingSupply.toString()).div(new Decimal(10).pow(asset.decimals))} ${asset.unitName ?? ''}`,
+          }
+        : undefined,
       {
         dt: assetDecimalsLabel,
         dd: asset.decimals,
@@ -109,7 +116,18 @@ export function AssetDetails({ asset }: Props) {
           }
         : undefined,
     ],
-    [asset.id, asset.name, asset.standardsUsed, asset.type, asset.unitName, asset.total, asset.decimals, asset.defaultFrozen, asset.url]
+    [
+      asset.id,
+      asset.name,
+      asset.standardsUsed,
+      asset.type,
+      asset.unitName,
+      asset.total,
+      asset.decimals,
+      asset.defaultFrozen,
+      asset.url,
+      asset.circulatingSupply,
+    ]
   ).filter(isDefined)
 
   const assetAddresses = useMemo(
