@@ -30,7 +30,8 @@ export type AssetMedia = {
 }
 
 export type Asset = AssetSummary & {
-  total: number | bigint
+  total: bigint
+  circulatingSupply?: bigint
   defaultFrozen: boolean
   url?: string
   type: AssetType
@@ -40,10 +41,10 @@ export type Asset = AssetSummary & {
   media?: AssetMedia
   json: string
 }
-
 export enum AssetStandard {
   ARC3 = 'ARC-3',
   ARC16 = 'ARC-16',
   ARC19 = 'ARC-19',
   ARC69 = 'ARC-69',
+  ARC62 = 'ARC-62',
 }

@@ -170,6 +170,60 @@ export const applicationResultMother = {
       },
     })
   },
+  'testnet-740315445': () => {
+    return new ApplicationResultBuilder({
+      id: 740315445n,
+      params: {
+        approvalProgram: base64ToBytes(
+          'CiACAAEmBAhhc3NldF9pZAZidXJuZWQGbG9ja2VkB2dlbmVyaWMxGEAADygiZykyA2cqMgNnKzIDZzEbQQBdggMEcJuAqAQLYscoBFzCxTU2GgCOAwAxABwAAiJDMRkURDEYRDYaAReIAJEWgAQVH3x1TFCwI0MxGRREMRhENhoBNhoCVwIAiAA9I0MxGRREMRhENhoBF4gADSNDMRlA/7oxGBREI0OKAQAxAIv/cQdEEkEADiIoZURAAAcjRCiL/2eJIkL/9ooCACIoZUQxAEsBcQdEEkSL/kxwAEUBRCkqK4v/jgMACwAGAAEAK4v+Z4kqi/5niSmL/meJigEBgABHAiIpZUQiKmVEIitlRCIoZUSL/xJEi/9xCEQyAxJAAA6L/3EIRIv/cABFAUAAeCKMAosDMgMSQAALiwOL/3AARQFAAFYijACLBDIDEkAAC4sEi/9wAEUBQAA0IowBiwUyAxJAAAuLBYv/cABFAUAAFCKL/3EARIsCCYsACYsBCUwJjACJiwWL/3AAREL/44sEi/9wAESMAUL/w4sDi/9wAESMAEL/oYv/cQhEi/9wAESMAkL/fA=='
+        ),
+        clearStateProgram: base64ToBytes('CoEBQw=='),
+        creator: algosdk.Address.fromString('Q3ROBYOB5QODCSNZKDYLH33NO5V4FN3YKMOHE43RPPC2LUPG56DNSU446I'),
+        globalState: [
+          toTealKeyValue({
+            key: 'YXNzZXRfaWQ=',
+            value: {
+              bytes: '',
+              type: 2,
+              uint: 740315456,
+            },
+          }),
+          toTealKeyValue({
+            key: 'YnVybmVk',
+            value: {
+              bytes: 'TRQTVEP/VidaUDGuc8zluI1aY0YjWT2N/Oy/MqGzhtw=',
+              type: 1,
+              uint: 0,
+            },
+          }),
+          toTealKeyValue({
+            key: 'Z2VuZXJpYw==',
+            value: {
+              bytes: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+              type: 1,
+              uint: 0,
+            },
+          }),
+          toTealKeyValue({
+            key: 'bG9ja2Vk',
+            value: {
+              bytes: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=',
+              type: 1,
+              uint: 0,
+            },
+          }),
+        ],
+        globalStateSchema: {
+          numByteSlice: 3,
+          numUint: 1,
+        },
+        localStateSchema: {
+          numByteSlice: 0,
+          numUint: 0,
+        },
+      },
+    })
+  },
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>
