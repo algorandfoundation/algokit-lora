@@ -63,14 +63,15 @@ export type TransactionArgumentField = Omit<ArgumentDefinition, 'type'> & {
 export type AddressOrNfd = {
   value: Address | Nfd
   resolvedAddress: Address
+}
+
+export type TransactionSender = AddressOrNfd & {
   autoPopulated?: boolean
 }
 
-export type TransactionSender = { resolvedAddress: Address; autoPopulated: boolean }
-
 type CommonBuildTransactionResult = {
   id: string
-  sender: AddressOrNfd
+  sender: TransactionSender
   fee: {
     setAutomatically: boolean
     value?: number

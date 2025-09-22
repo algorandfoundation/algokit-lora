@@ -1,11 +1,11 @@
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { OptionalSenderFieldSchema } from '@/features/forms/components/address-form-item'
 import { TESTNET_FEE_SINK_ADDRESS, MAINNET_FEE_SINK_ADDRESS, networkConfigAtom } from '@/features/network/data'
-import { AddressOrNfd } from '../models'
+import { AddressOrNfd, TransactionSender } from '../models'
 import { settingsStore } from '@/features/settings/data'
 
-export default async function defineSenderAddress<T extends OptionalSenderFieldSchema>(data: T): Promise<AddressOrNfd> {
-  let senderAddress: AddressOrNfd
+export default async function defineSenderAddress<T extends OptionalSenderFieldSchema>(data: T): Promise<AddressOrNfd & TransactionSender> {
+  let senderAddress: AddressOrNfd & TransactionSender
   const { id: networkId } = settingsStore.get(networkConfigAtom)
   if (!data.resolvedAddress || !data.value) {
     switch (networkId) {

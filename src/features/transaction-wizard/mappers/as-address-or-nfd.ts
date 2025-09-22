@@ -1,5 +1,5 @@
 import { Address } from '@/features/accounts/data/types'
-import { AddressOrNfd } from '../models'
+import { AddressOrNfd, TransactionSender } from '../models'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount): AddressOrNfd => {
@@ -22,7 +22,7 @@ export const asOptionalAddressOrNfd = (addressOrNfdSchema: Partial<AddressOrNfd>
         value: addressOrNfdSchema.value,
         resolvedAddress: addressOrNfdSchema.resolvedAddress,
         autoPopulated: false,
-      } satisfies AddressOrNfd)
+      } satisfies TransactionSender)
     : undefined
 }
 
