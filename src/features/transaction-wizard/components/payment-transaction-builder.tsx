@@ -66,7 +66,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
     }
 
     return {
-      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
+      sender: activeAccount ? asOptionalAddressOrNfd({ value: activeAccount.address }) : undefined,
       fee: {
         setAutomatically: true,
       },

@@ -7,7 +7,12 @@ import { settingsStore } from '@/features/settings/data'
 export default async function defineSenderAddress<T extends OptionalSenderFieldSchema>(data: T): Promise<AddressOrNfd & TransactionSender> {
   let senderAddress: AddressOrNfd & TransactionSender
   const { id: networkId } = settingsStore.get(networkConfigAtom)
-  if (!data.resolvedAddress || !data.value) {
+  if (
+    !data.resolvedAddress ||
+    !data.value ||
+    data.resolvedAddress === MAINNET_FEE_SINK_ADDRESS ||
+    data.resolvedAddress === TESTNET_FEE_SINK_ADDRESS
+  ) {
     switch (networkId) {
       case 'mainnet': {
         senderAddress = { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
@@ -35,6 +40,7 @@ export default async function defineSenderAddress<T extends OptionalSenderFieldS
     }
   } else {
     senderAddress = { value: data.value, resolvedAddress: data.resolvedAddress, autoPopulated: false }
+    console.log('sender address', senderAddress)
   }
 
   return senderAddress
