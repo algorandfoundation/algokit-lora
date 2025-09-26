@@ -19,7 +19,7 @@ import config from '@/config'
 import { createAtomStorageWithoutSubscription } from '@/features/common/data/atom-storage'
 import { useDisconnectAllWallets } from '@/features/wallet/hooks/use-disconnect-all-wallets'
 
-export { localnetId, testnetId, mainnetId, fnetId } from './types'
+export { localnetId, testnetId, mainnetId, fnetId, betanetId } from './types'
 export const localnetWalletIds = [WalletId.KMD, WalletId.MNEMONIC, WalletId.LUTE]
 export const nonLocalnetWalletIds = [WalletId.DEFLY, WalletId.PERA, WalletId.EXODUS, WalletId.LUTE]
 export const allWalletProviderNames: Record<WalletId, string> = {
@@ -39,6 +39,8 @@ export const allWalletProviderNames: Record<WalletId, string> = {
 
 export const MAINNET_FEE_SINK_ADDRESS = 'Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA'
 export const TESTNET_FEE_SINK_ADDRESS = 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE'
+export const BETANET_FEE_SINK_ADDRESS = 'A7NMWS3NT3IUDMLVO26ULGXGIIOUQ3ND2TXSER6EBGRZNOBOUIQXHIBGDE'
+export const FNET_FEE_SINK_ADDRESS = 'FEESINK7OJKODDB5ZB4W2SRYPUSTOTK65UDCUYZ5DB4BW3VOHDHGO6JUNE'
 
 export const defaultNetworkConfigs: Record<NetworkId, NetworkConfig> = {
   [localnetId]: {

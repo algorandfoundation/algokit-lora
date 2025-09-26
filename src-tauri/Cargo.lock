@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "algokit-lora"
-version = "2.0.9-beta.4"
+version = "2.1.0-beta.1"
 dependencies = [
  "serde",
  "serde_json",
