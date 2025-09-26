@@ -73,8 +73,8 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         sender: await defineSenderAddress(data.sender),
         closeRemainderTo: data.closeRemainderTo,
         receiver: asOptionalAddressOrNfd({
-          value: data.receiver?.value!,
-          resolvedAddress: data.receiver?.resolvedAddress!,
+          value: data.receiver.value!,
+          resolvedAddress: data.receiver.resolvedAddress!,
           autoPopulated: false,
         }),
         amount: data.amount,

@@ -50,8 +50,6 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
         validRounds: data.validRounds,
         note: data.note,
       })
-
-      console.log('PaymentTransactionBuilder submit', data)
     },
     [onSubmit, transaction?.id]
   )

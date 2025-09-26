@@ -348,7 +348,7 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [transactions, activeAddress, onlySimulateOptionalSenderMessage, connectWalletMessage, commonButtonDisableProps])
+  }, [transactions, activeAddress, commonButtonDisableProps])
 
   return (
     <div>
