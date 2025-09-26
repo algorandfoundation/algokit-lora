@@ -19,7 +19,7 @@ export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount):
 export const asOptionalAddressOrNfd = (transactionSender: Partial<TransactionSender>): TransactionSender => {
   const autoPopulated = !!transactionSender.autoPopulated
 
-  let resolvedAddress: TransactionSender = { value: '', resolvedAddress: '', autoPopulated: false }
+  const resolvedAddress: TransactionSender = { value: '', resolvedAddress: '', autoPopulated: false }
 
   if (autoPopulated) {
     Object.assign(autoPopulated, true)
