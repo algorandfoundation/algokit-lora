@@ -153,8 +153,9 @@ export function TransactionsTable({
           </TableHeader>
           <SortableContext items={dataIds} strategy={verticalListSortingStrategy}>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => {
-                return (
+              table
+                .getRowModel()
+                .rows.map((row) => (
                   <TransactionRow
                     key={row.id}
                     row={row}
@@ -162,8 +163,7 @@ export function TransactionsTable({
                     onEditTransaction={onEditTransaction}
                     onEditResources={onEditResources}
                   />
-                )
-              })
+                ))
             ) : (
               <TableBody>
                 <TableRow>

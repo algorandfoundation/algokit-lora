@@ -83,7 +83,6 @@ export function TransactionsBuilder({
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined)
   const [requireSignaturesOnSimulate, setRequireSignaturesOnSimulate] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
-  const [onlySimulateOptionalSender, setOnlySimulateOptionalSender] = useState(false)
 
   const nonDeletableTransactionIds = useMemo(() => {
     return defaultTransactions?.map((t) => t.id) ?? []
@@ -331,11 +330,10 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
-    transactions.forEach((transaction) => {
-      if (transaction.sender?.autoPopulated === true) setOnlySimulateOptionalSender(true)
-    })
+    // derive it, don't store it
+    const hasAutoPopulatedSender = transactions.some((t) => t.sender?.autoPopulated === true)
 
-    if (onlySimulateOptionalSender) {
+    if (hasAutoPopulatedSender) {
       return {
         disabled: true,
         disabledReason: onlySimulateOptionalSenderMessage,
@@ -350,7 +348,7 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [activeAddress, commonButtonDisableProps, transactions, onlySimulateOptionalSender])
+  }, [transactions, activeAddress, onlySimulateOptionalSenderMessage, connectWalletMessage, commonButtonDisableProps])
 
   return (
     <div>

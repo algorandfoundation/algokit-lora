@@ -66,7 +66,7 @@ export type AddressOrNfd = {
 }
 
 export type TransactionSender = AddressOrNfd & {
-  autoPopulated?: boolean
+  autoPopulated: boolean
 }
 
 type CommonBuildTransactionResult = {
