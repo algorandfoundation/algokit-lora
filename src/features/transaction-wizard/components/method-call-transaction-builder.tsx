@@ -39,7 +39,7 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
-import defineSenderAddress from '../utils/define-sender-address'
+import defineSenderAddress from '../utils/resolve-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -389,7 +389,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to call from. Sends the transaction and pays the fee',
+        helpText: 'Account to call from. Sends the transaction and pays the fee - optional for simulating',
       })}
       {appId === 0n &&
         helper.numberField({

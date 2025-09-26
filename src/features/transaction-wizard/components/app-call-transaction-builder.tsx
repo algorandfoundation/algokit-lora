@@ -16,7 +16,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import defineSenderAddress from '../utils/define-sender-address'
+import defineSenderAddress from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -118,7 +118,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to call from. Sends the transaction and pays the fee',
+            helpText: 'Account to call from. Sends the transaction and pays the fee - optional for simulating',
           })}
           {defaultValues.applicationId === 0n &&
             helper.numberField({

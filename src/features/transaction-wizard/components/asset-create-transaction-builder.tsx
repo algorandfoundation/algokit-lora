@@ -17,7 +17,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import defineSenderAddress from '../utils/define-sender-address'
+import defineSenderAddress from '../utils/resolve-sender-address'
 
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
@@ -67,7 +67,7 @@ function FormFields({ helper }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Creator',
-        helpText: 'Account that creates the asset. Sends the transaction and pays the fee',
+        helpText: 'Account that creates the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({

@@ -22,7 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import defineSenderAddress from '../utils/define-sender-address'
+import defineSenderAddress from '../utils/resolve-sender-address'
 
 const clawbackTargetLabel = 'Clawback target'
 
@@ -84,7 +84,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({

@@ -23,7 +23,7 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-import defineSenderAddress from '../utils/define-sender-address'
+import defineSenderAddress from '../utils/resolve-sender-address'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -72,7 +72,11 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         type: BuildableTransactionType.AccountClose,
         sender: await defineSenderAddress(data.sender),
         closeRemainderTo: data.closeRemainderTo,
-        receiver: asOptionalAddressOrNfd(data.receiver),
+        receiver: asOptionalAddressOrNfd({
+          value: data.receiver?.value!,
+          resolvedAddress: data.receiver?.resolvedAddress!,
+          autoPopulated: false,
+        }),
         amount: data.amount,
         fee: data.fee,
         validRounds: data.validRounds,
@@ -121,7 +125,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
           {helper.addressField({
             field: 'sender',
             label: senderLabel,
-            helpText: 'Account to be closed. Sends the transaction and pays the fee',
+            helpText: 'Account to be closed. Sends the transaction and pays the fee - optional for simulating ',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.addressField({

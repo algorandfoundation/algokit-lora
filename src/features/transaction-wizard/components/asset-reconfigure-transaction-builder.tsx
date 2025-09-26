@@ -82,7 +82,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The manager account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The manager account of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({

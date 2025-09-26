@@ -22,7 +22,7 @@ import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
-import defineSenderAddress from '../utils/define-sender-address'
+import defineSenderAddress from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -142,7 +142,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to create from. Sends the transaction and pays the fee',
+            helpText: 'Account to create from. Sends the transaction and pays the fee - optional for simulating',
           })}
           {helper.numberField({
             field: 'globalInts',
