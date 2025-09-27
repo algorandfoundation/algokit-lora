@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.8...v2.1.0) (2025-09-27)
+
+### ⏪ Reverts
+
+* ak utils future ([#489](https://github.com/algorandfoundation/algokit-lora/issues/489)) ([ada3049](https://github.com/algorandfoundation/algokit-lora/commit/ada3049a6ea57a39470d4984cf36ac0831599bc7)), closes [#422](https://github.com/algorandfoundation/algokit-lora/issues/422)
+
+### 🐛 Bug Fixes
+
+* order transaction summary types ([#490](https://github.com/algorandfoundation/algokit-lora/issues/490)) ([fc1b3b3](https://github.com/algorandfoundation/algokit-lora/commit/fc1b3b38e828da7c30c619ce9d18fb42fd0860bc))
+* update algosdk to latest to ensure new transaction fields are accounted for ([#501](https://github.com/algorandfoundation/algokit-lora/issues/501)) ([1616db8](https://github.com/algorandfoundation/algokit-lora/commit/1616db87d541ca53d317b3e5e8d0b18f087342ff))
+
+### 🚀 Features
+
+* add support for rendering arc62 circulating supply of an asset ([68074c9](https://github.com/algorandfoundation/algokit-lora/commit/68074c95e0ae39d2fde8495d17109f373de71510))
+
 ## [2.0.8](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.7...v2.0.8) (2025-08-05)
 
 ### 🐛 Bug Fixes
