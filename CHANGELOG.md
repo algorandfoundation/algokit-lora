@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.1.0...v2.1.1) (2025-09-27)
+
+### 🐛 Bug Fixes
+
+* resolve netlify deploy issue ([#502](https://github.com/algorandfoundation/algokit-lora/issues/502)) ([9cd254d](https://github.com/algorandfoundation/algokit-lora/commit/9cd254d60c074c281cbb032621e1d474c5b20b59))
+
 ## [2.1.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.0.8...v2.1.0) (2025-09-27)
 
 ### ⏪ Reverts
