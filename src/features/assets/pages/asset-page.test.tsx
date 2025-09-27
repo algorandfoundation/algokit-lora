@@ -20,6 +20,7 @@ import {
   assetActivityLabel,
   assetUrlLabel,
   assetMediaLabel,
+  circulatingSupplyLabel,
 } from '../components/labels'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'jotai'
@@ -36,6 +37,8 @@ import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
 import algosdk from 'algosdk'
+import { applicationResultsAtom } from '@/features/applications/data'
+import { applicationResultMother } from '@/tests/object-mother/application-result'
 
 const server = setupServer()
 
@@ -59,6 +62,24 @@ vi.mock('@/features/common/data/algo-client', async () => {
         }),
       }),
       searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
+    },
+    algorandClient: {
+      newGroup: vi.fn().mockReturnValue({
+        addAppCallMethodCall: vi.fn().mockReturnValue({
+          simulate: vi.fn().mockResolvedValue({
+            returns: [
+              {
+                returnValue: BigInt(1), // Mock circulating supply of 1
+              },
+            ],
+          }),
+        }),
+      }),
+      account: {
+        localNetDispenser: vi.fn().mockResolvedValue({
+          addr: { toString: () => 'TESTNET7UZPKMIOOLX32MUFZ6KNUL5XOVFEMVGYLWJYWCGVZFPGTIHVFPXGQ' },
+        }),
+      },
     },
   }
 })
@@ -993,6 +1014,69 @@ describe('asset-page', () => {
             descriptionListAssertion({
               container: assetMetadataCard,
               items: [{ term: 'Image', description: 'ipfs://QmbYMPpNdec5Nj8g11JCcaArCSreLWYUcAhPqAK6LjPAtd' }],
+            })
+          })
+        }
+      )
+    })
+  })
+
+  describe('when rendering an ARC-3 + ARC-62 asset', () => {
+    const assetResult = assetResultMother['testnet-740315456']().build()
+    const applicationResult = applicationResultMother['testnet-740315445']().build()
+    const transactionResult = transactionResultMother.assetConfig().build()
+
+    it('Asset details component display the correct data', () => {
+      const myStore = createStore()
+      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
+
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(
+        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+      ).mockReturnValue(
+        Promise.resolve(
+          new algosdk.indexerModels.TransactionsResponse({
+            transactions: [transactionResult as algosdk.indexerModels.Transaction],
+            nextToken: undefined,
+            currentRound: 1,
+          })
+        )
+      )
+
+      server.use(
+        http.get('https://ipfs.algonode.xyz/ipfs/bafkreiaiknhipiu27yujskcqv3t4ie5mqbfwhela4quwxiippmlnuscy74', () => {
+          return HttpResponse.json({
+            name: 'ARC-62 Test ASA',
+            standard: 'arc3',
+            decimals: 0,
+            description: 'ASA with Circulating Supply App',
+            properties: {
+              'arc-62': {
+                'application-id': 740315445,
+              },
+            },
+          })
+        })
+      )
+
+      return executeComponentTest(
+        () => {
+          return render(<AssetPage />, undefined, myStore)
+        },
+        async (component) => {
+          await waitFor(() => {
+            const detailsCard = component.getByLabelText(assetDetailsLabel)
+
+            descriptionListAssertion({
+              container: detailsCard,
+              items: [
+                { term: assetIdLabel, description: '740315456ARC-3ARC-62Fungible' },
+                { term: assetUnitLabel, description: 'ARC-62' },
+                { term: assetNameLabel, description: 'ARC-62 Test Asset' },
+                { term: assetTotalSupplyLabel, description: '42 ARC-62' },
+                { term: circulatingSupplyLabel, description: '1 ARC-62' },
+              ],
             })
           })
         }
