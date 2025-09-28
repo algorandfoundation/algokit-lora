@@ -22,6 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetReconfigureFormSchema = z
   .object({
@@ -215,7 +216,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetReconfigure,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveSenderAddress(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),
@@ -231,7 +232,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: asOptionalAddressOrNfd(transaction.sender),
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,

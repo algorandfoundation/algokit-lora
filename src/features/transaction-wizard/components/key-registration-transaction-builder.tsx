@@ -17,9 +17,9 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import defineSenderAddress from '../utils/resolve-sender-address'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const keyRegistrationFormSchema = z
   .object({
@@ -185,7 +185,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.KeyRegistration,
-        sender: await defineSenderAddress(data.sender),
+        sender: await resolveSenderAddress(data.sender),
         online: data.online === 'true' ? true : false,
         voteKey: data.voteKey,
         selectionKey: data.selectionKey,
@@ -203,7 +203,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
+        sender: asOptionalAddressOrNfd(transaction.sender),
         online: transaction.online ? 'true' : 'false',
         voteKey: transaction.voteKey,
         selectionKey: transaction.selectionKey,

@@ -14,10 +14,7 @@ export default async function resolveSenderAddress<T extends OptionalSenderField
 
   const isEmpty = !val && !res
 
-  // This is not optimal but works blocking both
-  const isFeeSinkInput = [MAINNET_FEE_SINK_ADDRESS, TESTNET_FEE_SINK_ADDRESS].includes(res || val)
-
-  if (isEmpty || isFeeSinkInput) {
+  if (isEmpty) {
     switch (networkId) {
       case 'mainnet':
         return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
@@ -34,7 +31,6 @@ export default async function resolveSenderAddress<T extends OptionalSenderField
     }
   }
 
-  // Use provided data; ensure both fields are filled
   return {
     value: val || res,
     resolvedAddress: res || val,

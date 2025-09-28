@@ -21,9 +21,9 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import defineSenderAddress from '../utils/resolve-sender-address'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetOptInFormSchema = z.object({
   ...commonSchema,
@@ -144,7 +144,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount,
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptIn,
         asset: data.asset,
-        sender: await defineSenderAddress(data.sender),
+        sender: await resolveSenderAddress(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
@@ -156,7 +156,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount,
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: asOptionalAddressOrNfd(transaction.sender),
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

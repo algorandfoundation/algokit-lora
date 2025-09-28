@@ -17,7 +17,7 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import defineSenderAddress from '../utils/resolve-sender-address'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const receiverLabel = 'Receiver'
 
@@ -43,7 +43,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: await defineSenderAddress(data.sender),
+        sender: await resolveSenderAddress(data.sender),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,
@@ -56,8 +56,8 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: asOptionalAddressOrNfd(transaction.sender!),
-        receiver: asAddressOrNfd(transaction.receiver.resolvedAddress),
+        sender: asOptionalAddressOrNfd(transaction.sender),
+        receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
@@ -66,9 +66,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
     }
 
     return {
-      sender: activeAccount
-        ? asOptionalAddressOrNfd({ value: activeAccount.address, resolvedAddress: activeAccount.address, autoPopulated: true })
-        : undefined,
+      sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
       fee: {
         setAutomatically: true,
       },

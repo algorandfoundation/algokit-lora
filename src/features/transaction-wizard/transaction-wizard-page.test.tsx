@@ -284,10 +284,18 @@ describe('transaction-wizard-page', () => {
               target: { value: testAccount.addr },
             })
 
+            const receiverInput = await component.findByLabelText(/Receiver/)
+            fireEvent.input(receiverInput, {
+              target: { value: testAccount.addr },
+            })
+
             const closeToInput = await component.findByLabelText(/Close remainder to/)
             fireEvent.input(closeToInput, {
               target: { value: testAccount2.addr },
             })
+
+            const amountInput = await component.findByLabelText(/Amount to pay/)
+            fireEvent.input(amountInput, { target: { value: '0' } })
 
             const addButton = await waitFor(() => {
               const addButton = component.getByRole('button', { name: 'Add' })
