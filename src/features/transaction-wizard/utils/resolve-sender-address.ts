@@ -1,8 +1,16 @@
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { OptionalSenderFieldSchema } from '@/features/forms/components/address-form-item'
-import { TESTNET_FEE_SINK_ADDRESS, MAINNET_FEE_SINK_ADDRESS, networkConfigAtom } from '@/features/network/data'
+import {
+  TESTNET_FEE_SINK_ADDRESS,
+  MAINNET_FEE_SINK_ADDRESS,
+  networkConfigAtom,
+  BETANET_FEE_SINK_ADDRESS,
+  FNET_FEE_SINK_ADDRESS,
+} from '@/features/network/data'
 import { AddressOrNfd, TransactionSender } from '../models'
 import { settingsStore } from '@/features/settings/data'
+import { betanetId, mainnetId, testnetId, fnetId, localnetId } from '@/features/network/data'
+import { algorandClient } from '@/features/common/data/algo-client'
 
 export default async function resolveSenderAddress<T extends OptionalSenderFieldSchema>(
   data: T
@@ -15,19 +23,22 @@ export default async function resolveSenderAddress<T extends OptionalSenderField
   const isEmpty = !val && !res
 
   if (isEmpty) {
-    switch (networkId) {
-      case 'mainnet':
-        return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
-      case 'testnet':
-        return { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
-      case 'localnet': {
-        const localnetClient = AlgorandClient.defaultLocalNet()
-        const dispenser = await localnetClient.account.localNetDispenser()
-        const addr = dispenser.addr.toString()
-        return { value: addr, resolvedAddress: addr, autoPopulated: true }
-      }
-      default:
-        return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
+    if (networkId === localnetId) {
+      const address = (await algorandClient.account.localNetDispenser()).addr.toString()
+      return { value: address, resolvedAddress: address, autoPopulated: true }
+    }
+
+    if (networkId === fnetId) {
+      return { value: FNET_FEE_SINK_ADDRESS, resolvedAddress: FNET_FEE_SINK_ADDRESS, autoPopulated: true }
+    }
+    if (networkId === betanetId) {
+      return { value: BETANET_FEE_SINK_ADDRESS, resolvedAddress: BETANET_FEE_SINK_ADDRESS, autoPopulated: true }
+    }
+    if (networkId === testnetId) {
+      return { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
+    }
+    if (networkId === mainnetId) {
+      return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
     }
   }
 
