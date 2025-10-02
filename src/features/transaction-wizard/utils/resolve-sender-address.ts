@@ -1,4 +1,3 @@
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { OptionalSenderFieldSchema } from '@/features/forms/components/address-form-item'
 import {
   TESTNET_FEE_SINK_ADDRESS,
@@ -23,11 +22,13 @@ export default async function resolveSenderAddress<T extends OptionalSenderField
   const isEmpty = !val && !res
 
   if (isEmpty) {
+    if (networkId === mainnetId) {
+      return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
+    }
     if (networkId === localnetId) {
       const address = (await algorandClient.account.localNetDispenser()).addr.toString()
       return { value: address, resolvedAddress: address, autoPopulated: true }
     }
-
     if (networkId === fnetId) {
       return { value: FNET_FEE_SINK_ADDRESS, resolvedAddress: FNET_FEE_SINK_ADDRESS, autoPopulated: true }
     }
@@ -36,9 +37,6 @@ export default async function resolveSenderAddress<T extends OptionalSenderField
     }
     if (networkId === testnetId) {
       return { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
-    }
-    if (networkId === mainnetId) {
-      return { value: MAINNET_FEE_SINK_ADDRESS, resolvedAddress: MAINNET_FEE_SINK_ADDRESS, autoPopulated: true }
     }
   }
 
