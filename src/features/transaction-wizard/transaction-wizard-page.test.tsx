@@ -348,7 +348,7 @@ describe('transaction-wizard-page', () => {
         )
       })
 
-      it('Can add a close account transaction without defining a sender address', async () => {
+      it('can simulate a close account transaction without defining a sender address', async () => {
         const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
 
