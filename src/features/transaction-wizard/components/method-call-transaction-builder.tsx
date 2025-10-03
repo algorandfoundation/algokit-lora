@@ -36,7 +36,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import resolveSenderAddress from '../utils/resolve-sender-address'
@@ -188,7 +188,7 @@ export function MethodCallTransactionBuilder({
       )
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         onComplete: transaction.onComplete.toString(),
         methodName: transaction.methodDefinition.name,
         extraProgramPages: transaction.extraProgramPages,

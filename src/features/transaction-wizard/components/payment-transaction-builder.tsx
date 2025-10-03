@@ -15,7 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -56,7 +56,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,

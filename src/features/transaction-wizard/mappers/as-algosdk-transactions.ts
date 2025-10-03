@@ -17,7 +17,6 @@ import {
   BuildKeyRegistrationTransactionResult,
   BuildApplicationCreateTransactionResult,
   BuildApplicationUpdateTransactionResult,
-  AddressOrNfd,
 } from '@/features/transaction-wizard/models'
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
@@ -39,7 +38,6 @@ import {
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Buffer } from 'buffer'
 import Decimal from 'decimal.js'
-import { MAINNET_FEE_SINK_ADDRESS } from '@/features/network/data'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {
@@ -84,20 +82,11 @@ export const asAlgosdkTransactions = async (transaction: BuildTransactionResult)
   throw new Error('Unsupported transaction type')
 }
 
-const ensureSender = (sender: AddressOrNfd | undefined) => {
-  const validSender = sender ?? {
-    value: MAINNET_FEE_SINK_ADDRESS,
-    resolvedAddress: MAINNET_FEE_SINK_ADDRESS,
-  }
-
-  return validSender.resolvedAddress
-}
-
 export const asPaymentTransactionParams = (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
 ): PaymentParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     receiver: transaction.receiver ? transaction.receiver.resolvedAddress : (transaction.sender?.resolvedAddress ?? 'LOL IDK'),
     closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo.resolvedAddress : undefined,
     amount: algos(transaction.amount ?? 0),
@@ -134,7 +123,7 @@ export const asMethodCallParams = async (transaction: BuildMethodCallTransaction
   )
 
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     appId: BigInt(transaction.applicationId),
     method: transaction.methodDefinition.abiMethod,
     args: args,
@@ -169,7 +158,7 @@ const asMethodCallTransactions = async (transaction: BuildMethodCallTransactionR
 
 export const asAppCallTransactionParams = (transaction: BuildAppCallTransactionResult): AppCallParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
     onComplete: transaction.onComplete,
@@ -192,7 +181,7 @@ const asAppCallTransaction = async (transaction: BuildAppCallTransactionResult):
 
 export const asApplicationCreateTransactionParams = (transaction: BuildApplicationCreateTransactionResult): AppCreateParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     args: transaction.args.map((arg) => base64ToBytes(arg)),
     onComplete: transaction.onComplete,
     approvalProgram: base64ToBytes(transaction.approvalProgram),
@@ -217,7 +206,7 @@ const asApplicationCreateTransaction = async (transaction: BuildApplicationCreat
 
 export const asApplicationUpdateTransactionParams = (transaction: BuildApplicationUpdateTransactionResult): AppUpdateParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     appId: BigInt(transaction.applicationId),
     args: transaction.args.map((arg) => base64ToBytes(arg)),
     approvalProgram: base64ToBytes(transaction.approvalProgram),
@@ -250,8 +239,8 @@ export const asAssetTransferTransactionParams = (
     amount = BigInt(convertedAmount.toString())
   }
   return {
-    sender: ensureSender(transaction.sender),
-    receiver: 'receiver' in transaction ? transaction.receiver.resolvedAddress : ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
+    receiver: 'receiver' in transaction ? transaction.receiver.resolvedAddress : transaction.sender.resolvedAddress!,
     clawbackTarget: 'clawbackTarget' in transaction ? transaction.clawbackTarget.resolvedAddress : undefined,
     closeAssetTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo.resolvedAddress : undefined,
     assetId: BigInt(transaction.asset.id),
@@ -270,7 +259,7 @@ const asAssetTransferTransaction = async (
 ): Promise<algosdk.Transaction> => {
   if (
     transaction.type === BuildableTransactionType.AssetClawback &&
-    (!transaction.asset.clawback || ensureSender(transaction.sender) !== transaction.asset.clawback)
+    (!transaction.asset.clawback || transaction.sender.resolvedAddress! !== transaction.asset.clawback)
   ) {
     throw new Error('Invalid clawback transaction')
   }
@@ -281,7 +270,7 @@ const asAssetTransferTransaction = async (
 
 export const asAssetCreateTransactionParams = (transaction: BuildAssetCreateTransactionResult): AssetCreateParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     total: transaction.total,
     decimals: transaction.decimals,
     assetName: transaction.assetName,
@@ -305,7 +294,7 @@ const asAssetCreateTransaction = async (transaction: BuildAssetCreateTransaction
 
 const asAssetReconfigureTransactionParams = (transaction: BuildAssetReconfigureTransactionResult): AssetConfigParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     assetId: BigInt(transaction.asset.id),
     manager: transaction.manager ? transaction.manager.resolvedAddress : undefined,
     reserve: transaction.reserve ? transaction.reserve.resolvedAddress : undefined,
@@ -323,7 +312,7 @@ const asAssetReconfigureTransaction = async (transaction: BuildAssetReconfigureT
 
 const asAssetDestroyTransactionParams = (transaction: BuildAssetDestroyTransactionResult): AssetDestroyParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     assetId: BigInt(transaction.asset.id),
   }
 }
@@ -349,7 +338,7 @@ export const asAssetConfigTransactionParams = (
 
 export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTransactionResult): AssetFreezeParams => {
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
     assetId: BigInt(transaction.asset.id),
     account: transaction.freezeTarget.resolvedAddress,
     frozen: transaction.frozen,
@@ -359,7 +348,7 @@ export const asAssetFreezeTransactionParams = (transaction: BuildAssetFreezeTran
   }
 }
 const asAssetFreezeTransaction = async (transaction: BuildAssetFreezeTransactionResult): Promise<algosdk.Transaction> => {
-  if (!transaction.asset.freeze || ensureSender(transaction.sender) !== transaction.asset.freeze) {
+  if (!transaction.asset.freeze || transaction.sender.resolvedAddress! !== transaction.asset.freeze) {
     throw new Error('Invalid freeze transaction')
   }
 
@@ -376,7 +365,7 @@ export const asKeyRegistrationTransactionParams = (
     invariant(transaction.stateProofKey, 'State proof key is required')
 
     return {
-      sender: ensureSender(transaction.sender),
+      sender: transaction.sender.resolvedAddress!,
       voteKey: Uint8Array.from(Buffer.from(transaction.voteKey, 'base64')),
       selectionKey: Uint8Array.from(Buffer.from(transaction.selectionKey, 'base64')),
       stateProofKey: Uint8Array.from(Buffer.from(transaction.stateProofKey, 'base64')),
@@ -390,7 +379,7 @@ export const asKeyRegistrationTransactionParams = (
   }
 
   return {
-    sender: ensureSender(transaction.sender),
+    sender: transaction.sender.resolvedAddress!,
   }
 }
 

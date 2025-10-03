@@ -21,7 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const clawbackTargetLabel = 'Clawback target'
@@ -202,7 +202,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         receiver: transaction.receiver,
         clawbackTarget: transaction.clawbackTarget,
         amount: transaction.amount,

@@ -15,18 +15,19 @@ export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount):
     resolvedAddress: addressOrAccount,
   } satisfies AddressOrNfd
 }
-export const asOptionalAddressOrNfd = (transactionSender?: Partial<TransactionSender>): TransactionSender => {
-  if (!transactionSender) return { value: '', resolvedAddress: '', autoPopulated: false }
 
-  if (transactionSender.autoPopulated) {
-    return { value: '', resolvedAddress: '', autoPopulated: false }
+export const asTransactionSender = (transactionSender?: TransactionSender): TransactionSender => {
+  const emptySender: TransactionSender = {
+    value: undefined,
+    resolvedAddress: undefined,
+    autoPopulated: false,
   }
+  if (!transactionSender) return emptySender
+  if (transactionSender.autoPopulated) return emptySender
 
-  if (transactionSender.value) {
-    return asAddressOrNfd(transactionSender.value)
-  }
-
-  return { value: '', resolvedAddress: '', autoPopulated: false }
+  return transactionSender.value && transactionSender.resolvedAddress
+    ? { value: transactionSender.value, resolvedAddress: transactionSender.resolvedAddress, autoPopulated: transactionSender.autoPopulated }
+    : emptySender
 }
 
 export const asOptionalAddressOrNfdSchema = (address?: Address) => {

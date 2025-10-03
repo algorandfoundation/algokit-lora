@@ -20,7 +20,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -71,7 +71,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         type: BuildableTransactionType.AccountClose,
         sender: await resolveSenderAddress(data.sender),
         closeRemainderTo: data.closeRemainderTo,
-        receiver: { value: data.receiver.value!, resolvedAddress: data.receiver.resolvedAddress! },
+        receiver: asAddressOrNfd(data.receiver.value!),
         amount: data.amount,
         fee: data.fee,
         validRounds: data.validRounds,
@@ -83,7 +83,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         closeRemainderTo: transaction.closeRemainderTo,
         receiver: transaction.receiver,
         amount: transaction.amount,

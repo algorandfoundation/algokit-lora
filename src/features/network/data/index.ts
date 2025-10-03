@@ -30,6 +30,7 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   pera: 'Pera',
   exodus: 'Exodus',
   lute: 'Lute',
+  // The below providers aren't used
   custom: 'Custom',
   kibisis: 'Kibisis',
   walletconnect: 'Wallet Connect',

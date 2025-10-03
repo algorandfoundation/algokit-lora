@@ -21,7 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -176,7 +176,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,

@@ -65,7 +65,9 @@ export type AddressOrNfd = {
   resolvedAddress: Address
 }
 
-export type TransactionSender = AddressOrNfd & {
+export type TransactionSender = {
+  value: Address | Nfd | undefined
+  resolvedAddress: Address | undefined
   autoPopulated?: boolean
 }
 
@@ -150,7 +152,6 @@ export type MethodCallArg = algosdk.ABIValue | BuildTransactionResult | Placehol
 export type BuildPaymentTransactionResult = CommonBuildTransactionResult & {
   type: BuildableTransactionType.Payment
   receiver: AddressOrNfd
-  sender: AddressOrNfd
   amount: number
 }
 

@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -21,13 +21,13 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetReconfigureFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    ...optionalSenderFieldShape,
     asset: z
       .object({
         id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -216,11 +216,12 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetReconfigure,
         asset: data.asset,
+
         sender: await resolveSenderAddress(data.sender),
-        manager: asOptionalAddressOrNfd(data.manager),
-        reserve: asOptionalAddressOrNfd(data.reserve),
-        freeze: asOptionalAddressOrNfd(data.freeze),
-        clawback: asOptionalAddressOrNfd(data.clawback),
+        manager: asAddressOrNfd(data.manager.value!),
+        reserve: asAddressOrNfd(data.reserve.value!),
+        freeze: asAddressOrNfd(data.freeze.value!),
+        clawback: asAddressOrNfd(data.clawback.value!),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
@@ -232,7 +233,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,

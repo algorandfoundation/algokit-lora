@@ -54,7 +54,6 @@ export const AddressOrNfdLink = fixedForwardRef(
     ) : (
       <div className="flex items-center overflow-hidden">
         {link}
-
         {showCopyButton && <CopyButton value={address} />}
         {showQRButton && <OpenAddressQRDialogButton address={address} />}
       </div>

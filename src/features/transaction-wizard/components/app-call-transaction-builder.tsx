@@ -14,7 +14,7 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -64,7 +64,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         onComplete: transaction.onComplete.toString(),
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,

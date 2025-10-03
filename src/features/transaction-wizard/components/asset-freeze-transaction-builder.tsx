@@ -22,7 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetFreezeFormSchema = z
@@ -197,7 +197,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         freezeTarget: transaction.freezeTarget,
         frozen: transaction.frozen ? 'true' : 'false',
         fee: transaction.fee,

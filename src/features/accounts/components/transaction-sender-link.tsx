@@ -5,7 +5,7 @@ import { AddressOrNfdLink } from './address-or-nfd-link'
 import { Address } from '../data/types'
 import { cn } from '@/features/common/utils'
 
-export type AddressOrNfdLinkProps = PropsWithChildren<{
+export type Props = PropsWithChildren<{
   address: Address
   short?: boolean
   className?: string
@@ -15,15 +15,7 @@ export type AddressOrNfdLinkProps = PropsWithChildren<{
   autoPopulated?: boolean
 }>
 
-export default function TransactionSenderLink({
-  address,
-  short,
-
-  showCopyButton,
-  showQRButton,
-  nfd,
-  autoPopulated,
-}: AddressOrNfdLinkProps) {
+export default function TransactionSenderLink({ address, short, showCopyButton, showQRButton, nfd, autoPopulated }: Props) {
   return (
     <div className="flex items-center">
       <AddressOrNfdLink

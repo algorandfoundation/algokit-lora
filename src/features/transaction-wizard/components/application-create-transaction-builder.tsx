@@ -19,7 +19,7 @@ import { BuildApplicationCreateTransactionResult, BuildableTransactionType } fro
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -79,7 +79,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
       return {
         approvalProgram: transaction.approvalProgram,
         clearStateProgram: transaction.clearStateProgram,
-        sender: asOptionalAddressOrNfd(transaction.sender),
+        sender: asTransactionSender(transaction.sender),
         onComplete: transaction.onComplete.toString(),
         extraProgramPages: transaction.extraProgramPages,
         globalInts: transaction.globalInts,
