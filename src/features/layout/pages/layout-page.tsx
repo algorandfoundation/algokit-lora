@@ -43,12 +43,12 @@ export function LayoutPage({ children }: Props) {
     <div className="flex h-screen flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <LeftSideBarMenu />
-        <div className="flex w-full flex-col">
+        {/* <LeftSideBarMenu /> */}
+        <div className="flex w-screen flex-col">
           <SubscriberStatus />
           {shouldPromptForTokens && <TokenPromptDialog />}
           <main ref={mainContent} className="flex flex-1 items-start overflow-y-auto overflow-x-hidden">
-            <div className={cn('grid w-full mb-4 mx-4')}>{!shouldPromptForTokens ? children : undefined}</div>
+            <div className={cn('grid w-full overflow-hidden mb-4 mx-4')}>{!shouldPromptForTokens ? children : undefined}</div>
           </main>
         </div>
       </div>
