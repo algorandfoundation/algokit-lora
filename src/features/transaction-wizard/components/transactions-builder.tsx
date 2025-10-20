@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'

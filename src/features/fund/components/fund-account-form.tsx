@@ -78,7 +78,6 @@ export function FundAccountForm({ onCreateReceiver, onSubmit, limit, defaultRece
       formAction={
         <FormActions>
           <SubmitButton
-            // eslint-disable-next-line tailwindcss/no-custom-classname
             className={
               onCreateReceiver ? 'plausible-event-name=fund-account-form-create-and-fund' : 'plausible-event-name=fund-account-form-fund'
             }
