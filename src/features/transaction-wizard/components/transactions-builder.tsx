@@ -339,8 +339,8 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps])
 
   return (
-    <div className="w-screen">
-      <div className="space-y-4 w-full overflow-scroll">
+    <div>
+      <div className="space-y-4">
         <div className="mb-4 flex items-center gap-2">
           {title}
           {!disableAddTransaction && (
