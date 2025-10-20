@@ -29,7 +29,7 @@ export function ApplicationLocalState({ application }: Props) {
 
   return (
     <div className="space-y-4 overflow-hidden">
-      <div className="max-w-[35rem] rounded-md border border-input bg-popover text-popover-foreground">
+      <div className="max-w-140 rounded-md border border-input bg-popover text-popover-foreground">
         <div className="flex items-center px-3">
           <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
           <input
@@ -39,7 +39,7 @@ export function ApplicationLocalState({ application }: Props) {
             id="local-state-address"
             value={address}
             onChange={handleInput}
-            className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
           />
           <Button
             onClick={handleClear}

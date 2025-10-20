@@ -18,7 +18,7 @@ export const VersionDisplay: React.FC<VersionDisplayProps> = ({ className, showD
       case 'production':
         return 'default' as const
       default:
-        return 'outline' as const
+        return 'outline-solid' as const
     }
   }
 

@@ -60,7 +60,7 @@ export function Search() {
   return (
     <Command
       className={cn(
-        'hidden md:flex bg-popover text-popover-foreground w-[22rem] h-auto z-20 border border-input mt-[1.2rem]',
+        'hidden md:flex bg-popover text-popover-foreground w-88 h-auto z-20 border border-input mt-[1.2rem]',
         term && 'shadow-md'
       )}
       label="Search by ID or Address"

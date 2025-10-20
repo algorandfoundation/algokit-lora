@@ -55,7 +55,7 @@ export function LeftSideBarMenu({ className }: Props) {
       className={cn(
         'flex flex-col bg-card border-r transition-[width] duration-300',
         className,
-        layout.isLeftSideBarExpanded ? 'w-56' : 'w-[4.5rem]'
+        layout.isLeftSideBarExpanded ? 'w-56' : 'w-18'
       )}
     >
       <Button className="ml-auto text-muted-foreground" variant="no-style" size="icon" onClick={toggleLeftSideBar}>

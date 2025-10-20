@@ -37,7 +37,7 @@ describe('VersionDisplay', () => {
 
   describe('environment badge variants', () => {
     it.each([
-      ['development', 'outline'],
+      ['development', 'outline-solid'],
       ['staging', 'secondary'],
       ['production', 'default'],
     ])('should show correct badge variant for %s environment', (env, _expectedVariant) => {

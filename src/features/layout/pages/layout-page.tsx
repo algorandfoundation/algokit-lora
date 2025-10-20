@@ -43,7 +43,7 @@ export function LayoutPage({ children }: Props) {
     <div className="flex h-screen flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        {/* <LeftSideBarMenu /> */}
+        <LeftSideBarMenu />
         <div className="flex w-screen flex-col">
           <SubscriberStatus />
           {shouldPromptForTokens && <TokenPromptDialog />}

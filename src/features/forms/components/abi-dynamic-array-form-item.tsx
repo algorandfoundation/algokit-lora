@@ -28,7 +28,7 @@ export function AbiDynamicArrayFormItem<TData extends Record<string, unknown>>({
           return (
             <div key={field.id}>
               <div className="flex items-center gap-2">
-                <Label className="!mt-0">
+                <Label className="mt-0!">
                   {prefix} {index + 1}
                 </Label>
                 <Button type="button" variant="destructive" size="xs" onClick={() => remove(index)} icon={<TrashIcon size={16} />}></Button>
