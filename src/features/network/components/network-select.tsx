@@ -7,9 +7,10 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 type NetworkSelectProps = {
   showLabel?: boolean
+  className?: string
 }
 
-export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
+export function NetworkSelect({ showLabel = true, className }: NetworkSelectProps) {
   const [selectedNetwork, setSelectedNetwork] = useSelectedNetwork()
   const networkConfigs = useNetworkConfigs()
   const { networkId: currentNetworkId } = useParams()
@@ -29,7 +30,7 @@ export function NetworkSelect({ showLabel = true }: NetworkSelectProps) {
   )
 
   return (
-    <div className={cn('flex flex-col')}>
+    <div className={cn('flex flex-col', className)}>
       {showLabel && (
         <Label htmlFor="network" className={cn('ml-0.5 mb-2')}>
           Active network

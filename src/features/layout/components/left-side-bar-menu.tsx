@@ -53,7 +53,7 @@ export function LeftSideBarMenu({ className }: Props) {
   return (
     <aside
       className={cn(
-        'flex flex-col bg-card border-r transition-[width] duration-300',
+        'lg:flex flex-col bg-card border-r transition-[width] duration-300 hidden',
         className,
         layout.isLeftSideBarExpanded ? 'w-56' : 'w-18'
       )}

@@ -19,7 +19,11 @@ import { isMacOs } from '@/utils/is-mac-platform'
 export const searchPlaceholderLabel = `Search by ID or Address ${isMacOs ? '(⌘K)' : '(Ctrl+K)'}`
 export const noSearchResultsMessage = 'No results.'
 
-export function Search() {
+type Props = {
+  className?: string
+}
+
+export function Search({ className }: Props) {
   const navigate = useNavigate()
   const [term, setTerm, loadableResults] = useSearch()
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -59,10 +63,7 @@ export function Search() {
 
   return (
     <Command
-      className={cn(
-        'hidden md:flex bg-popover text-popover-foreground w-88 h-auto z-20 border border-input mt-[1.2rem]',
-        term && 'shadow-md'
-      )}
+      className={cn('bg-popover text-popover-foreground w-88 h-auto z-20 border border-input mt-[1.2rem]', term && 'shadow-md', className)}
       label="Search by ID or Address"
       shouldFilter={false}
       loop

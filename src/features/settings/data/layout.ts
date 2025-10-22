@@ -4,11 +4,13 @@ import { settingsStore } from './settings'
 
 export type LayoutConfig = {
   isLeftSideBarExpanded: boolean
+  isDrawerMenuExpanded: boolean
 }
 
 const layoutConfigAtom = atomWithStorage<LayoutConfig>(
   'layout-config',
   {
+    isDrawerMenuExpanded: false,
     isLeftSideBarExpanded: true,
   },
   undefined,
