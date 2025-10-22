@@ -131,7 +131,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "fake-indexeddb": "^6.0.0",
-    "happy-dom": "^15.7.3",
+    "happy-dom": "^20.0.8",
     "npm-run-all2": "^8.0.4",
     "patch-package": "^8.0.0",
     "postcss": "^8.4.35",
