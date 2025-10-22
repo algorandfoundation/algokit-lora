@@ -19,7 +19,7 @@ type Props = {
 
 export function Header({ className }: Props) {
   const networkConfig = useNetworkConfig()
-  const [layout, setLayout] = useLayout()
+  const [_layout, setLayout] = useLayout()
 
   const openDrawerMenu = useCallback(
     () => setLayout((prev) => ({ ...prev, isDrawerMenuExpanded: !prev.isDrawerMenuExpanded })),

@@ -36,7 +36,7 @@ export default function DrawerMenu() {
 
   const navIconClassName = cn('border rounded-md p-2')
 
-  const handleClose = useCallback(() => setLayout((prev: any) => ({ ...prev, isDrawerMenuExpanded: false })), [setLayout])
+  const handleClose = useCallback(() => setLayout((prev) => ({ ...prev, isDrawerMenuExpanded: false })), [setLayout])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -56,7 +56,7 @@ export default function DrawerMenu() {
   return (
     <div
       className={cn(
-        'fixed inset-0 z-50 transition-opacity duration-300',
+        'fixed inset-0 z-50 transition-opacity duration-300 lg:hidden',
         // fade backdrop in/out; disable pointer events when closed
         isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
         // respect reduced motion
