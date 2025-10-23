@@ -4,6 +4,7 @@ import react from 'eslint-plugin-react'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import reactHooks from 'eslint-plugin-react-hooks'
 import prettier from 'eslint-config-prettier'
+import tailwind from 'eslint-plugin-tailwindcss'
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -33,7 +34,9 @@ export default tseslint.config(
       react,
       'react-refresh': reactRefresh,
       'react-hooks': reactHooks,
+      tailwindcss: tailwind,
     },
+
     rules: {
       //   ...react.configs.recommended.rules,
       //   ...react.configs['jsx-runtime'].rules,
@@ -45,7 +48,9 @@ export default tseslint.config(
         { ignoreRestSiblings: true, argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
       ],
       '@typescript-eslint/no-empty-object-type': 'off',
+      'tailwindcss/classnames-order': 'warn',
     },
+    settings: { tailwindcss: { config: false } },
   },
   prettier
 )

@@ -243,7 +243,7 @@ export function DeployApp({ machine }: Props) {
   }, [methodDefinitions, appSpec, openDialog])
 
   return (
-    <div className="duration-300 animate-in fade-in-20">
+    <div className="animate-in fade-in-20 duration-300">
       {transactions.length === 0 && (
         <div className="mb-4">
           <DescriptionList items={deploymentOptions} dtClassName="self-center" />

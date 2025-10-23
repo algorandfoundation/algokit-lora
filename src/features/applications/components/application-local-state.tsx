@@ -29,7 +29,7 @@ export function ApplicationLocalState({ application }: Props) {
 
   return (
     <div className="space-y-4 overflow-hidden">
-      <div className="max-w-140 rounded-md border border-input bg-popover text-popover-foreground">
+      <div className="border-input bg-popover text-popover-foreground max-w-140 rounded-md border">
         <div className="flex items-center px-3">
           <MagnifyingGlassIcon className="mr-2 size-4 shrink-0 opacity-50" />
           <input
@@ -39,14 +39,14 @@ export function ApplicationLocalState({ application }: Props) {
             id="local-state-address"
             value={address}
             onChange={handleInput}
-            className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            className="placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50"
           />
           <Button
             onClick={handleClear}
             variant="no-style"
             size="icon"
             aria-label="Clear local state address search"
-            className="size-4 text-muted-foreground"
+            className="text-muted-foreground size-4"
           >
             <XIcon />
           </Button>

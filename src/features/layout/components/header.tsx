@@ -38,7 +38,7 @@ export function Header({ className }: Props) {
       <div className={cn('flex items-center gap-3 ml-auto overflow-hidden')}>
         <NetworkSelect className="hidden lg:flex" showLabel={false} />
         <ConnectWalletButton />
-        <HamburgerMenuIcon onClick={openDrawerMenu} className="lg:hidden text-xl w-8 h-8" />
+        <HamburgerMenuIcon onClick={openDrawerMenu} className="h-8 w-8 text-xl lg:hidden" />
         <DrawerMenu />
       </div>
     </header>

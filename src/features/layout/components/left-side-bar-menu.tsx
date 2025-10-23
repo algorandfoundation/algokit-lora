@@ -58,7 +58,7 @@ export function LeftSideBarMenu({ className }: Props) {
         layout.isLeftSideBarExpanded ? 'w-56' : 'w-18'
       )}
     >
-      <Button className="ml-auto text-muted-foreground" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
+      <Button className="text-muted-foreground ml-auto" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
         {layout.isLeftSideBarExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
       </Button>
       <NavigationMenu>
@@ -93,7 +93,7 @@ export function LeftSideBarMenu({ className }: Props) {
           })}
         </NavigationMenuList>
       </NavigationMenu>
-      <div className="mb-4 mt-auto">
+      <div className="mt-auto mb-4">
         <ThemeToggle navTextClassName={navTextClassName} />
         <TemplatedNavLink urlTemplate={Urls.Settings} className={navLinkClassName}>
           <div className={navIconClassName}>

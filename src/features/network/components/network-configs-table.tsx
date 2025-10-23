@@ -218,7 +218,7 @@ function ActivateButton({ networkConfig }: ButtonProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="pointer-events-none text-primary"
+          className="text-primary pointer-events-none"
           icon={<CircleCheck size={ICON_BUTTON_SIZE} />}
           title="Active"
         />

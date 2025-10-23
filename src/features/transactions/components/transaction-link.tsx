@@ -17,7 +17,7 @@ export function asTransactionLinkTextComponent(transactionId: string, showFullTr
   return showFullTransactionId ? (
     transactionId
   ) : (
-    <abbr className="tracking-wide text-primary" title={transactionId}>
+    <abbr className="text-primary tracking-wide" title={transactionId}>
       {ellipseId(transactionId)}
     </abbr>
   )

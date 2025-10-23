@@ -139,7 +139,7 @@ export function TransactionsTable({
         <Table aria-label={ariaLabel} className="border-separate border-spacing-0 overflow-hidden">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="relative z-10 bg-muted hover:bg-muted">
+              <TableRow key={headerGroup.id} className="bg-muted hover:bg-muted relative z-10">
                 <TableHead className="w-10 border-y"></TableHead>
                 {headerGroup.headers.map((header) => {
                   return (
@@ -325,7 +325,7 @@ const getSubTransactionsTableColumns = ({
               dtClassName="w-40 truncate"
             />
           )}
-          <div className="absolute -bottom-2 right-1/2 z-10">
+          <div className="absolute right-1/2 -bottom-2 z-10">
             <Link2Icon size={16} className="text-muted-foreground/70" />
           </div>
         </div>

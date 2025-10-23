@@ -94,7 +94,7 @@ export function Search({ className }: Props) {
                   {results.map((result) => {
                     return (
                       <CommandItem key={`${result.type}-${result.id}`} value={result.url} onSelect={handleSelection}>
-                        <NavLink className="truncate text-primary underline" to={result.url}>
+                        <NavLink className="text-primary truncate underline" to={result.url}>
                           {result.label}
                         </NavLink>
                         <span className={cn('ml-auto text-xs')}>{result.type}</span>

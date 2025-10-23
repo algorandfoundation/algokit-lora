@@ -47,7 +47,7 @@ export function LayoutPage({ children }: Props) {
         <div className="flex w-screen flex-col">
           <SubscriberStatus />
           {shouldPromptForTokens && <TokenPromptDialog />}
-          <main ref={mainContent} className="flex flex-1 items-start overflow-y-auto overflow-x-hidden">
+          <main ref={mainContent} className="flex flex-1 items-start overflow-x-hidden overflow-y-auto">
             <div className={cn('grid w-full overflow-hidden mb-4 mx-4')}>{!shouldPromptForTokens ? children : undefined}</div>
           </main>
         </div>

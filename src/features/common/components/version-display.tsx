@@ -32,7 +32,7 @@ export const VersionDisplay: React.FC<VersionDisplayProps> = ({ className, showD
         </>
       )}
       {showDetails && (
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           <div>Built: {new Date(buildDate).toLocaleDateString()}</div>
           <div>Commit: {commitHash.substring(0, 7)}</div>
         </div>

@@ -331,7 +331,7 @@ const asMethodArg = (
         <span className="truncate">Transaction {argPosition ?? ''} in the group</span>
         {resolvedArg && resolvedArg.type !== BuildableTransactionType.Fulfilled && (
           <Button
-            className="size-4 p-0 text-primary"
+            className="text-primary size-4 p-0"
             variant="no-style"
             onClick={() => onEditTransaction(resolvedArg)}
             {...(resolvedArg.type === BuildableTransactionType.Placeholder
@@ -514,7 +514,7 @@ const asResourcesItem = (
                 <ol className="pl-4">
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
-                      <AddressOrNfdLink address={address} className="inline text-primary underline">
+                      <AddressOrNfdLink address={address} className="text-primary inline underline">
                         {typeof address === 'string' ? address : address.toString()}
                       </AddressOrNfdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
@@ -533,7 +533,7 @@ const asResourcesItem = (
                 <ol className="pl-4">
                   {assets.map((assetId, index, array) => (
                     <li key={index} className="truncate">
-                      <AssetIdLink assetId={assetId} className="inline text-primary underline">
+                      <AssetIdLink assetId={assetId} className="text-primary inline underline">
                         {assetId.toString()}
                       </AssetIdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
@@ -552,7 +552,7 @@ const asResourcesItem = (
                 <ol className="pl-4">
                   {apps?.map((appId, index, array) => (
                     <li key={index} className="truncate">
-                      <ApplicationLink applicationId={appId} className="inline text-primary underline">
+                      <ApplicationLink applicationId={appId} className="text-primary inline underline">
                         {appId.toString()}
                       </ApplicationLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
@@ -576,7 +576,7 @@ const asResourcesItem = (
                         <li key={index} className="truncate">
                           <span>[</span>
                           {box.appId > 0 ? (
-                            <ApplicationLink applicationId={box.appId} className="inline text-primary underline">
+                            <ApplicationLink applicationId={box.appId} className="text-primary inline underline">
                               {box.appId.toString()}
                             </ApplicationLink>
                           ) : (

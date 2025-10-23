@@ -68,8 +68,8 @@ export default function DrawerMenu() {
         aria-modal="true"
       >
         {/* Header */}
-        <div className="flex flex-col items-start p-3 gap-4">
-          <div className="flex items-baseline justify-between w-full">
+        <div className="flex flex-col items-start gap-4 p-3">
+          <div className="flex w-full items-baseline justify-between">
             <TemplatedNavLink urlTemplate={Urls.Network.Explore} className="self-center">
               <SvgLoraLight onClick={handleClose} className="block dark:hidden" />
               <SvgLoraDark onClick={handleClose} className="hidden dark:block" />
@@ -83,7 +83,7 @@ export default function DrawerMenu() {
         </div>
 
         {/* Items */}
-        <nav className="p-3 space-y-1">
+        <nav className="space-y-1 p-3">
           {menuItems.map((item, idx) => (
             <div key={item.urlTemplate.toString()} onClick={handleClose}>
               <TemplatedNavLink
@@ -101,7 +101,7 @@ export default function DrawerMenu() {
         </nav>
 
         {/* Footer */}
-        <div className="mt-auto mb-4 p-3 flex justify-between items-center text-xs text-muted-foreground">
+        <div className="text-muted-foreground mt-auto mb-4 flex items-center justify-between p-3 text-xs">
           <NetworkSelect />
           <div className="mt-6 flex">
             <ThemeToggle navTextClassName={navTextClassName} />

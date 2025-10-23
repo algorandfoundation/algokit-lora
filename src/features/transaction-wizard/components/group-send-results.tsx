@@ -116,7 +116,7 @@ export function GroupSendResults({ transactionGraph, transactionGraphBgClassName
                           dd: simulateResponse ? (
                             sentTransaction.id
                           ) : (
-                            <TransactionLink transactionId={sentTransaction.id} className="text-sm text-primary underline">
+                            <TransactionLink transactionId={sentTransaction.id} className="text-primary text-sm underline">
                               {sentTransaction.id}
                             </TransactionLink>
                           ),

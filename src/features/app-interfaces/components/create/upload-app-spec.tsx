@@ -44,7 +44,7 @@ export function UploadAppSpec({ machine, supportedStandards }: Props) {
 
   return (
     <Form
-      className="duration-300 animate-in fade-in-20"
+      className="animate-in fade-in-20 duration-300"
       schema={selectAppSpecFormSchema}
       defaultValues={{ file: state.context.file }}
       onSubmit={next}

@@ -24,11 +24,11 @@ export function ThemeToggle({ navTextClassName }: Props) {
         <Button
           variant="no-style"
           aria-label={themeTogglelabel}
-          className="flex items-center gap-2 whitespace-nowrap text-base font-normal hover:text-primary"
+          className="hover:text-primary flex items-center gap-2 text-base font-normal whitespace-nowrap"
         >
           <div className="flex rounded-md border p-2">
-            <Sun className="rotate-0 scale-100 transition-transform dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute rotate-90 scale-0 transition-transform dark:rotate-0 dark:scale-100" />
+            <Sun className="scale-100 rotate-0 transition-transform dark:scale-0 dark:-rotate-90" />
+            <Moon className="absolute scale-0 rotate-90 transition-transform dark:scale-100 dark:rotate-0" />
           </div>
           <span className={navTextClassName}>{themeLabels.get(theme)}</span>
         </Button>
