@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "run-s build:[0-9]*",
     "build:dev": "run-s build:0-clean build:1-icons build:2-svg build:3-sync-version build:4-tsc build:5-vite:dev build:6-netlify",
-    "build:0-clean": "rimraf dist src/features/common/components/icons src/features/common/components/svg",
+    "build:0-clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true}); fs.rmSync('src/features/common/components/icons',{recursive:true,force:true}); fs.rmSync('src/features/common/components/svg',{recursive:true,force:true})\"",
     "build:1-icons": "npx --yes @svgr/cli --config-file .svgrrc.cjs --icon --typescript --out-dir src/features/common/components/icons src/assets/icons --no-index --filename-case kebab --jsx-runtime automatic",
     "build:2-svg": "npx --yes @svgr/cli --config-file .svgrrc.cjs --typescript --out-dir src/features/common/components/svg src/assets/svg --no-index --filename-case kebab --jsx-runtime automatic",
     "build:3-sync-version": "npm run sync-version",
