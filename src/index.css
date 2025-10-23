@@ -17,6 +17,13 @@
   }
 }
 
+@layer base {
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+}
+
 @theme {
   --color-border: rgb(var(--border));
   --color-input: rgb(var(--input));
