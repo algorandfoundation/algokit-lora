@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
-import { Telescope, FlaskConical, Coins, X, Settings } from 'lucide-react'
+import { X, Settings } from 'lucide-react'
 import { Search } from '@/features/search/components/search'
-import SvgWizard from '@/features/common/components/icons/wizard'
 import { cn } from '@/features/common/utils'
 import { useSelectedNetwork } from '@/features/network/data'
 import { useLayout } from '@/features/settings/data'
@@ -11,6 +10,7 @@ import SvgLoraDark from '@/features/common/components/svg/lora-dark'
 import SvgLoraLight from '@/features/common/components/svg/lora-light'
 import { NetworkSelect } from '@/features/network/components/network-select'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
+import { menuItems } from '../constants/menu-items'
 
 const itemBase =
   'flex items-center gap-3 rounded-md border border-transparent px-3 py-2 hover:bg-accent hover:text-primary transition-colors'
@@ -21,16 +21,6 @@ export default function DrawerMenu() {
   const [selectedNetwork] = useSelectedNetwork()
   const [layout, setLayout] = useLayout()
   const isOpen = !!layout.isDrawerMenuExpanded
-
-  const menuItems = useMemo(
-    () => [
-      { urlTemplate: Urls.Network.Explore, icon: <Telescope />, text: 'Explore' },
-      { urlTemplate: Urls.Network.AppLab, icon: <FlaskConical />, text: 'App Lab' },
-      { urlTemplate: Urls.Network.TransactionWizard, icon: <SvgWizard width={24} height={24} />, text: 'Txn Wizard' },
-      { urlTemplate: Urls.Network.Fund, icon: <Coins />, text: 'Fund' },
-    ],
-    []
-  )
 
   const navTextClassName = cn('visible transition-[visibility] duration-0 delay-100')
 
@@ -89,13 +79,13 @@ export default function DrawerMenu() {
             </button>
           </div>
 
-          <Search />
+          <Search className="w-full" />
         </div>
 
         {/* Items */}
         <nav className="p-3 space-y-1">
           {menuItems.map((item, idx) => (
-            <div onClick={handleClose}>
+            <div key={item.urlTemplate.toString()} onClick={handleClose}>
               <TemplatedNavLink
                 key={idx}
                 urlTemplate={item.urlTemplate}
