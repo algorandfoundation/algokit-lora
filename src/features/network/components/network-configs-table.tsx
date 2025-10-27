@@ -48,20 +48,24 @@ export function NetworkConfigsTable() {
         </Button>
       </div>
       <DataTable ariaLabel={networkConfigsTableLabel} columns={tableColumns} data={data} dataContext="networkConfig" />
-      <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal={true}>
-        {createNetworkConfigDialogOpen && (
-          <DialogContent className="bg-card" aria-label={createNetworkConfigDialogLabel}>
-            <Description hidden={true}>Create a network</Description>
-            <DialogHeader className="flex-row items-center space-y-0">
-              <DialogTitle asChild>
-                <h2>{createNetworkConfigDialogLabel}</h2>
-              </DialogTitle>
-            </DialogHeader>
-            <MediumSizeDialogBody>
-              <CreateNetworkConfigForm onSuccess={() => setCreateNetworkConfigDialogOpen(false)} />
-            </MediumSizeDialogBody>
-          </DialogContent>
-        )}
+      <Dialog open={createNetworkConfigDialogOpen} onOpenChange={setCreateNetworkConfigDialogOpen} modal>
+        <DialogContent
+          className="bg-card"
+          onOpenAutoFocus={(e) => e.preventDefault()} // same as the first modal
+          aria-label={createNetworkConfigDialogLabel}
+        >
+          <Description hidden>Create a network</Description>
+
+          <DialogHeader className="flex-row items-center space-y-0">
+            <DialogTitle asChild>
+              <h2>{createNetworkConfigDialogLabel}</h2>
+            </DialogTitle>
+          </DialogHeader>
+
+          <MediumSizeDialogBody>
+            <CreateNetworkConfigForm onSuccess={() => setCreateNetworkConfigDialogOpen(false)} />
+          </MediumSizeDialogBody>
+        </DialogContent>
       </Dialog>
     </div>
   )

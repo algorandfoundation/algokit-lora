@@ -1,10 +1,7 @@
-// src/features/layout/config/menu-items.ts
-
 import { Telescope, FlaskConical, Coins } from 'lucide-react'
 import SvgWizard from '@/features/common/components/icons/wizard'
 import { Urls } from '@/routes/urls'
 
-// ✅ Use an array of objects so it can be iterated
 export const menuItems = [
   {
     urlTemplate: Urls.Network.Explore,
