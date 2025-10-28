@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { senderFieldSchema, commonSchema, onCompleteFieldSchema, onCompleteOptions } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'

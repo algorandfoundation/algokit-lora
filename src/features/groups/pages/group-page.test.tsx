@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { executeComponentTest } from '@/tests/test-component'
 import { getByRole, render, waitFor } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
@@ -19,7 +20,6 @@ import { tableAssertion } from '@/tests/assertions/table-assertion'
 import { assetResultsAtom } from '@/features/assets/data'
 import { indexer } from '@/features/common/data/algo-client'
 import { genesisHashAtom } from '@/features/blocks/data'
-import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')

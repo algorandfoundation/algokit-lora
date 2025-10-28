@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { StructDefinition } from '@/features/applications/models'
-import algosdk from 'algosdk'
 import { z } from 'zod'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import React from 'react'
@@ -10,8 +10,9 @@ import {
   TemplateParamType,
   AVMTypeTemplateParam,
 } from '@/features/app-interfaces/data/types'
-import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
+import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export type TealTemplateParamField =
   | {

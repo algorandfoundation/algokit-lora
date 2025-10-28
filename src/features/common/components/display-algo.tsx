@@ -1,7 +1,7 @@
 import SvgAlgorand from './icons/algorand'
 import { cn } from '../utils'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { compactAmount } from '@/utils/compact-amount'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type Props = {
   className?: string

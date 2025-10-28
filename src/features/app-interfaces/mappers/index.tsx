@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { readFile } from '@/utils/read-file'
 import {
   ABITypeTemplateParam,
@@ -21,8 +22,6 @@ import {
   avmTypeToFormItem,
   asAbiFormItemValue,
 } from '@/features/abi-methods/mappers'
-import { Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import algosdk from 'algosdk'
 import { StructDefinition } from '@/features/applications/models'
 import { TealUnknownTypeTemplateParamFieldValue, TealTemplateParamField } from '@/features/app-interfaces/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -33,6 +32,7 @@ import { TemplateParamForm } from '../components/create/template-param-form'
 import { Label } from '@/features/common/components/label'
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
 import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
+import { AVMType, Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const parseAsAppSpec = async (
   file: File,

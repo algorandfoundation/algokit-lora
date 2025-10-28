@@ -1,4 +1,4 @@
-import algosdk, { encodeAddress } from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import isUtf8 from 'isutf8'
 import {
   DecodedGlobalStateDelta,
@@ -9,7 +9,6 @@ import {
   RawLocalStateDelta,
 } from '../models'
 import { Buffer } from 'buffer'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiType, DecodedAbiStorageValue, DecodedAbiStorageKeyType } from '@/features/abi-methods/models'
@@ -17,6 +16,7 @@ import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { Address } from '@/features/accounts/data/types'
 import { AccountStateDelta, EvalDelta, EvalDeltaKeyValue } from '../data/types'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const asGlobalStateDelta = (stateDelta: EvalDeltaKeyValue[] | undefined, appSpec?: Arc56Contract): GlobalStateDelta[] => {
   if (!stateDelta) {

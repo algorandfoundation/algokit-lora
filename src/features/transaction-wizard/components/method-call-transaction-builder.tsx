@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
@@ -39,6 +39,7 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 const appCallFormSchema = {
   ...commonSchema,

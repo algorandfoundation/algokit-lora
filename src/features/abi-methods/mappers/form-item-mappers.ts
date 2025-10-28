@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
-import algosdk from 'algosdk'
 import { FieldPath, Path } from 'react-hook-form'
 import { StructFieldDefinition } from '@/features/applications/models'
 import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 
 const arrayItemPathSeparator = '.' // This must be a . for react hook form to work
 

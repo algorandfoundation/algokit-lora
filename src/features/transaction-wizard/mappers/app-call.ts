@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { z } from 'zod'
 import { FieldPath } from 'react-hook-form'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'

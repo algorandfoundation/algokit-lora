@@ -1,4 +1,3 @@
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { TealTemplateParamDefinition } from '../models'
 import { asStructDefinition } from '@/features/applications/mappers'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
@@ -6,6 +5,7 @@ import { isAVMType } from './is-avm-type'
 import { asAbiFormItemValue } from '@/features/abi-methods/mappers/form-item-value-mappers'
 import { asAvmValue } from '@/features/abi-methods/mappers'
 import { asAbiOrAvmType } from '@/features/abi-methods/mappers'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const getTemplateParamDefinition = (appSpec: Arc56Contract, paramName: string): TealTemplateParamDefinition => {
   const templateVariable = appSpec.templateVariables ? appSpec.templateVariables[paramName] : undefined

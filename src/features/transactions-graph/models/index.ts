@@ -2,9 +2,9 @@ import { InnerTransaction, Transaction } from '@/features/transactions/models'
 import { Address } from '@/features/accounts/data/types'
 import { ApplicationId } from '@/features/applications/data/types'
 import { AssetId } from '@/features/assets/data/types'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
 import { AssetSummary } from '@/features/assets/models'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type TransactionsGraphData = {
   horizontals: Horizontal[]

@@ -25,6 +25,7 @@ import { DecodedAbiMethod } from '@/features/abi-methods/components/decoded-abi-
 import { RenderAsyncAtom } from '@/features/common/components/render-async-atom'
 import { DecodedAbiStorageValue } from '@/features/abi-methods/components/decoded-abi-storage-value'
 import { DecodedAbiStorageKey } from '@/features/abi-methods/components/decoded-abi-storage-key'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction

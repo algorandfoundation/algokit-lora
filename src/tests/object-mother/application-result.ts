@@ -1,5 +1,5 @@
+import algosdk, { base64ToBytes } from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { ApplicationResultBuilder, applicationResultBuilder } from '../builders/application-result-builder'
-import algosdk, { base64ToBytes, modelsv2 } from 'algosdk'
 
 export const applicationResultMother = {
   basic: () => {

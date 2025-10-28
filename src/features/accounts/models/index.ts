@@ -1,9 +1,9 @@
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { Address } from '../data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { ApplicationId } from '@/features/applications/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type AccountAssetSummary = {
   assetId: AssetId

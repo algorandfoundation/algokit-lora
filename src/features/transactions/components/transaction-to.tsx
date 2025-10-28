@@ -1,3 +1,4 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { AccountLink } from '@/features/accounts/components/account-link'
 import { Transaction, TransactionType } from '../models'
 import { ApplicationLink } from '@/features/applications/components/application-link'

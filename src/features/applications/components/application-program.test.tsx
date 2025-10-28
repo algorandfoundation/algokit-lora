@@ -1,9 +1,9 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { describe, expect, it, vi } from 'vitest'
 import { getByRole, render, waitFor } from '../../../tests/testing-library'
 import { ApplicationProgram, base64ProgramTabLabel, tealProgramTabLabel } from './application-program'
 import { executeComponentTest } from '@/tests/test-component'
 import { algod } from '@/features/common/data/algo-client'
-import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')

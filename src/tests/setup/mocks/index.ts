@@ -1,7 +1,7 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { vi } from 'vitest'
 import { NetworkId, Wallet, WalletId, useWallet } from '@txnlab/use-wallet-react'
 import { SearchTransactionsMock } from '@/tests/setup/mocks/search-transactions'
-import algosdk from 'algosdk'
 
 export const searchTransactionsMock = new SearchTransactionsMock()
 

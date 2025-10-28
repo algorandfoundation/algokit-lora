@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import {
   Application,
   RawApplicationStateType,
@@ -13,16 +14,13 @@ import {
   DecodedBoxDescriptor,
   RawBoxDescriptor,
 } from '../models'
-import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
 import isUtf8 from 'isutf8'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
 import { AppSpec, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
-import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { Arc56Contract, getABITupleTypeFromABIStructDefinition, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { invariant } from '@/utils/invariant'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
@@ -30,6 +28,8 @@ import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { Arc56Contract, StructField, getABITupleTypeFromABIStructDefinition } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { TealKeyValue } from '@algorandfoundation/algokit-utils/algod_client'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -102,7 +102,7 @@ const asRawApplicationStateValue = (bytes: Uint8Array) => {
   return base64ToUtf8IfValid(uint8ArrayToBase64(bytes))
 }
 
-const getRawApplicationState = (state: modelsv2.TealKeyValue): RawApplicationState => {
+const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
   if (state.value.type === 1) {
     return {
       key: asRawApplicationStateKey(state.key),

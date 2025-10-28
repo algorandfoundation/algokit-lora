@@ -2,11 +2,11 @@ import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { AssetSummary } from '@/features/assets/models'
 import { AsyncMaybeAtom } from '@/features/common/data/types'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { GroupId } from '@/features/groups/data/types'
 import { Atom } from 'jotai/index'
 import { DecodedAbiMethod, DecodedAbiStorageKey, DecodedAbiStorageValue } from '@/features/abi-methods/models'
 import { ApplicationId } from '@/features/applications/data/types'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 export type CommonTransactionProperties = {
   type: TransactionType

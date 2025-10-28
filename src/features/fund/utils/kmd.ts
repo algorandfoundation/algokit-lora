@@ -1,6 +1,6 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { Address } from '@/features/accounts/data/types'
 import { invariant } from '@/utils/invariant'
-import algosdk from 'algosdk'
 
 export type Wallet = {
   id: string

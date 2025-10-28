@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { numberSchema } from '@/features/forms/data/common'
 import {
   senderFieldSchema,

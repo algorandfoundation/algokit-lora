@@ -1,6 +1,6 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 import { TransactionId, TransactionResult } from '../data/types'
-import algosdk from 'algosdk'
 
 export const indexerTransactionToTransactionResult = (transaction: algosdk.indexerModels.Transaction): TransactionResult => {
   const { innerTxns, ...rest } = removeEncodableMethods(transaction)

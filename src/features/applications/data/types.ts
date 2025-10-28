@@ -1,5 +1,6 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer'
+
 
 export type ApplicationId = bigint
 

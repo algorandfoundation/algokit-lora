@@ -1,4 +1,5 @@
-import algosdk from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
@@ -22,8 +23,10 @@ import { Parentheses } from 'lucide-react'
 import { buildComposer } from '@/features/transaction-wizard/data/common'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
 import { asTransactionsGraphData } from '@/features/transactions-graph/mappers'
-import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+
 import { GroupSendResults, SendResults } from '@/features/transaction-wizard/components/group-send-results'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
 
 type Props = {
   applicationId: ApplicationId

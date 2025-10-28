@@ -7,6 +7,7 @@ import { AppCallTransaction, InnerAppCallTransaction, SignatureType } from '../m
 import { TransactionViewTabs } from './transaction-view-tabs'
 import { AppCallTransactionInfo } from './app-call-transaction-info'
 import { AppCallTransactionLogs } from './app-call-transaction-logs'
+import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 type Props = {
   transaction: AppCallTransaction | InnerAppCallTransaction

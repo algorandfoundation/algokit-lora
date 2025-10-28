@@ -1,3 +1,5 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { useCallback, useMemo, useState } from 'react'
 import { useCreateAppInterfaceStateMachine } from '@/features/app-interfaces/data'
 import { Button } from '@/features/common/components/button'
@@ -9,10 +11,9 @@ import {
 } from '@/features/transaction-wizard/models'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
-import algosdk from 'algosdk'
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+
 import { invariant } from '@/utils/invariant'
 import { TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
 import { ArrowLeft, Parentheses, Rocket } from 'lucide-react'
@@ -21,12 +22,16 @@ import { isArc32AppSpec, isArc56AppSpec } from '@/features/common/utils'
 import { asAppCallTransactionParams, asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { asArc56AppSpec, asMethodDefinitions } from '@/features/applications/mappers'
 import { Arc32AppSpec, TemplateParamType } from '../../data/types'
-import { CreateOnComplete, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
+
+
 import { MethodDefinition } from '@/features/applications/models'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AppClientBareCallParams, AppClientMethodCallParams } from '@algorandfoundation/algokit-utils/types/app-client'
+import { CreateOnComplete, CreateSchema } from '@algorandfoundation/algokit-utils/types/app-factory'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+
 
 type Props = {
   machine: ReturnType<typeof useCreateAppInterfaceStateMachine>
@@ -105,7 +110,7 @@ export function DeployApp({ machine }: Props) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={algosdk.TransactionType.appl}
+        transactionType={TransactionType.AppCall}
         type={props.data.type}
         defaultValues={props.data.transaction}
         onCancel={props.onCancel}

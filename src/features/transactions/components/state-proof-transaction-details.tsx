@@ -5,6 +5,7 @@ import { LogicsigDetails } from './logicsig-details'
 import { MultisigDetails } from './multisig-details'
 import { TransactionNote } from './transaction-note'
 import { TransactionViewTabs } from './transaction-view-tabs'
+import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 type Props = {
   transaction: StateProofTransaction

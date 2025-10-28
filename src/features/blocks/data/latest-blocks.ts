@@ -1,12 +1,12 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { latestTransactionIdsAtom } from '@/features/transactions/data'
 import { atomEffect } from 'jotai-effect'
 import { AlgorandSubscriber } from '@algorandfoundation/algokit-subscriber'
-import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { BlockResult, Round, SubscriberState, SubscriberStatus, SubscriberStoppedDetails, SubscriberStoppedReason } from './types'
 import { assetMetadataResultsAtom } from '@/features/assets/data'
-import algosdk from 'algosdk'
 import { flattenTransactionResult } from '@/features/transactions/utils/flatten-transaction-result'
 import { distinct } from '@/utils/distinct'
 import { assetResultsAtom } from '@/features/assets/data'
@@ -27,6 +27,7 @@ import { activeWalletAccountAtom } from '@/features/wallet/data/active-wallet'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { subscribedTransactionToTransactionResult } from '@/features/transactions/mappers/subscriber-transaction-mappers'
+import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 
 const notStartedSubscriberStatus = { state: SubscriberState.NotStarted } satisfies SubscriberStatus
 const startedSubscriberStatus = { state: SubscriberState.Started } satisfies SubscriberStatus
@@ -115,7 +116,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale asset ids
             const staleAssetIds = flattenTransactionResult(t)
-              .filter((t) => t.txType === algosdk.TransactionType.acfg)
+              .filter((t) => t.txType === TransactionType.AssetConfig)
               .map((t) => t.assetConfigTransaction!.assetId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore asset create transactions because they aren't in the atom
@@ -154,7 +155,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(t)
-              .filter((t) => t.txType === algosdk.TransactionType.appl)
+              .filter((t) => t.txType === TransactionType.AppCall)
               .map((t) => t.applicationTransaction?.applicationId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore application create transactions because they aren't in the atom
@@ -337,7 +338,7 @@ export const useSubscribeToBlocksEffect = () => {
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
-  if (txn.txType !== algosdk.TransactionType.appl) {
+  if (txn.txType !== TransactionType.AppCall) {
     return false
   }
   const appCallTransaction = txn.applicationTransaction!

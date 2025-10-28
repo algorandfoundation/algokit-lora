@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { DecodedAbiMethodReturnValue } from '@/features/abi-methods/components/decoded-abi-method-return-value'
 import { Button } from '@/features/common/components/button'
 import { DescriptionList } from '@/features/common/components/description-list'
@@ -7,9 +8,9 @@ import { TransactionsGraph, TransactionsGraphData } from '@/features/transaction
 import { transactionIdLabel } from '@/features/transactions/components/transaction-info'
 import { TransactionLink } from '@/features/transactions/components/transaction-link'
 import { AppCallTransaction } from '@/features/transactions/models'
-import algosdk from 'algosdk'
 import { Download } from 'lucide-react'
 import { useCallback } from 'react'
+import { Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const groupSendResultsLabel = 'Send Result'
 export const groupSimulateResultsLabel = 'Simulation Result'

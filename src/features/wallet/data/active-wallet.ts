@@ -5,7 +5,7 @@ import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { Address } from '@/features/accounts/data/types'
 import { useEffect, useMemo } from 'react'
 import { atomEffect } from 'jotai-effect'
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 
 const activeWalletAddressAtom = atom<Promise<Address | undefined> | (Address | undefined)>(new Promise<Address | undefined>(() => {}))
 export const activeWalletAccountAtom = atomWithRefresh<Promise<ActiveWalletAccount | undefined>>(async (get) => {

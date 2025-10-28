@@ -1,7 +1,8 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { ApplicationId } from '../data/types'
-import algosdk from 'algosdk'
-import { Arc56Contract, Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 import { DecodedAbiStorageKey, DecodedAbiStorageKeyType, DecodedAbiStorageValue } from '@/features/abi-methods/models'
+import { Arc56Contract, Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export type ApplicationSummary = {
   id: ApplicationId

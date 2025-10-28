@@ -7,7 +7,7 @@ import { Urls } from '@/routes/urls'
 import { ellipseAddress } from '@/utils/ellipse-address'
 import { Nfd } from '@/features/nfd/data/types'
 import { PropsWithChildren } from 'react'
-import { Address } from 'algosdk'
+
 import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{

@@ -1,11 +1,11 @@
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
 import { asStructDefinition } from '@/features/applications/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { asAbiOrAvmType } from '.'
 import { DecodedAbiStorageValue } from '../models'
 import { asDecodedAvmValue } from './avm-value'
 import { asDecodedAbiStruct, asDecodedAbiValue } from './decoder'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const asDecodedAbiStorageValue = (appSpec: Arc56Contract, type: string, bytes: Uint8Array): DecodedAbiStorageValue => {
   const struct = appSpec.structs[type]

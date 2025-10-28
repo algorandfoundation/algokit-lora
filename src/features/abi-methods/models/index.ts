@@ -1,9 +1,9 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { ApplicationId } from '@/features/applications/data/types'
 import { StructDefinition } from '@/features/applications/models'
 import { AssetId } from '@/features/assets/data/types'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
 import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import algosdk from 'algosdk'
 
 export enum DecodedAbiType {
   String = 'String',

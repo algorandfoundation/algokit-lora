@@ -1,3 +1,4 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { InnerTransaction, Transaction, TransactionType } from '../models'
 import { DataTable } from '@/features/common/components/data-table'
 import { ColumnDef } from '@tanstack/react-table'

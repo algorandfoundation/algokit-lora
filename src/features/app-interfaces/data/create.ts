@@ -11,6 +11,7 @@ import { CreateAppInterfaceContext, TemplateParam } from './types'
 import { useMemo } from 'react'
 import { atomWithMachine } from 'jotai-xstate'
 import { atom, useAtom, useAtomValue } from 'jotai'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export type AppSpecDetails = {
   applicationId: ApplicationId

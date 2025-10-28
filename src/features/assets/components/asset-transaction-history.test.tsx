@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { describe, expect, it, vi } from 'vitest'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { createStore } from 'jotai/index'
@@ -11,7 +12,6 @@ import { transactionResultMother } from '@/tests/object-mother/transaction-resul
 import { getAllByRole } from '@testing-library/dom'
 import { ANY_NUMBER, ANY_STRING, searchTransactionsMock } from '@/tests/setup/mocks'
 import { RenderResult } from '@testing-library/react'
-import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')

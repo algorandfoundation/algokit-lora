@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { atom } from 'jotai'
 import { getApplicationResultAtom } from '@/features/applications/data'
 import { fundedAccountAtom } from '@/features/accounts/data'

@@ -1,7 +1,7 @@
 import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, getByLabelText, getByText, render, waitFor } from '@/tests/testing-library'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { algorandFixture } from '@algorandfoundation/algokit-utils'
 import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
 import { CreateAppInterfacePage } from './create-app-interface-page'
 import { deployAppLabel } from '../components/labels'
@@ -12,8 +12,9 @@ import { selectOption } from '@/tests/utils/select-option'
 import { getButton } from '@/tests/utils/get-button'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleTwo from '@/tests/test-app-specs/arc56/sample-two.json'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 import { getByRole } from '@testing-library/react'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 describe('create-app-interface', () => {
   const localnet = algorandFixture()

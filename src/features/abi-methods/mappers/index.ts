@@ -1,12 +1,12 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { Schema, Validator } from 'jsonschema'
 import Arc4ContractSchema from '@/features/abi-methods/mappers/arc-4-json-schemas/arc4-contract.schema.json'
 import Arc32AppJsonSchema from '@/features/abi-methods/mappers/arc-32-json-schemas/arc32-application.schema.json'
 import Arc56JsonSchema from '@/features/abi-methods/mappers/arc-56-json-schemas/arc56.schema.json'
 import { Arc32AppSpec, Arc4AppSpec } from '@/features/app-interfaces/data/types'
-import { Arc56Contract, getABITupleTypeFromABIStructDefinition, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common/utils'
-import algosdk from 'algosdk'
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
+import { AVMType, Arc56Contract, getABITupleTypeFromABIStructDefinition } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const jsonAsArc32AppSpec = (json: unknown): Arc32AppSpec => {
   const validator = new Validator()

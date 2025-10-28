@@ -1,10 +1,10 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { getApplicationResultAtom } from '@/features/applications/data'
 import { dataStore } from '@/features/common/data/data-store'
 import { asAlgosdkTransactions } from '@/features/transaction-wizard/mappers'
 import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
-import algosdk from 'algosdk'
 
 type URLTokenBaseHTTPError = {
   name: 'URLTokenBaseHTTPError'

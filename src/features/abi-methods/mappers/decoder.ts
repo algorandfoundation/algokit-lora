@@ -1,7 +1,7 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { StructDefinition, StructFieldDefinition } from '@/features/applications/models'
 import { sum } from '@/utils/sum'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
-import algosdk from 'algosdk'
 import { DecodedAbiStruct, DecodedAbiStructField, DecodedAbiType, DecodedAbiValue } from '../models'
 import { bigIntToFixedPointDecimalString } from './ufixed-mappers'
 

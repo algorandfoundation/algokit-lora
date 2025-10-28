@@ -1,8 +1,9 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { TransactionResultBuilder, transactionResultBuilder } from '../builders/transaction-result-builder'
-import algosdk, { TransactionType } from 'algosdk'
 import { AssetResult } from '@/features/assets/data/types'
-import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { ApplicationOnComplete } from '@algorandfoundation/algokit-utils/types/indexer'
 
 const encoder = new TextEncoder()
 
@@ -52,7 +53,7 @@ export const transactionResultMother = {
   },
   assetConfig: () => {
     return transactionResultBuilder()
-      .withTxType(TransactionType.acfg)
+      .withTxType(TransactionType.AssetConfig)
       .withAssetConfigTransaction({
         assetId: 1234n,
         params: {
@@ -97,7 +98,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('HEARTBEATSIGNATURE123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ=='),
       },
-      txType: TransactionType.hb,
+      txType: TransactionType.Heartbeat,
     })
   },
   'localnet-HEARTBEAT1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ': () => {
@@ -124,7 +125,7 @@ export const transactionResultMother = {
       lastValid: 34676052n,
       roundTime: 1703439471,
       sender: 'GAU5WA6DT2EPFS6LKOA333BQP67NXIHZ7JPOOHMZWJDPZRL4XMHDDDUCKA',
-      txType: TransactionType.hb,
+      txType: TransactionType.Heartbeat,
       closeRewards: 0n,
       closingAmount: 0n,
       intraRoundOffset: 0,
@@ -157,7 +158,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('4cwwpWiOnldnkW+M8Epwg2iaJvxdIvnUa9jM+uZxRcBTESRCD/BcsvbPVYrqEf6YwGCtsupNbNo6SwdUQRa2CQ=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-ILDCD5Z64CYSLEZIHBG5DVME2ITJI2DIVZAPDPEWPCYMTRA5SVGA']: () => {
@@ -193,7 +194,7 @@ export const transactionResultMother = {
           ),
         },
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-JBDSQEI37W5KWPQICT2IGCG2FWMUGJEUYYK3KFKNSYRNAXU2ARUA']: () => {
@@ -226,7 +227,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('hk4FtHwulzfGDFq13MFsJfVS4UVdQAGhqFvsp9CjF9F6dD3V/P0XtW4V3cv2l8u0M1TDQoUsNbueW+SaQbD7DA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-V7GQPE5TDMB4BIW2GCTPCBMXYMCF3HQGLYOYHGWP256GQHN5QAXQ']: () => {
@@ -255,7 +256,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('fK9vks0Sk2Sfa0PN+9wHSYYh2OKCFxSGBN2B4agVmVNoui17XcwXj4DbLJZWoknbVH/0gaKweKEYMIz4Oe8tDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-563MNGEL2OF4IBA7CFLIJNMBETT5QNKZURSLIONJBTJFALGYOAUA']: () => {
@@ -285,7 +286,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('eXs6In2s6DdoRIBHLesRRS9BX+UWykWX4YGPuTdOLJTn33NXM5paD7kZiB+4FQ27a+F7W2QEWJYU8QEzDHTVAQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-UFYPQDLWCVK3L5XVVHE7WBQWTW4YMHHKZSDIWXXV2AGCS646HTQA']: () => {
@@ -315,7 +316,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('2+WUUuw7ZHKjBFx3/ct+rdGQK/sv0u5ZSCN3+cnEE2KtvSbAMN3HYJaId9+tCWTlThGwHU0po4aCn1zFSh8hBg=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-VIXTUMAPT7NR4RB2WVOGMETW4QY43KIDA3HWDWWXS3UEDKGTEECQ']: () => {
@@ -346,7 +347,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('LYTng1fmA+JQ8AocqDfp/OBvrds/WXa936muT3b4Ym98qIzouEnbMf7cOj099GV+ABecBzmw6+JrzOH/WU7TDQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ']: () => {
@@ -431,7 +432,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'KMNBSQ4ZFX252G7S4VYR4ZDZ3RXIET5CNYQVJUO5OXXPMHAMJCCQ/inner/2',
@@ -480,7 +481,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: '2ZPNLKXWCOUJ2ONYWZEIWOUYRXL36VCIBGJ4ZJ2AAGET5SIRTHKSNFDJJ4',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       intraRoundOffset: 93,
@@ -493,7 +494,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('trh33yIw7Tp52x0vgBmXhDB8um8QbIo6ncEL47vlzEt8DFZkVIeRYDwwiIPFipWTe99JEGK/T/fjYp9PGNRaCQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA']: () => {
@@ -550,7 +551,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/2',
@@ -590,7 +591,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: '2PIFZW53RHCSFSYMCFUBW4XOCXOMB7XOYQSQ6KGT3KVGJTL4HM6COZRNMM',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 111,
@@ -620,7 +621,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/3',
@@ -642,7 +643,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/4',
@@ -682,7 +683,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: 'FCHEP67BCAA64RTZZNHLOUJF22TDWPWKSWO4FDRLLHC3NMKCCMRCKPIYSM',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 111,
@@ -715,7 +716,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/5',
@@ -737,7 +738,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/6',
@@ -777,7 +778,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: 'EOXLRDMDV4Y7GEWY5GEDCIJV7SQM3A3TBHYAPBTWHS7JTOOYHZXPUEGCE4',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 111,
@@ -809,7 +810,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/7',
@@ -831,7 +832,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/8',
@@ -874,7 +875,7 @@ export const transactionResultMother = {
               roundTime: 1709251673,
               sender: 'IWT4WOUKYQBCAO76UKWZ5E4CPIJVLBE5R3NX5QH3BXMTG34WU7ZCLJ4RVY',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 111,
@@ -883,7 +884,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'INDQXWQXHF22SO45EZY7V6FFNI6WUD5FHRVDV6NCU6HD424BJGGA/inner/9',
@@ -900,7 +901,7 @@ export const transactionResultMother = {
           roundTime: 1709251673,
           sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
       ],
       intraRoundOffset: 111,
@@ -913,7 +914,7 @@ export const transactionResultMother = {
       sender: 'AACCDJTFPQR5UQJZ337NFR56CC44T776EWBGVJG5NY2QFTQWBWTALTEN4A',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('nay7aDZL7TCxfX/ZOLncmGlCmjlBbB/ZxifrtBCKns9Jpotb/eMEcyvp1QmBUXyO5Ft/77x+gRN0O6lIbcxlDg==') },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     }) // The type definition for App Call transaction in indexer seems to be wrong
   },
   ['mainnet-U4XH6AS5UUYQI4IZ3E5JSUEIU64Y3FGNYKLH26W4HRY7T6PK745A']: () => {
@@ -939,7 +940,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('54NGN00vwOQdEeoev5qb7NFV5a8JNY+L/GgNgQrCVjWQtb2rzlO+/OMOY3o984zs2zOYY75Hdy0SXD25GmJvCw=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-ZXQMOO6KBSG4LFJ5CSN3HEQVIL5A5FIF46VDAS6N24JWXOC3U3PQ']: () => {
@@ -984,7 +985,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('NpftYxI2D/QWlIk3D8sxnfA2fVA4g4iX6Da5xiwl9kOOtVxlSkheJGqyc9Dp/ggBFxmqB7fKEAKmadIaXRuxBA=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-GAMRAG3KCG23U2HOELJF32OQAWAISLIFBB5RLDDDYHUSOZNYN7MQ']: () => {
@@ -1022,7 +1023,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('B9QPA7n9QGK0uAHja5g2rK0tkPoWM1h4usQUVgZTffkNVMBGgpe2XtpQBrhjDSbTW5GbCHEKr44ckI6RUu2YDg=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-2XFGVOHMFYLAWBHOSIOI67PBT5LDRHBTD3VLX5EYBDTFNVKMCJIA']: () => {
@@ -1053,7 +1054,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('7RUentpSD0yu+vP+sCkITzeexaEANTtOFN3uXC8+HNi3Q0zDvpUzDlmBR5s51CWfoQ6BkFse0sH4MqSj2QdBAA=='),
       },
-      txType: TransactionType.afrz,
+      txType: TransactionType.AssetFreeze,
     })
   },
   ['mainnet-VE767RE4HGQM7GFC7MUVY3J67KOR5TV34OBTDDEQTDET2UFM7KTQ']: () => {
@@ -1106,7 +1107,7 @@ export const transactionResultMother = {
           version: 1,
         },
       },
-      txType: TransactionType.keyreg,
+      txType: TransactionType.KeyRegistration,
     })
   },
   ['mainnet-BABZ5DOKAN7IP6FJ5PZSP2NRQU5OFRPZ7WIS2A3DRXCWEMVEM3PQ']: () => {
@@ -1161,7 +1162,7 @@ export const transactionResultMother = {
           version: 1,
         },
       },
-      txType: TransactionType.keyreg,
+      txType: TransactionType.KeyRegistration,
     })
   },
   ['mainnet-7VSN7QTNBT7X4V5JH2ONKTJYF6VSQSE2H5J7VTDWFCJGSJED3QUA']: () => {
@@ -1201,7 +1202,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('0b7E1n67IzmPYtzYbrVCIN+WwAPqF1j0NrP0OQvFu10Phv77vFkrvWGtoUxZtZZZt8uqHylJA1MEln2wLrHpDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     }) // The type definition for App Call transaction in indexer seems to be wrong
   },
   ['mainnet-4BFQTYKSJNRF52LXCMBXKDWLODRDVGSUCW36ND3B7C3ZQKPMLUJA']: () => {
@@ -1237,7 +1238,7 @@ export const transactionResultMother = {
       sender: 'EHYQCYHUC6CIWZLBX5TDTLVJ4SSVE4RRTMKFDCG4Z4Q7QSQ2XWIQPMKBPU',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('xQjGgT33TOy7dQm0vzDFsHbTDl4BHnzOOp0gHDkexH3Ci5ZFrNgQYnSVyncJ3Cw9MsSybw/3cZwoboK7/O2RDg==') },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-P4IX7SYWTTFRQGYTCLFOZSTYSJ5FJKNR3MEIVRR4OA2JJXTQZHTQ']: () => {
@@ -1280,7 +1281,7 @@ export const transactionResultMother = {
       sender: 'JUT54SRAQLZ34MZ7I45KZJG63H3VLJ65VLLOLVVXPIBE3B2C7GFKBF5QAE',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('kQlJT5RVh7TKuQnIkOw4FI9BJ7k++wSuOcXXxLn6srgnAS/sIuTomN2UNzG9DZIFXjoqlap1wpmcNsl5LVvdAw==') },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-A5MOSCZBJAENBFJ5WDEYYXTTXQAADS6EQFHYLPTHS5WMQ7ZGSM2Q']: () => {
@@ -1321,7 +1322,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('bIT1lgB15oU6F9/vQ5ZFLUyPePRkJ/cxmqUFR9kagkljiA3LCzHva/pUg75iiLV59fBleMzXPo+H9OOec9nKDA=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-HTGK2WBVXTOHV7X5ER3QT3JH2NQSZU43KEMSTHXMJO5D2E3ROT6Q']: () => {
@@ -1357,7 +1358,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Lm1ap4lB/0SyCYK4Gb2UbVyJrAega3OccpeGPMh4GJNyqG4of0fwhPdVigW7ImkaVDTzguYqK3UYV9mEvMxZCg=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-K66JS73E3BDJ4OYHIC4QRRNSGY2PQMKSQMPYFQ6EEYJTOIPDUA3Q']: () => {
@@ -1397,7 +1398,7 @@ export const transactionResultMother = {
       sender: 'COOPLFOESCTQJVLSFKAA4QURNBDZGMRYJVRH7BRRREB7FFZSHIIA4AVIBE',
       senderRewards: 0n,
       signature: { sig: base64ToBytes('e5usiTCw+xuiY5whu1xESgOqnCmahpDRhJ8fOWIMD80crhgR1O3/05BiMIJnlEvu9icv5+7tarvomyNExdEdDA==') },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['mainnet-XCXQW7J5G5QSPVU5JFYEELVIAAABPLZH2I36BMNVZLVHOA75MPAQ']: () => {
@@ -1473,7 +1474,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('hogSpsFw9RMBA7wlp1bf66qInAlIQ9Q762bWwd/Wah2o5jeZ0dNp29QhXsposgCalhThD5PLVrr6N77vdWZICg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['testnet-24RAYAOGMJ45BL6A7RYQOKZNECCA3VFXQUAM5X64BEDBVFNLPIPQ']: () => {
@@ -1502,7 +1503,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('G9NwYqLXA8L92cauKXyHeY/Jp5cBUTWwL+Ri2w5ex18mIsWQBq7gNg1EU07mzfKU6i93EqkcVZLyVmA2HJkmDg=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA']: () => {
@@ -1595,7 +1596,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/2',
@@ -1671,7 +1672,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/3',
@@ -1691,7 +1692,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/4',
@@ -1713,7 +1714,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'WYEGSIGWZHTR6VYXC3EXFGZQHYKI6FQOZU2DOKHQCAWYEIHJBKEA/inner/5',
@@ -1758,7 +1759,7 @@ export const transactionResultMother = {
               roundTime: 1718456957,
               sender: 'TRCEY5UZGTATGTF5K3U42IMDT467D4EHV7S5MYJBMLMYARYJOZFATORMUM',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 2,
@@ -1829,7 +1830,7 @@ export const transactionResultMother = {
           roundTime: 1718456957,
           sender: 'AIIWFDYAMB6EUBLGT5BNBBUG573BL4EDQM6BGV6WYERIBX5XSE6FYKJPVE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       intraRoundOffset: 2,
@@ -1841,7 +1842,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Mo6EtJqvsA9MXLmYZsTLfCYGSzLxA2t8TvcnFpvC/ttNO4xJ5+UqUgfibdBI1hxnUQytwrW41yZ2alloF61hDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['testnet-DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ']: () => {
@@ -1944,7 +1945,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/2',
@@ -1976,7 +1977,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/3',
@@ -1997,7 +1998,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/4',
@@ -2031,7 +2032,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/5',
@@ -2065,7 +2066,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/6',
@@ -2099,7 +2100,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/7',
@@ -2133,7 +2134,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/8',
@@ -2167,7 +2168,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/9',
@@ -2201,7 +2202,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/10',
@@ -2235,7 +2236,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/11',
@@ -2269,7 +2270,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/12',
@@ -2303,7 +2304,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/13',
@@ -2337,7 +2338,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/4',
@@ -2371,7 +2372,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/5',
@@ -2405,7 +2406,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/16',
@@ -2439,7 +2440,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/17',
@@ -2473,7 +2474,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'DX64C5POMYLPSMOZVQZWF5VJ7RW27THYBUGKNH5T4A5D2KAFHZCQ/inner/18',
@@ -2520,7 +2521,7 @@ export const transactionResultMother = {
           roundTime: 1718044736,
           sender: 'BLB5BMEJTIBZ6QYLIKAUFQP5K7I4MWHET4JK6EAQ5AMGP4UABKLMR5DKCE',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       intraRoundOffset: 2,
@@ -2532,7 +2533,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('1vIkO9cOBlLzNN4f7TokcFNz2m4KYPx4fDukGeutxzNJa/7y0LkTGoLEQNtUCcNmZKl3HCc/jNaCFIaRvvcjCQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-GYZT5MEYJKR35U7CL3NUFCJVSAWBOQITRB3S5IQS2TWBZPD7E34A']: () => {
@@ -2642,7 +2643,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('1ZZeWqz/63u9+Ls9z8wvSbVtd6fnZgtptw1FZkCwTl0UiLo9kzxeBpDF8Q0ZDLFcHssjdgYSHtHshp0zf98WBQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-XVVC7UDLCPI622KCJZLWK3SEAWWVUEPEXUM5CO3DFLWOBH7NOPDQ']: () => {
@@ -2729,7 +2730,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ACgqTTdpnhp+0bZVMvh63e1QNVdpGTmki+7ffmQeaFOXUhfG7WUJ66vJV+fJiWqVn8WjwIdadjThmd4xs0/rAw=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-CF6HEO6Z5UZIPCUXTIAGUHHDV7W4FCZG5WPKUGU3BIJYF6X6SPYA']: () => {
@@ -2824,7 +2825,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('rMf0tV/n2Yq5l3dWxy99rf1ocTxBN0YZKF67arJauFI5SQ4iOTzGjs2WEIlxD70Foggh5Szfz5I8WYBR+r/7CA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['testnet-DWVIXKZ2URUOKVZRBRJHMERSPIWTMLFFLLVKH5RATFGNPT7VVNIA']: () => {
@@ -2853,7 +2854,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('hHxb/1D5G3EdCwTZ6vWjXTeMFLIa7zAdc0ZxYkcAggWBwepWLO0pgyR9jCG7e4kVTanfoadImmys/M56DYUdBg=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-W7UVVLOW6RWZYEC64WTOVL5RME33UGI6H6AUP7GSEZW4QNDM4GHA']: () => {
@@ -2889,7 +2890,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ucMpP7/WS+hcHvAqNoWw9V+Kcv/JqUG5UFpvxIXIQ4P3Ac5QrxXE1WQiXcVHsrMlCV5irdqje6HVW4G2GN3gCg=='),
       },
-      txType: TransactionType.acfg,
+      txType: TransactionType.AssetConfig,
     })
   },
   ['testnet-YXQOFAL4ZROWRYEUFXSSVUT25JFB4CH3XCQH7UYW7NJQY625PIJA']: () => {
@@ -2918,7 +2919,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('IkyXjQRgx+rdghx0bzM7FON7MlD4CytsE8nOno2fmZQ4JqfqCbTZLy91dLj4ba3wEhwnJT8bcUOAry9jk/YQDg=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-GPUOT5Y5MTR6HXT5GYUDFOGKQOU6E536BRFXY5JMNLVHM2OT4K4Q']: () => {
@@ -2947,7 +2948,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('3izus+BlRloA5uzDgVQKDmDjmQNVrFAJmn7RRtHldaAtlDz9w8Y997fURHIqFx+0T7iWzxvWxqOFlqF8DIiMBA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-WVXEZHZCUA23S2H4WATQKA7DFXA4NWWUCDAQTNMARR7MUUVSKSBQ']: () => {
@@ -2976,7 +2977,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Xa3vKgLm9MANeUJ7nd4JncFrO+nz0S91p0Ckmz3XRHkA74SiT9BeHklqYw0JhK//vFoVDgUbcwHA6KFCli0OCQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-ORSVPJSAFWFOQRNBCECVDLRGWZBI76U2Q6IL7EI6RP6NEPGYAWMQ']: () => {
@@ -3006,7 +3007,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ylMvyATFC+feDIxRHCT8yyHlMAKXUQE4tLsmdmLtAKmYrTDdLHdbAn7j9GF0E83AMzTkBvBq+FlGcBR0e/lwBQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-K7TNWCBB5PYBX5OVSYPSD3VCKD4BYLRHWG43KWJ7JOJ7Z6UFUFWQ']: () => {
@@ -3035,7 +3036,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('srtI2Yq9pIfBhMxc5rMLTlvQ9dCUKdrjDShHe73+ewiGUo23zByM4SoO8EWQJ0ft2KINFmRL4qlWKe/OPrNUBQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-44PALBEBH652BYUIT7SZF5PFWJ7KYSBFJYOPSLYX6KM3G47P53VA']: () => {
@@ -3064,7 +3065,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('SUsEGQaj+XVyq10Ou27hprgl+j30pi7uAQtsFBJ9h75yk5S2ok4V/Ofc2cgKyAHyTVBwIe+Y7pGKVH1pIXUnCA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-23RVHEI5OQZWQ5D6NNLOVOKA7LFKSUZEWEWEBDNCBI5GY4HPZS5A']: () => {
@@ -3093,7 +3094,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('au4cWjjuegOxdYYUeb0F21Vsb0XtLQYaqultIaRY98H8KMSguKS24SCeZDqy4DrCsV+skxkzUnvXd9Bia4+DAw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-7XSI3OKXOEHSGVUZDTIYWGBKU3G65XZPRLNCFGNYH3SJWGXVR3AQ']: () => {
@@ -3123,7 +3124,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('y+naO+YggLqNg8NcMmO1ChDy4FfEaxp1mvwBiMWiu7f4/uunvPH00RheGtRILm8QGmrfPC6zxF8rH3PKDCXGDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-QIMCXEMIV2LNX5RJMYWM4UQTJAUSJE5GGJAOE5NCTQ3BOSQ5MJMA']: () => {
@@ -3152,7 +3153,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('GT3a/u9Jzdbp4aDvCbuRbFZtt4PMknBJoZfc/xaTaVfie6noOc2j0WoYAk10FJQdghwpJ1bLvHq7H/ODUr1VAQ=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-DDXYDL7EYTQRHH4G3SSZHT4HUZNBND24PDDNTF2VR73QBK4SL7AQ']: () => {
@@ -3181,7 +3182,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('SL9uO75xMAZ/rGC+tUyw0fgh1rjJYiToumnFuW+TKWh+Uwja2cR69TpmqAJIkJ2HDvlvQ1c0xpJnR0chUc/7AA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-26TWK7B27JHHI6OAKTIXNBTC2IAUUPCUUHCYHD7P5B57X7BUJJKQ']: () => {
@@ -3211,7 +3212,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('NBsN7i/yFt1aeuXgrns/zPxGZtGa8BP5rSu/BPVu/T0c66JvlJFxJccDmTosCnUdVsIL/5aUoaKbXh7M9p3JDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['testnet-QY4K4IC2Z5RQ5OM2LHZH7UAFJJ44VUDSVOIAI67LMVTU4BHODP5A']: () => {
@@ -3270,7 +3271,7 @@ export const transactionResultMother = {
           roundTime: 1721892883,
           sender: '5VLJQQVCC2FARS5OKXWDPPYKJLJNEP7SKFHXD76DRN4WCV7SGI6W2IB5ME',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       intraRoundOffset: 2,
@@ -3282,7 +3283,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('aJjwZDVvDhYTp/IEjFz/y1cNSlC065MVv5dpTNXkIjr/ApI1J9VlTYyT+1Ib+KkpR1VMqdmruQdndrRWhkKTDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-MEF2BZU4JXIU2I7ORQRFZQ3QVT7ZWJ5VQQ4HZ4BWVZK4CEDERQ3A': () => {
@@ -3344,7 +3345,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('zUlazFAWR7MYhoYAX+GZDMq8Y6c6KFdHMUcVHfAihie9KWqbJmH9A1NbrwScU7wPtebCu+WxIIGkMjx69s9ABQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-5JZDTA4H7SMWADF4TNE447CNBEOJEBZ5ECKEPHH5LEWQ7DMBRGXQ': () => {
@@ -3373,7 +3374,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('qpXbPIEwJkkjavMLcm7XwMWsRwXWLemIuJcSUhYehGJ7c4Q4HdVum27BLsgvXBvMFd7vrrX5zHHTSbMQpAWRDA=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   'testnet-QYKMVTOB4JF5PKLGJVYUD3ATSOTMVOHPE36UYDETNUG7LWPEFLKQ': () => {
@@ -3435,7 +3436,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('al6Qbe6APLFFUyh5nd1eCzyz4L903r86qP7ZMqHhM/tu4QMhkxTfAHp/GljeqDFmZPA+oEugUNwWSXIBYvX2Bg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-O3PWUKD7HK23GI2MWSSGQ2F7MKG4VBSS3NNIJFOIF5ABE7YF3BSA': () => {
@@ -3463,7 +3464,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ODJlCJzGZ3HL0kzKhfoSBgC5rL9Jfwr9Lr448Bsx85HU0xsC4PxCZbiFsc6J+J4comFOVjzpIJERp6m1MUJGBQ=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   'testnet-QLQS5F2U2OZJQJVQWZE5F6DKPDMY4LXEKHWE6NFHGTWJJGKKFA7A': () => {
@@ -3514,7 +3515,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('YRLhsEPTpkIbC/tgwZz1+HcMlN/x0aiZZR/QbYTnXddw6QdoABn1+/LhRgAdGWJ01aYeGkMGDzHXK6o+u1MFAA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'testnet-6YD3MPUIGUKMJ3NOJ3ZPHNC3GVDOFCTHMV6ADPMOI2BC6K3ZEE6Q': () => {
@@ -3553,7 +3554,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('3E2NLPLicGHTiMmpIYUzByCsrW5qpGngK93u5SK2lsg4r+/GWpoVmfY60FCAeDv6TJWcPQ39Ulj2SjZZtQ7VAg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'localnet-AV37TJVLBWXPI3EAUJJSDTAIQX22ECPMVADIOCR47TTRCPVPRG3Q': () => {
@@ -3579,7 +3580,7 @@ export const transactionResultMother = {
       },
       firstValid: 1n,
       lastValid: 1001n,
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
       fee: 1000n,
       sender: 'YKPOB2GX4UVLSNNHJQQUPQ7G3VB6XN4HC7N5HMGAN2N4XZ45AXRTJ5HRUA',
       confirmedRound: 2n,
@@ -3684,7 +3685,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('l9mhSOySNKefxFx/cSQDNmUBJlh6+fXO4k5DFbfNrVEh7IfhMsiO2Gy/w6Q0Of114/m/oAf3yKhz0BCQR3IvBA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   // This transaction was made by calling method "optInToApplication" of the Arc56TestAppSpecSampleOne app spec
@@ -3745,7 +3746,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('h20ruo3JVtSZ5z/KJOHi7qySEmlfM3yWL2xtTBfWl23vnfI8/M1CTeGvAWmQqyxZdZ5NpmuiSoCdqZHRERngAw=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   // This transaction was made by calling method "foo" of the Arc56TestAppSpecSampleThree app spec
@@ -3795,7 +3796,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('3xZ3KcpEUDVtAlcwoAmwadmRw8FRigjKAjvq8Jhuq/xYVn3+T8oYDuVGJJL/wfZmjrHj76dxxsyxB5Qv/3TXAQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   // This transaction was made by calling method "optInToApplication" of the Arc56TestAppSpecSampleThree app spec
@@ -3849,7 +3850,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('S0PatEjdnWBvi2T5i5CLuId4sBpEGkWP5gW9Gm4Cj/wb6c9FxLa22kUV+K0gFWIPRzvMPKNqgJvdLyyz/h8pDg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   'localnet-64YO3SCTIJQFVTHYFPD74GYCEH5ETU7RVZCGQ5WCXPIEZEWHRE5A': () => {
@@ -3888,7 +3889,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('0pQyotXLRytLEMYHzd51bViOowOxWQg7Xggo3I2TY1uWhVlBNcVdDOkHGHhxYaLseDcYwqEfPXyO0oP3CR8NAQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
       innerTxns: [
         {
           fee: 0n,
@@ -3909,7 +3910,7 @@ export const transactionResultMother = {
           receiverRewards: 0n,
           roundTime: 1736481124,
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           fee: 0n,
@@ -3942,7 +3943,7 @@ export const transactionResultMother = {
           receiverRewards: 0n,
           roundTime: 1736481124,
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
     })
@@ -4000,7 +4001,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA/inner/2',
@@ -4021,7 +4022,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'SNJN4WN6WD2PENY6LNFKIOHU3JFYV2DYAL3OA4ZMTSNVQC7CQBIA/inner/3',
@@ -4042,7 +4043,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
       ],
       receiverRewards: 0n,
@@ -4052,7 +4053,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('DzoA6ej2q5O59cKdUIJSMEZN/xrYUwCoPIjBGrSbwJaH7bTQdOP/MuXmksqLoineiU0v3YmAPpqdtvB2kIswDw=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-66BWHDAIBMYJXXGRUAQMSSQOQZ3XNTEJZILTOOBH2F732ZVD2PVQ']: () => {
@@ -4082,7 +4083,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('lC2vYB9iHLYs4uiktqc3s6vS7gNmROW3fPtxW+GyKm4Np4CCKO+fybgCQEvDbiSlcCtS5vdyGYhDX9BkqJ2aAw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-LYAXMJ3YBIKLTMWETYI3SDC3HPIJJWVU6K5KFTQDR7FKESHIEEKQ']: () => {
@@ -4111,7 +4112,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('1lpERtWMMDmA1Pfd17Kq7b/PoMfPlU9qVjw9ZXgk/dRbw7MYW3fmH7MV4+F3D+ILok4UeMSPccqMDwV9gE4lDQ=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-CODYBRSDHJTBJ6TNON6E5I42K6ILU2LCZFEUAP7Q2A5QVVAU4IKA']: () => {
@@ -4142,7 +4143,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('jAQauXkckzxEtMk93dyPRtXwQTNNd2Zii94A+2K19Q9L56dGvkCIfiKjWUjdLS+E8Lub/RugPgisrGu278ZhDw=='),
       },
-      txType: TransactionType.axfer,
+      txType: TransactionType.AssetTransfer,
     })
   },
   ['mainnet-3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A']: () => {
@@ -4207,7 +4208,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/2',
@@ -4232,7 +4233,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/3',
@@ -4257,7 +4258,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/4',
@@ -4282,7 +4283,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/5',
@@ -4307,7 +4308,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/6',
@@ -4332,7 +4333,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/7',
@@ -4357,7 +4358,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/8',
@@ -4382,7 +4383,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: '3M4DJMKEW4HAYK4HNIYLFJFDVKQ7MLURK4LU6EUZMHJCI6UKWH6A/inner/9',
@@ -4403,7 +4404,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'PSOJDDC6FQ5SUHGKYGYQC7SZEY77WLBZQJK3IMWRAGL2IGB7IWJ6ATUNQQ',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       receiverRewards: 0n,
@@ -4413,7 +4414,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('MgD6mFlGIZYlWinUi3lqpKhrH4dSAzZRIdjlszAe+C+C8VolKk9LYQQz/9teGqeopr+AvP6Si3lZOT1uTPRABA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-S3M4OHWB2PLVNTQYXT7NAKLKX2AIEAJZMH5QZBHVN7BAU553HQMQ']: () => {
@@ -4443,7 +4444,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('6/8tPlKi9KG99zYJt8J48H/UCEbLQM+wgAJ0ZYjVRnhRju47kcHjM5IRD2Ni6fYOH+iTH6bB2y9X5imD4U5fCw=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A']: () => {
@@ -4506,7 +4507,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'PAD2VZDFACSJDZTPTEK5BSZV7CECASPEGHFGGTRXDOXFD32AZT2A/inner/2',
@@ -4557,7 +4558,7 @@ export const transactionResultMother = {
               roundTime: 1749837470,
               sender: 'NGIHJMECRSFHIEQDHBVTLR54K7DOZWM5M6UM3A5CIOYSP6H3QTGSHHGJCQ',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 43,
@@ -4567,7 +4568,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       receiverRewards: 0n,
@@ -4577,7 +4578,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('l49w4+jF94iF3idSIyo96V2YYrpPK09zLOJmfuGslFb8Is8A3VxmrMLkZoUyO5kh3PywmAxcZmM4W+rAiyioDA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ']: () => {
@@ -4640,7 +4641,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'P4G6LCIQBW2BJYGM6AZ6VR6ILNZS223RZIR7KXRNJVA7KOMWQ7TQ/inner/2',
@@ -4691,7 +4692,7 @@ export const transactionResultMother = {
               roundTime: 1749837470,
               sender: 'LUKPHRCKPCX4SC32ZI2BXH2OQ3HDCQGKFTFCZEVXOWICY4AG7AQ4S5NKEQ',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 47,
@@ -4701,7 +4702,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
       ],
       receiverRewards: 0n,
@@ -4711,7 +4712,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('dmLw5x3/YYcLoje7Y9dpVKrsKnjHIOHeWWRrxc7q6NdqRtWSTG7kjSVCmECr2HupgHQzIVZ4LbFB4Y92KZiABg=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ']: () => {
@@ -4776,7 +4777,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/2',
@@ -4797,7 +4798,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/3',
@@ -4819,7 +4820,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/4',
@@ -4841,7 +4842,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
         {
           id: 'QWC4REYHRGHUFXO6KV4PDDIERYBTVQX4PLYEOZ3SJU3TJXDEE2TQ/inner/5',
@@ -4861,7 +4862,7 @@ export const transactionResultMother = {
           roundTime: 1749837470,
           sender: 'SDLTNWFFD4ZOQBNYR4EQQFHD4GCIOO7DNETZS2SULNAL6COM66SCNIKK6Q',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
       ],
       receiverRewards: 0n,
@@ -4871,7 +4872,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('ToICE3uqkkj3hYb5chzYO9uYp+jqsXb7WKOqKcOPkyyaKeNSTabTVRsyTVFfUk5gPTwXfrd2hJT+yGVpCAkLDQ=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q']: () => {
@@ -4956,7 +4957,7 @@ export const transactionResultMother = {
               roundTime: 1728990693,
               sender: 'BPNOT3ZSQYVEKXD6ZGE76TLFTZRPMLUCODNH4RXJOPNMRCDWIYPW76IJ3M',
               senderRewards: 0n,
-              txType: TransactionType.pay,
+              txType: TransactionType.Payment,
             },
           ],
           intraRoundOffset: 14,
@@ -4966,7 +4967,7 @@ export const transactionResultMother = {
           roundTime: 1728990693,
           sender: 'UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APLTAKWSCQAJIEM',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q/inner/2',
@@ -4986,7 +4987,7 @@ export const transactionResultMother = {
           roundTime: 1728990693,
           sender: 'UAKUGWMTFQJLUWMY4DYLVVAC67NOLUGGW6MIVAIPUU2APLTAKWSCQAJIEM',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'KONXNP72ZABEBLYRHQURIGBWO24Q4YOQTV5R3DD3VRIZYVYB375Q/inner/3',
@@ -5007,7 +5008,7 @@ export const transactionResultMother = {
           roundTime: 1728990693,
           sender: 'BPNOT3ZSQYVEKXD6ZGE76TLFTZRPMLUCODNH4RXJOPNMRCDWIYPW76IJ3M',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       localStateDelta: [
@@ -5036,7 +5037,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('TCAiL6/is/QyrBS+3bsCFr321FGyV/TvUvchXOZvhgGMdlgpzQ2BsJENNrhmE1EilfgEQMkAQ2QtwqCCtXP5CA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
   ['mainnet-AFCLNZPUMZVOKWUPY2NQUD5SUL2SOAJAUF6CP2GIU2UMAODMWEVQ']: () => {
@@ -5064,7 +5065,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('Dz+9g1Hf8TYyKR8aIn0u8n/E8GcaLbvQoMQxVleEpCihhL1pcsGXEP6JJEHiv40WB8pvfT1FjFoX3SV/USVPBA=='),
       },
-      txType: TransactionType.pay,
+      txType: TransactionType.Payment,
     })
   },
   ['mainnet-NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA']: () => {
@@ -5209,7 +5210,7 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/2',
@@ -5230,7 +5231,7 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.pay,
+          txType: TransactionType.Payment,
         },
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3',
@@ -5335,7 +5336,7 @@ export const transactionResultMother = {
               roundTime: 1753438229,
               sender: 'YPU2GQWI6GFP2IU6DU252LPIJODAISIUS2ZOPQGBZIFOA3FSL2GIAJBIZE',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
             {
               id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3/inner/2',
@@ -5356,7 +5357,7 @@ export const transactionResultMother = {
               roundTime: 1753438229,
               sender: 'YPU2GQWI6GFP2IU6DU252LPIJODAISIUS2ZOPQGBZIFOA3FSL2GIAJBIZE',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
             {
               id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/3/inner/3',
@@ -5377,7 +5378,7 @@ export const transactionResultMother = {
               roundTime: 1753438229,
               sender: 'YPU2GQWI6GFP2IU6DU252LPIJODAISIUS2ZOPQGBZIFOA3FSL2GIAJBIZE',
               senderRewards: 0n,
-              txType: TransactionType.axfer,
+              txType: TransactionType.AssetTransfer,
             },
           ],
           intraRoundOffset: 13,
@@ -5387,7 +5388,7 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.appl,
+          txType: TransactionType.AppCall,
         },
         {
           id: 'NW34GDVAISBUIOWTYHBW5CVVIACZROJRVM5ME3EJ76YNEPDYX7SA/inner/4',
@@ -5409,7 +5410,7 @@ export const transactionResultMother = {
           roundTime: 1753438229,
           sender: 'RDROSSYTDFURFVICLHAMRNMUNQX5RHKI5DCJKDDSXQK3ERBJM2RGA5VM7Y',
           senderRewards: 0n,
-          txType: TransactionType.axfer,
+          txType: TransactionType.AssetTransfer,
         },
       ],
       intraRoundOffset: 13,
@@ -5422,7 +5423,7 @@ export const transactionResultMother = {
       signature: {
         sig: base64ToBytes('fCh5O1U0NWqEno0sYLwVeQ6jddVDzjtFkl3pUEi5O3i8Tzzu2vBjtA2jB6qBuaaSZFJ/tN6Xb4LF9IGjuLVCDA=='),
       },
-      txType: TransactionType.appl,
+      txType: TransactionType.AppCall,
     })
   },
 }

@@ -1,5 +1,6 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { DataBuilder, dossierProxy, randomElement, randomString, randomDateBetween } from '@makerx/ts-dossier'
-import algosdk, { base64ToBytes } from 'algosdk'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { randomBigInt, randomBigIntBetween } from '@/tests/utils/random-bigint'
 import { AssetResult } from '@/features/assets/data/types'
@@ -28,7 +29,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   }
 
   public paymentTransaction() {
-    this.thing.txType = algosdk.TransactionType.pay
+    this.thing.txType = TransactionType.Payment
     this.thing.paymentTransaction = new algosdk.indexerModels.TransactionPayment({
       amount: randomBigIntBetween(10_000n, 23_6070_000n),
       receiver: randomString(52, 52),
@@ -37,7 +38,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   }
 
   public transferTransaction(asset: AssetResult) {
-    this.thing.txType = algosdk.TransactionType.axfer
+    this.thing.txType = TransactionType.AssetTransfer
     this.thing.assetTransferTransaction = new algosdk.indexerModels.TransactionAssetTransfer({
       amount: randomBigIntBetween(10_000n, 23_6070_000n),
       assetId: asset.index,
@@ -48,7 +49,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   }
 
   public appCallTransaction() {
-    this.thing.txType = algosdk.TransactionType.appl
+    this.thing.txType = TransactionType.AppCall
     this.thing.applicationTransaction = new algosdk.indexerModels.TransactionApplication({
       applicationId: randomBigInt(),
       onCompletion: 'noop',
@@ -57,7 +58,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   }
 
   public stateProofTransaction() {
-    this.thing.txType = algosdk.TransactionType.stpf
+    this.thing.txType = TransactionType.StateProof
     // HACK: do this because the type StateProofTransactionResult is very big
     this.thing.stateProofTransaction = {} as TransactionResult['stateProofTransaction']
     return this

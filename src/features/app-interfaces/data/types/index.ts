@@ -1,9 +1,10 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { AvmValue } from '@/features/abi-methods/models'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { AbiContract as Arc4AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { ApplicationId } from '@/features/applications/data/types'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import algosdk from 'algosdk'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export enum AppSpecStandard {
   ARC32 = 'ARC-32',

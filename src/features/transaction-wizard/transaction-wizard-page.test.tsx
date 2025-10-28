@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, vitest, it, vi } from 'vitest'
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { algorandFixture } from '@algorandfoundation/algokit-utils'
 import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, render, waitFor, within } from '@/tests/testing-library'
 import { useWallet } from '@txnlab/use-wallet-react'

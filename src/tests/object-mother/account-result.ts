@@ -1,7 +1,7 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { AccountResult } from '@/features/accounts/data/types'
 import { AccountResultBuilder } from '../builders/account-result-builder'
 import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
-import algosdk, { base64ToBytes } from 'algosdk'
 
 const encoder = new TextEncoder()
 

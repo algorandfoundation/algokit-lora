@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import {
   BuildTransactionResult,
   BuildAppCallTransactionResult,
@@ -21,6 +21,9 @@ import {
 import { invariant } from '@/utils/invariant'
 import { algos } from '@algorandfoundation/algokit-utils'
 import { algorandClient } from '@/features/common/data/algo-client'
+import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { Buffer } from 'buffer'
+import Decimal from 'decimal.js'
 import {
   AppCallMethodCall,
   AppCallParams,
@@ -35,9 +38,6 @@ import {
   OnlineKeyRegistrationParams,
   PaymentParams,
 } from '@algorandfoundation/algokit-utils/types/composer'
-import { base64ToBytes } from '@/utils/base64-to-bytes'
-import { Buffer } from 'buffer'
-import Decimal from 'decimal.js'
 
 export const asAlgosdkTransactions = async (transaction: BuildTransactionResult): Promise<algosdk.Transaction[]> => {
   if (transaction.type === BuildableTransactionType.Payment || transaction.type === BuildableTransactionType.AccountClose) {

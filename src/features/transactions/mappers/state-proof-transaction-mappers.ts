@@ -1,3 +1,4 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { TransactionResult } from '@/features/transactions/data/types'
 import { StateProofTransaction, TransactionType } from '../models'
 import { mapCommonTransactionProperties } from './transaction-common-properties-mappers'

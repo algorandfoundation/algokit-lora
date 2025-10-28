@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { assetResultMother } from '@/tests/object-mother/asset-result'
 import { executeComponentTest } from '@/tests/test-component'
 import { render, waitFor } from '@/tests/testing-library'
@@ -36,7 +37,6 @@ import { algod, indexer } from '@/features/common/data/algo-client'
 import { setupServer } from 'msw/node'
 import { http, HttpResponse } from 'msw'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
-import algosdk from 'algosdk'
 import { applicationResultsAtom } from '@/features/applications/data'
 import { applicationResultMother } from '@/tests/object-mother/application-result'
 

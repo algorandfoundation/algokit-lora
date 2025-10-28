@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { z } from 'zod'
-import algosdk from 'algosdk'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition, ArgumentDefinition, StructDefinition } from '@/features/applications/models'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
@@ -8,9 +8,10 @@ import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
 import { Nfd } from '@/features/nfd/data/types'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import Decimal from 'decimal.js'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export enum BuildableTransactionType {
   // pay

@@ -1,6 +1,6 @@
 import { AssetResult } from '../data/types'
 import { AssetSummary } from '../models'
-import { bytesToBase64 } from 'algosdk'
+
 import { base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
 
 export const asAssetSummary = (assetResult: AssetResult): AssetSummary => {

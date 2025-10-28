@@ -7,10 +7,10 @@ import { loadable } from 'jotai/utils'
 import { createLoadableViewModelPageAtom } from '@/features/common/data/lazy-load-pagination'
 import { DEFAULT_FETCH_SIZE } from '@/features/common/constants'
 import { indexer } from '@/features/common/data/algo-client'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { asBoxDescriptor } from '../mappers'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 const getApplicationBoxNames = async (applicationId: ApplicationId, appSpec?: Arc56Contract, nextPageToken?: string) => {
   const results = await indexer

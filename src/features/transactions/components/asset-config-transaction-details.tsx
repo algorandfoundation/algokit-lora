@@ -6,6 +6,7 @@ import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { TransactionViewTabs } from './transaction-view-tabs'
 import { AssetConfigTransactionInfo } from './asset-config-transaction-info'
+import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 type Props = {
   transaction: AssetConfigTransaction | InnerAssetConfigTransaction

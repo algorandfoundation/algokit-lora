@@ -1,4 +1,5 @@
-import algosdk from 'algosdk'
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { useMemo, useState } from 'react'
 import { BuildableTransactionType, BuildTransactionResult } from '../models'
 import { MethodCallTransactionBuilder } from './method-call-transaction-builder'
@@ -28,91 +29,91 @@ export const transactionTypeLabel = 'Transaction type'
 
 const builderConfigs = [
   {
-    transactionType: algosdk.TransactionType.pay,
+    transactionType: TransactionType.Payment,
     type: BuildableTransactionType.Payment,
     label: 'Payment (pay)',
     component: PaymentTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.pay,
+    transactionType: TransactionType.Payment,
     type: BuildableTransactionType.AccountClose,
     label: 'Account Close (pay)',
     component: AccountCloseTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.appl,
+    transactionType: TransactionType.AppCall,
     type: BuildableTransactionType.AppCall,
     label: 'Application Call (appl)',
     component: AppCallTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.appl,
+    transactionType: TransactionType.AppCall,
     type: BuildableTransactionType.MethodCall,
     label: 'ABI Method Call (appl)',
     component: MethodCallTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.appl,
+    transactionType: TransactionType.AppCall,
     type: BuildableTransactionType.ApplicationCreate,
     label: 'Application Create (appl)',
     component: ApplicationCreateTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.appl,
+    transactionType: TransactionType.AppCall,
     type: BuildableTransactionType.ApplicationUpdate,
     label: 'Application Update (appl)',
     component: ApplicationUpdateTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.axfer,
+    transactionType: TransactionType.AssetTransfer,
     type: BuildableTransactionType.AssetTransfer,
     label: 'Asset Transfer (axfer)',
     component: AssetTransferTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.axfer,
+    transactionType: TransactionType.AssetTransfer,
     type: BuildableTransactionType.AssetOptIn,
     label: 'Asset opt-in (axfer)',
     component: AssetOptInTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.axfer,
+    transactionType: TransactionType.AssetTransfer,
     type: BuildableTransactionType.AssetOptOut,
     label: 'Asset opt-out (axfer)',
     component: AssetOptOutTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.axfer,
+    transactionType: TransactionType.AssetTransfer,
     type: BuildableTransactionType.AssetClawback,
     label: 'Asset clawback (axfer)',
     component: AssetClawbackTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.acfg,
+    transactionType: TransactionType.AssetConfig,
     type: BuildableTransactionType.AssetCreate,
     label: 'Asset create (acfg)',
     component: AssetCreateTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.acfg,
+    transactionType: TransactionType.AssetConfig,
     type: BuildableTransactionType.AssetReconfigure,
     label: 'Asset reconfigure (acfg)',
     component: AssetReconfigureTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.acfg,
+    transactionType: TransactionType.AssetConfig,
     type: BuildableTransactionType.AssetDestroy,
     label: 'Asset destroy (acfg)',
     component: AssetDestroyTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.afrz,
+    transactionType: TransactionType.AssetFreeze,
     type: BuildableTransactionType.AssetFreeze,
     label: 'Asset freeze (afrz)',
     component: AssetFreezeTransactionBuilder,
   },
   {
-    transactionType: algosdk.TransactionType.keyreg,
+    transactionType: TransactionType.KeyRegistration,
     type: BuildableTransactionType.KeyRegistration,
     label: 'Key registration (keyreg)',
     component: KeyRegistrationTransactionBuilder,

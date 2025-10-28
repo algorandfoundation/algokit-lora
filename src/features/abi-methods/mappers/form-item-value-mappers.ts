@@ -1,4 +1,4 @@
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
 import { bigIntToFixedPointDecimalString, fixedPointDecimalStringToBigInt } from '@/features/abi-methods/mappers/ufixed-mappers'

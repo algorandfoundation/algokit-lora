@@ -1,5 +1,5 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { Expand } from '@/utils/expand'
-import algosdk from 'algosdk'
 
 export type TransactionId = string
 

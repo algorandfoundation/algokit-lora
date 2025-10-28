@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@algorandfoundation/algokit-subscriber": "^3.2.0",
-    "@algorandfoundation/algokit-utils": "^9.1.2",
+    "@algorandfoundation/algokit-utils": "file:../algokit-utils-ts/algorandfoundation-algokit-utils-0.1.0.tgz",
     "@auth0/auth0-react": "^2.2.4",
     "@blockshake/defly-connect": "^1.2.1",
     "@dnd-kit/core": "^6.1.0",
@@ -66,7 +66,6 @@
     "@txnlab/use-wallet": "^4.0.0",
     "@txnlab/use-wallet-react": "^4.0.0",
     "@xstate/react": "^5.0.3",
-    "algosdk": "^3.5.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "cmdk": "^1.0.0",

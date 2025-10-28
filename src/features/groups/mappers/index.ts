@@ -1,3 +1,4 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { Group } from '../models'
 import { GroupResult } from '../data/types'
 import { InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'

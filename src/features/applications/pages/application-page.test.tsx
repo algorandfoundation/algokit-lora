@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { executeComponentTest } from '@/tests/test-component'
 import { findByRole, findByText, getByRole, render, waitFor, within } from '@/tests/testing-library'
 import { useParams } from 'react-router-dom'
@@ -34,7 +35,6 @@ import {
 } from '../components/labels'
 import { descriptionListAssertion } from '@/tests/assertions/description-list-assertion'
 import { tableAssertion } from '@/tests/assertions/table-assertion'
-import algosdk, { modelsv2, indexerModels } from 'algosdk'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { refreshButtonLabel } from '@/features/common/components/refresh-button'
 import { algod, indexer } from '@/features/common/data/algo-client'
@@ -44,11 +44,12 @@ import { upsertAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { JotaiStore } from '@/features/common/data/types'
 import { NO_RESULTS_TABLE_MESSAGE } from '@/features/common/constants'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { BoxDescriptor, BoxesResponse } from 'node_modules/@algorandfoundation/algokit-utils/sdk/client/v2/indexer'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
@@ -135,37 +136,37 @@ describe('application-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
         Promise.resolve(
-          new indexerModels.BoxesResponse({
+          new BoxesResponse({
             applicationId: 80441968,
             boxes: [
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
               }),
             ],
@@ -174,7 +175,7 @@ describe('application-page', () => {
         )
       )
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
-        Promise.resolve(new algosdk.indexerModels.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
+        Promise.resolve(new algosdk.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
       )
     })
 
@@ -249,34 +250,34 @@ describe('application-page', () => {
       const addressWithLocalState = 'YJJBMRVNONUG52SHL7WA3P766CJUEBQVSKEYNSEDTS2YD5ETX2I64ISL74'
       vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.modelsv2.AccountApplicationResponse({
+          new algosdk.AccountApplicationResponse({
             round: 1n,
-            appLocalState: new algosdk.modelsv2.ApplicationLocalState({
+            appLocalState: new algosdk.ApplicationLocalState({
               id: applicationResult.id,
-              schema: new algosdk.modelsv2.ApplicationStateSchema({
+              schema: new algosdk.ApplicationStateSchema({
                 numUint: 1,
                 numByteSlice: 2,
               }),
               keyValue: [
-                new algosdk.modelsv2.TealKeyValue({
+                new algosdk.TealKeyValue({
                   key: Buffer.from('YmFsYW5jZQ==', 'base64'),
-                  value: new algosdk.modelsv2.TealValue({
+                  value: new algosdk.TealValue({
                     type: 2,
                     uint: 1150n,
                     bytes: '',
                   }),
                 }),
-                new algosdk.modelsv2.TealKeyValue({
+                new algosdk.TealKeyValue({
                   key: Buffer.from('bWVzc2FnZQ==', 'base64'),
-                  value: new algosdk.modelsv2.TealValue({
+                  value: new algosdk.TealValue({
                     type: 1,
                     uint: 0,
                     bytes: Buffer.from('SGVsbG8gd29ybGQ=', 'base64'),
                   }),
                 }),
-                new algosdk.modelsv2.TealKeyValue({
+                new algosdk.TealKeyValue({
                   key: Buffer.from('aS5hcHBpZA==', 'base64'),
-                  value: new algosdk.modelsv2.TealValue({
+                  value: new algosdk.TealValue({
                     type: 1,
                     uint: 0,
                     bytes: Buffer.from('AAAAADNlLm0=', 'base64'),
@@ -395,9 +396,9 @@ describe('application-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new algosdk.TransactionsResponse({
             currentRound: 123n,
-            transactions: [transactionResult] as algosdk.indexerModels.Transaction[],
+            transactions: [transactionResult] as algosdk.Transaction[],
             nextToken: '',
           })
         )
@@ -435,37 +436,37 @@ describe('application-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
         Promise.resolve(
-          new indexerModels.BoxesResponse({
+          new BoxesResponse({
             applicationId: 80441968,
             boxes: [
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAABhjNpJEU5krRanhldfCDWa2Rs8=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAB3fFPhSWjPaBhjzsx3NbXvlBK4=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAACctz98iaZ1MeSEbj+XCnD5CCwQ=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAACh7tCy49kQrUL7ykRWDmayeLKk=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAECfyDmi7C5tEjBUI9N80BEnnAk=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEKTl0iZ2Q9UxPJphTgwplTfk6U=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEO4cIhnhmQ0qdQDLoXi7q0+G7o=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEVLZkp/l5eUQJZ/QEYYy9yNtuc=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAEkbM2/K1+8IrJ/jdkgEoF/O5k0=',
               }),
-              new modelsv2.BoxDescriptor({
+              new BoxDescriptor({
                 name: 'AAAAAAAAAAAAAAAAAFwILIUnvVR4R/Xe9jTEV2SzTck=',
               }),
             ],
@@ -475,7 +476,7 @@ describe('application-page', () => {
       )
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new algosdk.TransactionsResponse({
             currentRound: 123n,
             transactions: [],
             nextToken: '',
@@ -523,7 +524,7 @@ describe('application-page', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
       vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
         Promise.resolve(
-          new algosdk.indexerModels.TransactionsResponse({
+          new algosdk.TransactionsResponse({
             currentRound: 123n,
             transactions: [],
             nextToken: '',
@@ -594,13 +595,13 @@ describe('application-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
         vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
           Promise.resolve(
-            new indexerModels.BoxesResponse({
+            new BoxesResponse({
               applicationId: 3771,
               boxes: [
-                new modelsv2.BoxDescriptor({
+                new BoxDescriptor({
                   name: 'Ym94S2V5',
                 }),
-                new modelsv2.BoxDescriptor({
+                new BoxDescriptor({
                   name: 'cAAAAAAAAAABAAAAAAAAAAIAAAAAAAAABAAAAAAAAAAD',
                 }),
               ],
@@ -610,7 +611,7 @@ describe('application-page', () => {
         )
         vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
           Promise.resolve(
-            new algosdk.indexerModels.TransactionsResponse({
+            new algosdk.TransactionsResponse({
               currentRound: 123n,
               transactions: [],
               nextToken: '',
@@ -674,10 +675,10 @@ describe('application-page', () => {
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
         vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
           Promise.resolve(
-            new indexerModels.BoxesResponse({
+            new BoxesResponse({
               applicationId: 5103,
               boxes: [
-                new modelsv2.BoxDescriptor({
+                new BoxDescriptor({
                   name: 'AAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAEAAAAAAAAAAM=',
                 }),
               ],
@@ -687,7 +688,7 @@ describe('application-page', () => {
         )
         vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
           Promise.resolve(
-            new algosdk.indexerModels.TransactionsResponse({
+            new algosdk.TransactionsResponse({
               currentRound: 123n,
               transactions: [],
               nextToken: '',

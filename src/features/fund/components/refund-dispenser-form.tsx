@@ -4,11 +4,12 @@ import { FormActions } from '@/features/forms/components/form-actions'
 import { SubmitButton } from '@/features/forms/components/submit-button'
 import { numberSchema } from '@/features/forms/data/common'
 import { algos } from '@algorandfoundation/algokit-utils'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+
 import { useCallback, useMemo } from 'react'
 import { toast } from 'react-toastify'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 const amountLabel = 'Amount'
 

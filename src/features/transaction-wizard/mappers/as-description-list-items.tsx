@@ -1,4 +1,4 @@
-import algosdk, { Address } from 'algosdk'
+import algosdk, { Address } from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
   BuildableTransactionType,
@@ -39,8 +39,6 @@ import {
   asApplicationCreateTransactionParams,
   asApplicationUpdateTransactionParams,
 } from './as-algosdk-transactions'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 import { Button } from '@/features/common/components/button'
 import { invariant } from '@/utils/invariant'
 import { Edit, PlusCircle } from 'lucide-react'
@@ -49,6 +47,8 @@ import { asAssetDisplayAmount } from '@/features/common/components/display-asset
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
+import { CommonAppCallParams } from '@algorandfoundation/algokit-utils/types/composer'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,

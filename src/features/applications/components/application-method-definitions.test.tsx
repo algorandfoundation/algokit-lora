@@ -1,11 +1,11 @@
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { algorandFixture } from '@algorandfoundation/algokit-utils'
 import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
 import { ApplicationId } from '../data/types'
 import Arc32TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32.json'
 import Arc56TestContractAppSpec from '@/tests/test-app-specs/arc56/sample-one.json'
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
+
 import { ApplicationPage } from '../pages/application-page'
 import { executeComponentTest } from '@/tests/test-component'
 import { useParams } from 'react-router-dom'
@@ -17,7 +17,7 @@ import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/
 import { selectOption } from '@/tests/utils/select-option'
 import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
 import { getTestStore } from '@/tests/utils/get-test-store'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 import { asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
@@ -26,6 +26,8 @@ import { asMethodDefinitions } from '@/features/applications/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { act } from 'react'
 import { JotaiStore } from '@/features/common/data/types'
+import { Arc56Contract, Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 describe('application-method-definitions', () => {
   const localnet = algorandFixture()

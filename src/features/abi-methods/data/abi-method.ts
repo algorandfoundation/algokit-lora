@@ -1,5 +1,5 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { Atom, atom } from 'jotai'
-import algosdk, { ABIReferenceType, TransactionType } from 'algosdk'
 import { Round } from '@/features/blocks/data/types'
 import { AppSpecVersion } from '@/features/app-interfaces/data/types'
 import { TransactionId, TransactionResult } from '@/features/transactions/data/types'
@@ -14,6 +14,7 @@ import { DecodedAbiMethod, DecodedAbiMethodArgument, DecodedAbiMethodReturn, Dec
 import { asDecodedAbiStruct, asDecodedAbiValue } from '../mappers'
 import { getLatestAppSpecVersion } from '@/features/app-interfaces/mappers'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 
 const MAX_LINE_LENGTH = 20
 
@@ -99,7 +100,7 @@ const createMethodArgumentsAtom = (
 
       const abiValue = abiValues.shift()!
 
-      if (argumentDefinition.type === ABIReferenceType.asset) {
+      if (argumentDefinition.type === algosdk.ABIReferenceType.asset) {
         invariant(transaction.applicationTransaction?.foreignAssets, 'application-transaction foreign-assets is not set')
         const assetId = transaction.applicationTransaction.foreignAssets[Number(abiValue)]
         return {
@@ -110,7 +111,7 @@ const createMethodArgumentsAtom = (
           length: assetId.toString().length,
         }
       }
-      if (argumentDefinition.type === ABIReferenceType.account) {
+      if (argumentDefinition.type === algosdk.ABIReferenceType.account) {
         invariant(transaction.applicationTransaction?.accounts, 'application-transaction accounts is not set')
 
         // Index 0 of application accounts is the sender
@@ -125,7 +126,7 @@ const createMethodArgumentsAtom = (
           length: accountAddress.length,
         }
       }
-      if (argumentDefinition.type === ABIReferenceType.application) {
+      if (argumentDefinition.type === algosdk.ABIReferenceType.application) {
         invariant(transaction.applicationTransaction?.foreignApps, 'application-transaction foreign-apps is not set')
 
         // Index 0 of foreign apps is the called app
@@ -180,7 +181,7 @@ const getMethodReturn = (transaction: TransactionResult, methodDefinition: Metho
 
 const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolean => {
   return (
-    transaction.txType === TransactionType.appl &&
+    transaction.txType === TransactionType.AppCall &&
     transaction.applicationTransaction !== undefined &&
     transaction.confirmedRound !== undefined &&
     Boolean(transaction.applicationTransaction.applicationId) &&
@@ -241,7 +242,11 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: algosdk.ABIM
 }
 
 const mapAbiArgumentToAbiValue = (type: algosdk.ABIArgumentType, value: Uint8Array) => {
-  if (type === ABIReferenceType.asset || type === ABIReferenceType.application || type === ABIReferenceType.account) {
+  if (
+    type === algosdk.ABIReferenceType.asset ||
+    type === algosdk.ABIReferenceType.application ||
+    type === algosdk.ABIReferenceType.account
+  ) {
     return new algosdk.ABIUintType(8).decode(value)
   }
   const abiType = algosdk.ABIType.from(type.toString())

@@ -1,5 +1,6 @@
-import { Transaction } from '../models'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { Transaction } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asTransaction } from '../mappers'
 import { getAssetResultAtom } from '@/features/assets/data'
@@ -10,12 +11,12 @@ import { Round } from '@/features/blocks/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import { asAssetSummary } from '@/features/assets/mappers'
 import { getIndexerTransactionFromAlgodTransaction } from '@algorandfoundation/algokit-subscriber/transform'
-import algosdk, { SignedTxnWithAD } from 'algosdk'
 import { accumulateGroupsFromTransaction } from '@/features/blocks/data'
 import { subscribedTransactionToTransactionResult } from '../mappers/subscriber-transaction-mappers'
+import { PendingTransactionResponse } from '@algorandfoundation/algokit-utils/algod_client'
 
-const asSignedTxnWithAD = (res: algosdk.modelsv2.PendingTransactionResponse): SignedTxnWithAD => {
-  return new SignedTxnWithAD({
+const asSignedTxnWithAD = (res: PendingTransactionResponse): algosdk.SignedTxnWithAD => {
+  return new algosdk.SignedTxnWithAD({
     signedTxn: new algosdk.SignedTransaction({
       txn: res.txn.txn,
       sgnr: res.txn.sgnr,
@@ -44,8 +45,8 @@ export const asTransactionFromSendResult = (result: SendTransactionResults): Tra
 
   // This mapping does some approximations, which are fine for the contexts we currently use it for.
   const transactionResults = result.confirmations.map((confirmation, i) => {
-    invariant(confirmation.txn.txn.genesisHash, 'Genesis hash is required')
-    invariant(confirmation.txn.txn.genesisID, 'Genesis ID is required')
+    invariant(confirmation.txn.transaction.genesisHash, 'Genesis hash is required')
+    invariant(confirmation.txn.transaction.genesisId, 'Genesis ID is required')
 
     const subscribedTransaction = getIndexerTransactionFromAlgodTransaction({
       signedTxnWithAD: asSignedTxnWithAD(confirmation),

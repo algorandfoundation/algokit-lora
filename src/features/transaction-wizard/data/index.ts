@@ -1,10 +1,10 @@
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { ApplicationId } from '@/features/applications/data/types'
 import { useMemo } from 'react'
 import { atom, useAtomValue } from 'jotai/index'
 import { asArc56AppSpec, asMethodDefinitions } from '@/features/applications/mappers'
 import { loadable } from 'jotai/utils'
 import { createAppSpecAtom } from '@/features/applications/data/application-method-definitions'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export enum TransactionBuilderMode {
   Create,

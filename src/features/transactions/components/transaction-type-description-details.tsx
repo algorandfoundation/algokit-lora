@@ -1,5 +1,7 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { AppCallOnComplete, InnerTransaction, SignatureType, Transaction, TransactionType } from '@/features/transactions/models'
 import { Badge } from '@/features/common/components/badge'
+import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export function TransactionTypeDescriptionDetails({ transaction }: { transaction: Transaction | InnerTransaction }) {
   return (

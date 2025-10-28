@@ -1,5 +1,4 @@
 import { FundAccountForm } from './fund-account-form'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { algorandClient } from '@/features/common/data/algo-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { createLoraKmdDevAccount, loraKmdDevWalletName } from '../utils/kmd'
@@ -13,6 +12,7 @@ import { useLoadableActiveWalletAccountSnapshotAtom } from '@/features/wallet/da
 import { RenderLoadable } from '@/features/common/components/render-loadable'
 import { PageLoader } from '@/features/common/components/page-loader'
 import { useLocation } from 'react-router-dom'
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 
 const fundExistingAccountAccordionId = 'existing'
 const fundNewAccountAccordionId = 'new'

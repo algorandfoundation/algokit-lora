@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, render, waitFor } from '@/tests/testing-library'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -10,7 +11,6 @@ import { settingsStore } from '@/features/settings/data'
 import { getCurrent, onOpenUrl } from '@/features/deep-link/hooks/tauri-deep-link'
 import { localnetId } from '@/features/network/data/types'
 import { renderHook } from '@testing-library/react'
-import algosdk from 'algosdk'
 import { LORA_URI_SCHEME } from '@/features/common/constants'
 
 describe('when rendering the layout page', () => {

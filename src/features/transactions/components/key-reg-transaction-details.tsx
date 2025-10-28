@@ -6,6 +6,7 @@ import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { KeyRegTransactionInfo } from './key-reg-transaction-info'
 import { TransactionViewTabs } from './transaction-view-tabs'
+import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 type Props = {
   transaction: KeyRegTransaction | InnerKeyRegTransaction

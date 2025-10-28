@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { describe, expect, it } from 'vitest'
 import { patchTransactions } from './transactions-builder'
 import {
@@ -6,10 +7,10 @@ import {
   BuildPaymentTransactionResult,
   PlaceholderTransaction,
 } from '../models'
-import algosdk from 'algosdk'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+
 import { MethodDefinition } from '@/features/applications/models'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 describe('patchTransactions', () => {
   const exampleMethodCallProperties = {

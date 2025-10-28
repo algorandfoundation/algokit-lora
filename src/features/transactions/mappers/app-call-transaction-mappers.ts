@@ -1,3 +1,4 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import {
   AppCallOnComplete,
   AppCallTransaction,
@@ -9,7 +10,7 @@ import {
 import { DecodedAbiMethod } from '@/features/abi-methods/models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'
-import { TransactionType as AlgoSdkTransactionType } from 'algosdk'
+
 import { asInnerPaymentTransaction } from './payment-transaction-mappers'
 import { asInnerAssetTransferTransaction } from './asset-transfer-transaction-mappers'
 import { AssetSummary } from '@/features/assets/models'
@@ -173,22 +174,22 @@ const asInnerTransaction = (
   ) => Atom<Promise<DecodedAbiMethod | undefined>>,
   groupResolver: (groupId: GroupId, round: Round) => AsyncMaybeAtom<GroupResult>
 ) => {
-  if (transactionResult.txType === AlgoSdkTransactionType.pay) {
+  if (transactionResult.txType === TransactionType.Payment) {
     return asInnerPaymentTransaction(networkTransactionId, index, transactionResult)
   }
-  if (transactionResult.txType === AlgoSdkTransactionType.axfer) {
+  if (transactionResult.txType === TransactionType.AssetTransfer) {
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
-  if (transactionResult.txType === AlgoSdkTransactionType.appl) {
+  if (transactionResult.txType === TransactionType.AppCall) {
     return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, abiMethodResolver, groupResolver)
   }
-  if (transactionResult.txType === AlgoSdkTransactionType.acfg) {
+  if (transactionResult.txType === TransactionType.AssetConfig) {
     return asInnerAssetConfigTransaction(networkTransactionId, index, transactionResult)
   }
-  if (transactionResult.txType === AlgoSdkTransactionType.afrz) {
+  if (transactionResult.txType === TransactionType.AssetFreeze) {
     return asInnerAssetFreezeTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
-  if (transactionResult.txType === AlgoSdkTransactionType.keyreg) {
+  if (transactionResult.txType === TransactionType.KeyRegistration) {
     return asInnerKeyRegTransaction(networkTransactionId, index, transactionResult)
   }
 

@@ -1,7 +1,7 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { ApplicationResult, ApplicationStateSchema } from '@/features/applications/data/types'
 import { AssetResult } from '@/features/assets/data/types'
 import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
-import algosdk from 'algosdk'
 
 export type Address = string
 

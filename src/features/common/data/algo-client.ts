@@ -1,10 +1,11 @@
-import { AlgorandClient, Config } from '@algorandfoundation/algokit-utils'
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { Config } from '@algorandfoundation/algokit-utils/types/config'
+import { ClientManager } from '@algorandfoundation/algokit-utils/types/client-manager'
 import { networkConfigAtom } from '@/features/network/data'
 import { settingsStore } from '@/features/settings/data'
-import algosdk from 'algosdk'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { WalletId } from '@txnlab/use-wallet-react'
 import { localnetId, NetworkConfig, NetworkConfigWithId } from '@/features/network/data/types'
-import { ClientManager } from '@algorandfoundation/algokit-utils/types/client-manager'
 
 Config.configure({
   logger: Config.getLogger(true),

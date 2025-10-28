@@ -1,3 +1,4 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { TransactionType } from '@/features/transactions/models'
 import { useMemo } from 'react'
 import { asInnerTransactionLinkText, InnerTransactionLink } from '@/features/transactions/components/inner-transaction-link'

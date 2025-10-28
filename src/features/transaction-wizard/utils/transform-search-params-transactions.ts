@@ -1,3 +1,5 @@
+import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import {
   BaseSearchParamTransaction,
   BuildableTransactionType,
@@ -25,7 +27,6 @@ import { assetFreezeFormSchema } from '../components/asset-freeze-transaction-bu
 import { assetClawbackFormSchema } from '../components/asset-clawback-transaction-builder'
 import { z } from 'zod'
 import { randomGuid } from '@/utils/random-guid'
-import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import Decimal from 'decimal.js'
 
@@ -329,19 +330,19 @@ const transformAssetClawbackTransaction = (params: BaseSearchParamTransaction): 
 })
 
 const transformationConfigByTransactionType = {
-  [algosdk.TransactionType.keyreg]: {
+  [TransactionType.KeyRegistration]: {
     transform: transformKeyRegistrationTransaction,
     schema: keyRegFormSchema,
   },
-  [algosdk.TransactionType.pay]: {
+  [TransactionType.Payment]: {
     transform: transformPaymentTransaction,
     schema: paymentFormSchema,
   },
-  [algosdk.TransactionType.acfg]: {
+  [TransactionType.AssetConfig]: {
     transform: transformAssetCreateTransaction,
     schema: assetCreateFormSchema,
   },
-  [algosdk.TransactionType.axfer]: {
+  [TransactionType.AssetTransfer]: {
     transform: transformAssetOptInTransaction,
     schema: assetOptInFormSchema,
   },

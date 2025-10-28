@@ -1,4 +1,4 @@
-import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
+import { AlgorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { vi } from 'vitest'
 import { useWallet } from '@txnlab/use-wallet-react'
 

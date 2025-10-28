@@ -1,3 +1,4 @@
+import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { transactionResultMother } from '@/tests/object-mother/transaction-result'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -87,11 +88,10 @@ import { genesisHashAtom } from '@/features/blocks/data'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { heartbeatAddressLabel } from '../components/heartbeat-transaction-info'
-import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
+import { Arc56Contract, Method } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')

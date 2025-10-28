@@ -2,7 +2,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { TransactionWizardPage } from '../transaction-wizard-page'
 import { render, screen, cleanup } from '@testing-library/react'
-import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
+import { algorandFixture } from '@algorandfoundation/algokit-utils'
 import { TooltipProvider } from '@/features/common/components/tooltip'
 import { ToastContainer } from 'react-toastify'
 
