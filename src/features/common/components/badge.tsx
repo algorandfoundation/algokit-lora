@@ -5,22 +5,22 @@ import { CircleDollarSign, SquareArrowRight, Bolt, Snowflake, ShieldCheck, Key, 
 import { TransactionType } from '@/features/transactions/models'
 
 const badgeVariants = cva(
-  'inline-flex h-5 items-center truncate rounded-md border px-1.5 py-0.5 text-xs tracking-tighter transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'focus:ring-ring inline-flex h-5 items-center truncate rounded-md border px-1.5 py-0.5 text-xs tracking-tighter transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-hidden',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
+        default: 'bg-primary text-primary-foreground hover:bg-primary/80 border-transparent',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 border-transparent',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/80 border-transparent',
         outline: '',
-        [TransactionType.Payment]: 'border-transparent bg-payment text-primary-foreground',
-        [TransactionType.AssetTransfer]: 'border-transparent bg-asset-transfer text-primary-foreground',
-        [TransactionType.AppCall]: 'border-transparent bg-application-call text-primary-foreground',
-        [TransactionType.AssetConfig]: 'border-transparent bg-asset-config text-primary-foreground',
-        [TransactionType.AssetFreeze]: 'border-transparent bg-asset-freeze text-primary-foreground',
-        [TransactionType.StateProof]: 'border-transparent bg-state-proof text-primary-foreground',
-        [TransactionType.KeyReg]: 'border-transparent bg-key-registration text-primary-foreground',
-        [TransactionType.Heartbeat]: 'border-transparent bg-heartbeat text-primary-foreground',
+        [TransactionType.Payment]: 'bg-payment text-primary-foreground border-transparent',
+        [TransactionType.AssetTransfer]: 'bg-asset-transfer text-primary-foreground border-transparent',
+        [TransactionType.AppCall]: 'bg-application-call text-primary-foreground border-transparent',
+        [TransactionType.AssetConfig]: 'bg-asset-config text-primary-foreground border-transparent',
+        [TransactionType.AssetFreeze]: 'bg-asset-freeze text-primary-foreground border-transparent',
+        [TransactionType.StateProof]: 'bg-state-proof text-primary-foreground border-transparent',
+        [TransactionType.KeyReg]: 'bg-key-registration text-primary-foreground border-transparent',
+        [TransactionType.Heartbeat]: 'bg-heartbeat text-primary-foreground border-transparent',
       },
     },
     defaultVariants: {

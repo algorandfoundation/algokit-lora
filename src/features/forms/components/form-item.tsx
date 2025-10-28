@@ -36,7 +36,7 @@ export function FormItem<TSchema extends Record<string, unknown> = Record<string
     <div className={cn('grid', className)}>
       <Label {...(noFor ? {} : { htmlFor: field })} aria-invalid={Boolean(error)} className="mb-2 ml-0.5 flex">
         {label}
-        {required && <span className="ml-1 text-error">*</span>}
+        {required && <span className="text-error ml-1">*</span>}
       </Label>
       {children &&
         (typeof children === 'function'

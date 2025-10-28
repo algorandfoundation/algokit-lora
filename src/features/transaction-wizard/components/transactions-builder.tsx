@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
 import algosdk from 'algosdk'
 import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
@@ -60,7 +59,7 @@ type Props = {
   }
 }
 
-const defaultTitle = <h4 className="pb-0 text-primary">{transactionGroupLabel}</h4>
+const defaultTitle = <h4 className="text-primary pb-0">{transactionGroupLabel}</h4>
 const defaultSendButtonConfig = {
   label: sendButtonLabel,
   icon: <Send size={16} />,

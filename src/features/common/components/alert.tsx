@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/features/common/utils'
 
-const alertVariants = cva('flex w-full items-center gap-2 border-b px-4 py-3 text-sm animate-in fade-in-0 [&>svg]:text-foreground', {
+const alertVariants = cva('animate-in fade-in-0 [&>svg]:text-foreground flex w-full items-center gap-2 border-b px-4 py-3 text-sm', {
   variants: {
     variant: {
       default: 'bg-accent text-foreground',

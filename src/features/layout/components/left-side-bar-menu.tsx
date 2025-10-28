@@ -53,12 +53,12 @@ export function LeftSideBarMenu({ className }: Props) {
   return (
     <aside
       className={cn(
-        'flex flex-col bg-card border-r transition-[width] duration-300',
+        'lg:flex flex-col bg-card border-r transition-[width] duration-300 hidden',
         className,
-        layout.isLeftSideBarExpanded ? 'w-56' : 'w-[4.5rem]'
+        layout.isLeftSideBarExpanded ? 'w-56' : 'w-18'
       )}
     >
-      <Button className="ml-auto text-muted-foreground" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
+      <Button className="text-muted-foreground ml-auto" variant="no-style" size="icon" onClick={toggleLeftSideBar}>
         {layout.isLeftSideBarExpanded ? <PanelLeftClose /> : <PanelLeftOpen />}
       </Button>
       <NavigationMenu>
@@ -93,7 +93,7 @@ export function LeftSideBarMenu({ className }: Props) {
           })}
         </NavigationMenuList>
       </NavigationMenu>
-      <div className="mb-4 mt-auto">
+      <div className="mt-auto mb-4">
         <ThemeToggle navTextClassName={navTextClassName} />
         <TemplatedNavLink urlTemplate={Urls.Settings} className={navLinkClassName}>
           <div className={navIconClassName}>

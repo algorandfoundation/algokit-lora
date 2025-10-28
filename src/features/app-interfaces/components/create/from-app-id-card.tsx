@@ -117,7 +117,6 @@ export function FromAppIdCard({ machine }: Props) {
           onSubmit={fromAppIdSelected}
           formAction={
             <FormActions>
-              {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
               <SubmitButton className="plausible-event-name=app-lab-use-existing-app-id">Use existing</SubmitButton>
             </FormActions>
           }

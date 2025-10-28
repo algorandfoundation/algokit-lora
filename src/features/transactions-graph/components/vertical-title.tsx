@@ -8,7 +8,7 @@ import SvgClaw from '@/features/common/components/icons/claw'
 
 function AccountNumber({ number }: { number: number }) {
   return (
-    <div className="flex size-4 items-center justify-center overflow-hidden rounded-full border border-primary text-[0.6rem] text-primary">
+    <div className="border-primary text-primary flex size-4 items-center justify-center overflow-hidden rounded-full border text-[0.6rem]">
       {number}
     </div>
   )
