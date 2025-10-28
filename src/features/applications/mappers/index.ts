@@ -1,4 +1,4 @@
-import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
+import algosdk, { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import {
   Application,
   RawApplicationStateType,
@@ -29,7 +29,8 @@ import { uint8ArrayStartsWith } from '@/utils/uint8-array-starts-with'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { Arc56Contract, StructField, getABITupleTypeFromABIStructDefinition } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { TealKeyValue } from '@algorandfoundation/algokit-utils/algod_client'
+import { TealKeyValue, TealValue } from '@algorandfoundation/algokit-utils/algod_client'
+import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export const asApplicationSummary = (application: ApplicationResult): ApplicationSummary => {
   return {
@@ -103,14 +104,14 @@ const asRawApplicationStateValue = (bytes: Uint8Array) => {
 }
 
 const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
-  if (state.value.type === 1) {
+  if (state.value.type === 1n) {
     return {
       key: asRawApplicationStateKey(state.key),
       type: RawApplicationStateType.Bytes,
       value: asRawApplicationStateValue(state.value.bytes),
     }
   }
-  if (state.value.type === 2) {
+  if (state.value.type === 2n) {
     return {
       key: asRawApplicationStateKey(state.key),
       type: RawApplicationStateType.Uint,
@@ -120,7 +121,7 @@ const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
   throw new Error(`Unknown type ${state.value.type}`)
 }
 
-const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
+const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
   const { key: keyBytes, value } = state
   const key = uint8ArrayToBase64(keyBytes)
 
@@ -191,7 +192,7 @@ const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'globa
   return getRawApplicationState(state)
 }
 
-export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?: Arc56Contract): ApplicationState[] => {
+export const asLocalStateValues = (localState: TealKeyValue[], appSpec?: Arc56Contract): ApplicationState[] => {
   if (!localState) {
     return []
   }
@@ -205,8 +206,8 @@ export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?
     })
 }
 
-const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: modelsv2.TealValue): DecodedAbiStorageValue => {
-  if (value.type === 2) {
+const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: TealValue): DecodedAbiStorageValue => {
+  if (value.type === 2n) {
     // When the teal value is uint, display it as uint64
     const b = BigInt(value.uint)
     return {

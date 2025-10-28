@@ -1,4 +1,3 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { BasePaymentTransaction, InnerPaymentTransaction, PaymentTransaction, PaymentTransactionSubType, TransactionType } from '../models'
 import { invariant } from '@/utils/invariant'
 import { asInnerTransactionId, mapCommonTransactionProperties } from './transaction-common-properties-mappers'

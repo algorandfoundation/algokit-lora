@@ -1,4 +1,3 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { fixedForwardRef } from '@/utils/fixed-forward-ref'
 import { AppCallTransaction, InnerAppCallTransaction, InnerTransaction, Transaction, TransactionType } from '@/features/transactions/models'
 import { Horizontal as HorizontalModel, LabelType, Point, MarkerTag, RepresentationType, SelfLoop, Vector, Vertical } from '../models'

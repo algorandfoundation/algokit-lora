@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
+import { Encodable } from '@algorandfoundation/algokit-utils/algosdk_legacy'
 
 export const removeEncodableMethods = <T extends Encodable>(encodable: T): Omit<T, 'getEncodingSchema' | 'toEncodingData'> => {
   if (!encodable) {

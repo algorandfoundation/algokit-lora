@@ -1,4 +1,3 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { TransactionResult } from '../data/types'
 import { HeartbeatTransaction, TransactionType } from '../models'
 import { mapCommonTransactionProperties } from './transaction-common-properties-mappers'

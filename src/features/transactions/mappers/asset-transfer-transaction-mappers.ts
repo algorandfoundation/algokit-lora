@@ -1,4 +1,3 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { TransactionResult } from '@/features/transactions/data/types'
 import {
   AssetTransferTransaction,

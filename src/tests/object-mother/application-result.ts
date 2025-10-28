@@ -227,4 +227,4 @@ export const applicationResultMother = {
 }
 
 const toTealKeyValue = ({ key, value }: { key: string; value: { type: number; uint: number; bytes: string } }) =>
-  new modelsv2.TealKeyValue({ key, value: new modelsv2.TealValue(value) })
+  new TealKeyValue({ key, value: new TealValue(value) })

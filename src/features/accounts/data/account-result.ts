@@ -9,12 +9,9 @@ import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 const getAccountResult = async (address: Address) => {
   try {
-    return await algod
-      .accountInformation(address)
-      .do()
-      .then((result) => {
-        return removeEncodableMethods(result) as AccountResult
-      })
+    return await algod.accountInformation(address).then((result) => {
+      return removeEncodableMethods(result) as AccountResult
+    })
   } catch (e: unknown) {
     const error = asError(e)
     if (is400(error) && error.message.toLowerCase().includes('result limit exceeded')) {

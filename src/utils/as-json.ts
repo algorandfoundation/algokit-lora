@@ -1,4 +1,4 @@
-
+import { Address } from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { uint8ArrayToBase64 } from './uint8-array-to-base64'
 
 const toKebabCase = (str: string) =>

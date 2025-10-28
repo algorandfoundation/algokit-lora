@@ -7,7 +7,6 @@ import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { isDefined } from '@/utils/is-defined'
 import { normaliseAlgoSdkData } from '@/utils/as-json'
 import { asJson } from '@/utils/as-json'
-import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 export const mapCommonTransactionProperties = (transactionResult: TransactionResult) => {
   invariant(transactionResult.confirmedRound !== undefined, 'confirmed-round is not set')
