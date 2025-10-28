@@ -160,7 +160,7 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
   }
 
   const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
-    const isAssetConfigTransaction = t.txType === TransactionType.acfg
+    const isAssetConfigTransaction = t.txType === TransactionType.AssetConfig
     const isDestroyTransaction = t.assetConfigTransaction?.params === undefined
     return isAssetConfigTransaction && !isDestroyTransaction
   })

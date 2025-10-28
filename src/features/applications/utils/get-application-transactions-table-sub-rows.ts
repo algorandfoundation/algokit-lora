@@ -1,4 +1,3 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import { Transaction, InnerTransaction, TransactionType } from '@/features/transactions/models'
 import { flattenInnerTransactions } from '@/utils/flatten-inner-transactions'
 import { ApplicationId } from '../data/types'

@@ -6,7 +6,6 @@ import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { PaymentTransactionInfo } from './payment-transaction-info'
 import { TransactionViewTabs } from './transaction-view-tabs'
-import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 type Props = {
   transaction: PaymentTransaction | InnerPaymentTransaction

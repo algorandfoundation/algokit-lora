@@ -37,6 +37,7 @@ import { Label } from '@/features/common/components/label'
 import { Checkbox } from '@/features/common/components/checkbox'
 import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features/abi-methods/utils/parse-errors'
 import { SimulateOptions, TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer'
+import { populateAppCallResources } from '@algorandfoundation/algokit-utils'
 
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
@@ -165,7 +166,7 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const simulateConfig = {
-        execTraceConfig: new algosdk.modelsv2.SimulateTraceConfig({
+        execTraceConfig: new SimulateTraceConfig({
           enable: true,
           scratchChange: true,
           stackChange: true,
@@ -211,12 +212,11 @@ export function TransactionsBuilder({
           const transactionWithResources = transactionsWithResources[i]
           if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
             const resources = {
-              accounts: transactionWithResources.txn.applicationCall?.accounts.map((account) => account.toString()) ?? [],
-              assets: transactionWithResources.txn.applicationCall?.foreignAssets.map((a) => a) ?? [],
-              applications: transactionWithResources.txn.applicationCall?.foreignApps.map((a) => a) ?? [],
+              accounts: transactionWithResources.txn.appCall?.accountReferences?.map((account) => account.toString()) ?? [],
+              assets: transactionWithResources.txn.appCall?.assetReferences?.map((a) => a) ?? [],
+              applications: transactionWithResources.txn.appCall?.appReferences?.map((a) => a) ?? [],
               boxes:
-                transactionWithResources.txn.applicationCall?.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ??
-                [],
+                transactionWithResources.txn.appCall?.boxReferences?.map((box) => [box.appId, uint8ArrayToBase64(box.name)] as const) ?? [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)
           }

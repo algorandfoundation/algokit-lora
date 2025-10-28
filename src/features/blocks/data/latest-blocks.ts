@@ -1,5 +1,4 @@
 import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
-import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { isDefined } from '@/utils/is-defined'
 import { latestTransactionIdsAtom } from '@/features/transactions/data'

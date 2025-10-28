@@ -25,7 +25,7 @@ const getApplicationMetadataResult = async (
 
   const creationTransaction = transactionResults
     .flatMap((txn) => flattenTransactionResult(txn))
-    .find((txn) => txn.txType === TransactionType.appl && txn.createdApplicationIndex === applicationResult.id)
+    .find((txn) => txn.txType === TransactionType.AppCall && txn.createdApplicationIndex === applicationResult.id)
   if (!creationTransaction) return null
 
   const text = uint8ArrayToUtf8(creationTransaction.note ?? new Uint8Array())

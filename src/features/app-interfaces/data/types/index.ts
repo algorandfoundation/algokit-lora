@@ -4,7 +4,6 @@ import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/type
 import { AbiContract as Arc4AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { ApplicationId } from '@/features/applications/data/types'
 import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 
 export enum AppSpecStandard {
   ARC32 = 'ARC-32',

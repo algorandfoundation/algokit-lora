@@ -1,4 +1,4 @@
-import { AppSpec, AppSpecVersion } from '@/features/app-interfaces/data/types'
+import { AppSpecVersion } from '@/features/app-interfaces/data/types'
 import { ApplicationId } from '@/features/applications/data/types.ts'
 import { AppInterfaceEntity, DbConnection, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { loadable, useAtomCallback } from 'jotai/utils'

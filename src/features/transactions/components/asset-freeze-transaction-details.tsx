@@ -6,7 +6,6 @@ import { MultisigDetails } from './multisig-details'
 import { LogicsigDetails } from './logicsig-details'
 import { AssetFreezeTransactionInfo } from './asset-freeze-transaction-info'
 import { TransactionViewTabs } from './transaction-view-tabs'
-import { SignatureType } from '@algorandfoundation/algokit-utils/types/indexer'
 
 type AssetFreezeTransactionProps = {
   transaction: AssetFreezeTransaction | InnerAssetFreezeTransaction

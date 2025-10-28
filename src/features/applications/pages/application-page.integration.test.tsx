@@ -1,9 +1,8 @@
 import Arc32TestContractAppSpec from '@/tests/test-app-specs/test-contract.arc32.json'
 import { describe, beforeEach, it, vitest, afterEach, vi, expect } from 'vitest'
-import { algorandFixture } from '@algorandfoundation/algokit-utils'
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { ApplicationId } from '../data/types'
 import { deploySmartContract } from '@/tests/utils/deploy-smart-contract'
-
 import { executeComponentTest } from '@/tests/test-component'
 import { ApplicationPage } from './application-page'
 import { useParams } from 'react-router-dom'
@@ -15,9 +14,7 @@ import { JotaiStore } from '@/features/common/data/types'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
-
-
-
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/algosdk_legacy'
 
 describe('application-page on localnet', () => {
   describe('when the application that has a global state that is a big int', () => {

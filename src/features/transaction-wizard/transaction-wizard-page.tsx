@@ -1,4 +1,3 @@
-import { TransactionType } from '@algorandfoundation/algokit-utils/algokit_transact'
 import algosdk from '@algorandfoundation/algokit-utils/algosdk_legacy'
 import { useCallback, useState } from 'react'
 import { PageTitle } from '../common/components/page-title'
@@ -22,7 +21,7 @@ export function TransactionWizardPage() {
   const searchParamsTransactions = useTransactionSearchParamsBuilder()
   useTitle('Transaction Wizard')
 
-  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
+  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: SimulateResponse) => {
     const sentTransactions = asTransactionFromSendResult(result)
     const transactionsGraphData = asTransactionsGraphData(sentTransactions)
     const appCallTransactions = sentTransactions.filter((txn) => txn.type === TransactionType.AppCall)
