@@ -118,7 +118,7 @@ export function AppDetails({ machine }: Props) {
 
   return (
     <Form
-      className="duration-300 animate-in fade-in-20"
+      className="animate-in fade-in-20 duration-300"
       schema={schema}
       onSubmit={next}
       defaultValues={defaultValues}

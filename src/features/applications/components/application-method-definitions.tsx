@@ -204,7 +204,7 @@ function Argument({ index, argument }: ArgumentProps) {
 
   return (
     <div>
-      <h5 className="mb-1.5 text-primary">{`Argument ${index + 1}`}</h5>
+      <h5 className="text-primary mb-1.5">{`Argument ${index + 1}`}</h5>
       <DescriptionList items={items} dtClassName="w-24 truncate" />
     </div>
   )

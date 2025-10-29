@@ -70,7 +70,7 @@ export function LazyLoadDataTable<TData, TValue>({
         <Table className="border-b">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
+              <TableRow key={headerGroup.id} className="bg-muted hover:bg-muted border-t">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>

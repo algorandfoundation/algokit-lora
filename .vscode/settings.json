@@ -5,7 +5,7 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "never"
   },
-  "eslint.validate": ["typescript"],
+  "eslint.validate": ["typescript", "typescriptreact"],
   "files.associations": {
     "*.css": "tailwindcss"
   },

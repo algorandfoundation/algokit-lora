@@ -188,7 +188,7 @@ const RenderTransactionVector = fixedForwardRef(
           className="relative"
         >
           {vector.direction === 'rightToLeft' && (
-            <span className="absolute left-0 top-0">
+            <span className="absolute top-0 left-0">
               <PointerLeft />
             </span>
           )}
@@ -201,7 +201,7 @@ const RenderTransactionVector = fixedForwardRef(
             }}
           ></div>
           {vector.direction === 'leftToRight' && (
-            <span className="absolute right-0 top-0">
+            <span className="absolute top-0 right-0">
               <PointerRight />
             </span>
           )}

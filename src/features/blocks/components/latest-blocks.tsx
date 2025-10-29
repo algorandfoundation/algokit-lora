@@ -21,8 +21,8 @@ export function LatestBlocks({ latestBlocks }: Props) {
           <ul>
             {latestBlocks.map((block) => (
               <li key={block.round} className="border-b last:border-0">
-                <BlockLink round={block.round} className="flex w-full gap-2 p-3.5 text-sm animate-in fade-in-20 hover:bg-accent">
-                  <Box className="hidden text-primary sm:max-lg:block xl:block" />
+                <BlockLink round={block.round} className="animate-in fade-in-20 hover:bg-accent flex w-full gap-2 p-3.5 text-sm">
+                  <Box className="text-primary hidden sm:max-lg:block xl:block" />
                   <div>
                     <h3 className={cn('leading-none mb-2')}>{block.round.toString()}</h3>
                     <DateFormatted className="truncate" date={new Date(block.timestamp)} />

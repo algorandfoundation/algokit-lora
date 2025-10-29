@@ -223,7 +223,7 @@ export function DeploymentDetails({ machine }: Props) {
 
   return (
     <Form
-      className="duration-300 animate-in fade-in-20"
+      className="animate-in fade-in-20 duration-300"
       schema={formSchema}
       onSubmit={next}
       defaultValues={defaultValues}

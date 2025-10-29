@@ -32,8 +32,7 @@ export function FromDeploymentCard({ machine }: Props) {
           <span>Deploy a new app and create an app interface.</span>
         </div>
         <div className="flex grow flex-col">
-          {/* eslint-disable-next-line tailwindcss/no-custom-classname  */}
-          <div className="plausible-event-name=app-lab-deploy-new-app ml-auto mt-auto">
+          <div className="plausible-event-name=app-lab-deploy-new-app mt-auto ml-auto">
             <Button onClick={fromDeploymentSelected} {...disabledProps}>
               {deployAppLabel}
             </Button>

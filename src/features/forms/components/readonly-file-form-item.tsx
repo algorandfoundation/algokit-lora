@@ -11,7 +11,7 @@ export interface ReadonlyFileFormItemProps<TSchema extends Record<string, unknow
 export function ReadonlyFileFormItem<TSchema extends Record<string, unknown>>({ label, field }: ReadonlyFileFormItemProps<TSchema>) {
   return (
     <FormItem label={label} field={field}>
-      <Controller name={field} render={({ field: { value } }) => <span className="text-sm text-primary">{value?.name}</span>} />
+      <Controller name={field} render={({ field: { value } }) => <span className="text-primary text-sm">{value?.name}</span>} />
     </FormItem>
   )
 }

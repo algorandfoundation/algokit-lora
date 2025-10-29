@@ -36,9 +36,9 @@ export function LatestTransactions({ latestTransactions }: Props) {
               <li key={transaction.id} className="border-b last:border-0">
                 <TransactionLink
                   transactionId={transaction.id}
-                  className="flex w-full gap-2 p-[0.666rem] text-sm animate-in fade-in-20 hover:bg-accent"
+                  className="animate-in fade-in-20 hover:bg-accent flex w-full gap-2 p-[0.666rem] text-sm"
                 >
-                  <ArrowRightLeft className="hidden text-primary sm:max-lg:block xl:block" />
+                  <ArrowRightLeft className="text-primary hidden sm:max-lg:block xl:block" />
                   <div>
                     <h3 className={cn('leading-none mb-2 tracking-wide')}>{ellipseId(transaction.id)}</h3>
                     <DescriptionList

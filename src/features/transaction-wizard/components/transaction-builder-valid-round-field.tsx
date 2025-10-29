@@ -38,7 +38,7 @@ export function TransactionBuilderValidRoundField() {
         field: setAutomaticallyPath,
       })}
       {!setAutomatically && (
-        <div className="ml-6 mt-3 grid gap-4">
+        <div className="mt-3 ml-6 grid gap-4">
           {helper.numberField({
             label: 'First valid round',
             field: firstValidPath,

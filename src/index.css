@@ -1,9 +1,138 @@
-@import './styles/fonts-normal.css';
-@import './styles/fonts-italic.css';
+@import './styles/fonts-normal.css' layer(base);
+@import './styles/fonts-italic.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+@layer base {
+  button,
+  [role='button'] {
+    cursor: pointer;
+  }
+}
+
+@theme {
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+
+  --color-payment: rgb(var(--payment));
+  --color-payment-foreground: rgb(var(--payment-foreground));
+
+  --color-asset-transfer: rgb(var(--asset-transfer));
+  --color-asset-transfer-foreground: rgb(var(--asset-transfer-foreground));
+
+  --color-application-call: rgb(var(--application-call));
+  --color-application-call-foreground: rgb(var(--application-call-foreground));
+
+  --color-asset-config: rgb(var(--asset-config));
+  --color-asset-config-foreground: rgb(var(--asset-config-foreground));
+
+  --color-asset-freeze: rgb(var(--asset-freeze));
+  --color-asset-freeze-foreground: rgb(var(--asset-freeze-foreground));
+
+  --color-state-proof: rgb(var(--state-proof));
+  --color-state-proof-foreground: rgb(var(--state-proof-foreground));
+
+  --color-key-registration: rgb(var(--key-registration));
+  --color-key-registration-foreground: rgb(var(--key-registration-foreground));
+
+  --color-heartbeat: rgb(var(--heartbeat));
+  --color-heartbeat-foreground: rgb(var(--heartbeat-foreground));
+
+  --color-error: rgb(var(--error));
+  --color-error-foreground: rgb(var(--error-foreground));
+
+  --color-abi-string: rgb(var(--payment));
+  --color-abi-string-foreground: rgb(var(--payment-foreground));
+
+  --color-abi-number: rgb(var(--state-proof));
+  --color-abi-number-foreground: rgb(var(--state-proof-foreground));
+
+  --color-abi-bool: rgb(var(--asset-freeze));
+  --color-abi-bool-foreground: rgb(var(--asset-freeze-foreground));
+
+  --color-abi-keys: rgb(var(--application-call));
+  --color-abi-keys-foreground: rgb(var(--application-call-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @layer base {
   :root {
@@ -163,7 +292,7 @@
   }
 
   p {
-    @apply leading-7 [&:not(:first-child)]:mt-6;
+    @apply leading-7 not-first:mt-6;
   }
 
   blockquote {

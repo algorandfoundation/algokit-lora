@@ -7,6 +7,11 @@ import { useNetworkConfig } from '@/features/network/data'
 import { ConnectWalletButton } from '@/features/wallet/components/connect-wallet-button'
 import { Urls } from '@/routes/urls'
 import { NetworkSelect } from '@/features/network/components/network-select'
+import { HamburgerMenuIcon } from '@radix-ui/react-icons'
+import DrawerMenu from './drawer-menu'
+
+import { useCallback } from 'react'
+import { useLayout } from '@/features/settings/data'
 
 type Props = {
   className?: string
@@ -14,6 +19,12 @@ type Props = {
 
 export function Header({ className }: Props) {
   const networkConfig = useNetworkConfig()
+  const [_layout, setLayout] = useLayout()
+
+  const openDrawerMenu = useCallback(
+    () => setLayout((prev) => ({ ...prev, isDrawerMenuExpanded: !prev.isDrawerMenuExpanded })),
+    [setLayout]
+  )
 
   return (
     <header className={cn('bg-card text-card-foreground flex h-20 px-4 justify-start border-b', className)}>
@@ -22,11 +33,13 @@ export function Header({ className }: Props) {
           <SvgLoraLight className="block dark:hidden" />
           <SvgLoraDark className="hidden dark:block" />
         </TemplatedNavLink>
-        <Search />
+        <Search className="hidden lg:flex" />
       </div>
-      <div className={cn('flex items-center gap-2 ml-auto overflow-hidden pl-1')}>
-        <NetworkSelect showLabel={false} />
+      <div className={cn('flex items-center gap-3 ml-auto overflow-hidden')}>
+        <NetworkSelect className="hidden lg:flex" showLabel={false} />
         <ConnectWalletButton />
+        <HamburgerMenuIcon onClick={openDrawerMenu} className="h-8 w-8 text-xl lg:hidden" />
+        <DrawerMenu />
       </div>
     </header>
   )

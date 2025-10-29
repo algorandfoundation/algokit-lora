@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
         <Table className="border-b" aria-label={ariaLabel}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-t bg-muted hover:bg-muted">
+              <TableRow key={headerGroup.id} className="bg-muted hover:bg-muted border-t">
                 {headerGroup.headers.map((header) => {
                   // meta.className is used to set the class name for the header cell if it exists
                   const className = header.column.columnDef.meta?.className
