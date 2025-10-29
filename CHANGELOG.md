@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.1.1...v2.2.0) (2025-10-29)
+
+### 🐛 Bug Fixes
+
+* **linter:** fix tailwind lint server not working inside react components ([7b0990d](https://github.com/algorandfoundation/algokit-lora/commit/7b0990da0cac83c62f9fbd100dbf9d9be15d3e1f))
+* **modals:** fix animation of the modals + remove comments ([cb56025](https://github.com/algorandfoundation/algokit-lora/commit/cb56025fa4ff58ea8bda02f81aa72bf7133a6395))
+
+### 🚀 Features
+
+* **drawer_menu:** finish implementing drawer menu to fix layout in mobile ([8fff982](https://github.com/algorandfoundation/algokit-lora/commit/8fff9828ee5177b5148818552adcd137ee1f45f7))
+
 ## [2.1.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.1.0...v2.1.1) (2025-09-27)
 
 ### 🐛 Bug Fixes
