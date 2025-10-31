@@ -39,8 +39,12 @@ export function LatestTransactions({ latestTransactions }: Props) {
                   className="animate-in fade-in-20 hover:bg-accent flex w-full gap-2 p-[0.666rem] text-sm"
                 >
                   <ArrowRightLeft className="text-primary hidden sm:max-lg:block xl:block" />
-                  <div>
-                    <h3 className={cn('leading-none mb-2 tracking-wide')}>{ellipseId(transaction.id)}</h3>
+                  <div className="w-full">
+                    <header className="flex justify-between">
+                      <h3 className={cn('leading-none mb-2 tracking-wide')}>{ellipseId(transaction.id)}</h3>
+                      <TransactionTypeBadge transactionType={transaction.type} />
+                    </header>
+
                     <DescriptionList
                       items={[
                         { dt: 'From:', dd: <TransactionAddress address={transaction.from} /> },
@@ -56,7 +60,6 @@ export function LatestTransactions({ latestTransactions }: Props) {
                       ]}
                     />
                   </div>
-                  <TransactionTypeBadge transactionType={transaction.type} />
                 </TransactionLink>
               </li>
             ))}

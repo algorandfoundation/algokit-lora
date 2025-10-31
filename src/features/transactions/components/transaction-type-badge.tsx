@@ -7,7 +7,7 @@ type Props = {
 
 export function TransactionTypeBadge({ transactionType }: Props) {
   return (
-    <Badge className="ml-auto truncate" variant={transactionType}>
+    <Badge className="truncate" variant={transactionType}>
       {transactionType}
     </Badge>
   )
