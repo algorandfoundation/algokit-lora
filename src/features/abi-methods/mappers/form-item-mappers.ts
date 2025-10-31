@@ -144,6 +144,13 @@ export const avmTypeToFormItem = (formFieldHelper: FormFieldHelper<any>, type: A
       field: `${path}`,
     })
   }
+  if (type === 'AVMBytes') {
+    return formFieldHelper.textField({
+      label: 'Value',
+      field: `${path}`,
+      helpText: 'A base64 encoded bytes value',
+    })
+  }
   return formFieldHelper.textField({
     label: 'Value',
     field: `${path}`,
