@@ -1,10 +1,10 @@
 import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { AvmValue, DecodedAvmType, DecodedAvmValue } from '../models'
+import { AvmFormItemValue, DecodedAvmType, DecodedAvmValue } from '../models'
 import algosdk from 'algosdk'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
-export const asAvmValue = (type: AVMType, base64Value: string): AvmValue => {
+export const asAvmValue = (type: AVMType, base64Value: string): AvmFormItemValue => {
   if (type === 'AVMUint64') {
     return algosdk.ABIType.from('uint64').decode(base64ToBytes(base64Value)) as bigint
   }

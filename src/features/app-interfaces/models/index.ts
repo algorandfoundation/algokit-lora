@@ -11,7 +11,7 @@ import {
   AVMTypeTemplateParam,
 } from '@/features/app-interfaces/data/types'
 import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
-import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
+import { AbiFormItemValue, AvmFormItemValue } from '@/features/abi-methods/models'
 
 export type TealTemplateParamField =
   | {
@@ -28,9 +28,9 @@ export type TealTemplateParamField =
       type: AVMType
       fieldSchema: z.ZodTypeAny
       createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
-      toTemplateParam: (value: AvmValue) => AVMTypeTemplateParam
-      fromTemplateParam: (templateParam: AVMTypeTemplateParam) => AvmValue
-      defaultValue?: AvmValue
+      toTemplateParam: (value: AvmFormItemValue) => AVMTypeTemplateParam
+      fromTemplateParam: (templateParam: AVMTypeTemplateParam) => AvmFormItemValue
+      defaultValue?: AvmFormItemValue
     }
   | {
       name: string
@@ -48,8 +48,8 @@ export type TealTemplateParamDefinition = {
   name: string
   type?: algosdk.ABIType | AVMType
   struct?: StructDefinition
-  defaultValue?: AbiFormItemValue | AvmValue
+  defaultValue?: AbiFormItemValue | AvmFormItemValue
 }
 
 export type TealUnknownTypeTemplateParamFieldValue = { type: TemplateParamType; value: string }
-export type TealTemplateParamFieldValue = AbiFormItemValue | TealUnknownTypeTemplateParamFieldValue | AvmValue
+export type TealTemplateParamFieldValue = AbiFormItemValue | TealUnknownTypeTemplateParamFieldValue | AvmFormItemValue
