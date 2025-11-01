@@ -16,7 +16,7 @@ export function DescriptionList({ items, dtClassName }: Props) {
       {items.map((item, index) => (
         <dl key={index} className={cn('grid grid-cols-subgrid col-span-2 gap-4')}>
           <dt className={cn('font-medium', dtClassName)}>{item.dt}</dt>
-          <dd className={cn('text-ellipsis whitespace-normal overflow-hidden')}>
+          <dd className={cn('text-ellipsis whitespace-normal overflow-hidden min-w-64')}>
             {typeof item.dd === 'bigint' ? item.dd.toString() : item.dd}
           </dd>
         </dl>
