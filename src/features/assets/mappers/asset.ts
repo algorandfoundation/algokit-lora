@@ -114,7 +114,7 @@ const asStandardsUsed = (assetResult: AssetResult, metadataResult: AssetMetadata
   const standardsUsed = new Set<AssetStandard>()
 
   const [isArc3, isArc19] = assetResult.params.url
-    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
+    ? ([isArc3Url(assetResult.params.url, assetResult.params.name), isArc19Url(assetResult.params.url)] as const)
     : [false, false]
   if (isArc3) {
     standardsUsed.add(AssetStandard.ARC3)
