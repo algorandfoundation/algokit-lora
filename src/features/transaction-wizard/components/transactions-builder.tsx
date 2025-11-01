@@ -340,13 +340,13 @@ export function TransactionsBuilder({
   return (
     <div>
       <div className="space-y-4">
-        <div className="mb-4 flex items-center gap-2">
+        <div className="mb-4 flex flex-col justify-between gap-2 md:flex-row md:items-center">
           {title}
           {!disableAddTransaction && (
             <Button
               variant="outline-secondary"
               onClick={createTransaction}
-              className="plausible-event-name=txn-wizard-add-txn ml-auto"
+              className="plausible-event-name=txn-wizard-add-txn w-44"
               icon={<Plus size={16} />}
             >
               {addTransactionLabel}

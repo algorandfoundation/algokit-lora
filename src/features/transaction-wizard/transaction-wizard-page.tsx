@@ -53,9 +53,9 @@ export function TransactionWizardPage() {
   }, [])
 
   return (
-    <div className="space-y-2">
+    <div className="w-full space-y-2 overflow-hidden">
       <PageTitle title={transactionWizardPageTitle} />
-      <div className="space-y-6">
+      <div className="w-full space-y-6">
         <p>Create and send transactions to the selected network using a connected wallet.</p>
         <TransactionsBuilder
           defaultTransactions={searchParamsTransactions}
