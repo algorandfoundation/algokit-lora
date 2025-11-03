@@ -43,7 +43,6 @@ export function LatestBlocks({ latestBlocks }: Props) {
         )}
         {latestBlocks.length === 0 && (
           <div className="mx-2 flex items-center gap-2 py-3 align-middle">
-            <h2>{latestBlocksTitle}</h2>
             <Info />
             <span>No recent data available.</span>
           </div>
