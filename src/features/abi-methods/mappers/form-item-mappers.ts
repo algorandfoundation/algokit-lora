@@ -71,6 +71,7 @@ export const abiTypeToFormItem = (
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,
+      helpText: 'An Algorand address string',
     })
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
@@ -131,6 +132,7 @@ export const abiReferenceTypeToFormItem = (formFieldHelper: FormFieldHelper<any>
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,
+      helpText: 'An Algorand address string',
     })
   }
 

@@ -72,7 +72,7 @@ function FormInner({
         (appInterface) => appInterface.name.toLowerCase() === appInterfaceName.toLowerCase()
       )
       setValue('appInterfaceExists', appInterfaceExists)
-      trigger()
+      trigger('name')
     }
   }, [appInterfaceName, loadableAppInterfaces, setValue, trigger])
 
@@ -201,7 +201,9 @@ export function DeploymentDetails({ machine }: Props) {
       return {
         ...acc,
         [field.path]: state.context.templateParams
-          ? field.fromTemplateParam(state.context.templateParams[index] as UnknownTypeTemplateParam & AVMTypeTemplateParam & ABITypeTemplateParam)
+          ? field.fromTemplateParam(
+              state.context.templateParams[index] as UnknownTypeTemplateParam & AVMTypeTemplateParam & ABITypeTemplateParam
+            )
           : 'defaultValue' in field
             ? field.defaultValue
             : {
