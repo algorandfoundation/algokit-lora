@@ -410,7 +410,7 @@ export function TransactionsBuilder({
               </AsyncActionButton>
             )}
             <AsyncActionButton
-              className="plausible-event-name=txn-wizard-send-txn w-28"
+              className="plausible-event-name=txn-wizard-send-txn w-36 md:w-28"
               onClick={sendTransactions}
               icon={sendButtonConfig.icon}
               {...sendButtonDisabledProps}
