@@ -33,7 +33,6 @@ export const allWalletProviderNames: Record<WalletId, string> = {
   // The below providers aren't used
   custom: 'Custom',
   kibisis: 'Kibisis',
-  'w3-wallet': 'w3-wallet',
   walletconnect: 'Wallet Connect',
   magic: 'Magic',
   biatec: 'Biatec',
