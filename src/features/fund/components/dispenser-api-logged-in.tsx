@@ -26,7 +26,7 @@ export function DispenserApiLoggedIn({ networkConfig }: Props) {
           <DispenserApiUserInfo />
           <Accordion type="single" collapsible defaultValue="fund">
             <AccordionItem value="fund">
-              <AccordionTrigger>Fund an existing {networkConfig.name} account</AccordionTrigger>
+              <AccordionTrigger>Fund an existing {networkConfig.name} account with ALGO</AccordionTrigger>
               <AccordionContent>
                 <FundAccountForm onSubmit={fundAccount} limit={fundLimit} defaultReceiver={activeWalletAccountSnapshot?.address} />
               </AccordionContent>
@@ -49,6 +49,22 @@ export function DispenserApiLoggedIn({ networkConfig }: Props) {
                     return <p>This action requires a connected wallet</p>
                   }}
                 </RenderLoadable>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="usdc">
+              <AccordionTrigger>Fund an existing TestNet account with USDC</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  To fund your TestNet account with USDC, use the{' '}
+                  <a
+                    href="https://faucet.circle.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:no-underline"
+                  >
+                    Circle TestNet Faucet
+                  </a>{' '}
+                </p>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
