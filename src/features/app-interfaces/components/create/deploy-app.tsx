@@ -51,7 +51,7 @@ const getTealTemplateParams = (templateParams: ReturnType<typeof useCreateAppInt
         }
       } else if ('abiType' in templateParam) {
         acc[templateParam.name] = templateParam.abiType.encode(templateParam.value)
-      } else {
+      } else if ('avmType' in templateParam) {
         acc[templateParam.name] = templateParam.value
       }
       return acc
