@@ -71,6 +71,7 @@ export const abiTypeToFormItem = (
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,
+      helpText: 'An Algorand address string',
     })
   }
   if (type instanceof algosdk.ABIArrayDynamicType) {
@@ -131,6 +132,7 @@ export const abiReferenceTypeToFormItem = (formFieldHelper: FormFieldHelper<any>
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,
+      helpText: 'An Algorand address string',
     })
   }
 
@@ -142,6 +144,13 @@ export const avmTypeToFormItem = (formFieldHelper: FormFieldHelper<any>, type: A
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}`,
+    })
+  }
+  if (type === 'AVMBytes') {
+    return formFieldHelper.textField({
+      label: 'Value',
+      field: `${path}`,
+      helpText: 'A base64 encoded bytes value',
     })
   }
   return formFieldHelper.textField({
