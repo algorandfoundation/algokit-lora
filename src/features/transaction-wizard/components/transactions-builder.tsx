@@ -395,7 +395,7 @@ export function TransactionsBuilder({
               </AsyncActionButton>
             )}
           </div>
-          <div className="left-auto flex gap-2">
+          <div className="left-auto flex flex-wrap gap-2">
             <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>
               Clear
             </Button>
