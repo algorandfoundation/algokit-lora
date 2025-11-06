@@ -112,8 +112,9 @@ describe('fund-page', () => {
           ),
         async (component) => {
           await waitFor(() => {
-            expect(component.getByText('Fund an existing TestNet account')).toBeTruthy()
+            expect(component.getByText('Fund an existing TestNet account with ALGO')).toBeTruthy()
             expect(component.getByText('Refund unused TestNet ALGO')).toBeTruthy()
+            expect(component.getByText('Fund an existing TestNet account with USDC')).toBeTruthy()
           })
         }
       )
