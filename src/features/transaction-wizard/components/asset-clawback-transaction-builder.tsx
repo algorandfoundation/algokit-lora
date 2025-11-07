@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalSenderFieldShape, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -21,14 +21,15 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const clawbackTargetLabel = 'Clawback target'
 
 export const assetClawbackFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    ...optionalSenderFieldShape,
     ...receiverFieldSchema,
     clawbackTarget: addressFieldSchema,
     asset: z
@@ -83,7 +84,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -186,7 +187,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetClawback,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveSenderAddress(data.sender),
         receiver: data.receiver,
         clawbackTarget: data.clawbackTarget,
         amount: data.amount!,
@@ -201,7 +202,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: asTransactionSender(transaction.sender),
         receiver: transaction.receiver,
         clawbackTarget: transaction.clawbackTarget,
         amount: transaction.amount,
