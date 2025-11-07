@@ -1,4 +1,4 @@
-import { commonSchema, requiredMessage, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalSenderFieldShape, requiredMessage } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,13 +17,14 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const keyRegistrationFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    ...optionalSenderFieldShape,
     online: z.string(),
     voteKey: z.string().optional(),
     selectionKey: z.string().optional(),
@@ -115,7 +116,7 @@ function FormFields({ helper }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to perform the key registration. Sends the transaction and pays the fee',
+        helpText: 'Account to perform the key registration. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.radioGroupField({
@@ -184,7 +185,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.KeyRegistration,
-        sender: data.sender,
+        sender: await resolveSenderAddress(data.sender),
         online: data.online === 'true' ? true : false,
         voteKey: data.voteKey,
         selectionKey: data.selectionKey,
@@ -202,7 +203,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
+        sender: asTransactionSender(transaction.sender),
         online: transaction.online ? 'true' : 'false',
         voteKey: transaction.voteKey,
         selectionKey: transaction.selectionKey,
