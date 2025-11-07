@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalSenderFieldShape } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -21,12 +21,13 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetOptOutFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   closeRemainderTo: addressFieldSchema,
   asset: z
     .object({
@@ -63,7 +64,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to opt out of the asset. Sends the transaction and pays the fee',
+        helpText: 'Account to opt out of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -150,7 +151,7 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAccount
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptOut,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveSenderAddress(data.sender),
         closeRemainderTo: data.closeRemainderTo,
         fee: data.fee,
         validRounds: data.validRounds,
@@ -163,7 +164,7 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAccount
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: asTransactionSender(transaction.sender),
         closeRemainderTo: transaction.closeRemainderTo,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
