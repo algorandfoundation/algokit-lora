@@ -135,8 +135,8 @@ export function TransactionsTable({
 
   return (
     <DndContext collisionDetection={closestCenter} modifiers={[restrictToVerticalAxis]} onDragEnd={handleDragEnd} sensors={sensors}>
-      <div className="grid">
-        <Table aria-label={ariaLabel} className="border-separate border-spacing-0 overflow-hidden">
+      <div className="grid w-full">
+        <Table aria-label={ariaLabel} className="border-separate border-spacing-0">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-muted hover:bg-muted relative z-10">
@@ -225,12 +225,7 @@ const getTableColumns = ({
     header: 'Description',
     cell: (c) => {
       const transaction = c.row.original
-      return (
-        <DescriptionList
-          items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)}
-          dtClassName="w-40 truncate"
-        />
-      )
+      return <DescriptionList items={asDescriptionListItems(transaction, transactionPositions, onEditTransaction)} dtClassName="truncate" />
     },
   },
   {
@@ -239,7 +234,13 @@ const getTableColumns = ({
     cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger aria-label={transactionActionsLabel} asChild>
-          <Button variant="outline" size="sm" className="px-2.5" icon={<EllipsisVertical size={16} />} />
+          <Button
+            variant="outline"
+            size="sm"
+            className="px-2.5
+          "
+            icon={<EllipsisVertical size={16} />}
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" side="right">
           <DropdownMenuItem onClick={() => onEditTransaction(row.original)}>Edit</DropdownMenuItem>

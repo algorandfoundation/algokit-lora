@@ -113,9 +113,9 @@ export {
 }
 
 export function MediumSizeDialogBody({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('w-full md:w-[768px] max-h-[600px] overflow-auto px-4 pt-1 pb-4', className)}>{children}</div>
+  return <div className={cn('w-full md:w-3xl md:max-h-[600px] overflow-scroll px-4 pt-1 pb-4', className)}>{children}</div>
 }
 
 export function SmallSizeDialogBody({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={cn('w-full md:w-[500px] max-h-[300px] overflow-auto px-4 pt-1 pb-4', className)}>{children}</div>
+  return <div className={cn('w-full md:w-[500px]  overflow-auto px-4 pt-1 pb-4', className)}>{children}</div>
 }

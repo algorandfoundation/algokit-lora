@@ -15,6 +15,7 @@ import { useSearch } from '../data'
 import { Loader2 as Loader } from 'lucide-react'
 import { useLocationChange } from '@/features/common/hooks/use-location-change'
 import { isMacOs } from '@/utils/is-mac-platform'
+import { useLayout } from '@/features/settings/data'
 
 export const searchPlaceholderLabel = `Search by ID or Address ${isMacOs ? '(⌘K)' : '(Ctrl+K)'}`
 export const noSearchResultsMessage = 'No results.'
@@ -26,6 +27,7 @@ type Props = {
 export function Search({ className }: Props) {
   const navigate = useNavigate()
   const [term, setTerm, loadableResults] = useSearch()
+  const [__, setLayout] = useLayout()
   const searchInputRef = useRef<HTMLInputElement>(null)
 
   const handleInput = useCallback(
@@ -37,9 +39,10 @@ export function Search({ className }: Props) {
 
   const handleSelection = useCallback(
     (url: string) => {
+      setLayout((prev) => ({ ...prev, isDrawerMenuExpanded: false }))
       navigate(url)
     },
-    [navigate]
+    [navigate, setLayout]
   )
 
   const clearTerm = useCallback(() => term && setTerm(''), [setTerm, term])

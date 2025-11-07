@@ -55,7 +55,7 @@ export function FileInput({ accept, placeholder, value, disabled, onChange, fiel
               return (
                 <>
                   <UploadIcon />
-                  <span className="mx-2 text-center text-sm">{placeholder}</span>
+                  <span className="mx-2 text-center text-sm ">{placeholder}</span>
                 </>
               )
             } else {
