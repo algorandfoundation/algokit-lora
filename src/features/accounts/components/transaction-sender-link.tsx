@@ -5,15 +5,9 @@ import { AddressOrNfdLink } from './address-or-nfd-link'
 import { Address } from '../data/types'
 import { cn } from '@/features/common/utils'
 
-export type Props = PropsWithChildren<{
-  address: Address
-  short?: boolean
-  className?: string
-  showCopyButton?: boolean
-  showQRButton?: boolean
-  nfd?: Nfd
+export type Props = AddressOrNfdLinkProps & {
   autoPopulated?: boolean
-}>
+}
 
 export default function TransactionSenderLink({ address, short, showCopyButton, showQRButton, nfd, autoPopulated }: Props) {
   return (
