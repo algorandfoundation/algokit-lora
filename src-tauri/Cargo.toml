@@ -1,6 +1,6 @@
 [package]
 name = "algokit-lora"
-version = "2.2.1-beta.4"
+version = "2.2.1-beta.5"
 description = "algokit-lora"
 authors = ["algorand-foundation"]
 edition = "2021"
