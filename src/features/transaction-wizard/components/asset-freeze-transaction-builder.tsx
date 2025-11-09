@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalSenderFieldShape } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,12 +22,13 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetFreezeFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    ...optionalSenderFieldShape,
     freezeTarget: addressFieldSchema,
     frozen: z.union([z.string(), z.boolean()]),
     asset: z
@@ -86,7 +87,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The freeze account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The freeze account of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -182,7 +183,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetFreeze,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveSenderAddress(data.sender),
         freezeTarget: data.freezeTarget,
         frozen: data.frozen === 'true' ? true : false,
         fee: data.fee,
@@ -196,7 +197,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: asTransactionSender(transaction.sender),
         freezeTarget: transaction.freezeTarget,
         frozen: transaction.frozen ? 'true' : 'false',
         fee: transaction.fee,

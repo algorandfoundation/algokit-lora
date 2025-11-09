@@ -1,10 +1,10 @@
 import algosdk from 'algosdk'
 import { numberSchema } from '@/features/forms/data/common'
 import {
-  senderFieldSchema,
   commonSchema,
   onCompleteOptionsForAppCreate,
   onCompleteForAppCreateFieldSchema,
+  optionalSenderFieldShape,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -19,12 +19,13 @@ import { BuildApplicationCreateTransactionResult, BuildableTransactionType } fro
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
-  ...senderFieldSchema,
+  ...optionalSenderFieldShape,
   ...onCompleteForAppCreateFieldSchema,
   approvalProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
   clearStateProgram: zfd.text(z.string({ required_error: 'Required', invalid_type_error: 'Required' })),
@@ -57,7 +58,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         type: BuildableTransactionType.ApplicationCreate,
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
-        sender: values.sender,
+        sender: await resolveSenderAddress(values.sender!),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         globalInts: values.globalInts,
@@ -78,7 +79,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
       return {
         approvalProgram: transaction.approvalProgram,
         clearStateProgram: transaction.clearStateProgram,
-        sender: transaction.sender,
+        sender: asTransactionSender(transaction.sender),
         onComplete: transaction.onComplete.toString(),
         extraProgramPages: transaction.extraProgramPages,
         globalInts: transaction.globalInts,
@@ -140,7 +141,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to create from. Sends the transaction and pays the fee',
+            helpText: 'Account to create from. Sends the transaction and pays the fee - optional for simulating',
           })}
           {helper.numberField({
             field: 'globalInts',
