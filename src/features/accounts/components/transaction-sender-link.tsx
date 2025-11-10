@@ -2,11 +2,11 @@ import { Nfd } from '@/features/nfd/data/types'
 
 import { PropsWithChildren } from 'react'
 import { AddressOrNfdLink } from './address-or-nfd-link'
-import { Address } from '../data/types'
+import { Address } from 'algosdk'
 import { cn } from '@/features/common/utils'
 
 export type Props = PropsWithChildren<{
-  address: Address
+  address: string | Address
   short?: boolean
   className?: string
   showCopyButton?: boolean
@@ -15,17 +15,12 @@ export type Props = PropsWithChildren<{
   autoPopulated?: boolean
 }>
 
-export default function TransactionSenderLink({ address, short, showCopyButton, showQRButton, nfd, autoPopulated }: Props) {
+export default function TransactionSenderLink(props: Props) {
+  const { autoPopulated, className, ...rest } = props
+
   return (
     <div className="flex items-center">
-      <AddressOrNfdLink
-        address={address}
-        short={short}
-        className={cn(autoPopulated && 'text-yellow-500')}
-        showCopyButton={showCopyButton}
-        showQRButton={showQRButton}
-        nfd={nfd}
-      />
+      <AddressOrNfdLink className={cn(className, autoPopulated && 'text-yellow-500')} {...rest} />
 
       {autoPopulated && (
         <span className="group ml-1 cursor-help text-yellow-500">

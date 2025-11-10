@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalSenderFieldShape, receiverFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -21,7 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -29,7 +29,7 @@ const receiverLabel = 'Receiver'
 
 export const assetTransferFormSchema = z.object({
   ...commonSchema,
-  ...optionalSenderFieldShape,
+  sender: optionalAddressFieldSchema,
   ...receiverFieldSchema,
   asset: z
     .object({
@@ -176,7 +176,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,

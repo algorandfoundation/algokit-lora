@@ -1,44 +1,57 @@
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { transformSearchParamsTransactions } from './transform-search-params-transactions'
-import { BaseSearchParamTransaction } from '../models'
 import { toast } from 'react-toastify'
-import { useEffect } from 'react'
+import { transformSearchParamsTransactions } from './transform-search-params-transactions'
+import type { BaseSearchParamTransaction, BuildTransactionResult } from '../models'
 
 const transformSearchParams = (searchParams: URLSearchParams) => {
   const entries = Array.from(searchParams.entries())
 
-  // Group params by their index
-  const groupedParams = entries.reduce<BaseSearchParamTransaction[]>((acc, [key, value]) => {
+  const grouped = entries.reduce<BaseSearchParamTransaction[]>((acc, [key, value]) => {
     const match = key.match(/^([^[]+)\[(\d+)\]$/)
     if (!match) return acc
-
     const [, paramName, index] = match
-    const idx = parseInt(index)
-
-    if (!acc[idx]) {
-      acc[idx] = { type: '' }
-    }
-
+    const idx = parseInt(index, 10)
+    acc[idx] ??= { type: '' } // ensure slot exists; keep your original default
     acc[idx][paramName] = value
     return acc
   }, [])
 
-  // Filter out empty entries and convert to array
-  return groupedParams.filter((entry) => Object.keys(entry).length > 0)
+  return grouped.filter((entry) => Object.keys(entry).length > 0)
 }
 
 export function useTransactionSearchParamsBuilder() {
   const [searchParams] = useSearchParams()
-  const transformedParams = transformSearchParams(searchParams)
-  const { transactions, errors } = transformSearchParamsTransactions(transformedParams)
+
+  // memoize the parsed params so effect only runs when params actually change
+  const transformedParams = useMemo(
+    () => transformSearchParams(searchParams),
+    // URLSearchParams is mutable; tie memoization to its string form
+    [searchParams]
+  )
+
+  const [transactions, setTransactions] = useState<BuildTransactionResult[]>([])
+  const [errors, setErrors] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (errors && errors.length > 0) {
-      for (const error of errors) {
-        toast.error(error)
+    let cancelled = false
+    ;(async () => {
+      setLoading(true)
+      try {
+        const { transactions, errors = [] } = await transformSearchParamsTransactions(transformedParams)
+        setTransactions(transactions)
+        setErrors(errors)
+        // show toasts once per change
+        if (errors.length) errors.forEach((e) => toast.error(e))
+      } finally {
+        if (!cancelled) setLoading(false)
       }
+    })()
+    return () => {
+      cancelled = true
     }
-  }, [errors])
+  }, [transformedParams])
 
-  return transactions
+  return { transactions, errors, loading }
 }

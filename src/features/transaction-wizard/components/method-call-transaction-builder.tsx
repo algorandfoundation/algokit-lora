@@ -4,7 +4,7 @@ import {
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
-  optionalSenderFieldShape,
+  optionalAddressFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -36,14 +36,14 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/features/common/compo
 import { Info } from 'lucide-react'
 import { ApplicationId } from '@/features/applications/data/types'
 import { MethodDefinition } from '@/features/applications/models'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,
-  ...optionalSenderFieldShape,
+  sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
@@ -188,7 +188,7 @@ export function MethodCallTransactionBuilder({
       )
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
         methodName: transaction.methodDefinition.name,
         extraProgramPages: transaction.extraProgramPages,

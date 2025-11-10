@@ -86,7 +86,7 @@ export const asPaymentTransactionParams = (
   transaction: BuildPaymentTransactionResult | BuildAccountCloseTransactionResult
 ): PaymentParams => {
   return {
-    sender: transaction.sender.resolvedAddress!,
+    sender: transaction.sender.resolvedAddress,
     receiver: transaction.receiver ? transaction.receiver.resolvedAddress : (transaction.sender?.resolvedAddress ?? 'LOL IDK'),
     closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo.resolvedAddress : undefined,
     amount: algos(transaction.amount ?? 0),

@@ -66,8 +66,8 @@ export type AddressOrNfd = {
 }
 
 export type TransactionSender = {
-  value: Address | Nfd | undefined
-  resolvedAddress: Address | undefined
+  value: Address | Nfd
+  resolvedAddress: Address
   autoPopulated?: boolean
 }
 

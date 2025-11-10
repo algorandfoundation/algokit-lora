@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, optionalSenderFieldShape } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,13 +22,13 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetFreezeFormSchema = z
   .object({
     ...commonSchema,
-    ...optionalSenderFieldShape,
+    sender: optionalAddressFieldSchema,
     freezeTarget: addressFieldSchema,
     frozen: z.union([z.string(), z.boolean()]),
     asset: z
@@ -197,7 +197,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         freezeTarget: transaction.freezeTarget,
         frozen: transaction.frozen ? 'true' : 'false',
         fee: transaction.fee,

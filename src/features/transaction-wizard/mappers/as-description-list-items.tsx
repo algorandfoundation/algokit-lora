@@ -102,7 +102,7 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
   return [
     {
       dt: 'Sender',
-      dd: <TransactionSenderLink autoPopulated={txn.sender.autoPopulated} address={String(params.sender)} />,
+      dd: <TransactionSenderLink autoPopulated={txn.sender.autoPopulated} address={params.sender} />,
     },
     ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
