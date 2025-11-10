@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalSenderFieldShape } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -24,12 +24,12 @@ import { ellipseAddress } from '@/utils/ellipse-address'
 import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetDestroyFormSchema = z.object({
   ...commonSchema,
-  ...optionalSenderFieldShape,
+  sender: optionalAddressFieldSchema,
   asset: z
     .object({
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -178,7 +178,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

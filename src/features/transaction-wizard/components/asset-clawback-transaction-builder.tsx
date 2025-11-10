@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, optionalSenderFieldShape, receiverFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalAddressFieldSchema, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -21,7 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const clawbackTargetLabel = 'Clawback target'
@@ -29,7 +29,7 @@ const clawbackTargetLabel = 'Clawback target'
 export const assetClawbackFormSchema = z
   .object({
     ...commonSchema,
-    ...optionalSenderFieldShape,
+    sender: optionalAddressFieldSchema,
     ...receiverFieldSchema,
     clawbackTarget: addressFieldSchema,
     asset: z
@@ -202,7 +202,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         receiver: transaction.receiver,
         clawbackTarget: transaction.clawbackTarget,
         amount: transaction.amount,

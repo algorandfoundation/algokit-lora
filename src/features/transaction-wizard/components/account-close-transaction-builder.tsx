@@ -1,10 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import {
-  addressFieldSchema,
-  commonSchema,
-  optionalAddressFieldSchema,
-  optionalSenderFieldShape,
-} from '@/features/transaction-wizard/data/common'
+import { addressFieldSchema, commonSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -20,7 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -31,7 +26,7 @@ const closeRemainderToLabel = 'Close remainder to'
 const formSchema = z
   .object({
     ...commonSchema,
-    ...optionalSenderFieldShape,
+    sender: optionalAddressFieldSchema,
     closeRemainderTo: addressFieldSchema,
     receiver: optionalAddressFieldSchema,
     amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).optional()),
@@ -71,7 +66,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
         type: BuildableTransactionType.AccountClose,
         sender: await resolveSenderAddress(data.sender),
         closeRemainderTo: data.closeRemainderTo,
-        receiver: asAddressOrNfd(data.receiver.value!),
+        receiver: asOptionalAddressOrNfd(data.receiver),
         amount: data.amount,
         fee: data.fee,
         validRounds: data.validRounds,
@@ -83,7 +78,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         closeRemainderTo: transaction.closeRemainderTo,
         receiver: transaction.receiver,
         amount: transaction.amount,

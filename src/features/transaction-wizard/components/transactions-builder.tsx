@@ -329,7 +329,6 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
-    // derive it, don't store it
     const hasAutoPopulatedSender = transactions.some((t) => t.sender?.autoPopulated === true)
 
     if (hasAutoPopulatedSender) {

@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalSenderFieldShape, receiverFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -15,14 +15,14 @@ import { TransactionBuilderMode } from '../data'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const receiverLabel = 'Receiver'
 
 export const paymentFormSchema = z.object({
-  ...optionalSenderFieldShape,
+  sender: optionalAddressFieldSchema,
   ...commonSchema,
   ...receiverFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
@@ -56,7 +56,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,

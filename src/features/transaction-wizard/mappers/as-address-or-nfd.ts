@@ -18,8 +18,8 @@ export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount):
 
 export const asTransactionSender = (transactionSender?: TransactionSender): TransactionSender => {
   const emptySender: TransactionSender = {
-    value: undefined,
-    resolvedAddress: undefined,
+    value: '',
+    resolvedAddress: '',
     autoPopulated: false,
   }
   if (!transactionSender) return emptySender
@@ -30,6 +30,11 @@ export const asTransactionSender = (transactionSender?: TransactionSender): Tran
     : emptySender
 }
 
+export const asOptionalAddressOrNfd = (addressOrNfdSchema: Partial<AddressOrNfd>) => {
+  return addressOrNfdSchema.value && addressOrNfdSchema.resolvedAddress
+    ? ({ value: addressOrNfdSchema.value, resolvedAddress: addressOrNfdSchema.resolvedAddress } satisfies AddressOrNfd)
+    : undefined
+}
 export const asOptionalAddressOrNfdSchema = (address?: Address) => {
   return {
     value: address,

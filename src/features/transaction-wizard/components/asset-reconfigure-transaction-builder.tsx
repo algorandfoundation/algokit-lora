@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -21,13 +21,13 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetReconfigureFormSchema = z
   .object({
     ...commonSchema,
-    ...optionalSenderFieldShape,
+    sender: optionalAddressFieldSchema,
     asset: z
       .object({
         id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -233,7 +233,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,

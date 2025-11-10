@@ -1,5 +1,5 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, optionalSenderFieldShape } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -15,13 +15,13 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
-  ...optionalSenderFieldShape,
+  sender: optionalAddressFieldSchema,
   total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).gt(BigInt(0), 'Must be greater than 0')),
   decimals: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).max(19)),
   assetName: zfd.text(z.string().optional()),
@@ -156,7 +156,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: transaction.unitName,
         total: transaction.total,
         decimals: transaction.decimals,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,

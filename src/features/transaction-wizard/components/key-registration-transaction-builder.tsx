@@ -1,4 +1,4 @@
-import { commonSchema, optionalSenderFieldShape, requiredMessage } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, requiredMessage } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,14 +17,14 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { useFormContext } from 'react-hook-form'
 import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const keyRegistrationFormSchema = z
   .object({
     ...commonSchema,
-    ...optionalSenderFieldShape,
+    sender: optionalAddressFieldSchema,
     online: z.string(),
     voteKey: z.string().optional(),
     selectionKey: z.string().optional(),
@@ -203,7 +203,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         online: transaction.online ? 'true' : 'false',
         voteKey: transaction.voteKey,
         selectionKey: transaction.selectionKey,

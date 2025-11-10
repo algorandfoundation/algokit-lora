@@ -29,6 +29,7 @@ import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import Decimal from 'decimal.js'
 import { asTransactionSender } from '../mappers/as-address-or-nfd'
+import resolveSenderAddress from './resolve-sender-address'
 
 // This is a workaround to make the online field a boolean instead of a string.
 // A string type is used in the form schema because of the value of radio buttons cant be boolean
@@ -55,10 +56,10 @@ const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction)
   },
 })
 
-const transformPaymentTransaction = (params: BaseSearchParamTransaction): BuildPaymentTransactionResult => ({
+const transformPaymentTransaction = async (params: BaseSearchParamTransaction): Promise<BuildPaymentTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.Payment,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
 
   receiver: {
     value: params.receiver,
@@ -352,7 +353,7 @@ const transformationConfigByTransactionType = {
   // TODO: Add other transaction types
 }
 
-export function transformSearchParamsTransactions(searchParamTransactions: BaseSearchParamTransaction[]) {
+export async function transformSearchParamsTransactions(searchParamTransactions: BaseSearchParamTransaction[]) {
   const transactionsFromSearchParams: BuildTransactionResult[] = []
   const errors: string[] = []
   for (const [index, searchParamTransaction] of searchParamTransactions.entries()) {
@@ -362,7 +363,7 @@ export function transformSearchParamsTransactions(searchParamTransactions: BaseS
     }
     const { transform, schema } = transformationConfigByTransactionType[configKey as keyof typeof transformationConfigByTransactionType]
     try {
-      const transaction = transform(searchParamTransaction)
+      const transaction = await Promise.resolve(transform(searchParamTransaction))
       schema.parse(transaction)
       transactionsFromSearchParams.push(transaction)
     } catch (error) {

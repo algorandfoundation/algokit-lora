@@ -1,6 +1,11 @@
 import algosdk from 'algosdk'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { commonSchema, onCompleteFieldSchema, onCompleteOptions, optionalSenderFieldShape } from '@/features/transaction-wizard/data/common'
+import {
+  commonSchema,
+  onCompleteFieldSchema,
+  onCompleteOptions,
+  optionalAddressFieldSchema,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -14,13 +19,13 @@ import { BuildAppCallTransactionResult, BuildableTransactionType } from '../mode
 import { randomGuid } from '@/utils/random-guid'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asTransactionSender } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
-  ...optionalSenderFieldShape,
+  sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
@@ -64,7 +69,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: asTransactionSender(transaction.sender),
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,

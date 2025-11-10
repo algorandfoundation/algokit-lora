@@ -6,14 +6,12 @@ import {
   BETANET_FEE_SINK_ADDRESS,
   FNET_FEE_SINK_ADDRESS,
 } from '@/features/network/data'
-import { AddressOrNfd, TransactionSender } from '../models'
+import { TransactionSender } from '../models'
 import { settingsStore } from '@/features/settings/data'
 import { betanetId, mainnetId, testnetId, fnetId, localnetId } from '@/features/network/data'
 import { algorandClient } from '@/features/common/data/algo-client'
 
-export default async function resolveSenderAddress<T extends OptionalSenderFieldSchema>(
-  data: T
-): Promise<AddressOrNfd & TransactionSender> {
+export default async function resolveSenderAddress(data: OptionalSenderFieldSchema): Promise<TransactionSender> {
   const { id: networkId } = settingsStore.get(networkConfigAtom)
 
   const val = data?.value ?? ''
