@@ -1,5 +1,5 @@
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
 import { TransactionWizardPage } from '../transaction-wizard-page'
 import { render, screen, cleanup } from '@testing-library/react'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
@@ -189,6 +189,26 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(receiver)).toBeInTheDocument()
       expect(await screen.findByText('2.5')).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
+    })
+
+    // Test is failing with "Can't get LocalNet dispenser account from non LocalNet network""
+    it('should render payment transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetAddress = localnet.context.testAccount.addr.toString()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'pay',
+          'receiver[0]': receiver,
+          'amount[0]': amount.toString(),
+          'fee[0]': fee.toString(),
+          'note[0]': note,
+        }),
+      })
+
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText('2.5')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(localnetAddress)).toBeInTheDocument()
     })
 
     it.each([
@@ -1166,6 +1186,7 @@ describe('Render transactions page with search params', () => {
         mode: 'missing',
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
+
       // Invalid field value cases
       {
         key: 'assetid[0]',
