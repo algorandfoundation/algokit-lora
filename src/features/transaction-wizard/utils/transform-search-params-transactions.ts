@@ -28,7 +28,6 @@ import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import Decimal from 'decimal.js'
-import { asTransactionSender } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from './resolve-sender-address'
 
 // This is a workaround to make the online field a boolean instead of a string.
@@ -37,10 +36,10 @@ const keyRegFormSchema = keyRegistrationFormSchema.innerType().extend({
   online: z.boolean(),
 })
 
-const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction): BuildKeyRegistrationTransactionResult => ({
+const transformKeyRegistrationTransaction = async (params: BaseSearchParamTransaction): Promise<BuildKeyRegistrationTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.KeyRegistration,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
   online: Boolean(params.votekey),
   fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
   voteKey: params.votekey,
@@ -59,7 +58,7 @@ const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction)
 const transformPaymentTransaction = async (params: BaseSearchParamTransaction): Promise<BuildPaymentTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.Payment,
-  sender: await resolveSenderAddress({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   receiver: {
     value: params.receiver,
@@ -79,10 +78,10 @@ const defaultOptionalAddress = {
   value: '',
   resolvedAddress: '',
 }
-const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): BuildAssetCreateTransactionResult => ({
+const transformAssetCreateTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetCreateTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetCreate,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   total: BigInt(params.total),
   decimals: Number(params.decimals),
@@ -124,10 +123,10 @@ const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): Bu
   note: params.note,
 })
 
-const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): BuildAssetOptInTransactionResult => ({
+const transformAssetOptInTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetOptInTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetOptIn,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   asset: {
     id: BigInt(params.assetid),
@@ -143,16 +142,15 @@ const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): Bui
   note: params.note,
 })
 
-const transformAssetOptOutTransaction = (params: BaseSearchParamTransaction): BuildAssetOptOutTransactionResult => ({
+const transformAssetOptOutTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetOptOutTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetOptOut,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   asset: {
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
     unitName: params.unitname,
-    clawback: params.clawback,
   },
   closeRemainderTo: {
     value: params.closeto,
@@ -167,10 +165,10 @@ const transformAssetOptOutTransaction = (params: BaseSearchParamTransaction): Bu
   note: params.note,
 })
 
-const transformAssetTransferTransaction = (params: BaseSearchParamTransaction): BuildAssetTransferTransactionResult => ({
+const transformAssetTransferTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetTransferTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetTransfer,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   receiver: {
     value: params.receiver,
@@ -192,10 +190,12 @@ const transformAssetTransferTransaction = (params: BaseSearchParamTransaction): 
   note: params.note,
 })
 
-const transformAssetReconfigureTransaction = (params: BaseSearchParamTransaction): BuildAssetReconfigureTransactionResult => ({
+const transformAssetReconfigureTransaction = async (
+  params: BaseSearchParamTransaction
+): Promise<BuildAssetReconfigureTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetReconfigure,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   asset: {
     id: BigInt(params.assetid),
@@ -236,10 +236,10 @@ const transformAssetReconfigureTransaction = (params: BaseSearchParamTransaction
   note: params.note,
 })
 
-const transformAssetFreezeTransaction = (params: BaseSearchParamTransaction): BuildAssetFreezeTransactionResult => ({
+const transformAssetFreezeTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetFreezeTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetFreeze,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   freezeTarget: {
     value: params.freezeto,
@@ -261,10 +261,10 @@ const transformAssetFreezeTransaction = (params: BaseSearchParamTransaction): Bu
   note: params.note,
 })
 
-const transformAssetDestroyTransaction = (params: BaseSearchParamTransaction): BuildAssetDestroyTransactionResult => ({
+const transformAssetDestroyTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetDestroyTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetDestroy,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   asset: {
     id: BigInt(params.assetid),
@@ -280,10 +280,10 @@ const transformAssetDestroyTransaction = (params: BaseSearchParamTransaction): B
   note: params.note,
 })
 
-const transformAssetClawbackTransaction = (params: BaseSearchParamTransaction): BuildAssetClawbackTransactionResult => ({
+const transformAssetClawbackTransaction = async (params: BaseSearchParamTransaction): Promise<BuildAssetClawbackTransactionResult> => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetClawback,
-  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+  sender: await resolveSenderAddress({ value: params.sender, resolvedAddress: params.sender }),
 
   receiver: {
     value: params.receiver,
@@ -350,7 +350,6 @@ const transformationConfigByTransactionType = {
     transform: transformAssetClawbackTransaction,
     schema: assetClawbackFormSchema,
   },
-  // TODO: Add other transaction types
 }
 
 export async function transformSearchParamsTransactions(searchParamTransactions: BaseSearchParamTransaction[]) {

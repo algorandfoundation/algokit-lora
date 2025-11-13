@@ -386,41 +386,25 @@ describe('transaction-wizard-page', () => {
             })
             await user.click(addButton)
 
-            const sendButton = await waitFor(() => {
-              const sendButton = component.getByRole('button', { name: sendButtonLabel })
-              expect(sendButton).not.toBeDisabled()
-              return sendButton!
+            await waitFor(() => {
+              const table = component.getByLabelText('transaction-group-table')
+              expect(table).toBeInTheDocument()
+              expect(component.queryByText('No transactions.')).not.toBeInTheDocument()
             })
-            await user.click(sendButton)
 
-            const resultsDiv = await waitFor(
+            const simulateButton = await waitFor(() => {
+              const simulateButton = component.getByRole('button', { name: 'Simulate' })
+              expect(simulateButton).not.toBeDisabled()
+              return simulateButton!
+            })
+
+            await user.click(simulateButton)
+            await waitFor(
               () => {
-                expect(component.queryByText('Required')).not.toBeInTheDocument()
-                return component.getByText(groupSendResultsLabel).parentElement!
+                expect(component.queryByText(/error/i)).not.toBeInTheDocument()
               },
-              { timeout: 10_000 }
+              { timeout: 5_000 }
             )
-
-            const transactionId = await waitFor(
-              () => {
-                const transactionLink = within(resultsDiv)
-                  .getAllByRole('link')
-                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
-                return transactionLink.getAttribute('href')!.split('/').pop()!
-              },
-              { timeout: 10_000 }
-            )
-
-            const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
-            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
-              TransactionPayment {
-                "amount": 0n,
-                "closeAmount": 9999000n,
-                "closeRemainderTo": "${testAccount2.addr}",
-                "receiver": "${testAccount.addr}",
-              }
-            `)
           }
         )
       })

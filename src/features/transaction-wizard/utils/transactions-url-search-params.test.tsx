@@ -44,8 +44,6 @@ describe('Render transactions page with search params', () => {
     vitest.clearAllMocks()
   })
   describe('key registration search params', () => {
-    beforeEach(() => {})
-
     it('should render offline key registration', async () => {
       const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
       renderTxnsWizardPageWithSearchParams({
@@ -125,6 +123,21 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(votelst.toString())).toBeInTheDocument()
       expect(await screen.findByText('2')).toBeInTheDocument()
     })
+
+    it('should render key registration without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'keyreg',
+        }),
+      })
+
+      expect(await screen.findByText('Offline')).toBeInTheDocument()
+      // Find the yellow sender link (auto-populated)
+      const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
+      expect(senderLinks.some((link) => link.className.includes('text-yellow-500'))).toBe(true)
+    })
   })
 
   describe('payment transaction search params', () => {
@@ -201,7 +214,7 @@ describe('Render transactions page with search params', () => {
 
     // Test is failing with "Can't get LocalNet dispenser account from non LocalNet network""
     it('should render payment transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = (await localnet.algorand.account.localNetDispenser()).addr.toString()
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -216,7 +229,7 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(receiver)).toBeInTheDocument()
       expect(await screen.findByText('2.5')).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
-      expect(await screen.findByText(localnetDispenderAccount)).toBeInTheDocument()
+      expect(await screen.findByText(localnetDispenderAccount.toString())).toBeInTheDocument()
     })
 
     it.each([
@@ -380,6 +393,24 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText('1000000')).toBeInTheDocument()
       expect(await screen.findByText(decimals)).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
+    })
+
+    it('should render asset create transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'acfg',
+          'total[0]': total,
+          'decimals[0]': decimals,
+          'note[0]': note,
+        }),
+      })
+
+      expect(await screen.findByText(total)).toBeInTheDocument()
+      expect(await screen.findByText(decimals)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
     })
 
     it.each([
@@ -575,6 +606,25 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
     })
 
+    it('should render asset opt-in transaction without sender auto-populated', async () => {
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'axfer',
+          'assetid[0]': assetId,
+          'decimals[0]': decimals,
+          'unitname[0]': unitName,
+        }),
+      })
+
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
+      // Find the yellow sender link (auto-populated)
+      const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
+      expect(senderLinks.some((link) => link.className.includes('text-yellow-500'))).toBe(true)
+    })
+
     it.each([
       // Missing required field cases
 
@@ -753,6 +803,25 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(assetId)).toBeInTheDocument()
       expect(await screen.findByText(closeto)).toBeInTheDocument()
       expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
+    })
+
+    it('should render asset opt-out transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(closeto)).toBeInTheDocument()
+      // Find the yellow sender link (auto-populated)
+      const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
+      expect(senderLinks.some((link) => link.className.includes('text-yellow-500'))).toBe(true)
     })
 
     it.each([
@@ -957,6 +1026,27 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(receiver)).toBeInTheDocument()
       expect(await screen.findByText(assetId)).toBeInTheDocument()
       expect(await screen.findByText(`${amount} ${unitName}`)).toBeInTheDocument()
+    })
+
+    it('should render asset transfer transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetTransfer',
+          'receiver[0]': receiver,
+          'assetid[0]': assetId,
+          'amount[0]': amount,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
+      // Find the yellow sender link (auto-populated)
+      const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
+      expect(senderLinks.some((link) => link.className.includes('text-yellow-500'))).toBe(true)
     })
 
     it.each([
@@ -1387,6 +1477,24 @@ describe('Render transactions page with search params', () => {
 
       expect(await screen.findByText(sender)).toBeInTheDocument()
       expect(await screen.findByText(assetId)).toBeInTheDocument()
+    })
+
+    it('should render asset destroy transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetDestroy',
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      // Find the yellow sender link (auto-populated)
+      const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
+      expect(senderLinks.some((link) => link.className.includes('text-yellow-500'))).toBe(true)
     })
 
     it.each([
