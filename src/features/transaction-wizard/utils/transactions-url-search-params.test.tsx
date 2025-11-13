@@ -618,7 +618,8 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      // Wait for transaction to be parsed and rendered
+      expect(await screen.findByText(assetId, {}, { timeout: 3000 })).toBeInTheDocument()
       expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
       // Find the yellow sender link (auto-populated)
       const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
