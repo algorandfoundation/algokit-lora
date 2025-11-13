@@ -1,5 +1,5 @@
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { afterEach, beforeEach, describe, expect, it, vi, vitest } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { TransactionWizardPage } from '../transaction-wizard-page'
 import { render, screen, cleanup } from '@testing-library/react'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
