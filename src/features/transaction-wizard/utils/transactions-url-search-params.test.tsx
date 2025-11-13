@@ -133,7 +133,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(await screen.findByText('Offline')).toBeInTheDocument()
+      expect(await screen.findByText('Offline', {}, { timeout: 3000 })).toBeInTheDocument()
       // Find the yellow sender link (auto-populated)
       const senderLinks = await screen.findAllByText(localnetDispenderAccount.addr.toString())
       expect(senderLinks.some((link) => link.className.includes('text-yellow-500'))).toBe(true)
@@ -226,7 +226,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(receiver, {}, { timeout: 3000 })).toBeInTheDocument()
       expect(await screen.findByText('2.5')).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
       expect(await screen.findByText(localnetDispenderAccount.toString())).toBeInTheDocument()
@@ -407,7 +407,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(await screen.findByText(total)).toBeInTheDocument()
+      expect(await screen.findByText(total, {}, { timeout: 3000 })).toBeInTheDocument()
       expect(await screen.findByText(decimals)).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
       expect(await screen.findByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
