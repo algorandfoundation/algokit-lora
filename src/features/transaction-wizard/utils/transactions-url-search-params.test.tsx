@@ -5,20 +5,28 @@ import { render, screen, cleanup } from '@testing-library/react'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TooltipProvider } from '@/features/common/components/tooltip'
 import { ToastContainer } from 'react-toastify'
+import { DataProvider } from '@/features/common/components/data-provider'
+import { localnetId, defaultNetworkConfigs } from '@/features/network/data/'
 
 const renderTxnsWizardPageWithSearchParams = ({ searchParams }: { searchParams: URLSearchParams }) => {
   const urlSearchParams = new URLSearchParams(searchParams).toString()
+
   const router = createMemoryRouter(
     [
       {
         path: '/localnet/transaction-wizard',
         element: (
-          <>
+          <DataProvider
+            networkConfig={{
+              id: 'localNet',
+              ...defaultNetworkConfigs[localnetId],
+            }}
+          >
             <ToastContainer />
             <TooltipProvider>
               <TransactionWizardPage />
             </TooltipProvider>
-          </>
+          </DataProvider>
         ),
       },
     ],
@@ -193,7 +201,7 @@ describe('Render transactions page with search params', () => {
 
     // Test is failing with "Can't get LocalNet dispenser account from non LocalNet network""
     it('should render payment transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetAddress = localnet.context.testAccount.addr.toString()
+      const localnetDispenderAccount = (await localnet.algorand.account.localNetDispenser()).addr.toString()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -208,7 +216,7 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(receiver)).toBeInTheDocument()
       expect(await screen.findByText('2.5')).toBeInTheDocument()
       expect(await screen.findByText(note)).toBeInTheDocument()
-      expect(await screen.findByText(localnetAddress)).toBeInTheDocument()
+      expect(await screen.findByText(localnetDispenderAccount)).toBeInTheDocument()
     })
 
     it.each([
