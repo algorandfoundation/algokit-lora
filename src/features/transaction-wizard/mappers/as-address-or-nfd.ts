@@ -1,5 +1,5 @@
 import { Address } from '@/features/accounts/data/types'
-import { AddressOrNfd, TransactionSender } from '../models'
+import { AddressOrNfd } from '../models'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 
 export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount): AddressOrNfd => {
@@ -16,25 +16,15 @@ export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount):
   } satisfies AddressOrNfd
 }
 
-export const asTransactionSender = (transactionSender?: TransactionSender): TransactionSender => {
-  const emptySender: TransactionSender = {
-    value: '',
-    resolvedAddress: '',
-    autoPopulated: false,
-  }
-  if (!transactionSender) return emptySender
-  if (transactionSender.autoPopulated) return emptySender
-
-  return transactionSender.value && transactionSender.resolvedAddress
-    ? { value: transactionSender.value, resolvedAddress: transactionSender.resolvedAddress, autoPopulated: transactionSender.autoPopulated }
-    : emptySender
+export const asOptionalAddressOrNfd = (addressOrNfdSchema?: Partial<AddressOrNfd>): AddressOrNfd | undefined => {
+  if (!addressOrNfdSchema) return undefined
+  if (!addressOrNfdSchema.value || !addressOrNfdSchema.resolvedAddress) return undefined
+  return {
+    value: addressOrNfdSchema.value,
+    resolvedAddress: addressOrNfdSchema.resolvedAddress,
+  } satisfies AddressOrNfd
 }
 
-export const asOptionalAddressOrNfd = (addressOrNfdSchema: Partial<AddressOrNfd>) => {
-  return addressOrNfdSchema.value && addressOrNfdSchema.resolvedAddress
-    ? ({ value: addressOrNfdSchema.value, resolvedAddress: addressOrNfdSchema.resolvedAddress } satisfies AddressOrNfd)
-    : undefined
-}
 export const asOptionalAddressOrNfdSchema = (address?: Address) => {
   return {
     value: address,
