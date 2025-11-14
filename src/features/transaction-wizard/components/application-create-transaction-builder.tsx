@@ -58,7 +58,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
         type: BuildableTransactionType.ApplicationCreate,
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
-        sender: await resolveSenderAddress(values.sender!),
+        sender: await resolveSenderAddress(values.sender),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         globalInts: values.globalInts,
