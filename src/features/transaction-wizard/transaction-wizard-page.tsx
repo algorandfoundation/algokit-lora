@@ -19,6 +19,7 @@ export const sendButtonLabel = 'Send'
 export function TransactionWizardPage() {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
   const searchParamsTransactions = useTransactionSearchParamsBuilder()
+
   useTitle('Transaction Wizard')
 
   const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
@@ -45,6 +46,7 @@ export function TransactionWizardPage() {
     async (result: SimulateResult) => {
       renderTransactionResults(result, result.simulateResponse)
     },
+
     [renderTransactionResults]
   )
 
@@ -58,7 +60,8 @@ export function TransactionWizardPage() {
       <div className="w-full space-y-6">
         <p>Create and send transactions to the selected network using a connected wallet.</p>
         <TransactionsBuilder
-          defaultTransactions={searchParamsTransactions}
+          key={searchParamsTransactions.transactions.map((t) => t.id).join('|')} // rerender when it gets populated
+          defaultTransactions={searchParamsTransactions.transactions}
           title={<h2 className="pb-0">{transactionGroupLabel}</h2>}
           onSendTransactions={sendTransactions}
           onSimulated={renderSimulateResult}

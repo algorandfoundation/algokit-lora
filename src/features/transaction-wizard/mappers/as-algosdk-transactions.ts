@@ -87,7 +87,7 @@ export const asPaymentTransactionParams = (
 ): PaymentParams => {
   return {
     sender: transaction.sender.resolvedAddress,
-    receiver: transaction.receiver ? transaction.receiver.resolvedAddress : transaction.sender.resolvedAddress,
+    receiver: transaction.receiver ? transaction.receiver.resolvedAddress : (transaction.sender?.resolvedAddress ?? 'LOL IDK'),
     closeRemainderTo: 'closeRemainderTo' in transaction ? transaction.closeRemainderTo.resolvedAddress : undefined,
     amount: algos(transaction.amount ?? 0),
     note: transaction.note,
@@ -391,10 +391,10 @@ const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTra
     : algorandClient.createTransaction.offlineKeyRegistration(params))
 }
 
-const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
+export const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
   !fee.setAutomatically && fee.value != null ? { staticFee: algos(fee.value) } : undefined
 
-const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
+export const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid
     ? {
         firstValidRound: validRounds.firstValid,
