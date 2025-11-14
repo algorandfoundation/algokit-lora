@@ -49,7 +49,6 @@ export const optionalAddressFieldSchema = z
   })
 
 export const senderFieldSchema = { sender: addressFieldSchema }
-
 export const receiverFieldSchema = { receiver: addressFieldSchema }
 
 export const noteFieldSchema = { note: zfd.text(z.string().optional()) }
