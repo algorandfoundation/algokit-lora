@@ -132,6 +132,7 @@ const transformAssetOptInTransaction = async (params: BaseSearchParamTransaction
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
     unitName: params.unitname,
+    clawback: params.clawback,
   },
   fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
   validRounds: {
@@ -151,6 +152,7 @@ const transformAssetOptOutTransaction = async (params: BaseSearchParamTransactio
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
     unitName: params.unitname,
+    clawback: params.clawback,
   },
   closeRemainderTo: {
     value: params.closeto,
