@@ -1,19 +1,9 @@
-import { Nfd } from '@/features/nfd/data/types'
-
-import { PropsWithChildren } from 'react'
-import { AddressOrNfdLink } from './address-or-nfd-link'
-import { Address } from 'algosdk'
+import { AddressOrNfdLink, AddressOrNfdLinkProps } from './address-or-nfd-link'
 import { cn } from '@/features/common/utils'
 
-export type Props = PropsWithChildren<{
-  address: string | Address
-  short?: boolean
-  className?: string
-  showCopyButton?: boolean
-  showQRButton?: boolean
-  nfd?: Nfd
+export type Props = AddressOrNfdLinkProps & {
   autoPopulated?: boolean
-}>
+}
 
 export default function TransactionSenderLink(props: Props) {
   const { autoPopulated, className, ...rest } = props

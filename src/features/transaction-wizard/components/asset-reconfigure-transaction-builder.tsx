@@ -21,7 +21,7 @@ import { ZERO_ADDRESS } from '@/features/common/constants'
 import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
 export const assetReconfigureFormSchema = z
@@ -218,10 +218,10 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
         asset: data.asset,
 
         sender: await resolveSenderAddress(data.sender),
-        manager: asAddressOrNfd(data.manager.value!),
-        reserve: asAddressOrNfd(data.reserve.value!),
-        freeze: asAddressOrNfd(data.freeze.value!),
-        clawback: asAddressOrNfd(data.clawback.value!),
+        manager: asOptionalAddressOrNfd(data.manager),
+        reserve: asOptionalAddressOrNfd(data.reserve),
+        freeze: asOptionalAddressOrNfd(data.freeze),
+        clawback: asOptionalAddressOrNfd(data.clawback),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,

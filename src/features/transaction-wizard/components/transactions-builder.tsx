@@ -1,5 +1,5 @@
 import algosdk from 'algosdk'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
@@ -347,6 +347,10 @@ export function TransactionsBuilder({
 
     return commonButtonDisableProps
   }, [transactions, activeAddress, commonButtonDisableProps])
+
+  useEffect(() => {
+    setTransactions(defaultTransactions ?? [])
+  }, [defaultTransactions])
 
   return (
     <div>
