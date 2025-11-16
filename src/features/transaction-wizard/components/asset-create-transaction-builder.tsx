@@ -15,7 +15,7 @@ import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import { ZERO_ADDRESS } from '@/features/common/constants'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
-import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import resolveSenderAddress from '../utils/resolve-sender-address'
 
@@ -135,10 +135,10 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         total: data.total,
         decimals: data.decimals,
         sender: await resolveSenderAddress(data.sender),
-        manager: asAddressOrNfd(data.manager.value!),
-        reserve: asAddressOrNfd(data.reserve.value!),
-        freeze: asAddressOrNfd(data.freeze.value!),
-        clawback: asAddressOrNfd(data.clawback.value!),
+        manager: asOptionalAddressOrNfd(data.manager),
+        reserve: asOptionalAddressOrNfd(data.reserve),
+        freeze: asOptionalAddressOrNfd(data.freeze),
+        clawback: asOptionalAddressOrNfd(data.clawback),
         defaultFrozen: data.defaultFrozen ?? false,
         url: data.url,
         metadataHash: data.metadataHash,

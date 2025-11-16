@@ -31,27 +31,29 @@ export function useTransactionSearchParamsBuilder() {
   )
 
   const [transactions, setTransactions] = useState<BuildTransactionResult[]>([])
-  const [errors, setErrors] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    let cancelled = false
-    ;(async () => {
+    let mounted = true
+    const loadTransactions = async () => {
       setLoading(true)
       try {
         const { transactions, errors = [] } = await transformSearchParamsTransactions(transformedParams)
+        if (!mounted) return
         setTransactions(transactions)
-        setErrors(errors)
-        // show toasts once per change
-        if (errors.length) errors.forEach((e) => toast.error(e))
+        errors.forEach((error) => toast.error(error))
       } finally {
-        if (!cancelled) setLoading(false)
+        if (mounted) {
+          setLoading(false)
+        }
       }
-    })()
+    }
+
+    loadTransactions()
     return () => {
-      cancelled = true
+      mounted = false
     }
   }, [transformedParams])
 
-  return { transactions, errors, loading }
+  return { transactions, loading }
 }

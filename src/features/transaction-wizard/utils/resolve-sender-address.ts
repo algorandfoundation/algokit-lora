@@ -35,11 +35,12 @@ export default async function resolveSenderAddress(data?: { value?: string; reso
     if (networkId === testnetId) {
       return { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
     }
+
+    throw new Error('Unable to auto-populate a sender for the selected network; please provide a sender address.')
   }
 
   return {
     value: val || res,
     resolvedAddress: res || val,
-    autoPopulated: false,
   }
 }

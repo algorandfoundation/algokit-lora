@@ -10,6 +10,7 @@ import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-
 import { addTransactionLabel } from './components/transactions-builder'
 import { groupSendResultsLabel } from './components/group-send-results'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
+import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 
 describe('transaction-wizard-page', () => {
   const localnet = algorandFixture()
@@ -46,8 +47,10 @@ describe('transaction-wizard-page', () => {
   })
 
   describe('when a wallet is connected', () => {
+    let walletAccount: TransactionSignerAccount
+
     beforeEach(async () => {
-      await setWalletAddressAndSigner(localnet)
+      walletAccount = await setWalletAddressAndSigner(localnet)
     })
 
     describe('and a payment transaction is being sent', () => {
@@ -81,7 +84,6 @@ describe('transaction-wizard-page', () => {
       })
 
       it('succeeds when all fields have been correctly supplied', async () => {
-        const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
 
         await executeComponentTest(
@@ -98,7 +100,7 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const receiverInput = await component.findByLabelText(/Receiver/)
@@ -144,7 +146,7 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
               TransactionPayment {
                 "amount": 500000n,
@@ -158,7 +160,6 @@ describe('transaction-wizard-page', () => {
       })
 
       it('Can add a payment transaction without defining a sender address and the sender gets auto populated', async () => {
-        const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
 
         await executeComponentTest(
@@ -191,7 +192,7 @@ describe('transaction-wizard-page', () => {
             await user.click(addButton)
 
             const senderContent = await waitFor(() => {
-              return component.getByText(testAccount.addr.toString())
+              return component.getByText(walletAccount.addr.toString())
             })
             expect(senderContent).toBeInTheDocument()
 
@@ -221,7 +222,7 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
               TransactionPayment {
                 "amount": 500000n,
@@ -267,7 +268,6 @@ describe('transaction-wizard-page', () => {
       })
 
       it('succeeds when all fields have been correctly supplied', async () => {
-        const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
 
         await executeComponentTest(
@@ -286,12 +286,12 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const receiverInput = await component.findByLabelText(/Receiver/)
             fireEvent.input(receiverInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const closeToInput = await component.findByLabelText(/Close remainder to/)
@@ -335,13 +335,13 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
             expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
               TransactionPayment {
                 "amount": 0n,
                 "closeAmount": 9999000n,
                 "closeRemainderTo": "${testAccount2.addr}",
-                "receiver": "${testAccount.addr}",
+                "receiver": "${walletAccount.addr}",
               }
             `)
           }
@@ -349,7 +349,6 @@ describe('transaction-wizard-page', () => {
       })
 
       it('can simulate a close account transaction without defining a sender address', async () => {
-        const { testAccount } = localnet.context
         const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
 
         await executeComponentTest(
@@ -368,7 +367,7 @@ describe('transaction-wizard-page', () => {
 
             const receiverInput = await component.findByLabelText(/Receiver/)
             fireEvent.input(receiverInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const closeToInput = await component.findByLabelText(/Close remainder to/)
@@ -412,7 +411,6 @@ describe('transaction-wizard-page', () => {
 
     describe('and an application create transaction is being sent', () => {
       it('succeeds when all fields have been correctly supplied', async () => {
-        const { testAccount } = localnet.context
 
         await executeComponentTest(
           () => {
@@ -430,7 +428,7 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const approvalProgram =
@@ -481,7 +479,7 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
             expect(result.transaction.applicationTransaction!.approvalProgram).toEqual(base64ToBytes(approvalProgram))
             expect(result.transaction.applicationTransaction!.clearStateProgram).toEqual(base64ToBytes(clearStateProgram))
           }
@@ -489,8 +487,6 @@ describe('transaction-wizard-page', () => {
       })
 
       it('succeeds when sending an op-up transaction', async () => {
-        const { testAccount } = localnet.context
-
         await executeComponentTest(
           () => {
             return render(<TransactionWizardPage />)
@@ -507,7 +503,7 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const approvalProgramInput = await component.findByLabelText(/Approval program/)
@@ -555,14 +551,12 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
           }
         )
       })
 
       it('succeeds when sending an op-up transaction', async () => {
-        const { testAccount } = localnet.context
-
         await executeComponentTest(
           () => {
             return render(<TransactionWizardPage />)
@@ -579,7 +573,7 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const approvalProgramInput = await component.findByLabelText(/Approval program/)
@@ -627,7 +621,7 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
           }
         )
       })
@@ -635,11 +629,10 @@ describe('transaction-wizard-page', () => {
 
     describe('and an application update transaction is being sent', () => {
       it('succeeds when updating an updatable application', async () => {
-        const { testAccount } = localnet.context
 
         // First create an updatable application
         const appCreateResult = await localnet.context.algorand.send.appCreate({
-          sender: testAccount.addr,
+          sender: walletAccount.addr,
           approvalProgram: '#pragma version 10\nint 1\nreturn',
           clearStateProgram: '#pragma version 10\nint 1\nreturn',
         })
@@ -661,7 +654,7 @@ describe('transaction-wizard-page', () => {
 
             const senderInput = await component.findByLabelText(/Sender/)
             fireEvent.input(senderInput, {
-              target: { value: testAccount.addr },
+              target: { value: walletAccount.addr },
             })
 
             const applicationIdInput = await component.findByLabelText(/Application ID/)
@@ -713,7 +706,7 @@ describe('transaction-wizard-page', () => {
             )
 
             const result = await localnet.context.waitForIndexerTransaction(transactionId)
-            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.sender).toBe(walletAccount.addr.toString())
             expect(result.transaction.applicationTransaction?.onCompletion).toBe('update')
             expect(result.transaction.applicationTransaction!.approvalProgram).toEqual(base64ToBytes(program))
             expect(result.transaction.applicationTransaction!.clearStateProgram).toEqual(base64ToBytes(program))

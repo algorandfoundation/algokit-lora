@@ -11,6 +11,7 @@ import { GroupSendResults, SendResults } from './components/group-send-results'
 import algosdk from 'algosdk'
 import { useTitle } from '@/utils/use-title'
 import { useTransactionSearchParamsBuilder } from './utils/use-transaction-search-params-builder'
+import { PageLoader } from '../common/components/page-loader'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
@@ -18,7 +19,7 @@ export const sendButtonLabel = 'Send'
 
 export function TransactionWizardPage() {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
-  const searchParamsTransactions = useTransactionSearchParamsBuilder()
+  const { transactions: searchParamsTransactions, loading: transactionsLoading } = useTransactionSearchParamsBuilder()
 
   useTitle('Transaction Wizard')
 
@@ -59,14 +60,17 @@ export function TransactionWizardPage() {
       <PageTitle title={transactionWizardPageTitle} />
       <div className="w-full space-y-6">
         <p>Create and send transactions to the selected network using a connected wallet.</p>
-        <TransactionsBuilder
-          key={searchParamsTransactions.transactions.map((t) => t.id).join('|')} // rerender when it gets populated
-          defaultTransactions={searchParamsTransactions.transactions}
-          title={<h2 className="pb-0">{transactionGroupLabel}</h2>}
-          onSendTransactions={sendTransactions}
-          onSimulated={renderSimulateResult}
-          onReset={reset}
-        />
+        {transactionsLoading ? (
+          <PageLoader />
+        ) : (
+          <TransactionsBuilder
+            defaultTransactions={searchParamsTransactions}
+            title={<h2 className="pb-0">{transactionGroupLabel}</h2>}
+            onSendTransactions={sendTransactions}
+            onSimulated={renderSimulateResult}
+            onReset={reset}
+          />
+        )}
         {sendResults && <GroupSendResults {...sendResults} transactionGraphBgClassName="bg-background" />}
       </div>
     </div>
