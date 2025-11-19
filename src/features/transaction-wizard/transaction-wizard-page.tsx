@@ -20,7 +20,6 @@ export const sendButtonLabel = 'Send'
 export function TransactionWizardPage() {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
   const { transactions: searchParamsTransactions, loading: transactionsLoading } = useTransactionSearchParamsBuilder()
-
   useTitle('Transaction Wizard')
 
   const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
