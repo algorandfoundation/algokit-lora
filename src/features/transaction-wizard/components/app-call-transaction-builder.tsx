@@ -53,7 +53,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
-        sender: await resolveSenderAddress(values.sender!),
+        sender: await resolveSenderAddress(values.sender),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,

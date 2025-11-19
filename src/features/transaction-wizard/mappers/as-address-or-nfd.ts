@@ -16,13 +16,10 @@ export const asAddressOrNfd = (addressOrAccount: Address | ActiveWalletAccount):
   } satisfies AddressOrNfd
 }
 
-export const asOptionalAddressOrNfd = (addressOrNfdSchema?: Partial<AddressOrNfd>): AddressOrNfd | undefined => {
-  if (!addressOrNfdSchema) return undefined
-  if (!addressOrNfdSchema.value || !addressOrNfdSchema.resolvedAddress) return undefined
-  return {
-    value: addressOrNfdSchema.value,
-    resolvedAddress: addressOrNfdSchema.resolvedAddress,
-  } satisfies AddressOrNfd
+export const asOptionalAddressOrNfd = (addressOrNfdSchema: Partial<AddressOrNfd>) => {
+  return addressOrNfdSchema.value && addressOrNfdSchema.resolvedAddress
+    ? ({ value: addressOrNfdSchema.value, resolvedAddress: addressOrNfdSchema.resolvedAddress } satisfies AddressOrNfd)
+    : undefined
 }
 
 export const asOptionalAddressOrNfdSchema = (address?: Address) => {

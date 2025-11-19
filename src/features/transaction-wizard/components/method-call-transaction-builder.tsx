@@ -157,7 +157,7 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
-        sender: await resolveSenderAddress(values.sender!),
+        sender: await resolveSenderAddress(values.sender),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,

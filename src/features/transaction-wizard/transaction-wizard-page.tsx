@@ -47,7 +47,6 @@ export function TransactionWizardPage() {
     async (result: SimulateResult) => {
       renderTransactionResults(result, result.simulateResponse)
     },
-
     [renderTransactionResults]
   )
 

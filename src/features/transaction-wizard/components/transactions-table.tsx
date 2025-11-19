@@ -216,7 +216,6 @@ const getTableColumns = ({
       return transactionPositions.get(transaction.id)!
     },
   },
-
   {
     header: 'Type',
     accessorFn: (item) => asTransactionLabelFromBuildableTransactionType(item.type),

@@ -364,7 +364,7 @@ export async function transformSearchParamsTransactions(searchParamTransactions:
     }
     const { transform, schema } = transformationConfigByTransactionType[configKey as keyof typeof transformationConfigByTransactionType]
     try {
-      const transaction = await Promise.resolve(transform(searchParamTransaction))
+      const transaction = await transform(searchParamTransaction)
       schema.parse(transaction)
       transactionsFromSearchParams.push(transaction)
     } catch (error) {

@@ -391,10 +391,10 @@ const asKeyRegistrationTransaction = async (transaction: BuildKeyRegistrationTra
     : algorandClient.createTransaction.offlineKeyRegistration(params))
 }
 
-export const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
+const asFee = (fee: BuildAssetCreateTransactionResult['fee']) =>
   !fee.setAutomatically && fee.value != null ? { staticFee: algos(fee.value) } : undefined
 
-export const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
+const asValidRounds = (validRounds: BuildAssetCreateTransactionResult['validRounds']) =>
   !validRounds.setAutomatically && validRounds.firstValid && validRounds.lastValid
     ? {
         firstValidRound: validRounds.firstValid,

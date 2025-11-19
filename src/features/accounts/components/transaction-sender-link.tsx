@@ -1,9 +1,7 @@
 import { AddressOrNfdLink, AddressOrNfdLinkProps } from './address-or-nfd-link'
 import { cn } from '@/features/common/utils'
 
-export type Props = AddressOrNfdLinkProps & {
-  autoPopulated?: boolean
-}
+export type Props = AddressOrNfdLinkProps & { autoPopulated?: boolean }
 
 export default function TransactionSenderLink(props: Props) {
   const { autoPopulated, className, ...rest } = props
