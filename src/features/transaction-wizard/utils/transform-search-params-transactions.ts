@@ -28,7 +28,7 @@ import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import Decimal from 'decimal.js'
-import resolveSenderAddress from './resolve-sender-address'
+import { resolveSenderAddress } from './resolve-sender-address'
 
 // This is a workaround to make the online field a boolean instead of a string.
 // A string type is used in the form schema because of the value of radio buttons cant be boolean

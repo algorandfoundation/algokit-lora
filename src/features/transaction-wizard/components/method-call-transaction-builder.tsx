@@ -39,7 +39,7 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
-import resolveSenderAddress from '../utils/resolve-sender-address'
+import { resolveSenderAddress } from '../utils/resolve-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,

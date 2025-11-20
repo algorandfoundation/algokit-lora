@@ -22,7 +22,7 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
-import resolveSenderAddress from '../utils/resolve-sender-address'
+import { resolveSenderAddress } from '../utils/resolve-sender-address'
 
 export const assetReconfigureFormSchema = z
   .object({

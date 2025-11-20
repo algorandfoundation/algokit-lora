@@ -23,7 +23,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import resolveSenderAddress from '../utils/resolve-sender-address'
+import { resolveSenderAddress } from '../utils/resolve-sender-address'
 
 export const assetOptOutFormSchema = z.object({
   ...commonSchema,
