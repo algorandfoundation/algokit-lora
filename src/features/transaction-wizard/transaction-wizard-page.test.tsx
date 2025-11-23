@@ -156,6 +156,83 @@ describe('transaction-wizard-page', () => {
           }
         )
       })
+
+      it('Can add a payment transaction without defining a sender address and the sender gets auto populated', async () => {
+        const { testAccount } = localnet.context
+        const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            const receiverInput = await component.findByLabelText(/Receiver/)
+            fireEvent.input(receiverInput, {
+              target: { value: testAccount2.addr },
+            })
+
+            const amountInput = await component.findByLabelText(/Amount/)
+            fireEvent.input(amountInput, {
+              target: { value: '0.5' },
+            })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const senderContent = await waitFor(() => {
+              return component.getByText(testAccount.addr.toString())
+            })
+            expect(senderContent).toBeInTheDocument()
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+              TransactionPayment {
+                "amount": 500000n,
+                "closeAmount": 0n,
+                "closeRemainderTo": undefined,
+                "receiver": "${testAccount2.addr}",
+              }
+            `)
+          }
+        )
+      })
     })
 
     describe('and a close account transaction is being sent', () => {
@@ -212,10 +289,95 @@ describe('transaction-wizard-page', () => {
               target: { value: testAccount.addr },
             })
 
+            const receiverInput = await component.findByLabelText(/Receiver/)
+            fireEvent.input(receiverInput, {
+              target: { value: testAccount.addr },
+            })
+
             const closeToInput = await component.findByLabelText(/Close remainder to/)
             fireEvent.input(closeToInput, {
               target: { value: testAccount2.addr },
             })
+
+            const amountInput = await component.findByLabelText(/Amount to pay/)
+            fireEvent.input(amountInput, { target: { value: '0' } })
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
+            expect(result.transaction.paymentTransaction!).toMatchInlineSnapshot(`
+              TransactionPayment {
+                "amount": 0n,
+                "closeAmount": 9999000n,
+                "closeRemainderTo": "${testAccount2.addr}",
+                "receiver": "${testAccount.addr}",
+              }
+            `)
+          }
+        )
+      })
+
+      it('can simulate a close account transaction without defining a sender address', async () => {
+        const { testAccount } = localnet.context
+        const testAccount2 = await localnet.context.generateAccount({ initialFunds: algo(0) })
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Account Close (pay)')
+
+            const receiverInput = await component.findByLabelText(/Receiver/)
+            fireEvent.input(receiverInput, {
+              target: { value: testAccount.addr },
+            })
+
+            const closeToInput = await component.findByLabelText(/Close remainder to/)
+            fireEvent.input(closeToInput, {
+              target: { value: testAccount2.addr },
+            })
+
+            const amountInput = await component.findByLabelText(/Amount to pay/)
+            fireEvent.input(amountInput, { target: { value: '0' } })
 
             const addButton = await waitFor(() => {
               const addButton = component.getByRole('button', { name: 'Add' })
@@ -338,6 +500,78 @@ describe('transaction-wizard-page', () => {
             expect(result.transaction.sender).toBe(testAccount.addr.toString())
             expect(result.transaction.applicationTransaction!.approvalProgram).toEqual(base64ToBytes(approvalProgram))
             expect(result.transaction.applicationTransaction!.clearStateProgram).toEqual(base64ToBytes(clearStateProgram))
+          }
+        )
+      })
+
+      it('succeeds when sending an op-up transaction', async () => {
+        const { testAccount } = localnet.context
+
+        await executeComponentTest(
+          () => {
+            return render(<TransactionWizardPage />)
+          },
+          async (component, user) => {
+            const addTransactionButton = await waitFor(() => {
+              const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+              expect(addTransactionButton).not.toBeDisabled()
+              return addTransactionButton!
+            })
+            await user.click(addTransactionButton)
+
+            await selectOption(component.baseElement, user, transactionTypeLabel, 'Application Create (appl)')
+
+            const senderInput = await component.findByLabelText(/Sender/)
+            fireEvent.input(senderInput, {
+              target: { value: testAccount.addr },
+            })
+
+            const approvalProgramInput = await component.findByLabelText(/Approval program/)
+            fireEvent.input(approvalProgramInput, {
+              target: { value: 'CoEBQw==' },
+            })
+
+            const clearStateProgramInput = await component.findByLabelText(/Clear state program/)
+            fireEvent.input(clearStateProgramInput, {
+              target: { value: 'CoEBQw==' },
+            })
+
+            await selectOption(component.baseElement, user, /On complete/, 'Delete')
+
+            const addButton = await waitFor(() => {
+              const addButton = component.getByRole('button', { name: 'Add' })
+              expect(addButton).not.toBeDisabled()
+              return addButton!
+            })
+            await user.click(addButton)
+
+            const sendButton = await waitFor(() => {
+              const sendButton = component.getByRole('button', { name: sendButtonLabel })
+              expect(sendButton).not.toBeDisabled()
+              return sendButton!
+            })
+            await user.click(sendButton)
+
+            const resultsDiv = await waitFor(
+              () => {
+                expect(component.queryByText('Required')).not.toBeInTheDocument()
+                return component.getByText(groupSendResultsLabel).parentElement!
+              },
+              { timeout: 10_000 }
+            )
+
+            const transactionId = await waitFor(
+              () => {
+                const transactionLink = within(resultsDiv)
+                  .getAllByRole('link')
+                  .find((a) => a.getAttribute('href')?.startsWith('/localnet/transaction'))!
+                return transactionLink.getAttribute('href')!.split('/').pop()!
+              },
+              { timeout: 10_000 }
+            )
+
+            const result = await localnet.context.waitForIndexerTransaction(transactionId)
+            expect(result.transaction.sender).toBe(testAccount.addr.toString())
           }
         )
       })

@@ -194,11 +194,6 @@ describe('Render transactions page with search params', () => {
     it.each([
       // Missing required field cases
       {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
-      {
         key: 'receiver[0]',
         mode: 'missing',
         expected: 'Error in transaction at index 0 in the following fields: receiver-value, receiver-resolvedAddress',
@@ -209,12 +204,7 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0: The number NaN cannot be converted to a BigInt because it is not an integer',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
+
       {
         key: 'receiver[0]',
         mode: 'invalid',
@@ -366,11 +356,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'total[0]',
         mode: 'missing',
@@ -382,12 +368,7 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: decimals',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
+
       {
         key: 'total[0]',
         mode: 'invalid',
@@ -568,11 +549,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -584,12 +561,7 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -757,11 +729,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -778,12 +746,7 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -970,11 +933,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'receiver[0]',
         mode: 'missing',
@@ -996,12 +955,7 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
+
       {
         key: 'receiver[0]',
         mode: 'invalid',
@@ -1196,11 +1150,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -1217,12 +1167,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
-      },
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -1418,11 +1362,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -1439,12 +1379,7 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
+
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -1663,11 +1598,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'freezeto[0]',
         mode: 'missing',
@@ -1689,12 +1620,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
-      },
       {
         key: 'freezeto[0]',
         mode: 'invalid',
@@ -1956,11 +1881,7 @@ describe('Render transactions page with search params', () => {
 
     it.each([
       // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
+
       {
         key: 'receiver[0]',
         mode: 'missing',
@@ -1992,12 +1913,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
-      },
       {
         key: 'receiver[0]',
         mode: 'invalid',
