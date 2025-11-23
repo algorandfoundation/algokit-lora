@@ -1,5 +1,5 @@
 import algosdk from 'algosdk'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
@@ -39,6 +39,7 @@ import { parseCallAbiMethodError, parseSimulateAbiMethodError } from '@/features
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
 const connectWalletMessage = 'Please connect a wallet'
+const onlySimulateOptionalSenderMessage = 'Auto populated the sender - only simulate is enabled'
 export const addTransactionLabel = 'Add Transaction'
 export const transactionGroupLabel = 'Transaction Group'
 
@@ -170,6 +171,7 @@ export function TransactionsBuilder({
           stateChange: true,
         }),
       } satisfies SimulateOptions
+
       const result = await (requireSignaturesOnSimulate
         ? (await buildComposer(transactions)).simulate(simulateConfig)
         : (await buildComposerWithEmptySignatures(transactions)).simulate({
@@ -327,6 +329,15 @@ export function TransactionsBuilder({
   }, [activeAddress, commonButtonDisableProps, requireSignaturesOnSimulate])
 
   const sendButtonDisabledProps = useMemo(() => {
+    const hasAutoPopulatedSender = transactions.some((t) => t.sender?.autoPopulated === true)
+
+    if (hasAutoPopulatedSender) {
+      return {
+        disabled: true,
+        disabledReason: onlySimulateOptionalSenderMessage,
+      }
+    }
+
     if (!activeAddress) {
       return {
         disabled: true,
@@ -335,7 +346,11 @@ export function TransactionsBuilder({
     }
 
     return commonButtonDisableProps
-  }, [activeAddress, commonButtonDisableProps])
+  }, [transactions, activeAddress, commonButtonDisableProps])
+
+  useEffect(() => {
+    setTransactions(defaultTransactions ?? [])
+  }, [defaultTransactions])
 
   return (
     <div>

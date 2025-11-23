@@ -42,8 +42,8 @@ function ResolveNfdAddress({ nfd, onNfdResolved }: ResolveNfdAddressProps) {
 
 export function AddressFormItem({ field, resolvedAddressField, label, ...props }: AddressFormItemProps) {
   const { watch, setValue } = useFormContext<AddressOrNfdFieldSchema | OptionalAddressOrNfdFieldSchema>()
-  const value = watch(field)
-  const resolvedAddress = watch(resolvedAddressField)
+  const value = watch(field) as string
+  const resolvedAddress = watch(resolvedAddressField) as string
 
   const setAddress = useCallback((address: string) => setValue(resolvedAddressField, address), [resolvedAddressField, setValue])
   useEffect(() => {
