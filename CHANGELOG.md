@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.1](https://github.com/algorandfoundation/algokit-lora/compare/v2.2.0...v2.2.1) (2025-11-24)
+
+### ♻️ Code Refactoring
+
+* **latest_cards:** refactor latest blocks card to use flex layout instead of margins ([aba9cee](https://github.com/algorandfoundation/algokit-lora/commit/aba9ceeaa08b6f8bd8529603ff4ab2445aa1ee38))
+
+### 🐛 Bug Fixes
+
+* **actions_overflow:** fix action buttons being cut on the wizard form ([48379a9](https://github.com/algorandfoundation/algokit-lora/commit/48379a96c19070839dc6a3316dc20623d80ff31a))
+* **app_call_table:** fix app call table to display important data even on mobile ([cb99a81](https://github.com/algorandfoundation/algokit-lora/commit/cb99a814a4db649fb2521e3d2356c9e64119b76e))
+* **build:** fix build errors ([85b3734](https://github.com/algorandfoundation/algokit-lora/commit/85b37346a4d2e4e0d0c01f3bf8605ef8724e6850))
+* convert AVMBytes template parameters from base64 to Uint8Array ([50a038f](https://github.com/algorandfoundation/algokit-lora/commit/50a038f73d07d2c672f2128a0926b2ecfa6392e6))
+* Decoded ABI Args now render an address the same as an account ([23fbf9a](https://github.com/algorandfoundation/algokit-lora/commit/23fbf9a8c126d351ce5842b13852ea6b34e995a9))
+* **dependencies:** fix jotai and semantic release dependencies for CI ([80fded7](https://github.com/algorandfoundation/algokit-lora/commit/80fded73e72cfceb78042f3b67d74b567eec8e22))
+* **double_heading:** remove unnecessary heading that was breaking tests ([debf512](https://github.com/algorandfoundation/algokit-lora/commit/debf512e75e5b4d34e5fe2a2f9a335472e10ee48))
+* **mobile:** fix few reviews on previous comment ([4f6ec74](https://github.com/algorandfoundation/algokit-lora/commit/4f6ec7437a5f18da3944c1ed8cd4ae49039d46f4))
+* npm audit ([#525](https://github.com/algorandfoundation/algokit-lora/issues/525)) ([130cb15](https://github.com/algorandfoundation/algokit-lora/commit/130cb15fe38b02679f1a34d0b4403a0d9aaa4804))
+* **package-lock:** fix package lock not being in sync with package.json breaking CI ([b615b68](https://github.com/algorandfoundation/algokit-lora/commit/b615b68572e78424c9e2306af880d50b6c307546))
+* **package-lock:** fix package lock to use jotai 2.7 + sync package.json ([2aacbbc](https://github.com/algorandfoundation/algokit-lora/commit/2aacbbc308e7123c99a2727f97a9e0a6ed6fbed5))
+* **package:** fix package-lock to reflect tailwind deps 4.16^ + fix recurring build errors ([65d6cd5](https://github.com/algorandfoundation/algokit-lora/commit/65d6cd585e6a819ce88f7417a99f8cf1fd21a39e))
+* prevent validation errors from obstructing help text and add address field help text ([b04f9f9](https://github.com/algorandfoundation/algokit-lora/commit/b04f9f913326cc56100ca2a8755bf4962d1fa9d6))
+* support assets which signal arc3 conformance using asset name ([c467165](https://github.com/algorandfoundation/algokit-lora/commit/c4671658d58ea11ad6638849df7f438d1034f018))
+* **tables:** fix table layouts and fields to correctly scroll and display important fields ([e7a51ec](https://github.com/algorandfoundation/algokit-lora/commit/e7a51ecedfd6cdd5739eb5dc0b0c947dcaff2f50))
+* trigger application interface name validation when interface exists ([8a4b168](https://github.com/algorandfoundation/algokit-lora/commit/8a4b168acf2627c49674c507e01233d28c6820cc))
+* use new-release-version rather than new-release-git-tag, which does not exist ([b5a9a72](https://github.com/algorandfoundation/algokit-lora/commit/b5a9a728b69a01c950384cfb236b7f1b51b2c832))
+
 ## [2.2.0](https://github.com/algorandfoundation/algokit-lora/compare/v2.1.1...v2.2.0) (2025-10-29)
 
 ### 🐛 Bug Fixes
