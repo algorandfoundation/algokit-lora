@@ -20,6 +20,8 @@ import {
   avmTypeToFormFieldSchema,
   avmTypeToFormItem,
   asAbiFormItemValue,
+  avmFormItemValueToAVMValue,
+  asAvmFormItemValue,
 } from '@/features/abi-methods/mappers'
 import { Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import algosdk from 'algosdk'
@@ -32,7 +34,7 @@ import { zfd } from 'zod-form-data'
 import { TemplateParamForm } from '../components/create/template-param-form'
 import { Label } from '@/features/common/components/label'
 import { isAVMType } from '@/features/app-interfaces/utils/is-avm-type'
-import { AbiFormItemValue, AvmValue } from '@/features/abi-methods/models'
+import { AbiFormItemValue, AvmFormItemValue } from '@/features/abi-methods/models'
 
 export const parseAsAppSpec = async (
   file: File,
@@ -115,7 +117,7 @@ export const asTealTemplateParamField = ({
   name: string
   type?: algosdk.ABIType | AVMType
   struct?: StructDefinition
-  defaultValue?: AbiFormItemValue | AvmValue
+  defaultValue?: AbiFormItemValue | AvmFormItemValue
 }): TealTemplateParamField => {
   if (!type) {
     return {
@@ -160,14 +162,15 @@ export const asTealTemplateParamField = ({
           </>
         )
       },
-      toTemplateParam: (value: AvmValue) =>
+      toTemplateParam: (value: AvmFormItemValue) =>
         ({
           name: name,
-          value: value,
+          avmType: type,
+          value: avmFormItemValueToAVMValue(type, value),
         }) satisfies AVMTypeTemplateParam,
       fromTemplateParam: (templateParam: AVMTypeTemplateParam) =>
-        type === 'AVMUint64' ? BigInt(templateParam.value) : templateParam.value,
-      defaultValue: defaultValue as AvmValue,
+        asAvmFormItemValue(type, templateParam.value),
+      defaultValue: defaultValue as AvmFormItemValue,
     }
   }
 

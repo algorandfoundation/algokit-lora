@@ -2,7 +2,7 @@ import { AvmValue } from '@/features/abi-methods/models'
 import { AlgoAppSpec as Arc32AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { AbiContract as Arc4AppSpec } from '@/features/app-interfaces/data/types/arc-32/application'
 import { ApplicationId } from '@/features/applications/data/types'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import algosdk from 'algosdk'
 
 export enum AppSpecStandard {
@@ -48,6 +48,7 @@ export type UnknownTypeTemplateParam = {
 }
 export type AVMTypeTemplateParam = {
   name: string
+  avmType: AVMType
   value: AvmValue
 }
 export type ABITypeTemplateParam = {

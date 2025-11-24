@@ -60,7 +60,6 @@ const idColumn: ColumnDef<Transaction | InnerTransaction> = {
       </div>
     )
   },
-  meta: { className: 'align-top' },
 }
 const groupColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Group ID',
@@ -69,7 +68,6 @@ const groupColumn: ColumnDef<Transaction | InnerTransaction> = {
     const transaction = c.getValue<Transaction>()
     return transaction.group ? <GroupLink round={transaction.confirmedRound} groupId={transaction.group} short={true} /> : undefined
   },
-  meta: { className: 'align-top' },
 }
 const blockColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionRoundLabel,
@@ -78,13 +76,11 @@ const blockColumn: ColumnDef<Transaction | InnerTransaction> = {
     const transaction = c.getValue<Transaction>()
     return <BlockLink round={transaction.confirmedRound} />
   },
-  meta: { className: 'align-top' },
 }
 const timestampColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionTimestampLabel,
   accessorFn: (transaction) => transaction.roundTime,
   cell: (c) => <DateFormatted date={new Date(c.getValue<number>())} short={true} />,
-  meta: { className: 'align-top' },
 }
 const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionFromLabel,
@@ -99,7 +95,7 @@ const fromColumn: ColumnDef<Transaction | InnerTransaction> = {
         : transaction.sender
     return <AccountLink address={from} short={true} />
   },
-  meta: { className: 'max-w-36 align-top' },
+  meta: { className: 'max-w-36' },
 }
 const toColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionToLabel,
@@ -116,13 +112,12 @@ const toColumn: ColumnDef<Transaction | InnerTransaction> = {
     }
     return <TransactionTo transaction={c.getValue<Transaction>()} />
   },
-  meta: { className: 'max-w-36 align-top' },
+  meta: { className: 'max-w-36' },
 }
 const typeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: 'Type',
   accessorFn: (transaction) => transaction.type,
   cell: (c) => <TransactionTypeBadge transactionType={c.getValue<TransactionType>()} />,
-  meta: { className: 'align-top' },
 }
 const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionAmountLabel,
@@ -143,7 +138,6 @@ const amountColumn: ColumnDef<Transaction | InnerTransaction> = {
       return <DisplayAssetAmount amount={transaction.amount} asset={transaction.asset} />
     }
   },
-  meta: { className: 'align-top' },
 }
 const feeColumn: ColumnDef<Transaction | InnerTransaction> = {
   header: transactionFeeLabel,
@@ -152,7 +146,6 @@ const feeColumn: ColumnDef<Transaction | InnerTransaction> = {
     const transaction = c.getValue<Transaction>()
     return <DisplayAlgo amount={transaction.fee} />
   },
-  meta: { className: 'align-top' },
 }
 
 export const transactionsTableColumns: ColumnDef<Transaction | InnerTransaction>[] = [

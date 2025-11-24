@@ -57,72 +57,74 @@ export function TransactionsGraph({ transactionsGraphData, downloadable, bgClass
   const bgClassName = _bgClassName ?? 'bg-card'
 
   return (
-    <>
-      <div className={cn('w-min', bgClassName)} ref={visualRef} aria-label="Visual representation of transactions">
-        <div
-          className={cn('relative grid')}
-          style={{
-            gridTemplateColumns: `${gridTemplateColumns}`,
-          }}
-        >
-          <div>{/* The first header cell is empty */}</div>
-          {verticals.map((vertical, index) => (
-            <div className={cn('p-2 flex justify-center')} key={index}>
-              <VerticalTitle vertical={vertical} isSimulated={isSimulated} />
-            </div>
-          ))}
-        </div>
-        <div
-          className={cn('relative grid')}
-          style={{
-            gridTemplateColumns: `${gridTemplateColumns}`,
-            gridTemplateRows: `repeat(${horizontalsCount}, ${graphConfig.rowHeight}px)`,
-          }}
-        >
-          {/* The below div is for drawing the background dash lines */}
-          <div className={cn('absolute left-0')}>
-            <div>
-              <div className={cn('p-0')}></div>
-              <div
-                className={cn('p-0')}
-                style={{
-                  height: `${horizontalsCount * graphConfig.rowHeight}px`,
-                  width: `${graphConfig.colWidth * verticalsCount}px`,
-                }}
-              >
+    <div className="relative">
+      <div className="flex flex-col gap-3">
+        <div className={cn('w-min', bgClassName)} ref={visualRef} aria-label="Visual representation of transactions">
+          <div
+            className={cn('relative grid')}
+            style={{
+              gridTemplateColumns: `${gridTemplateColumns}`,
+            }}
+          >
+            <div>{/* The first header cell is empty */}</div>
+            {verticals.map((vertical, index) => (
+              <div className={cn('p-2 flex justify-center')} key={index}>
+                <VerticalTitle vertical={vertical} isSimulated={isSimulated} />
+              </div>
+            ))}
+          </div>
+          <div
+            className={cn('relative grid')}
+            style={{
+              gridTemplateColumns: `${gridTemplateColumns}`,
+              gridTemplateRows: `repeat(${horizontalsCount}, ${graphConfig.rowHeight}px)`,
+            }}
+          >
+            {/* The below div is for drawing the background dash lines */}
+            <div className={cn('absolute left-0')}>
+              <div>
+                <div className={cn('p-0')}></div>
                 <div
-                  className={cn('grid h-full')}
+                  className={cn('p-0')}
                   style={{
-                    gridTemplateColumns: `${gridTemplateColumns}`,
                     height: `${horizontalsCount * graphConfig.rowHeight}px`,
+                    width: `${graphConfig.colWidth * verticalsCount}px`,
                   }}
                 >
-                  <div></div>
-                  {verticals
-                    .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty vertical
-                    .map((_, index) => (
-                      <div key={index} className={cn('flex justify-center')}>
-                        <div className={cn('border h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
-                      </div>
-                    ))}
+                  <div
+                    className={cn('grid h-full')}
+                    style={{
+                      gridTemplateColumns: `${gridTemplateColumns}`,
+                      height: `${horizontalsCount * graphConfig.rowHeight}px`,
+                    }}
+                  >
+                    <div></div>
+                    {verticals
+                      .filter((a) => a.type !== 'Placeholder') // Don't need to draw for the empty vertical
+                      .map((_, index) => (
+                        <div key={index} className={cn('flex justify-center')}>
+                          <div className={cn('border h-full border-dashed')} style={{ borderLeftWidth: graphConfig.lineWidth }}></div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
             </div>
+            {horizontals.map((row, index) => (
+              <Horizontal key={index} verticals={verticals} horizontal={row} bgClassName={bgClassName} isSimulated={isSimulated} />
+            ))}
           </div>
-          {horizontals.map((row, index) => (
-            <Horizontal key={index} verticals={verticals} horizontal={row} bgClassName={bgClassName} isSimulated={isSimulated} />
-          ))}
         </div>
+        {downloadable && (
+          <div className="bottom-0 flex h-10 w-full md:absolute md:justify-end">
+            {/* Don't change this id value, it's used by a bot Alessandro is building. */}
+            <Button id="download-transactions-visual" className="w-32" variant="outline" onClick={downloadImage}>
+              <Download className="mr-2 size-4" />
+              Download
+            </Button>
+          </div>
+        )}
       </div>
-      {downloadable && (
-        <div className="sticky bottom-0 left-full z-50 flex size-0 overflow-visible">
-          {/* Don't change this id value, it's used by a bot Alessandro is building. */}
-          <Button id="download-transactions-visual" className="absolute right-0 bottom-1 w-32" variant="outline" onClick={downloadImage}>
-            <Download className="mr-2 size-4" />
-            Download
-          </Button>
-        </div>
-      )}
-    </>
+    </div>
   )
 }

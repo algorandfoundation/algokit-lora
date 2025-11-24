@@ -2,10 +2,11 @@ import algosdk from 'algosdk'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { AddressOrNfd } from '@/features/transaction-wizard/models'
 import { bigIntToFixedPointDecimalString, fixedPointDecimalStringToBigInt } from '@/features/abi-methods/mappers/ufixed-mappers'
-import { DynamicArrayFormItemValue, AbiFormItemValue } from '../models'
+import { DynamicArrayFormItemValue, AbiFormItemValue, AvmValue, AvmFormItemValue } from '../models'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
+import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
 
 export const abiFormItemValueToABIValue = (type: algosdk.ABIArgumentType, value: AbiFormItemValue): algosdk.ABIValue => {
   if (type instanceof algosdk.ABIUfixedType) {
@@ -67,4 +68,18 @@ export const asAbiFormItemValue = (type: algosdk.ABIType, value: algosdk.ABIValu
   }
 
   throw new Error(`Unknown type ${type}`)
+}
+
+export const avmFormItemValueToAVMValue = (type: AVMType, value: AvmFormItemValue): AvmValue => {
+  if (type === 'AVMBytes') {
+    return base64ToBytes(value as string)
+  }
+  return value
+}
+
+export const asAvmFormItemValue = (type: AVMType, value: AvmValue): AvmFormItemValue => {
+  if (type === 'AVMBytes') {
+    return uint8ArrayToBase64(value as Uint8Array)
+  }
+  return value as AvmFormItemValue
 }

@@ -45,7 +45,7 @@ const createAssetMetadataResult = async (
 
   // Get ARC-3 or ARC-19 metadata if applicable
   const [isArc3, isArc19] = assetResult.params.url
-    ? ([isArc3Url(assetResult.params.url), isArc19Url(assetResult.params.url)] as const)
+    ? ([isArc3Url(assetResult.params.url, assetResult.params.name), isArc19Url(assetResult.params.url)] as const)
     : [false, false]
 
   if (assetResult.params.url && (isArc3 || isArc19)) {

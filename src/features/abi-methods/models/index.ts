@@ -96,7 +96,9 @@ export type DynamicArrayFormItemValue = {
 
 export type AbiFormItemValue = string | boolean | bigint | number | AddressOrNfd | AbiFormItemValue[] | DynamicArrayFormItemValue[]
 
-export type AvmValue = bigint | string
+export type AvmFormItemValue = string | bigint
+
+export type AvmValue = Uint8Array | bigint | string
 
 export enum DecodedAvmType {
   String = 'String',

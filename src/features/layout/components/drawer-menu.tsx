@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { TemplatedNavLink } from '@/features/routing/components/templated-nav-link/templated-nav-link'
 import { Urls } from '@/routes/urls'
 import { X, Settings } from 'lucide-react'
@@ -11,15 +11,16 @@ import SvgLoraLight from '@/features/common/components/svg/lora-light'
 import { NetworkSelect } from '@/features/network/components/network-select'
 import { ThemeToggle } from '@/features/settings/components/theme-toggle'
 import { menuItems } from '../constants/menu-items'
+import { useLocation } from 'react-router-dom'
 
 const itemBase =
   'flex items-center gap-3 rounded-md border border-transparent px-3 py-2 hover:bg-accent hover:text-primary transition-colors'
 const itemActive = '[&.active]:bg-accent [&.active]:text-primary [&.active]:border-border'
-const iconBox = 'border rounded-md p-2'
 
 export default function DrawerMenu() {
   const [selectedNetwork] = useSelectedNetwork()
   const [layout, setLayout] = useLayout()
+  const location = useLocation()
   const isOpen = !!layout.isDrawerMenuExpanded
 
   const navTextClassName = cn('visible transition-[visibility] duration-0 delay-100')
@@ -27,6 +28,13 @@ export default function DrawerMenu() {
   const navIconClassName = cn('border rounded-md p-2')
 
   const handleClose = useCallback(() => setLayout((prev) => ({ ...prev, isDrawerMenuExpanded: false })), [setLayout])
+
+  const isExploreUrl = useMemo(() => {
+    const explorePaths = Object.values(Urls.Network.Explore)
+      .filter((x) => typeof x === 'object')
+      .map((url) => url.build({ networkId: selectedNetwork }).replace('/*', ''))
+    return explorePaths.some((path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`))
+  }, [location.pathname, selectedNetwork])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -84,20 +92,27 @@ export default function DrawerMenu() {
 
         {/* Items */}
         <nav className="space-y-1 p-3">
-          {menuItems.map((item, idx) => (
-            <div key={item.urlTemplate.toString()} onClick={handleClose}>
-              <TemplatedNavLink
-                key={idx}
-                urlTemplate={item.urlTemplate}
-                urlParams={{ networkId: selectedNetwork }}
-                className={cn(itemBase, itemActive)}
-                end={item.text === 'Explore'}
-              >
-                <div className={iconBox}>{item.icon}</div>
-                <span className="whitespace-nowrap">{item.text}</span>
-              </TemplatedNavLink>
-            </div>
-          ))}
+          {menuItems.map((item, idx) => {
+            const isExploreMenuItem = item.text === menuItems[0].text // ✅ same check as sidebar
+            return (
+              <div key={item.urlTemplate.toString()} onClick={handleClose}>
+                <TemplatedNavLink
+                  key={idx}
+                  urlTemplate={item.urlTemplate}
+                  urlParams={{ networkId: selectedNetwork }}
+                  className={cn(
+                    itemBase,
+                    itemActive,
+                    isExploreMenuItem && isExploreUrl && 'active' // ✅ same active rule
+                  )}
+                  end={isExploreMenuItem} // ✅ same end prop usage
+                >
+                  <div className="rounded-md border p-2">{item.icon}</div>
+                  <span className="whitespace-nowrap">{item.text}</span>
+                </TemplatedNavLink>
+              </div>
+            )
+          })}
         </nav>
 
         {/* Footer */}

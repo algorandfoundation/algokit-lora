@@ -1,8 +1,13 @@
 import { AssetId } from '../data/types'
 
-// When the URL contains #arc3 or @arc3, it follows ARC-3
-export const isArc3Url = (assetUrl: string) => assetUrl.includes('#arc3') || assetUrl.includes('@arc3')
+// Check if the asset details follow ARC-3
+export const isArc3Url = (assetUrl: string, assetName: string | undefined) =>
+  assetUrl.endsWith('#arc3') || (assetName && (assetName === 'arc3' || assetName.endsWith('@arc3')))
 
 export const getArc3Url = (assetId: AssetId, url: string): string => {
-  return url.replace('{id}', assetId.toString())
+  let result = url.replace('{id}', assetId.toString())
+  if (result.endsWith('#arc3')) {
+    result = result.slice(0, -5)
+  }
+  return result
 }

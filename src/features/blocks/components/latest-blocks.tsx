@@ -20,16 +20,22 @@ export function LatestBlocks({ latestBlocks }: Props) {
         {latestBlocks.length > 0 && (
           <ul>
             {latestBlocks.map((block) => (
-              <li key={block.round} className="border-b last:border-0">
+              <li key={block.round} className="w-full border-b last:border-0">
                 <BlockLink round={block.round} className="animate-in fade-in-20 hover:bg-accent flex w-full gap-2 p-3.5 text-sm">
-                  <Box className="text-primary hidden sm:max-lg:block xl:block" />
-                  <div>
-                    <h3 className={cn('leading-none mb-2')}>{block.round.toString()}</h3>
-                    <DateFormatted className="truncate" date={new Date(block.timestamp)} />
+                  <div className="w-full">
+                    <header className="flex w-full justify-between">
+                      <div className="flex gap-2">
+                        <Box className="text-primary hidden w-full sm:max-lg:block xl:block" />
+                        <div className="flex flex-col items-start gap-2">
+                          <h3 className={cn('leading-none')}>{block.round.toString()}</h3>
+                          <DateFormatted className="truncate" date={new Date(block.timestamp)} />
+                        </div>
+                      </div>
+                      <span className={cn('tracking-tight truncate')}>
+                        {block.transactionsSummary.count} transaction{block.transactionsSummary.count === 1 ? '' : 's'}
+                      </span>
+                    </header>
                   </div>
-                  <span className={cn('ml-auto tracking-tight truncate')}>
-                    {block.transactionsSummary.count} transaction{block.transactionsSummary.count === 1 ? '' : 's'}
-                  </span>
                 </BlockLink>
               </li>
             ))}

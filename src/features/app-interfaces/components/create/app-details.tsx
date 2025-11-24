@@ -56,7 +56,7 @@ function FormInner({ helper }: FormInnerProps) {
         (appInterface) => appInterface.name.toLowerCase() === appInterfaceName.toLowerCase()
       )
       setValue('appInterfaceExists', appInterfaceExists)
-      trigger()
+      trigger('name')
     }
   }, [appInterfaceName, loadableAppInterfaces, setValue, trigger])
 

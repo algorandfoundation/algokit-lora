@@ -340,13 +340,13 @@ export function TransactionsBuilder({
   return (
     <div>
       <div className="space-y-4">
-        <div className="mb-4 flex items-center gap-2">
+        <div className="mb-4 flex flex-col justify-between gap-2 md:flex-row md:items-center">
           {title}
           {!disableAddTransaction && (
             <Button
               variant="outline-secondary"
               onClick={createTransaction}
-              className="plausible-event-name=txn-wizard-add-txn ml-auto"
+              className="plausible-event-name=txn-wizard-add-txn w-44"
               icon={<Plus size={16} />}
             >
               {addTransactionLabel}
@@ -381,7 +381,7 @@ export function TransactionsBuilder({
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-2">
             {additionalActions}
             {!disablePopulate && (
@@ -395,7 +395,7 @@ export function TransactionsBuilder({
               </AsyncActionButton>
             )}
           </div>
-          <div className="left-auto flex gap-2">
+          <div className="left-auto flex flex-wrap gap-2">
             <Button onClick={reset} variant="outline" icon={<Eraser size={16} />}>
               Clear
             </Button>
