@@ -128,63 +128,68 @@ const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'globa
     return getRawApplicationState(state)
   }
 
-  // Check for local/global keys first
-  for (const [keyName, storageKey] of Object.entries(appSpec.state.keys[type])) {
-    if (storageKey.key === key) {
-      return {
-        key: {
-          name: keyName,
-          type: DecodedAbiStorageKeyType.Key,
-          ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
-        },
-        value: tealValueToAbiStorageValue(appSpec, storageKey.valueType, value),
-      } satisfies DecodedApplicationState
-    }
-  }
-
-  // Check for local/global maps with prefix
-  for (const [keyName, storageMap] of Object.entries(appSpec.state.maps[type])) {
-    if (!storageMap.prefix) {
-      continue
-    }
-    const keyBytes = base64ToBytes(key)
-
-    const prefixBytes = base64ToBytes(storageMap.prefix)
-    if (uint8ArrayStartsWith(keyBytes, prefixBytes)) {
-      const keyValueBytes = keyBytes.subarray(prefixBytes.length)
-
-      return {
-        key: {
-          name: keyName,
-          type: DecodedAbiStorageKeyType.MapKey,
-          prefix: base64ToUtf8(storageMap.prefix),
-          ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
-        },
-        value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
-      } satisfies DecodedApplicationState
-    }
-  }
-
-  // Check for local/global maps without prefix
-  for (const [keyName, storageMap] of Object.entries(appSpec.state.maps[type])) {
-    if (storageMap.prefix) {
-      continue
+  try {
+    // Check for local/global keys first
+    for (const [keyName, storageKey] of Object.entries(appSpec.state.keys[type])) {
+      if (storageKey.key === key) {
+        return {
+          key: {
+            name: keyName,
+            type: DecodedAbiStorageKeyType.Key,
+            ...asDecodedAbiStorageValue(appSpec, storageKey.keyType, base64ToBytes(key)),
+          },
+          value: tealValueToAbiStorageValue(appSpec, storageKey.valueType, value),
+        } satisfies DecodedApplicationState
+      }
     }
 
-    try {
-      const keyValueBytes = base64ToBytes(key)
+    // Check for local/global maps with prefix
+    for (const [keyName, storageMap] of Object.entries(appSpec.state.maps[type])) {
+      if (!storageMap.prefix) {
+        continue
+      }
+      const keyBytes = base64ToBytes(key)
 
-      return {
-        key: {
-          name: keyName,
-          type: DecodedAbiStorageKeyType.MapKey,
-          ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
-        },
-        value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
-      } satisfies DecodedApplicationState
-    } catch {
-      // Do nothing
+      const prefixBytes = base64ToBytes(storageMap.prefix)
+      if (uint8ArrayStartsWith(keyBytes, prefixBytes)) {
+        const keyValueBytes = keyBytes.subarray(prefixBytes.length)
+
+        return {
+          key: {
+            name: keyName,
+            type: DecodedAbiStorageKeyType.MapKey,
+            prefix: base64ToUtf8(storageMap.prefix),
+            ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
+          },
+          value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
+        } satisfies DecodedApplicationState
+      }
     }
+
+    // Check for local/global maps without prefix
+    for (const [keyName, storageMap] of Object.entries(appSpec.state.maps[type])) {
+      if (storageMap.prefix) {
+        continue
+      }
+
+      try {
+        const keyValueBytes = base64ToBytes(key)
+
+        return {
+          key: {
+            name: keyName,
+            type: DecodedAbiStorageKeyType.MapKey,
+            ...asDecodedAbiStorageValue(appSpec, storageMap.keyType, keyValueBytes),
+          },
+          value: tealValueToAbiStorageValue(appSpec, storageMap.valueType, value),
+        } satisfies DecodedApplicationState
+      } catch {
+        // Do nothing
+      }
+    }
+  } catch (e: unknown) {
+    // eslint-disable-next-line no-console
+    console.warn('Failed to decode application state', e)
   }
 
   // The default case
