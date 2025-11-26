@@ -1,11 +1,11 @@
 import { BaseSearchParamTransaction } from '@/features/transaction-wizard/models'
 import { transformSearchParamsTransactions } from '@/features/transaction-wizard/utils/transform-search-params-transactions'
 import { atom, useAtomValue } from 'jotai'
-import { atomFamily, loadable } from 'jotai/utils'
+import { loadable } from 'jotai/utils'
 import { useEffect, useMemo } from 'react'
 import { toast } from 'react-toastify'
 
-const transformSearchParams = (searchParams: URLSearchParams) => {
+const parseSearchParams = (searchParams: URLSearchParams): BaseSearchParamTransaction[] => {
   const entries = Array.from(searchParams.entries())
 
   const groupedParams = entries.reduce<BaseSearchParamTransaction[]>((acc, [key, value]) => {
@@ -21,25 +21,20 @@ const transformSearchParams = (searchParams: URLSearchParams) => {
   return groupedParams.filter((entry) => Object.keys(entry).length > 0)
 }
 
-const autopopulateAddress = atomFamily((searchParamsString: string) => {
-  return atom(async () => {
-    const searchParams = new URLSearchParams(searchParamsString)
-    const transformedParams = transformSearchParams(searchParams)
-    return await transformSearchParamsTransactions(transformedParams)
-  })
-})
-
-export const useAutopopulateAddressAtom = (searchParams: URLSearchParams) => {
+const useSearchParamsTransactionsAtom = (searchParams: URLSearchParams) => {
   return useMemo(() => {
-    return autopopulateAddress(searchParams.toString())
+    return atom(async () => {
+      const searchParamsString = new URLSearchParams(searchParams.toString())
+      const parsedParams = parseSearchParams(searchParamsString)
+      return await transformSearchParamsTransactions(parsedParams)
+    })
   }, [searchParams])
 }
 
-export const useLoadableAutopopulateAddress = (searchParams: URLSearchParams) => {
-  const atom = useAutopopulateAddressAtom(searchParams)
-  const loadableResult = useAtomValue(loadable(atom))
+export const useLoadableSearchParamsTransactions = (searchParams: URLSearchParams) => {
+  const transactionsAtom = useSearchParamsTransactionsAtom(searchParams)
+  const loadableResult = useAtomValue(loadable(transactionsAtom))
 
-  // Show toast notifications for errors
   useEffect(() => {
     if (loadableResult.state === 'hasData' && loadableResult.data.errors) {
       loadableResult.data.errors.forEach((error: string) => toast.error(error))
