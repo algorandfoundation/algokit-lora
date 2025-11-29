@@ -45,7 +45,6 @@ describe('transaction-wizard-page', () => {
     })
 
     it('Can add a payment transaction without defining a sender and simulate transaction', async () => {
-      const dispenserAccount = await localnet.algorand.account.localNetDispenser()
       const kmdAccount2 = await localnet.algorand.account.kmd.getOrCreateWalletAccount('test-wallet-2')
 
       await executeComponentTest(
