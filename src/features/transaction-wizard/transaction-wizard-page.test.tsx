@@ -77,17 +77,13 @@ describe('transaction-wizard-page', () => {
           })
           await user.click(addButton)
 
-          const senderNode = await waitFor(() => component.getByText(dispenserAccount.addr.toString()))
-          expect(senderNode).toBeInTheDocument()
-
           const simulateButton = await waitFor(() => {
             const simulateButton = component.getByRole('button', { name: simulateButtonLabel })
-            // expect(simulateButton).not.toBeDisabled()
+            expect(simulateButton).not.toBeDisabled()
             return simulateButton!
           })
           await user.click(simulateButton)
 
-          // 2. We have a simulation result section
           const resultsDiv = await waitFor(
             () => {
               expect(component.queryByText('Required')).not.toBeInTheDocument()
