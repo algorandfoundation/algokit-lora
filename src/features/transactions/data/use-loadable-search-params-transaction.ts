@@ -3,6 +3,7 @@ import { transformSearchParamsTransactions } from '@/features/transaction-wizard
 import { atom, useAtomValue } from 'jotai'
 import { loadable } from 'jotai/utils'
 import { useEffect, useMemo } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
 const parseSearchParams = (searchParams: URLSearchParams): BaseSearchParamTransaction[] => {
@@ -31,7 +32,8 @@ const useSearchParamsTransactionsAtom = (searchParams: URLSearchParams) => {
   }, [searchParams])
 }
 
-export const useLoadableSearchParamsTransactions = (searchParams: URLSearchParams) => {
+export const useLoadableSearchParamsTransactions = () => {
+  const [searchParams] = useSearchParams()
   const transactionsAtom = useSearchParamsTransactionsAtom(searchParams)
   const loadableResult = useAtomValue(loadable(transactionsAtom))
 

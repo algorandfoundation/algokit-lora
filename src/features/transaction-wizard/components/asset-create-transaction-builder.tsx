@@ -17,7 +17,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
@@ -134,7 +134,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: data.unitName,
         total: data.total,
         decimals: data.decimals,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),

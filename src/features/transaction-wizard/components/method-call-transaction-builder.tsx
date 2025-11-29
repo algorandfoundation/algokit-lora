@@ -39,7 +39,7 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,
@@ -157,7 +157,7 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
-        sender: await resolveSenderAddress(values.sender),
+        sender: await resolveTransactionSender(values.sender),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,

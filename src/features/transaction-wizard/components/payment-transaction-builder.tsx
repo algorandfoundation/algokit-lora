@@ -17,14 +17,14 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const receiverLabel = 'Receiver'
 
 export const paymentFormSchema = z.object({
-  sender: optionalAddressFieldSchema,
   ...commonSchema,
   ...receiverFieldSchema,
+  sender: optionalAddressFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 })
 const formData = zfd.formData(paymentFormSchema)
@@ -43,7 +43,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,

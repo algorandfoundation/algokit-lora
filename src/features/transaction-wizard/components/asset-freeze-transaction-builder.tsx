@@ -23,7 +23,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { freezeAssetLabel, unfreezeAssetLabel } from '../mappers'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetFreezeFormSchema = z
   .object({
@@ -183,7 +183,7 @@ export function AssetFreezeTransactionBuilder({ mode, transaction, onSubmit, onC
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetFreeze,
         asset: data.asset,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         freezeTarget: data.freezeTarget,
         frozen: data.frozen === 'true' ? true : false,
         fee: data.fee,

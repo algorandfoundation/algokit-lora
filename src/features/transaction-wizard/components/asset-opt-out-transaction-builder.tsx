@@ -23,7 +23,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetOptOutFormSchema = z.object({
   ...commonSchema,
@@ -151,7 +151,7 @@ export function AssetOptOutTransactionBuilder({ mode, transaction, activeAccount
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptOut,
         asset: data.asset,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         closeRemainderTo: data.closeRemainderTo,
         fee: data.fee,
         validRounds: data.validRounds,

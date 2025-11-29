@@ -15,7 +15,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
@@ -48,7 +48,7 @@ export function ApplicationUpdateTransactionBuilder({ mode, transaction, activeA
         applicationId: BigInt(values.applicationId),
         approvalProgram: values.approvalProgram,
         clearStateProgram: values.clearStateProgram,
-        sender: await resolveSenderAddress(values.sender),
+        sender: await resolveTransactionSender(values.sender),
         fee: values.fee,
         validRounds: values.validRounds,
         args: values.args.map((arg) => arg.value),

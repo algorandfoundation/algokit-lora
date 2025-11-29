@@ -23,7 +23,7 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const receiverLabel = 'Receiver'
 
@@ -162,7 +162,7 @@ export function AssetTransferTransactionBuilder({ mode, transaction, activeAccou
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetTransfer,
         asset: data.asset,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         receiver: data.receiver,
         amount: data.amount!,
         fee: data.fee,

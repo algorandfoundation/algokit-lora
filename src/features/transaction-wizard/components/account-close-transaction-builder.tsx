@@ -17,7 +17,7 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const senderLabel = 'Sender'
 const receiverLabel = 'Receiver'
@@ -64,7 +64,7 @@ export function AccountCloseTransactionBuilder({ mode, transaction, activeAccoun
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AccountClose,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         closeRemainderTo: data.closeRemainderTo,
         receiver: asOptionalAddressOrNfd(data.receiver),
         amount: data.amount,

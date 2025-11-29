@@ -10,11 +10,11 @@ import { settingsStore } from '@/features/settings/data'
 import { betanetId, mainnetId, testnetId, fnetId, localnetId } from '@/features/network/data'
 import { algorandClient } from '@/features/common/data/algo-client'
 
-export async function resolveSenderAddress(data: { value?: string; resolvedAddress?: string }): Promise<TransactionSender> {
-  const val = data?.value ?? ''
-  const res = data?.resolvedAddress ?? ''
+export async function resolveTransactionSender(data: { value?: string; resolvedAddress?: string }): Promise<TransactionSender> {
+  const val = data.value ?? ''
+  const res = data.resolvedAddress ?? ''
 
-  if (val || res) {
+  if (val) {
     return {
       value: val,
       resolvedAddress: res,
@@ -41,7 +41,7 @@ export async function resolveSenderAddress(data: { value?: string; resolvedAddre
   }
 
   return {
-    value: val || res,
-    resolvedAddress: res || val,
+    value: val,
+    resolvedAddress: val,
   }
 }

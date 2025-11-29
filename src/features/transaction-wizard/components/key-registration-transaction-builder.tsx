@@ -19,7 +19,7 @@ import { bigIntSchema } from '@/features/forms/data/common'
 import { offlineKeyRegistrationLabel, onlineKeyRegistrationLabel } from '../mappers'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
-import { resolveSenderAddress } from '../utils/resolve-sender-address'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const keyRegistrationFormSchema = z
   .object({
@@ -185,7 +185,7 @@ export function KeyRegistrationTransactionBuilder({ mode, transaction, activeAcc
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.KeyRegistration,
-        sender: await resolveSenderAddress(data.sender),
+        sender: await resolveTransactionSender(data.sender),
         online: data.online === 'true' ? true : false,
         voteKey: data.voteKey,
         selectionKey: data.selectionKey,

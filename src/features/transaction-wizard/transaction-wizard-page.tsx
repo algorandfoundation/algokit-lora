@@ -11,18 +11,17 @@ import { GroupSendResults, SendResults } from './components/group-send-results'
 import algosdk from 'algosdk'
 import { useTitle } from '@/utils/use-title'
 import { PageLoader } from '../common/components/page-loader'
-import { useLoadableSearchParamsTransactions } from '../transactions/data/search-params-transactions'
-import { useSearchParams } from 'react-router-dom'
+import { useLoadableSearchParamsTransactions } from '../transactions/data/use-loadable-search-params-transaction'
 import { RenderLoadable } from '../common/components/render-loadable'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
+export const simulateButtonLabel = 'Simulate'
 
 export function TransactionWizardPage() {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
-  const [searchParams] = useSearchParams()
-  const loadableSearchParamsTransactions = useLoadableSearchParamsTransactions(searchParams)
+  const loadableSearchParamsTransactions = useLoadableSearchParamsTransactions()
   useTitle('Transaction Wizard')
 
   const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
