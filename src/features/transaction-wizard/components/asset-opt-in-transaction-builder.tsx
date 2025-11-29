@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -23,10 +23,11 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetOptInFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   asset: z
     .object({
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -62,7 +63,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to opt in to the asset. Sends the transaction and pays the fee',
+        helpText: 'Account to opt in to the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       <TransactionBuilderFeeField />
@@ -143,7 +144,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount,
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetOptIn,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
@@ -155,7 +156,7 @@ export function AssetOptInTransactionBuilder({ mode, transaction, activeAccount,
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,

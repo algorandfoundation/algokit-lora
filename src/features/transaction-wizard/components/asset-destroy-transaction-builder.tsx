@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -25,10 +25,11 @@ import { cn } from '@/features/common/utils'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetDestroyFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   asset: z
     .object({
       id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -81,7 +82,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The current asset manager address. Sends the transaction and pays the fee',
+        helpText: 'The current asset manager address. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       <TransactionBuilderFeeField />
@@ -165,7 +166,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetDestroy,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         fee: data.fee,
         validRounds: data.validRounds,
         note: data.note,
@@ -177,7 +178,7 @@ export function AssetDestroyTransactionBuilder({ mode, transaction, onSubmit, on
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         fee: transaction.fee,
         validRounds: transaction.validRounds,
         note: transaction.note,
