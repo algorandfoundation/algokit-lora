@@ -39,7 +39,7 @@ Depending on where you have sourced the svg, you may wish to make a few tweaks t
 
 ### Versioning Strategy
 
-Lora uses [semantic versioning](https://semver.org/) with automated releases based on [conventional commits](https://www.conventionalcommits.org/). Our versioning system supports both web and desktop applications with synchronized version numbers.
+Lora uses [semantic versioning](https://semver.org/) with automated releases based on [conventional commits](https://www.conventionalcommits.org/).
 
 ### Branch Strategy
 
