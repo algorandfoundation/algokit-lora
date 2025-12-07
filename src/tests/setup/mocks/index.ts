@@ -63,14 +63,6 @@ global.HTMLCanvasElement.prototype.getContext = () => {
   } as unknown as null // Hack so we don't need to implement the whole CanvasRenderingContext2D
 }
 
-vi.mock('@tauri-apps/api/event', async () => {
-  const original = await vi.importActual('@tauri-apps/api/event')
-  return {
-    ...original,
-    listen: vi.fn(),
-  }
-})
-
 export const ANY_NUMBER = -1
 export const ANY_STRING = 'ANY_STRING'
 
@@ -90,9 +82,3 @@ vi.mock('@auth0/auth0-react', async () => {
 })
 
 window.HTMLElement.prototype.hasPointerCapture = vi.fn()
-
-vi.mock('@/features/deep-link/hooks/tauri-deep-link', async () => ({
-  ...(await vi.importActual('@/features/deep-link/hooks/tauri-deep-link')),
-  getCurrent: vi.fn(),
-  onOpenUrl: vi.fn(),
-}))

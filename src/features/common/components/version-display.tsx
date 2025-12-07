@@ -9,7 +9,7 @@ interface VersionDisplayProps {
 }
 
 export const VersionDisplay: React.FC<VersionDisplayProps> = ({ className, showDetails = false, showEnvironment = true }) => {
-  const { version, environment, buildDate, commitHash, isTauri } = useVersion()
+  const { version, environment, buildDate, commitHash } = useVersion()
 
   const getEnvironmentVariant = () => {
     switch (environment) {
@@ -25,12 +25,7 @@ export const VersionDisplay: React.FC<VersionDisplayProps> = ({ className, showD
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <span className="font-mono text-sm">v{version}</span>
-      {showEnvironment && (
-        <>
-          <Badge variant={getEnvironmentVariant()}>{environment}</Badge>
-          {isTauri && <Badge variant="outline">Desktop</Badge>}
-        </>
-      )}
+      {showEnvironment && <Badge variant={getEnvironmentVariant()}>{environment}</Badge>}
       {showDetails && (
         <div className="text-muted-foreground text-xs">
           <div>Built: {new Date(buildDate).toLocaleDateString()}</div>
