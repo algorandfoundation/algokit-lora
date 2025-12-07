@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@/tests/testing-library'
 import { VersionDisplay } from './version-display'
 import { useVersion } from '../hooks/use-version'
@@ -16,6 +16,10 @@ vi.mock('../hooks/use-version', () => ({
 }))
 
 describe('VersionDisplay', () => {
+  beforeEach(() => {
+    vi.mocked(useVersion).mockReturnValue(mockVersionInfo)
+  })
+
   describe('default rendering', () => {
     it('should render version number', () => {
       const component = render(<VersionDisplay />)
