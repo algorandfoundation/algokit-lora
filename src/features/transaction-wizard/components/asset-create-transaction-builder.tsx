@@ -1,5 +1,5 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,10 +17,11 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetCreateFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   total: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).gt(BigInt(0), 'Must be greater than 0')),
   decimals: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0).max(19)),
   assetName: zfd.text(z.string().optional()),
@@ -66,7 +67,7 @@ function FormFields({ helper }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Creator',
-        helpText: 'Account that creates the asset. Sends the transaction and pays the fee',
+        helpText: 'Account that creates the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -133,7 +134,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: data.unitName,
         total: data.total,
         decimals: data.decimals,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),
@@ -155,7 +156,7 @@ export function AssetCreateTransactionBuilder({ mode, transaction, activeAccount
         unitName: transaction.unitName,
         total: transaction.total,
         decimals: transaction.decimals,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,

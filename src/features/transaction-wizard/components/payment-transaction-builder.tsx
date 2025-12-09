@@ -1,5 +1,5 @@
 import { numberSchema } from '@/features/forms/data/common'
-import { commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useMemo } from 'react'
 import { zfd } from 'zod-form-data'
@@ -17,13 +17,14 @@ import SvgAlgorand from '@/features/common/components/icons/algorand'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const receiverLabel = 'Receiver'
 
 export const paymentFormSchema = z.object({
   ...commonSchema,
-  ...senderFieldSchema,
   ...receiverFieldSchema,
+  sender: optionalAddressFieldSchema,
   amount: numberSchema(z.number({ required_error: 'Required', invalid_type_error: 'Required' }).min(0)),
 })
 const formData = zfd.formData(paymentFormSchema)
@@ -42,7 +43,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
       onSubmit({
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.Payment,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         receiver: data.receiver,
         amount: data.amount,
         fee: data.fee,
@@ -55,7 +56,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
   const defaultValues = useMemo<Partial<z.infer<typeof formData>>>(() => {
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         receiver: transaction.receiver,
         amount: transaction.amount,
         fee: transaction.fee,
@@ -92,7 +93,7 @@ export function PaymentTransactionBuilder({ mode, transaction, activeAccount, on
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to pay from. Sends the transaction and pays the fee',
+            helpText: 'Account to pay from. Sends the transaction and pays the fee - optional for simulating',
             placeholder: ZERO_ADDRESS,
           })}
           {helper.addressField({

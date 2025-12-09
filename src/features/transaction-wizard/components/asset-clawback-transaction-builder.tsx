@@ -1,5 +1,5 @@
 import { bigIntSchema, decimalSchema } from '@/features/forms/data/common'
-import { addressFieldSchema, commonSchema, receiverFieldSchema, senderFieldSchema } from '../data/common'
+import { addressFieldSchema, commonSchema, optionalAddressFieldSchema, receiverFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,13 +22,14 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const clawbackTargetLabel = 'Clawback target'
 
 export const assetClawbackFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    sender: optionalAddressFieldSchema,
     ...receiverFieldSchema,
     clawbackTarget: addressFieldSchema,
     asset: z
@@ -83,7 +84,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The clawback account of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -186,7 +187,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetClawback,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         receiver: data.receiver,
         clawbackTarget: data.clawbackTarget,
         amount: data.amount!,
@@ -201,7 +202,7 @@ export function AssetClawbackTransactionBuilder({ mode, transaction, onSubmit, o
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         receiver: transaction.receiver,
         clawbackTarget: transaction.clawbackTarget,
         amount: transaction.amount,
