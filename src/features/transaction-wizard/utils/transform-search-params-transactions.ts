@@ -28,6 +28,7 @@ import { randomGuid } from '@/utils/random-guid'
 import algosdk from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import Decimal from 'decimal.js'
+import { asTransactionSender } from '../mappers/as-address-or-nfd'
 
 // This is a workaround to make the online field a boolean instead of a string.
 // A string type is used in the form schema because of the value of radio buttons cant be boolean
@@ -38,10 +39,7 @@ const keyRegFormSchema = keyRegistrationFormSchema.innerType().extend({
 const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction): BuildKeyRegistrationTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.KeyRegistration,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
   online: Boolean(params.votekey),
   fee: params.fee ? { setAutomatically: false, value: microAlgo(Number(params.fee)).algo } : { setAutomatically: true },
   voteKey: params.votekey,
@@ -60,10 +58,8 @@ const transformKeyRegistrationTransaction = (params: BaseSearchParamTransaction)
 const transformPaymentTransaction = (params: BaseSearchParamTransaction): BuildPaymentTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.Payment,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   receiver: {
     value: params.receiver,
     resolvedAddress: params.receiver,
@@ -85,10 +81,8 @@ const defaultOptionalAddress = {
 const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): BuildAssetCreateTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetCreate,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   total: BigInt(params.total),
   decimals: Number(params.decimals),
   assetName: params.assetname,
@@ -132,10 +126,8 @@ const transformAssetCreateTransaction = (params: BaseSearchParamTransaction): Bu
 const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): BuildAssetOptInTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetOptIn,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   asset: {
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
@@ -153,10 +145,8 @@ const transformAssetOptInTransaction = (params: BaseSearchParamTransaction): Bui
 const transformAssetOptOutTransaction = (params: BaseSearchParamTransaction): BuildAssetOptOutTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetOptOut,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   asset: {
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
@@ -179,10 +169,8 @@ const transformAssetOptOutTransaction = (params: BaseSearchParamTransaction): Bu
 const transformAssetTransferTransaction = (params: BaseSearchParamTransaction): BuildAssetTransferTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetTransfer,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   receiver: {
     value: params.receiver,
     resolvedAddress: params.receiver,
@@ -206,10 +194,8 @@ const transformAssetTransferTransaction = (params: BaseSearchParamTransaction): 
 const transformAssetReconfigureTransaction = (params: BaseSearchParamTransaction): BuildAssetReconfigureTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetReconfigure,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   asset: {
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
@@ -252,10 +238,8 @@ const transformAssetReconfigureTransaction = (params: BaseSearchParamTransaction
 const transformAssetFreezeTransaction = (params: BaseSearchParamTransaction): BuildAssetFreezeTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetFreeze,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   freezeTarget: {
     value: params.freezeto,
     resolvedAddress: params.freezeto,
@@ -279,10 +263,8 @@ const transformAssetFreezeTransaction = (params: BaseSearchParamTransaction): Bu
 const transformAssetDestroyTransaction = (params: BaseSearchParamTransaction): BuildAssetDestroyTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetDestroy,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   asset: {
     id: BigInt(params.assetid),
     decimals: params.decimals ? Number(params.decimals) : undefined,
@@ -300,10 +282,8 @@ const transformAssetDestroyTransaction = (params: BaseSearchParamTransaction): B
 const transformAssetClawbackTransaction = (params: BaseSearchParamTransaction): BuildAssetClawbackTransactionResult => ({
   id: randomGuid(),
   type: BuildableTransactionType.AssetClawback,
-  sender: {
-    value: params.sender,
-    resolvedAddress: params.sender,
-  },
+  sender: asTransactionSender({ value: params.sender!, resolvedAddress: params.sender!, autoPopulated: false }),
+
   receiver: {
     value: params.receiver,
     resolvedAddress: params.receiver,
