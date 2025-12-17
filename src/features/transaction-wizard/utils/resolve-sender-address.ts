@@ -12,13 +12,9 @@ import { algorandClient } from '@/features/common/data/algo-client'
 
 export async function resolveTransactionSender(data: { value?: string; resolvedAddress?: string }): Promise<TransactionSender> {
   const val = data.value ?? ''
-  const res = data.resolvedAddress ?? ''
 
   if (val) {
-    return {
-      value: val,
-      resolvedAddress: res,
-    }
+    return data as TransactionSender
   }
 
   const { id: networkId } = settingsStore.get(networkConfigAtom)
@@ -40,8 +36,5 @@ export async function resolveTransactionSender(data: { value?: string; resolvedA
     return { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
   }
 
-  return {
-    value: val,
-    resolvedAddress: val,
-  }
+  return data as TransactionSender
 }

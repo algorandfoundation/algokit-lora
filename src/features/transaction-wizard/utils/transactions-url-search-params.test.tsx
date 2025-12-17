@@ -125,7 +125,7 @@ describe('Render transactions page with search params', () => {
     })
 
     it('should render key registration without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -133,12 +133,9 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      await waitFor(
-        () => {
-          expect(screen.getByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
-        },
-        { timeout: 10_000 }
-      )
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
   })
 
@@ -215,7 +212,7 @@ describe('Render transactions page with search params', () => {
     })
 
     it('should render payment transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -227,12 +224,9 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      await waitFor(
-        () => {
-          expect(screen.getByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
-        },
-        { timeout: 10_000 }
-      )
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it.each([
@@ -397,7 +391,7 @@ describe('Render transactions page with search params', () => {
     })
 
     it('should render asset create transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -408,12 +402,9 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      await waitFor(
-        () => {
-          expect(screen.getByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
-        },
-        { timeout: 10_000 }
-      )
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it.each([
@@ -606,8 +597,8 @@ describe('Render transactions page with search params', () => {
       expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
     })
 
-    it('should render asset opt-in transaction without sender auto-populated', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+    it('should render asset opt-in transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -618,7 +609,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      const senderElements = await screen.findAllByText(localnetDispenderAccount.addr.toString())
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString())
 
       expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
@@ -801,7 +792,7 @@ describe('Render transactions page with search params', () => {
     })
 
     it('should render asset opt-out transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -812,13 +803,9 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      await waitFor(
-        () => {
-          const senderElements = screen.getAllByText(localnetDispenderAccount.addr.toString())
-          expect(senderElements.length).toBeGreaterThanOrEqual(1)
-        },
-        { timeout: 10_000 }
-      )
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it.each([
@@ -1023,7 +1010,7 @@ describe('Render transactions page with search params', () => {
     })
 
     it('should render asset transfer transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -1035,12 +1022,9 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      await waitFor(
-        () => {
-          expect(screen.getByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
-        },
-        { timeout: 10_000 }
-      )
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it.each([
@@ -1468,7 +1452,7 @@ describe('Render transactions page with search params', () => {
     })
 
     it('should render asset destroy transaction without sender - auto populate sender with localnet address', async () => {
-      const localnetDispenderAccount = await localnet.algorand.account.localNetDispenser()
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
 
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -1482,7 +1466,7 @@ describe('Render transactions page with search params', () => {
       await waitFor(
         () => {
           expect(screen.getByText(assetId)).toBeInTheDocument()
-          expect(screen.getByText(localnetDispenderAccount.addr.toString())).toBeInTheDocument()
+          expect(screen.getByText(localnetDispenserAccount.addr.toString())).toBeInTheDocument()
         },
         { timeout: 10_000 }
       )
