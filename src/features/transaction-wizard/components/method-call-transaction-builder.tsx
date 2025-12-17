@@ -1,4 +1,5 @@
 import algosdk from 'algosdk'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import {
   commonSchema,
@@ -353,9 +354,9 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
         return false
       } else if (!selectedMethodForm?.callConfig) {
         return true
-      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      } else if (appId === 0n && selectedMethodForm?.callConfig?.create.includes(Number(x.value) as OnApplicationComplete)) {
         return true
-      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as algosdk.OnApplicationComplete)) {
+      } else if (selectedMethodForm?.callConfig.call.includes(Number(x.value) as OnApplicationComplete)) {
         return true
       }
       return false

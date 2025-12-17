@@ -44,7 +44,8 @@ import { upsertAppInterface } from '@/features/app-interfaces/data'
 import SampleSevenAppSpec from '@/tests/test-app-specs/sample-seven.arc32.json'
 import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/types'
 import { searchTransactionsMock } from '@/tests/setup/mocks'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
+import { AccountApplicationResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { JotaiStore } from '@/features/common/data/types'
@@ -55,26 +56,12 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      getApplicationByID: vi.fn().mockReturnValue({
-        do: vi.fn().mockReturnValue({ then: vi.fn() }),
-      }),
-      accountApplicationInformation: vi.fn().mockReturnValue({
-        do: vi.fn().mockReturnValue({ then: vi.fn() }),
-      }),
+      getApplicationById: vi.fn().mockResolvedValue({}),
+      accountApplicationInformation: vi.fn().mockResolvedValue({}),
     },
     indexer: {
-      lookupApplications: vi.fn().mockReturnValue({
-        includeAll: vi.fn().mockReturnValue({
-          do: vi.fn().mockReturnValue({ then: vi.fn() }),
-        }),
-      }),
-      searchForApplicationBoxes: vi.fn().mockReturnValue({
-        nextToken: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue({
-            do: vi.fn().mockReturnValue({ then: vi.fn() }),
-          }),
-        }),
-      }),
+      lookupApplicationById: vi.fn().mockResolvedValue({}),
+      searchForApplicationBoxes: vi.fn().mockResolvedValue({}),
       searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
     },
   }
@@ -97,8 +84,8 @@ describe('application-page', () => {
   describe('when rendering an application with application Id that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: '123456' }))
-      vi.mocked(algod.getApplicationByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
-      vi.mocked(indexer.lookupApplications(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(algod.getApplicationById).mockRejectedValue(new HttpError('boom', 404))
+      vi.mocked(indexer.lookupApplicationById).mockRejectedValue(new HttpError('boom', 404))
 
       return executeComponentTest(
         () => render(<ApplicationPage />),
@@ -112,7 +99,7 @@ describe('application-page', () => {
   describe('when rendering an application that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: '123456' }))
-      vi.mocked(indexer.lookupApplications(0).includeAll(true).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(indexer.lookupApplicationById).mockRejectedValue({})
 
       return executeComponentTest(
         () => render(<ApplicationPage />),
@@ -133,7 +120,7 @@ describe('application-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+      vi.mocked(indexer.searchForApplicationBoxes).mockImplementation(() =>
         Promise.resolve(
           new indexerModels.BoxesResponse({
             applicationId: 80441968,
@@ -173,7 +160,7 @@ describe('application-page', () => {
           })
         )
       )
-      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(new algosdk.indexerModels.TransactionsResponse({ currentRound: 123n, transactions: [], nextToken: '' }))
       )
     })
@@ -247,47 +234,43 @@ describe('application-page', () => {
 
     it('should render local state when account has state', () => {
       const addressWithLocalState = 'YJJBMRVNONUG52SHL7WA3P766CJUEBQVSKEYNSEDTS2YD5ETX2I64ISL74'
-      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() =>
-        Promise.resolve(
-          new algosdk.modelsv2.AccountApplicationResponse({
-            round: 1n,
-            appLocalState: new algosdk.modelsv2.ApplicationLocalState({
-              id: applicationResult.id,
-              schema: new algosdk.modelsv2.ApplicationStateSchema({
-                numUint: 1,
-                numByteSlice: 2,
-              }),
-              keyValue: [
-                new algosdk.modelsv2.TealKeyValue({
-                  key: Buffer.from('YmFsYW5jZQ==', 'base64'),
-                  value: new algosdk.modelsv2.TealValue({
-                    type: 2,
-                    uint: 1150n,
-                    bytes: '',
-                  }),
-                }),
-                new algosdk.modelsv2.TealKeyValue({
-                  key: Buffer.from('bWVzc2FnZQ==', 'base64'),
-                  value: new algosdk.modelsv2.TealValue({
-                    type: 1,
-                    uint: 0,
-                    bytes: Buffer.from('SGVsbG8gd29ybGQ=', 'base64'),
-                  }),
-                }),
-                new algosdk.modelsv2.TealKeyValue({
-                  key: Buffer.from('aS5hcHBpZA==', 'base64'),
-                  value: new algosdk.modelsv2.TealValue({
-                    type: 1,
-                    uint: 0,
-                    bytes: Buffer.from('AAAAADNlLm0=', 'base64'),
-                  }),
-                }),
-              ],
-            }),
-            createdApp: undefined,
-          })
-        )
-      )
+      vi.mocked(algod.accountApplicationInformation).mockResolvedValue({
+        round: 1n,
+        appLocalState: {
+          id: applicationResult.id,
+          schema: {
+            numUint: 1,
+            numByteSlice: 2,
+          },
+          keyValue: [
+            {
+              key: new Uint8Array(Buffer.from('YmFsYW5jZQ==', 'base64')),
+              value: {
+                type: 2,
+                uint: 1150n,
+                bytes: new Uint8Array(),
+              },
+            },
+            {
+              key: new Uint8Array(Buffer.from('bWVzc2FnZQ==', 'base64')),
+              value: {
+                type: 1,
+                uint: 0n,
+                bytes: new Uint8Array(Buffer.from('SGVsbG8gd29ybGQ=', 'base64')),
+              },
+            },
+            {
+              key: new Uint8Array(Buffer.from('aS5hcHBpZA==', 'base64')),
+              value: {
+                type: 1,
+                uint: 0n,
+                bytes: new Uint8Array(Buffer.from('AAAAADNlLm0=', 'base64')),
+              },
+            },
+          ],
+        },
+        createdApp: undefined,
+      } as unknown as AccountApplicationResponse)
 
       return executeComponentTest(
         () => {
@@ -316,7 +299,7 @@ describe('application-page', () => {
     })
 
     it('should render no results message when account does not have local state', () => {
-      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(algod.accountApplicationInformation).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => {
@@ -338,7 +321,7 @@ describe('application-page', () => {
     })
 
     it('should display failure message when local state fails to load', () => {
-      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() => Promise.reject(new Error('boom')))
+      vi.mocked(algod.accountApplicationInformation).mockImplementation(() => Promise.reject(new Error('boom')))
 
       return executeComponentTest(
         () => {
@@ -360,7 +343,7 @@ describe('application-page', () => {
     })
 
     it('should display invalid address message when viewing local state for an invalid address', () => {
-      vi.mocked(algod.accountApplicationInformation('', 0).do).mockImplementation(() => Promise.reject(new Error('boom')))
+      vi.mocked(algod.accountApplicationInformation).mockImplementation(() => Promise.reject(new Error('boom')))
 
       return executeComponentTest(
         () => {
@@ -393,7 +376,7 @@ describe('application-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
             currentRound: 123n,
@@ -433,7 +416,7 @@ describe('application-page', () => {
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+      vi.mocked(indexer.searchForApplicationBoxes).mockImplementation(() =>
         Promise.resolve(
           new indexerModels.BoxesResponse({
             applicationId: 80441968,
@@ -473,7 +456,7 @@ describe('application-page', () => {
           })
         )
       )
-      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
             currentRound: 123n,
@@ -521,7 +504,7 @@ describe('application-page', () => {
     it('should be rendered with the correct data', async () => {
       const applicationResult = applicationResultMother['testnet-718348254']().build()
       vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-      vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
             currentRound: 123n,
@@ -592,7 +575,7 @@ describe('application-page', () => {
       it('should be rendered with the correct data', async () => {
         const applicationResult = applicationResultMother['localnet-3771']().build()
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-        vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+        vi.mocked(indexer.searchForApplicationBoxes).mockImplementation(() =>
           Promise.resolve(
             new indexerModels.BoxesResponse({
               applicationId: 3771,
@@ -608,7 +591,7 @@ describe('application-page', () => {
             })
           )
         )
-        vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
           Promise.resolve(
             new algosdk.indexerModels.TransactionsResponse({
               currentRound: 123n,
@@ -672,7 +655,7 @@ describe('application-page', () => {
       it('should be rendered with the correct data', async () => {
         const applicationResult = applicationResultMother['localnet-5103']().build()
         vi.mocked(useParams).mockImplementation(() => ({ applicationId: applicationResult.id.toString() }))
-        vi.mocked(indexer.searchForApplicationBoxes(0).nextToken('').limit(10).do).mockImplementation(() =>
+        vi.mocked(indexer.searchForApplicationBoxes).mockImplementation(() =>
           Promise.resolve(
             new indexerModels.BoxesResponse({
               applicationId: 5103,
@@ -685,7 +668,7 @@ describe('application-page', () => {
             })
           )
         )
-        vi.mocked(indexer.searchForTransactions().applicationID(applicationResult.id).limit(3).do).mockImplementation(() =>
+        vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
           Promise.resolve(
             new algosdk.indexerModels.TransactionsResponse({
               currentRound: 123n,

@@ -1,5 +1,5 @@
-import algosdk from 'algosdk'
 import { numberSchema } from '@/features/forms/data/common'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import {
   senderFieldSchema,
   commonSchema,
@@ -97,7 +97,7 @@ export function ApplicationCreateTransactionBuilder({ mode, transaction, activeA
 
     return {
       sender: activeAccount ? asAddressOrNfd(activeAccount) : undefined,
-      onComplete: algosdk.OnApplicationComplete.NoOpOC.toString(),
+      onComplete: OnApplicationComplete.NoOp.toString(),
       fee: {
         setAutomatically: true,
       },

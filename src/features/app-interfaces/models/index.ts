@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StructDefinition } from '@/features/applications/models'
-import algosdk from 'algosdk'
 import { z } from 'zod'
 import { FormFieldHelper } from '@/features/forms/components/form-field-helper'
 import React from 'react'
@@ -10,7 +9,7 @@ import {
   TemplateParamType,
   AVMTypeTemplateParam,
 } from '@/features/app-interfaces/data/types'
-import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { ABIType, AVMType } from '@algorandfoundation/algokit-utils/abi'
 import { AbiFormItemValue, AvmFormItemValue } from '@/features/abi-methods/models'
 
 export type TealTemplateParamField =
@@ -35,7 +34,7 @@ export type TealTemplateParamField =
   | {
       name: string
       path: string
-      type: algosdk.ABIType
+      type: ABIType
       struct?: StructDefinition
       fieldSchema: z.ZodTypeAny
       createField: (helper: FormFieldHelper<any>) => React.JSX.Element | undefined
@@ -46,7 +45,7 @@ export type TealTemplateParamField =
 
 export type TealTemplateParamDefinition = {
   name: string
-  type?: algosdk.ABIType | AVMType
+  type?: ABIType | AVMType
   struct?: StructDefinition
   defaultValue?: AbiFormItemValue | AvmFormItemValue
 }

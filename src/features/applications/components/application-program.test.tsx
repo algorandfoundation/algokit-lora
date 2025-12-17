@@ -3,16 +3,13 @@ import { getByRole, render, waitFor } from '../../../tests/testing-library'
 import { ApplicationProgram, base64ProgramTabLabel, tealProgramTabLabel } from './application-program'
 import { executeComponentTest } from '@/tests/test-component'
 import { algod } from '@/features/common/data/algo-client'
-import algosdk from 'algosdk'
 
 vi.mock('@/features/common/data/algo-client', async () => {
   const original = await vi.importActual('@/features/common/data/algo-client')
   return {
     ...original,
     algod: {
-      disassemble: vi.fn().mockReturnValue({
-        do: vi.fn(),
-      }),
+      disassemble: vi.fn().mockResolvedValue({ result: '' }),
     },
   }
 })
@@ -24,9 +21,8 @@ describe('application-program', () => {
     const teal = '\n#pragma version 8\nint 1\nreturn\n'
 
     it('should be rendered with the correct data', () => {
-      vi.mocked(algod.disassemble('').do).mockImplementation(() =>
-        Promise.resolve(new algosdk.modelsv2.DisassembleResponse({ result: teal }))
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked((algod as any).disassemble).mockResolvedValue({ result: teal })
 
       return executeComponentTest(
         () => {

@@ -1,4 +1,4 @@
-import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AVMType } from '@algorandfoundation/algokit-utils/abi'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
 import { AvmFormItemValue, DecodedAvmType, DecodedAvmValue } from '../models'
 import algosdk from 'algosdk'

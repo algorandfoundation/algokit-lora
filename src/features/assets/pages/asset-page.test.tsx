@@ -51,16 +51,10 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      getAssetByID: vi.fn().mockReturnValue({
-        do: vi.fn().mockReturnValue({ then: vi.fn() }),
-      }),
+      getAssetById: vi.fn().mockResolvedValue({}),
     },
     indexer: {
-      lookupAssetByID: vi.fn().mockReturnValue({
-        includeAll: vi.fn().mockReturnValue({
-          do: vi.fn().mockReturnValue({ then: vi.fn() }),
-        }),
-      }),
+      lookupAssetById: vi.fn().mockResolvedValue({}),
       searchForTransactions: vi.fn().mockImplementation(() => searchTransactionsMock),
     },
     algorandClient: {
@@ -102,8 +96,8 @@ describe('asset-page', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
 
-      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
-      vi.mocked(indexer.lookupAssetByID(0).includeAll(true).do).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(algod.getAssetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
+      vi.mocked(indexer.lookupAssetById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => render(<AssetPage />),
@@ -117,7 +111,7 @@ describe('asset-page', () => {
   describe('when rendering an asset that failed to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ assetId: '123456' }))
-      vi.mocked(algod.getAssetByID(0).do).mockImplementation(() => Promise.reject({}))
+      vi.mocked(algod.getAssetById).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<AssetPage />),
@@ -138,7 +132,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -231,7 +225,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -340,7 +334,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -434,7 +428,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -527,7 +521,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -652,7 +646,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -793,7 +787,7 @@ describe('asset-page', () => {
       myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
-      vi.mocked(indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').do).mockImplementation(() =>
+      vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
             transactions: [
@@ -889,7 +883,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -956,7 +950,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({
@@ -1033,7 +1027,7 @@ describe('asset-page', () => {
 
       vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
       vi.mocked(
-        indexer.searchForTransactions().assetID(assetResult.index).txType('acfg').address('').addressRole('sender').limit(2).do
+        searchTransactionsMock.do
       ).mockReturnValue(
         Promise.resolve(
           new algosdk.indexerModels.TransactionsResponse({

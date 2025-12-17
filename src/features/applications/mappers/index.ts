@@ -13,7 +13,9 @@ import {
   DecodedBoxDescriptor,
   RawBoxDescriptor,
 } from '../models'
-import algosdk, { encodeAddress, getApplicationAddress, modelsv2 } from 'algosdk'
+import algosdk, { encodeAddress, getApplicationAddress } from 'algosdk'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/algod-client'
 import isUtf8 from 'isutf8'
 import { ApplicationMetadataResult, ApplicationResult } from '../data/types'
 import { asJson, normaliseAlgoSdkData } from '@/utils/as-json'
@@ -22,7 +24,7 @@ import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common
 import { AppSpec as UtiltsAppSpec, arc32ToArc56 } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { Hint } from '@/features/app-interfaces/data/types/arc-32/application'
 import { base64ToUtf8, base64ToUtf8IfValid } from '@/utils/base64-to-utf8'
-import { Arc56Contract, getABITupleTypeFromABIStructDefinition, StructField } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { ABIStructType, ABIType, Arc56Contract, StructField } from '@algorandfoundation/algokit-utils/abi'
 import { invariant } from '@/utils/invariant'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiStorageKeyType, DecodedAbiStorageValue, DecodedAbiType } from '@/features/abi-methods/models'
@@ -102,7 +104,7 @@ const asRawApplicationStateValue = (bytes: Uint8Array) => {
   return base64ToUtf8IfValid(uint8ArrayToBase64(bytes))
 }
 
-const getRawApplicationState = (state: modelsv2.TealKeyValue): RawApplicationState => {
+const getRawApplicationState = (state: TealKeyValue): RawApplicationState => {
   if (state.value.type === 1) {
     return {
       key: asRawApplicationStateKey(state.key),
@@ -120,7 +122,7 @@ const getRawApplicationState = (state: modelsv2.TealKeyValue): RawApplicationSta
   throw new Error(`Unknown type ${state.value.type}`)
 }
 
-const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
+const asApplicationState = (state: TealKeyValue, type: 'local' | 'global', appSpec?: Arc56Contract): ApplicationState => {
   const { key: keyBytes, value } = state
   const key = uint8ArrayToBase64(keyBytes)
 
@@ -196,7 +198,7 @@ const asApplicationState = (state: modelsv2.TealKeyValue, type: 'local' | 'globa
   return getRawApplicationState(state)
 }
 
-export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?: Arc56Contract): ApplicationState[] => {
+export const asLocalStateValues = (localState: TealKeyValueStore, appSpec?: Arc56Contract): ApplicationState[] => {
   if (!localState) {
     return []
   }
@@ -210,12 +212,12 @@ export const asLocalStateValues = (localState: modelsv2.TealKeyValue[], appSpec?
     })
 }
 
-const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: modelsv2.TealValue): DecodedAbiStorageValue => {
+const tealValueToAbiStorageValue = (appSpec: Arc56Contract, type: string, value: TealValue): DecodedAbiStorageValue => {
   if (value.type === 2) {
     // When the teal value is uint, display it as uint64
     const b = BigInt(value.uint)
     return {
-      abiType: algosdk.ABIUintType.from('uint64'),
+      abiType: ABIType.from('uint64'),
       value: {
         type: DecodedAbiType.Uint,
         value: b,
@@ -331,20 +333,20 @@ export const asStructDefinition = (structName: string, structs: Record<string, S
 
 const asOnApplicationComplete = (
   action: 'NoOp' | 'OptIn' | 'CloseOut' | 'ClearState' | 'UpdateApplication' | 'DeleteApplication'
-): algosdk.OnApplicationComplete => {
+): OnApplicationComplete => {
   switch (action) {
     case 'NoOp':
-      return algosdk.OnApplicationComplete.NoOpOC
+      return OnApplicationComplete.NoOp
     case 'OptIn':
-      return algosdk.OnApplicationComplete.OptInOC
+      return OnApplicationComplete.OptIn
     case 'CloseOut':
-      return algosdk.OnApplicationComplete.CloseOutOC
+      return OnApplicationComplete.CloseOut
     case 'ClearState':
-      return algosdk.OnApplicationComplete.ClearStateOC
+      return OnApplicationComplete.ClearState
     case 'UpdateApplication':
-      return algosdk.OnApplicationComplete.UpdateApplicationOC
+      return OnApplicationComplete.UpdateApplication
     case 'DeleteApplication':
-      return algosdk.OnApplicationComplete.DeleteApplicationOC
+      return OnApplicationComplete.DeleteApplication
   }
 }
 
@@ -361,8 +363,7 @@ export const asMethodDefinitions = (appSpec: AppSpec): MethodDefinition[] => {
     const methodArgs = method.args.map((arg, i) => {
       const getStructDefinition = () => {
         if (!arg.struct) return undefined
-        const structFields = arc56AppSpec.structs[arg.struct]
-        const structTupleType = getABITupleTypeFromABIStructDefinition(structFields, arc56AppSpec.structs)
+        const structTupleType = ABIStructType.fromStruct(arg.struct, arc56AppSpec.structs).toABITupleType()
         if (structTupleType.toString() === abiMethod.args[i].type.toString()) {
           return asStructDefinition(arg.struct, arc56AppSpec.structs)
         }

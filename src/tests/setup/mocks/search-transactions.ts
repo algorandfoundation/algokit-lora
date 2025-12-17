@@ -4,6 +4,8 @@ type SearchTransactionsMockArgs = {
   nextToken?: string
   limit?: number
 }
+
+// Mock for searchForTransactions that supports chained method calls
 export class SearchTransactionsMock {
   assetID: Mock
   applicationID: Mock
@@ -31,6 +33,6 @@ export class SearchTransactionsMock {
     this.txType = vi.fn().mockReturnThis()
     this.address = vi.fn().mockReturnThis()
     this.addressRole = vi.fn().mockReturnThis()
-    this.do = vi.fn()
+    this.do = vi.fn().mockResolvedValue({ transactions: [] })
   }
 }

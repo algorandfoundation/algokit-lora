@@ -23,23 +23,16 @@ export const algoAssetResult: AssetResult = {
 const getAssetResult = async (_: Getter, __: Setter, assetId: AssetId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    return await algod
-      .getAssetByID(assetId)
-      .do()
-      .then((result) => removeEncodableMethods(result) as AssetResult)
+    const result = await algod.getAssetById(assetId)
+    return removeEncodableMethods(result) as unknown as AssetResult
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle destroyed assets or assets that may not be available in algod potentially due to the node type
-      return await indexer
-        .lookupAssetByID(assetId)
-        .includeAll(true) // Returns destroyed assets
-        .do()
-        .then((result) => {
-          if (!result.asset) {
-            throw new Error(`Asset ${assetId} not found`)
-          }
-          return removeEncodableMethods(result.asset) as AssetResult
-        })
+      const result = await indexer.lookupAssetById(assetId, { includeAll: true }) // Returns destroyed assets
+      if (!result.asset) {
+        throw new Error(`Asset ${assetId} not found`)
+      }
+      return removeEncodableMethods(result.asset) as unknown as AssetResult
     }
     throw e
   }

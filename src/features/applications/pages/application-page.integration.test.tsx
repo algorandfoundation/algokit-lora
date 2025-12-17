@@ -14,7 +14,7 @@ import { getTestStore } from '@/tests/utils/get-test-store'
 import { JotaiStore } from '@/features/common/data/types'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { OnApplicationComplete } from 'algosdk'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
 describe('application-page on localnet', () => {
   describe('when the application that has a global state that is a big int', () => {
@@ -70,7 +70,7 @@ describe('application-page on localnet', () => {
       await appClient.send.call({
         method: 'set_local',
         sender: myAccount,
-        onComplete: OnApplicationComplete.OptInOC,
+        onComplete: OnApplicationComplete.OptIn,
       })
 
       return executeComponentTest(

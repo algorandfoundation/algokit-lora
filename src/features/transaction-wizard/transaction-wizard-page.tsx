@@ -6,9 +6,9 @@ import { asTransactionFromSendResult } from '../transactions/data/send-transacti
 import { asTransactionsGraphData } from '../transactions-graph/mappers'
 import { BuildTransactionResult } from './models'
 import { SendTransactionResults } from '@algorandfoundation/algokit-utils/types/transaction'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import { AppCallTransaction, TransactionType } from '../transactions/models'
 import { GroupSendResults, SendResults } from './components/group-send-results'
-import algosdk from 'algosdk'
 import { useTitle } from '@/utils/use-title'
 import { useTransactionSearchParamsBuilder } from './utils/use-transaction-search-params-builder'
 
@@ -21,7 +21,7 @@ export function TransactionWizardPage() {
   const searchParamsTransactions = useTransactionSearchParamsBuilder()
   useTitle('Transaction Wizard')
 
-  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
+  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: SimulateResponse) => {
     const sentTransactions = asTransactionFromSendResult(result)
     const transactionsGraphData = asTransactionsGraphData(sentTransactions)
     const appCallTransactions = sentTransactions.filter((txn) => txn.type === TransactionType.AppCall)

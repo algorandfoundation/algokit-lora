@@ -8,7 +8,7 @@ import {
 } from '../models'
 import algosdk from 'algosdk'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { MethodDefinition } from '@/features/applications/models'
 
 describe('patchTransactions', () => {

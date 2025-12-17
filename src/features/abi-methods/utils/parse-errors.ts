@@ -4,6 +4,7 @@ import { asAlgosdkTransactions } from '@/features/transaction-wizard/mappers'
 import { BuildableTransactionType, BuildMethodCallTransactionResult, BuildTransactionResult } from '@/features/transaction-wizard/models'
 import { asError } from '@/utils/error'
 import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import algosdk from 'algosdk'
 
 type URLTokenBaseHTTPError = {
@@ -94,7 +95,7 @@ const parseErrorForTransaction = async (e: unknown, groupIndex: number, transact
   const logicError = AppClient.exposeLogicError(
     asError(e),
     transaction.appSpec,
-    transaction.onComplete === algosdk.OnApplicationComplete.ClearStateOC
+    transaction.onComplete === OnApplicationComplete.ClearState
       ? {
           isClearStateProgram: true,
           program: applicationResult.params.clearStateProgram,

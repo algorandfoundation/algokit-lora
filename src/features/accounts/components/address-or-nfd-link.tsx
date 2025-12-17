@@ -9,9 +9,10 @@ import { Nfd } from '@/features/nfd/data/types'
 import { PropsWithChildren } from 'react'
 import { Address } from 'algosdk'
 import { OpenAddressQRDialogButton } from '@/features/accounts/components/address-qr-dialog-button'
+import { ReadableAddress } from '@algorandfoundation/algokit-utils'
 
 export type AddressOrNfdLinkProps = PropsWithChildren<{
-  address: string | Address
+  address: string | Address | ReadableAddress
   short?: boolean
   className?: string
   showCopyButton?: boolean

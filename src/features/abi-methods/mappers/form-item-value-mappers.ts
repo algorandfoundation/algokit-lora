@@ -6,7 +6,7 @@ import { DynamicArrayFormItemValue, AbiFormItemValue, AvmValue, AvmFormItemValue
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 import { base64ToUtf8 } from '@/utils/base64-to-utf8'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'
-import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AVMType } from '@algorandfoundation/algokit-utils/abi'
 
 export const abiFormItemValueToABIValue = (type: algosdk.ABIArgumentType, value: AbiFormItemValue): algosdk.ABIValue => {
   if (type instanceof algosdk.ABIUfixedType) {

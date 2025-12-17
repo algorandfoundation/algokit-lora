@@ -1,4 +1,4 @@
-import algosdk, { encodeAddress } from 'algosdk'
+import { encodeAddress } from 'algosdk'
 import isUtf8 from 'isutf8'
 import {
   DecodedGlobalStateDelta,
@@ -9,7 +9,7 @@ import {
   RawLocalStateDelta,
 } from '../models'
 import { Buffer } from 'buffer'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { ABIType, Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { asDecodedAbiStorageValue } from '@/features/abi-methods/mappers'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 import { DecodedAbiType, DecodedAbiStorageValue, DecodedAbiStorageKeyType } from '@/features/abi-methods/models'
@@ -112,7 +112,7 @@ const mapEvalDeltaToDecodedArc56Value = (appSpec: Arc56Contract, type: string, v
     // When the value is uint, display it as uint64
     const b = BigInt(value.uint)
     return {
-      abiType: algosdk.ABIUintType.from('uint64'),
+      abiType: ABIType.from('uint64'),
       value: {
         type: DecodedAbiType.Uint,
         value: b,
@@ -127,7 +127,7 @@ const mapEvalDeltaToDecodedArc56Value = (appSpec: Arc56Contract, type: string, v
 
   // default to empty string, this should never happen
   return {
-    abiType: algosdk.ABIStringType.from('string'),
+    abiType: ABIType.from('string'),
     value: {
       type: DecodedAbiType.String,
       value: '',

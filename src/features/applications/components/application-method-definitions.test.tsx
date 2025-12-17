@@ -17,7 +17,7 @@ import { transactionActionsLabel, transactionGroupTableLabel } from '@/features/
 import { selectOption } from '@/tests/utils/select-option'
 import { groupSendResultsLabel } from '@/features/transaction-wizard/components/group-send-results'
 import { getTestStore } from '@/tests/utils/get-test-store'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { asMethodCallParams } from '@/features/transaction-wizard/mappers'
 import { randomGuid } from '@/utils/random-guid'
 import { asAddressOrNfd } from '@/features/transaction-wizard/mappers/as-address-or-nfd'

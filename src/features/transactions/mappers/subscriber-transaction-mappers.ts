@@ -18,7 +18,7 @@ export const subscribedTransactionToTransactionResult = (subscribedTransaction: 
   return {
     ...transaction,
     innerTxns: innerTransactions,
-  } satisfies TransactionResult
+  } as TransactionResult
 }
 
 const subscribedTransactionToInnerTransactionResult = (
@@ -50,5 +50,5 @@ const subscribedTransactionToInnerTransactionResult = (
     id: transactionId,
     intraRoundOffset: subscribedTransaction.parentIntraRoundOffset,
     innerTxns: innerTransactions,
-  }
+  } as TransactionResult
 }

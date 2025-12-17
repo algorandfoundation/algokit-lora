@@ -4,7 +4,7 @@ import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { zfd } from 'zod-form-data'
 import { addressFieldSchema, optionalAddressFieldSchema } from '@/features/transaction-wizard/data/common'
 import { fixedPointDecimalStringToBigInt } from '@/features/abi-methods/mappers/ufixed-mappers'
-import { AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { AVMType } from '@algorandfoundation/algokit-utils/abi'
 
 export const abiTypeToFormFieldSchema = (type: algosdk.ABIType, isOptional: boolean): z.ZodTypeAny => {
   if (type instanceof algosdk.ABIUintType) {

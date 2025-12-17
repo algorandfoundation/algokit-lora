@@ -15,12 +15,11 @@ const getApplicationMetadataResult = async (
   applicationResult: ApplicationResult
 ): Promise<ApplicationMetadataResult> => {
   // We only need to fetch the first page to find the application creation transaction
-  const transactionResults = await indexer
-    .searchForTransactions()
-    .applicationID(applicationResult.id)
-    .limit(3)
-    .do()
-    .then((res) => res.transactions.map((txn) => indexerTransactionToTransactionResult(txn)))
+  const response = await indexer.searchForTransactions({
+    applicationId: applicationResult.id,
+    limit: 3,
+  })
+  const transactionResults = response.transactions.map((txn) => indexerTransactionToTransactionResult(txn))
 
   const creationTransaction = transactionResults
     .flatMap((txn) => flattenTransactionResult(txn))

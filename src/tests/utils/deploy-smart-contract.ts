@@ -1,9 +1,7 @@
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { AppSpec } from '@algorandfoundation/algokit-utils/types/app-spec'
 import { AppFactoryDeployParams } from '@algorandfoundation/algokit-utils/types/app-factory'
-import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { Account, Address } from 'algosdk'
 import { JotaiStore } from '@/features/common/data/types'
 import { AppInterfaceEntity, dbConnectionAtom } from '@/features/common/data/indexed-db'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
@@ -11,7 +9,7 @@ import { AppSpecStandard, Arc32AppSpec } from '@/features/app-interfaces/data/ty
 import { createTimestamp } from '@/features/common/data'
 
 export const deploySmartContract = async (
-  creator: Address & TransactionSignerAccount & Account,
+  creator: { addr: { toString(): string } },
   algorandClient: AlgorandClient,
   store: JotaiStore,
   appSpec: Arc56Contract | AppSpec,
@@ -19,7 +17,7 @@ export const deploySmartContract = async (
 ) => {
   const appFactory = algorandClient.client.getAppFactory({
     appSpec,
-    defaultSender: creator.addr,
+    defaultSender: creator.addr.toString(),
   })
 
   // Deploy the app

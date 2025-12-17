@@ -3,7 +3,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { DialogBodyProps, useDialogForm } from '@/features/common/hooks/use-dialog-form'
 import { AsyncActionButton, Button } from '@/features/common/components/button'
 import { TransactionBuilder } from './transaction-builder'
-import { algod } from '@/features/common/data/algo-client'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { invariant } from '@/utils/invariant'
 import {
@@ -196,9 +195,8 @@ export function TransactionsBuilder({
       ensureThereIsNoPlaceholderTransaction(transactions)
 
       const composer = await buildComposer(transactions)
-      const { atc } = await composer.build()
-      const populatedAtc = await populateAppCallResources(atc, algod)
-      const transactionsWithResources = populatedAtc.buildGroup()
+      const populatedComposer = await populateAppCallResources(composer)
+      const { transactions: transactionsWithResources } = await populatedComposer.build()
 
       setTransactions((prev) => {
         let newTransactions = [...prev]
@@ -209,11 +207,11 @@ export function TransactionsBuilder({
           const transactionWithResources = transactionsWithResources[i]
           if (transaction.type === BuildableTransactionType.AppCall || transaction.type === BuildableTransactionType.MethodCall) {
             const resources = {
-              accounts: transactionWithResources.txn.applicationCall?.accounts.map((account) => account.toString()) ?? [],
-              assets: transactionWithResources.txn.applicationCall?.foreignAssets.map((a) => a) ?? [],
-              applications: transactionWithResources.txn.applicationCall?.foreignApps.map((a) => a) ?? [],
+              accounts: transactionWithResources.txn.appCall?.accountReferences?.map((account) => account.toString()) ?? [],
+              assets: transactionWithResources.txn.appCall?.assetReferences?.map((a) => a) ?? [],
+              applications: transactionWithResources.txn.appCall?.appReferences?.map((a) => a) ?? [],
               boxes:
-                transactionWithResources.txn.applicationCall?.boxes?.map((box) => [box.appIndex, uint8ArrayToBase64(box.name)] as const) ??
+                transactionWithResources.txn.appCall?.boxReferences?.map((box) => [box.appId ?? 0n, uint8ArrayToBase64(box.name)] as const) ??
                 [],
             } satisfies TransactionResources
             newTransactions = setTransactionResources(newTransactions, transaction.id, resources)

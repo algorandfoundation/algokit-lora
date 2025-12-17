@@ -1,8 +1,8 @@
-import algosdk from 'algosdk'
 import { atom } from 'jotai'
 import { getApplicationResultAtom } from '@/features/applications/data'
 import { fundedAccountAtom } from '@/features/accounts/data'
 import { algorandClient } from '@/features/common/data/algo-client'
+import { ABIMethod } from '@algorandfoundation/algokit-utils/abi'
 
 export const createAssetCirculatingSupplyAtom = (applicationId: bigint, assetId: bigint) => {
   return atom(async (get) => {
@@ -16,7 +16,7 @@ export const createAssetCirculatingSupplyAtom = (applicationId: bigint, assetId:
       .newGroup()
       .addAppCallMethodCall({
         appId: applicationId,
-        method: algosdk.ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64'),
+        method: ABIMethod.fromSignature('arc62_get_circulating_supply(uint64)uint64'),
         args: [assetId],
         sender: fundedAddress,
       })

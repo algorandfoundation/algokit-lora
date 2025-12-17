@@ -114,7 +114,7 @@ const subscriberAtom = atom(null, (get, set) => {
             accumulateGroupsFromTransaction(acc[2], transaction, round, transaction.roundTime ?? Math.floor(Date.now() / 1000))
 
             // Accumulate stale asset ids
-            const staleAssetIds = flattenTransactionResult(t)
+            const staleAssetIds = flattenTransactionResult(transaction)
               .filter((t) => t.txType === algosdk.TransactionType.acfg)
               .map((t) => t.assetConfigTransaction!.assetId)
               .filter(distinct((x) => x))
@@ -142,7 +142,7 @@ const subscriberAtom = atom(null, (get, set) => {
                 .map((bc) => bc.address)
                 .filter(distinct((x) => x)) ?? []
 
-            const addressesStaleDueToTransactions = flattenTransactionResult(t)
+            const addressesStaleDueToTransactions = flattenTransactionResult(transaction)
               .filter((t) => {
                 const accountIsStaleDueToRekey = t.rekeyTo
                 return accountIsStaleDueToAppChanges(t) || accountIsStaleDueToRekey
@@ -153,7 +153,7 @@ const subscriberAtom = atom(null, (get, set) => {
             acc[4] = acc[4].concat(staleAddresses)
 
             // Accumulate stale application ids
-            const staleApplicationIds = flattenTransactionResult(t)
+            const staleApplicationIds = flattenTransactionResult(transaction)
               .filter((t) => t.txType === algosdk.TransactionType.appl)
               .map((t) => t.applicationTransaction?.applicationId)
               .filter(distinct((x) => x))

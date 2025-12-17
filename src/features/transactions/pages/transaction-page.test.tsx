@@ -87,10 +87,9 @@ import { genesisHashAtom } from '@/features/blocks/data'
 import { upsertAppInterface } from '@/features/app-interfaces/data'
 import { algod, indexer } from '@/features/common/data/algo-client'
 import Arc56TestAppSpecSampleOne from '@/tests/test-app-specs/arc56/sample-one.json'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import Arc56TestAppSpecSampleThree from '@/tests/test-app-specs/arc56/sample-three.json'
 import { heartbeatAddressLabel } from '../components/heartbeat-transaction-info'
-import algosdk from 'algosdk'
 import { uint8ArrayToBase64 } from '@/utils/uint8-array-to-base64'
 
 vi.mock('@/features/common/data/algo-client', async () => {
@@ -98,14 +97,10 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      disassemble: vi.fn().mockReturnValue({
-        do: vi.fn(),
-      }),
+      disassemble: vi.fn().mockResolvedValue({ result: '' }),
     },
     indexer: {
-      lookupTransactionByID: vi.fn().mockReturnValue({
-        do: vi.fn(),
-      }),
+      lookupTransactionById: vi.fn().mockResolvedValue({}),
     },
   }
 })
@@ -127,7 +122,7 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(indexer.lookupTransactionByID('8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+      vi.mocked(indexer.lookupTransactionById).mockImplementation(() =>
         Promise.reject(new HttpError('boom', 404))
       )
 
@@ -143,7 +138,7 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(indexer.lookupTransactionByID('7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND').do).mockImplementation(() =>
+      vi.mocked(indexer.lookupTransactionById).mockImplementation(() =>
         Promise.reject({})
       )
 
@@ -301,9 +296,8 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      vi.mocked(algod.disassemble('').do).mockImplementation(() =>
-        Promise.resolve(new algosdk.modelsv2.DisassembleResponse({ result: teal }))
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      vi.mocked((algod as any).disassemble).mockResolvedValue({ result: teal })
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))

@@ -1,4 +1,6 @@
-import algosdk, { Address } from 'algosdk'
+import algosdk from 'algosdk'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
+import { ReadableAddress, getAddress } from '@algorandfoundation/algokit-utils'
 import { DescriptionList, DescriptionListItems } from '@/features/common/components/description-list'
 import {
   BuildableTransactionType,
@@ -250,11 +252,11 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
       dt: 'Sender',
       dd: <AddressOrNfdLink address={params.sender} />,
     },
-    ...('account' in params && params.account
+    ...('freezeTarget' in params && params.freezeTarget
       ? [
           {
             dt: 'Freeze target',
-            dd: <AddressOrNfdLink address={params.account} />,
+            dd: <AddressOrNfdLink address={params.freezeTarget} />,
           },
         ]
       : []),
@@ -382,7 +384,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
       : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
     {
       dt: 'Sender',
@@ -435,7 +437,7 @@ const asMethodCallTransaction = (
     ...(transaction.methodDefinition ? [{ dt: 'Method', dd: transaction.methodDefinition.name }] : []),
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
     {
       dt: 'Sender',
@@ -496,7 +498,7 @@ const asValidRoundsItem = (firstValid?: bigint, lastValid?: bigint) =>
     : []
 
 const asResourcesItem = (
-  accounts?: (string | Address)[],
+  accounts?: ReadableAddress[],
   assets?: bigint[],
   apps?: bigint[],
   boxes?: CommonAppCallParams['boxReferences']
@@ -515,7 +517,7 @@ const asResourcesItem = (
                   {accounts?.map((address, index, array) => (
                     <li key={index} className="truncate">
                       <AddressOrNfdLink address={address} className="text-primary inline underline">
-                        {typeof address === 'string' ? address : address.toString()}
+                        {getAddress(address).toString()}
                       </AddressOrNfdLink>
                       {index < array.length - 1 ? <span>{', '}</span> : null}
                     </li>
@@ -620,19 +622,19 @@ const asResourcesItem = (
   ]
 }
 
-export const asOnCompleteLabel = (onComplete: algosdk.OnApplicationComplete) => {
+export const asOnCompleteLabel = (onComplete: OnApplicationComplete) => {
   switch (onComplete) {
-    case algosdk.OnApplicationComplete.NoOpOC:
+    case OnApplicationComplete.NoOp:
       return 'Call (NoOp)'
-    case algosdk.OnApplicationComplete.OptInOC:
+    case OnApplicationComplete.OptIn:
       return 'Opt-in'
-    case algosdk.OnApplicationComplete.CloseOutOC:
+    case OnApplicationComplete.CloseOut:
       return 'Close-out'
-    case algosdk.OnApplicationComplete.ClearStateOC:
+    case OnApplicationComplete.ClearState:
       return 'Clear state'
-    case algosdk.OnApplicationComplete.UpdateApplicationOC:
+    case OnApplicationComplete.UpdateApplication:
       return 'Update'
-    case algosdk.OnApplicationComplete.DeleteApplicationOC:
+    case OnApplicationComplete.DeleteApplication:
       return 'Delete'
   }
 }
@@ -695,7 +697,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
   return [
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(params.onComplete ?? algosdk.OnApplicationComplete.NoOpOC),
+      dd: asOnCompleteLabel(params.onComplete ?? OnApplicationComplete.NoOp),
     },
     {
       dt: 'Sender',
@@ -758,7 +760,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
     },
     {
       dt: 'On complete',
-      dd: asOnCompleteLabel(algosdk.OnApplicationComplete.UpdateApplicationOC),
+      dd: asOnCompleteLabel(OnApplicationComplete.UpdateApplication),
     },
     {
       dt: 'Sender',

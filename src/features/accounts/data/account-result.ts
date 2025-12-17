@@ -9,23 +9,14 @@ import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 const getAccountResult = async (address: Address) => {
   try {
-    return await algod
-      .accountInformation(address)
-      .do()
-      .then((result) => {
-        return removeEncodableMethods(result) as AccountResult
-      })
+    const result = await algod.accountInformation(address)
+    return removeEncodableMethods(result) as unknown as AccountResult
   } catch (e: unknown) {
     const error = asError(e)
     if (is400(error) && error.message.toLowerCase().includes('result limit exceeded')) {
       // Exclude asset and application data, as the account exceeds the limit which prevents it from loading
-      return await algod
-        .accountInformation(address)
-        .exclude('all')
-        .do()
-        .then((result) => {
-          return removeEncodableMethods(result) as AccountResult
-        })
+      const result = await algod.accountInformation(address, { exclude: 'all' })
+      return removeEncodableMethods(result) as unknown as AccountResult
     }
     throw e
   }

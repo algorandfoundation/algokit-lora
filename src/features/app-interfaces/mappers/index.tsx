@@ -23,7 +23,7 @@ import {
   avmFormItemValueToAVMValue,
   asAvmFormItemValue,
 } from '@/features/abi-methods/mappers'
-import { Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { ABIType, ABIValue, Arc56Contract, AVMType } from '@algorandfoundation/algokit-utils/abi'
 import algosdk from 'algosdk'
 import { StructDefinition } from '@/features/applications/models'
 import { TealUnknownTypeTemplateParamFieldValue, TealTemplateParamField } from '@/features/app-interfaces/models'
@@ -115,7 +115,7 @@ export const asTealTemplateParamField = ({
   defaultValue,
 }: {
   name: string
-  type?: algosdk.ABIType | AVMType
+  type?: ABIType | AVMType
   struct?: StructDefinition
   defaultValue?: AbiFormItemValue | AvmFormItemValue
 }): TealTemplateParamField => {
@@ -174,27 +174,30 @@ export const asTealTemplateParamField = ({
     }
   }
 
+  // Convert algokit-utils ABIType to algosdk ABIType for form functions
+  const algosdkType = algosdk.ABIType.from(type.toString())
+
   return {
     name: name,
     path: asTealTemplateParamFieldPath(name),
     struct: struct,
     type: type,
-    fieldSchema: abiTypeToFormFieldSchema(type, false),
+    fieldSchema: abiTypeToFormFieldSchema(algosdkType, false),
     createField: (helper: FormFieldHelper<any>) => {
       return (
         <>
           <Label>{name}</Label>
-          {abiTypeToFormItem(helper, type, asTealTemplateParamFieldPath(name) as FieldPath<any>, struct?.fields)}
+          {abiTypeToFormItem(helper, algosdkType, asTealTemplateParamFieldPath(name) as FieldPath<any>, struct?.fields)}
         </>
       )
     },
     toTemplateParam: (value: AbiFormItemValue): ABITypeTemplateParam => ({
       name: name,
       abiType: type,
-      value: abiFormItemValueToABIValue(type, value),
+      value: abiFormItemValueToABIValue(algosdkType, value) as ABIValue,
     }),
     fromTemplateParam: (templateParam: ABITypeTemplateParam): AbiFormItemValue =>
-      asAbiFormItemValue(templateParam.abiType, templateParam.value),
+      asAbiFormItemValue(algosdk.ABIType.from(templateParam.abiType.toString()), templateParam.value as algosdk.ABIValue),
     defaultValue: defaultValue as AbiFormItemValue,
   }
 }

@@ -8,9 +8,10 @@ import { Address } from '@/features/accounts/data/types'
 import { AssetId } from '@/features/assets/data/types'
 import React from 'react'
 import { Nfd } from '@/features/nfd/data/types'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
 import Decimal from 'decimal.js'
+import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
 export enum BuildableTransactionType {
   // pay
@@ -90,11 +91,11 @@ export type BuildAppCallTransactionResult = CommonBuildTransactionResult & {
   foreignApps?: ApplicationId[]
   boxes?: (readonly [ApplicationId, string])[]
   onComplete:
-    | algosdk.OnApplicationComplete.NoOpOC
-    | algosdk.OnApplicationComplete.OptInOC
-    | algosdk.OnApplicationComplete.ClearStateOC
-    | algosdk.OnApplicationComplete.CloseOutOC
-    | algosdk.OnApplicationComplete.DeleteApplicationOC
+    | OnApplicationComplete.NoOp
+    | OnApplicationComplete.OptIn
+    | OnApplicationComplete.ClearState
+    | OnApplicationComplete.CloseOut
+    | OnApplicationComplete.DeleteApplication
 }
 
 export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
@@ -109,11 +110,11 @@ export type BuildMethodCallTransactionResult = CommonBuildTransactionResult & {
   foreignApps?: ApplicationId[]
   boxes?: (readonly [ApplicationId, string])[]
   onComplete:
-    | algosdk.OnApplicationComplete.NoOpOC
-    | algosdk.OnApplicationComplete.OptInOC
-    | algosdk.OnApplicationComplete.ClearStateOC
-    | algosdk.OnApplicationComplete.CloseOutOC
-    | algosdk.OnApplicationComplete.DeleteApplicationOC
+    | OnApplicationComplete.NoOp
+    | OnApplicationComplete.OptIn
+    | OnApplicationComplete.ClearState
+    | OnApplicationComplete.CloseOut
+    | OnApplicationComplete.DeleteApplication
 }
 
 export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResult & {
@@ -127,10 +128,10 @@ export type BuildApplicationCreateTransactionResult = CommonBuildTransactionResu
   localInts?: number
   localByteSlices?: number
   onComplete:
-    | algosdk.OnApplicationComplete.NoOpOC
-    | algosdk.OnApplicationComplete.OptInOC
-    | algosdk.OnApplicationComplete.UpdateApplicationOC
-    | algosdk.OnApplicationComplete.DeleteApplicationOC
+    | OnApplicationComplete.NoOp
+    | OnApplicationComplete.OptIn
+    | OnApplicationComplete.UpdateApplication
+    | OnApplicationComplete.DeleteApplication
 }
 
 export type BuildApplicationUpdateTransactionResult = CommonBuildTransactionResult & {

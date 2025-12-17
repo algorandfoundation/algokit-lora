@@ -12,7 +12,7 @@ import { isArc32AppSpec, isArc4AppSpec, isArc56AppSpec } from '@/features/common
 import { invariant } from '@/utils/invariant'
 import { AppSpecFormInner, appSpecSchema, supportedStandards } from './app-spec-form-inner'
 import { toast } from 'react-toastify'
-import { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
+import { Arc56Contract } from '@algorandfoundation/algokit-utils/abi'
 
 type Props = {
   applicationId: ApplicationId

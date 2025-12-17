@@ -1,5 +1,6 @@
 import algosdk from 'algosdk'
 import { ArgumentDefinition, MethodDefinition, ReturnsDefinition } from '@/features/applications/models'
+import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/features/common/components/accordion'
 import { DescriptionList } from '@/features/common/components/description-list'
 import { useCallback, useMemo, useState } from 'react'
@@ -77,7 +78,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
         methodDefinition: method,
         onComplete:
           method.callConfig && method.callConfig.call.length > 0
-            ? (method.callConfig.call[0] as algosdk.OnApplicationComplete as BuildAppCallTransactionResult['onComplete'])
+            ? (method.callConfig.call[0] as BuildAppCallTransactionResult['onComplete'])
             : undefined,
       },
     })
@@ -86,7 +87,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
     }
   }, [applicationId, method, open])
 
-  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: algosdk.modelsv2.SimulateResponse) => {
+  const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: SimulateResponse) => {
     const sentTransactions = asTransactionFromSendResult(result)
     const transactionsGraphData = asTransactionsGraphData(sentTransactions)
     const appCallTransactions = sentTransactions.filter((txn) => txn.type === TransactionType.AppCall)

@@ -8,23 +8,16 @@ import { Getter, Setter } from 'jotai/index'
 const getApplicationResult = async (_: Getter, __: Setter, applicationId: ApplicationId) => {
   try {
     // Check algod first, as there can be some syncing delays to indexer
-    return await algod
-      .getApplicationByID(applicationId)
-      .do()
-      .then((result) => removeEncodableMethods(result) as ApplicationResult)
+    const result = await algod.getApplicationById(applicationId)
+    return removeEncodableMethods(result) as ApplicationResult
   } catch (e: unknown) {
     if (is404(asError(e))) {
       // Handle deleted applications or applications that may not be available in algod potentially due to the node type
-      return await indexer
-        .lookupApplications(applicationId)
-        .includeAll(true)
-        .do()
-        .then((result) => {
-          if (!result.application) {
-            throw new Error(`Application ${applicationId} not found`)
-          }
-          return removeEncodableMethods(result.application) as ApplicationResult
-        })
+      const result = await indexer.lookupApplicationById(applicationId, { includeAll: true })
+      if (!result.application) {
+        throw new Error(`Application ${applicationId} not found`)
+      }
+      return removeEncodableMethods(result.application) as ApplicationResult
     }
     throw e
   }
