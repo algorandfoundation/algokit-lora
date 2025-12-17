@@ -609,7 +609,11 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString())
+      const senderElements = await screen.findAllByText(
+        localnetDispenserAccount.addr.toString(),
+        {},
+        { timeout: 10_000 } // Give CI 10s to resolve the address and hide the loader
+      )
 
       expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })

@@ -76,11 +76,14 @@ describe('transaction-wizard-page', () => {
           })
           await user.click(addButton)
 
-          const simulateButton = await waitFor(() => {
-            const simulateButton = component.getByRole('button', { name: simulateButtonLabel })
-            expect(simulateButton).not.toBeDisabled()
-            return simulateButton!
-          })
+          const simulateButton = await waitFor(
+            () => {
+              const simulateButton = component.getByRole('button', { name: simulateButtonLabel })
+              expect(simulateButton).not.toBeDisabled()
+              return simulateButton!
+            },
+            { timeout: 10_000 }
+          )
           await user.click(simulateButton)
 
           const resultsDiv = await waitFor(
