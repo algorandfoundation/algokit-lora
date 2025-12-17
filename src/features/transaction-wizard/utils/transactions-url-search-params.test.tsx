@@ -1,7 +1,7 @@
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vitest } from 'vitest'
 import { TransactionWizardPage } from '../transaction-wizard-page'
-import { render, screen, cleanup, waitFor } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TooltipProvider } from '@/features/common/components/tooltip'
 import { ToastContainer } from 'react-toastify'
@@ -133,9 +133,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
-
-      expect(senderElements.length).toBeGreaterThanOrEqual(1)
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
   })
 
@@ -224,9 +222,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
-
-      expect(senderElements.length).toBeGreaterThanOrEqual(1)
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
@@ -402,9 +398,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
-
-      expect(senderElements.length).toBeGreaterThanOrEqual(1)
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
@@ -1026,9 +1020,7 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
-
-      expect(senderElements.length).toBeGreaterThanOrEqual(1)
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
@@ -1467,13 +1459,8 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      await waitFor(
-        () => {
-          expect(screen.getByText(assetId)).toBeInTheDocument()
-          expect(screen.getByText(localnetDispenserAccount.addr.toString())).toBeInTheDocument()
-        },
-        { timeout: 10_000 }
-      )
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
