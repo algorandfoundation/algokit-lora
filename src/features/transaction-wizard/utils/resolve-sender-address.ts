@@ -11,10 +11,11 @@ import { betanetId, mainnetId, testnetId, fnetId, localnetId } from '@/features/
 import { algorandClient } from '@/features/common/data/algo-client'
 
 export async function resolveTransactionSender(data: { value?: string; resolvedAddress?: string }): Promise<TransactionSender> {
-  const val = data.value ?? ''
-
-  if (val) {
-    return data as TransactionSender
+  if (data.value && data.resolvedAddress) {
+    return {
+      value: data.value,
+      resolvedAddress: data.resolvedAddress,
+    }
   }
 
   const { id: networkId } = settingsStore.get(networkConfigAtom)
@@ -36,5 +37,5 @@ export async function resolveTransactionSender(data: { value?: string; resolvedA
     return { value: TESTNET_FEE_SINK_ADDRESS, resolvedAddress: TESTNET_FEE_SINK_ADDRESS, autoPopulated: true }
   }
 
-  return data as TransactionSender
+  throw new Error(`Cannot resolve a default sender address for network "${networkId}"`)
 }
