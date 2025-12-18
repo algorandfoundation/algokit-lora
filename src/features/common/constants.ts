@@ -6,7 +6,6 @@ export const ZERO_ADDRESS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 //     For example, for the account EXECUTOREZZDJN3NFLVZNXE7UZKCERNFC6FD7SBXMVKASKRF4ZASJKN5BE
 //     the response size of fetching 200 items is approx 400Kb (Gzipped), which is quite a bit of data.
 export const DEFAULT_FETCH_SIZE = 200
-export const LORA_URI_SCHEME = 'algokit-lora'
 
 export const MESSAGE_TABLE_ROW_DATA_LABEL = 'message-row'
 export const NO_RESULTS_TABLE_MESSAGE = 'No results.'

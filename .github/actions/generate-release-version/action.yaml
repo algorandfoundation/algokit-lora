@@ -56,7 +56,6 @@ runs:
         echo "=== Debugging semantic-release dry-run outputs ==="
         echo "new-release-published: '${{ steps.get-next-version.outputs.new-release-published }}'"
         echo "new-release-version: '${{ steps.get-next-version.outputs.new-release-version }}'"
-        echo "new-release-git-tag: '${{ steps.get-next-version.outputs.new-release-git-tag }}'"
         echo "=== All step outputs ==="
         echo '${{ toJSON(steps.get-next-version.outputs) }}'
         echo "=== Done debugging ==="
@@ -82,6 +81,6 @@ runs:
           const { data } = await github.rest.repos.getReleaseByTag({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            tag: "${{ steps.get-next-version.outputs.new-release-git-tag }}"
+            tag: "v${{ steps.get-next-version.outputs.new-release-version }}"
           })
           return data.id
