@@ -1,5 +1,5 @@
 import { bigIntSchema } from '@/features/forms/data/common'
-import { commonSchema, optionalAddressFieldSchema, senderFieldSchema } from '../data/common'
+import { commonSchema, optionalAddressFieldSchema } from '../data/common'
 import { z } from 'zod'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { zfd } from 'zod-form-data'
@@ -22,11 +22,12 @@ import { useDebounce } from 'use-debounce'
 import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd, asOptionalAddressOrNfd, asOptionalAddressOrNfdSchema } from '../mappers/as-address-or-nfd'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 export const assetReconfigureFormSchema = z
   .object({
     ...commonSchema,
-    ...senderFieldSchema,
+    sender: optionalAddressFieldSchema,
     asset: z
       .object({
         id: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' }).min(1n)),
@@ -82,7 +83,7 @@ function FormFields({ helper, asset }: FormFieldsProps) {
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'The manager account of the asset. Sends the transaction and pays the fee',
+        helpText: 'The manager account of the asset. Sends the transaction and pays the fee - optional for simulating',
         placeholder: ZERO_ADDRESS,
       })}
       {helper.addressField({
@@ -215,7 +216,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AssetReconfigure,
         asset: data.asset,
-        sender: data.sender,
+        sender: await resolveTransactionSender(data.sender),
         manager: asOptionalAddressOrNfd(data.manager),
         reserve: asOptionalAddressOrNfd(data.reserve),
         freeze: asOptionalAddressOrNfd(data.freeze),
@@ -231,7 +232,7 @@ export function AssetReconfigureTransactionBuilder({ mode, transaction, onSubmit
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         asset: transaction.asset,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         manager: transaction.manager,
         reserve: transaction.reserve,
         freeze: transaction.freeze,

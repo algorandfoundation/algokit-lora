@@ -4,7 +4,7 @@ import {
   commonSchema,
   onCompleteFieldSchema,
   onCompleteOptions as _onCompleteOptions,
-  senderFieldSchema,
+  optionalAddressFieldSchema,
 } from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
@@ -39,10 +39,11 @@ import { MethodDefinition } from '@/features/applications/models'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
 import { AbiFormItemValue } from '@/features/abi-methods/models'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const appCallFormSchema = {
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   methodName: zfd.text(),
@@ -156,7 +157,7 @@ export function MethodCallTransactionBuilder({
         applicationId: BigInt(values.applicationId),
         methodDefinition: methodDefinition,
         onComplete: Number(values.onComplete),
-        sender: values.sender,
+        sender: await resolveTransactionSender(values.sender),
         extraProgramPages: values.extraProgramPages,
         appSpec: appSpec!,
         methodArgs: methodArgs,
@@ -187,7 +188,7 @@ export function MethodCallTransactionBuilder({
       )
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
         methodName: transaction.methodDefinition.name,
         extraProgramPages: transaction.extraProgramPages,
@@ -388,7 +389,7 @@ function FormInner({ helper, onAppIdChanged, onMethodNameChanged, methodDefiniti
       {helper.addressField({
         field: 'sender',
         label: 'Sender',
-        helpText: 'Account to call from. Sends the transaction and pays the fee',
+        helpText: 'Account to call from. Sends the transaction and pays the fee - optional for simulating',
       })}
       {appId === 0n &&
         helper.numberField({

@@ -36,6 +36,7 @@ export const optionalAddressFieldSchema = z
       message: invalidAddressOrNfdMessage,
     }),
     resolvedAddress: z.string().optional(),
+    autoPopulated: z.boolean().optional(),
   })
   .superRefine((field, ctx) => {
     if (field.value && (!field.resolvedAddress || !isAddress(field.resolvedAddress))) {
