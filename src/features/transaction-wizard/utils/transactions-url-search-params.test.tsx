@@ -5,20 +5,28 @@ import { render, screen, cleanup } from '@testing-library/react'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TooltipProvider } from '@/features/common/components/tooltip'
 import { ToastContainer } from 'react-toastify'
+import { DataProvider } from '@/features/common/components/data-provider'
+import { localnetId, defaultNetworkConfigs } from '@/features/network/data/'
 
 const renderTxnsWizardPageWithSearchParams = ({ searchParams }: { searchParams: URLSearchParams }) => {
   const urlSearchParams = new URLSearchParams(searchParams).toString()
+
   const router = createMemoryRouter(
     [
       {
         path: '/localnet/transaction-wizard',
         element: (
-          <>
+          <DataProvider
+            networkConfig={{
+              id: 'localNet',
+              ...defaultNetworkConfigs[localnetId],
+            }}
+          >
             <ToastContainer />
             <TooltipProvider>
               <TransactionWizardPage />
             </TooltipProvider>
-          </>
+          </DataProvider>
         ),
       },
     ],
@@ -36,9 +44,7 @@ describe('Render transactions page with search params', () => {
     vitest.clearAllMocks()
   })
   describe('key registration search params', () => {
-    beforeEach(() => {})
-
-    it('should render offline key registration', () => {
+    it('should render offline key registration', async () => {
       const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
@@ -46,11 +52,11 @@ describe('Render transactions page with search params', () => {
           'sender[0]': sender,
         }),
       })
-      expect(screen.getByText('Offline')).toBeInTheDocument()
-      expect(screen.getByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText('Offline')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
     })
 
-    it('should render online key registration with url safe values', () => {
+    it('should render online key registration with url safe values', async () => {
       const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
       const selkey = '-lfw-Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c'
       const sprfkey = '3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W_iy_JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg'
@@ -72,20 +78,20 @@ describe('Render transactions page with search params', () => {
           'fee[0]': fee.toString(),
         }),
       })
-      expect(screen.getByText('Online')).toBeInTheDocument()
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText('+lfw+Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c=')).toBeInTheDocument()
+      expect(await screen.findByText('Online')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText('+lfw+Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c=')).toBeInTheDocument()
       expect(
-        screen.getByText('3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W/iy/JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg==')
+        await screen.findByText('3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W/iy/JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg==')
       ).toBeInTheDocument()
-      expect(screen.getByText(votefst.toString())).toBeInTheDocument()
-      expect(screen.getByText(votekd.toString())).toBeInTheDocument()
-      expect(screen.getByText('UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI=')).toBeInTheDocument()
-      expect(screen.getByText(votelst.toString())).toBeInTheDocument()
-      expect(screen.getByText('2')).toBeInTheDocument()
+      expect(await screen.findByText(votefst.toString())).toBeInTheDocument()
+      expect(await screen.findByText(votekd.toString())).toBeInTheDocument()
+      expect(await screen.findByText('UU8zLMrFVfZPnzbnL6ThAArXFsznV3TvFVAun2ONcEI=')).toBeInTheDocument()
+      expect(await screen.findByText(votelst.toString())).toBeInTheDocument()
+      expect(await screen.findByText('2')).toBeInTheDocument()
     })
 
-    it('should render online key registration with url encoded values', () => {
+    it('should render online key registration with url encoded values', async () => {
       const sender = 'I3345FUQQ2GRBHFZQPLYQQX5HJMMRZMABCHRLWV6RCJYC6OO4MOLEUBEGU'
       const selkey = '+lfw+Y04lTnllJfncgMjXuAePe8i8YyVeoR9c1Xi78c='
       const sprfkey = '3NoXc2sEWlvQZ7XIrwVJjgjM30ndhvwGgcqwKugk1u5W/iy/JITXrykuy0hUvAxbVv0njOgBPtGFsFif3yLJpg=='
@@ -107,15 +113,27 @@ describe('Render transactions page with search params', () => {
           'fee[0]': fee.toString(),
         }),
       })
-      expect(screen.getByText('Online')).toBeInTheDocument()
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(selkey)).toBeInTheDocument()
-      expect(screen.getByText(sprfkey)).toBeInTheDocument()
-      expect(screen.getByText(votefst.toString())).toBeInTheDocument()
-      expect(screen.getByText(votekd.toString())).toBeInTheDocument()
-      expect(screen.getByText(votekey)).toBeInTheDocument()
-      expect(screen.getByText(votelst.toString())).toBeInTheDocument()
-      expect(screen.getByText('2')).toBeInTheDocument()
+      expect(await screen.findByText('Online')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(selkey)).toBeInTheDocument()
+      expect(await screen.findByText(sprfkey)).toBeInTheDocument()
+      expect(await screen.findByText(votefst.toString())).toBeInTheDocument()
+      expect(await screen.findByText(votekd.toString())).toBeInTheDocument()
+      expect(await screen.findByText(votekey)).toBeInTheDocument()
+      expect(await screen.findByText(votelst.toString())).toBeInTheDocument()
+      expect(await screen.findByText('2')).toBeInTheDocument()
+    })
+
+    it('should render key registration without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'keyreg',
+        }),
+      })
+
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
   })
 
@@ -126,7 +144,7 @@ describe('Render transactions page with search params', () => {
     const fee = 3_000_000
     const note = 'Some payment notes'
 
-    it('should render payment transaction with minimal required fields only', () => {
+    it('should render payment transaction with minimal required fields only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'pay',
@@ -136,12 +154,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText('2.5')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText('2.5')).toBeInTheDocument()
     })
 
-    it('should render payment transaction with all optional fields', () => {
+    it('should render payment transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'pay',
@@ -152,14 +170,14 @@ describe('Render transactions page with search params', () => {
           'note[0]': note,
         }),
       })
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText('2.5')).toBeInTheDocument()
-      expect(screen.getByText('3')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText('2.5')).toBeInTheDocument()
+      expect(await screen.findByText('3')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render payment transaction with fee only', () => {
+    it('should render payment transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'pay',
@@ -169,13 +187,13 @@ describe('Render transactions page with search params', () => {
           'fee[0]': fee.toString(),
         }),
       })
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText('2.5')).toBeInTheDocument()
-      expect(screen.getByText('3')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText('2.5')).toBeInTheDocument()
+      expect(await screen.findByText('3')).toBeInTheDocument()
     })
 
-    it('should render payment transaction with note only', () => {
+    it('should render payment transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'pay',
@@ -185,19 +203,29 @@ describe('Render transactions page with search params', () => {
           'note[0]': note,
         }),
       })
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText('2.5')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText('2.5')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
+    })
+
+    it('should render payment transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'pay',
+          'receiver[0]': receiver,
+          'amount[0]': amount.toString(),
+          'fee[0]': fee.toString(),
+          'note[0]': note,
+        }),
+      })
+
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'receiver[0]',
         mode: 'missing',
@@ -209,12 +237,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0: The number NaN cannot be converted to a BigInt because it is not an integer',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
       {
         key: 'receiver[0]',
         mode: 'invalid',
@@ -280,7 +302,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset creation test'
 
-    it('should render asset create transaction with minimal required fields only', () => {
+    it('should render asset create transaction with minimal required fields only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'acfg',
@@ -290,12 +312,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText('1000000')).toBeInTheDocument()
-      expect(screen.getByText(decimals)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText('1000000')).toBeInTheDocument()
+      expect(await screen.findByText(decimals)).toBeInTheDocument()
     })
 
-    it('should render asset create transaction with all optional fields', () => {
+    it('should render asset create transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'acfg',
@@ -316,21 +338,21 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText('1000000')).toBeInTheDocument()
-      expect(screen.getByText(decimals)).toBeInTheDocument()
-      expect(screen.getByText(assetName)).toBeInTheDocument()
-      expect(screen.getByText(unitName)).toBeInTheDocument()
-      expect(screen.getByText(url)).toBeInTheDocument()
-      expect(screen.getByText(manager)).toBeInTheDocument()
-      expect(screen.getByText(reserve)).toBeInTheDocument()
-      expect(screen.getByText(freeze)).toBeInTheDocument()
-      expect(screen.getByText(clawback)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText('1000000')).toBeInTheDocument()
+      expect(await screen.findByText(decimals)).toBeInTheDocument()
+      expect(await screen.findByText(assetName)).toBeInTheDocument()
+      expect(await screen.findByText(unitName)).toBeInTheDocument()
+      expect(await screen.findByText(url)).toBeInTheDocument()
+      expect(await screen.findByText(manager)).toBeInTheDocument()
+      expect(await screen.findByText(reserve)).toBeInTheDocument()
+      expect(await screen.findByText(freeze)).toBeInTheDocument()
+      expect(await screen.findByText(clawback)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset create transaction with fee only', () => {
+    it('should render asset create transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'acfg',
@@ -341,13 +363,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText('1000000')).toBeInTheDocument()
-      expect(screen.getByText(decimals)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText('1000000')).toBeInTheDocument()
+      expect(await screen.findByText(decimals)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset create transaction with note only', () => {
+    it('should render asset create transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'acfg',
@@ -358,19 +380,28 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText('1000000')).toBeInTheDocument()
-      expect(screen.getByText(decimals)).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText('1000000')).toBeInTheDocument()
+      expect(await screen.findByText(decimals)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
+    })
+
+    it('should render asset create transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'acfg',
+          'total[0]': total,
+          'decimals[0]': decimals,
+          'note[0]': note,
+        }),
+      })
+
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'total[0]',
         mode: 'missing',
@@ -382,12 +413,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: decimals',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
       {
         key: 'total[0]',
         mode: 'invalid',
@@ -482,7 +507,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset opt-in test'
 
-    it('should render asset opt-in transaction with minimal required fields', () => {
+    it('should render asset opt-in transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'axfer',
@@ -493,11 +518,11 @@ describe('Render transactions page with search params', () => {
       })
 
       // Sender is displayed twice in the UI, once as the sender and once as the asset receiver.
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
     })
 
-    it('should render asset opt-in transaction with all optional fields', () => {
+    it('should render asset opt-in transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'axfer',
@@ -511,14 +536,14 @@ describe('Render transactions page with search params', () => {
       })
       screen.debug(undefined, 1000000)
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset opt-in transaction with fee only', () => {
+    it('should render asset opt-in transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'axfer',
@@ -529,12 +554,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset opt-in transaction with note only', () => {
+    it('should render asset opt-in transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'axfer',
@@ -545,12 +570,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset opt-in transaction with unit name only', () => {
+    it('should render asset opt-in transaction with unit name only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'axfer',
@@ -561,18 +586,33 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
+    })
+
+    it('should render asset opt-in transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'axfer',
+          'assetid[0]': assetId,
+          'decimals[0]': decimals,
+          'unitname[0]': unitName,
+        }),
+      })
+
+      const senderElements = await screen.findAllByText(
+        localnetDispenserAccount.addr.toString(),
+        {},
+        { timeout: 10_000 } // Give CI 10s to resolve the address and hide the loader
+      )
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -584,12 +624,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -663,7 +697,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset opt-out test'
 
-    it('should render asset opt-out transaction with minimal required fields', () => {
+    it('should render asset opt-out transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetOptOut',
@@ -674,12 +708,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(closeto)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(closeto)).toBeInTheDocument()
     })
 
-    it('should render asset opt-out transaction with all optional fields', () => {
+    it('should render asset opt-out transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetOptOut',
@@ -693,15 +727,15 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(closeto)).toBeInTheDocument()
-      expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(closeto)).toBeInTheDocument()
+      expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset opt-out transaction with fee only', () => {
+    it('should render asset opt-out transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetOptOut',
@@ -713,13 +747,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(closeto)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(closeto)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset opt-out transaction with note only', () => {
+    it('should render asset opt-out transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetOptOut',
@@ -731,13 +765,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(closeto)).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(closeto)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset opt-out transaction with unit name only', () => {
+    it('should render asset opt-out transaction with unit name only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetOptOut',
@@ -749,19 +783,30 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getAllByText(sender)).toHaveLength(2)
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(closeto)).toBeInTheDocument()
-      expect(screen.getByText(`0 ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findAllByText(sender)).toHaveLength(2)
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(closeto)).toBeInTheDocument()
+      expect(await screen.findByText(`0 ${unitName}`)).toBeInTheDocument()
+    })
+
+    it('should render asset opt-out transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetOptOut',
+          'assetid[0]': assetId,
+          'closeto[0]': closeto,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      const senderElements = await screen.findAllByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })
+
+      expect(senderElements.length).toBeGreaterThanOrEqual(1)
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -778,12 +823,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -867,7 +906,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset transfer test'
 
-    it('should render asset transfer transaction with minimal required fields', () => {
+    it('should render asset transfer transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetTransfer',
@@ -879,13 +918,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
     })
 
-    it('should render asset transfer transaction with all optional fields', () => {
+    it('should render asset transfer transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetTransfer',
@@ -901,15 +940,15 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(`${amount} ${unitName}`)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`${amount} ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset transfer transaction with fee only', () => {
+    it('should render asset transfer transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetTransfer',
@@ -922,14 +961,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset transfer transaction with note only', () => {
+    it('should render asset transfer transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetTransfer',
@@ -942,14 +981,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset transfer transaction with unit name only', () => {
+    it('should render asset transfer transaction with unit name only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetTransfer',
@@ -962,19 +1001,29 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(`${amount} ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`${amount} ${unitName}`)).toBeInTheDocument()
+    })
+
+    it('should render asset transfer transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetTransfer',
+          'receiver[0]': receiver,
+          'assetid[0]': assetId,
+          'amount[0]': amount,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'receiver[0]',
         mode: 'missing',
@@ -996,12 +1045,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
       {
         key: 'receiver[0]',
         mode: 'invalid',
@@ -1101,7 +1144,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset reconfigure test'
 
-    it('should render asset reconfigure transaction with minimal required fields', () => {
+    it('should render asset reconfigure transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetReconfigure',
@@ -1112,11 +1155,11 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
     })
 
-    it('should render asset reconfigure transaction with all optional fields', () => {
+    it('should render asset reconfigure transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetReconfigure',
@@ -1134,17 +1177,17 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(manager)).toBeInTheDocument()
-      expect(screen.getByText(reserve)).toBeInTheDocument()
-      expect(screen.getByText(freeze)).toBeInTheDocument()
-      expect(screen.getByText(clawback)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(manager)).toBeInTheDocument()
+      expect(await screen.findByText(reserve)).toBeInTheDocument()
+      expect(await screen.findByText(freeze)).toBeInTheDocument()
+      expect(await screen.findByText(clawback)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset reconfigure transaction with fee only', () => {
+    it('should render asset reconfigure transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetReconfigure',
@@ -1156,12 +1199,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset reconfigure transaction with note only', () => {
+    it('should render asset reconfigure transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetReconfigure',
@@ -1173,12 +1216,12 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset reconfigure transaction with unit name only', () => {
+    it('should render asset reconfigure transaction with unit name only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetReconfigure',
@@ -1190,17 +1233,11 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -1217,12 +1254,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
-      },
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -1352,7 +1383,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset destroy test'
 
-    it('should render asset destroy transaction with minimal required fields', () => {
+    it('should render asset destroy transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetDestroy',
@@ -1363,11 +1394,11 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
     })
 
-    it('should render asset destroy transaction with all optional fields', () => {
+    it('should render asset destroy transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetDestroy',
@@ -1380,11 +1411,11 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
     })
 
-    it('should render asset destroy transaction with fee only', () => {
+    it('should render asset destroy transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetDestroy',
@@ -1396,11 +1427,11 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
     })
 
-    it('should render asset destroy transaction with note only', () => {
+    it('should render asset destroy transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetDestroy',
@@ -1412,17 +1443,27 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+    })
+
+    it('should render asset destroy transaction without sender - auto populate sender with localnet address', async () => {
+      const localnetDispenserAccount = await localnet.algorand.account.localNetDispenser()
+
+      renderTxnsWizardPageWithSearchParams({
+        searchParams: new URLSearchParams({
+          'type[0]': 'AssetDestroy',
+          'assetid[0]': assetId,
+          'assetmanager[0]': assetManager,
+          'decimals[0]': decimals,
+        }),
+      })
+
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(localnetDispenserAccount.addr.toString(), {}, { timeout: 10_000 })).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'assetid[0]',
         mode: 'missing',
@@ -1439,12 +1480,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value',
-      },
       {
         key: 'assetid[0]',
         mode: 'invalid',
@@ -1537,7 +1572,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset freeze test'
 
-    it('should render asset freeze transaction with minimal required fields', () => {
+    it('should render asset freeze transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetFreeze',
@@ -1550,13 +1585,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(freezeto)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('Freeze asset')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(freezeto)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('Freeze asset')).toBeInTheDocument()
     })
 
-    it('should render asset freeze transaction with all optional fields', () => {
+    it('should render asset freeze transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetFreeze',
@@ -1572,15 +1607,15 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(freezeto)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('Freeze asset')).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(freezeto)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('Freeze asset')).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset unfreeze transaction', () => {
+    it('should render asset unfreeze transaction', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetFreeze',
@@ -1593,13 +1628,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(freezeto)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('Unfreeze asset')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(freezeto)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('Unfreeze asset')).toBeInTheDocument()
     })
 
-    it('should render asset freeze transaction with fee only', () => {
+    it('should render asset freeze transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetFreeze',
@@ -1613,14 +1648,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(freezeto)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('Freeze asset')).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(freezeto)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('Freeze asset')).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset freeze transaction with note only', () => {
+    it('should render asset freeze transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetFreeze',
@@ -1634,14 +1669,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(freezeto)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('Freeze asset')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(freezeto)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('Freeze asset')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset freeze transaction with unit name only', () => {
+    it('should render asset freeze transaction with unit name only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetFreeze',
@@ -1655,19 +1690,13 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(freezeto)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText('Freeze asset')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(freezeto)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText('Freeze asset')).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'freezeto[0]',
         mode: 'missing',
@@ -1689,12 +1718,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
-      },
       {
         key: 'freezeto[0]',
         mode: 'invalid',
@@ -1818,7 +1841,7 @@ describe('Render transactions page with search params', () => {
     const fee = '2000'
     const note = 'Asset clawback test'
 
-    it('should render asset clawback transaction with minimal required fields', () => {
+    it('should render asset clawback transaction with minimal required fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetClawback',
@@ -1832,14 +1855,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(clawbackfrom)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(clawbackfrom)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
     })
 
-    it('should render asset clawback transaction with all optional fields', () => {
+    it('should render asset clawback transaction with all optional fields', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetClawback',
@@ -1856,16 +1879,16 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(clawbackfrom)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(`${amount} ${unitName}`)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(clawbackfrom)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`${amount} ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset clawback transaction with fee only', () => {
+    it('should render asset clawback transaction with fee only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetClawback',
@@ -1880,15 +1903,15 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(clawbackfrom)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
-      expect(screen.getByText('0.002')).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(clawbackfrom)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText('0.002')).toBeInTheDocument()
     })
 
-    it('should render asset clawback transaction with note only', () => {
+    it('should render asset clawback transaction with note only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetClawback',
@@ -1903,15 +1926,15 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(clawbackfrom)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
-      expect(screen.getByText(note)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(clawbackfrom)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText(note)).toBeInTheDocument()
     })
 
-    it('should render asset clawback transaction with unit name only', () => {
+    it('should render asset clawback transaction with unit name only', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetClawback',
@@ -1926,14 +1949,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(clawbackfrom)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(`${amount} ${unitName}`)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(clawbackfrom)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(`${amount} ${unitName}`)).toBeInTheDocument()
     })
 
-    it('should render asset clawback transaction with clawbacktarget parameter', () => {
+    it('should render asset clawback transaction with clawbacktarget parameter', async () => {
       renderTxnsWizardPageWithSearchParams({
         searchParams: new URLSearchParams({
           'type[0]': 'AssetClawback',
@@ -1947,20 +1970,14 @@ describe('Render transactions page with search params', () => {
         }),
       })
 
-      expect(screen.getByText(sender)).toBeInTheDocument()
-      expect(screen.getByText(receiver)).toBeInTheDocument()
-      expect(screen.getByText(clawbackfrom)).toBeInTheDocument()
-      expect(screen.getByText(assetId)).toBeInTheDocument()
-      expect(screen.getByText(amount)).toBeInTheDocument()
+      expect(await screen.findByText(sender)).toBeInTheDocument()
+      expect(await screen.findByText(receiver)).toBeInTheDocument()
+      expect(await screen.findByText(clawbackfrom)).toBeInTheDocument()
+      expect(await screen.findByText(assetId)).toBeInTheDocument()
+      expect(await screen.findByText(amount)).toBeInTheDocument()
     })
 
     it.each([
-      // Missing required field cases
-      {
-        key: 'sender[0]',
-        mode: 'missing',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-resolvedAddress',
-      },
       {
         key: 'receiver[0]',
         mode: 'missing',
@@ -1992,12 +2009,6 @@ describe('Render transactions page with search params', () => {
         expected: 'Error in transaction at index 0 in the following fields: asset-id',
       },
       // Invalid field value cases
-      {
-        key: 'sender[0]',
-        mode: 'invalid',
-        value: 'invalid-address',
-        expected: 'Error in transaction at index 0 in the following fields: sender-value, sender-value, sender.value',
-      },
       {
         key: 'receiver[0]',
         mode: 'invalid',

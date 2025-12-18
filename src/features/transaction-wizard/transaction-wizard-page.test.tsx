@@ -4,11 +4,11 @@ import { executeComponentTest } from '@/tests/test-component'
 import { fireEvent, render, waitFor, within } from '@/tests/testing-library'
 import { useWallet } from '@txnlab/use-wallet-react'
 import { algo } from '@algorandfoundation/algokit-utils'
-import { sendButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
+import { sendButtonLabel, simulateButtonLabel, transactionTypeLabel, TransactionWizardPage } from './transaction-wizard-page'
 import { selectOption } from '@/tests/utils/select-option'
 import { setWalletAddressAndSigner } from '@/tests/utils/set-wallet-address-and-signer'
 import { addTransactionLabel } from './components/transactions-builder'
-import { groupSendResultsLabel } from './components/group-send-results'
+import { groupSendResultsLabel, groupSimulateResultsLabel } from './components/group-send-results'
 import { base64ToBytes } from '@/utils/base64-to-bytes'
 
 describe('transaction-wizard-page', () => {
@@ -40,6 +40,62 @@ describe('transaction-wizard-page', () => {
             const sendButton = component.getByRole('button', { name: sendButtonLabel })
             expect(sendButton).toBeDisabled()
           })
+        }
+      )
+    })
+
+    it('Can add a payment transaction without defining a sender and simulate transaction', async () => {
+      const kmdAccount2 = await localnet.algorand.account.kmd.getOrCreateWalletAccount('test-wallet-2')
+
+      await executeComponentTest(
+        () => {
+          return render(<TransactionWizardPage />)
+        },
+        async (component, user) => {
+          const addTransactionButton = await waitFor(() => {
+            const addTransactionButton = component.getByRole('button', { name: addTransactionLabel })
+            expect(addTransactionButton).not.toBeDisabled()
+            return addTransactionButton!
+          })
+          await user.click(addTransactionButton)
+
+          const receiverInput = await component.findByLabelText(/Receiver/)
+          fireEvent.input(receiverInput, {
+            target: { value: kmdAccount2.addr },
+          })
+
+          const amountInput = await component.findByLabelText(/Amount/)
+          fireEvent.input(amountInput, {
+            target: { value: '0.5' },
+          })
+
+          const addButton = await waitFor(() => {
+            const addButton = component.getByRole('button', { name: 'Add' })
+            expect(addButton).not.toBeDisabled()
+            return addButton!
+          })
+          await user.click(addButton)
+
+          const simulateButton = await waitFor(
+            () => {
+              const simulateButton = component.getByRole('button', { name: simulateButtonLabel })
+              expect(simulateButton).not.toBeDisabled()
+              return simulateButton!
+            },
+            { timeout: 10_000 }
+          )
+          await user.click(simulateButton)
+
+          const resultsDiv = await waitFor(
+            () => {
+              expect(component.queryByText('Required')).not.toBeInTheDocument()
+              return component.getByText(groupSimulateResultsLabel).parentElement!
+            },
+            { timeout: 10_000 }
+          )
+
+          // Basic assertion that something was rendered as a result
+          expect(resultsDiv).toBeInTheDocument()
         }
       )
     })

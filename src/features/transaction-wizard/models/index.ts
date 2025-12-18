@@ -66,9 +66,13 @@ export type AddressOrNfd = {
   resolvedAddress: Address
 }
 
+export type TransactionSender = AddressOrNfd & {
+  autoPopulated?: boolean
+}
+
 type CommonBuildTransactionResult = {
   id: string
-  sender: AddressOrNfd
+  sender: TransactionSender
   fee: {
     setAutomatically: boolean
     value?: number

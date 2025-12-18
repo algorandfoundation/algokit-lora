@@ -1,6 +1,11 @@
 import { bigIntSchema, numberSchema } from '@/features/forms/data/common'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
-import { senderFieldSchema, commonSchema, onCompleteFieldSchema, onCompleteOptions } from '@/features/transaction-wizard/data/common'
+import {
+  optionalAddressFieldSchema,
+  commonSchema,
+  onCompleteFieldSchema,
+  onCompleteOptions,
+} from '@/features/transaction-wizard/data/common'
 import { z } from 'zod'
 import { zfd } from 'zod-form-data'
 import { Form } from '@/features/forms/components/form'
@@ -16,10 +21,11 @@ import { TransactionBuilderMode } from '../data'
 import { TransactionBuilderNoteField } from './transaction-builder-note-field'
 import { asAddressOrNfd } from '../mappers/as-address-or-nfd'
 import { ActiveWalletAccount } from '@/features/wallet/types/active-wallet'
+import { resolveTransactionSender } from '../utils/resolve-sender-address'
 
 const formData = zfd.formData({
   ...commonSchema,
-  ...senderFieldSchema,
+  sender: optionalAddressFieldSchema,
   ...onCompleteFieldSchema,
   applicationId: bigIntSchema(z.bigint({ required_error: 'Required', invalid_type_error: 'Required' })),
   extraProgramPages: numberSchema(z.number().min(0).max(3).optional()),
@@ -47,7 +53,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
         id: transaction?.id ?? randomGuid(),
         type: BuildableTransactionType.AppCall,
         applicationId: BigInt(values.applicationId),
-        sender: values.sender,
+        sender: await resolveTransactionSender(values.sender),
         onComplete: Number(values.onComplete),
         extraProgramPages: values.extraProgramPages,
         fee: values.fee,
@@ -63,7 +69,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
     if (mode === TransactionBuilderMode.Edit && transaction) {
       return {
         applicationId: transaction.applicationId !== undefined ? BigInt(transaction.applicationId) : undefined,
-        sender: transaction.sender,
+        sender: transaction.sender?.autoPopulated ? undefined : transaction.sender,
         onComplete: transaction.onComplete.toString(),
         extraProgramPages: transaction.extraProgramPages,
         fee: transaction.fee,
@@ -117,7 +123,7 @@ export function AppCallTransactionBuilder({ mode, transaction, activeAccount, de
           {helper.addressField({
             field: 'sender',
             label: 'Sender',
-            helpText: 'Account to call from. Sends the transaction and pays the fee',
+            helpText: 'Account to call from. Sends the transaction and pays the fee - optional for simulating',
           })}
           {defaultValues.applicationId === 0n &&
             helper.numberField({

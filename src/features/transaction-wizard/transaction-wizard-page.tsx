@@ -10,15 +10,18 @@ import { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client
 import { AppCallTransaction, TransactionType } from '../transactions/models'
 import { GroupSendResults, SendResults } from './components/group-send-results'
 import { useTitle } from '@/utils/use-title'
-import { useTransactionSearchParamsBuilder } from './utils/use-transaction-search-params-builder'
+import { PageLoader } from '../common/components/page-loader'
+import { useLoadableSearchParamsTransactions } from '../transactions/data/use-loadable-search-params-transaction'
+import { RenderLoadable } from '../common/components/render-loadable'
 
 export const transactionWizardPageTitle = 'Transaction Wizard'
 export const transactionTypeLabel = 'Transaction type'
 export const sendButtonLabel = 'Send'
+export const simulateButtonLabel = 'Simulate'
 
 export function TransactionWizardPage() {
   const [sendResults, setSendResults] = useState<SendResults | undefined>(undefined)
-  const searchParamsTransactions = useTransactionSearchParamsBuilder()
+  const loadableSearchParamsTransactions = useLoadableSearchParamsTransactions()
   useTitle('Transaction Wizard')
 
   const renderTransactionResults = useCallback((result: SendTransactionResults, simulateResponse?: SimulateResponse) => {
@@ -57,13 +60,18 @@ export function TransactionWizardPage() {
       <PageTitle title={transactionWizardPageTitle} />
       <div className="w-full space-y-6">
         <p>Create and send transactions to the selected network using a connected wallet.</p>
-        <TransactionsBuilder
-          defaultTransactions={searchParamsTransactions}
-          title={<h2 className="pb-0">{transactionGroupLabel}</h2>}
-          onSendTransactions={sendTransactions}
-          onSimulated={renderSimulateResult}
-          onReset={reset}
-        />
+
+        <RenderLoadable loadable={loadableSearchParamsTransactions} fallback={<PageLoader />}>
+          {(searchParamsTransactions) => (
+            <TransactionsBuilder
+              defaultTransactions={searchParamsTransactions.transactions}
+              title={<h2 className="pb-0">{transactionGroupLabel}</h2>}
+              onSendTransactions={sendTransactions}
+              onSimulated={renderSimulateResult}
+              onReset={reset}
+            />
+          )}
+        </RenderLoadable>
         {sendResults && <GroupSendResults {...sendResults} transactionGraphBgClassName="bg-background" />}
       </div>
     </div>

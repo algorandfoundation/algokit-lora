@@ -51,6 +51,7 @@ import { asAssetDisplayAmount } from '@/features/common/components/display-asset
 import { AddressOrNfdLink } from '@/features/accounts/components/address-or-nfd-link'
 import { DecodedAbiStruct } from '@/features/abi-methods/components/decoded-abi-struct'
 import { ArgumentDefinition } from '@/features/applications/models'
+import TransactionSenderLink from '@/features/accounts/components/transaction-sender-link'
 
 export const asDescriptionListItems = (
   transaction: BuildTransactionResult,
@@ -103,7 +104,7 @@ const asPaymentTransaction = (txn: BuildPaymentTransactionResult | BuildAccountC
   return [
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={txn.sender.autoPopulated} address={params.sender} />,
     },
     ...('closeRemainderTo' in params && params.closeRemainderTo
       ? [
@@ -143,7 +144,7 @@ const asAssetTransferTransaction = (
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     {
       dt: 'Receiver',
@@ -195,7 +196,7 @@ const asAssetConfigTransaction = (
     ...('decimals' in params && params.decimals !== undefined ? [{ dt: 'Decimals', dd: params.decimals }] : []),
     {
       dt: transaction.type === BuildableTransactionType.AssetCreate ? 'Creator' : 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     ...('manager' in params && params.manager
       ? [
@@ -250,7 +251,7 @@ const asAssetFreezeTransaction = (transaction: BuildAssetFreezeTransactionResult
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     ...('freezeTarget' in params && params.freezeTarget
       ? [
@@ -276,7 +277,7 @@ const asKeyRegistrationTransaction = (transaction: BuildKeyRegistrationTransacti
   return [
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     {
       dt: 'Registration',
@@ -388,7 +389,7 @@ const asAppCallTransaction = (transaction: BuildAppCallTransactionResult): Descr
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -441,7 +442,7 @@ const asMethodCallTransaction = (
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     ...(transaction.extraProgramPages !== undefined
       ? [
@@ -701,7 +702,7 @@ const asApplicationCreateTransaction = (transaction: BuildApplicationCreateTrans
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     {
       dt: 'Approval program',
@@ -764,7 +765,7 @@ const asApplicationUpdateTransaction = (transaction: BuildApplicationUpdateTrans
     },
     {
       dt: 'Sender',
-      dd: <AddressOrNfdLink address={params.sender} />,
+      dd: <TransactionSenderLink autoPopulated={transaction.sender.autoPopulated} address={params.sender} />,
     },
     {
       dt: 'Approval program',
