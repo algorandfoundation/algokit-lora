@@ -19,7 +19,7 @@ import {
 import { TransactionBuilder } from '@/features/transaction-wizard/components/transaction-builder'
 import { TransactionBuilderMode } from '@/features/transaction-wizard/data'
 import { SimulateResult, TransactionsBuilder } from '@/features/transaction-wizard/components/transactions-builder'
-import { AppCallTransaction, TransactionType } from '@/features/transactions/models'
+import { AppCallTransaction } from '@/features/transactions/models'
 import { Parentheses } from 'lucide-react'
 import { buildComposer } from '@/features/transaction-wizard/data/common'
 import { asTransactionFromSendResult } from '@/features/transactions/data/send-transaction-result'
@@ -73,7 +73,7 @@ function Method({ method, applicationId, readonly }: MethodProps) {
 
   const openDialog = useCallback(async () => {
     const transaction = await open({
-      transactionType: ABITransactionType.appl,
+      transactionType: ABITransactionType.AppCall,
       transaction: {
         applicationId: applicationId,
         methodDefinition: method,

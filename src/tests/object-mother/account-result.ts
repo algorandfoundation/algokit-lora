@@ -1,7 +1,7 @@
 import { AccountResult } from '@/features/accounts/data/types'
 import { AccountResultBuilder } from '../builders/account-result-builder'
 import { AccountStatus } from '@algorandfoundation/algokit-utils/types/indexer'
-import { Address } from '@algorandfoundation/algokit-utils/common'
+import { Address } from '@algorandfoundation/algokit-utils'
 import { base64ToBytes } from '@algorandfoundation/algokit-utils'
 
 const encoder = new TextEncoder()

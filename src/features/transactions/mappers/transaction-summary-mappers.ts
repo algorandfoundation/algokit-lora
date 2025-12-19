@@ -27,7 +27,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         to: transactionResult.assetTransferTransaction.receiver,
       }
     }
-    case UtilsTransactionType.ApplicationCall: {
+    case UtilsTransactionType.AppCall: {
       invariant(transactionResult.applicationTransaction, 'application-transaction is not set')
 
       return {
@@ -35,7 +35,7 @@ export const asTransactionSummary = (transactionResult: TransactionResult): Tran
         type: TransactionType.AppCall,
         to: transactionResult.applicationTransaction.applicationId
           ? transactionResult.applicationTransaction.applicationId
-          : transactionResult.createdApplicationIndex!,
+          : transactionResult.createdAppId!,
       }
     }
     case UtilsTransactionType.AssetConfig: {

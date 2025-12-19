@@ -50,7 +50,7 @@ const createAssetMetadataResult = async (
     // If the asset follows both ARC-3 and ARC-19, we build the ARC-19 url
     const metadataUrl = isArc19
       ? getArc19Url(assetResult.params.url, assetResult.params.reserve)
-      : getArc3Url(assetResult.index, assetResult.params.url)
+      : getArc3Url(assetResult.id, assetResult.params.url)
 
     if (metadataUrl) {
       const gatewayMetadataUrl = replaceIpfsWithGatewayIfNeeded(metadataUrl)
@@ -65,7 +65,7 @@ const createAssetMetadataResult = async (
         const arc62AppId = getArc62AppId(arc3MetadataResult)
 
         if (arc62AppId) {
-          const circulatingSupply = await get(createAssetCirculatingSupplyAtom(arc62AppId, assetResult.index))
+          const circulatingSupply = await get(createAssetCirculatingSupplyAtom(arc62AppId, assetResult.id))
           if (circulatingSupply !== undefined) {
             arc62MetadataResult = {
               circulatingSupply,
@@ -142,7 +142,7 @@ const fetchAllAssetConfigTransactions = async (assetId: bigint): Promise<Transac
 }
 
 const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: AssetResult) => {
-  if (assetResult.index === 0n) {
+  if (assetResult.id === 0n) {
     return null
   }
 
@@ -150,7 +150,7 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
     assetResult.params.manager && assetResult.params.manager !== ZERO_ADDRESS
       ? await indexer
           .searchForTransactions({
-            assetId: assetResult.index,
+            assetId: assetResult.id,
             txType: 'acfg',
             address: assetResult.params.manager,
             addressRole: 'sender',
@@ -161,7 +161,7 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
   if (results.length === 0) {
     // The asset has been destroyed, is an immutable asset, or the asset is mutable however has never been mutated.
     // Fetch the entire acfg transaction history and reverse the order, so it's newest to oldest.
-    results = (await fetchAllAssetConfigTransactions(assetResult.index)).reverse()
+    results = (await fetchAllAssetConfigTransactions(assetResult.id)).reverse()
   }
 
   const assetConfigTransactionResults = results.flatMap(flattenTransactionResult).filter((t) => {
@@ -179,5 +179,5 @@ const getAssetMetadataResult = async (get: Getter, __: Setter, assetResult: Asse
 
 export const [assetMetadataResultsAtom, getAssetMetadataResultAtom] = readOnlyAtomCache(
   getAssetMetadataResult,
-  (assetResult) => assetResult.index
+  (assetResult) => assetResult.id
 )

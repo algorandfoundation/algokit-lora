@@ -27,13 +27,13 @@ const syncAssociatedDataAndReturnAccountResult = async (get: Getter, set: Setter
   const assetResults = get(assetResultsAtom)
   const applicationResults = get(applicationResultsAtom)
 
-  const assetsToAdd = (accountResult.createdAssets ?? []).filter((a) => !assetResults.has(a.index))
+  const assetsToAdd = (accountResult.createdAssets ?? []).filter((a) => !assetResults.has(a.id))
   if (assetsToAdd.length > 0) {
     set(assetResultsAtom, (prev) => {
       const next = new Map(prev)
       assetsToAdd.forEach((asset) => {
-        if (!next.has(asset.index)) {
-          next.set(asset.index, createReadOnlyAtomAndTimestamp(asset))
+        if (!next.has(asset.id)) {
+          next.set(asset.id, createReadOnlyAtomAndTimestamp(asset))
         }
       })
       return next

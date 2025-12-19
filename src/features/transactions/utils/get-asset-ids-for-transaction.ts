@@ -9,7 +9,7 @@ export const getAssetIdsForTransaction = (transaction: TransactionResult): Asset
 
     return [transaction.assetTransferTransaction.assetId]
   }
-  if (transaction.txType === TransactionType.ApplicationCall) {
+  if (transaction.txType === TransactionType.AppCall) {
     invariant(transaction.applicationTransaction, 'application-transaction is not set')
 
     const innerTransactions = transaction.innerTxns ?? []

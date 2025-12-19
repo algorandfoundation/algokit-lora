@@ -50,12 +50,12 @@ describe('patchTransactions', () => {
             {
               id: '010a9dc9-2958-4aeb-a23c-bd01fb56d99e',
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.pay,
+              targetType: ABITransactionType.Payment,
             },
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -68,7 +68,7 @@ describe('patchTransactions', () => {
           {
             id: '71eb7038-d021-4b38-a7a5-42713f100398',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.pay,
+            targetType: ABITransactionType.Payment,
           },
         ],
       } satisfies BuildMethodCallTransactionResult
@@ -115,7 +115,7 @@ describe('patchTransactions', () => {
             {
               id: '010a9dc9-2958-4aeb-a23c-bd01fb56d99e',
               type: BuildableTransactionType.Fulfilled,
-              targetType: ABITransactionType.pay,
+              targetType: ABITransactionType.Payment,
               fulfilledById: idToReplace,
             },
             {
@@ -126,7 +126,7 @@ describe('patchTransactions', () => {
                 {
                   id: idToReplace,
                   type: BuildableTransactionType.Placeholder,
-                  targetType: ABITransactionType.pay,
+                  targetType: ABITransactionType.Payment,
                 } satisfies PlaceholderTransaction,
               ],
             },
@@ -183,12 +183,12 @@ describe('patchTransactions', () => {
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.pay,
+              targetType: ABITransactionType.Payment,
             },
             {
               id: 'ff52b40a-6d15-46e7-aa4b-e2c404f47778',
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -238,7 +238,7 @@ describe('patchTransactions', () => {
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -252,7 +252,7 @@ describe('patchTransactions', () => {
           {
             id: '71eb7038-d021-4b38-a7a5-42713f100398',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.pay,
+            targetType: ABITransactionType.Payment,
           },
         ],
       } satisfies BuildMethodCallTransactionResult
@@ -300,7 +300,7 @@ describe('patchTransactions', () => {
             {
               id: '7d00ec66-5419-47d1-abc9-8ed1fe3452e8',
               type: BuildableTransactionType.Fulfilled,
-              targetType: ABITransactionType.pay,
+              targetType: ABITransactionType.Payment,
               fulfilledById: '71eb7038-d021-4b38-a7a5-42713f100398',
             },
             {
@@ -370,7 +370,7 @@ describe('patchTransactions', () => {
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -384,12 +384,12 @@ describe('patchTransactions', () => {
           {
             id: '71eb7038-d021-4b38-a7a5-42713f100398',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.pay,
+            targetType: ABITransactionType.Payment,
           },
           {
             id: 'efe5e410-964d-492e-93f9-7c2a0a039f1e',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.appl,
+            targetType: ABITransactionType.AppCall,
           },
         ],
       } satisfies BuildMethodCallTransactionResult
@@ -412,7 +412,7 @@ describe('patchTransactions', () => {
             {
               id: '7d00ec66-5419-47d1-abc9-8ed1fe3452e8',
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -424,7 +424,7 @@ describe('patchTransactions', () => {
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -438,7 +438,7 @@ describe('patchTransactions', () => {
           {
             id: '652b98e8-fc23-4553-865d-c5992975498c',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.pay,
+            targetType: ABITransactionType.Payment,
           },
         ],
       } satisfies BuildMethodCallTransactionResult
@@ -497,7 +497,7 @@ describe('patchTransactions', () => {
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -511,7 +511,7 @@ describe('patchTransactions', () => {
           {
             id: '652b98e8-fc23-4553-865d-c5992975498c',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.pay,
+            targetType: ABITransactionType.Payment,
           },
         ],
       } satisfies BuildMethodCallTransactionResult
@@ -563,7 +563,7 @@ describe('patchTransactions', () => {
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,
@@ -576,7 +576,7 @@ describe('patchTransactions', () => {
           {
             id: '71eb7038-d021-4b38-a7a5-42713f100398',
             type: BuildableTransactionType.Placeholder,
-            targetType: ABITransactionType.pay,
+            targetType: ABITransactionType.Payment,
           },
         ],
       } satisfies BuildMethodCallTransactionResult
@@ -623,12 +623,12 @@ describe('patchTransactions', () => {
             {
               id: '010a9dc9-2958-4aeb-a23c-bd01fb56d99e',
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.pay,
+              targetType: ABITransactionType.Payment,
             },
             {
               id: idToReplace,
               type: BuildableTransactionType.Placeholder,
-              targetType: ABITransactionType.appl,
+              targetType: ABITransactionType.AppCall,
             },
           ],
         } satisfies BuildMethodCallTransactionResult,

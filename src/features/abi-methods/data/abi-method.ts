@@ -109,7 +109,7 @@ const createMethodArgumentsAtom = (
 
       const abiValue = abiValues.shift()!
 
-      if (argumentDefinition.type === ABIReferenceType.asset) {
+      if (argumentDefinition.type === ABIReferenceType.Asset) {
         invariant(transaction.applicationTransaction?.foreignAssets, 'application-transaction foreign-assets is not set')
         const assetId = transaction.applicationTransaction.foreignAssets[Number(abiValue)]
         return {
@@ -120,7 +120,7 @@ const createMethodArgumentsAtom = (
           length: assetId.toString().length,
         }
       }
-      if (argumentDefinition.type === ABIReferenceType.account) {
+      if (argumentDefinition.type === ABIReferenceType.Account) {
         invariant(transaction.applicationTransaction?.accounts, 'application-transaction accounts is not set')
 
         // Index 0 of application accounts is the sender
@@ -135,15 +135,15 @@ const createMethodArgumentsAtom = (
           length: accountAddress.length,
         }
       }
-      if (argumentDefinition.type === ABIReferenceType.application) {
+      if (argumentDefinition.type === ABIReferenceType.Application) {
         invariant(transaction.applicationTransaction?.foreignApps, 'application-transaction foreign-apps is not set')
 
         // Index 0 of foreign apps is the called app
         const applicationIndex = Number(abiValue)
         const applicationId =
           applicationIndex === 0
-            ? transaction.createdApplicationIndex
-              ? transaction.createdApplicationIndex
+            ? transaction.createdAppId
+              ? transaction.createdAppId
               : transaction.applicationTransaction.applicationId
             : transaction.applicationTransaction.foreignApps[applicationIndex - 1]
         return {
@@ -190,7 +190,7 @@ const getMethodReturn = (transaction: TransactionResult, methodDefinition: Metho
 
 const isPossibleAbiAppCallTransaction = (transaction: TransactionResult): boolean => {
   return (
-    transaction.txType === TransactionType.ApplicationCall &&
+    transaction.txType === TransactionType.AppCall &&
     transaction.applicationTransaction !== undefined &&
     transaction.confirmedRound !== undefined &&
     Boolean(transaction.applicationTransaction.applicationId) &&
@@ -231,7 +231,7 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: ABIMethod): 
   if (nonTransactionTypeArgs.length > 15) {
     const [head, tail] = [nonTransactionTypeArgs.slice(0, 14), nonTransactionTypeArgs.slice(14)]
     const results: ABIValue[] = head.map((argumentSpec, index) =>
-      mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index])
+      mapAbiArgumentToAbiValue(argumentSpec.type as ABIType | ABIReferenceType, transactionArgs[index])
     )
 
     const tupleType = new ABITupleType(
@@ -246,14 +246,12 @@ const getAbiValueArgs = (transaction: TransactionResult, abiMethod: ABIMethod): 
 
     return results
   } else {
-    return nonTransactionTypeArgs.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type, transactionArgs[index]))
+    return nonTransactionTypeArgs.map((argumentSpec, index) => mapAbiArgumentToAbiValue(argumentSpec.type as ABIType | ABIReferenceType, transactionArgs[index]))
   }
 }
 
-type ABIArgumentType = ABIType | ABIReferenceType
-
-const mapAbiArgumentToAbiValue = (type: ABIArgumentType, value: Uint8Array) => {
-  if (type === ABIReferenceType.asset || type === ABIReferenceType.application || type === ABIReferenceType.account) {
+const mapAbiArgumentToAbiValue = (type: ABIType | ABIReferenceType, value: Uint8Array) => {
+  if (type === ABIReferenceType.Asset || type === ABIReferenceType.Application || type === ABIReferenceType.Account) {
     return new ABIUintType(8).decode(value)
   }
   const abiType = ABIType.from(type.toString())

@@ -177,7 +177,7 @@ export function MethodCallTransactionBuilder({
       const methodArgs = transaction.methodArgs?.reduce(
         (acc, arg, index) => {
           const { type } = transaction.methodDefinition.arguments[index]
-          const field = `${methodArgPrefix}-${index}${type instanceof ABIAddressType || type === ABIReferenceType.account ? '.value' : ''}`
+          const field = `${methodArgPrefix}-${index}${type instanceof ABIAddressType || type === ABIReferenceType.Account ? '.value' : ''}`
           if (!argTypeIsTransaction(type)) {
             acc[field] = asFieldInput(type, arg as ABIValue)
           } else {

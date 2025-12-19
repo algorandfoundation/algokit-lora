@@ -57,7 +57,7 @@ export class TransactionResultBuilder extends DataBuilder<TransactionResult> {
   }
 
   public appCallTransaction() {
-    this.thing.txType = TransactionType.ApplicationCall
+    this.thing.txType = TransactionType.AppCall
     this.thing.applicationTransaction = new TransactionApplication({
       applicationId: randomBigInt(),
       onCompletion: 'noop',

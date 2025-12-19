@@ -4,7 +4,7 @@ import { TransactionResult } from '../data/types'
 export const flattenTransactionResult = (transactionResult: TransactionResult): TransactionResult[] => {
   const results = [transactionResult]
 
-  if (transactionResult.txType !== TransactionType.ApplicationCall) {
+  if (transactionResult.txType !== TransactionType.AppCall) {
     return results
   }
 

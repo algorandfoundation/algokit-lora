@@ -43,7 +43,7 @@ export const abiFormItemValueToABIValue = (type: ABIArgumentType, value: AbiForm
   if (type instanceof ABITupleType) {
     return (value as AbiFormItemValue[]).map((item, index) => abiFormItemValueToABIValue(type.childTypes[index], item))
   }
-  if (type instanceof ABIAddressType || type === ABIReferenceType.account) {
+  if (type instanceof ABIAddressType || type === ABIReferenceType.Account) {
     return (value as AddressOrNfd).resolvedAddress
   }
   return value as ABIValue

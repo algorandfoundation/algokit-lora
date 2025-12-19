@@ -32,7 +32,7 @@ export const asTransaction = (
     case TransactionType.AssetTransfer: {
       return asAssetTransferTransaction(transactionResult, assetResolver)
     }
-    case TransactionType.ApplicationCall: {
+    case TransactionType.AppCall: {
       return asAppCallTransaction(transactionResult, assetResolver, abiMethodResolver, groupResolver)
     }
     case TransactionType.AssetConfig: {

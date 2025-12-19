@@ -1,5 +1,5 @@
 import { ApplicationResultBuilder, applicationResultBuilder } from '../builders/application-result-builder'
-import { Address } from '@algorandfoundation/algokit-utils/common'
+import { Address } from '@algorandfoundation/algokit-utils'
 import { base64ToBytes } from '@algorandfoundation/algokit-utils'
 import { TealKeyValue, TealValue } from '@algorandfoundation/algokit-utils/indexer-client'
 

@@ -27,7 +27,7 @@ describe('asset-transaction-history', () => {
 
   it('should be able to handle pagination', () => {
     const myStore = createStore()
-    myStore.set(assetResultsAtom, new Map([[asset.index, createReadOnlyAtomAndTimestamp(asset)]]))
+    myStore.set(assetResultsAtom, new Map([[asset.id, createReadOnlyAtomAndTimestamp(asset)]]))
 
     // Given 18 transactions and the page size is 10
     vi.mocked(searchTransactionsMock.do).mockImplementation(() => {
@@ -67,7 +67,7 @@ describe('asset-transaction-history', () => {
 
     return executeComponentTest(
       () => {
-        return render(<AssetTransactionHistory assetId={asset.index} />, undefined, myStore)
+        return render(<AssetTransactionHistory assetId={asset.id} />, undefined, myStore)
       },
       async (component, user) => {
         await waitFor(() => {

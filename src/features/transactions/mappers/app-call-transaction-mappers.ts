@@ -77,7 +77,7 @@ const mapCommonAppCallTransactionProperties = (
     isOpUp,
     applicationId: transactionResult.applicationTransaction.applicationId
       ? transactionResult.applicationTransaction.applicationId
-      : transactionResult.createdApplicationIndex!,
+      : transactionResult.createdAppId!,
     applicationArgs: transactionResult.applicationTransaction.applicationArgs?.map((a) => uint8ArrayToBase64(a)) ?? [],
     applicationAccounts: transactionResult.applicationTransaction.accounts?.map((a) => a.toString()) ?? [],
     foreignApps: transactionResult.applicationTransaction.foreignApps ?? [],
@@ -179,7 +179,7 @@ const asInnerTransaction = (
   if (transactionResult.txType === UtilsTransactionType.AssetTransfer) {
     return asInnerAssetTransferTransaction(networkTransactionId, index, transactionResult, assetResolver)
   }
-  if (transactionResult.txType === UtilsTransactionType.ApplicationCall) {
+  if (transactionResult.txType === UtilsTransactionType.AppCall) {
     return asInnerAppCallTransaction(networkTransactionId, index, transactionResult, assetResolver, abiMethodResolver, groupResolver)
   }
   if (transactionResult.txType === UtilsTransactionType.AssetConfig) {

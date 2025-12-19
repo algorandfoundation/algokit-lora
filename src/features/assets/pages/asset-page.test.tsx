@@ -128,9 +128,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -221,9 +221,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -330,9 +330,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -424,9 +424,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -517,9 +517,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -642,9 +642,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -784,9 +784,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(searchTransactionsMock.do).mockImplementation(() =>
         Promise.resolve(
           new TransactionsResponse({
@@ -832,9 +832,9 @@ describe('asset-page', () => {
   describe('when rendering the algo asset', () => {
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: algoAssetResult.id.toString() }))
 
       return executeComponentTest(
         () => {
@@ -879,9 +879,9 @@ describe('asset-page', () => {
 
     it('should be rendered with the refresh button', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -946,9 +946,9 @@ describe('asset-page', () => {
     const transactionResult = transactionResultMother.assetConfig().build()
     it('should be rendered with the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(
@@ -1022,10 +1022,10 @@ describe('asset-page', () => {
 
     it('Asset details component display the correct data', () => {
       const myStore = createStore()
-      myStore.set(assetResultsAtom, new Map([[assetResult.index, createReadOnlyAtomAndTimestamp(assetResult)]]))
+      myStore.set(assetResultsAtom, new Map([[assetResult.id, createReadOnlyAtomAndTimestamp(assetResult)]]))
       myStore.set(applicationResultsAtom, new Map([[applicationResult.id, createReadOnlyAtomAndTimestamp(applicationResult)]]))
 
-      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.index.toString() }))
+      vi.mocked(useParams).mockImplementation(() => ({ assetId: assetResult.id.toString() }))
       vi.mocked(
         searchTransactionsMock.do
       ).mockReturnValue(

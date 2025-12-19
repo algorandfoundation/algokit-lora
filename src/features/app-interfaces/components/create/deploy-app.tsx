@@ -106,7 +106,7 @@ export function DeployApp({ machine }: Props) {
     ) => (
       <TransactionBuilder
         mode={TransactionBuilderMode.Create}
-        transactionType={TransactionType.ApplicationCall}
+        transactionType={TransactionType.AppCall}
         type={props.data.type}
         defaultValues={props.data.transaction}
         onCancel={props.onCancel}

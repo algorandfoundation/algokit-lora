@@ -13,7 +13,7 @@ import {
   DecodedBoxDescriptor,
   RawBoxDescriptor,
 } from '../models'
-import { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils/common'
+import { encodeAddress, getApplicationAddress } from '@algorandfoundation/algokit-utils'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 import { TealKeyValue, TealKeyValueStore, TealValue } from '@algorandfoundation/algokit-utils/algod-client'
 import isUtf8 from 'isutf8'
@@ -51,14 +51,14 @@ export const asApplication = (
     account: getApplicationAddress(application.id).toString(),
     globalStateSchema: application.params.globalStateSchema
       ? {
-          numByteSlice: application.params.globalStateSchema.numByteSlice,
-          numUint: application.params.globalStateSchema.numUint,
+          numByteSlice: application.params.globalStateSchema.numByteSlices,
+          numUint: application.params.globalStateSchema.numUints,
         }
       : undefined,
     localStateSchema: application.params.localStateSchema
       ? {
-          numByteSlice: application.params.localStateSchema.numByteSlice,
-          numUint: application.params.localStateSchema.numUint,
+          numByteSlice: application.params.localStateSchema.numByteSlices,
+          numUint: application.params.localStateSchema.numUints,
         }
       : undefined,
     approvalProgram: uint8ArrayToBase64(application.params.approvalProgram),

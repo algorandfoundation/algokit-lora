@@ -676,7 +676,7 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           [asset.index, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )
@@ -777,7 +777,7 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
@@ -907,7 +907,7 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
@@ -944,7 +944,7 @@ describe('transaction-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           [asset.index, createReadOnlyAtomAndTimestamp(asset)],
         ])
       )

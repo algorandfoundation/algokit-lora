@@ -8,7 +8,7 @@ import { asLocalStateDelta } from '../mappers/state-delta-mappers'
 
 export const localStateDeltaResolver = (transaction: TransactionResult): Atom<Promise<LocalStateDelta[]>> => {
   return atom(async (get) => {
-    if (transaction.txType !== TransactionType.ApplicationCall || !transaction.applicationTransaction?.applicationId) {
+    if (transaction.txType !== TransactionType.AppCall || !transaction.applicationTransaction?.applicationId) {
       return []
     }
 

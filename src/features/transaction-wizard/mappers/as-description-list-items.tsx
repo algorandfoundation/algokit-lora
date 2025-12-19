@@ -349,14 +349,14 @@ const asMethodArg = (
     return 'Not set'
   }
   if (argTypeIsReference(argumentDefinition.type)) {
-    if (argumentDefinition.type === ABIReferenceType.account) {
+    if (argumentDefinition.type === ABIReferenceType.Account) {
       return <AddressOrNfdLink address={arg.toString()} />
     }
-    if (argumentDefinition.type === ABIReferenceType.asset) {
+    if (argumentDefinition.type === ABIReferenceType.Asset) {
       const assetId = BigInt(arg.toString())
       return <AssetIdLink assetId={assetId} />
     }
-    if (argumentDefinition.type === ABIReferenceType.application) {
+    if (argumentDefinition.type === ABIReferenceType.Application) {
       const applicationId = BigInt(arg.toString())
       return <ApplicationLink applicationId={applicationId} />
     }
@@ -642,17 +642,17 @@ export const asOnCompleteLabel = (onComplete: OnApplicationComplete) => {
 
 export const asTransactionLabelFromTransactionType = (type: ABITransactionType) => {
   switch (type) {
-    case ABITransactionType.pay:
+    case ABITransactionType.Payment:
       return BuildableTransactionType.Payment
-    case ABITransactionType.appl:
+    case ABITransactionType.AppCall:
       return TransactionType.AppCall
-    case ABITransactionType.axfer:
+    case ABITransactionType.AssetTransfer:
       return TransactionType.AssetFreeze
-    case ABITransactionType.acfg:
+    case ABITransactionType.AssetConfig:
       return TransactionType.AssetConfig
-    case ABITransactionType.afrz:
+    case ABITransactionType.AssetFreeze:
       return TransactionType.AssetFreeze
-    case ABITransactionType.keyreg:
+    case ABITransactionType.KeyRegistration:
       return TransactionType.KeyReg
     default:
       return 'Transaction'

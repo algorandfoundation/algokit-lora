@@ -154,7 +154,7 @@ const subscriberAtom = atom(null, (get, set) => {
 
             // Accumulate stale application ids
             const staleApplicationIds = flattenTransactionResult(transaction)
-              .filter((t) => t.txType === TransactionType.ApplicationCall)
+              .filter((t) => t.txType === TransactionType.AppCall)
               .map((t) => t.applicationTransaction?.applicationId)
               .filter(distinct((x) => x))
               .filter(isDefined) // We ignore application create transactions because they aren't in the atom
@@ -337,7 +337,7 @@ export const useSubscribeToBlocksEffect = () => {
 }
 
 const accountIsStaleDueToAppChanges = (txn: TransactionResult) => {
-  if (txn.txType !== TransactionType.ApplicationCall) {
+  if (txn.txType !== TransactionType.AppCall) {
     return false
   }
   const appCallTransaction = txn.applicationTransaction!

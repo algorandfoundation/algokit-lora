@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ABIArgumentType,
+  ABIMethodArgType,
   ABIArrayDynamicType,
   ABIArrayStaticType,
   ABIBoolType,
@@ -32,7 +32,7 @@ export const methodArgPrefix = 'methodArg'
 
 const argumentFieldPath = (argumentIndex: number) => `${methodArgPrefix}${argumentPathSeparator}${argumentIndex}`
 
-const getFieldSchema = (type: ABIArgumentType, isOptional: boolean): z.ZodTypeAny => {
+const getFieldSchema = (type: ABIMethodArgType, isOptional: boolean): z.ZodTypeAny => {
   if (argTypeIsReference(type)) {
     return abiReferenceTypeToFormFieldSchema(type)
   }
@@ -126,7 +126,7 @@ export const asMethodForm = (method: MethodDefinition): MethodForm => {
 }
 
 export const asFieldInput = (
-  type: ABIArgumentType,
+  type: ABIMethodArgType,
   value: ABIValue
 ): ABIValue | { id: string; child: ABIValue }[] => {
   if (type instanceof ABIUfixedType) {

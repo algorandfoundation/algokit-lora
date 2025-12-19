@@ -114,7 +114,7 @@ describe('group-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
@@ -183,7 +183,7 @@ describe('group-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )
@@ -261,7 +261,7 @@ describe('group-page', () => {
       myStore.set(
         assetResultsAtom,
         new Map([
-          [algoAssetResult.index, createReadOnlyAtomAndTimestamp(algoAssetResult)],
+          [algoAssetResult.id, createReadOnlyAtomAndTimestamp(algoAssetResult)],
           ...assets.map((a) => [a.index, createReadOnlyAtomAndTimestamp(a)] as const),
         ])
       )

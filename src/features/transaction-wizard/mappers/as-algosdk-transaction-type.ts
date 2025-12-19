@@ -3,18 +3,18 @@ import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
 
 export function asAlgosdkTransactionType(type: ABITransactionType): TransactionType | undefined {
   switch (type) {
-    case ABITransactionType.pay:
+    case ABITransactionType.Payment:
       return TransactionType.Payment
-    case ABITransactionType.keyreg:
+    case ABITransactionType.KeyRegistration:
       return TransactionType.KeyRegistration
-    case ABITransactionType.acfg:
+    case ABITransactionType.AssetConfig:
       return TransactionType.AssetConfig
-    case ABITransactionType.axfer:
+    case ABITransactionType.AssetTransfer:
       return TransactionType.AssetTransfer
-    case ABITransactionType.afrz:
+    case ABITransactionType.AssetFreeze:
       return TransactionType.AssetFreeze
-    case ABITransactionType.appl:
-      return TransactionType.ApplicationCall
+    case ABITransactionType.AppCall:
+      return TransactionType.AppCall
     default:
       return undefined
   }

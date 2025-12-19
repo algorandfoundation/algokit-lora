@@ -8,7 +8,7 @@ import { Getter, Setter } from 'jotai/index'
 import { removeEncodableMethods } from '@/utils/remove-encodable-methods'
 
 export const algoAssetResult: AssetResult = {
-  index: 0n,
+  id: 0n,
   createdAtRound: 0n,
   params: {
     creator: ZERO_ADDRESS,
@@ -44,4 +44,4 @@ export const [assetResultsAtom, getAssetResultAtom] = readOnlyAtomCache<
   Parameters<typeof keySelector>,
   ReturnType<typeof keySelector>,
   Promise<AssetResult> | AssetResult
->(getAssetResult, keySelector, new Map([[algoAssetResult.index, [atom(() => algoAssetResult), -1]]]))
+>(getAssetResult, keySelector, new Map([[algoAssetResult.id, [atom(() => algoAssetResult), -1]]]))

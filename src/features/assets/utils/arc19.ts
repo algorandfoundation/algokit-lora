@@ -1,7 +1,7 @@
 import { CID, Version } from 'multiformats/cid'
 import * as digest from 'multiformats/hashes/digest'
 import { sha256 } from 'multiformats/hashes/sha2'
-import { decodeAddress } from '@algorandfoundation/algokit-utils/common'
+import { decodeAddress } from '@algorandfoundation/algokit-utils'
 
 // If the URL starts with template-ipfs://, it also follows ARC-19
 export const isArc19Url = (assetUrl: string) => assetUrl.startsWith('template-ipfs://')

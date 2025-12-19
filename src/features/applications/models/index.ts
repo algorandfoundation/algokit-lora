@@ -1,5 +1,5 @@
 import { ApplicationId } from '../data/types'
-import { ABIArgumentType, ABIMethod, ABIReturnType, ABIType, Arc56Contract, Arc56Method } from '@algorandfoundation/algokit-utils/abi'
+import { ABIMethodArgType, ABIMethod, ABIMethodReturnType, ABIType, Arc56Contract, Arc56Method } from '@algorandfoundation/algokit-utils/abi'
 import { DecodedAbiStorageKey, DecodedAbiStorageKeyType, DecodedAbiStorageValue } from '@/features/abi-methods/models'
 import { OnApplicationComplete } from '@algorandfoundation/algokit-utils/transact'
 
@@ -88,14 +88,14 @@ export type DefaultArgument = NonNullable<Arc56Method['args'][number]['defaultVa
 export type ArgumentDefinition = {
   name?: string
   description?: string
-  type: ABIArgumentType
+  type: ABIMethodArgType
   struct?: StructDefinition
   defaultArgument?: DefaultArgument
 }
 
 export type ReturnsDefinition = {
   description?: string
-  type: ABIReturnType
+  type: ABIMethodReturnType
   struct?: StructDefinition
 }
 

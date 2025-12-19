@@ -17,7 +17,7 @@ export function ApplicationLiveTransactions({ applicationId }: Props) {
     (transactionResult: TransactionResult) => {
       const flattenedTransactionResults = flattenTransactionResult(transactionResult)
       return flattenedTransactionResults.some(
-        (txn) => txn.txType === TransactionType.ApplicationCall && txn.applicationTransaction?.applicationId === applicationId
+        (txn) => txn.txType === TransactionType.AppCall && txn.applicationTransaction?.applicationId === applicationId
       )
     },
     [applicationId]

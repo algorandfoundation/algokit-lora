@@ -38,7 +38,7 @@ export const getAddressesForTransaction = (transaction: TransactionResult): Addr
     if (transaction.assetConfigTransaction.params?.clawback) {
       addresses.add(transaction.assetConfigTransaction.params?.clawback)
     }
-  } else if (transaction.txType === TransactionType.ApplicationCall) {
+  } else if (transaction.txType === TransactionType.AppCall) {
     invariant(transaction.applicationTransaction, 'application-transaction is not set')
 
     const innerTransactions = transaction.innerTxns ?? []

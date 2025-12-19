@@ -57,7 +57,7 @@ export const abiTypeToFormFieldSchema = (type: ABIType, isOptional: boolean): z.
     if (type.childType instanceof ABIByteType) {
       return isOptional ? zfd.text().optional() : zfd.text()
     } else {
-      return z.array(abiTypeToFormFieldSchema(type.childType, false)).min(type.staticLength).max(type.staticLength)
+      return z.array(abiTypeToFormFieldSchema(type.childType, false)).min(type.length).max(type.length)
     }
   }
   if (type instanceof ABIAddressType) {
@@ -87,10 +87,10 @@ export const abiTypeToFormFieldSchema = (type: ABIType, isOptional: boolean): z.
 }
 
 export const abiReferenceTypeToFormFieldSchema = (type: ABIReferenceType): z.ZodTypeAny => {
-  if (type === ABIReferenceType.asset || type === ABIReferenceType.application) {
+  if (type === ABIReferenceType.Asset || type === ABIReferenceType.Application) {
     return bigIntSchema(z.bigint().min(0n))
   }
-  if (type === ABIReferenceType.account) {
+  if (type === ABIReferenceType.Account) {
     return addressFieldSchema
   }
   return zfd.text()

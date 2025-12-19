@@ -71,7 +71,7 @@ export const abiTypeToFormItem = (
     return formFieldHelper.abiStaticArrayField({
       field: `${path}` as Path<any>,
       prefix: prefix,
-      length: type.staticLength,
+      length: type.length,
       description: options?.description,
       createChildField: (childPrefix, childIndex) =>
         abiTypeToFormItem(formFieldHelper, type.childType, `${path}${arrayItemPathSeparator}${childIndex}` as FieldPath<any>, undefined, {
@@ -134,13 +134,13 @@ export const abiTypeToFormItem = (
 }
 
 export const abiReferenceTypeToFormItem = (formFieldHelper: FormFieldHelper<any>, type: ABIReferenceType, path: FieldPath<any>) => {
-  if (type === ABIReferenceType.asset || type === ABIReferenceType.application) {
+  if (type === ABIReferenceType.Asset || type === ABIReferenceType.Application) {
     return formFieldHelper.numberField({
       label: 'Value',
       field: `${path}` as Path<any>,
     })
   }
-  if (type === ABIReferenceType.account) {
+  if (type === ABIReferenceType.Account) {
     return formFieldHelper.addressField({
       label: 'Value',
       field: `${path}` as Path<any>,

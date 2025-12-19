@@ -407,25 +407,25 @@ export const asAbiTransactionType = (type: BuildableTransactionType) => {
   switch (type) {
     case BuildableTransactionType.Payment:
     case BuildableTransactionType.AccountClose:
-      return ABITransactionType.pay
+      return ABITransactionType.Payment
     case BuildableTransactionType.AppCall:
     case BuildableTransactionType.MethodCall:
     case BuildableTransactionType.ApplicationCreate:
     case BuildableTransactionType.ApplicationUpdate:
-      return ABITransactionType.appl
+      return ABITransactionType.AppCall
     case BuildableTransactionType.AssetOptIn:
     case BuildableTransactionType.AssetOptOut:
     case BuildableTransactionType.AssetTransfer:
     case BuildableTransactionType.AssetClawback:
-      return ABITransactionType.axfer
+      return ABITransactionType.AssetTransfer
     case BuildableTransactionType.AssetCreate:
     case BuildableTransactionType.AssetReconfigure:
     case BuildableTransactionType.AssetDestroy:
-      return ABITransactionType.acfg
+      return ABITransactionType.AssetConfig
     case BuildableTransactionType.AssetFreeze:
-      return ABITransactionType.afrz
+      return ABITransactionType.AssetFreeze
     case BuildableTransactionType.KeyRegistration:
-      return ABITransactionType.keyreg
+      return ABITransactionType.KeyRegistration
     default:
       return ABITransactionType.any
   }
