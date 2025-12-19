@@ -9,7 +9,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      disassemble: vi.fn().mockResolvedValue({ result: '' }),
+      tealDisassemble: vi.fn().mockResolvedValue({ result: '' }),
     },
   }
 })
@@ -21,8 +21,7 @@ describe('application-program', () => {
     const teal = '\n#pragma version 8\nint 1\nreturn\n'
 
     it('should be rendered with the correct data', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked((algod as any).disassemble).mockResolvedValue({ result: teal })
+      vi.mocked(algod.tealDisassemble).mockResolvedValue({ result: teal })
 
       return executeComponentTest(
         () => {

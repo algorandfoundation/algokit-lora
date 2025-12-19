@@ -5,6 +5,7 @@ type EncodableLike = {
   toEncodingData?: unknown
 }
 
+// TODO: PD - don't need this
 export const removeEncodableMethods = <T extends EncodableLike | object>(obj: T): Omit<T, 'getEncodingSchema' | 'toEncodingData'> => {
   if (!obj) {
     return obj as Omit<T, 'getEncodingSchema' | 'toEncodingData'>

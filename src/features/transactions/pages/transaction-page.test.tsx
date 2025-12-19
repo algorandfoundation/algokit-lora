@@ -97,7 +97,7 @@ vi.mock('@/features/common/data/algo-client', async () => {
   return {
     ...original,
     algod: {
-      disassemble: vi.fn().mockResolvedValue({ result: '' }),
+      tealDisassemble: vi.fn().mockResolvedValue({ result: '' }),
     },
     indexer: {
       lookupTransactionById: vi.fn().mockResolvedValue({}),
@@ -122,9 +122,7 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that does not exist', () => {
     it('should display not found message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '8MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(indexer.lookupTransactionById).mockImplementation(() =>
-        Promise.reject(new HttpError('boom', 404))
-      )
+      vi.mocked(indexer.lookupTransactionById).mockImplementation(() => Promise.reject(new HttpError('boom', 404)))
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -138,9 +136,7 @@ describe('transaction-page', () => {
   describe('when rendering a transaction that fails to load', () => {
     it('should display failed to load message', () => {
       vi.mocked(useParams).mockImplementation(() => ({ transactionId: '7MK6WLKFBPC323ATSEKNEKUTQZ23TCCM75SJNSFAHEM65GYJ5AND' }))
-      vi.mocked(indexer.lookupTransactionById).mockImplementation(() =>
-        Promise.reject({})
-      )
+      vi.mocked(indexer.lookupTransactionById).mockImplementation(() => Promise.reject({}))
 
       return executeComponentTest(
         () => render(<TransactionPage />),
@@ -296,8 +292,8 @@ describe('transaction-page', () => {
 
     it('should show the logicsig teal when activated', () => {
       const teal = '\n#pragma version 8\nint 1\nreturn\n'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      vi.mocked((algod as any).disassemble).mockResolvedValue({ result: teal })
+
+      vi.mocked(algod.tealDisassemble).mockResolvedValue({ result: teal })
 
       const myStore = createStore()
       myStore.set(transactionResultsAtom, new Map([[transaction.id, createReadOnlyAtomAndTimestamp(transaction)]]))
